@@ -2,7 +2,7 @@ import { isNone } from '@ember/utils';
 import Transform from './transform';
 
 /**
-  The `DS.BooleanTransform` class is used to serialize and deserialize
+  The `BooleanTransform` class is used to serialize and deserialize
   boolean attributes on Ember Data record objects. This transform is
   used when `boolean` is passed as the type parameter to the
   [DS.attr](../../data#method_attr) function.
@@ -10,32 +10,31 @@ import Transform from './transform';
   Usage
 
   ```app/models/user.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    isAdmin: DS.attr('boolean'),
-    name: DS.attr('string'),
-    email: DS.attr('string')
+  export default Model.extend({
+    isAdmin: attr('boolean'),
+    name: attr('string'),
+    email: attr('string')
   });
   ```
 
   By default, the boolean transform only allows for values of `true` or
   `false`. You can opt into allowing `null` values for
-  boolean attributes via `DS.attr('boolean', { allowNull: true })`
+  boolean attributes via `attr('boolean', { allowNull: true })`
 
   ```app/models/user.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    email: DS.attr('string'),
-    username: DS.attr('string'),
-    wantsWeeklyEmail: DS.attr('boolean', { allowNull: true })
+  export default Model.extend({
+    email: attr('string'),
+    username: attr('string'),
+    wantsWeeklyEmail: attr('boolean', { allowNull: true })
   });
   ```
 
   @class BooleanTransform
-  @extends DS.Transform
-  @namespace DS
+  @extends Transform
  */
 export default Transform.extend({
   deserialize(serialized, options) {

@@ -8,7 +8,7 @@ import { warn } from '@ember/debug';
 /**
   ## Using Embedded Records
 
-  `DS.EmbeddedRecordsMixin` supports serializing embedded records.
+  `EmbeddedRecordsMixin` supports serializing embedded records.
 
   To set up embedded records, include the mixin when extending a serializer,
   then define and configure embedded (model) relationships.
@@ -18,9 +18,9 @@ import { warn } from '@ember/debug';
   Below is an example of a per-type serializer (`post` type).
 
   ```app/serializers/post.js
-  import DS from 'ember-data';
+  import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-  export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+  export default RESTSerializer.extend(EmbeddedRecordsMixin, {
     attrs: {
       author: { embedded: 'always' },
       comments: { serialize: 'ids' }
@@ -28,9 +28,9 @@ import { warn } from '@ember/debug';
   });
   ```
   Note that this use of `{ embedded: 'always' }` is unrelated to
-  the `{ embedded: 'always' }` that is defined as an option on `DS.attr` as part of
+  the `{ embedded: 'always' }` that is defined as an option on `attr` as part of
   defining a model while working with the `ActiveModelSerializer`.  Nevertheless,
-  using `{ embedded: 'always' }` as an option to `DS.attr` is not a valid way to set up
+  using `{ embedded: 'always' }` as an option to `attr` is not a valid way to set up
   embedded records.
 
   The `attrs` option for a resource `{ embedded: 'always' }` is shorthand for:
@@ -147,24 +147,26 @@ export default Mixin.create({
     This example of an author model belongs to a post model:
 
     ```js
-    Post = DS.Model.extend({
-      title:    DS.attr('string'),
-      body:     DS.attr('string'),
-      author:   DS.belongsTo('author')
+    import Model, { attr, belongsTo } from '@ember-data/model';
+
+    Post = Model.extend({
+      title:    attr('string'),
+      body:     attr('string'),
+      author:   belongsTo('author')
     });
 
-    Author = DS.Model.extend({
-      name:     DS.attr('string'),
-      post:     DS.belongsTo('post')
+    Author = Model.extend({
+      name:     attr('string'),
+      post:     belongsTo('post')
     });
     ```
 
     Use a custom (type) serializer for the post model to configure embedded author
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
       attrs: {
         author: { embedded: 'always' }
       }
@@ -246,24 +248,26 @@ export default Mixin.create({
     This example of a post model has many comments:
 
     ```js
-    Post = DS.Model.extend({
-      title:    DS.attr('string'),
-      body:     DS.attr('string'),
-      comments: DS.hasMany('comment')
+    import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+
+    Post = Model.extend({
+      title:    attr('string'),
+      body:     attr('string'),
+      comments: hasMany('comment')
     });
 
-    Comment = DS.Model.extend({
-      body:     DS.attr('string'),
-      post:     DS.belongsTo('post')
+    Comment = Model.extend({
+      body:     attr('string'),
+      post:     belongsTo('post')
     });
     ```
 
     Use a custom (type) serializer for the post model to configure embedded comments
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
       attrs: {
         comments: { embedded: 'always' }
       }
@@ -300,9 +304,9 @@ export default Mixin.create({
     To embed the `ids` for a related object (using a hasMany relationship):
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
       attrs: {
         comments: { serialize: 'ids', deserialize: 'records' }
       }
@@ -348,9 +352,9 @@ export default Mixin.create({
     ```
 
     ```app/serializers/user.js
-    import DS from 'ember-data';
+    import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
       attrs: {
         pets: { serialize: 'ids-and-types', deserialize: 'records' }
       }

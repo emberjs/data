@@ -1,25 +1,24 @@
 import Transform from './transform';
 
 /**
- The `DS.DateTransform` class is used to serialize and deserialize
+ The `DateTransform` class is used to serialize and deserialize
  date attributes on Ember Data record objects. This transform is used
  when `date` is passed as the type parameter to the
  [DS.attr](../../data#method_attr) function. It uses the [`ISO 8601`](https://en.wikipedia.org/wiki/ISO_8601)
  standard.
 
  ```app/models/score.js
- import DS from 'ember-data';
+ import Model, { attr, belongsTo } from '@ember-data/model';
 
- export default DS.Model.extend({
-    value: DS.attr('number'),
-    player: DS.belongsTo('player'),
-    date: DS.attr('date')
+ export default Model.extend({
+    value: attr('number'),
+    player: belongsTo('player'),
+    date: attr('date')
   });
  ```
 
  @class DateTransform
- @extends DS.Transform
- @namespace DS
+ @extends Transform
  */
 
 export default Transform.extend({

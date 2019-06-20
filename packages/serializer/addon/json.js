@@ -29,13 +29,13 @@ const emberAssign = assign || merge;
   For example, given the following `User` model and JSON payload:
 
   ```app/models/user.js
-  import DS from 'ember-data';
+  import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    friends: DS.hasMany('user'),
-    house: DS.belongsTo('location'),
+  export default Model.extend({
+    friends: hasMany('user'),
+    house: belongsTo('location'),
 
-    name: DS.attr('string')
+    name: attr('string')
   });
   ```
 
@@ -76,8 +76,7 @@ const emberAssign = assign || merge;
       turn the record payload into the JSON API format.
 
   @class JSONSerializer
-  @namespace DS
-  @extends DS.Serializer
+  @extends Serializer
 */
 const JSONSerializer = Serializer.extend({
   /**
@@ -91,9 +90,9 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       primaryKey: '_id'
     });
     ```
@@ -106,7 +105,7 @@ const JSONSerializer = Serializer.extend({
 
   /**
     The `attrs` object can be used to declare a simple mapping between
-    property names on `DS.Model` records and payload keys in the
+    property names on `Model` records and payload keys in the
     serialized JSON object representing the record. An object with the
     property `key` can also be used to designate the attribute's key on
     the response payload.
@@ -114,20 +113,20 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```app/models/person.js
-    import DS from 'ember-data';
+    import Model, { attr } from '@ember-data/model';
 
-    export default DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-      occupation: DS.attr('string'),
-      admin: DS.attr('boolean')
+    export default Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      occupation: attr('string'),
+      admin: attr('boolean')
     });
     ```
 
     ```app/serializers/person.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       attrs: {
         admin: 'is_admin',
         occupation: { key: 'career' }
@@ -141,9 +140,9 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```app/serializers/person.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       attrs: {
         admin: { serialize: false },
         occupation: { key: 'career' }
@@ -173,9 +172,9 @@ const JSONSerializer = Serializer.extend({
   mergedProperties: ['attrs'],
 
   /**
-   Given a subclass of `DS.Model` and a JSON object this method will
-   iterate through each attribute of the `DS.Model` and invoke the
-   `DS.Transform#deserialize` method on the matching property of the
+   Given a subclass of `Model` and a JSON object this method will
+   iterate through each attribute of the `Model` and invoke the
+   `Transform#deserialize` method on the matching property of the
    JSON object.  This method is typically called after the
    serializer's `normalize` method.
 
@@ -498,7 +497,7 @@ const JSONSerializer = Serializer.extend({
     and call super if you have generic normalization to do.
 
     It takes the type of the record that is being normalized
-    (as a DS.Model class), the property where the hash was
+    (as a Model class), the property where the hash was
     originally found, and the hash to normalize.
 
     You can use this method, for example, to normalize underscored keys to camelized
@@ -507,11 +506,11 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
     import { underscore } from '@ember/string';
     import { get } from '@ember/object';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       normalize(typeClass, hash) {
         var fields = get(typeClass, 'fields');
 
@@ -891,13 +890,13 @@ const JSONSerializer = Serializer.extend({
     For example, consider this model:
 
     ```app/models/comment.js
-    import DS from 'ember-data';
+    import Model, { attr, belongsTo } from '@ember-data/model';
 
-    export default DS.Model.extend({
-      title: DS.attr(),
-      body: DS.attr(),
+    export default Model.extend({
+      title: attr(),
+      body: attr(),
 
-      author: DS.belongsTo('user')
+      author: belongsTo('user')
     });
     ```
 
@@ -912,7 +911,7 @@ const JSONSerializer = Serializer.extend({
     ```
 
     By default, attributes are passed through as-is, unless
-    you specified an attribute type (`DS.attr('date')`). If
+    you specified an attribute type (`attr('date')`). If
     you specify a transform, the JavaScript value will be
     serialized when inserted into the JSON hash.
 
@@ -937,9 +936,9 @@ const JSONSerializer = Serializer.extend({
     return a JSON hash of your choosing.
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       serialize(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
@@ -963,10 +962,10 @@ const JSONSerializer = Serializer.extend({
     and `eachRelationship` on the record.
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
     import { singularize } from 'ember-inflector';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       serialize(snapshot, options) {
         var json = {};
 
@@ -1014,9 +1013,9 @@ const JSONSerializer = Serializer.extend({
     JSON.
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       serialize(snapshot, options) {
         var json = this._super(...arguments);
 
@@ -1069,10 +1068,10 @@ const JSONSerializer = Serializer.extend({
     For example, your server may expect underscored root objects.
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
     import { decamelize } from '@ember/string';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       serializeIntoHash(data, type, snapshot, options) {
         var root = decamelize(type.modelName);
         data[root] = this.serialize(snapshot, options);
@@ -1091,7 +1090,7 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-    `serializeAttribute` can be used to customize how `DS.attr`
+    `serializeAttribute` can be used to customize how `attr`
     properties are serialized
 
     For example if you wanted to ensure all your attributes were always
@@ -1099,9 +1098,9 @@ const JSONSerializer = Serializer.extend({
     write:
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       serializeAttribute(snapshot, json, key, attributes) {
         json.attributes = json.attributes || {};
         this._super(snapshot, json.attributes, key, attributes);
@@ -1137,16 +1136,16 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-    `serializeBelongsTo` can be used to customize how `DS.belongsTo`
+    `serializeBelongsTo` can be used to customize how `belongsTo`
     properties are serialized.
 
     Example
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
     import { isNone } from '@ember/utils';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       serializeBelongsTo(snapshot, json, relationship) {
         var key = relationship.key;
         var belongsTo = snapshot.belongsTo(key);
@@ -1190,15 +1189,16 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-   `serializeHasMany` can be used to customize how `DS.hasMany`
+   `serializeHasMany` can be used to customize how `hasMany`
    properties are serialized.
 
    Example
 
    ```app/serializers/post.js
+   import JSONSerializer from '@ember-data/serializer/json';
    import DS from 'ember-data';
 
-   export default DS.JSONSerializer.extend({
+   export default JSONSerializer.extend({
      serializeHasMany(snapshot, json, relationship) {
        var key = relationship.key;
        if (key === 'comments') {
@@ -1238,15 +1238,15 @@ const JSONSerializer = Serializer.extend({
     You can use this method to customize how polymorphic objects are
     serialized. Objects are considered to be polymorphic if
     `{ polymorphic: true }` is pass as the second argument to the
-    `DS.belongsTo` function.
+    `belongsTo` function.
 
     Example
 
     ```app/serializers/comment.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
     import { isNone } from '@ember/utils';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       serializePolymorphicType(snapshot, json, relationship) {
         var key = relationship.key;
         var belongsTo = snapshot.belongsTo(key);
@@ -1277,9 +1277,9 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       extractMeta(store, typeClass, payload) {
         if (payload && payload.hasOwnProperty('_pagination')) {
           let meta = payload._pagination;
@@ -1305,7 +1305,7 @@ const JSONSerializer = Serializer.extend({
 
   /**
     `extractErrors` is used to extract model errors when a call
-    to `DS.Model#save` fails with an `InvalidError`. By default
+    to `Model#save` fails with an `InvalidError`. By default
     Ember Data expects error information to be located on the `errors`
     property of the payload object.
 
@@ -1353,7 +1353,7 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    When turn into a `DS.Errors` object, you can read these errors
+    When turn into a `Errors` object, you can read these errors
     through the property `base`:
 
     ```handlebars
@@ -1370,7 +1370,7 @@ const JSONSerializer = Serializer.extend({
     ```app/serializers/post.js
     import DS from 'ember-data';
 
-    export default DS.JSONSerializer.extend({
+    export default JSONSerializer.extend({
       extractErrors(store, typeClass, payload, id) {
         if (payload && typeof payload === 'object' && payload._problems) {
           payload = payload._problems;
@@ -1421,10 +1421,10 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
     import { underscore } from '@ember/string';
 
-    export default DS.RESTSerializer.extend({
+    export default JSONSerializer.extend({
       keyForAttribute(attr, method) {
         return underscore(attr).toUpperCase();
       }
@@ -1448,10 +1448,10 @@ const JSONSerializer = Serializer.extend({
     Example
 
       ```app/serializers/post.js
-      import DS from 'ember-data';
+      import JSONSerializer from '@ember-data/serializer/json';
       import { underscore } from '@ember/string';
 
-      export default DS.JSONSerializer.extend({
+      export default JSONSerializer.extend({
         keyForRelationship(key, relationship, method) {
           return `rel_${underscore(key)}`;
         }
