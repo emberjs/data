@@ -1,19 +1,19 @@
 import EmberObject from '@ember/object';
 
 /**
-  The `DS.Transform` class is used to serialize and deserialize model
+  The `Transform` class is used to serialize and deserialize model
   attributes when they are saved or loaded from an
-  adapter. Subclassing `DS.Transform` is useful for creating custom
-  attributes. All subclasses of `DS.Transform` must implement a
+  adapter. Subclassing `Transform` is useful for creating custom
+  attributes. All subclasses of `Transform` must implement a
   `serialize` and a `deserialize` method.
 
   Example
 
   ```app/transforms/temperature.js
-  import DS from 'ember-data';
+  import Transform from '@ember-data/serializer/transform';
 
   // Converts centigrade in the JSON to fahrenheit in the app
-  export default DS.Transform.extend({
+  export default Transform.extend({
     deserialize(serialized, options) {
       return (serialized *  1.8) + 32;
     },
@@ -27,21 +27,23 @@ import EmberObject from '@ember/object';
   Usage
 
   ```app/models/requirement.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    name: DS.attr('string'),
-    temperature: DS.attr('temperature')
+  export default Model.extend({
+    name: attr('string'),
+    temperature: attr('temperature')
   });
   ```
 
-  The options passed into the `DS.attr` function when the attribute is
+  The options passed into the `attr` function when the attribute is
   declared on the model is also available in the transform.
 
   ```app/models/post.js
-  export default DS.Model.extend({
-    title: DS.attr('string'),
-    markdown: DS.attr('markdown', {
+  import Model, { attr } from '@ember-data/model';
+
+  export default Model.extend({
+    title: attr('string'),
+    markdown: attr('markdown', {
       markdown: {
         gfm: false,
         sanitize: true
@@ -51,7 +53,9 @@ import EmberObject from '@ember/object';
   ```
 
   ```app/transforms/markdown.js
-  export default DS.Transform.extend({
+  import Transform from '@ember-data/serializer/transform';
+
+  export default Transform.extend({
     serialize(deserialized, options) {
       return deserialized.raw;
     },
@@ -84,7 +88,7 @@ export default EmberObject.extend({
 
     @method serialize
     @param deserialized The deserialized value
-    @param options hash of options passed to `DS.attr`
+    @param options hash of options passed to `attr`
     @return The serialized value
   */
   serialize: null,
@@ -103,7 +107,7 @@ export default EmberObject.extend({
 
     @method deserialize
     @param serialized The serialized value
-    @param options hash of options passed to `DS.attr`
+    @param options hash of options passed to `attr`
     @return The deserialized value
   */
   deserialize: null,
