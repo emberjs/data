@@ -39,10 +39,10 @@ import { normalizeModelName } from '@ember-data/store';
   name in your model to a key in your JSON.
 
   ```app/serializers/application.js
-  import DS from 'ember-data';
+  import RESTSerializer from '@ember-data/serializer/rest';
   import { underscore } from '@ember/string';
 
-  export default DS.RESTSerializer.extend({
+  export default RESTSerializer.extend({
     keyForAttribute(attr, method) {
       return underscore(attr).toUpperCase();
     }
@@ -55,8 +55,7 @@ import { normalizeModelName } from '@ember-data/store';
   the method (`serialize` or `deserialize`) as the third parameter.
 
   @class RESTSerializer
-  @namespace DS
-  @extends DS.JSONSerializer
+  @extends JSONSerializer
 */
 const RESTSerializer = JSONSerializer.extend({
   /**
@@ -67,9 +66,9 @@ const RESTSerializer = JSONSerializer.extend({
    Example
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       keyForPolymorphicType(key, relationship) {
         var relationshipKey = this.keyForRelationship(key);
 
@@ -96,7 +95,7 @@ const RESTSerializer = JSONSerializer.extend({
     and call super if you have generic normalization to do.
 
     It takes the type of the record that is being normalized
-    (as a DS.Model class), the property where the hash was
+    (as a Model class), the property where the hash was
     originally found, and the hash to normalize.
 
     For example, if you have a payload that looks like this:
@@ -132,9 +131,9 @@ const RESTSerializer = JSONSerializer.extend({
     `id`, you can specify how to normalize just the comments:
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       normalize(model, hash, prop) {
         if (prop === 'comments') {
           hash.id = hash._id;
@@ -439,9 +438,9 @@ const RESTSerializer = JSONSerializer.extend({
     and an example payload:
 
     ```app/models/post.js
-    import DS from 'ember-data';
+    import Model from '@ember-data/model';
 
-    export default DS.Model.extend({
+    export default Model.extend({
     });
     ```
 
@@ -462,9 +461,9 @@ const RESTSerializer = JSONSerializer.extend({
     remove "blog/" from the payload key whenver it's encountered by Ember Data:
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       modelNameFromPayloadKey(payloadKey) {
         if (payloadKey === 'blog/post') {
           return this._super(payloadKey.replace('blog/', ''));
@@ -503,13 +502,13 @@ const RESTSerializer = JSONSerializer.extend({
     For example, consider this model:
 
     ```app/models/comment.js
-    import DS from 'ember-data';
+    import Model, { attr, belongsTo } from '@ember-data/model';
 
-    export default DS.Model.extend({
-      title: DS.attr(),
-      body: DS.attr(),
+    export default Model.extend({
+      title: attr(),
+      body: attr(),
 
-      author: DS.belongsTo('user')
+      author: belongsTo('user')
     });
     ```
 
@@ -524,7 +523,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     By default, attributes are passed through as-is, unless
-    you specified an attribute type (`DS.attr('date')`). If
+    you specified an attribute type (`attr('date')`). If
     you specify a transform, the JavaScript value will be
     serialized when inserted into the JSON hash.
 
@@ -549,9 +548,9 @@ const RESTSerializer = JSONSerializer.extend({
     return a JSON hash of your choosing.
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       serialize(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
@@ -575,10 +574,10 @@ const RESTSerializer = JSONSerializer.extend({
     and `eachRelationship` on the record.
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
     import { pluralize } from 'ember-inflector';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       serialize(snapshot, options) {
         var json = {};
 
@@ -626,9 +625,9 @@ const RESTSerializer = JSONSerializer.extend({
     JSON.
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       serialize(snapshot, options) {
         var json = this._super(snapshot, options);
 
@@ -658,10 +657,10 @@ const RESTSerializer = JSONSerializer.extend({
     For example, your server may expect underscored root objects.
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
     import { decamelize } from '@ember/string';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       serializeIntoHash(data, type, record, options) {
         var root = decamelize(type.modelName);
         data[root] = this.serialize(record, options);
@@ -700,10 +699,10 @@ const RESTSerializer = JSONSerializer.extend({
     For example, your server may expect dasherized root objects:
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
     import { dasherize } from '@ember/string';
 
-    export default DS.RESTSerializer.extend({
+    export default RESTSerializer.extend({
       payloadKeyFromModelName(modelName) {
         return dasherize(modelName);
       }

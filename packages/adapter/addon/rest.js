@@ -516,7 +516,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @method findAll
     @param {DS.Store} store
     @param {DS.Model} type
-    @param {String} sinceToken
+    @param {undefined} neverSet a value is never provided to this argument
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
@@ -1057,7 +1057,15 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   _fetchRequest(options) {
-    return fetch(options.url, options);
+    let fetchFunction = fetch();
+
+    if (fetchFunction) {
+      return fetchFunction(options.url, options);
+    } else {
+      throw new Error(
+        'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
+      );
+    }
   },
 
   _ajax(options) {

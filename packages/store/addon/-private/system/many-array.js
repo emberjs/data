@@ -27,23 +27,23 @@ import recordDataFor from './record-data-for';
   defined:
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    comments: DS.hasMany('comment')
+  export default Model.extend({
+    comments: hasMany('comment')
   });
   ```
 
   ```app/models/comment.js
-  import DS from 'ember-data';
+  import Model, { belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    post: DS.belongsTo('post')
+  export default Model.extend({
+    post: belongsTo('post')
   });
   ```
 
-  If you created a new instance of `App.Post` and added
-  a `App.Comment` record to its `comments` has-many
+  If you created a new instance of `Post` and added
+  a `Comment` record to its `comments` has-many
   relationship, you would expect the comment's `post`
   property to be set to the post that contained
   the has-many.
@@ -52,11 +52,14 @@ import recordDataFor from './record-data-for';
   relationship's _owner_.
 
   @class ManyArray
-  @namespace DS
   @extends EmberObject
   @uses Ember.MutableArray, Ember.Evented
 */
 export default EmberObject.extend(MutableArray, Evented, {
+  // here to make TS happy
+  _inverseIsAsync: false,
+  isLoaded: false,
+
   init() {
     this._super(...arguments);
 
@@ -65,7 +68,7 @@ export default EmberObject.extend(MutableArray, Evented, {
 
     @property {Boolean} isLoaded
     */
-    this.isLoaded = false;
+    this.isLoaded = this.isLoaded || false;
     this.length = 0;
 
     /**

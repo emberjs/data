@@ -489,22 +489,22 @@ export default class RecordDataDefault implements RelationshipRecordData {
    For example if there was
 
    ```app/models/comment.js
-   import DS from 'ember-data';
+   import Model, { attr } from '@ember-data/model';
 
-   export default DS.Model.extend({
-   name: DS.attr()
-   })
+   export default Model.extend({
+     name: attr()
+   });
    ```
 
    but there is also
 
    ```app/models/post.js
-   import DS from 'ember-data';
+   import Model, { attr, hasMany } from '@ember-data/model';
 
-   export default DS.Model.extend({
-   name: DS.attr(),
-   comments: DS.hasMany('comment')
-   })
+   export default Model.extend({
+     name: attr(),
+     comments: hasMany('comment')
+   });
    ```
 
    would have a implicit post relationship in order to be do things like remove ourselves from the post

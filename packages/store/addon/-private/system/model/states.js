@@ -60,7 +60,7 @@ import { assert } from '@ember/debug';
     * loading
   ```
 
-  The `DS.Model` states are themselves stateless. What that means is
+  The `Model` states are themselves stateless. What that means is
   that, the hierarchical states that each of *those* points to is a
   shared data structure. For performance reasons, instead of each
   record getting its own copy of the hierarchy of states, each record
@@ -89,7 +89,7 @@ import { assert } from '@ember/debug';
   Here's an example implementation of a state with a `myEvent` event handler:
 
   ```javascript
-  aState: DS.State.create({
+  aState: State.create({
     myEvent: function(manager, param) {
       console.log("Received myEvent with", param);
     }
@@ -156,7 +156,7 @@ import { assert } from '@ember/debug';
 
   The current set of flags are defined below. If you want to add a new flag,
   in addition to the area below, you will also need to declare it in the
-  `DS.Model` class.
+  `Model` class.
 
 
    * [isEmpty](DS.Model.html#property_isEmpty)
@@ -168,7 +168,6 @@ import { assert } from '@ember/debug';
    * [isNew](DS.Model.html#property_isNew)
    * [isValid](DS.Model.html#property_isValid)
 
-  @namespace DS
   @class RootState
 */
 

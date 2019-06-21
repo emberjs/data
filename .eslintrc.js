@@ -45,6 +45,7 @@ module.exports = {
     // node files
     {
       files: [
+        '.mocharc.js',
         '.eslintrc.js',
         '.prettierrc.js',
         'bin/*.js',

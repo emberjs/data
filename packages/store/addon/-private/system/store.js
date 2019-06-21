@@ -75,28 +75,28 @@ function promiseRecord(internalModelPromise, label) {
 //     not yet have an externally generated id.
 //   * +internalModel+ means a record internalModel object, which holds metadata about a
 //     record, even if it has not yet been fully materialized.
-//   * +type+ means a DS.Model.
+//   * +type+ means a Model.
 
 /**
   The store contains all of the data for records loaded from the server.
-  It is also responsible for creating instances of `DS.Model` that wrap
+  It is also responsible for creating instances of `Model` that wrap
   the individual data for a record, so that they can be bound to in your
   Handlebars templates.
 
   Define your application's store like this:
 
   ```app/services/store.js
-  import DS from 'ember-data';
+  import Store from '@ember-data/store';
 
-  export default DS.Store.extend({
+  export default Store.extend({
   });
   ```
 
-  Most Ember.js applications will only have a single `DS.Store` that is
+  Most Ember.js applications will only have a single `Store` that is
   automatically created by their `Ember.Application`.
 
   You can retrieve models from the store in several ways. To retrieve a record
-  for a specific id, use `DS.Store`'s `findRecord()` method:
+  for a specific id, use `Store`'s `findRecord()` method:
 
   ```javascript
   store.findRecord('person', 123).then(function (person) {
@@ -108,13 +108,13 @@ function promiseRecord(internalModelPromise, label) {
   backend by specifying a custom adapter:
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import Adapter from '@ember-data/adapter';
 
-  export default DS.Adapter.extend({
+  export default Adapter.extend({
   });
   ```
 
-  You can learn more about writing a custom adapter by reading the `DS.Adapter`
+  You can learn more about writing a custom adapter by reading the `Adapter`
   documentation.
 
   ### Store createRecord() vs. push() vs. pushPayload()
@@ -140,14 +140,13 @@ function promiseRecord(internalModelPromise, label) {
   Serializer implements a `pushPayload` method.
 
   Note: When creating a new record using any of the above methods
-  Ember Data will update `DS.RecordArray`s such as those returned by
+  Ember Data will update `RecordArray`s such as those returned by
   `store#peekAll()` or `store#findAll()`. This means any
   data bindings or computed properties that depend on the RecordArray
   will automatically be synced to include the new or updated record
   values.
 
   @class Store
-  @namespace DS
   @extends Ember.Service
 */
 const Store = Service.extend({
@@ -255,9 +254,9 @@ const Store = Service.extend({
     If you want to specify `app/adapters/custom.js` as a string, do:
 
     ```js
-    import DS from 'ember-data';
+    import Store from '@ember-data/store';
 
-    export default DS.Store.extend({
+    export default Store.extend({
       adapter: 'custom',
     });
     ```
@@ -281,13 +280,13 @@ const Store = Service.extend({
 
     @property defaultAdapter
     @private
-    @return DS.Adapter
+    @return Adapter
   */
   defaultAdapter: computed('adapter', function() {
     let adapter = get(this, 'adapter');
 
     assert(
-      'You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name',
+      'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
       typeof adapter === 'string'
     );
 
@@ -324,7 +323,7 @@ const Store = Service.extend({
     @param {String} modelName
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
-    @return {DS.Model} record
+    @return {Model} record
   */
   createRecord(modelName, inputProperties) {
     if (DEBUG) {
@@ -409,7 +408,7 @@ const Store = Service.extend({
     ```
 
     @method deleteRecord
-    @param {DS.Model} record
+    @param {Model} record
   */
   deleteRecord(record) {
     if (DEBUG) {
@@ -431,7 +430,7 @@ const Store = Service.extend({
     ```
 
     @method unloadRecord
-    @param {DS.Model} record
+    @param {Model} record
   */
   unloadRecord(record) {
     if (DEBUG) {
@@ -1123,7 +1122,7 @@ const Store = Service.extend({
     @method peekRecord
     @param {String} modelName
     @param {String|Integer} id
-    @return {DS.Model|null} record
+    @return {Model|null} record
   */
   peekRecord(modelName, id) {
     if (DEBUG) {
@@ -1156,7 +1155,7 @@ const Store = Service.extend({
 
     @method _reloadRecord
     @private
-    @param {DS.Model} internalModel
+    @param {Model} internalModel
     @param options optional to include adapterOptions
     @return {Promise} promise
   */
@@ -1222,7 +1221,7 @@ const Store = Service.extend({
     @private
     @param {String} modelName
     @param {(String|Integer)} id
-    @return {DS.Model} record
+    @return {Model} record
   */
   recordForId(modelName, id) {
     if (DEBUG) {
@@ -1340,12 +1339,14 @@ const Store = Service.extend({
       hasDematerializedInverse,
       hasAnyRelationshipData,
       relationshipIsEmpty,
+      shouldForceReload,
     } = resource._relationship;
 
     let shouldFindViaLink =
       resource.links &&
       resource.links.related &&
-      (hasDematerializedInverse ||
+      (shouldForceReload ||
+        hasDematerializedInverse ||
         relationshipIsStale ||
         (!allInverseRecordsAreLoaded && !relationshipIsEmpty));
 
@@ -1373,7 +1374,7 @@ const Store = Service.extend({
       (relationshipIsEmpty && Array.isArray(resource.data) && resource.data.length > 0);
 
     // fetch using data, pulling from local cache if possible
-    if (!relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
+    if (!shouldForceReload && !relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
       let internalModels = resource.data.map(json => this._internalModelForResource(json));
 
       return this.findMany(internalModels, options);
@@ -1462,12 +1463,14 @@ const Store = Service.extend({
       hasDematerializedInverse,
       hasAnyRelationshipData,
       relationshipIsEmpty,
+      shouldForceReload,
     } = resource._relationship;
 
     let shouldFindViaLink =
       resource.links &&
       resource.links.related &&
-      (hasDematerializedInverse ||
+      (shouldForceReload ||
+        hasDematerializedInverse ||
         relationshipIsStale ||
         (!allInverseRecordsAreLoaded && !relationshipIsEmpty));
 
@@ -1495,7 +1498,7 @@ const Store = Service.extend({
     let localDataIsEmpty = resource.data === undefined || resource.data === null;
 
     // fetch using data, pulling from local cache if possible
-    if (!relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
+    if (!shouldForceReload && !relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
       /*
         We have canonical data, but our local state is empty
        */
@@ -1651,9 +1654,9 @@ const Store = Service.extend({
 
     ```app/adapters/user.js
     import $ from 'jquery';
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       queryRecord(modelName, query) {
         return $.getJSON('/api/current_user');
       }
@@ -1811,8 +1814,8 @@ const Store = Service.extend({
     records in the store:
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
-    export default DS.Adapter.extend({
+    import Adapter from '@ember-data/adapter';
+    export default Adapter.extend({
       shouldReloadAll(store, snapshotsArray) {
         return false;
       },
@@ -1961,13 +1964,12 @@ const Store = Service.extend({
   /**
     @method _fetchAll
     @private
-    @param {DS.Model} modelName
-    @param {DS.RecordArray} array
+    @param {Model} modelName
+    @param {RecordArray} array
     @return {Promise} promise
   */
   _fetchAll(modelName, array, options = {}) {
     let adapter = this.adapterFor(modelName);
-    let sinceToken = this._internalModelsFor(modelName).metadata.since;
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
     assert(
@@ -1977,14 +1979,14 @@ const Store = Service.extend({
 
     if (options.reload) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, options));
     }
 
     let snapshotArray = array._createSnapshot(options);
 
     if (adapter.shouldReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, options));
     }
 
     if (options.backgroundReload === false) {
@@ -1993,7 +1995,7 @@ const Store = Service.extend({
 
     if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      _findAll(adapter, this, modelName, sinceToken, options);
+      _findAll(adapter, this, modelName, options);
     }
 
     return promiseArray(Promise.resolve(array));
@@ -2030,7 +2032,7 @@ const Store = Service.extend({
     @since 1.13.0
     @method peekAll
     @param {String} modelName
-    @return {DS.RecordArray}
+    @return {RecordArray}
   */
   peekAll(modelName) {
     if (DEBUG) {
@@ -2181,7 +2183,7 @@ const Store = Service.extend({
   /**
     This method is called once the promise returned by an
     adapter's `createRecord`, `updateRecord` or `deleteRecord`
-    is rejected with a `DS.InvalidError`.
+    is rejected with a `InvalidError`.
 
     @method recordWasInvalid
     @private
@@ -2198,7 +2200,7 @@ const Store = Service.extend({
   /**
     This method is called once the promise returned by an
     adapter's `createRecord`, `updateRecord` or `deleteRecord`
-    is rejected (with anything other than a `DS.InvalidError`).
+    is rejected (with anything other than a `InvalidError`).
 
     @method recordWasError
     @private
@@ -2324,7 +2326,7 @@ const Store = Service.extend({
 
     @method modelFor
     @param {String} modelName
-    @return {DS.Model}
+    @return {Model}
   */
   modelFor(modelName) {
     if (DEBUG) {
@@ -2455,13 +2457,13 @@ const Store = Service.extend({
     For this model:
 
     ```app/models/person.js
-    import DS from 'ember-data';
+    import Model, { attr, hasMany } from '@ember-data/model';
 
-    export default DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
+    export default Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
 
-      children: DS.hasMany('person')
+      children: hasMany('person')
     });
     ```
 
@@ -2537,7 +2539,7 @@ const Store = Service.extend({
 
     @method push
     @param {Object} data
-    @return {DS.Model|Array} the record(s) that was created or
+    @return {Model|Array} the record(s) that was created or
       updated.
   */
   push(data) {
@@ -2566,7 +2568,7 @@ const Store = Service.extend({
     @method _push
     @private
     @param {Object} jsonApiDoc
-    @return {DS.InternalModel|Array<DS.InternalModel>} pushed InternalModel(s)
+    @return {InternalModel|Array<InternalModel>} pushed InternalModel(s)
   */
   _push(jsonApiDoc) {
     if (DEBUG) {
@@ -2664,18 +2666,18 @@ const Store = Service.extend({
     serializer.
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default DS.ActiveModelSerializer;
+    export default RESTSerializer;
     ```
 
     ```js
     let pushData = {
       posts: [
-        { id: 1, post_title: "Great post", comment_ids: [2] }
+        { id: 1, postTitle: "Great post", commentIds: [2] }
       ],
       comments: [
-        { id: 2, comment_body: "Insightful comment" }
+        { id: 2, commentBody: "Insightful comment" }
       ]
     }
 
@@ -2689,15 +2691,15 @@ const Store = Service.extend({
     will determine which serializer will process the payload.
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default DS.ActiveModelSerializer;
+    export default RESTSerializer;
     ```
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
-    export default DS.JSONSerializer;
+    export default JSONSerializer;
     ```
 
     ```js
@@ -2944,7 +2946,7 @@ const Store = Service.extend({
     @method adapterFor
     @public
     @param {String} modelName
-    @return DS.Adapter
+    @return Adapter
   */
   adapterFor(modelName) {
     if (DEBUG) {
@@ -3025,12 +3027,12 @@ const Store = Service.extend({
     (`adapterFor('person')`).
 
     If a serializer cannot be found on the adapter, it will fall back
-    to an instance of `DS.JSONSerializer`.
+    to an instance of `JSONSerializer`.
 
     @method serializerFor
     @public
     @param {String} modelName the record to serialize
-    @return {DS.Serializer}
+    @return {Serializer}
   */
   serializerFor(modelName) {
     if (DEBUG) {
@@ -3336,7 +3338,9 @@ function _lookupModelFactory(store, normalizedModelName) {
 /*
   In case someone defined a relationship to a mixin, for example:
   ```
-    let Comment = DS.Model.extend({
+    import Model, { belongsTo, hasMany } from '@ember-data/model';
+
+    let Comment = Model.extend({
       owner: belongsTo('commentable'. { polymorphic: true })
     });
     let Commentable = Ember.Mixin.create({
@@ -3345,7 +3349,7 @@ function _lookupModelFactory(store, normalizedModelName) {
   ```
   we want to look up a Commentable class which has all the necessary
   relationship metadata. Thus, we look up the mixin and create a mock
-  DS.Model, so we can access the relationship CPs of the mixin (`comments`)
+  Model, so we can access the relationship CPs of the mixin (`comments`)
   in this case
 */
 function _modelForMixin(store, normalizedModelName) {
