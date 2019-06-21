@@ -34,7 +34,7 @@
     "broccoli-merge-trees": "^3.0.2",
     "broccoli-rollup": "^4.1.1",
     "chalk": "^2.4.1",
-    "ember-cli-babel": "^7.7.3",
+    "ember-cli-babel": "^7.8.0",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-typescript": "^2.0.1",

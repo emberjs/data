@@ -2307,7 +2307,7 @@ babel-plugin-debug-macros@^0.3.0:
   dependencies:
     semver "^5.3.0"
 
-babel-plugin-ember-modules-api-polyfill@^2.6.0, babel-plugin-ember-modules-api-polyfill@^2.8.0:
+babel-plugin-ember-modules-api-polyfill@^2.6.0, babel-plugin-ember-modules-api-polyfill@^2.9.0:
   version "2.9.0"
   resolved "https://registry.npmjs.org/babel-plugin-ember-modules-api-polyfill/-/babel-plugin-ember-modules-api-polyfill-2.9.0.tgz#8503e7b4192aeb336b00265e6235258ff6b754aa"
   integrity sha512-c03h50291phJ2gQxo/aIOvFQE2c6glql1A7uagE3XbPXpKVAJOUxtVDjvWG6UAB6BC5ynsJfMWvY0w4TPRKIHQ==
@@ -4633,10 +4633,10 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.4.3, ember-cli-babel@^7.5.0, ember-cli-babel@^7.7.0, ember-cli-babel@^7.7.3:
-  version "7.7.3"
-  resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.7.3.tgz#f94709f6727583d18685ca6773a995877b87b8a0"
-  integrity sha512-/LWwyKIoSlZQ7k52P+6agC7AhcOBqPJ5C2u27qXHVVxKvCtg6ahNuRk/KmfZmV4zkuw4EjTZxfJE1PzpFyHkXg==
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.4.3, ember-cli-babel@^7.5.0, ember-cli-babel@^7.7.0, ember-cli-babel@^7.8.0:
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-7.8.0.tgz#e596500eca0f5a7c9aaee755f803d1542f578acf"
+  integrity sha512-xUBgJQ81fqd7k/KIiGU+pjpoXhrmmRf9pUrqLenNSU5N+yeNFT5a1+w0b+p1F7oBphfXVwuxApdZxrmAHOdA3Q==
   dependencies:
     "@babel/core" "^7.0.0"
     "@babel/plugin-proposal-class-properties" "^7.3.4"
@@ -4648,7 +4648,7 @@ ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.4.3, ember-cl
     "@babel/runtime" "^7.2.0"
     amd-name-resolver "^1.2.1"
     babel-plugin-debug-macros "^0.3.0"
-    babel-plugin-ember-modules-api-polyfill "^2.8.0"
+    babel-plugin-ember-modules-api-polyfill "^2.9.0"
     babel-plugin-module-resolver "^3.1.1"
     broccoli-babel-transpiler "^7.1.2"
     broccoli-debug "^0.6.4"
