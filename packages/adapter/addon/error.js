@@ -8,19 +8,19 @@ const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
 const PRIMARY_ATTRIBUTE_KEY = 'base';
 
 /**
-  A `DS.AdapterError` is used by an adapter to signal that an error occurred
+  A `AdapterError` is used by an adapter to signal that an error occurred
   during a request to an external API. It indicates a generic error, and
   subclasses are used to indicate specific error states. The following
   subclasses are provided:
 
-  - `DS.InvalidError`
-  - `DS.TimeoutError`
-  - `DS.AbortError`
-  - `DS.UnauthorizedError`
-  - `DS.ForbiddenError`
-  - `DS.NotFoundError`
-  - `DS.ConflictError`
-  - `DS.ServerError`
+  - `InvalidError`
+  - `TimeoutError`
+  - `AbortError`
+  - `UnauthorizedError`
+  - `ForbiddenError`
+  - `NotFoundError`
+  - `ConflictError`
+  - `ServerError`
 
   To create a custom error to signal a specific error state in communicating
   with an external API, extend the `DS.AdapterError`. For example, if the
@@ -28,18 +28,18 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   it was closed for maintenance:
 
   ```app/adapters/maintenance-error.js
-  import DS from 'ember-data';
+  import AdapterError from '@ember-data/adapter/error';
 
-  export default DS.AdapterError.extend({ message: "Down for maintenance." });
+  export default AdapterError.extend({ message: "Down for maintenance." });
   ```
 
   This error would then be returned by an adapter's `handleResponse` method:
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import JSONAPIAdapter from '@ember-data/adapter/json-api';
   import MaintenanceError from './maintenance-error';
 
-  export default DS.JSONAPIAdapter.extend({
+  export default JSONAPIAdapter.extend({
     handleResponse(status) {
       if (503 === status) {
         return new MaintenanceError();
@@ -72,7 +72,6 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   ```
 
   @class AdapterError
-  @namespace DS
 */
 export function AdapterError(errors, message = 'Adapter operation failed') {
   this.isAdapterError = true;
@@ -121,11 +120,11 @@ AdapterError.prototype = Object.create(EmberError.prototype);
 AdapterError.extend = extendFn(AdapterError);
 
 /**
-  A `DS.InvalidError` is used by an adapter to signal the external API
+  A `InvalidError` is used by an adapter to signal the external API
   was unable to process a request because the content was not
   semantically correct or meaningful per the API. Usually, this means a
   record failed some form of server-side validation. When a promise
-  from an adapter is rejected with a `DS.InvalidError` the record will
+  from an adapter is rejected with a `InvalidError` the record will
   transition to the `invalid` state and the errors will be set to the
   `errors` property on the record.
 
@@ -136,26 +135,27 @@ AdapterError.extend = extendFn(AdapterError);
   looked like this.
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    title: DS.attr('string'),
-    content: DS.attr('string')
+  export default Model.extend({
+    title: attr('string'),
+    content: attr('string')
   });
   ```
 
   To show an error from the server related to the `title` and
   `content` properties your adapter could return a promise that
-  rejects with a `DS.InvalidError` object that looks like this:
+  rejects with a `InvalidError` object that looks like this:
 
   ```app/adapters/post.js
   import RSVP from 'RSVP';
-  import DS from 'ember-data';
+  import RESTAdapter from '@ember-data/adapter/rest';
+  import { InvalidError } from '@ember-data/adapter/error';
 
-  export default DS.RESTAdapter.extend({
+  export default RESTAdapter.extend({
     updateRecord() {
       // Fictional adapter that always rejects
-      return RSVP.reject(new DS.InvalidError([
+      return RSVP.reject(new InvalidError([
         {
           detail: 'Must be unique',
           source: { pointer: '/data/attributes/title' }
@@ -176,7 +176,6 @@ AdapterError.extend = extendFn(AdapterError);
   wrap the error payload unaltered.
 
   @class InvalidError
-  @namespace DS
   @extends AdapterError
 */
 export const InvalidError = extend(
@@ -185,7 +184,7 @@ export const InvalidError = extend(
 );
 
 /**
-  A `DS.TimeoutError` is used by an adapter to signal that a request
+  A `TimeoutError` is used by an adapter to signal that a request
   to the external API has timed out. I.e. no response was received from
   the external API within an allowed time period.
 
@@ -194,9 +193,7 @@ export const InvalidError = extend(
 
   ```app/routes/application.js
   import Route from '@ember/routing/route';
-  import DS from 'ember-data';
-
-  const { TimeoutError } = DS;
+  import { TimeoutError } from '@ember-data/adapter/error';
 
   export default Route.extend({
     actions: {
@@ -214,25 +211,23 @@ export const InvalidError = extend(
   ```
 
   @class TimeoutError
-  @namespace DS
   @extends AdapterError
 */
 export const TimeoutError = extend(AdapterError, 'The adapter operation timed out');
 
 /**
-  A `DS.AbortError` is used by an adapter to signal that a request to
+  A `AbortError` is used by an adapter to signal that a request to
   the external API was aborted. For example, this can occur if the user
   navigates away from the current page after a request to the external API
   has been initiated but before a response has been received.
 
   @class AbortError
-  @namespace DS
   @extends AdapterError
 */
 export const AbortError = extend(AdapterError, 'The adapter operation was aborted');
 
 /**
-  A `DS.UnauthorizedError` equates to a HTTP `401 Unauthorized` response
+  A `UnauthorizedError` equates to a HTTP `401 Unauthorized` response
   status. It is used by an adapter to signal that a request to the external
   API was rejected because authorization is required and has failed or has not
   yet been provided.
@@ -242,9 +237,7 @@ export const AbortError = extend(AdapterError, 'The adapter operation was aborte
 
   ```app/routes/application.js
   import Route from '@ember/routing/route';
-  import DS from 'ember-data';
-
-  const { UnauthorizedError } = DS;
+  import { UnauthorizedError } from '@ember-data/adapter/error';
 
   export default Route.extend({
     actions: {
@@ -262,26 +255,24 @@ export const AbortError = extend(AdapterError, 'The adapter operation was aborte
   ```
 
   @class UnauthorizedError
-  @namespace DS
   @extends AdapterError
 */
 export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
 
 /**
-  A `DS.ForbiddenError` equates to a HTTP `403 Forbidden` response status.
+  A `ForbiddenError` equates to a HTTP `403 Forbidden` response status.
   It is used by an adapter to signal that a request to the external API was
   valid but the server is refusing to respond to it. If authorization was
   provided and is valid, then the authenticated user does not have the
   necessary permissions for the request.
 
   @class ForbiddenError
-  @namespace DS
   @extends AdapterError
 */
 export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
 
 /**
-  A `DS.NotFoundError` equates to a HTTP `404 Not Found` response status.
+  A `NotFoundError` equates to a HTTP `404 Not Found` response status.
   It is used by an adapter to signal that a request to the external API
   was rejected because the resource could not be found on the API.
 
@@ -290,9 +281,7 @@ export const ForbiddenError = extend(AdapterError, 'The adapter operation is for
 
   ```app/routes/post.js
   import Route from '@ember/routing/route';
-  import DS from 'ember-data';
-
-  const { NotFoundError } = DS;
+  import { NotFoundError } from '@ember-data/adapter/error';
 
   export default Route.extend({
     model(params) {
@@ -314,31 +303,28 @@ export const ForbiddenError = extend(AdapterError, 'The adapter operation is for
   ```
 
   @class NotFoundError
-  @namespace DS
   @extends AdapterError
 */
 export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
 
 /**
-  A `DS.ConflictError` equates to a HTTP `409 Conflict` response status.
+  A `ConflictError` equates to a HTTP `409 Conflict` response status.
   It is used by an adapter to indicate that the request could not be processed
   because of a conflict in the request. An example scenario would be when
   creating a record with a client-generated ID but that ID is already known
   to the external API.
 
   @class ConflictError
-  @namespace DS
   @extends AdapterError
 */
 export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
 
 /**
-  A `DS.ServerError` equates to a HTTP `500 Internal Server Error` response
+  A `ServerError` equates to a HTTP `500 Internal Server Error` response
   status. It is used by the adapter to indicate that a request has failed
   because of an error in the external API.
 
   @class ServerError
-  @namespace DS
   @extends AdapterError
 */
 export const ServerError = extend(
@@ -350,9 +336,7 @@ export const ServerError = extend(
   Convert an hash of errors into an array with errors in JSON-API format.
 
   ```javascript
-  import DS from 'ember-data';
-
-  const { errorsHashToArray } = DS;
+  import { errorsHashToArray } from '@ember-data/adapter/error';
 
   let errors = {
     base: 'Invalid attributes on saving this record',
@@ -387,8 +371,6 @@ export const ServerError = extend(
 
   @method errorsHashToArray
   @public
-  @namespace
-  @for DS
   @param {Object} errors hash with errors as properties
   @return {Array} array of errors in JSON-API format
 */
@@ -423,9 +405,7 @@ export function errorsHashToArray(errors) {
   Convert an array of errors in JSON-API format into an object.
 
   ```javascript
-  import DS from 'ember-data';
-
-  const { errorsArrayToHash } = DS;
+  import { errorsArrayToHash } from '@ember-data/adapter/error';
 
   let errorsArray = [
     {
@@ -454,8 +434,6 @@ export function errorsHashToArray(errors) {
 
   @method errorsArrayToHash
   @public
-  @namespace
-  @for DS
   @param {Array} errors array of errors in JSON-API format
   @return {Object}
 */
