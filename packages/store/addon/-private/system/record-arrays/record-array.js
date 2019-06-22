@@ -82,9 +82,7 @@ export default ArrayProxy.extend(Evented, {
 
   replace() {
     throw new Error(
-      `The result of a server query (for all ${
-        this.modelName
-      } types) is immutable. To modify contents, use toArray()`
+      `The result of a server query (for all ${this.modelName} types) is immutable. To modify contents, use toArray()`
     );
   },
 
