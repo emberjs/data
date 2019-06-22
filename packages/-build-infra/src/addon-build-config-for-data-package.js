@@ -1,10 +1,10 @@
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 const Funnel = require('broccoli-funnel');
-const Rollup = require('broccoli-rollup');
 const merge = require('broccoli-merge-trees');
 const BroccoliDebug = require('broccoli-debug');
 const version = require('./create-version-module');
 const { isInstrumentedBuild } = require('./cli-flags');
+const rollupPrivateModule = require('./utilities/rollup-private-module');
 
 function isProductionEnv() {
   let isProd = /production/.test(process.env.EMBER_ENV);
@@ -128,9 +128,13 @@ function addonBuildConfigForDataPackage(PackageName) {
         version(), // compile the VERSION into the build
       ]);
 
-      let withPrivate = new Funnel(tree, {
-        srcDir: '-private',
-        destDir: '-private',
+      let privateTree = rollupPrivateModule(tree, {
+        packageName: PackageName,
+        babelCompiler: babel,
+        babelOptions: this.options.babel,
+        onWarn: this._suppressCircularDependencyWarnings,
+        externalDependencies: this.externalDependenciesForPrivateModule(),
+        destDir: this.getOutputDirForVersion(),
       });
 
       let withoutPrivate = new Funnel(treeWithVersion, {
@@ -141,44 +145,14 @@ function addonBuildConfigForDataPackage(PackageName) {
 
         destDir: PackageName,
       });
-      let privateTree = babel.transpileTree(this.debugTree(withPrivate, 'babel-private:input'), {
-        babel: this.options.babel,
-        'ember-cli-babel': {
-          compileModules: false,
-          extensions: ['js', 'ts'],
-        },
-      });
-
-      privateTree = this.debugTree(privateTree, 'babel-private:output');
 
       // use the default options
       let publicTree = babel.transpileTree(this.debugTree(withoutPrivate, 'babel-public:input'));
-
       publicTree = this.debugTree(publicTree, 'babel-public:output');
-
-      privateTree = new Rollup(privateTree, {
-        rollup: {
-          input: '-private/index.js',
-          output: [
-            {
-              file: `${PackageName}/-private.js`,
-              format: babel.shouldCompileModules() ? 'amd' : 'es',
-              amd: { id: `${PackageName}/-private` },
-              exports: 'named',
-            },
-          ],
-          external: this.externalDependenciesForPrivateModule(),
-          onwarn: this._suppressCircularDependencyWarnings,
-          // cache: true|false Defaults to true
-        },
-      });
-
-      privateTree = this.debugTree(privateTree, 'rollup-output');
 
       let destDir = this.getOutputDirForVersion();
 
       publicTree = new Funnel(publicTree, { destDir });
-      privateTree = new Funnel(privateTree, { destDir });
 
       return this.debugTree(merge([publicTree, privateTree]), 'final');
     },
