@@ -1,13 +1,72 @@
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
+const Funnel = require('broccoli-funnel');
+const Rollup = require('broccoli-rollup');
+const merge = require('broccoli-merge-trees');
+const BroccoliDebug = require('broccoli-debug');
+const version = require('./create-version-module');
+const { isInstrumentedBuild } = require('./cli-flags');
 
-function addonBuildConfigForDataPackage(name) {
+function isProductionEnv() {
+  let isProd = /production/.test(process.env.EMBER_ENV);
+  let isTest = process.env.EMBER_CLI_TEST_COMMAND;
+
+  return isProd && !isTest;
+}
+
+function addonBuildConfigForDataPackage(PackageName) {
   return {
-    name,
+    name: PackageName,
+
+    init() {
+      this._super.init && this._super.init.apply(this, arguments);
+      this._prodLikeWarning();
+      this.debugTree = BroccoliDebug.buildDebugCallback(PackageName);
+      this.options = this.options || {};
+    },
+
+    _prodLikeWarning() {
+      let emberEnv = process.env.EMBER_ENV;
+      if (emberEnv !== 'production' && /production/.test(emberEnv)) {
+        this._warn(
+          `Production-like values for EMBER_ENV are deprecated (your EMBER_ENV is "${emberEnv}") and support will be removed in Ember Data 4.0.0. If using ember-cli-deploy, please configure your build using 'production'. Otherwise please set your EMBER_ENV to 'production' for production builds.`
+        );
+      }
+    },
+
+    _warn(message) {
+      let chalk = require('chalk');
+      let warning = chalk.yellow('WARNING: ' + message);
+
+      if (this.ui && this.ui.writeWarnLine) {
+        this.ui.writeWarnLine(message);
+      } else if (this.ui) {
+        this.ui.writeLine(warning);
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(warning);
+      }
+    },
+
+    _suppressCircularDependencyWarnings(message, next) {
+      if (message.code !== 'CIRCULAR_DEPENDENCY') {
+        next(message);
+      }
+    },
+
+    getOutputDirForVersion() {
+      let VersionChecker = require('ember-cli-version-checker');
+      let checker = new VersionChecker(this);
+      let emberCli = checker.for('ember-cli', 'npm');
+
+      let requiresModulesDir = emberCli.satisfies('< 3.0.0');
+
+      return requiresModulesDir ? 'modules' : '';
+    },
 
     isLocalBuild() {
       let appName = this.parent.pkg.name;
 
-      return this.isDevelopingAddon() && appName === 'ember-data';
+      return this.isDevelopingAddon() && appName === PackageName;
     },
 
     buildBabelOptions() {
@@ -40,7 +99,7 @@ function addonBuildConfigForDataPackage(name) {
       this._hasSetupBabelOptions = true;
     },
 
-    included(app) {
+    included() {
       this._super.included.apply(this, arguments);
 
       this._setupBabelOptions();
@@ -48,6 +107,80 @@ function addonBuildConfigForDataPackage(name) {
 
     cacheKeyForTree(treeType) {
       return calculateCacheKeyForTree(treeType, this);
+    },
+
+    externalDependenciesForPrivateModule() {
+      return [];
+    },
+
+    treeForAddon(tree) {
+      if (this.shouldRollupPrivate !== true) {
+        return this._super.treeForAddon.call(this, tree);
+      }
+
+      tree = this.debugTree(tree, 'input');
+      this._setupBabelOptions();
+
+      let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
+
+      let treeWithVersion = merge([
+        tree,
+        version(), // compile the VERSION into the build
+      ]);
+
+      let withPrivate = new Funnel(tree, {
+        srcDir: '-private',
+        destDir: '-private',
+      });
+
+      let withoutPrivate = new Funnel(treeWithVersion, {
+        exclude: [
+          '-private',
+          isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false,
+        ].filter(Boolean),
+
+        destDir: PackageName,
+      });
+      let privateTree = babel.transpileTree(this.debugTree(withPrivate, 'babel-private:input'), {
+        babel: this.options.babel,
+        'ember-cli-babel': {
+          compileModules: false,
+          extensions: ['js', 'ts'],
+        },
+      });
+
+      privateTree = this.debugTree(privateTree, 'babel-private:output');
+
+      // use the default options
+      let publicTree = babel.transpileTree(this.debugTree(withoutPrivate, 'babel-public:input'));
+
+      publicTree = this.debugTree(publicTree, 'babel-public:output');
+
+      privateTree = new Rollup(privateTree, {
+        rollup: {
+          input: '-private/index.js',
+          output: [
+            {
+              file: `${PackageName}/-private.js`,
+              format: babel.shouldCompileModules() ? 'amd' : 'es',
+              amd: { id: `${PackageName}/-private` },
+              exports: 'named',
+            },
+          ],
+          external: this.externalDependenciesForPrivateModule(),
+          onwarn: this._suppressCircularDependencyWarnings,
+          // cache: true|false Defaults to true
+        },
+      });
+
+      privateTree = this.debugTree(privateTree, 'rollup-output');
+
+      let destDir = this.getOutputDirForVersion();
+
+      publicTree = new Funnel(publicTree, { destDir });
+      privateTree = new Funnel(privateTree, { destDir });
+
+      return this.debugTree(merge([publicTree, privateTree]), 'final');
     },
   };
 }

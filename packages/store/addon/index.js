@@ -1,2 +1,1 @@
-export { default } from './-private/system/store';
-export { normalizeModelName } from './-private';
+export { Store as default, normalizeModelName } from './-private';

@@ -1,2 +1,2 @@
-export { default as BuildURLMixin } from './-private/build-url-mixin';
+export { BuildURLMixin } from './-private';
 export { default } from './adapter';
