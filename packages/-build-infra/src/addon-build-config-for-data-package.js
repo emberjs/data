@@ -20,7 +20,7 @@ function addonBuildConfigForDataPackage(PackageName) {
     init() {
       this._super.init && this._super.init.apply(this, arguments);
       this._prodLikeWarning();
-      this.debugTree = BroccoliDebug.buildDebugCallback(PackageName);
+      this.debugTree = BroccoliDebug.buildDebugCallback(`ember-data:${PackageName}`);
       this.options = this.options || {};
     },
 
