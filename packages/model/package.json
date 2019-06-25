@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "3.12.0-canary.0",
+  "version": "3.12.0-canary.1",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
@@ -23,18 +23,19 @@
     "postpublish": "ember ts:clean"
   },
   "dependencies": {
-    "@ember-data/-build-infra": "^3.12.0-canary.0",
-    "@ember-data/store": "^3.12.0-canary.0",
+    "@ember-data/-build-infra": "^3.12.0-canary.1",
+    "@ember-data/store": "^3.12.0-canary.1",
     "ember-cli-babel": "^7.8.0",
-    "ember-cli-typescript": "^2.0.1",
+    "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
-    "inflection": "1.12.0",
-    "ember-cli-string-utils": "^1.1.0"
+    "ember-cli-typescript": "^2.0.1",
+    "inflection": "1.12.0"
   },
   "devDependencies": {
     "@ember/optional-features": "*",
     "broccoli-asset-rev": "*",
     "ember-cli": "*",
+    "ember-cli-blueprint-test-helpers": "*",
     "ember-cli-dependency-checker": "*",
     "ember-cli-htmlbars": "*",
     "ember-cli-htmlbars-inline-precompile": "*",
@@ -51,7 +52,6 @@
     "ember-source-channel-url": "*",
     "ember-try": "*",
     "loader.js": "*",
-    "ember-cli-blueprint-test-helpers": "*",
     "silent-error": "*"
   },
   "engines": {
