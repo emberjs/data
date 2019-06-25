@@ -14,12 +14,12 @@ import EmberObject from '@ember/object';
 
   ### Creating an Adapter
 
-  Create a new subclass of `DS.Adapter` in the `app/adapters` folder:
+  Create a new subclass of `Adapter` in the `app/adapters` folder:
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import Adapter from '@ember-data/adapter';
 
-  export default DS.Adapter.extend({
+  export default Adapter.extend({
     // ...your code here
   });
   ```
@@ -28,14 +28,14 @@ import EmberObject from '@ember/object';
   class in an `app/adapters/` + `model-name` + `.js` file of the application.
 
   ```app/adapters/post.js
-  import DS from 'ember-data';
+  import Adapter from '@ember-data/adapter';
 
-  export default DS.Adapter.extend({
+  export default Adapter.extend({
     // ...Post-specific adapter code goes here
   });
   ```
 
-  `DS.Adapter` is an abstract base class that you should override in your
+  `Adapter` is an abstract base class that you should override in your
   application to customize it for your backend. The minimum set of methods
   that you should implement is:
 
@@ -52,7 +52,7 @@ import EmberObject from '@ember/object';
     * `findMany()`
 
 
-  For an example of the implementation, see `DS.RESTAdapter`, the
+  For an example of the implementation, see `RESTAdapter`, the
   included REST adapter.
 
   @class Adapter
@@ -71,9 +71,9 @@ export default EmberObject.extend({
     `application` serializer.
 
     ```app/adapters/django.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       defaultSerializer: 'django'
     });
     ```
@@ -93,11 +93,11 @@ export default EmberObject.extend({
     Here is an example of the `findRecord` implementation:
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return new RSVP.Promise(function(resolve, reject) {
           $.getJSON(`/${type.modelName}/${id}`).then(function(data) {
@@ -125,14 +125,12 @@ export default EmberObject.extend({
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default DS.Adapter.extend({
-      findAll(store, type, sinceToken) {
-        let query = { since: sinceToken };
-
+    export default Adapter.extend({
+      findAll(store, type) {
         return new RSVP.Promise(function(resolve, reject) {
           $.getJSON(`/${type.modelName}`, query).then(function(data) {
             resolve(data);
@@ -159,11 +157,11 @@ export default EmberObject.extend({
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       query(store, type, query) {
         return new RSVP.Promise(function(resolve, reject) {
           $.getJSON(`/${type.modelName}`, query).then(function(data) {
@@ -198,11 +196,11 @@ export default EmberObject.extend({
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter, { BuildURLMixin } from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default DS.Adapter.extend(DS.BuildURLMixin, {
+    export default Adapter.extend(BuildURLMixin, {
       queryRecord(store, type, query) {
         return new RSVP.Promise(function(resolve, reject) {
           $.getJSON(`/${type.modelName}`, query).then(function(data) {
@@ -238,10 +236,10 @@ export default EmberObject.extend({
     the first parameter and the newly created record as the second parameter:
 
     ```javascript
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
     import { v4 } from 'uuid';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       generateIdForRecord(store, type, inputProperties) {
         return v4();
       }
@@ -250,7 +248,7 @@ export default EmberObject.extend({
 
     @method generateIdForRecord
     @param {DS.Store} store
-    @param {DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} type   the Model class of the record
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
     @return {(String|Number)} id
@@ -263,9 +261,9 @@ export default EmberObject.extend({
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       createRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let url = `/${type.modelName}`;
@@ -293,12 +291,12 @@ export default EmberObject.extend({
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
     import { run } from '@ember/runloop';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       createRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
 
@@ -321,7 +319,7 @@ export default EmberObject.extend({
 
     @method createRecord
     @param {DS.Store} store
-    @param {DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} type   the Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -344,12 +342,12 @@ export default EmberObject.extend({
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
     import { run } from '@ember/runloop';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       updateRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let id = snapshot.id;
@@ -373,7 +371,7 @@ export default EmberObject.extend({
 
     @method updateRecord
     @param {DS.Store} store
-    @param {DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} type   the Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -388,12 +386,12 @@ export default EmberObject.extend({
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
     import { run } from '@ember/runloop';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       deleteRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let id = snapshot.id;
@@ -417,7 +415,7 @@ export default EmberObject.extend({
 
     @method deleteRecord
     @param {DS.Store} store
-    @param {DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} type   the Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -440,12 +438,12 @@ export default EmberObject.extend({
     is true.
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
     import { run } from '@ember/runloop';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       findMany(store, type, ids, snapshots) {
         return new RSVP.Promise(function(resolve, reject) {
           $.ajax({
@@ -466,7 +464,7 @@ export default EmberObject.extend({
 
     @method findMany
     @param {DS.Store} store
-    @param {DS.Model} type   the DS.Model class of the records
+    @param {DS.Model} type   the Model class of the records
     @param {Array}    ids
     @param {Array} snapshots
     @return {Promise} promise

@@ -52,12 +52,12 @@ const hasNajax = typeof najax !== 'undefined';
 
   Failed responses with status code 422 ("Unprocessable Entity") will be
   considered "invalid". The response will be discarded, except for the
-  `errors` key. The request promise will be rejected with a `DS.InvalidError`.
+  `errors` key. The request promise will be rejected with a `InvalidError`.
   This error object will encapsulate the saved `errors` value.
 
   Any other status codes will be treated as an "adapter error". The request
   promise will be rejected, similarly to the "invalid" case, but with
-  an instance of `DS.AdapterError` instead.
+  an instance of `AdapterError` instead.
 
   ## JSON Structure
 
@@ -114,12 +114,12 @@ const hasNajax = typeof najax !== 'undefined';
   For example, if you have a `Person` model:
 
   ```app/models/person.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    firstName: DS.attr('string'),
-    lastName: DS.attr('string'),
-    occupation: DS.attr('string')
+  export default Model.extend({
+    firstName: attr('string'),
+    lastName: attr('string'),
+    occupation: attr('string')
   });
   ```
 
@@ -196,7 +196,7 @@ const hasNajax = typeof najax !== 'undefined';
 
   This adapter does not make any assumptions as to the format of the `errors`
   object. It will simply be passed along as is, wrapped in an instance
-  of `DS.InvalidError` or `DS.AdapterError`. The serializer can interpret it
+  of `InvalidError` or `AdapterError`. The serializer can interpret it
   afterwards.
 
   ## Customization
@@ -207,9 +207,9 @@ const hasNajax = typeof najax !== 'undefined';
   property on the adapter:
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import RESTAdapter from '@ember-data/adapter/rest';
 
-  export default DS.RESTAdapter.extend({
+  export default RESTAdapter.extend({
     namespace: 'api/1'
   });
   ```
@@ -220,9 +220,9 @@ const hasNajax = typeof najax !== 'undefined';
   An adapter can target other hosts by setting the `host` property.
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import RESTAdapter from '@ember-data/adapter/rest';
 
-  export default DS.RESTAdapter.extend({
+  export default RESTAdapter.extend({
     host: 'https://api.example.com'
   });
   ```
@@ -235,10 +235,10 @@ const hasNajax = typeof najax !== 'undefined';
 
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import RESTAdapter from '@ember-data/adapter/rest';
   import { computed } from '@ember/object';
 
-  export default DS.RESTAdapter.extend({
+  export default RESTAdapter.extend({
     headers: computed(function() {
       return {
         'API_KEY': 'secret key',
@@ -253,10 +253,10 @@ const hasNajax = typeof najax !== 'undefined';
   injected into an adapter by Ember's container.
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import RESTAdapter from '@ember-data/adapter/rest';
   import { computed } from '@ember/object';
 
-  export default DS.RESTAdapter.extend({
+  export default RESTAdapter.extend({
     headers: computed('session.authToken', function() {
       return {
         'API_KEY': this.get('session.authToken'),
@@ -274,11 +274,11 @@ const hasNajax = typeof najax !== 'undefined';
   be recomputed with every request.
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import RESTAdapter from '@ember-data/adapter/rest';
   import { get } from '@ember/object';
   import { computed } from '@ember/object';
 
-  export default DS.RESTAdapter.extend({
+  export default RESTAdapter.extend({
     headers: computed(function() {
       return {
         'API_KEY': get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
@@ -338,9 +338,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     `sortQueryParams` to your custom sort function.
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default DS.RESTAdapter.extend({
+    export default RESTAdapter.extend({
       sortQueryParams(params) {
         let sortedKeys = Object.keys(params).sort().reverse();
         let len = sortedKeys.length, newParams = {};
@@ -427,9 +427,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     property on the adapter:
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default DS.RESTAdapter.extend({
+    export default RESTAdapter.extend({
       namespace: 'api/1'
     });
     ```
@@ -444,9 +444,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     An adapter can target other hosts by setting the `host` property.
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default DS.RESTAdapter.extend({
+    export default RESTAdapter.extend({
       host: 'https://api.example.com'
     });
     ```
@@ -465,10 +465,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     customization](/api/data/classes/DS.RESTAdapter.html).
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import RESTAdapter from '@ember-data/adapter/rest';
     import { computed } from '@ember/object';
 
-    export default DS.RESTAdapter.extend({
+    export default RESTAdapter.extend({
       headers: computed(function() {
         return {
           'API_KEY': 'secret key',
@@ -889,14 +889,14 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     Response headers are passed in as the second argument.
 
     2. Your API might return errors as successful responses with status code
-    200 and an Errors text or object. You can return a `DS.InvalidError` or a
-    `DS.AdapterError` (or a sub class) from this hook and it will automatically
+    200 and an Errors text or object. You can return a `InvalidError` or a
+    `AdapterError` (or a sub class) from this hook and it will automatically
     reject the promise and put your record into the invalid or error state.
 
-    Returning a `DS.InvalidError` from this method will cause the
+    Returning a `InvalidError` from this method will cause the
     record to transition into the `invalid` state and make the
     `errors` object available on the record. When returning an
-    `DS.InvalidError` the store will attempt to normalize the error data
+    `InvalidError` the store will attempt to normalize the error data
     returned from the server using the serializer's `extractErrors`
     method.
 

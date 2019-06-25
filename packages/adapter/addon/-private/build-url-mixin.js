@@ -15,7 +15,9 @@ import { pluralize } from 'ember-inflector';
   ### Example
 
   ```javascript
-  export default DS.Adapter.extend(BuildURLMixin, {
+  import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+
+  export default Adapter.extend(BuildURLMixin, {
     findRecord: function(store, type, id, snapshot) {
       var url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
       return this.ajax(url, 'GET');
@@ -120,9 +122,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/user.js
-   import DS from 'ember-data';
+   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default DS.JSONAPIAdapter.extend({
+   export default JSONAPIAdapter.extend({
      urlForFindRecord(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id, snapshot);
        return `${baseUrl}/users/${snapshot.adapterOptions.user_id}/playlists/${id}`;
@@ -147,9 +149,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/comment.js
-   import DS from 'ember-data';
+   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default DS.JSONAPIAdapter.extend({
+   export default JSONAPIAdapter.extend({
      urlForFindAll(modelName, snapshot) {
        return 'data/comments.json';
      }
@@ -171,9 +173,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import DS from 'ember-data';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default DS.RESTAdapter.extend({
+   export default RESTAdapter.extend({
      host: 'https://api.github.com',
      urlForQuery (query, modelName) {
        switch(modelName) {
@@ -201,9 +203,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import DS from 'ember-data';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default DS.RESTAdapter.extend({
+   export default RESTAdapter.extend({
      urlForQueryRecord({ slug }, modelName) {
        let baseUrl = this.buildURL();
        return `${baseUrl}/${encodeURIComponent(slug)}`;
@@ -228,9 +230,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import DS from 'ember-data';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default DS.RESTAdapter.extend({
+   export default RESTAdapter.extend({
      urlForFindMany(ids, modelName) {
        let baseUrl = this.buildURL();
        return `${baseUrl}/coalesce`;
@@ -255,9 +257,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import DS from 'ember-data';
+   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default DS.JSONAPIAdapter.extend({
+   export default JSONAPIAdapter.extend({
      urlForFindHasMany(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
@@ -282,9 +284,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import DS from 'ember-data';
+   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default DS.JSONAPIAdapter.extend({
+   export default JSONAPIAdapter.extend({
      urlForFindBelongsTo(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
@@ -309,9 +311,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import DS from 'ember-data';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default DS.RESTAdapter.extend({
+   export default RESTAdapter.extend({
      urlForCreateRecord(modelName, snapshot) {
        return this._super(...arguments) + '/new';
      }
@@ -333,9 +335,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import DS from 'ember-data';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default DS.RESTAdapter.extend({
+   export default RESTAdapter.extend({
      urlForUpdateRecord(id, modelName, snapshot) {
        return `/${id}/feed?access_token=${snapshot.adapterOptions.token}`;
      }
@@ -358,9 +360,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import DS from 'ember-data';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default DS.RESTAdapter.extend({
+   export default RESTAdapter.extend({
      urlForDeleteRecord(id, modelName, snapshot) {
        return this._super(...arguments) + '/destroy';
      }
@@ -430,11 +432,11 @@ export default Mixin.create({
     endpoint of `/line_items/`.
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import RESTAdapter from '@ember-data/adapter/rest';
     import { decamelize } from '@ember/string';
     import { pluralize } from 'ember-inflector';
 
-    export default DS.RESTAdapter.extend({
+    export default RESTAdapter.extend({
       pathForType: function(modelName) {
         var decamelized = decamelize(modelName);
         return pluralize(decamelized);
