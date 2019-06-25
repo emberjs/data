@@ -10,7 +10,6 @@ import recordDataFor from '../record-data-for';
  author to perform meta-operations on a has-many relationship.
 
  @class HasManyReference
- @namespace DS
  */
 export default class HasManyReference extends Reference {
   constructor(store, parentInternalModel, hasManyRelationship, key) {
@@ -36,8 +35,9 @@ export default class HasManyReference extends Reference {
    Example
 
    ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
+   import Model, { hasMany } from '@ember-data/model';
+   export default Model.extend({
+     comments: hasMany({ async: true })
    });
    ```
 
@@ -82,8 +82,9 @@ export default class HasManyReference extends Reference {
    Example
 
    ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
+   import Model, { hasMany } from '@ember-data/model';
+   export default Model.extend({
+     comments: hasMany({ async: true })
    });
    ```
 
@@ -127,8 +128,9 @@ export default class HasManyReference extends Reference {
    Example
 
    ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
+   import Model, { hasMany } from '@ember-data/model';
+   export default Model.extend({
+     comments: hasMany({ async: true })
    });
    ```
 
@@ -159,7 +161,7 @@ export default class HasManyReference extends Reference {
 
    @method push
    @param {Array|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
-   @return {DS.ManyArray}
+   @return {ManyArray}
    */
   push(objectOrPromise) {
     return resolve(objectOrPromise).then(payload => {
@@ -218,8 +220,9 @@ export default class HasManyReference extends Reference {
    Example
 
    ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
+   import Model, { hasMany } from '@ember-data/model';
+   export default Model.extend({
+     comments: hasMany({ async: true })
    });
    ```
 
@@ -244,7 +247,7 @@ export default class HasManyReference extends Reference {
    ```
 
    @method value
-   @return {DS.ManyArray}
+   @return {ManyArray}
    */
   value() {
     if (this._isLoaded()) {
@@ -263,8 +266,9 @@ export default class HasManyReference extends Reference {
    Example
 
    ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
+   import Model, { hasMany } from '@ember-data/model';
+   export default Model.extend({
+     comments: hasMany({ async: true })
    });
    ```
 
@@ -326,8 +330,9 @@ export default class HasManyReference extends Reference {
    Example
 
    ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
+   import Model, { hasMany } from '@ember-data/model';
+   export default Model.extend({
+     comments: hasMany({ async: true })
    });
    ```
 

@@ -6,7 +6,7 @@ import { reads } from '@ember/object/computed';
 import { Promise } from 'rsvp';
 import { assert } from '@ember/debug';
 
-/**
+/*
   A `PromiseArray` is an object that acts like both an `Ember.Array`
   and a promise. When the promise is resolved the resulting value
   will be set to the `PromiseArray`'s `content` property. This makes
@@ -19,7 +19,7 @@ import { assert } from '@ember/debug';
   Example
 
   ```javascript
-  let promiseArray = DS.PromiseArray.create({
+  let promiseArray = PromiseArray.create({
     promise: $.getJSON('/some/remote/data.json')
   });
 
@@ -31,7 +31,6 @@ import { assert } from '@ember/debug';
   ```
 
   @class PromiseArray
-  @namespace DS
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
@@ -39,7 +38,7 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   meta: reads('content.meta'),
 });
 
-/**
+/*
   A `PromiseObject` is an object that acts like both an `EmberObject`
   and a promise. When the promise is resolved, then the resulting value
   will be set to the `PromiseObject`'s `content` property. This makes
@@ -52,7 +51,7 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   Example
 
   ```javascript
-  let promiseObject = DS.PromiseObject.create({
+  let promiseObject = PromiseObject.create({
     promise: $.getJSON('/some/remote/data.json')
   });
 
@@ -64,7 +63,6 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   ```
 
   @class PromiseObject
-  @namespace DS
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
@@ -108,7 +106,7 @@ export const PromiseBelongsTo = PromiseObject.extend({
   },
 });
 
-/**
+/*
   A PromiseManyArray is a PromiseArray that also proxies certain method calls
   to the underlying manyArray.
   Right now we proxy:
@@ -122,7 +120,6 @@ export const PromiseBelongsTo = PromiseObject.extend({
     * `has()`
 
   @class PromiseManyArray
-  @namespace DS
   @extends Ember.ArrayProxy
 */
 

@@ -9,8 +9,8 @@ import DS from 'ember-data';
 
 let env, store, Person;
 
-module('unit/store/peekRecord - Store peekRecord', {
-  beforeEach() {
+module('unit/store/peekRecord - Store peekRecord', function(hooks) {
+  hooks.beforeEach(function() {
     Person = DS.Model.extend();
 
     env = setupStore({
@@ -18,54 +18,54 @@ module('unit/store/peekRecord - Store peekRecord', {
     });
 
     store = env.store;
-  },
+  });
 
-  afterEach() {
+  hooks.afterEach(function() {
     run(store, 'destroy');
-  },
-});
+  });
 
-test('peekRecord should return the record if it is in the store ', function(assert) {
-  run(() => {
-    let person = store.push({
-      data: {
-        type: 'person',
-        id: '1',
-      },
+  test('peekRecord should return the record if it is in the store ', function(assert) {
+    run(() => {
+      let person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+        },
+      });
+      assert.equal(
+        person,
+        store.peekRecord('person', 1),
+        'peekRecord only return the corresponding record in the store'
+      );
     });
-    assert.equal(
-      person,
-      store.peekRecord('person', 1),
-      'peekRecord only return the corresponding record in the store'
-    );
   });
-});
 
-test('peekRecord should return null if the record is not in the store ', function(assert) {
-  run(() => {
-    assert.equal(
-      null,
-      store.peekRecord('person', 1),
-      'peekRecord returns null if the corresponding record is not in the store'
-    );
+  test('peekRecord should return null if the record is not in the store ', function(assert) {
+    run(() => {
+      assert.equal(
+        null,
+        store.peekRecord('person', 1),
+        'peekRecord returns null if the corresponding record is not in the store'
+      );
+    });
   });
-});
 
-testInDebug('peekRecord should assert if not passed both model name and id', function(assert) {
-  run(() => {
-    assert.expectAssertion(() => {
-      store.peekRecord('my-id');
-    }, /You need to pass both a model name and id/);
+  testInDebug('peekRecord should assert if not passed both model name and id', function(assert) {
+    run(() => {
+      assert.expectAssertion(() => {
+        store.peekRecord('my-id');
+      }, /You need to pass both a model name and id/);
+    });
   });
-});
 
-testInDebug('peekRecord should assert if passed a model class instead of model name', function(
-  assert
-) {
-  run(() => {
-    assert.expectAssertion(() => {
-      let modelClass = EmberObject.extend();
-      store.peekRecord(modelClass, 'id');
-    }, /Passing classes to store methods has been removed/);
+  testInDebug('peekRecord should assert if passed a model class instead of model name', function(
+    assert
+  ) {
+    run(() => {
+      assert.expectAssertion(() => {
+        let modelClass = EmberObject.extend();
+        store.peekRecord(modelClass, 'id');
+      }, /Passing classes to store methods has been removed/);
+    });
   });
 });

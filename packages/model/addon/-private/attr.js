@@ -25,16 +25,16 @@ function hasValue(internalModel, key) {
 }
 
 /**
-  `DS.attr` defines an attribute on a [DS.Model](/api/data/classes/DS.Model.html).
+  `attr` defines an attribute on a [Model](/api/data/classes/DS.Model.html).
   By default, attributes are passed through as-is, however you can specify an
   optional type to have the value automatically transformed.
   Ember Data ships with four basic transform types: `string`, `number`,
   `boolean` and `date`. You can define your own transforms by subclassing
-  [DS.Transform](/api/data/classes/DS.Transform.html).
+  [Transform](/api/data/classes/DS.Transform.html).
 
   Note that you cannot use `attr` to define an attribute of `id`.
 
-  `DS.attr` takes an optional hash as a second parameter, currently
+  `attr` takes an optional hash as a second parameter, currently
   supported options are:
 
   - `defaultValue`: Pass a string or a function to be called to set the attribute
@@ -43,12 +43,12 @@ function hasValue(internalModel, key) {
   Example
 
   ```app/models/user.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    username: DS.attr('string'),
-    email: DS.attr('string'),
-    verified: DS.attr('boolean', { defaultValue: false })
+  export default Model.extend({
+    username: attr('string'),
+    email: attr('string'),
+    verified: attr('boolean', { defaultValue: false })
   });
   ```
 
@@ -56,12 +56,12 @@ function hasValue(internalModel, key) {
   a new object for each attribute.
 
   ```app/models/user.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    username: DS.attr('string'),
-    email: DS.attr('string'),
-    settings: DS.attr({
+  export default Model.extend({
+    username: attr('string'),
+    email: attr('string'),
+    settings: attr({
       defaultValue() {
         return {};
       }
@@ -74,19 +74,19 @@ function hasValue(internalModel, key) {
   transformation and adapt the corresponding value, based on the config:
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    text: DS.attr('text', {
+  export default Model.extend({
+    text: attr('text', {
       uppercase: true
     })
   });
   ```
 
   ```app/transforms/text.js
-  import DS from 'ember-data';
+  import Transform from '@ember-data/serializer/transform';
 
-  export default DS.Transform.extend({
+  export default Transform.extend({
     serialize(value, options) {
       if (options.uppercase) {
         return value.toUpperCase();

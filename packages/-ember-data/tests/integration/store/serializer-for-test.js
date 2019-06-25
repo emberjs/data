@@ -28,14 +28,6 @@ class TestSerializer {
   }
 }
 
-/*
-  Serializer Fallback Rules
-
-  1. per-type
-  2. application
-  3. Adapter.defaultSerializer
-  4. serializer:-default (json-api serializer)
- */
 module('integration/store - serializerFor', function(hooks) {
   setupTest(hooks);
   let store;

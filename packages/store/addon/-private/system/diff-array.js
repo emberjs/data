@@ -1,4 +1,4 @@
-/**
+/*
   @namespace
   @method diffArray
   @private

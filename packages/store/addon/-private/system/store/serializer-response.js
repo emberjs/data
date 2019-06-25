@@ -64,9 +64,9 @@ export function validateDocumentStructure(doc) {
   This is a helper method that always returns a JSON-API Document.
 
   @method normalizeResponseHelper
-  @param {DS.Serializer} serializer
-  @param {DS.Store} store
-  @param {subclass of DS.Model} modelClass
+  @param {Serializer} serializer
+  @param {Store} store
+  @param {subclass of Model} modelClass
   @param {Object} payload
   @param {String|Number} id
   @param {String} requestType

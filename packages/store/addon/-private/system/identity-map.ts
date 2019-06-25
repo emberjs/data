@@ -3,7 +3,7 @@ import { Dict } from '../types';
 
 /**
  `IdentityMap` is a custom storage map for records by modelName
- used by `DS.Store`.
+ used by `Store`.
 
  @class IdentityMap
  @private

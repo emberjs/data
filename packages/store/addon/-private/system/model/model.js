@@ -66,7 +66,6 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
   in your application, this is the class you should use.
 
   @class Model
-  @namespace DS
   @extends EmberObject
   @uses Ember.Evented
 */
@@ -394,7 +393,7 @@ const Model = EmberObject.extend(Evented, {
     ```
 
     @property errors
-    @type {DS.Errors}
+    @type {Errors}
   */
   errors: computed(function() {
     let errors = Errors.create();
@@ -412,11 +411,11 @@ const Model = EmberObject.extend(Evented, {
   }).readOnly(),
 
   /**
-    This property holds the `DS.AdapterError` object with which
+    This property holds the `AdapterError` object with which
     last adapter operation was rejected.
 
     @property adapterError
-    @type {DS.AdapterError}
+    @type {AdapterError}
   */
   adapterError: null,
 
@@ -439,7 +438,7 @@ const Model = EmberObject.extend(Evented, {
   },
 
   /**
-    Use [DS.JSONSerializer](DS.JSONSerializer.html) to
+    Use [JSONSerializer](DS.JSONSerializer.html) to
     get the JSON representation of a record.
 
     `toJSON` takes an optional hash as a parameter, currently
@@ -658,11 +657,11 @@ const Model = EmberObject.extend(Evented, {
     Example
 
     ```app/models/mascot.js
-    import DS from 'ember-data';
+    import Model, { attr } from '@ember-data/model';
 
-    export default DS.Model.extend({
-      name: DS.attr('string'),
-      isAdmin: DS.attr('boolean', {
+    export default Model.extend({
+      name: attr('string'),
+      isAdmin: attr('boolean', {
         defaultValue: false
       })
     });
@@ -845,7 +844,7 @@ const Model = EmberObject.extend(Evented, {
 
   attr() {
     assert(
-      'The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?',
+      'The `attr` method is not available on Model, a Snapshot was probably expected. Are you passing a Model instead of a Snapshot to your serializer?',
       false
     );
   },
@@ -856,8 +855,10 @@ const Model = EmberObject.extend(Evented, {
     Example
 
     ```app/models/blog.js
-    export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
+    import Model, { belongsTo } from '@ember-data/model';
+
+    export default Model.extend({
+      user: belongsTo({ async: true })
     });
     ```
 
@@ -920,10 +921,11 @@ const Model = EmberObject.extend(Evented, {
 
     Example
 
-    ```javascript
-    // models/blog.js
-    export default DS.Model.extend({
-      comments: DS.hasMany({ async: true })
+    ```app/models/blog.js
+    import Model, { hasMany } from '@ember-data/model';
+
+    export default Model.extend({
+      comments: hasMany({ async: true })
     });
 
     let blog = store.push({
@@ -989,7 +991,7 @@ const Model = EmberObject.extend(Evented, {
    - Flags relationship CPs as expensive properties.
 
    @method _debugInfo
-   @for DS.Model
+   @for Model
    @private
    */
   _debugInfo() {
@@ -1070,7 +1072,7 @@ const Model = EmberObject.extend(Evented, {
    - **key** <span class="type">String</span> the name of this relationship on the Model
    - **kind** <span class="type">String</span> "hasMany" or "belongsTo"
    - **options** <span class="type">Object</span> the original options hash passed when the relationship was declared
-   - **parentType** <span class="type">DS.Model</span> the type of the Model that owns this relationship
+   - **parentType** <span class="type">Model</span> the type of the Model that owns this relationship
    - **type** <span class="type">String</span> the type name of the related Model
 
    Note that in addition to a callback, you can also pass an optional target
@@ -1079,9 +1081,9 @@ const Model = EmberObject.extend(Evented, {
    Example
 
    ```app/serializers/application.js
-   import DS from 'ember-data';
+   import JSONSerializer from '@ember-data/serializer/json';
 
-   export default DS.JSONSerializer.extend({
+   export default JSONSerializer.extend({
     serialize: function(record, options) {
       let json = {};
 
@@ -1233,9 +1235,9 @@ Model.reopenClass({
 
   /**
     Create should only ever be called by the store. To create an instance of a
-    `DS.Model` in a dirty state use `store.createRecord`.
+    `Model` in a dirty state use `store.createRecord`.
 
-   To create instances of `DS.Model` in a clean state, use `store.push`
+   To create instances of `Model` in a clean state, use `store.push`
 
     @method create
     @private
@@ -1244,7 +1246,7 @@ Model.reopenClass({
 
   /**
    Represents the model's class name as a string. This can be used to look up the model's class name through
-   `DS.Store`'s modelFor method.
+   `Store`'s modelFor method.
 
    `modelName` is generated for you by Ember Data. It will be a lowercased, dasherized string.
    For example:
@@ -1258,9 +1260,10 @@ Model.reopenClass({
    keys to underscore (instead of dasherized), you might use the following code:
 
    ```javascript
+   import RESTSerializer from '@ember-data/serializer/rest';
    import { underscore } from '@ember/string';
 
-   export default const PostSerializer = DS.RESTSerializer.extend({
+   export default const PostSerializer = RESTSerializer.extend({
      payloadKeyFromModelName(modelName) {
        return underscore(modelName);
      }
@@ -1296,10 +1299,10 @@ Model.reopenClass({
    For example, if you define a model like this:
 
    ```app/models/post.js
-   import DS from 'ember-data';
+   import Model, { hasMany } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      comments: DS.hasMany('comment')
+   export default Model.extend({
+      comments: hasMany('comment')
     });
    ```
 
@@ -1308,8 +1311,8 @@ Model.reopenClass({
    @method typeForRelationship
    @static
    @param {String} name the name of the relationship
-   @param {store} store an instance of DS.Store
-   @return {DS.Model} the type of the relationship, or undefined
+   @param {store} store an instance of Store
+   @return {Model} the type of the relationship, or undefined
    */
   typeForRelationship(name, store) {
     let relationship = get(this, 'relationshipsByName').get(name);
@@ -1326,18 +1329,18 @@ Model.reopenClass({
    For example, if you define models like this:
 
    ```app/models/post.js
-   import DS from 'ember-data';
+   import Model, { hasMany } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      comments: DS.hasMany('message')
+   export default Model.extend({
+      comments: hasMany('message')
     });
    ```
 
    ```app/models/message.js
-   import DS from 'ember-data';
+   import Model, { belongsTo } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      owner: DS.belongsTo('post')
+   export default Model.extend({
+      owner: belongsTo('post')
     });
    ```
 
@@ -1349,7 +1352,7 @@ Model.reopenClass({
    @method inverseFor
    @static
    @param {String} name the name of the relationship
-   @param {DS.Store} store
+   @param {Store} store
    @return {Object} the inverse relationship, or null
    */
   inverseFor(name, store) {
@@ -1371,7 +1374,7 @@ Model.reopenClass({
     }
 
     let propertyMeta = this.metaForProperty(name);
-    //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', { inverse: null })`
+    //If inverse is manually specified to be null, like  `comments: hasMany('message', { inverse: null })`
     let options = propertyMeta.options;
     if (options.inverse === null) {
       return null;
@@ -1478,12 +1481,12 @@ Model.reopenClass({
    For example, given the following model definition:
 
    ```app/models/blog.js
-   import DS from 'ember-data';
+   import Model, { belongsTo, hasMany } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      users: DS.hasMany('user'),
-      owner: DS.belongsTo('user'),
-      posts: DS.hasMany('post')
+   export default Model.extend({
+      users: hasMany('user'),
+      owner: belongsTo('user'),
+      posts: hasMany('post')
     });
    ```
 
@@ -1518,13 +1521,13 @@ Model.reopenClass({
    definition:
 
    ```app/models/blog.js
-   import DS from 'ember-data';
+   import Model, { belongsTo, hasMany } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      users: DS.hasMany('user'),
-      owner: DS.belongsTo('user'),
+   export default Model.extend({
+      users: hasMany('user'),
+      owner: belongsTo('user'),
 
-      posts: DS.hasMany('post')
+      posts: hasMany('post')
     });
    ```
 
@@ -1569,13 +1572,13 @@ Model.reopenClass({
    For example, given a model with this definition:
 
    ```app/models/blog.js
-   import DS from 'ember-data';
+   import Model, { belongsTo, hasMany } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      users: DS.hasMany('user'),
-      owner: DS.belongsTo('user'),
+   export default Model.extend({
+      users: hasMany('user'),
+      owner: belongsTo('user'),
 
-      posts: DS.hasMany('post')
+      posts: hasMany('post')
     });
    ```
 
@@ -1604,13 +1607,13 @@ Model.reopenClass({
    definition:
 
    ```app/models/blog.js
-   import DS from 'ember-data';
+   import Model, { belongsTo, hasMany } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      users: DS.hasMany('user'),
-      owner: DS.belongsTo('user'),
+   export default Model.extend({
+      users: hasMany('user'),
+      owner: belongsTo('user'),
 
-      posts: DS.hasMany('post')
+      posts: hasMany('post')
     });
    ```
 
@@ -1644,15 +1647,15 @@ Model.reopenClass({
    For example:
 
    ```app/models/blog.js
-   import DS from 'ember-data';
+   import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      users: DS.hasMany('user'),
-      owner: DS.belongsTo('user'),
+   export default Model.extend({
+      users: hasMany('user'),
+      owner: belongsTo('user'),
 
-      posts: DS.hasMany('post'),
+      posts: hasMany('post'),
 
-      title: DS.attr('string')
+      title: attr('string')
     });
    ```
 
@@ -1750,18 +1753,18 @@ Model.reopenClass({
 
   /**
    A map whose keys are the attributes of the model (properties
-   described by DS.attr) and whose values are the meta object for the
+   described by attr) and whose values are the meta object for the
    property.
 
    Example
 
    ```app/models/person.js
-   import DS from 'ember-data';
+   import Model, { attr } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-      birthday: DS.attr('date')
+   export default Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      birthday: attr('date')
     });
    ```
 
@@ -1792,7 +1795,7 @@ Model.reopenClass({
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {
         assert(
-          "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " +
+          "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: attr('<type>')` from " +
             this.toString(),
           name !== 'id'
         );
@@ -1807,19 +1810,19 @@ Model.reopenClass({
 
   /**
    A map whose keys are the attributes of the model (properties
-   described by DS.attr) and whose values are type of transformation
+   described by attr) and whose values are type of transformation
    applied to each attribute. This map does not include any
    attributes that do not have an transformation type.
 
    Example
 
    ```app/models/person.js
-   import DS from 'ember-data';
+   import Model, { attr } from '@ember-data/model';
 
-   export default DS.Model.extend({
-      firstName: DS.attr(),
-      lastName: DS.attr('string'),
-      birthday: DS.attr('date')
+   export default Model.extend({
+      firstName: attr(),
+      lastName: attr('string'),
+      birthday: attr('date')
     });
    ```
 
@@ -1875,12 +1878,12 @@ Model.reopenClass({
    Example
 
    ```javascript
-   import DS from 'ember-data';
+   import Model, { attr } from '@ember-data/model';
 
-   let Person = DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-      birthday: DS.attr('date')
+   let Person = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      birthday: attr('date')
     });
 
    Person.eachAttribute(function(name, meta) {
@@ -1926,12 +1929,12 @@ Model.reopenClass({
    Example
 
    ```javascript
-   import DS from 'ember-data';
+   import Model, { attr } from '@ember-data/model';
 
-   let Person = DS.Model.extend({
-      firstName: DS.attr(),
-      lastName: DS.attr('string'),
-      birthday: DS.attr('date')
+   let Person = Model.extend({
+      firstName: attr(),
+      lastName: attr('string'),
+      birthday: attr('date')
     });
 
    Person.eachTransformedAttribute(function(name, type) {

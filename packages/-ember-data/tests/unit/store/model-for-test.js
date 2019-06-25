@@ -8,8 +8,8 @@ import DS from 'ember-data';
 
 let container, store, registry, env;
 
-module('unit/store/model_for - DS.Store#modelFor', {
-  beforeEach() {
+module('unit/store/model_for - DS.Store#modelFor', function(hooks) {
+  hooks.beforeEach(function() {
     env = setupStore({
       blogPost: DS.Model.extend(),
       'blog.post': DS.Model.extend(),
@@ -17,40 +17,40 @@ module('unit/store/model_for - DS.Store#modelFor', {
     store = env.store;
     container = env.container;
     registry = env.registry;
-  },
+  });
 
-  afterEach() {
+  hooks.afterEach(function() {
     run(() => {
       container.destroy();
       store.destroy();
     });
-  },
-});
+  });
 
-test('when fetching factory from string, sets a normalized key as modelName', function(assert) {
-  env.replaceContainerNormalize(key => dasherize(camelize(key)));
+  test('when fetching factory from string, sets a normalized key as modelName', function(assert) {
+    env.replaceContainerNormalize(key => dasherize(camelize(key)));
 
-  assert.equal(registry.normalize('some.post'), 'some-post', 'precond - container camelizes');
-  assert.equal(
-    store.modelFor('blog.post').modelName,
-    'blog.post',
-    'modelName is normalized to dasherized'
-  );
-});
+    assert.equal(registry.normalize('some.post'), 'some-post', 'precond - container camelizes');
+    assert.equal(
+      store.modelFor('blog.post').modelName,
+      'blog.post',
+      'modelName is normalized to dasherized'
+    );
+  });
 
-test('when fetching factory from string and dashing normalizer, sets a normalized key as modelName', function(assert) {
-  env.replaceContainerNormalize(key => dasherize(camelize(key)));
+  test('when fetching factory from string and dashing normalizer, sets a normalized key as modelName', function(assert) {
+    env.replaceContainerNormalize(key => dasherize(camelize(key)));
 
-  assert.equal(registry.normalize('some.post'), 'some-post', 'precond - container dasherizes');
-  assert.equal(
-    store.modelFor('blog.post').modelName,
-    'blog.post',
-    'modelName is normalized to dasherized'
-  );
-});
+    assert.equal(registry.normalize('some.post'), 'some-post', 'precond - container dasherizes');
+    assert.equal(
+      store.modelFor('blog.post').modelName,
+      'blog.post',
+      'modelName is normalized to dasherized'
+    );
+  });
 
-test(`when fetching something that doesn't exist, throws error`, function(assert) {
-  assert.throws(() => {
-    store.modelFor('wild-stuff');
-  }, /No model was found/);
+  test(`when fetching something that doesn't exist, throws error`, function(assert) {
+    assert.throws(() => {
+      store.modelFor('wild-stuff');
+    }, /No model was found/);
+  });
 });
