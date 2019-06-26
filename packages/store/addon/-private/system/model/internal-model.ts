@@ -335,7 +335,7 @@ export default class InternalModel {
 
   deleteRecord() {
     if (this._recordData.setIsDeleted) {
-        this._recordData.setIsDeleted(true);
+      this._recordData.setIsDeleted(true);
     }
     this.send('deleteRecord');
   }
@@ -371,18 +371,18 @@ export default class InternalModel {
     let internalModel = this;
     let promiseLabel = 'DS: Model#reload of ' + this;
 
-      return internalModel.store._reloadRecord(internalModel, options)
+    return internalModel.store._reloadRecord(internalModel, options)
       .then(
-        function() {
+        function () {
           //TODO NOW seems like we shouldn't need to do this
           return internalModel;
         },
-        function(error) {
+        function (error) {
           throw error;
         },
         'DS: Model#reload complete, update flags'
       )
-      .finally(function() {
+      .finally(function () {
         internalModel.finishedReloading();
         internalModel.updateRecordArrays();
       });
@@ -524,12 +524,12 @@ export default class InternalModel {
         let toReturn = internalModel.getRecord();
         assert(
           "You looked up the '" +
-            key +
-            "' relationship on a '" +
-            parentInternalModel.modelName +
-            "' with id " +
-            parentInternalModel.id +
-            ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)',
+          key +
+          "' relationship on a '" +
+          parentInternalModel.modelName +
+          "' with id " +
+          parentInternalModel.id +
+          ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)',
           toReturn === null || !toReturn.get('isEmpty')
         );
         return toReturn;
@@ -618,7 +618,7 @@ export default class InternalModel {
     } else {
       assert(
         `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${
-          this.id
+        this.id
         } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
         !manyArray.anyUnloaded()
       );
@@ -1177,6 +1177,9 @@ export default class InternalModel {
     if (error && parsedErrors) {
       let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
       this.send('becameInvalid');
+      if (jsonApiErrors.length === 0) {
+        jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
+      }
       this._recordData.commitWasRejected({}, jsonApiErrors);
     } else {
       this.send('becameError');
@@ -1201,14 +1204,14 @@ export default class InternalModel {
     if (this.hasRecord) {
       if (!key || key === 'isNew') {
         this.getRecord().notifyPropertyChange('isNew');
-      } 
+      }
       if (!key || key === 'isDeleted') {
         this.getRecord().notifyPropertyChange('isDeleted');
       }
     }
-      if (!key || key === 'isDeletionCommitted') {
-        this.updateRecordArrays();
-      }
+    if (!key || key === 'isDeletionCommitted') {
+      this.updateRecordArrays();
+    }
   }
   /*
     @method adapterror
@@ -1309,7 +1312,7 @@ function assertRecordsPassedToHasMany(records) {
     `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(
       records
     )}`,
-    (function() {
+    (function () {
       return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
     })()
   );

@@ -487,6 +487,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
   }
 
   commitWasRejected(identifier, errors?: JsonApiValidationError[]) {
+    debugger
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
       let attrs = this._attributes;
