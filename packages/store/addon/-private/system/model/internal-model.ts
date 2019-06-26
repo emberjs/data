@@ -215,7 +215,6 @@ export default class InternalModel {
   }
 
   _isRecordFullyDeleted() {
-    debugger
     if (this._recordData.isDeletionCommitted) {
       return this._recordData.isDeletionCommitted() || (this._recordData.isNew() && this._recordData.isDeleted());
     } else {
@@ -294,7 +293,6 @@ export default class InternalModel {
   }
 
   dematerializeRecord() {
-    debugger
     this._isDematerializing = true;
 
     // TODO IGOR add a test that fails when this is missing, something that involves canceliing a destroy
@@ -401,7 +399,6 @@ export default class InternalModel {
     once all models that refer to it via some relationship are also unloaded.
   */
   unloadRecord() {
-    debugger
     if (this.isDestroyed) {
       return;
     }
@@ -444,7 +441,6 @@ export default class InternalModel {
   // In those scenarios, we make that model's cleanup work, sync.
   //
   destroySync() {
-    debugger
     if (this._isDematerializing) {
       this.cancelDestroy();
     }
@@ -712,7 +708,6 @@ export default class InternalModel {
   }
 
   destroy() {
-    debugger
     // TODO add a better check for ED model
     assert(
       'Cannot destroy an internalModel while its record is materialized',
@@ -1178,7 +1173,7 @@ export default class InternalModel {
       let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
       this.send('becameInvalid');
       if (jsonApiErrors.length === 0) {
-        jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
+        jsonApiErrors = [{ title: 'Invalid Error', detail: '' , source: { pointer: '/data' } }];
       }
       this._recordData.commitWasRejected({}, jsonApiErrors);
     } else {
@@ -1193,7 +1188,6 @@ export default class InternalModel {
     // don't think we need this
     let invalidErrors: JsonApiValidationError[] = jsonApiErrors.filter((err) => err.source !== undefined && err.title !== undefined) as JsonApiValidationError[];
     this.notifyInvalidErrorsChange(invalidErrors);
-    debugger
   }
 
   notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {

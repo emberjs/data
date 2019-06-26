@@ -53,7 +53,6 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   @return {Array} array of errors in JSON-API format
 */
 export function errorsHashToArray(errors) {
-  debugger
   let out = [];
 
   if (isPresent(errors)) {

@@ -182,7 +182,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
   });
 
   test("Record Data push, create and save lifecycle", async function (assert) {
-    assert.expect(17);
+    assert.expect(19);
     let called = 0;
     let createCalled = 0;
     const personHash = {
@@ -234,7 +234,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       setIsDeleted(value) {
-        debugger
         isDeleted = value;
       }
 
@@ -243,7 +242,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       didCommit(data) {
-        debugger
         isNew = false;
         calledDidCommit++;
       }
@@ -267,7 +265,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
       },
 
       deleteRecord() {
-        debugger
         return Promise.resolve();
       },
 
@@ -287,7 +284,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.equal(calledPush, 1, 'Called pushData');
 
     let person = store.peekRecord('person', '1');
-    /*
     person.save();
     assert.equal(calledWillCommit, 1, 'Called willCommit');
 
@@ -303,7 +299,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     person.rollbackAttributes();
     assert.equal(calledRollbackAttributes, 1, 'Called rollbackAttributes');
-    */
 
     person.deleteRecord();
     person.save();
@@ -318,7 +313,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.equal(calledUnloadRecord, 1, 'Called unloadRecord');
 
     await settled();
-    assert.equal(calledClientDidCreate, 0, 'Did not called clientDidCreate');
+    assert.equal(calledClientDidCreate, 0, 'Did not call clientDidCreate');
 
     calledPush = 0;
     calledClientDidCreate = 0;
@@ -327,6 +322,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     calledUnloadRecord = 0;
     calledRollbackAttributes = 0;
     calledDidCommit = 0;
+    isDeleted = false;
 
     let clientPerson = store.createRecord('person', { id: 2 });
     assert.equal(calledClientDidCreate, 1, 'Called clientDidCreate');
@@ -336,7 +332,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     await settled();
     assert.equal(calledPush, 0, 'Did not call pushData');
-    /*
     assert.equal(calledDidCommit, 1, 'Called didCommit');
 
     clientPerson.save();
@@ -345,10 +340,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
     await settled();
     assert.equal(calledWasRejected, 1, 'Called commitWasRejected');
     assert.equal(calledDidCommit, 1, 'Did not call didCommit again');
-    */
-
-    //clientPerson.unloadRecord();
-    //assert.equal(calledUnloadRecord, 1, 'Called unloadRecord');
+    clientPerson.unloadRecord();
+    assert.equal(calledUnloadRecord, 1, 'Called unloadRecord');
 
   });
 

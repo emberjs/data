@@ -14,7 +14,6 @@ function moveRecordOutOfInFlight(record) {
   run(() => {
     // move record out of the inflight state so the tests can clean up
     // correctly
-    debugger
     let { store, _internalModel } = record;
     store.didSaveRecord(_internalModel, { data: { type: _internalModel.modelName, id: (_internalModel.id || '1' )} });
   });

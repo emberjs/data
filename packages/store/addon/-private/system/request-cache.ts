@@ -57,7 +57,6 @@ export default class RequestCache {
         _touching: [query.identifier]
       }
       this._pending[lid].push(request);
-      debugger
       this._triggerSubscriptions(request);
       promise.then((result) => {
         this._dequeue(lid, request);
