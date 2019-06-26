@@ -7,6 +7,6 @@ const addonBaseConfig = addonBuildConfigForDataPackage(name);
 module.exports = Object.assign(addonBaseConfig, {
   shouldRollupPrivate: true,
   externalDependenciesForPrivateModule() {
-    return ['@ember-data/store', '@ember-data/store/-private'];
+    return ['@ember-data/canary-features', '@ember-data/store', '@ember-data/store/-private'];
   },
 });

@@ -9,6 +9,7 @@ module.exports = Object.assign(addonBaseConfig, {
   externalDependenciesForPrivateModule() {
     return [
       '@ember-data/adapter/error',
+      '@ember-data/canary-features',
       'ember-inflector',
       '@ember/ordered-set',
       'ember-data/-debug',

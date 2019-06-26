@@ -6,6 +6,7 @@ import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
 import EmberObject from '@ember/object';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
+import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -25,32 +26,31 @@ class House extends Model {
   tenants;
 }
 
-
 // TODO: this should work
 // class TestRecordData implements RecordData
 class TestRecordData {
   // Use correct interface once imports have been fix
   _storeWrapper: any;
 
-  pushData(data, calculateChange?: boolean) { }
-  clientDidCreate() { }
+  pushData(data, calculateChange?: boolean) {}
+  clientDidCreate() {}
 
-  willCommit() { }
+  willCommit() {}
 
-  commitWasRejected() { }
+  commitWasRejected() {}
 
-  unloadRecord() { }
-  rollbackAttributes() { }
-  changedAttributes(): any { }
+  unloadRecord() {}
+  rollbackAttributes() {}
+  changedAttributes(): any {}
 
   hasChangedAttributes(): boolean {
     return false;
   }
 
-  setDirtyAttribute(key: string, value: any) { }
+  setDirtyAttribute(key: string, value: any) {}
 
   getAttr(key: string): string {
-    return "test";
+    return 'test';
   }
 
   hasAttr(key: string): boolean {
@@ -61,68 +61,70 @@ class TestRecordData {
     return {};
   }
 
-  addToHasMany(key: string, recordDatas: this[], idx?: number) { }
-  removeFromHasMany(key: string, recordDatas: this[]) { }
-  setDirtyHasMany(key: string, recordDatas: this[]) { }
+  addToHasMany(key: string, recordDatas: this[], idx?: number) {}
+  removeFromHasMany(key: string, recordDatas: this[]) {}
+  setDirtyHasMany(key: string, recordDatas: this[]) {}
 
-  getBelongsTo(key: string) { }
+  getBelongsTo(key: string) {}
 
-  setDirtyBelongsTo(name: string, recordData: this | null) { }
+  setDirtyBelongsTo(name: string, recordData: this | null) {}
 
-  didCommit(data) { }
+  didCommit(data) {}
 
-  isAttrDirty(key: string) { return false; }
-  removeFromInverseRelationships(isNew: boolean) { }
+  isAttrDirty(key: string) {
+    return false;
+  }
+  removeFromInverseRelationships(isNew: boolean) {}
 
-  _initRecordCreateOptions(options) { }
+  _initRecordCreateOptions(options) {}
 }
 
 let CustomStore = Store.extend({
   createRecordDataFor(modelName, id, clientId, storeWrapper) {
     return new TestRecordData();
-  }
+  },
 });
 
 let houseHash, davidHash, runspiredHash, igorHash;
 
-module('integration/record-data - Custom RecordData Implementations', function (hooks) {
+module('integration/record-data - Custom RecordData Implementations', function(hooks) {
   setupTest(hooks);
 
   let store;
 
-  hooks.beforeEach(function () {
+  hooks.beforeEach(function() {
     let { owner } = this;
 
     houseHash = {
       type: 'house',
       id: '1',
       attributes: {
-        name: 'Moomin'
-      }
+        name: 'Moomin',
+      },
     };
 
     davidHash = {
       type: 'person',
       id: '1',
       attributes: {
-        name: 'David'
-      }
+        name: 'David',
+      },
     };
 
     runspiredHash = {
       type: 'person',
       id: '2',
       attributes: {
-        name: 'Runspired'
-      }
+        name: 'Runspired',
+      },
     };
 
     igorHash = {
       type: 'person',
       id: '3',
       attributes: {
-        name: 'Igor'
-      }
+        name: 'Igor',
+      },
     };
 
     owner.register('model:person', Person);
@@ -130,7 +132,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('service:store', CustomStore);
   });
 
-  test("A RecordData implementation that has the required spec methods should not error out", async function (assert) {
+  test('A RecordData implementation that has the required spec methods should not error out', async function(assert) {
     let { owner } = this;
     store = owner.lookup('service:store');
 
@@ -173,7 +175,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.equal(get(all, 'length'), 3);
   });
 
-  test("Record Data push, create and save lifecycle", async function (assert) {
+  test('Record Data push, create and save lifecycle', async function(assert) {
     assert.expect(17);
     let called = 0;
     let createCalled = 0;
@@ -182,10 +184,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
       id: '1',
       attributes: {
         name: 'Scumbag Dale',
-      }
-    }
+      },
+    };
     let { owner } = this;
-    let calledPush = 0
+    let calledPush = 0;
     let calledClientDidCreate = 0;
     let calledWillCommit = 0;
     let calledWasRejected = 0;
@@ -223,11 +225,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     }
 
-
     let TestStore = Store.extend({
       createRecordDataFor(modelName, id, clientId, storeWrapper) {
         return new LifecycleRecordData();
-      }
+      },
     });
 
     let TestAdapter = EmberObject.extend({
@@ -242,7 +243,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
       createRecord() {
         return Promise.resolve();
-      }
+      },
     });
 
     owner.register('service:store', TestStore);
@@ -251,7 +252,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     store = owner.lookup('service:store');
 
     store.push({
-      data: [personHash]
+      data: [personHash],
     });
     assert.equal(calledPush, 1, 'Called pushData');
 
@@ -309,18 +310,22 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.equal(calledPush, 0, 'Did not call pushData');
   });
 
-  test("Record Data attribute settting", async function (assert) {
-    assert.expect(11);
+  test('Record Data attribute settting', async function(assert) {
+    let expectedCount = 11;
+    if (RECORD_DATA_ERRORS) {
+      expectedCount = 12;
+    }
+    assert.expect(expectedCount);
     const personHash = {
       type: 'person',
       id: '1',
       attributes: {
         name: 'Scumbag Dale',
-      }
-    }
+      },
+    };
 
     let { owner } = this;
-    let calledGet = 0
+    let calledGet = 0;
 
     class AttributeRecordData extends TestRecordData {
       changedAttributes(): any {
@@ -339,7 +344,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       getAttr(key: string): string {
         calledGet++;
         assert.equal(key, 'name', 'key passed to getAttr');
-        return "new attribute";
+        return 'new attribute';
       }
 
       hasAttr(key: string): boolean {
@@ -355,7 +360,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let TestStore = Store.extend({
       createRecordDataFor(modelName, id, clientId, storeWrapper) {
         return new AttributeRecordData();
-      }
+      },
     });
 
     owner.register('service:store', TestStore);
@@ -363,7 +368,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     store = owner.lookup('service:store');
 
     store.push({
-      data: [personHash]
+      data: [personHash],
     });
 
     let person = store.peekRecord('person', '1');
@@ -371,11 +376,19 @@ module('integration/record-data - Custom RecordData Implementations', function (
     person.set('name', 'new value');
     person.notifyPropertyChange('name');
     assert.equal(person.get('name'), 'new attribute');
-    assert.equal(calledGet, 3, 'called getAttr after notifyPropertyChange');
-    assert.deepEqual(person.changedAttributes(), { name: ['old', 'new'] }, 'changed attributes passes through RD value');
+    let expectedTimesToCallGet = 3;
+    if (RECORD_DATA_ERRORS) {
+      expectedTimesToCallGet = 4;
+    }
+    assert.equal(calledGet, expectedTimesToCallGet, 'called getAttr after notifyPropertyChange');
+    assert.deepEqual(
+      person.changedAttributes(),
+      { name: ['old', 'new'] },
+      'changed attributes passes through RD value'
+    );
   });
 
-  test("Record Data controls belongsTo notifications", async function (assert) {
+  test('Record Data controls belongsTo notifications', async function(assert) {
     assert.expect(6);
     let called = 0;
     let createCalled = 0;
@@ -384,7 +397,6 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let belongsToReturnValue = { data: { id: '1', type: 'person' } };
 
     class RelationshipRecordData extends TestRecordData {
-
       constructor(storeWrapper) {
         super();
         this._storeWrapper = storeWrapper;
@@ -409,7 +421,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         } else {
           return this._super(modelName, id, clientId, storeWrapper);
         }
-      }
+      },
     });
 
     owner.register('service:store', TestStore);
@@ -417,11 +429,11 @@ module('integration/record-data - Custom RecordData Implementations', function (
     store = owner.lookup('service:store');
 
     store.push({
-      data: [davidHash, runspiredHash]
+      data: [davidHash, runspiredHash],
     });
 
     store.push({
-      data: [houseHash]
+      data: [houseHash],
     });
 
     let house = store.peekRecord('house', '1');
@@ -429,10 +441,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.equal(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
 
     house.set('landlord', runspired);
-    assert.equal(house.get('landlord.name'), 'David', 'belongsTo does not change if RD did not notify');
+    assert.equal(
+      house.get('landlord.name'),
+      'David',
+      'belongsTo does not change if RD did not notify'
+    );
   });
 
-  test("Record Data custom belongsTo", async function (assert) {
+  test('Record Data custom belongsTo', async function(assert) {
     assert.expect(4);
     let { owner } = this;
 
@@ -462,7 +478,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         } else {
           return this._super(modelName, id, clientId, storeWrapper);
         }
-      }
+      },
     });
 
     owner.register('service:store', TestStore);
@@ -470,13 +486,12 @@ module('integration/record-data - Custom RecordData Implementations', function (
     store = owner.lookup('service:store');
 
     store.push({
-      data: [davidHash, runspiredHash, igorHash]
+      data: [davidHash, runspiredHash, igorHash],
     });
 
     store.push({
-      data: [houseHash]
+      data: [houseHash],
     });
-
 
     let house = store.peekRecord('house', '1');
     assert.equal(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
@@ -488,7 +503,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.equal(house.get('landlord.name'), 'Igor', 'RecordData sets the custom belongsTo value');
   });
 
-  test("Record Data controls hasMany notifications", async function (assert) {
+  test('Record Data controls hasMany notifications', async function(assert) {
     assert.expect(10);
     let called = 0;
     let createCalled = 0;
@@ -544,7 +559,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         } else {
           return this._super(modelName, id, clientId, storeWrapper);
         }
-      }
+      },
     });
 
     owner.register('service:store', TestStore);
@@ -552,11 +567,11 @@ module('integration/record-data - Custom RecordData Implementations', function (
     store = owner.lookup('service:store');
 
     store.push({
-      data: [davidHash, runspiredHash, igorHash]
+      data: [davidHash, runspiredHash, igorHash],
     });
 
     store.push({
-      data: [houseHash]
+      data: [houseHash],
     });
 
     let house = store.peekRecord('house', '1');
@@ -571,13 +586,17 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.deepEqual(people.toArray(), [david], 'has many doesnt change if RD did not notify');
 
     people.removeObject(david);
-    assert.deepEqual(people.toArray(), [david], 'hasMany removal doesnt apply the change unless notified');
+    assert.deepEqual(
+      people.toArray(),
+      [david],
+      'hasMany removal doesnt apply the change unless notified'
+    );
 
     house.set('tenants', [igor]);
     assert.deepEqual(people.toArray(), [david], 'setDirtyHasMany doesnt apply unless notified');
   });
 
-  test("Record Data supports custom hasMany handling", async function (assert) {
+  test('Record Data supports custom hasMany handling', async function(assert) {
     assert.expect(10);
     let { owner } = this;
 
@@ -606,7 +625,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         assert.equal(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
         calledAddToHasMany++;
 
-        hasManyReturnValue = { data: [{ id: '3', type: 'person'} , { id: '2', type: 'person' }] };
+        hasManyReturnValue = { data: [{ id: '3', type: 'person' }, { id: '2', type: 'person' }] };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
 
@@ -618,14 +637,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
         assert.equal(key, 'tenants', 'Passed correct key to removeFromHasMany');
         assert.equal(recordDatas[0].id, '2', 'Passed correct RD to removeFromHasMany');
         calledRemoveFromHasMany++;
-        hasManyReturnValue = { data: [{ id: '1', type: 'person'}] };
+        hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
 
       setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
         assert.equal(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
-        hasManyReturnValue = { data: [{ id: '1', type: 'person'} , { id: '2', type: 'person' }] };
+        hasManyReturnValue = { data: [{ id: '1', type: 'person' }, { id: '2', type: 'person' }] };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
     }
@@ -637,7 +656,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         } else {
           return this._super(modelName, id, clientId, storeWrapper);
         }
-      }
+      },
     });
 
     owner.register('service:store', TestStore);
@@ -645,11 +664,11 @@ module('integration/record-data - Custom RecordData Implementations', function (
     store = owner.lookup('service:store');
 
     store.push({
-      data: [davidHash, runspiredHash, igorHash]
+      data: [davidHash, runspiredHash, igorHash],
     });
 
     store.push({
-      data: [houseHash]
+      data: [houseHash],
     });
 
     let house = store.peekRecord('house', '1');
@@ -672,5 +691,4 @@ module('integration/record-data - Custom RecordData Implementations', function (
     // This is intentionally !== [igor] to test the custom RD implementation
     assert.deepEqual(people.toArray(), [david, runspired], 'setDirtyHasMany applies changes');
   });
-
 });

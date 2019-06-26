@@ -19,7 +19,7 @@
     "test:node": "lerna run test:node",
     "test:production": "yarn workspace ember-data test:production",
     "test:try-one": "yarn workspace ember-data test:try-one",
-    "test:enabled-in-progress-features": "yarn workspace ember-data test --enable-in-progress",
+    "test:enabled-in-progress-features": "yarn workspace ember-data test:optional-features",
     "test-external:ember-m3": "./bin/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "./bin/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
     "test-external:model-fragments": "./bin/test-external-partner-project.js ember-data-model-fragments https://github.com/lytics/ember-data-model-fragments.git",

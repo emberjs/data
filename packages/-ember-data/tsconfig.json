@@ -21,7 +21,10 @@
       "ember-data/*": ["addon/*"],
       "ember-data/test-support": ["addon-test-support"],
       "ember-data/test-support/*": ["addon-test-support/*"],
-      "*": ["types/*"]
+      "@ember-data/store": ["../store/addon"],
+      "@ember-data/store/*": ["../store/addon/*"],
+      "@ember-data/adapter/error": ["../adapter/addon/error"],
+      "*": ["../store/types/*"]
     }
   },
   "include": [

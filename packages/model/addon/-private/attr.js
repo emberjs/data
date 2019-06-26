@@ -2,6 +2,7 @@ import { computed } from '@ember/object';
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import { recordDataFor } from '@ember-data/store/-private';
+import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 
 /**
   @module ember-data
@@ -145,6 +146,16 @@ export default function attr(type, options) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
           );
+        }
+      }
+      if (RECORD_DATA_ERRORS) {
+        let oldValue = this._internalModel._recordData.getAttr(key);
+        if (oldValue !== value) {
+          let errors = this.get('errors');
+          if (errors.get(key)) {
+            errors.remove(key);
+          }
+          this._markInvalidRequestAsClean();
         }
       }
       return this._internalModel.setDirtyAttribute(key, value);

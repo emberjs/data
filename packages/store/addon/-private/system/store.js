@@ -45,6 +45,7 @@ import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
 import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
+import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
@@ -2184,11 +2185,15 @@ const Store = Service.extend({
     @param {InternalModel} internalModel
     @param {Object} errors
   */
-  recordWasInvalid(internalModel, errors) {
+  recordWasInvalid(internalModel, parsedErrors, error) {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasInvalid');
     }
-    internalModel.adapterDidInvalidate(errors);
+    if (RECORD_DATA_ERRORS) {
+      internalModel.adapterDidInvalidate(parsedErrors, error);
+    } else {
+      internalModel.adapterDidInvalidate(parsedErrors);
+    }
   },
 
   /**
@@ -3272,9 +3277,8 @@ function _commit(adapter, store, operation, snapshot) {
     },
     function(error) {
       if (error instanceof InvalidError) {
-        let errors = serializer.extractErrors(store, modelClass, error, snapshot.id);
-
-        store.recordWasInvalid(internalModel, errors);
+        let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        store.recordWasInvalid(internalModel, parsedErrors, error);
       } else {
         store.recordWasError(internalModel, error);
       }
