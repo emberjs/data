@@ -619,7 +619,7 @@ const Model = EmberObject.extend(Evented, {
 
   /**
     Unloads the record from the store. This will not send a delete request 
-    to your server, it just unloads the request from memory.
+    to your server, it just unloads the record from memory.
 
     @method unloadRecord
   */
