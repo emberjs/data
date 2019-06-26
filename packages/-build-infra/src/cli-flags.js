@@ -8,6 +8,10 @@ function wantsEnabledFeatures() {
   return process.env.ENABLE_IN_PROGRESS;
 }
 
+function isPackingForPublish() {
+  return process.env.IS_EMBER_DATA_RELEASE;
+}
+
 function getManuallyEnabledFeatures() {
   let enabled = {};
   let ARGS = process.env.ENABLE_IN_PROGRESS;
@@ -25,4 +29,5 @@ module.exports = {
   isInstrumentedBuild,
   wantsEnabledFeatures,
   getManuallyEnabledFeatures,
+  isPackingForPublish,
 };
