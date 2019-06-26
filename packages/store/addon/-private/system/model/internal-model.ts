@@ -651,15 +651,7 @@ export default class InternalModel {
   reloadHasMany(key, options) {
     let loadingPromise = this._relationshipPromisesCache[key];
     if (loadingPromise) {
-      if (loadingPromise.get('isPending')) {
-        return loadingPromise;
-      }
-      /* TODO Igor check wtf this is about
-      TODO NOW
-      if (loadingPromise.get('isRejected')) {
-        manyArray.set('isLoaded', manyArrayLoadedState);
-      }
-      */
+      return loadingPromise;
     }
 
     let jsonApi = this._recordData.getHasMany(key);
