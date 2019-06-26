@@ -12,6 +12,10 @@
   },
   "scripts": {},
   "dependencies": {
+    "broccoli-funnel": "^2.0.2",
+    "broccoli-rollup": "^4.1.1",
+    "broccoli-merge-trees": "^3.0.2",
+    "broccoli-debug": "^0.6.5",
     "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^2.0.4",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
@@ -20,6 +24,9 @@
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
     "git-repo-info": "^2.0.0",
+    "glob": "^7.1.3",
+    "chalk": "^2.4.1",
+    "mocha": "^6.1.2",
     "npm-git-info": "^1.0.3",
     "silent-error": "^1.1.1"
   },

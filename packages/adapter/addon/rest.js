@@ -1245,9 +1245,7 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 
 function ajaxError(adapter, payload, requestData, responseData) {
   if (DEBUG) {
-    let message = `The server returned an empty string for ${requestData.method} ${
-      requestData.url
-    }, which cannot be parsed into a valid JSON. Return either null or {}.`;
+    let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
     let validJSONString = !(responseData.textStatus === 'parsererror' && payload === '');
     warn(message, validJSONString, {
       id: 'ds.adapter.returned-empty-string-as-JSON',
