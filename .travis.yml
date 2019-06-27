@@ -41,7 +41,7 @@ jobs:
       if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       script:
         - yarn lint:features
-        - yarn lint:js
+        - yarn lint:prettier
     - name: 'Basic Tests'
       script: yarn test
 

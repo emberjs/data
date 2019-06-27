@@ -5,7 +5,7 @@ module.exports = {
     ecmaVersion: 2017,
     sourceType: 'module',
   },
-  plugins: ['prettier'],
+  plugins: ['prettier', 'qunit'],
   extends: ['eslint:recommended', 'prettier'],
   rules: {
     'prettier/prettier': 'error',
@@ -78,7 +78,11 @@ module.exports = {
 
     // node tests
     {
-      files: ['packages/*/node-tests/**', 'node-tests/**'],
+      files: [
+        'packages/*/node-tests/**',
+        'node-tests/**',
+        'packages/-build-infra/src/node-test-helpers/setup-test-environment.js',
+      ],
 
       env: {
         mocha: true,

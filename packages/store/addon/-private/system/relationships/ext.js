@@ -34,9 +34,7 @@ export const relatedTypesDescriptor = computed(function() {
       let modelName = typeForRelationshipMeta(meta);
 
       assert(
-        `You specified a hasMany (${meta.type}) on ${parentModelName} but ${
-          meta.type
-        } was not found.`,
+        `You specified a hasMany (${meta.type}) on ${parentModelName} but ${meta.type} was not found.`,
         modelName
       );
 
