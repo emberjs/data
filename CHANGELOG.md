@@ -2,6 +2,17 @@
 
 ### Master
 
+## Release 3.11.0-beta.2 (June 26, 2019)
+ 
+- [#6192](https://github.com/emberjs/data/pull/6192) Fix yuidoc setup to support the split packages (#6153)
+- [#6189](https://github.com/emberjs/data/pull/6189) Update model API docs to use the new packages import syntax (#6137)
+
+## Release 3.11.0-beta.1
+
+- [#6075](https://github.com/emberjs/data/pull/6075) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
+- [#6085](https://github.com/emberjs/data/pull/6085) Set repository url for packages (#6085)
+- [6c2ae3d4](https://github.com/emberjs/data/commit/6c2ae3d4eaae5c090d9b4bda6e5afc8f15f73d70) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
+
 ## Release 3.10.0-beta.1 (April 30, 2019)
 
 - [88b37e2b](https://github.com/emberjs/data/commit/88b37e2bfdf749987aeca96636a203216c3d7ebf) [BUGFIX unloadRecord] Fix unloadRecord() when unloading a previous parent of a child record
