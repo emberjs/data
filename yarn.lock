@@ -4727,7 +4727,7 @@ ember-cli-babel-plugin-helpers@^1.0.0, ember-cli-babel-plugin-helpers@^1.1.0:
   resolved "https://registry.npmjs.org/ember-cli-babel-plugin-helpers/-/ember-cli-babel-plugin-helpers-1.1.0.tgz#de3baedd093163b6c2461f95964888c1676325ac"
   integrity sha512-Zr4my8Xn+CzO0gIuFNXji0eTRml5AxZUTDQz/wsNJ5AJAtyFWCY4QtKdoELNNbiCVGt1lq5yLiwTm4scGKu6xA==
 
-ember-cli-babel@7.7.3, ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.5.0, ember-cli-babel@^7.7.0:
+ember-cli-babel@7.7.3:
   version "7.7.3"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.7.3.tgz#f94709f6727583d18685ca6773a995877b87b8a0"
   integrity sha512-/LWwyKIoSlZQ7k52P+6agC7AhcOBqPJ5C2u27qXHVVxKvCtg6ahNuRk/KmfZmV4zkuw4EjTZxfJE1PzpFyHkXg==
@@ -4773,7 +4773,7 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.5.0, ember-cli-babel@^7.7.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
   version "7.8.0"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.8.0.tgz#e596500eca0f5a7c9aaee755f803d1542f578acf"
   integrity sha512-xUBgJQ81fqd7k/KIiGU+pjpoXhrmmRf9pUrqLenNSU5N+yeNFT5a1+w0b+p1F7oBphfXVwuxApdZxrmAHOdA3Q==
@@ -5158,10 +5158,10 @@ ember-compatibility-helpers@^1.1.1, ember-compatibility-helpers@^1.2.0:
     ember-cli-version-checker "^2.1.1"
     semver "^5.4.1"
 
-ember-decorators-polyfill@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.npmjs.org/ember-decorators-polyfill/-/ember-decorators-polyfill-1.0.5.tgz#f42f6aea872a4f146536e9cad753b80bdae54db4"
-  integrity sha512-5fR+PIp52EwuhWHN3sosEX/GKuDx2UBaRh/pNZm7mUNHAvbIiUug/wl4EGTNK6316Wc+DTiFk2lnM2mn0Q1Msw==
+ember-decorators-polyfill@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/ember-decorators-polyfill/-/ember-decorators-polyfill-1.0.6.tgz#93094a1eebfd8d54e85abd941f78bc330dc3f973"
+  integrity sha512-Mvrja3FBBLaZ3crmAAnrSZLz41bESWI8Tm54YUwSbp16Osqa/lPHRE8Clxn+qtjBDRpAHq0EcROILGTaBscE2g==
   dependencies:
     ember-cli-babel "^7.1.2"
     ember-cli-version-checker "^3.1.3"
