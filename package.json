@@ -75,7 +75,7 @@
     "ember-qunit": "^4.4.1",
     "ember-qunit-assert-helpers": "^0.2.2",
     "ember-resolver": "^5.0.1",
-    "ember-source": "~3.10.2",
+    "ember-source": "~3.11.0",
     "ember-source-channel-url": "^2.0.1",
     "ember-try": "^1.2.1",
     "eslint": "^5.15.1",
