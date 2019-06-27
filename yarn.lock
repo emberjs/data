@@ -2399,10 +2399,10 @@ babel-plugin-debug-macros@^0.2.0, babel-plugin-debug-macros@^0.2.0-beta.6:
   dependencies:
     semver "^5.3.0"
 
-babel-plugin-debug-macros@^0.3.0, babel-plugin-debug-macros@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.npmjs.org/babel-plugin-debug-macros/-/babel-plugin-debug-macros-0.3.1.tgz#cf45b497ab02cdd0c98e11f6da79b1e0773ceae1"
-  integrity sha512-1tnO63L4d9HFHguR4Xc+/Y7Og1+mDsXwiStVrsayyXIDauv6r1o9dnhRKPmmCV5digG2XgScnQJpWDsxNNLU7g==
+babel-plugin-debug-macros@^0.3.0, babel-plugin-debug-macros@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/babel-plugin-debug-macros/-/babel-plugin-debug-macros-0.3.2.tgz#b536a29386fac76f525bf1b73c4f74cd5281c5fa"
+  integrity sha512-CslqMZ3RGUvlEERuKr+wrXcHqQGvQ9ALLrbcOt8aSEp4ySfNCHAQbuGQYKZYw3P30/VGkPaR0Begch+dbqgEpg==
   dependencies:
     semver "^5.3.0"
 
@@ -10232,12 +10232,7 @@ sane@^4.0.0, sane@^4.1.0:
   resolved "https://registry.npmjs.org/semver/-/semver-5.7.0.tgz#790a7cf6fea5459bac96110b29b60412dc8ff96b"
   integrity sha512-Ya52jSX2u7QKghxeoFGpLwCtGlt7j0oY9DYb5apt9nPlJ42ID+ulTXESnt/qAQcoSERyZ5sl3LDIOw0nAn/5DA==
 
-semver@^6.0.0, semver@^6.1.1:
-  version "6.1.1"
-  resolved "https://registry.npmjs.org/semver/-/semver-6.1.1.tgz#53f53da9b30b2103cd4f15eab3a18ecbcb210c9b"
-  integrity sha512-rWYq2e5iYW+fFe/oPPtYJxYgjBm8sC4rmoGdUOgBB7VnwKt6HrL793l2voH1UlsyYZpJ4g0wfjnTEO1s1NP2eQ==
-
-semver@^6.1.2:
+semver@^6.0.0, semver@^6.1.1, semver@^6.1.2:
   version "6.1.2"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.1.2.tgz#079960381376a3db62eb2edc8a3bfb10c7cfe318"
   integrity sha512-z4PqiCpomGtWj8633oeAdXm1Kn1W++3T8epkZYnwiVgIYIJ0QHszhInYSJTYxebByQH7KVCEAn8R9duzZW2PhQ==
