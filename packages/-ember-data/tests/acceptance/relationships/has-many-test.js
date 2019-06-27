@@ -26,6 +26,13 @@ class Person extends Model {
   parent;
 }
 
+class Company extends Model {
+  @attr()
+  name;
+  @hasMany('person', { async: true })
+  employees;
+}
+
 class TestAdapter extends JSONAPIAdapter {
   setupPayloads(assert, arr) {
     this.assert = assert;
@@ -192,6 +199,58 @@ function makePeopleWithRelationshipLinks(removeData = true) {
 
   return people;
 }
+
+module('async has-many store teardown tests', function(hooks) {
+  let store;
+
+  setupRenderingTest(hooks);
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    owner.register('model:person', Person);
+    owner.register('model:company', Company);
+    owner.register('adapter:application', TestAdapter);
+    owner.register('serializer:application', JSONAPISerializer);
+    owner.register('service:store', Store);
+    store = owner.lookup('service:store');
+  });
+
+  test("It doesn't try to access store", async function(assert) {
+    assert.expect(0); // We'll get an exception if we didn't succeed
+
+    store.shouldAssertMethodCallsOnDestroyedStore = true;
+
+    // Push person first so it will get unloaded first
+    let people = makePeopleWithRelationshipData();
+    store.push({
+      data: people.dict['1:no-children-or-parent'],
+    });
+
+    // Then push company so it will get unloaded later
+    store.push({
+      data: {
+        type: 'company',
+        id: 'tilde',
+        attributes: {
+          name: 'Tilde Inc',
+        },
+        relationships: {
+          employees: {
+            data: [{ type: 'person', id: '1:no-children-or-parent' }],
+          },
+        },
+      },
+    });
+
+    let company = store.findRecord('company', 'tilde');
+    this.set('company', company);
+
+    await render(hbs`{{company.employees.length}}`);
+
+    // This should not raise
+    store.destroy();
+  });
+});
 
 module('async has-many rendering tests', function(hooks) {
   let store;
