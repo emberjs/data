@@ -37,13 +37,14 @@ export default class RequestCache {
     if ('recordIdentifier' in queryRequest.data[0]) {
       let query: FindRecordQuery = queryRequest.data[0];
       let lid = query.recordIdentifier.lid;
+      let type = query.op === 'saveRecord' ? <const> 'mutation' : <const> 'query';
       if (!this._pending[lid]) {
         this._pending[lid] = [];
       }
       let request: InternalRequest = {
         state: RequestStateEnum.pending,
         request: queryRequest,
-        type:  <const> 'query',
+        type,
         [touching]: [query.recordIdentifier]
       }
       this._pending[lid].push(request);
@@ -53,7 +54,7 @@ export default class RequestCache {
         let finalizedRequest = {
           state: RequestStateEnum.fulfilled,
           request: queryRequest,
-          type:  <const> 'query',
+          type,
           [touching]: request[touching],
           response: { data: result }
         }
@@ -64,7 +65,7 @@ export default class RequestCache {
         let finalizedRequest = {
           state: RequestStateEnum.rejected,
           request: queryRequest,
-          type:  <const> 'query',
+          type,
           [touching]: request[touching],
           response: { data: error }
         }

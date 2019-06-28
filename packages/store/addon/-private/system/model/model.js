@@ -568,7 +568,7 @@ const Model = EmberObject.extend(Evented, {
     if (!request) {
       return null;
     }
-    return request.state === 'rejected' && request.response.data;
+    return request.state === 'rejected' && request.response.data && request.response.data.error;
   }),
 
   invalidErrorsChanged(jsonApiErrors) {

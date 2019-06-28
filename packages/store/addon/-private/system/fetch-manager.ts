@@ -49,28 +49,6 @@ export interface PendingSaveItem {
   queryRequest: Request
 }
 
-/*
-export interface QueryExpression {
-  op: string;
-  options: { [key: string]: any };
-}
-
-export interface FindRecordExpression extends QueryExpression {
-  op: 'findRecord';
-  record: RecordIdentifier
-}
-
-export interface SaveRecordExpression extends QueryExpression {
-  op: 'saveRecord';
-  record: RecordIdentifier
-}
-
-// TODO Name?
-export interface QueryRequest {
-  query: QueryExpression
-}
-*/
-
 export interface Operation {
   op: string
 }
@@ -146,7 +124,7 @@ export default class FetchManager {
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave(identifier: RecordIdentifier, options: any) {
+  scheduleSave(identifier: RecordIdentifier, options: any = {}) {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer(promiseLabel);
     let query: SaveRecordMutation = {
@@ -210,7 +188,6 @@ export default class FetchManager {
 
     promise = guardDestroyedStore(promise, store, label);
     promise = _guard(promise, _bind(_objectIsAlive, internalModel));
-
 
     promise = promise.then(
       adapterPayload => {

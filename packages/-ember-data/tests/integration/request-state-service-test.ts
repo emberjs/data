@@ -41,7 +41,7 @@ module('integration/request-state-service - Request State Service', function (ho
   });
 
   test("Request state service igor5", async function (assert) {
-    assert.expect(3);
+    assert.expect(10);
 
     const personHash = {
       type: 'person',
@@ -100,7 +100,7 @@ module('integration/request-state-service - Request State Service', function (ho
     };
     assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
 
-    await promise;
+    let person = await promise;
     let lastRequest = requestService.getLastRequestForRecord(identifier);
     let requestStateResult = {
       type: 'query',
@@ -109,5 +109,29 @@ module('integration/request-state-service - Request State Service', function (ho
       response: { data: normalizedHash }
     };
     assert.deepEqual(lastRequest, requestStateResult, 'request is correct after fulfilling');
+    assert.deepEqual(requestService.getPendingRequestsForRecord(identifier).length, 0, 'no pending requests remaining');
+
+    let savingPromise = person.save();
+    let savingRequest = requestService.getPendingRequestsForRecord(identifier)[0];
+
+    assert.equal(savingRequest.state, 'pending', 'request is pending');
+    assert.equal(savingRequest.type, 'mutation', 'request is a mutation');
+    let savingRequestOp = {
+      op: 'saveRecord',
+      recordIdentifier: { id: '1', type: 'person', lid: '1'},
+      options: {}
+    };
+    assert.deepEqual(savingRequest.request.data[0], savingRequestOp, 'request op is correct');
+
+    await savingPromise;
+    let lastSavingRequest = requestService.getLastRequestForRecord(identifier);
+    let savingRequestStateResult = {
+      type: 'mutation',
+      state: 'fulfilled',
+      request: { data: [savingRequestOp] },
+      response: { data: undefined }
+    };
+    assert.deepEqual(lastSavingRequest, savingRequestStateResult, 'request is correct after fulfilling');
+    assert.deepEqual(requestService.getPendingRequestsForRecord(identifier).length, 0, 'no pending requests remaining');
   });
 });
