@@ -6,7 +6,7 @@ import { typeOf, isNone } from '@ember/utils';
 
 import { dasherize } from '@ember/string';
 import { pluralize, singularize } from 'ember-inflector';
-import { assert, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import JSONSerializer from '@ember-data/serializer/json';
@@ -359,8 +359,16 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  // TODO @deprecated Use modelNameFromPayloadType instead
   modelNameFromPayloadKey(key) {
+    let message = [
+      'Using JSONAPISerializer.modelNameFromPayloadKey to normalize the type of a resource has been deprecated in favor of JSONAPISerializer.modelNameFromPayloadType',
+      'See https://deprecations.emberjs.com/ember-data/v2.x#toc_jsonapiserializer-modelnamefrompayloadkey-for-resource for more details.',
+      '',
+    ].join('\n');
+    deprecate(message, false, {
+      id: 'jsonapiserializer-modelnamefrompayloadkey-for-resource',
+      until: '4.0.0',
+    });
     return singularize(normalizeModelName(key));
   },
 
