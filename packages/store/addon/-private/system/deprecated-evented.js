@@ -43,8 +43,8 @@ if (DEBUG) {
         ? `Called ${eventName} ${_deprecationData}`
         : eventName;
       deprecate(deprecationMessage, deprecations[eventName], {
-        id: 'ember-evented',
-        until: '3.12',
+        id: 'ember-data:evented-api-usage',
+        until: '4.0',
       });
       deprecations[eventName] = true;
     },
@@ -76,4 +76,4 @@ if (DEBUG) {
   });
 }
 
-export default (DEBUG ? DeprecatedEvented : Evented);
+export default DEBUG ? DeprecatedEvented : Evented;

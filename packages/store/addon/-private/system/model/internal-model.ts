@@ -406,7 +406,7 @@ export default class InternalModel {
               deprecations[methodName],
               {
                 id: 'ember-data:record-lifecycle-event-methods',
-                until: '3.12',
+                until: '4.0',
               }
             );
           }

@@ -25,9 +25,7 @@ export function deprecatedTest(testName, deprecation, testCallback) {
   if (gte(VERSION, deprecation.until)) {
     test(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, testCallback);
   } else {
-    test(`DEPRECATION ${deprecation.id} until ${
-      deprecation.until
-    } | ${testName}`, function(assert) {
+    test(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, function(assert) {
       if (deprecation.refactor === true) {
         assert.ok(
           false,
