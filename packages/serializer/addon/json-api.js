@@ -362,7 +362,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   modelNameFromPayloadKey(key) {
     let message = [
       'Using JSONAPISerializer.modelNameFromPayloadKey to normalize the type of a resource has been deprecated in favor of JSONAPISerializer.modelNameFromPayloadType',
-      'See https://deprecations.emberjs.com/ember-data/v2.x#toc_jsonapiserializer-modelnamefrompayloadkey-for-resource for more details.',
+      'See https://deprecations.emberjs.com/ember-data/v2.x#toc_jsonapiserializer-modelnamefrompayloadkey-for-resource for the explanation.',
       '',
     ].join('\n');
     deprecate(message, false, {
@@ -382,8 +382,17 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  // TODO @deprecated Use payloadTypeFromModelName instead
   payloadKeyFromModelName(modelName) {
+    let message = [
+      'Using JSONAPISerializer.payloadKeyFromModelName to serialize the type of a model has been deprecated in favor of JSONAPISerializer.payloadTypeFromModelName.',
+      'See https://deprecations.emberjs.com/ember-data/v2.x#toc_jsonapiserializer-payloadkeyfrommodelname-for-resource for the explanation.',
+      '',
+    ].join('\n');
+    deprecate(message, false, {
+      id: 'jsonapiserializer-payloadkeyfrommodelname-for-resource',
+      until: '4.0.0',
+    });
+
     return pluralize(modelName);
   },
 
