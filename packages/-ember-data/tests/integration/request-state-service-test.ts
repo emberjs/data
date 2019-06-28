@@ -46,9 +46,7 @@ module('integration/request-state-service - Request State Service', function (ho
     const personHash = {
       type: 'person',
       id: '1',
-      attributes: {
-        name: 'Scumbag Dale',
-      }
+      name: 'Scumbag Dale'
     };
 
     let normalizedHash = {
@@ -86,12 +84,6 @@ module('integration/request-state-service - Request State Service', function (ho
 
     store = owner.lookup('service:store');
 
-    /*
-    store.push({
-      data: [personHash]
-    });
-    */
-
     let promise = store.findRecord('person', '1');
     let requestService = store.getRequestStateService();
 
@@ -114,7 +106,7 @@ module('integration/request-state-service - Request State Service', function (ho
       type: 'query',
       state: 'fulfilled',
       request: { data: [requestOp] },
-      result: normalizedHash 
+      response: { data: normalizedHash }
     };
     assert.deepEqual(lastRequest, requestStateResult, 'request is correct after fulfilling');
   });

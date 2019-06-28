@@ -84,7 +84,7 @@ const Model = EmberObject.extend(Evented, {
       if (request.state === 'rejected') {
         // TODO filter out queries
         this._lastError = request;
-        if (!(request.result && request.result.error instanceof InvalidError)) {
+        if (!(request.response && request.response.data instanceof InvalidError)) {
           this._errorRequests.push(request);
         } else {
           this._invalidRequests.push(request);
@@ -313,10 +313,6 @@ const Model = EmberObject.extend(Evented, {
   
   _getInvalidRequest() {
     return this._invalidRequests[this._invalidRequests.length - 1];
-    let request = this.store.requestCache.getLastRequestForRecord(identifierForModel(this));
-    if (request && request.state === 'rejected' && req.result.error instanceof InvalidError) {
-      return request;
-    }
   },
 
   _markInvalidRequestAsClean() {
@@ -386,11 +382,6 @@ const Model = EmberObject.extend(Evented, {
 
   _getErrorRequest() {
     return this._errorRequests[this._errorRequests.length - 1];
-
-    let request = this.store.requestCache.getLastRequestForRecord(identifierForModel(this));
-    if (request && request.state === 'rejected' && !(req.result && req.result.error instanceof InvalidError)) {
-      return request; 
-    }
   },
 
   /**
@@ -577,7 +568,7 @@ const Model = EmberObject.extend(Evented, {
     if (!request) {
       return null;
     }
-    return request.result && request.result.error;
+    return request.state === 'rejected' && request.response.data;
   }),
 
   invalidErrorsChanged(jsonApiErrors) {
@@ -588,7 +579,6 @@ const Model = EmberObject.extend(Evented, {
     for (let i = 0; i < errorKeys.length; i++) {
       this._addErrorMessageToAttribute(errorKeys[i], errors[errorKeys[i]]);
     }
-
   },
 
   adapterErrorChanged(jsonApiError) {

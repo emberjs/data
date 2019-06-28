@@ -1,14 +1,4 @@
-import { RecordIdentifier, identifierForIM } from "./record-identifier";
-import { default as RSVP, Promise } from 'rsvp';
-import { DEBUG } from '@glimmer/env';
-import { run as emberRunLoop } from '@ember/runloop';
-import Adapter from "@ember/test/adapter";
-import { AdapterCache } from "./adapter-cache";
-import { assert, warn, inspect } from '@ember/debug';
-import Snapshot from './snapshot';
-import { guardDestroyedStore } from './store/common';
-import { normalizeResponseHelper } from './store/serializer-response';
-import { serializerForAdapter } from './store/serializers';
+import { RecordIdentifier } from "./record-identifier";
 import { Request, FindRecordQuery, RequestState } from './fetch-manager';
 
 import {
@@ -65,7 +55,7 @@ export default class RequestCache {
           request: queryRequest,
           type:  <const> 'query',
           [touching]: request[touching],
-          result
+          response: { data: result }
         }
         this._addDone(finalizedRequest);
         this._triggerSubscriptions(finalizedRequest);
@@ -76,7 +66,7 @@ export default class RequestCache {
           request: queryRequest,
           type:  <const> 'query',
           [touching]: request[touching],
-          result: error
+          response: { data: error }
         }
         this._addDone(finalizedRequest);
         this._triggerSubscriptions(finalizedRequest);
