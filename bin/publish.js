@@ -147,7 +147,12 @@ function assertGitIsClean() {
     }
   }
 
-  let expectedChannelBranch = options.distTag === 'canary' ? 'master' : options.distTag;
+  let expectedChannelBranch =
+    options.distTag === 'canary'
+      ? 'master'
+      : options.distTag === 'latest'
+      ? 'release'
+      : options.distTag;
 
   if (options.channel === 'lts') {
     expectedChannelBranch = `lts-${semver.major(options.currentVersion)}-${semver.minor(
