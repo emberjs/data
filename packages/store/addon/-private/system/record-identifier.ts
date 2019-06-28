@@ -6,6 +6,7 @@ export interface RecordIdentifier {
     lid: string;
 }
 
+let typeIdMap = {};
 let lid = 1;
 export function identifierForIM(im: InternalModel): RecordIdentifier {
     return identifierForRD(im._recordData, im.modelName);
@@ -21,9 +22,19 @@ export function identifierForRD(rd: RecordData, type?: string): RecordIdentifier
         rd.__clientId = rd.clientId || '' + lid;
         lid++;
     }
-    return {
-        type: type || rd.modelName,
+    let modelName = type || rd.modelName;
+    let identifier =  {
+        type: modelName,
         id: rd.id,
         lid: rd.__clientId
     }
+
+    if (rd.id) {
+        typeIdMap[modelName + rd.id] = identifier;
+    }
+    return identifier;
+}
+
+export function identifierForTypeId(modelName, id): RecordIdentifier  {
+    return typeIdMap[modelName+id];
 }

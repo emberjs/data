@@ -44,9 +44,10 @@ export default class RequestCache {
   }
 
   enqueue(promise: Promise<any>, queryRequest: Request) {
-    if ('identifier' in queryRequest.data) {
-      let query: FindRecordQuery = queryRequest.data;
-      let lid = query.identifier.lid;
+    debugger
+    if ('recordIdentifier' in queryRequest.data[0]) {
+      let query: FindRecordQuery = queryRequest.data[0];
+      let lid = query.recordIdentifier.lid;
       if (!this._pending[lid]) {
         this._pending[lid] = [];
       }
@@ -54,7 +55,7 @@ export default class RequestCache {
         state: RequestStateEnum.pending,
         request: queryRequest,
         type:  <const> 'query',
-        _touching: [query.identifier]
+        _touching: [query.recordIdentifier]
       }
       this._pending[lid].push(request);
       this._triggerSubscriptions(request);
@@ -125,14 +126,14 @@ export default class RequestCache {
     this._subscriptions[identifier.lid].push(callback);
   }
 
-  getPendingRequests(identifier: RecordIdentifier): RequestState[] {
+  getPendingRequestsForRecord(identifier: RecordIdentifier): RequestState[] {
     if (this._pending[identifier.lid]) {
       return this._pending[identifier.lid];
     }
     return [];
   }
 
-  getLastRequest(identifier: RecordIdentifier): RequestState | null {
+  getLastRequestForRecord(identifier: RecordIdentifier): RequestState | null {
     let requests = this._done[identifier.lid];
     if (requests){
       return requests[requests.length];

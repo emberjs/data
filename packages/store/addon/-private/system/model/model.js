@@ -81,6 +81,7 @@ const Model = EmberObject.extend(Evented, {
   init() {
     this._super(...arguments);
     this.store.requestCache.subscribe(identifierForModel(this), (request) => {
+      debugger
       if (request.state === 'rejected') {
         // TODO filter out queries
         this._lastError = request;
@@ -202,8 +203,8 @@ const Model = EmberObject.extend(Evented, {
     @readOnly
   */
   isSaving: computed(function () {
-    let requests = this.store.requestCache.getPendingRequests(identifierForModel(this));
-    return !!requests.find((req) => req.request.data.op === 'saveRecord');
+    let requests = this.store.requestCache.getPendingRequestsForRecord(identifierForModel(this));
+    return !!requests.find((req) => req.request.data[0].op === 'saveRecord');
   }),
 
   /**
@@ -314,7 +315,7 @@ const Model = EmberObject.extend(Evented, {
   
   _getInvalidRequest() {
     return this._invalidRequests[this._invalidRequests.length - 1];
-    let request = this.store.requestCache.getLastRequest(identifierForModel(this));
+    let request = this.store.requestCache.getLastRequestForRecord(identifierForModel(this));
     if (request && request.state === 'rejected' && req.result.error instanceof InvalidError) {
       return request;
     }
@@ -388,7 +389,7 @@ const Model = EmberObject.extend(Evented, {
   _getErrorRequest() {
     return this._errorRequests[this._errorRequests.length - 1];
 
-    let request = this.store.requestCache.getLastRequest(identifierForModel(this));
+    let request = this.store.requestCache.getLastRequestForRecord(identifierForModel(this));
     if (request && request.state === 'rejected' && !(req.result && req.result.error instanceof InvalidError)) {
       return request; 
     }
@@ -434,8 +435,8 @@ const Model = EmberObject.extend(Evented, {
   */
 
   isReloading: computed(function () {
-    let requests = this.store.requestCache.getPendingRequests(identifierForModel(this));
-    return !!requests.find((req) => req.request.data.options.isReloading);;
+    let requests = this.store.requestCache.getPendingRequestsForRecord(identifierForModel(this));
+    return !!requests.find((req) => req.request.data[0].options.isReloading);;
   }),
 
   /**

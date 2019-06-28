@@ -79,7 +79,7 @@ export interface QueryOperation extends Operation {};
 
 export interface FindRecordQuery extends QueryOperation {
   op: 'findRecord'
-  identifier: RecordIdentifier
+  recordIdentifier: RecordIdentifier
   options: any
 }
 
@@ -87,7 +87,7 @@ export interface MutationOperation extends Operation {};
 
 export interface SaveRecordMutation extends MutationOperation {
   op: 'saveRecord'
-  identifier: RecordIdentifier
+  recordIdentifier: RecordIdentifier
   options: any
 }
 
@@ -97,7 +97,7 @@ export interface Request {
 }
 
 export interface QueryRequest extends Request {
-  data: QueryOperation;
+  data: QueryOperation[];
 }
 
 export interface MutationRequest extends Request {
@@ -151,12 +151,12 @@ export default class FetchManager {
     let resolver = RSVP.defer(promiseLabel);
     let query: SaveRecordMutation = {
       'op': 'saveRecord',
-      identifier,
+      recordIdentifier: identifier,
       options
     }
 
     let queryRequest: Request = {
-      data: query
+      data: [query]
     }
 
     let snapshot = new Snapshot(options, identifier, this._store);
@@ -264,12 +264,12 @@ export default class FetchManager {
     //debugger
     let query: FindRecordQuery = {
       'op': 'findRecord',
-      identifier,
+      recordIdentifier: identifier,
       options
     }
 
     let queryRequest: QueryRequest = {
-      data: query
+      data: [ query ]
     }
 
     // We already have a pending fetch for this

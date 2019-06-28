@@ -285,6 +285,10 @@ const CoreStore = Service.extend({
     }
   },
 
+  getRequestStateService: function () {
+    return this._fetchManager.requestCache;
+  },
+
   requestCache: computed(function () {
     return this._fetchManager.requestCache;
   }),
