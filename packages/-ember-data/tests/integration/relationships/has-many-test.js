@@ -1279,8 +1279,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   deprecatedTest(
     'PromiseArray proxies evented methods to its ManyArray',
     {
-      id: 'ember-evented',
-      until: '3.12',
+      id: 'ember-data:evented-api-usage',
+      until: '4.0',
     },
     function(assert) {
       assert.expect(6);

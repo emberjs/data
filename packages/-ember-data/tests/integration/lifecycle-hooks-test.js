@@ -28,8 +28,8 @@ module('integration/lifecycle_hooks - Lifecycle Hooks', function(hooks) {
   deprecatedTest(
     'When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.',
     {
-      id: 'ember-evented',
-      until: '3.12',
+      id: 'ember-data:evented-api-usage',
+      until: '4.0',
     },
     function(assert) {
       let done = assert.async();
@@ -55,8 +55,8 @@ module('integration/lifecycle_hooks - Lifecycle Hooks', function(hooks) {
   deprecatedTest(
     'When the adapter acknowledges that a record has been created without a new data payload, a `didCreate` event is triggered.',
     {
-      id: 'ember-evented',
-      until: '3.12',
+      id: 'ember-data:evented-api-usage',
+      until: '4.0',
     },
     function(assert) {
       assert.expect(3);

@@ -611,8 +611,8 @@ module('unit/model - Model', function(hooks) {
     deprecatedTest(
       'an event listener can be added to a record',
       {
-        id: 'ember-evented',
-        until: '3.12',
+        id: 'ember-data:evented-api-usage',
+        until: '4.0',
       },
       async function(assert) {
         let count = 0;
@@ -639,8 +639,8 @@ module('unit/model - Model', function(hooks) {
     deprecatedTest(
       'when an event is triggered on a record the method with the same name is invoked with arguments',
       {
-        id: 'ember-evented',
-        until: '3.12',
+        id: 'ember-data:evented-api-usage',
+        until: '4.0',
       },
       async function(assert) {
         let count = 0;
@@ -662,8 +662,8 @@ module('unit/model - Model', function(hooks) {
     deprecatedTest(
       'when a method is invoked from an event with the same name the arguments are passed through',
       {
-        id: 'ember-evented',
-        until: '3.12',
+        id: 'ember-data:evented-api-usage',
+        until: '4.0',
       },
       async function(assert) {
         let eventMethodArgs = null;
