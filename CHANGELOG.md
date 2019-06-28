@@ -2,19 +2,11 @@
 
 ### Master
 
-## Release 3.11.0-beta.2 (June 26, 2019)
+## Release 3.11.0 (June 28, 2019)
  
-- [#6192](https://github.com/emberjs/data/pull/6192) Fix yuidoc setup to support the split packages (#6153)
 - [#6189](https://github.com/emberjs/data/pull/6189) Update model API docs to use the new packages import syntax (#6137)
-
-## Release 3.11.0-beta.1
-
 - [#6075](https://github.com/emberjs/data/pull/6075) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
-- [#6085](https://github.com/emberjs/data/pull/6085) Set repository url for packages (#6085)
 - [6c2ae3d4](https://github.com/emberjs/data/commit/6c2ae3d4eaae5c090d9b4bda6e5afc8f15f73d70) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
-
-## Release 3.10.0-beta.1 (April 30, 2019)
-
 - [88b37e2b](https://github.com/emberjs/data/commit/88b37e2bfdf749987aeca96636a203216c3d7ebf) [BUGFIX unloadRecord] Fix unloadRecord() when unloading a previous parent of a child record
 - [a4c47189](https://github.com/emberjs/data/commit/a4c471899c4c17dca2b7385e5c554506921db45f) [BUGFIX docs] Update 'navigator.connection' example to spec (#6060)
 - [fc69c462](https://github.com/emberjs/data/commit/fc69c4629747d20e9faa132d11edd2e7bf2892a1) [BUGFIX docs] Fix broken ArrayProxy link on api docs (#6057)
@@ -25,6 +17,20 @@
 - [67bf0b0e](https://github.com/emberjs/data/commit/67bf0b0e29a4f38285c6d24507204e644dd0effc) [BUGFIX blueprints] Add parans to the attr decorator when there is no transform type (#6054)
 - [#5974](https://github.com/emberjs/data/pull/5974) Remove Publish job from CI (#5974)
 - [678f3c9d](https://github.com/emberjs/data/commit/678f3c9d3eb962a039e02f25da0c3ae3473edb11) [BUGFIX partner-tests] fix directory resolution (#6064)
+
+## Release 3.10.0 (May 13, 2019)
+
+Re-release of 3.9.3 to allow for an extended stabilization period for the [Packages RFC](https://github.com/emberjs/data/labels/TRACK-packages)
+
+## Release 3.9.3 (May 9, 2019)
+
+- [ab45d352](https://github.com/emberjs/data/commit/ab45d352cac06c8a5fd10e92cf99accc96a19ff7) [BUGFIX release] Fix fetch detection.
+- [0dce363b](https://github.com/emberjs/data/commit/0dce363bb99118e8aae051a9660c78f9be880850) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
+
+## Release 3.9.2 (May 7, 2019)
+
+- [#6076](https://github.com/emberjs/data/pull/6076) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
+- [#6082](https://github.com/emberjs/data/pull/6082) [BUGFIX release] Remove ember-fetch dependency. (#6082)
 
 ## Release 3.9.1 (April 19, 2019)
 
