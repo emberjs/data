@@ -3,8 +3,7 @@
 const FEATURES = require('./features');
 
 module.exports = function debugMacros(environment) {
-  // let isDebug = environment !== 'production';
-
+  console.log('using debug macro features', FEATURES);
   let plugins = [
     [
       require.resolve('babel-plugin-debug-macros'),
@@ -13,7 +12,7 @@ module.exports = function debugMacros(environment) {
           {
             source: '@ember-data/canary-features',
             flags: Object.assign(
-              // explicit list of additional exports within @ember/canary-features
+              // explicit list of additional exports within @ember-data/canary-features
               // without adding this (with a null value) an error is thrown during
               // the feature replacement process (e.g. XYZ is not a supported flag)
               {
