@@ -49,7 +49,20 @@ module('integration/request-state-service - Request State Service', function (ho
       attributes: {
         name: 'Scumbag Dale',
       }
-    }
+    };
+
+    let normalizedHash = {
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale',
+        },
+        relationships: {}
+      },
+      included: []
+    };
+
     let { owner } = this;
 
     let TestAdapter = EmberObject.extend({
@@ -97,6 +110,12 @@ module('integration/request-state-service - Request State Service', function (ho
 
     await promise;
     let lastRequest = requestService.getLastRequestForRecord(identifier);
-
+    let requestStateResult = {
+      type: 'query',
+      state: 'fulfilled',
+      request: { data: [requestOp] },
+      result: normalizedHash 
+    };
+    assert.deepEqual(lastRequest, requestStateResult, 'request is correct after fulfilling');
   });
 });

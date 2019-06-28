@@ -383,8 +383,8 @@ export default class FetchManager {
           }
         );
 
-        return this._store._push(payload);
-      },
+        return payload;
+       },
       error => {
         /*
         internalModel.notFound();
@@ -402,21 +402,24 @@ export default class FetchManager {
   }
 
 
-  handleFoundRecords(seeking: { [id: string]: PendingFetchItem }, foundInternalModels, expectedInternalModels) {
+  handleFoundRecords(seeking: { [id: string]: PendingFetchItem }, coalescedPayload, expectedInternalModels) {
     // resolve found records
     let found = Object.create(null);
-    for (let i = 0, l = foundInternalModels.length; i < l; i++) {
-      let internalModel = foundInternalModels[i];
-      let pair = seeking[internalModel.id];
-      found[internalModel.id] = internalModel;
+    let payloads = coalescedPayload.data;
+    for (let i = 0, l = payloads.length; i < l; i++) {
+      let payload = payloads[i];
+      let pair = seeking[payload.id];
+      found[payload.id] = payload;
 
       if (pair) {
         let resolver = pair.resolver;
-        resolver.resolve(internalModel);
+        resolver.resolve({ data: payload });
       }
     }
 
     // reject missing records
+
+    // TODO NOW clean this up to refer to payloads
     let missingInternalModels: any = [];
 
     for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
@@ -485,7 +488,7 @@ export default class FetchManager {
           null,
           'findMany'
         );
-        return store._push(payload);
+        return payload;
       },
       null,
       `DS: Extract payload of ${modelName}`
@@ -506,8 +509,8 @@ export default class FetchManager {
     let store = this._store;
     if (totalInGroup > 1) {
       this._findMany(adapter, store, modelName, group, groupedIdentifiers, optionsMap)
-        .then((foundInternalModels) => {
-          this.handleFoundRecords(seeking, foundInternalModels, groupedIdentifiers);
+        .then((payloads) => {
+          this.handleFoundRecords(seeking, payloads, groupedIdentifiers);
         })
         .catch((error) => {
           this.rejectInternalModels(seeking, groupedIdentifiers, error);
@@ -515,6 +518,7 @@ export default class FetchManager {
     } else if (ids.length === 1) {
       var pair = seeking[groupedIdentifiers[0].id];
       this._fetchRecord(pair);
+
     } else {
       assert(
         "You cannot return an empty array from adapter's method groupRecordsForFindMany",

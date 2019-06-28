@@ -81,7 +81,6 @@ const Model = EmberObject.extend(Evented, {
   init() {
     this._super(...arguments);
     this.store.requestCache.subscribe(identifierForModel(this), (request) => {
-      debugger
       if (request.state === 'rejected') {
         // TODO filter out queries
         this._lastError = request;
@@ -293,7 +292,6 @@ const Model = EmberObject.extend(Evented, {
     @readOnly
   */
   isValid: computed('errors.length', function () {
-    debugger
     if (this.get('errors.length') > 0) {
       return false;
     }
@@ -575,7 +573,6 @@ const Model = EmberObject.extend(Evented, {
     @type {AdapterError}
   */
   adapterError: computed(function () {
-    //debugger
     let request = this._lastError;
     if (!request) {
       return null;
@@ -1998,7 +1995,6 @@ Model.reopenClass({
    */
   attributes: computed(function () {
     let map = new Map();
-    //debugger
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {

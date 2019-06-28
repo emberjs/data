@@ -953,7 +953,10 @@ const CoreStore = Service.extend({
   },
 
   _scheduleFetch(internalModel, options) {
-    return this._fetchManager.scheduleFetch(identifierForIM(internalModel), options, this.generateStackTracesForTrackedRequests);
+    let generateStackTrace = this.generateStackTracesForTrackedRequests;
+    let promise = this._fetchManager.scheduleFetch(identifierForIM(internalModel), options, generateStackTrace);
+
+    return promise.then((payload) => this._push(payload));
   },
 
   /**

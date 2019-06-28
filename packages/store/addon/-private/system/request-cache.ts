@@ -28,7 +28,7 @@ enum RequestStateEnum {
 }
 
 export interface InternalRequest extends RequestState {
-  _touching: RecordIdentifier[]
+  [touching]: RecordIdentifier[]
 }
 
 export default class RequestCache {
@@ -44,7 +44,6 @@ export default class RequestCache {
   }
 
   enqueue(promise: Promise<any>, queryRequest: Request) {
-    debugger
     if ('recordIdentifier' in queryRequest.data[0]) {
       let query: FindRecordQuery = queryRequest.data[0];
       let lid = query.recordIdentifier.lid;
@@ -55,7 +54,7 @@ export default class RequestCache {
         state: RequestStateEnum.pending,
         request: queryRequest,
         type:  <const> 'query',
-        _touching: [query.recordIdentifier]
+        [touching]: [query.recordIdentifier]
       }
       this._pending[lid].push(request);
       this._triggerSubscriptions(request);
@@ -65,7 +64,7 @@ export default class RequestCache {
           state: RequestStateEnum.fulfilled,
           request: queryRequest,
           type:  <const> 'query',
-          _touching: request._touching,
+          [touching]: request[touching],
           result
         }
         this._addDone(finalizedRequest);
@@ -76,7 +75,7 @@ export default class RequestCache {
           state: RequestStateEnum.rejected,
           request: queryRequest,
           type:  <const> 'query',
-          _touching: request._touching,
+          [touching]: request[touching],
           result: error
         }
         this._addDone(finalizedRequest);
@@ -86,7 +85,7 @@ export default class RequestCache {
   }
 
   _triggerSubscriptions(req: InternalRequest) {
-    req._touching.forEach((identifier) => {
+    req[touching].forEach((identifier) => {
       if (this._subscriptions[identifier.lid]) {
         this._subscriptions[identifier.lid].forEach((callback) => callback(req));
       }
@@ -98,7 +97,7 @@ export default class RequestCache {
   }
 
   _addDone(request: InternalRequest) {
-    request._touching.forEach(identifier => {
+    request[touching].forEach(identifier => {
       if (!this._done[identifier.lid]) {
         this._done[identifier.lid] = [];
       }
@@ -136,7 +135,7 @@ export default class RequestCache {
   getLastRequestForRecord(identifier: RecordIdentifier): RequestState | null {
     let requests = this._done[identifier.lid];
     if (requests){
-      return requests[requests.length];
+      return requests[requests.length - 1];
     }
     return null;
   }
