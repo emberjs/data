@@ -4,6 +4,7 @@ import global from '@ember-data/canary-features/environment';
 export const ENV = {
   FEATURES: {},
 };
+console.log(global.EMBER_ENV, global.ENV, global.FEATURES);
 (EmberENV => {
   if (typeof EmberENV !== 'object' || EmberENV === null) return;
 

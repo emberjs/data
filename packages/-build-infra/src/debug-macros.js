@@ -3,7 +3,6 @@
 const FEATURES = require('./features');
 
 module.exports = function debugMacros(environment) {
-  console.log('using debug macro features', FEATURES);
   let plugins = [
     [
       require.resolve('babel-plugin-debug-macros'),
