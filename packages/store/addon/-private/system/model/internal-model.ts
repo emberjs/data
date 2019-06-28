@@ -22,7 +22,7 @@ import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../types';
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof ManyArray>;
@@ -204,13 +204,49 @@ export default class InternalModel {
     // `lastObject` have changed.  When this happens we don't want those
     // models to rematerialize their records.
 
+    // eager checks to avoid instantiating record data if we are empty or loading
+    if (this.isEmpty()) {
+      return true;
+    }
+
+    if (RECORD_DATA_STATE) {
+      if (this.isLoading()) {
+        return false;
+      }
+    }
+
+    let isRecordFullyDeleted;
+    if (RECORD_DATA_STATE) {
+      isRecordFullyDeleted = this._isRecordFullyDeleted();
+    } else {
+      isRecordFullyDeleted = this.currentState.stateName === 'root.deleted.saved';
+    }
     return (
       this._isDematerializing ||
       this.hasScheduledDestroy() ||
       this.isDestroyed ||
-      this.currentState.stateName === 'root.deleted.saved' ||
-      this.isEmpty()
+      isRecordFullyDeleted
     );
+  }
+
+  _isRecordFullyDeleted(): boolean {
+    if (RECORD_DATA_STATE) {
+      if (this._recordData.isDeletionCommitted && this._recordData.isDeletionCommitted()) {
+        return true;
+      } else if (
+        this._recordData.isNew &&
+        this._recordData.isDeleted &&
+        this._recordData.isNew() &&
+        this._recordData.isDeleted()
+      ) {
+        return true;
+      } else {
+        return this.currentState.stateName === 'root.deleted.saved';
+      }
+    } else {
+      // assert here
+      return false;
+    }
   }
 
   isRecordInUse() {
@@ -239,11 +275,27 @@ export default class InternalModel {
   }
 
   isDeleted() {
-    return this.currentState.isDeleted;
+    if (RECORD_DATA_STATE) {
+      if (this._recordData.isDeleted) {
+        return this._recordData.isDeleted();
+      } else {
+        return this.currentState.isDeleted;
+      }
+    } else {
+      return this.currentState.isDeleted;
+    }
   }
 
   isNew() {
-    return this.currentState.isNew;
+    if (RECORD_DATA_STATE) {
+      if (this._recordData.isNew) {
+        return this._recordData.isNew();
+      } else {
+        return this.currentState.isNew;
+      }
+    } else {
+      return this.currentState.isNew;
+    }
   }
 
   isValid() {
@@ -369,6 +421,11 @@ export default class InternalModel {
   }
 
   deleteRecord() {
+    if (RECORD_DATA_STATE) {
+      if (this._recordData.setIsDeleted) {
+        this._recordData.setIsDeleted(true);
+      }
+    }
     this.send('deleteRecord');
   }
 
@@ -965,6 +1022,21 @@ export default class InternalModel {
         this._retainedManyArrayCache[key] = this._manyArrayCache[key];
         delete this._manyArrayCache[key];
       }
+    }
+  }
+
+  notifyStateChange(key?) {
+    assert('Cannot notify state change if Record Data State flag is not on', RECORD_DATA_STATE);
+    if (this.hasRecord) {
+      if (!key || key === 'isNew') {
+        this.getRecord().notifyPropertyChange('isNew');
+      }
+      if (!key || key === 'isDeleted') {
+        this.getRecord().notifyPropertyChange('isDeleted');
+      }
+    }
+    if (!key || key === 'isDeletionCommitted') {
+      this.updateRecordArrays();
     }
   }
 

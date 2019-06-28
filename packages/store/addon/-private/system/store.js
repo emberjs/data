@@ -45,7 +45,7 @@ import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
 import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
@@ -2100,11 +2100,17 @@ const Store = Service.extend({
   */
   scheduleSave(internalModel, resolver, options) {
     let snapshot = internalModel.createSnapshot(options);
+    if (internalModel._isRecordFullyDeleted()) {
+      resolver.resolve();
+      return resolver.promise;
+    }
+
     internalModel.adapterWillCommit();
     this._pendingSave.push({
       snapshot: snapshot,
       resolver: resolver,
     });
+
     emberRun.scheduleOnce('actions', this, this.flushPendingSave);
   },
 
@@ -2127,15 +2133,26 @@ const Store = Service.extend({
       let adapter = this.adapterFor(internalModel.modelName);
       let operation;
 
-      if (internalModel.currentState.stateName === 'root.deleted.saved') {
-        resolver.resolve();
-        continue;
-      } else if (internalModel.isNew()) {
-        operation = 'createRecord';
-      } else if (internalModel.isDeleted()) {
-        operation = 'deleteRecord';
+      if (RECORD_DATA_STATE) {
+        // TODO move this out of internalModel
+        if (internalModel.isNew()) {
+          operation = 'createRecord';
+        } else if (internalModel.isDeleted()) {
+          operation = 'deleteRecord';
+        } else {
+          operation = 'updateRecord';
+        }
       } else {
-        operation = 'updateRecord';
+        if (internalModel.currentState.stateName === 'root.deleted.saved') {
+          resolver.resolve();
+          continue;
+        } else if (internalModel.isNew()) {
+          operation = 'createRecord';
+        } else if (internalModel.isDeleted()) {
+          operation = 'deleteRecord';
+        } else {
+          operation = 'updateRecord';
+        }
       }
 
       resolver.resolve(_commit(adapter, this, operation, snapshot));

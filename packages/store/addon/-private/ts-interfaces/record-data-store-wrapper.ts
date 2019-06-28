@@ -28,4 +28,10 @@ export interface RecordDataStoreWrapper {
   inverseForRelationship(modelName: string, key: string): string;
   inverseIsAsyncForRelationship(modelName: string, key: string): boolean;
   notifyErrorsChange(modelName: string, id: string | null, clientId: string | null): void;
+  notifyStateChange(
+    modelName: string,
+    id: string | null,
+    clientId: string | null,
+    key?: string
+  ): void;
 }

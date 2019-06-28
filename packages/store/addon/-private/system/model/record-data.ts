@@ -19,7 +19,7 @@ import {
 } from '../../ts-interfaces/record-data-json-api';
 import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
 import { RecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 
 let nextBfsId = 1;
 
@@ -34,6 +34,8 @@ export default class RecordDataDefault implements RelationshipRecordData {
   __inFlightAttributes: any;
   __data: any;
   _scheduledDestroy: any;
+  _isDeleted: boolean;
+  _isDeletionCommited: boolean;
 
   constructor(
     public modelName: string,
@@ -65,6 +67,11 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
   pushData(data: JsonApiResource, calculateChange: boolean) {
     let changedKeys;
+
+    if (this._isNew) {
+      this._isNew = false;
+      this.notifyStateChange();
+    }
 
     if (calculateChange) {
       changedKeys = this._changedKeys(data.attributes);
@@ -123,6 +130,27 @@ export default class RecordDataDefault implements RelationshipRecordData {
   //   how to get it just yet from storeWrapper.
   isEmpty() {
     return this.__attributes === null && this.__inFlightAttributes === null && this.__data === null;
+  }
+
+  deleteRecord() {
+    this._isDeleted = true;
+    this.notifyStateChange();
+  }
+
+  isDeleted() {
+    return this._isDeleted;
+  }
+
+  setIsDeleted(isDeleted: boolean): void {
+    this._isDeleted = isDeleted;
+    if (this._isNew) {
+      this._deletionConfirmed();
+    }
+    this.notifyStateChange();
+  }
+
+  isDeletionCommitted(): boolean {
+    return this._isDeletionCommited;
   }
 
   reset() {
@@ -261,6 +289,8 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
   rollbackAttributes() {
     let dirtyKeys;
+    this._isDeleted = false;
+
     if (this.hasChangedAttributes()) {
       dirtyKeys = Object.keys(this._attributes);
       this._attributes = null;
@@ -268,16 +298,28 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
     if (this.isNew()) {
       this.removeFromInverseRelationships(true);
+      this._isDeleted = true;
+      this._isNew = false;
     }
 
     this._inFlightAttributes = null;
 
     this._clearErrors();
+    this.notifyStateChange();
 
     return dirtyKeys;
   }
 
+  _deletionConfirmed() {
+    this.removeFromInverseRelationships();
+  }
+
   didCommit(data: JsonApiResource | null) {
+    if (this._isDeleted) {
+      this._deletionConfirmed();
+      this._isDeletionCommited = true;
+    }
+
     this._isNew = false;
     let newCanonicalAttributes: AttributesHash | null = null;
     if (data) {
@@ -301,7 +343,14 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._updateChangedAttributes();
     this._clearErrors();
 
+    this.notifyStateChange();
     return changedKeys;
+  }
+
+  notifyStateChange() {
+    if (RECORD_DATA_STATE) {
+      this.storeWrapper.notifyStateChange(this.modelName, this.id, this.clientId);
+    }
   }
 
   // get ResourceIdentifiers for "current state"

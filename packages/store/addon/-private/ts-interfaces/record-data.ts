@@ -48,7 +48,12 @@ export default interface RecordData {
 
   // new
 
-  isNew(): boolean;
-
   getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
+  isNew?(): boolean;
+
+  isDeleted?(): boolean;
+
+  isDeletionCommitted?(): boolean;
+
+  setIsDeleted?(isDeleted: boolean): void;
 }

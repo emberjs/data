@@ -4,6 +4,7 @@ function getFeatures() {
   const features = {
     SAMPLE_FEATURE_FLAG: null,
     RECORD_DATA_ERRORS: null,
+    RECORD_DATA_STATE: null,
   };
 
   const FEATURE_OVERRIDES = process.env.EMBER_DATA_FEATURE_OVERRIDE;
