@@ -80,7 +80,7 @@ const retrieveFromCurrentState = computed('currentState', function (key) {
 const Model = EmberObject.extend(Evented, {
   init() {
     this._super(...arguments);
-    this.store.requestCache.subscribe(identifierForModel(this), (request) => {
+    this.store.requestCache.subscribeForRecord(identifierForModel(this), (request) => {
       if (request.state === 'rejected') {
         // TODO filter out queries
         this._lastError = request;

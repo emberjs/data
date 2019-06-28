@@ -109,7 +109,7 @@ export default class RequestCache {
     });
   }
 
-  subscribe(identifier: RecordIdentifier, callback: Function) {
+  subscribeForRecord(identifier: RecordIdentifier, callback: Function) {
     if (!this._subscriptions[identifier.lid]) {
       this._subscriptions[identifier.lid] = [];
     }

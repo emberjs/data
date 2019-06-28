@@ -40,7 +40,7 @@ module('integration/request-state-service - Request State Service', function (ho
     store = owner.lookup('service:store');
   });
 
-  test("Request state service igor5", async function (assert) {
+  test("getPendingRequest and getLastRequest", async function (assert) {
     assert.expect(10);
 
     const personHash = {
@@ -88,14 +88,14 @@ module('integration/request-state-service - Request State Service', function (ho
     let requestService = store.getRequestStateService();
 
     // Relying on sequential lids until identifiers land
-    let identifier = { type: 'person', id: '1', lid: '1'};
+    let identifier = { type: 'person', id: '1', lid: '1' };
     let request = requestService.getPendingRequestsForRecord(identifier)[0];
 
     assert.equal(request.state, 'pending', 'request is pending');
     assert.equal(request.type, 'query', 'request is a query');
     let requestOp = {
       op: 'findRecord',
-      recordIdentifier: { id: '1', type: 'person', lid: '1'},
+      recordIdentifier: { id: '1', type: 'person', lid: '1' },
       options: {}
     };
     assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
@@ -118,7 +118,7 @@ module('integration/request-state-service - Request State Service', function (ho
     assert.equal(savingRequest.type, 'mutation', 'request is a mutation');
     let savingRequestOp = {
       op: 'saveRecord',
-      recordIdentifier: { id: '1', type: 'person', lid: '1'},
+      recordIdentifier: { id: '1', type: 'person', lid: '1' },
       options: {}
     };
     assert.deepEqual(savingRequest.request.data[0], savingRequestOp, 'request op is correct');
@@ -133,5 +133,98 @@ module('integration/request-state-service - Request State Service', function (ho
     };
     assert.deepEqual(lastSavingRequest, savingRequestStateResult, 'request is correct after fulfilling');
     assert.deepEqual(requestService.getPendingRequestsForRecord(identifier).length, 0, 'no pending requests remaining');
+  });
+
+  test("event subscription", async function (assert) {
+    assert.expect(10);
+
+    const personHash = {
+      type: 'person',
+      id: '1',
+      name: 'Scumbag Dale'
+    };
+
+    let normalizedHash = {
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale',
+        },
+        relationships: {}
+      },
+      included: []
+    };
+
+    let { owner } = this;
+
+    let TestAdapter = EmberObject.extend({
+      findRecord() {
+        return Promise.resolve(personHash);
+      },
+      deleteRecord() {
+        return Promise.resolve();
+      },
+
+      updateRecord() {
+        return Promise.resolve();
+      },
+
+      createRecord() {
+        return Promise.resolve();
+      }
+    });
+
+    owner.register('adapter:application', TestAdapter, { singleton: false });
+
+    store = owner.lookup('service:store');
+
+    let requestService = store.getRequestStateService();
+    // Relying on sequential lids until identifiers land
+    let identifier = { type: 'person', id: '1', lid: '1' };
+    let count = 0;
+    let requestOp = {
+      op: 'findRecord',
+      recordIdentifier: { id: '1', type: 'person', lid: '1' },
+      options: {}
+    };
+    let savingRequestOp = {
+      op: 'saveRecord',
+      recordIdentifier: { id: '1', type: 'person', lid: '1' },
+      options: {}
+    };
+
+    let unsubToken = requestService.subscribeForRecord(identifier, (request) => {
+      if (count === 0) {
+        assert.equal(request.state, 'pending', 'request is pending');
+        assert.equal(request.type, 'query', 'request is a query');
+        assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
+      } else if (count === 1) {
+        let requestStateResult = {
+          type: 'query',
+          state: 'fulfilled',
+          request: { data: [requestOp] },
+          response: { data: normalizedHash }
+        };
+        assert.deepEqual(request, requestStateResult, 'request is correct after fulfilling');
+      } else if (count === 2) {
+        assert.equal(request.state, 'pending', 'request is pending');
+        assert.equal(request.type, 'mutation', 'request is a mutation');
+        assert.deepEqual(request.request.data[0], savingRequestOp, 'request op is correct');
+      } else if (count === 3) {
+        let savingRequestStateResult = {
+          type: 'mutation',
+          state: 'fulfilled',
+          request: { data: [savingRequestOp] },
+          response: { data: undefined }
+        };
+        assert.deepEqual(request, savingRequestStateResult, 'request is correct after fulfilling');
+      }
+      count++
+    });
+
+    let person = await store.findRecord('person', '1');
+    await person.save();
+    assert.equal(count, 4, 'callback called four times');
   });
 });
