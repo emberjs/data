@@ -14,13 +14,15 @@ import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import Store from '../store';
+import { errorsHashToArray, errorsArrayToHash } from '../errors-utils';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import RecordData from '../../ts-interfaces/record-data';
-import { JsonApiResource } from '../../ts-interfaces/record-data-json-api';
+import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../types';
+import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof ManyArray>;
@@ -105,13 +107,12 @@ export default class InternalModel {
   // we create a new ManyArray, but in the interim the retained version will be
   // updated if inverse internal models are unloaded.
   _retainedManyArrayCache: Dict<string, ManyArray> = Object.create(null);
-  _relationshipPromisesCache: Dict<string, RSVP.Promise<unknown>> = Object.create(null);
+  _relationshipPromisesCache: Dict<string, RSVP.Promise<any>> = Object.create(null);
   _relationshipProxyCache: Dict<string, PromiseManyArray | PromiseBelongsTo> = Object.create(null);
   currentState: any;
   error: any;
 
   constructor(modelName: string, id: string | null, store, data, clientId) {
-
     this.id = id;
     this.store = store;
     this.modelName = modelName;
@@ -246,7 +247,10 @@ export default class InternalModel {
   }
 
   isValid() {
-    return this.currentState.isValid;
+    if (RECORD_DATA_ERRORS) {
+    } else {
+      return this.currentState.isValid;
+    }
   }
 
   dirtyType() {
@@ -630,7 +634,7 @@ export default class InternalModel {
         manyArray =>
           handleCompletedRelationshipRequest(this, key, jsonApi._relationship, manyArray, null),
         e => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, null, e)
-      );
+      ) as RSVP.Promise<unknown>;
     this._relationshipPromisesCache[key] = loadingPromise;
     return loadingPromise;
   }
@@ -896,13 +900,25 @@ export default class InternalModel {
     @param {String} name
     @param {Object} context
   */
-  send(name, context?) {
+  send(name, context?, fromModel?) {
     let currentState = this.currentState;
 
     if (!currentState[name]) {
       this._unhandledEvent(currentState, name, context);
     }
 
+    if (RECORD_DATA_ERRORS) {
+      if (
+        fromModel &&
+        name === 'becameInvalid' &&
+        this._recordData.getErrors &&
+        this._recordData.getErrors({}).length === 0
+      ) {
+        // this is a very specific internal hack for backsupport for record.send('becameInvalid')
+        let jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
+        this._recordData.commitWasRejected({}, jsonApiErrors);
+      }
+    }
     return currentState[name](this, context);
   }
 
@@ -1230,9 +1246,17 @@ export default class InternalModel {
   }
 
   hasErrors() {
-    let errors = get(this.getRecord(), 'errors');
-
-    return errors.get('length') > 0;
+    if (RECORD_DATA_ERRORS) {
+      if (this._recordData.getErrors) {
+        return this._recordData.getErrors({}).length > 0;
+      } else {
+        let errors = get(this.getRecord(), 'errors');
+        return errors.get('length') > 0;
+      }
+    } else {
+      let errors = get(this.getRecord(), 'errors');
+      return errors.get('length') > 0;
+    }
   }
 
   // FOR USE DURING COMMIT PROCESS
@@ -1241,18 +1265,55 @@ export default class InternalModel {
     @method adapterDidInvalidate
     @private
   */
-  adapterDidInvalidate(errors) {
-    let attribute;
+  adapterDidInvalidate(parsedErrors, error) {
+    if (RECORD_DATA_ERRORS) {
+      let attribute;
+      if (error && parsedErrors) {
+        if (!this._recordData.getErrors) {
+          for (attribute in parsedErrors) {
+            if (parsedErrors.hasOwnProperty(attribute)) {
+              this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
+            }
+          }
+        }
 
-    for (attribute in errors) {
-      if (errors.hasOwnProperty(attribute)) {
-        this.addErrorMessageToAttribute(attribute, errors[attribute]);
+        let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
+        this.send('becameInvalid');
+        if (jsonApiErrors.length === 0) {
+          jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
+        }
+        this._recordData.commitWasRejected({}, jsonApiErrors);
+      } else {
+        this.send('becameError');
+        this._recordData.commitWasRejected({});
       }
+    } else {
+      let attribute;
+
+      for (attribute in parsedErrors) {
+        if (parsedErrors.hasOwnProperty(attribute)) {
+          this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
+        }
+      }
+
+      this.send('becameInvalid');
+
+      this._recordData.commitWasRejected();
     }
+  }
 
-    this.send('becameInvalid');
+  notifyErrorsChange() {
+    let invalidErrors;
+    if (this._recordData.getErrors) {
+      invalidErrors = this._recordData.getErrors({}) || [];
+    } else {
+      return;
+    }
+    this.notifyInvalidErrorsChange(invalidErrors);
+  }
 
-    this._recordData.commitWasRejected();
+  notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {
+    this.getRecord().invalidErrorsChanged(jsonApiErrors);
   }
 
   /*

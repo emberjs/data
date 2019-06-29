@@ -37,4 +37,13 @@ export interface JsonApiHasManyRelationship {
   // Private
   _relationship?: ManyRelationship;
 }
+
+export interface JsonApiValidationError {
+  title: string;
+  detail: string;
+  source: {
+    pointer: string;
+  }
+}
+
 export type JsonApiRelationship = JsonApiBelongsToRelationship | JsonApiHasManyRelationship;

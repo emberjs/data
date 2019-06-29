@@ -14,6 +14,8 @@ export {
 export { default as normalizeModelName } from './system/normalize-model-name';
 export { default as coerceId } from './system/coerce-id';
 
+export { errorsHashToArray, errorsArrayToHash } from './system/errors-utils';
+
 // `ember-data-model-fragments` relies on `RootState` and `InternalModel`
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';

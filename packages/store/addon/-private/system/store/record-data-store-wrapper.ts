@@ -27,6 +27,11 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     });
   }
 
+  notifyErrorsChange(modelName: string, id: string | null, clientId: string | null) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    internalModel.notifyErrorsChange();
+  }
+
   _flushPendingManyArrayUpdates() {
     if (this._willUpdateManyArrays === false) {
       return;

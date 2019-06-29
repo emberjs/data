@@ -1,30 +1,24 @@
+/* globals EmberDataENV */
+
 import { assign } from '@ember/polyfills';
-import global from '@ember-data/canary-features/environment';
-export const ENV = {
-  FEATURES: {},
-};
-(EmberDataENV => {
-  if (typeof EmberDataENV !== 'object' || EmberDataENV === null) return;
 
-  for (let flag in EmberDataENV) {
-    if (
-      !EmberDataENV.hasOwnProperty(flag) ||
-      flag === 'EXTEND_PROTOTYPES' ||
-      flag === 'EMBER_LOAD_HOOKS'
-    )
-      continue;
-    let defaultValue = ENV[flag];
-    if (defaultValue === true) {
-      ENV[flag] = EmberDataENV[flag] !== false;
-    } else if (defaultValue === false) {
-      ENV[flag] = EmberDataENV[flag] === true;
-    }
-  }
-})(global.EmberDataENV || global.ENV);
+const ENV = typeof EmberDataENV === 'object' && EmberDataENV !== null ? EmberDataENV : {};
 
+// TODO: Make this file the source of truth, currently this must match
+//   the contents of `packages/-build-infra/src/features.js`
 export const DEFAULT_FEATURES = {
   SAMPLE_FEATURE_FLAG: null,
+  RECORD_DATA_ERRORS: null,
 };
 
+function featureValue(value) {
+  if (ENV.ENABLE_OPTIONAL_FEATURES && value === null) {
+    return true;
+  }
+
+  return value;
+}
+
 export const FEATURES = assign({}, DEFAULT_FEATURES, ENV.FEATURES);
-export const SAMPLE_FEATURE_FLAG = FEATURES.SAMPLE_FEATURE_FLAG;
+export const SAMPLE_FEATURE_FLAG = featureValue(FEATURES.SAMPLE_FEATURE_FLAG);
+export const RECORD_DATA_ERRORS = featureValue(FEATURES.RECORD_DATA_ERRORS);

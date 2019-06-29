@@ -23,6 +23,8 @@
       "@ember-data/adapter/test-support/*": ["addon-test-support/*"],
       "ember-data": ["../-ember-data/addon"],
       "ember-data/*": ["../-ember-data/addon/*"],
+      "@ember-data/store": ["../store/addon"],
+      "@ember-data/store/*": ["../store/addon/*"],
       "*": ["types/*"]
     }
   },

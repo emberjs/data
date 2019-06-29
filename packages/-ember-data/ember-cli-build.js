@@ -4,6 +4,11 @@ const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 module.exports = function(defaults) {
   let app = new EmberAddon(defaults, {
+    babel: {
+      // this ensures that the same `@ember-data/canary-features` processing that the various
+      // ember-data addons do is done in the dummy app
+      plugins: [...require('@ember-data/-build-infra/src/debug-macros')()],
+    },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
     },

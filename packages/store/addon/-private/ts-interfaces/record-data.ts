@@ -2,17 +2,24 @@ import {
   JsonApiResource,
   JsonApiHasManyRelationship,
   JsonApiBelongsToRelationship,
+  JsonApiValidationError,
 } from './record-data-json-api';
 
 export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
+export interface RecordIdentifier {
+  id?: string | null;
+  type?: string;
+  lid?: string;
+}
+
 export default interface RecordData {
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;
-  commitWasRejected(): void;
+  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiValidationError[]): void;
   unloadRecord(): void;
   rollbackAttributes(): string[];
   changedAttributes(): ChangedAttributesHash;
@@ -38,4 +45,10 @@ export default interface RecordData {
 
   isRecordInUse(): boolean;
   _initRecordCreateOptions(options: any): object;
+
+  // new
+
+  isNew(): boolean;
+
+  getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
 }
