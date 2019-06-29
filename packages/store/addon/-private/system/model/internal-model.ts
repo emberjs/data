@@ -111,6 +111,7 @@ export default class InternalModel {
   error: any;
 
   constructor(modelName: string, id: string | null, store, data, clientId) {
+
     this.id = id;
     this.store = store;
     this.modelName = modelName;
