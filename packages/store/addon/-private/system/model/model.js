@@ -17,7 +17,7 @@ import recordDataFor from '../record-data-for';
 import Ember from 'ember';
 import InternalModel from './internal-model';
 import RootState from './states';
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 
 const { changeProperties } = Ember;
 
@@ -67,6 +67,35 @@ const isValidRecordData = computed('errors.length', function(key) {
 }).readOnly();
 
 const isValid = RECORD_DATA_ERRORS ? isValidRecordData : retrieveFromCurrentState;
+
+let isDeletedCP;
+if (RECORD_DATA_STATE) {
+  isDeletedCP = computed('currentState', function() {
+    let rd = recordDataFor(this);
+    if (rd.isDeleted) {
+      return rd.isDeleted();
+    } else {
+      return get(this._internalModel.currentState, 'isDeleted');
+    }
+  }).readOnly();
+} else {
+  isDeletedCP = retrieveFromCurrentState;
+}
+
+let isNewCP;
+if (RECORD_DATA_STATE) {
+  isNewCP = computed('currentState', function() {
+    let rd = recordDataFor(this);
+    if (rd.isNew) {
+      return rd.isNew();
+    } else {
+      return get(this._internalModel.currentState, 'isNew');
+    }
+  }).readOnly();
+} else {
+  isNewCP = retrieveFromCurrentState;
+}
+
 /**
 
   The model class that all Ember Data records descend from.
@@ -223,7 +252,7 @@ const Model = EmberObject.extend(Evented, {
     @type {Boolean}
     @readOnly
   */
-  isDeleted: retrieveFromCurrentState,
+  isDeleted: isDeletedCP,
   /**
     If this property is `true` the record is in the `new` state. A
     record will be in the `new` state when it has been created on the
@@ -245,7 +274,7 @@ const Model = EmberObject.extend(Evented, {
     @type {Boolean}
     @readOnly
   */
-  isNew: retrieveFromCurrentState,
+  isNew: isNewCP,
   /**
     If this property is `true` the record is in the `valid` state.
 
