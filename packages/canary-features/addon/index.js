@@ -3,24 +3,24 @@ import global from '@ember-data/canary-features/environment';
 export const ENV = {
   FEATURES: {},
 };
-(EmberENV => {
-  if (typeof EmberENV !== 'object' || EmberENV === null) return;
+(EmberDataENV => {
+  if (typeof EmberDataENV !== 'object' || EmberDataENV === null) return;
 
-  for (let flag in EmberENV) {
+  for (let flag in EmberDataENV) {
     if (
-      !EmberENV.hasOwnProperty(flag) ||
+      !EmberDataENV.hasOwnProperty(flag) ||
       flag === 'EXTEND_PROTOTYPES' ||
       flag === 'EMBER_LOAD_HOOKS'
     )
       continue;
     let defaultValue = ENV[flag];
     if (defaultValue === true) {
-      ENV[flag] = EmberENV[flag] !== false;
+      ENV[flag] = EmberDataENV[flag] !== false;
     } else if (defaultValue === false) {
-      ENV[flag] = EmberENV[flag] === true;
+      ENV[flag] = EmberDataENV[flag] === true;
     }
   }
-})(global.EmberENV || global.ENV);
+})(global.EmberDataENV || global.ENV);
 
 export const DEFAULT_FEATURES = {
   sample_feature_flag: null,
