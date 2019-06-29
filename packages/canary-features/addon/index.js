@@ -23,8 +23,8 @@ export const ENV = {
 })(global.EmberDataENV || global.ENV);
 
 export const DEFAULT_FEATURES = {
-  sample_feature_flag: null,
+  SAMPLE_FEATURE_FLAG: null,
 };
 
 export const FEATURES = assign({}, DEFAULT_FEATURES, ENV.FEATURES);
-export const sample_feature_flag = FEATURES.sample_feature_flag;
+export const SAMPLE_FEATURE_FLAG = FEATURES.SAMPLE_FEATURE_FLAG;
