@@ -15,7 +15,6 @@ import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import Store from '../store';
 
-import { sample_feature_flag } from '@ember-data/canary-features';
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import RecordData from '../../ts-interfaces/record-data';
@@ -113,10 +112,6 @@ export default class InternalModel {
 
   constructor(modelName: string, id: string | null, store, data, clientId) {
 
-    console.log('found flag', sample_feature_flag);
-    if (sample_feature_flag) {
-      console.log('flag');
-    }
     this.id = id;
     this.store = store;
     this.modelName = modelName;
