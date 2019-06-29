@@ -1,3 +1,4 @@
+/* global global:false mainContext:false */
 // from lodash to catch fake globals
 function checkGlobal(value) {
   return value && value.Object === Object ? value : undefined;
