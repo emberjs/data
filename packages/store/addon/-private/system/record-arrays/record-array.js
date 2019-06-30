@@ -1,8 +1,6 @@
 /**
   @module ember-data
 */
-
-//import Evented from '@ember/object/evented';
 import DeprecatedEvented from '../deprecated-evented';
 
 import ArrayProxy from '@ember/array/proxy';
