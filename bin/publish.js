@@ -15,7 +15,7 @@ Flags
 --bumpMinor
 --skipVersion
 --skipPack
---skipPublish 
+--skipPublish
 --skipSmokeTest
 
 Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3200f183bffb7d520a3c71249#diff-19fef6f3236e72e3b5af7c884eef67a0
@@ -31,7 +31,7 @@ const readline = require('readline');
 const semver = require('semver');
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
-const packages = fs.readdirSync(packagesDir);
+const packages = fs.readdirSync(packagesDir).filter(p => p !== '-build-infra');
 
 function cleanProject() {
   execWithLog(
@@ -190,10 +190,10 @@ function assertGitIsClean() {
 }
 
 function retrieveNextVersion() {
-  /* 
+  /*
 
   A brief rundown of how version updates flow through the branches.
-  
+
   - We only ever bump the major or minor version on master
   - All other branches pick it up as those changes flow through the release cycle.
 
