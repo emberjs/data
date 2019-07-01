@@ -12,7 +12,9 @@
     "doc": "doc",
     "test": "tests"
   },
-  "scripts": {},
+  "scripts": {
+    "test:node": "mocha"
+  },
   "dependencies": {
     "babel-plugin-debug-macros": "^0.3.2",
     "babel-plugin-feature-flags": "^0.3.1",
