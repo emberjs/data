@@ -1,7 +1,7 @@
-import { resolve, Promise as EmberPromise } from 'rsvp';
+import { resolve, reject, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
 import { createStore } from 'dummy/tests/helpers/store';
-
+import { InvalidError } from '@ember-data/adapter/error';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
@@ -207,12 +207,17 @@ module('unit/model/merge - Merging', function(hooks) {
     );
   });
 
-  test('When a record is invalid, pushes are overridden by local changes', function(assert) {
+  test('When a record is invalid, pushes are overridden by local changes', async function(assert) {
     let store = createStore({
       adapter: DS.Adapter,
       person: Person,
     });
     let person;
+    let adapter = store.adapterFor('application');
+
+    adapter.updateRecord = () => {
+      return reject(new InvalidError());
+    };
 
     run(() => {
       person = store.push({
@@ -225,12 +230,18 @@ module('unit/model/merge - Merging', function(hooks) {
           },
         },
       });
-      person.set('name', 'Brondan McLoughlin');
-      person.send('becameInvalid');
     });
 
-    assert.equal(person.get('hasDirtyAttributes'), true, 'the person is currently dirty');
+    person.set('name', 'Brondan McLoughlin');
+
+    try {
+      await person.save();
+      assert.ok(false, 'We should throw during save');
+    } catch (e) {
+      assert.ok(true, 'We rejected the save');
+    }
     assert.equal(person.get('isValid'), false, 'the person is currently invalid');
+    assert.equal(person.get('hasDirtyAttributes'), true, 'the person is currently dirty');
     assert.equal(person.get('name'), 'Brondan McLoughlin', 'the update was effective');
     assert.equal(person.get('city'), 'Boston', 'the original data applies');
 

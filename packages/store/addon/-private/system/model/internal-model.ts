@@ -1000,25 +1000,13 @@ export default class InternalModel {
     @param {String} name
     @param {Object} context
   */
-  send(name, context?, fromModel?) {
+  send(name, context?) {
     let currentState = this.currentState;
 
     if (!currentState[name]) {
       this._unhandledEvent(currentState, name, context);
     }
 
-    if (RECORD_DATA_ERRORS) {
-      if (
-        fromModel &&
-        name === 'becameInvalid' &&
-        this._recordData.getErrors &&
-        this._recordData.getErrors({}).length === 0
-      ) {
-        // this is a very specific internal hack for backsupport for record.send('becameInvalid')
-        let jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
-        this._recordData.commitWasRejected({}, jsonApiErrors);
-      }
-    }
     return currentState[name](this, context);
   }
 

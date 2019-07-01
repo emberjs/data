@@ -614,7 +614,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @param {Object} context
   */
   send(name, context) {
-    return this._internalModel.send(name, context, true);
+    return this._internalModel.send(name, context);
   },
 
   /**
