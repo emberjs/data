@@ -3,6 +3,7 @@ import { resolve, reject } from 'rsvp';
 import { set, get, observer, computed } from '@ember/object';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
+import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import { settled } from '@ember/test-helpers';
 import { setupTest } from 'ember-qunit';
 import Model from '@ember-data/model';
@@ -607,58 +608,79 @@ module('unit/model - Model', function(hooks) {
   });
 
   module('Evented', function() {
-    test('an event listener can be added to a record', async function(assert) {
-      let count = 0;
-      let F = function() {
-        count++;
-      };
+    deprecatedTest(
+      'an event listener can be added to a record',
+      {
+        id: 'ember-data:evented-api-usage',
+        until: '4.0',
+      },
+      async function(assert) {
+        let count = 0;
+        let F = function() {
+          count++;
+        };
 
-      let record = store.createRecord('person');
+        let record = store.createRecord('person');
 
-      record.on('event!', F);
-      record.trigger('event!');
+        record.on('event!', F);
+        record.trigger('event!');
 
-      await settled();
+        await settled();
 
-      assert.equal(count, 1, 'the event was triggered');
-      record.trigger('event!');
+        assert.equal(count, 1, 'the event was triggered');
+        record.trigger('event!');
 
-      await settled();
+        await settled();
 
-      assert.equal(count, 2, 'the event was triggered');
-    });
+        assert.equal(count, 2, 'the event was triggered');
+      }
+    );
 
-    test('when an event is triggered on a record the method with the same name is invoked with arguments', async function(assert) {
-      let count = 0;
-      let F = function() {
-        count++;
-      };
-      let record = store.createRecord('person');
+    deprecatedTest(
+      'when an event is triggered on a record the method with the same name is invoked with arguments',
+      {
+        id: 'ember-data:evented-api-usage',
+        until: '4.0',
+      },
+      async function(assert) {
+        let count = 0;
+        let F = function() {
+          count++;
+        };
+        let record = store.createRecord('person');
 
-      record.eventNamedMethod = F;
+        record.eventNamedMethod = F;
 
-      record.trigger('eventNamedMethod');
+        record.trigger('eventNamedMethod');
 
-      await settled();
+        await settled();
 
-      assert.equal(count, 1, 'the corresponding method was called');
-    });
+        assert.equal(count, 1, 'the corresponding method was called');
+      }
+    );
 
-    test('when a method is invoked from an event with the same name the arguments are passed through', async function(assert) {
-      let eventMethodArgs = null;
-      let F = function() {
-        eventMethodArgs = arguments;
-      };
-      let record = store.createRecord('person');
+    deprecatedTest(
+      'when a method is invoked from an event with the same name the arguments are passed through',
+      {
+        id: 'ember-data:evented-api-usage',
+        until: '4.0',
+      },
+      async function(assert) {
+        let eventMethodArgs = null;
+        let F = function() {
+          eventMethodArgs = arguments;
+        };
+        let record = store.createRecord('person');
 
-      record.eventThatTriggersMethod = F;
-      record.trigger('eventThatTriggersMethod', 1, 2);
+        record.eventThatTriggersMethod = F;
+        record.trigger('eventThatTriggersMethod', 1, 2);
 
-      await settled();
+        await settled();
 
-      assert.equal(eventMethodArgs[0], 1);
-      assert.equal(eventMethodArgs[1], 2);
-    });
+        assert.equal(eventMethodArgs[0], 1);
+        assert.equal(eventMethodArgs[1], 2);
+      }
+    );
   });
 
   module('Reserved Props', function() {
