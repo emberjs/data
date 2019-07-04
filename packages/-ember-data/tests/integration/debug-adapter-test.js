@@ -1,7 +1,6 @@
 import { setupTest } from 'ember-qunit';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import Model from '@ember-data/model';
 import Adapter from '@ember-data/adapter';
 import { module, test } from 'qunit';
@@ -176,7 +175,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     addedRecords = updatedRecords = [];
     removedCount = removedIndex = null;
 
-    run(() => post.unloadRecord());
+    post.unloadRecord();
 
     await settled();
 

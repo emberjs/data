@@ -1,14 +1,11 @@
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
 
+import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-let env, store, User, Job, ReflexiveModel;
-
-const { attr, belongsTo } = DS;
+import Model from '@ember-data/model';
+import { attr, belongsTo } from '@ember-data/model';
 
 function stringify(string) {
   return function() {
@@ -16,53 +13,67 @@ function stringify(string) {
   };
 }
 
+// @pete_the_pete refer to https://github.com/emberjs/data/commit/e34cb5a37391ce2e5d25401ca189a9bd19a29340
 module('integration/inverse_test - inverseFor', function(hooks) {
+  setupTest(hooks);
+  let store;
+  let user;
+  let job;
+
   hooks.beforeEach(function() {
-    User = DS.Model.extend({
-      name: attr('string'),
-      bestFriend: belongsTo('user', { async: true, inverse: null }),
-      job: belongsTo('job', { async: false }),
-    });
+    let { owner } = this;
+    class User extends Model {
+      @attr()
+      name;
 
-    User.toString = stringify('user');
+      @belongsTo('user', { async: true, inverse: null })
+      bestFriend;
 
-    Job = DS.Model.extend({
-      isGood: attr(),
-      user: belongsTo('user', { async: false }),
-    });
+      @belongsTo('job', { async: false })
+      job;
 
-    Job.toString = stringify('job');
+      toString() {
+        return stringify('user');
+      }
+    }
 
-    ReflexiveModel = DS.Model.extend({
-      reflexiveProp: belongsTo('reflexive-model', { async: false }),
-    });
+    class Job extends Model {
+      @attr()
+      isGood;
 
-    ReflexiveModel.toString = stringify('reflexiveModel');
+      @belongsTo('user', { async: false })
+      user;
 
-    env = setupStore({
-      user: User,
-      job: Job,
-      reflexiveModel: ReflexiveModel,
-    });
+      toString() {
+        return stringify('job');
+      }
+    }
 
-    store = env.store;
+    class ReflexiveModel extends Model {
+      @belongsTo('reflexive-model', { async: false })
+      reflexiveProp;
 
-    Job = store.modelFor('job');
-    User = store.modelFor('user');
-    ReflexiveModel = store.modelFor('reflexive-model');
-  });
+      toString() {
+        return stringify('reflexiveModel');
+      }
+    }
+    owner.register('model:user', User);
+    owner.register('model:job', Job);
+    owner.register('model:reflexive-model', ReflexiveModel);
 
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    store = owner.lookup('service:store');
+
+    job = store.modelFor('job');
+    user = store.modelFor('user');
   });
 
   test('Finds the inverse when there is only one possible available', function(assert) {
-    let inverseDefinition = Job.inverseFor('user', store);
+    let inverseDefinition = job.inverseFor('user', store);
 
     assert.deepEqual(
       inverseDefinition,
       {
-        type: User,
+        type: user,
         name: 'job',
         kind: 'belongsTo',
         options: {
@@ -74,18 +85,18 @@ module('integration/inverse_test - inverseFor', function(hooks) {
   });
 
   test('Finds the inverse when only one side has defined it manually', function(assert) {
-    Job.reopen({
+    job.reopen({
       owner: belongsTo('user', { inverse: 'previousJob', async: false }),
     });
 
-    User.reopen({
+    user.reopen({
       previousJob: belongsTo('job', { async: false }),
     });
 
     assert.deepEqual(
-      Job.inverseFor('owner', store),
+      job.inverseFor('owner', store),
       {
-        type: User, //the model's type
+        type: user, //the model's type
         name: 'previousJob', //the models relationship key
         kind: 'belongsTo',
         options: {
@@ -96,9 +107,9 @@ module('integration/inverse_test - inverseFor', function(hooks) {
     );
 
     assert.deepEqual(
-      User.inverseFor('previousJob', store),
+      user.inverseFor('previousJob', store),
       {
-        type: Job, //the model's type
+        type: job, //the model's type
         name: 'owner', //the models relationship key
         kind: 'belongsTo',
         options: {
@@ -111,41 +122,41 @@ module('integration/inverse_test - inverseFor', function(hooks) {
   });
 
   test('Returns null if inverse relationship it is manually set with a different relationship key', function(assert) {
-    Job.reopen({
+    job.reopen({
       user: belongsTo('user', { inverse: 'previousJob', async: false }),
     });
 
-    User.reopen({
+    user.reopen({
       job: belongsTo('job', { async: false }),
     });
 
-    assert.equal(User.inverseFor('job', store), null, 'There is no inverse');
+    assert.equal(user.inverseFor('job', store), null, 'There is no inverse');
   });
 
   testInDebug('Errors out if you define 2 inverses to the same model', function(assert) {
-    Job.reopen({
+    job.reopen({
       user: belongsTo('user', { inverse: 'job', async: false }),
       owner: belongsTo('user', { inverse: 'job', async: false }),
     });
 
-    User.reopen({
+    user.reopen({
       job: belongsTo('job', { async: false }),
     });
 
     assert.expectAssertion(() => {
-      User.inverseFor('job', store);
-    }, /You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times/i);
+      user.inverseFor('job', store);
+    }, /Assertion Failed: You defined the 'job' relationship on model:user, but you defined the inverse relationships of type model:job multiple times/i);
   });
 
   test('Caches findInverseFor return value', function(assert) {
     assert.expect(1);
 
-    var inverseForUser = Job.inverseFor('user', store);
-    Job.findInverseFor = function() {
+    let inverseForUser = job.inverseFor('user', store);
+    job.findInverseFor = function() {
       assert.ok(false, 'Find is not called anymore');
     };
 
-    assert.equal(inverseForUser, Job.inverseFor('user', store), 'Inverse cached succesfully');
+    assert.equal(inverseForUser, job.inverseFor('user', store), 'Inverse cached succesfully');
   });
 
   testInDebug('Errors out if you do not define an inverse for a reflexive relationship', function(
