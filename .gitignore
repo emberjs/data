@@ -15,6 +15,7 @@ node_modules
 /onnect.lock
 coverage/*
 libpeerconnection.log
+lerna-debug.log*
 npm-debug.log*
 testem.log
 yarn-error.log
