@@ -4,8 +4,8 @@ import { assign } from '@ember/polyfills';
 
 const ENV = typeof EmberDataENV === 'object' && EmberDataENV !== null ? EmberDataENV : {};
 
-// TODO: Make this file the source of truth, currently this must match
-//   the contents of `packages/-build-infra/src/features.js`
+// -build-infra/src/features consumes this variable to
+// populate the default features
 export const DEFAULT_FEATURES = {
   SAMPLE_FEATURE_FLAG: null,
   RECORD_DATA_ERRORS: null,
