@@ -1,13 +1,8 @@
 'use strict';
 
 const requireEsm = require('esm')(module);
-// See ember-source for other implementation to parse typescript file
-function extractFeaturesHash() {
-  let features = requireEsm('@ember-data/canary-features/addon/index.js');
-  return features.DEFAULT_FEATURES;
-}
 function getFeatures() {
-  const features = extractFeaturesHash();
+  const { DEFAULT_FEATURES: features } = requireEsm('@ember-data/canary-features/addon/index.js');
 
   const FEATURE_OVERRIDES = process.env.EMBER_DATA_FEATURE_OVERRIDE;
   if (FEATURE_OVERRIDES === 'ENABLE_ALL_OPTIONAL') {
