@@ -1579,7 +1579,7 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
     // for the async reload case there will be no proxy if the ui
     // has never been accessed
     if (proxy && relationship.kind === 'belongsTo') {
-      if (proxy.content.isDestroying) {
+      if (proxy.content && proxy.content.isDestroying) {
         proxy.set('content', null);
       }
 
