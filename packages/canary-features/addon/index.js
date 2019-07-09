@@ -1,16 +1,9 @@
 /* globals EmberDataENV */
 
 import { assign } from '@ember/polyfills';
+import { DEFAULT_FEATURES } from './default-features';
 
 const ENV = typeof EmberDataENV === 'object' && EmberDataENV !== null ? EmberDataENV : {};
-
-// -build-infra/src/features consumes this variable to
-// populate the default features
-export const DEFAULT_FEATURES = {
-  SAMPLE_FEATURE_FLAG: null,
-  RECORD_DATA_ERRORS: null,
-  RECORD_DATA_STATE: null,
-};
 
 function featureValue(value) {
   if (ENV.ENABLE_OPTIONAL_FEATURES && value === null) {
