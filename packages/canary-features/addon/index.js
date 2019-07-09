@@ -1,7 +1,7 @@
 /* globals EmberDataENV */
 
 import { assign } from '@ember/polyfills';
-import { DEFAULT_FEATURES } from './default-features';
+import DEFAULT_FEATURES from './default-features';
 
 const ENV = typeof EmberDataENV === 'object' && EmberDataENV !== null ? EmberDataENV : {};
 
