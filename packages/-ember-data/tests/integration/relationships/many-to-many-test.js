@@ -484,11 +484,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       account.deleteRecord();
       account.rollbackAttributes();
       assert.equal(account.get('users.length'), 1, 'Users are still there');
-      assert.equal(
-        user.get('accounts.length'),
-        1,
-        'Account got rolledback correctly into the user'
-      );
+      assert.equal(user.get('accounts.length'), 1, 'Account got rolledback correctly into the user');
     });
   });
 
@@ -637,17 +633,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       let users = account.get('users');
 
       assert.todo.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');
-      assert.todo.deepEqual(
-        users.map(r => get(r, 'id')),
-        ['1'],
-        'Accounts were updated correctly (ui state)'
-      );
+      assert.todo.deepEqual(users.map(r => get(r, 'id')), ['1'], 'Accounts were updated correctly (ui state)');
       assert.equal(state.length, 2, 'Accounts were updated correctly (server state)');
-      assert.deepEqual(
-        state.map(r => r.id),
-        ['1', '2'],
-        'Accounts were updated correctly (server state)'
-      );
+      assert.deepEqual(state.map(r => r.id), ['1', '2'], 'Accounts were updated correctly (server state)');
     }
   );
 });

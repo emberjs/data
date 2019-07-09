@@ -873,10 +873,7 @@ const JSONSerializer = Serializer.extend({
     if (this._mustSerialize(key)) {
       return true;
     }
-    return (
-      this._canSerialize(key) &&
-      (relationshipType === 'manyToNone' || relationshipType === 'manyToMany')
-    );
+    return this._canSerialize(key) && (relationshipType === 'manyToNone' || relationshipType === 'manyToMany');
   },
 
   // SERIALIZE
@@ -1493,10 +1490,7 @@ const JSONSerializer = Serializer.extend({
   transformFor(attributeType, skipAssertion) {
     let transform = getOwner(this).lookup('transform:' + attributeType);
 
-    assert(
-      `Unable to find the transform for \`attr('${attributeType}')\``,
-      skipAssertion || !!transform
-    );
+    assert(`Unable to find the transform for \`attr('${attributeType}')\``, skipAssertion || !!transform);
 
     return transform;
   },

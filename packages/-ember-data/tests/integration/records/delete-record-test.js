@@ -212,22 +212,14 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
       'root.loaded.created.invalid',
       'records should start in the created.invalid state'
     );
-    assert.equal(
-      get(store.peekAll('person'), 'length'),
-      1,
-      'The new person should be in the store'
-    );
+    assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     run(function() {
       record.deleteRecord();
     });
 
     assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
-    assert.equal(
-      get(store.peekAll('person'), 'length'),
-      0,
-      'The new person should be removed from the store'
-    );
+    assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
   test('Destroying an invalid newly created record should remove it from the store', function(assert) {
@@ -235,9 +227,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     var store = env.store;
 
     env.adapter.deleteRecord = function() {
-      assert.fail(
-        "The adapter's deletedRecord method should not be called when the record was created locally."
-      );
+      assert.fail("The adapter's deletedRecord method should not be called when the record was created locally.");
     };
 
     env.adapter.createRecord = function() {
@@ -266,22 +256,14 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
       'root.loaded.created.invalid',
       'records should start in the created.invalid state'
     );
-    assert.equal(
-      get(store.peekAll('person'), 'length'),
-      1,
-      'The new person should be in the store'
-    );
+    assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     run(function() {
       record.destroyRecord();
     });
 
     assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
-    assert.equal(
-      get(store.peekAll('person'), 'length'),
-      0,
-      'The new person should be removed from the store'
-    );
+    assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
   test('Will resolve destroy and save in same loop', function(assert) {

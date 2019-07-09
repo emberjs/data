@@ -60,17 +60,9 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const user = store.createRecord('user');
     const post = store.createRecord('post');
 
-    assert.equal(
-      user.inverseFor('posts').name,
-      'participants',
-      'User.posts inverse is Post.participants'
-    );
+    assert.equal(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
     assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-    assert.equal(
-      post.inverseFor('participants').name,
-      'posts',
-      'Post.participants inverse is User.posts'
-    );
+    assert.equal(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
   });
 
   test('Null inverses are excluded from potential relationship resolutions', function(assert) {
@@ -93,17 +85,9 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const user = store.createRecord('user');
     const post = store.createRecord('post');
 
-    assert.equal(
-      user.inverseFor('posts').name,
-      'participants',
-      'User.posts inverse is Post.participants'
-    );
+    assert.equal(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
     assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-    assert.equal(
-      post.inverseFor('participants').name,
-      'posts',
-      'Post.participants inverse is User.posts'
-    );
+    assert.equal(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
   });
 
   test('When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly', async function(assert) {
@@ -172,11 +156,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     assert.equal(post.get('meComments.length'), 0, 'meComments has no posts');
     assert.equal(post.get('youComments.length'), 0, 'youComments has no posts');
-    assert.equal(
-      post.get('everyoneWeKnowComments.length'),
-      0,
-      'everyoneWeKnowComments has no posts'
-    );
+    assert.equal(post.get('everyoneWeKnowComments.length'), 0, 'everyoneWeKnowComments has no posts');
 
     comment.set('post', post);
 
@@ -184,11 +164,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     assert.equal(post.get('meComments.length'), 0, 'meComments has no posts');
     assert.equal(post.get('youComments.length'), 1, 'youComments had the post added');
-    assert.equal(
-      post.get('everyoneWeKnowComments.length'),
-      0,
-      'everyoneWeKnowComments has no posts'
-    );
+    assert.equal(post.get('everyoneWeKnowComments.length'), 0, 'everyoneWeKnowComments has no posts');
   });
 
   test('When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used', async function(assert) {
@@ -392,31 +368,19 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
     assert.equal(user.get('youMessages.length'), 0, 'youMessages has no posts');
-    assert.equal(
-      user.get('everyoneWeKnowMessages.length'),
-      0,
-      'everyoneWeKnowMessages has no posts'
-    );
+    assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
 
     post.set('user', user);
 
     assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
     assert.equal(user.get('youMessages.length'), 1, 'youMessages had the post added');
-    assert.equal(
-      user.get('everyoneWeKnowMessages.length'),
-      0,
-      'everyoneWeKnowMessages has no posts'
-    );
+    assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
 
     post.set('user', null);
 
     assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
     assert.equal(user.get('youMessages.length'), 0, 'youMessages has no posts');
-    assert.equal(
-      user.get('everyoneWeKnowMessages.length'),
-      0,
-      'everyoneWeKnowMessages has no posts'
-    );
+    assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
   });
 
   test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function(assert) {
@@ -447,85 +411,67 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
     assert.equal(post.get('youMessages.length'), 0, 'youMessages has no posts');
-    assert.equal(
-      post.get('everyoneWeKnowMessages.length'),
-      0,
-      'everyoneWeKnowMessages has no posts'
-    );
+    assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
 
     comment.set('message', post);
 
     assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
     assert.equal(post.get('youMessages.length'), 1, 'youMessages had the post added');
-    assert.equal(
-      post.get('everyoneWeKnowMessages.length'),
-      0,
-      'everyoneWeKnowMessages has no posts'
-    );
+    assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
 
     comment.set('message', null);
 
     assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
     assert.equal(post.get('youMessages.length'), 0, 'youMessages has no posts');
-    assert.equal(
-      post.get('everyoneWeKnowMessages.length'),
-      0,
-      'everyoneWeKnowMessages has no posts'
-    );
+    assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
   });
 
-  testInDebug(
-    "Inverse relationships that don't exist throw a nice error for a hasMany",
-    async function(assert) {
-      class User extends Model {}
+  testInDebug("Inverse relationships that don't exist throw a nice error for a hasMany", async function(assert) {
+    class User extends Model {}
 
-      class Comment extends Model {}
+    class Comment extends Model {}
 
-      class Post extends Model {
-        @hasMany('comment', { inverse: 'testPost', async: false })
-        comments;
-      }
-
-      register('model:User', User);
-      register('model:Comment', Comment);
-      register('model:Post', Post);
-
-      let post;
-
-      store.createRecord('comment');
-
-      assert.expectAssertion(function() {
-        post = store.createRecord('post');
-        post.get('comments');
-      }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
+    class Post extends Model {
+      @hasMany('comment', { inverse: 'testPost', async: false })
+      comments;
     }
-  );
 
-  testInDebug(
-    "Inverse relationships that don't exist throw a nice error for a belongsTo",
-    async function(assert) {
-      class User extends Model {}
+    register('model:User', User);
+    register('model:Comment', Comment);
+    register('model:Post', Post);
 
-      class Comment extends Model {}
+    let post;
 
-      class Post extends Model {
-        @belongsTo('user', { inverse: 'testPost', async: false })
-        user;
-      }
+    store.createRecord('comment');
 
-      register('model:User', User);
-      register('model:Comment', Comment);
-      register('model:Post', Post);
+    assert.expectAssertion(function() {
+      post = store.createRecord('post');
+      post.get('comments');
+    }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
+  });
 
-      let post;
-      store.createRecord('user');
+  testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", async function(assert) {
+    class User extends Model {}
 
-      assert.expectAssertion(function() {
-        post = store.createRecord('post');
-        post.get('user');
-      }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
+    class Comment extends Model {}
+
+    class Post extends Model {
+      @belongsTo('user', { inverse: 'testPost', async: false })
+      user;
     }
-  );
+
+    register('model:User', User);
+    register('model:Comment', Comment);
+    register('model:Post', Post);
+
+    let post;
+    store.createRecord('user');
+
+    assert.expectAssertion(function() {
+      post = store.createRecord('post');
+      post.get('user');
+    }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
+  });
 
   test('inverseFor is only called when inverse is not null', async function(assert) {
     assert.expect(2);

@@ -69,24 +69,12 @@ module('unit/model/relationships - DS.belongsTo', function() {
 
     return run(() => {
       return store.findRecord('person', 1).then(person => {
-        assert.equal(
-          get(person, 'name'),
-          'Tom Dale',
-          'precond - retrieves person record from store'
-        );
+        assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
-        assert.equal(
-          get(person, 'tag') instanceof Tag,
-          true,
-          'the tag property should return a tag'
-        );
+        assert.equal(get(person, 'tag') instanceof Tag, true, 'the tag property should return a tag');
         assert.equal(get(person, 'tag.name'), 'friendly', 'the tag shuld have name');
 
-        assert.strictEqual(
-          get(person, 'tag'),
-          get(person, 'tag'),
-          'the returned object is always the same'
-        );
+        assert.strictEqual(get(person, 'tag'), get(person, 'tag'), 'the returned object is always the same');
         assert.asyncEqual(
           get(person, 'tag'),
           store.findRecord('tag', 5),
@@ -494,11 +482,7 @@ module('unit/model/relationships - DS.belongsTo', function() {
 
     return run(() => {
       return store.findRecord('person', '1').then(person => {
-        assert.strictEqual(
-          person.get('tag'),
-          null,
-          'undefined values should return null relationships'
-        );
+        assert.strictEqual(person.get('tag'), null, 'undefined values should return null relationships');
       });
     });
   });
@@ -557,22 +541,10 @@ module('unit/model/relationships - DS.belongsTo', function() {
           return get(person, 'occupations');
         })
         .then(occupations => {
-          assert.equal(
-            get(occupations, 'length'),
-            2,
-            'the list of occupations should have the correct length'
-          );
+          assert.equal(get(occupations, 'length'), 2, 'the list of occupations should have the correct length');
 
-          assert.equal(
-            get(occupations.objectAt(0), 'description'),
-            'fifth',
-            'the occupation is the fifth'
-          );
-          assert.equal(
-            get(occupations.objectAt(0), 'isLoaded'),
-            true,
-            'the occupation is now loaded'
-          );
+          assert.equal(get(occupations.objectAt(0), 'description'), 'fifth', 'the occupation is the fifth');
+          assert.equal(get(occupations.objectAt(0), 'isLoaded'), true, 'the occupation is now loaded');
         });
     });
   });
@@ -678,24 +650,12 @@ module('unit/model/relationships - DS.belongsTo', function() {
 
     return run(() => {
       return store.findRecord('person', 1).then(person => {
-        assert.equal(
-          get(person, 'name'),
-          'Tom Dale',
-          'precond - retrieves person record from store'
-        );
+        assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
-        assert.equal(
-          get(person, 'tag') instanceof Tag,
-          true,
-          'the tag property should return a tag'
-        );
+        assert.equal(get(person, 'tag') instanceof Tag, true, 'the tag property should return a tag');
         assert.equal(get(person, 'tag.name'), 'friendly', 'the tag should have name');
 
-        assert.strictEqual(
-          get(person, 'tag'),
-          get(person, 'tag'),
-          'the returned object is always the same'
-        );
+        assert.strictEqual(get(person, 'tag'), get(person, 'tag'), 'the returned object is always the same');
         assert.asyncEqual(
           get(person, 'tag'),
           store.findRecord('tag', 0),

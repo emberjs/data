@@ -48,14 +48,8 @@ module('unit/model - init properties', function() {
 
     function testState(types, record) {
       assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-      assert.ok(
-        get(record, 'randomProp') === 'An unknown prop',
-        'Unknown properties are available as expected'
-      );
-      assert.ok(
-        get(record, 'author') instanceof types.Author,
-        'belongsTo relationships are available as expected'
-      );
+      assert.ok(get(record, 'randomProp') === 'An unknown prop', 'Unknown properties are available as expected');
+      assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
       assert.ok(
         get(record, 'comments.firstObject') instanceof types.Comment,
         'hasMany relationships are available as expected'
@@ -100,10 +94,7 @@ module('unit/model - init properties', function() {
 
     function testState(types, record) {
       assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-      assert.ok(
-        get(record, 'author') instanceof types.Author,
-        'belongsTo relationships are available as expected'
-      );
+      assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
       assert.ok(
         get(record, 'comments.firstObject') instanceof types.Comment,
         'hasMany relationships are available as expected'
@@ -154,10 +145,7 @@ module('unit/model - init properties', function() {
 
     function testState(types, record) {
       assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-      assert.ok(
-        get(record, 'author') instanceof types.Author,
-        'belongsTo relationships are available as expected'
-      );
+      assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
       assert.ok(
         get(record, 'comments.firstObject') instanceof types.Comment,
         'hasMany relationships are available as expected'
@@ -210,10 +198,7 @@ module('unit/model - init properties', function() {
 
     function testState(types, record) {
       assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-      assert.ok(
-        get(record, 'author') instanceof types.Author,
-        'belongsTo relationships are available as expected'
-      );
+      assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
       assert.ok(
         get(record, 'comments.firstObject') instanceof types.Comment,
         'hasMany relationships are available as expected'

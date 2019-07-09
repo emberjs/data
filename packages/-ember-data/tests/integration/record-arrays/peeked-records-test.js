@@ -109,21 +109,13 @@ module('integration/peeked-records', function(hooks) {
       name: 'James',
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 1, '[]': 1 },
-      'RecordArray state when a new record is created'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state when a new record is created');
 
     run(() => {
       aNewlyCreatedRecord.unloadRecord();
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state when a new record is unloaded'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
   });
 
   test('immediately peeking newly created records works as expected', function(assert) {
@@ -133,22 +125,14 @@ module('integration/peeked-records', function(hooks) {
       name: 'James',
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 1, '[]': 1 },
-      'RecordArray state when a new record is created'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state when a new record is created');
 
     run(() => {
       aNewlyCreatedRecord.unloadRecord();
       store.peekAll('person');
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state when a new record is unloaded'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
   });
 
   test('unloading newly created records notify the array as expected', function(assert) {
@@ -158,21 +142,13 @@ module('integration/peeked-records', function(hooks) {
       name: 'James',
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 1, '[]': 1 },
-      'RecordArray state when a new record is created'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state when a new record is created');
 
     run(() => {
       aNewlyCreatedRecord.unloadRecord();
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state when a new record is unloaded'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
   });
 
   test('immediately peeking after unloading newly created records works as expected', function(assert) {
@@ -182,22 +158,14 @@ module('integration/peeked-records', function(hooks) {
       name: 'James',
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 1, '[]': 1 },
-      'RecordArray state when a new record is created'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state when a new record is created');
 
     run(() => {
       aNewlyCreatedRecord.unloadRecord();
       store.peekAll('person');
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state when a new record is unloaded'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
   });
 
   test('unloadAll followed by peekAll in the same run-loop works as expected', function(assert) {
@@ -242,11 +210,7 @@ module('integration/peeked-records', function(hooks) {
         'RecordArray state after unloadAll has not changed yet'
       );
 
-      assert.equal(
-        get(peekedRecordArray, 'length'),
-        2,
-        'Array length is unchanged before the next peek'
-      );
+      assert.equal(get(peekedRecordArray, 'length'), 2, 'Array length is unchanged before the next peek');
 
       store.peekAll('person');
 
@@ -259,11 +223,7 @@ module('integration/peeked-records', function(hooks) {
       );
     });
 
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state has not changed any further'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state has not changed any further');
   });
 
   test('push+materialize => unloadAll => push+materialize works as expected', function(assert) {
@@ -308,19 +268,11 @@ module('integration/peeked-records', function(hooks) {
 
     unload();
     assert.equal(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state has signaled the unload'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state has signaled the unload');
 
     push();
     assert.equal(get(peekedRecordArray, 'length'), 2, 'We have array content');
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 3, '[]': 3 },
-      'RecordArray state now has records again'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state now has records again');
   });
 
   test('push-without-materialize => unloadAll => push-without-materialize works as expected', function(assert) {
@@ -365,18 +317,10 @@ module('integration/peeked-records', function(hooks) {
 
     unload();
     assert.equal(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 2, '[]': 2 },
-      'RecordArray state has signaled the unload'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state has signaled the unload');
 
     _push();
     assert.equal(get(peekedRecordArray, 'length'), 2, 'We have array content');
-    assert.watchedPropertyCounts(
-      watcher,
-      { length: 3, '[]': 3 },
-      'RecordArray state now has records again'
-    );
+    assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state now has records again');
   });
 });

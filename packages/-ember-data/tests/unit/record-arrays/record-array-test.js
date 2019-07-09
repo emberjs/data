@@ -42,9 +42,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function() {
       () => {
         recordArray.replace();
       },
-      Error(
-        'The result of a server query (for all recordType types) is immutable. To modify contents, use toArray()'
-      ),
+      Error('The result of a server query (for all recordType types) is immutable. To modify contents, use toArray()'),
       'throws error'
     );
   });
@@ -179,11 +177,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function() {
       },
     };
 
-    assert.equal(
-      recordArray._pushInternalModels([model1]),
-      undefined,
-      '_pushInternalModels has no return value'
-    );
+    assert.equal(recordArray._pushInternalModels([model1]), undefined, '_pushInternalModels has no return value');
     assert.deepEqual(content, [model1], 'now contains model1');
 
     recordArray._pushInternalModels([model1]);
@@ -227,27 +221,15 @@ module('unit/record-arrays/record-array - DS.RecordArray', function() {
     };
 
     assert.equal(content.length, 0);
-    assert.equal(
-      recordArray._removeInternalModels([model1]),
-      undefined,
-      '_removeInternalModels has no return value'
-    );
+    assert.equal(recordArray._removeInternalModels([model1]), undefined, '_removeInternalModels has no return value');
     assert.deepEqual(content, [], 'now contains no models');
 
     recordArray._pushInternalModels([model1, model2]);
 
     assert.deepEqual(content, [model1, model2], 'now contains model1, model2,');
-    assert.equal(
-      recordArray._removeInternalModels([model1]),
-      undefined,
-      '_removeInternalModels has no return value'
-    );
+    assert.equal(recordArray._removeInternalModels([model1]), undefined, '_removeInternalModels has no return value');
     assert.deepEqual(content, [model2], 'now only contains model2');
-    assert.equal(
-      recordArray._removeInternalModels([model2]),
-      undefined,
-      '_removeInternalModels has no return value'
-    );
+    assert.equal(recordArray._removeInternalModels([model2]), undefined, '_removeInternalModels has no return value');
     assert.deepEqual(content, [], 'now contains no models');
 
     recordArray._pushInternalModels([model1, model2, model3]);
@@ -259,11 +241,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function() {
     );
 
     assert.deepEqual(content, [model2], 'now contains model2');
-    assert.equal(
-      recordArray._removeInternalModels([model2]),
-      undefined,
-      '_removeInternalModels has no return value'
-    );
+    assert.equal(recordArray._removeInternalModels([model2]), undefined, '_removeInternalModels has no return value');
     assert.deepEqual(content, [], 'now contains no models');
   });
 
@@ -355,11 +333,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function() {
 
     run(() => {
       assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
-      assert.equal(
-        didUnregisterRecordArray,
-        0,
-        'before destroy, we should not yet have unregisterd the record array'
-      );
+      assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
       assert.equal(
         didDissociatieFromOwnRecords,
         0,
@@ -368,16 +342,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function() {
       recordArray.destroy();
     });
 
-    assert.equal(
-      didUnregisterRecordArray,
-      1,
-      'after destroy we should have unregistered the record array'
-    );
-    assert.equal(
-      didDissociatieFromOwnRecords,
-      1,
-      'after destroy, we should have dissociated from own record array'
-    );
+    assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
+    assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
 
     assert.strictEqual(get(recordArray, 'content'), null);
     assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
@@ -439,11 +405,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function() {
 
     run(() => {
       assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
-      assert.equal(
-        didUnregisterRecordArray,
-        0,
-        'before destroy, we should not yet have unregisterd the record array'
-      );
+      assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
       assert.equal(
         didDissociatieFromOwnRecords,
         0,
@@ -452,16 +414,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function() {
       recordArray.destroy();
     });
 
-    assert.equal(
-      didUnregisterRecordArray,
-      1,
-      'after destroy we should have unregistered the record array'
-    );
-    assert.equal(
-      didDissociatieFromOwnRecords,
-      1,
-      'after destroy, we should have dissociated from own record array'
-    );
+    assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
+    assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
     recordArray.destroy();
 
     assert.strictEqual(get(recordArray, 'content'), null);

@@ -58,11 +58,7 @@ module('integration/reload - Reloading Records', function(hooks) {
             count++;
             return resolve({ data: { id: id, type: 'person', attributes: { name: 'Tom Dale' } } });
           } else if (count === 1) {
-            assert.equal(
-              snapshot.adapterOptions,
-              reloadOptions.adapterOptions,
-              'We passed adapterOptions via reload'
-            );
+            assert.equal(snapshot.adapterOptions, reloadOptions.adapterOptions, 'We passed adapterOptions via reload');
             count++;
             return resolve({
               data: { id: id, type: 'person', attributes: { name: 'Braaaahm Dale' } },
@@ -86,11 +82,7 @@ module('integration/reload - Reloading Records', function(hooks) {
     await promise;
 
     assert.equal(get(person, 'isReloading'), false, 'The person is no longer reloading');
-    assert.equal(
-      get(person, 'name'),
-      'Braaaahm Dale',
-      'The person is now updated with the right name'
-    );
+    assert.equal(get(person, 'name'), 'Braaaahm Dale', 'The person is now updated with the right name');
 
     // ensure we won't call adapter.findRecord again
     await store.findRecord('person', '1');
@@ -418,10 +410,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       let owners = shen.get('owners');
       let ownersViaRef = await ownersRef.reload();
 
-      assert.ok(
-        owners.objectAt(0) === ownersViaRef.objectAt(0),
-        'We received the same reference via reload'
-      );
+      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
 
     test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function(assert) {
@@ -469,10 +458,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       let ownersViaRef = await ownersRef.reload();
       let owners = shen.get('owners');
 
-      assert.ok(
-        owners.objectAt(0) === ownersViaRef.objectAt(0),
-        'We received the same reference via reload'
-      );
+      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
   });
 
@@ -647,10 +633,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       let owners = shen.get('owners');
       let ownersViaRef = await ownersRef.reload();
 
-      assert.ok(
-        owners.objectAt(0) === ownersViaRef.objectAt(0),
-        'We received the same reference via reload'
-      );
+      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
 
     test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function(assert) {
@@ -703,10 +686,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       let ownersViaRef = await ownersRef.reload();
       let owners = shen.get('owners');
 
-      assert.ok(
-        owners.objectAt(0) === ownersViaRef.objectAt(0),
-        'We received the same reference via reload'
-      );
+      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
   });
 });

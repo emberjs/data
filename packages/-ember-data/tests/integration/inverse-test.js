@@ -148,9 +148,7 @@ module('integration/inverse_test - inverseFor', function(hooks) {
     assert.equal(inverseForUser, Job.inverseFor('user', store), 'Inverse cached succesfully');
   });
 
-  testInDebug('Errors out if you do not define an inverse for a reflexive relationship', function(
-    assert
-  ) {
+  testInDebug('Errors out if you do not define an inverse for a reflexive relationship', function(assert) {
     //Maybe store is evaluated lazily, so we need this :(
     assert.expectWarning(() => {
       var reflexiveModel;

@@ -6,15 +6,7 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 
-let HomePlanet,
-  SuperVillain,
-  EvilMinion,
-  YellowMinion,
-  DoomsdayDevice,
-  Comment,
-  Basket,
-  Container,
-  env;
+let HomePlanet, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container, env;
 
 module('integration/serializer/rest - RESTSerializer', function(hooks) {
   hooks.beforeEach(function() {
@@ -139,13 +131,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var array;
 
     run(function() {
-      array = env.restSerializer.normalizeResponse(
-        env.store,
-        HomePlanet,
-        jsonHash,
-        '1',
-        'findRecord'
-      );
+      array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
     });
 
     assert.deepEqual(array, {
@@ -254,20 +240,12 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
 
     assert.expectNoWarning(function() {
       run(function() {
-        homePlanet = env.restSerializer.normalizeResponse(
-          env.store,
-          HomePlanet,
-          jsonHash,
-          1,
-          'findRecord'
-        );
+        homePlanet = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, 1, 'findRecord');
       });
     });
 
     assert.equal(homePlanet.data.attributes.name, 'Umber');
-    assert.deepEqual(homePlanet.data.relationships.superVillains.data, [
-      { id: '1', type: 'super-villain' },
-    ]);
+    assert.deepEqual(homePlanet.data.relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
   });
 
   testInDebug('normalizeResponse warning with custom modelNameFromPayloadKey', function(assert) {
@@ -298,21 +276,13 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
 
     assert.expectNoWarning(function() {
       run(function() {
-        homePlanets = env.restSerializer.normalizeResponse(
-          env.store,
-          HomePlanet,
-          jsonHash,
-          null,
-          'findAll'
-        );
+        homePlanets = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
       });
     });
 
     assert.equal(homePlanets.data.length, 1);
     assert.equal(homePlanets.data[0].attributes.name, 'Umber');
-    assert.deepEqual(homePlanets.data[0].relationships.superVillains.data, [
-      { id: '1', type: 'super-villain' },
-    ]);
+    assert.deepEqual(homePlanets.data[0].relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
   });
 
   test('serialize polymorphicType', function(assert) {
@@ -377,13 +347,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var value;
 
     run(function() {
-      value = env.restSerializer.normalizeResponse(
-        env.store,
-        EvilMinion,
-        jsonHash,
-        null,
-        'findRecord'
-      );
+      value = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findRecord');
     });
 
     assert.deepEqual(value, { data: null, included: [] }, 'returned value is null');
@@ -434,13 +398,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var array;
 
     run(function() {
-      array = env.restSerializer.normalizeResponse(
-        env.store,
-        EvilMinion,
-        jsonHash,
-        null,
-        'findAll'
-      );
+      array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
     });
 
     assert.equal(array.data[0].relationships.superVillain.data.id, 1);
@@ -465,13 +423,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var array;
 
     run(function() {
-      array = env.restSerializer.normalizeResponse(
-        env.store,
-        EvilMinion,
-        jsonHash,
-        null,
-        'findAll'
-      );
+      array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
     });
 
     assert.equal(array.data[0].attributes.name, 'Tom Dale');
@@ -574,13 +526,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
       return 'typeForEvilMinion';
     };
 
-    var normalized = env.restSerializer.normalizeResponse(
-      env.store,
-      DoomsdayDevice,
-      json,
-      null,
-      'findRecord'
-    );
+    var normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, json, null, 'findRecord');
 
     assert.deepEqual(normalized, expected, 'normalized JSON is correct');
   });
@@ -736,10 +682,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   test('normalizeResponse can load secondary records of the same type without affecting the query count', function(assert) {
     var jsonHash = {
       comments: [{ id: '1', body: 'Parent Comment', root: true, children: [2, 3] }],
-      _comments: [
-        { id: '2', body: 'Child Comment 1', root: false },
-        { id: '3', body: 'Child Comment 2', root: false },
-      ],
+      _comments: [{ id: '2', body: 'Child Comment 1', root: false }, { id: '3', body: 'Child Comment 2', root: false }],
     };
     var array;
     env.owner.register('serializer:comment', DS.JSONSerializer);
@@ -791,10 +734,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     run(function() {
       env.store.push(
         env.restSerializer.normalizeArrayResponse(env.store, Basket, {
-          basket: [
-            { type: 'bamboo', size: 10, id: '1' },
-            { type: 'yellowMinion', size: 10, id: '65536' },
-          ],
+          basket: [{ type: 'bamboo', size: 10, id: '1' }, { type: 'yellowMinion', size: 10, id: '65536' }],
         })
       );
     });
@@ -935,9 +875,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
       },
     };
 
-    let document = env.store
-      .serializerFor('home-planet')
-      .normalizeSingleResponse(env.store, HomePlanet, payload);
+    let document = env.store.serializerFor('home-planet').normalizeSingleResponse(env.store, HomePlanet, payload);
 
     assert.equal(document.data.relationships.superVillains.data.length, 1);
     assert.equal(document.data.relationships.superVillains.data[0].id, 2);

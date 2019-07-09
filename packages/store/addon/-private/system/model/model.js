@@ -1123,15 +1123,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
     groups.push({
       name: 'Flags',
-      properties: [
-        'isLoaded',
-        'hasDirtyAttributes',
-        'isSaving',
-        'isDeleted',
-        'isError',
-        'isNew',
-        'isValid',
-      ],
+      properties: ['isLoaded', 'hasDirtyAttributes', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid'],
     });
 
     return {
@@ -1276,11 +1268,7 @@ if (DEBUG) {
   let isBasicDesc = function isBasicDesc(desc) {
     return (
       !desc ||
-      (!desc.get &&
-        !desc.set &&
-        desc.enumerable === true &&
-        desc.writable === true &&
-        desc.configurable === true)
+      (!desc.get && !desc.set && desc.enumerable === true && desc.writable === true && desc.configurable === true)
     );
   };
   let isDefaultEmptyDescriptor = function isDefaultEmptyDescriptor(obj, keyName) {
@@ -1302,10 +1290,7 @@ if (DEBUG) {
         );
       }
 
-      if (
-        !isDefaultEmptyDescriptor(this, '_internalModel') ||
-        !(this._internalModel instanceof InternalModel)
-      ) {
+      if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
         throw new Error(
           `'_internalModel' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
         );

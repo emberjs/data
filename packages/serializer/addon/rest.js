@@ -178,13 +178,7 @@ const RESTSerializer = JSONSerializer.extend({
     let serializer = store.serializerFor(modelName);
 
     makeArray(arrayHash).forEach(hash => {
-      let { data, included } = this._normalizePolymorphicRecord(
-        store,
-        hash,
-        prop,
-        modelClass,
-        serializer
-      );
+      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
       if (included) {
         documentHash.included.push(...included);
@@ -287,8 +281,7 @@ const RESTSerializer = JSONSerializer.extend({
       }
 
       if (DEBUG) {
-        let isQueryRecordAnArray =
-          requestType === 'queryRecord' && isPrimary && Array.isArray(value);
+        let isQueryRecordAnArray = requestType === 'queryRecord' && isPrimary && Array.isArray(value);
         let message =
           'The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.';
 
@@ -310,13 +303,7 @@ const RESTSerializer = JSONSerializer.extend({
         ```
        */
       if (isPrimary && !Array.isArray(value)) {
-        let { data, included } = this._normalizePolymorphicRecord(
-          store,
-          value,
-          prop,
-          primaryModelClass,
-          this
-        );
+        let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
         documentHash.data = data;
         if (included) {
           documentHash.included.push(...included);
@@ -784,11 +771,7 @@ const RESTSerializer = JSONSerializer.extend({
     let isPolymorphic = relationshipMeta.options.polymorphic;
     let typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
-    if (
-      isPolymorphic &&
-      resourceHash[typeProperty] !== undefined &&
-      typeof relationshipHash !== 'object'
-    ) {
+    if (isPolymorphic && resourceHash[typeProperty] !== undefined && typeof relationshipHash !== 'object') {
       let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
       return {
         id: relationshipHash,

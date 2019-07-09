@@ -79,11 +79,8 @@ console.log(
     chalk.yellow(`The following packages have been generated:\n\r\t✅ `) +
     chalk.grey(availablePackages.join('\n\r\t✅ ')) +
     '\n\r\n\r' +
-    chalk.yellow(
-      `The tarballs for these packages are available within ${chalk.white(tarballDir)}\n\r\n\r`
-    ) +
-    (!TarballConfig.options.referenceViaVersion &&
-    TarballConfig.options.hostPath.indexOf('file:') === 0
+    chalk.yellow(`The tarballs for these packages are available within ${chalk.white(tarballDir)}\n\r\n\r`) +
+    (!TarballConfig.options.referenceViaVersion && TarballConfig.options.hostPath.indexOf('file:') === 0
       ? chalk.red('⚠️  They may only be used on this machine.')
       : chalk.yellow(
           `⚠️  They can be hosted ${

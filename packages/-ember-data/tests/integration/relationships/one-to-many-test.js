@@ -157,11 +157,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function() {
       user.get('messages').then(function(fetchedMessages) {
-        assert.equal(
-          fetchedMessages.objectAt(0),
-          message,
-          'Messages relationship was set up correctly'
-        );
+        assert.equal(fetchedMessages.objectAt(0), message, 'Messages relationship was set up correctly');
       });
     });
   });
@@ -197,11 +193,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       });
     });
     run(function() {
-      assert.equal(
-        user.get('accounts').objectAt(0),
-        account,
-        'Accounts relationship was set up correctly'
-      );
+      assert.equal(user.get('accounts').objectAt(0), account, 'Accounts relationship was set up correctly');
     });
   });
 
@@ -267,11 +259,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function() {
       user.get('messages').then(function(fetchedMessages) {
-        assert.equal(
-          get(fetchedMessages, 'length'),
-          1,
-          'Messages relationship was set up correctly'
-        );
+        assert.equal(get(fetchedMessages, 'length'), 1, 'Messages relationship was set up correctly');
       });
     });
   });
@@ -387,11 +375,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function() {
       user.get('messages').then(function(fetchedMessages) {
-        assert.equal(
-          get(fetchedMessages, 'length'),
-          2,
-          'Messages relationship was set up correctly'
-        );
+        assert.equal(get(fetchedMessages, 'length'), 2, 'Messages relationship was set up correctly');
       });
     });
   });
@@ -970,11 +954,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
         });
 
         user.get('messages').then(function(newFetchedMessages) {
-          assert.equal(
-            get(newFetchedMessages, 'length'),
-            0,
-            'message got removed from the old messages hasMany'
-          );
+          assert.equal(get(newFetchedMessages, 'length'), 0, 'message got removed from the old messages hasMany');
         });
       });
     });
@@ -1081,20 +1061,12 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
 
     run(function() {
       user.get('messages').then(function(fetchedMessages) {
-        assert.equal(
-          get(fetchedMessages, 'length'),
-          0,
-          'message got removed from the first user correctly'
-        );
+        assert.equal(get(fetchedMessages, 'length'), 0, 'message got removed from the first user correctly');
       });
     });
     run(function() {
       user2.get('messages').then(function(fetchedMessages) {
-        assert.equal(
-          get(fetchedMessages, 'length'),
-          1,
-          'message got added to the second user correctly'
-        );
+        assert.equal(get(fetchedMessages, 'length'), 1, 'message got added to the second user correctly');
       });
     });
   });
@@ -1198,11 +1170,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function() {
       user.get('messages').then(function(fetchedMessages) {
-        assert.equal(
-          get(fetchedMessages, 'length'),
-          0,
-          'message got removed from the  user correctly'
-        );
+        assert.equal(get(fetchedMessages, 'length'), 0, 'message got removed from the  user correctly');
       });
     });
 

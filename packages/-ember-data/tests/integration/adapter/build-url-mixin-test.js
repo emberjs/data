@@ -192,9 +192,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     adapter.buildURL = function(type, ids, snapshots) {
       if (Array.isArray(snapshots)) {
-        return (
-          '/posts/' + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/'
-        );
+        return '/posts/' + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/';
       }
       return '';
     };
@@ -207,11 +205,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
         id: '2',
         relationships: {
           comments: {
-            data: [
-              { id: '1', type: 'comment' },
-              { id: '2', type: 'comment' },
-              { id: '3', type: 'comment' },
-            ],
+            data: [{ id: '1', type: 'comment' }, { id: '2', type: 'comment' }, { id: '3', type: 'comment' }],
           },
         },
       },

@@ -211,53 +211,26 @@ module('integration/store - destroy', function(hooks) {
       });
     });
 
-    let adapterPopulatedPeopleWillDestroy = tap(
-      adapterPopulatedPeople.get('content'),
-      'willDestroy'
-    );
+    let adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.get('content'), 'willDestroy');
 
     run(() => store.findRecord('person', 2));
 
-    assert.equal(
-      personWillDestroy.called.length,
-      0,
-      'expected person.willDestroy to not have been called'
-    );
-    assert.equal(
-      carWillDestroy.called.length,
-      0,
-      'expected car.willDestroy to not have been called'
-    );
-    assert.equal(
-      carsWillDestroy.called.length,
-      0,
-      'expected cars.willDestroy to not have been called'
-    );
+    assert.equal(personWillDestroy.called.length, 0, 'expected person.willDestroy to not have been called');
+    assert.equal(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');
+    assert.equal(carsWillDestroy.called.length, 0, 'expected cars.willDestroy to not have been called');
     assert.equal(
       adapterPopulatedPeopleWillDestroy.called.length,
       0,
       'expected adapterPopulatedPeople.willDestroy to not have been called'
     );
     assert.equal(car.get('person'), person, "expected car's person to be the correct person");
-    assert.equal(
-      person.get('cars.firstObject'),
-      car,
-      " expected persons cars's firstRecord to be the correct car"
-    );
+    assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
 
     run(store, 'destroy');
 
-    assert.equal(
-      personWillDestroy.called.length,
-      1,
-      'expected person to have recieved willDestroy once'
-    );
+    assert.equal(personWillDestroy.called.length, 1, 'expected person to have recieved willDestroy once');
     assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');
-    assert.equal(
-      carsWillDestroy.called.length,
-      1,
-      'expected person.cars to recieve willDestroy once'
-    );
+    assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to recieve willDestroy once');
     assert.equal(
       adapterPopulatedPeopleWillDestroy.called.length,
       1,
@@ -372,11 +345,7 @@ module('integration/store - findRecord', function() {
 
     return run(() => {
       return store.findRecord('car', 1, { reload: true }).then(car => {
-        assert.equal(
-          car.get('model'),
-          'Princess',
-          'cached record ignored, record reloaded via server'
-        );
+        assert.equal(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
       });
     });
   });
@@ -426,10 +395,7 @@ module('integration/store - findRecord', function() {
 
     let testAdapter = DS.RESTAdapter.extend({
       shouldBackgroundReloadRecord() {
-        assert.ok(
-          false,
-          'shouldBackgroundReloadRecord should not be called when { backgroundReload: false }'
-        );
+        assert.ok(false, 'shouldBackgroundReloadRecord should not be called when { backgroundReload: false }');
       },
 
       findRecord() {
@@ -469,10 +435,7 @@ module('integration/store - findRecord', function() {
 
     let testAdapter = DS.RESTAdapter.extend({
       shouldBackgroundReloadRecord() {
-        assert.ok(
-          false,
-          'shouldBackgroundReloadRecord should not be called when { backgroundReload: true }'
-        );
+        assert.ok(false, 'shouldBackgroundReloadRecord should not be called when { backgroundReload: true }');
       },
     });
 
@@ -522,10 +485,7 @@ module('integration/store - findRecord', function() {
       },
 
       shouldBackgroundReloadRecord() {
-        assert.ok(
-          false,
-          'shouldBackgroundReloadRecord should not be called when adapter.shouldReloadRecord = true'
-        );
+        assert.ok(false, 'shouldBackgroundReloadRecord should not be called when adapter.shouldReloadRecord = true');
       },
     });
 
@@ -561,11 +521,7 @@ module('integration/store - findRecord', function() {
 
     run(() => {
       store.findRecord('car', 1, { backgroundReload: false }).then(car => {
-        assert.equal(
-          car.get('model'),
-          'Princess',
-          'Car record is reloaded immediately (not in the background)'
-        );
+        assert.equal(car.get('model'), 'Princess', 'Car record is reloaded immediately (not in the background)');
       });
     });
   });
@@ -677,10 +633,7 @@ module('integration/store - findAll', function(hooks) {
 
     let testAdapter = DS.RESTAdapter.extend({
       shouldBackgroundReloadAll() {
-        assert.ok(
-          false,
-          'shouldBackgroundReloadAll should not be called when { backgroundReload: false }'
-        );
+        assert.ok(false, 'shouldBackgroundReloadAll should not be called when { backgroundReload: false }');
       },
 
       findAll() {
@@ -706,22 +659,14 @@ module('integration/store - findAll', function(hooks) {
     run(() => {
       store.findAll('car', { backgroundReload: false }).then(cars => {
         assert.equal(cars.get('length'), 1, 'single cached car record is returned');
-        assert.equal(
-          cars.get('firstObject.model'),
-          'Mini',
-          'correct cached car record is returned'
-        );
+        assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned');
       });
     });
 
     run(() => {
       let cars = store.peekAll('car');
       assert.equal(cars.get('length'), 1, 'single cached car record is returned again');
-      assert.equal(
-        cars.get('firstObject.model'),
-        'Mini',
-        'correct cached car record is returned again'
-      );
+      assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned again');
     });
   });
 
@@ -730,10 +675,7 @@ module('integration/store - findAll', function(hooks) {
 
     let testAdapter = DS.RESTAdapter.extend({
       shouldBackgroundReloadAll() {
-        assert.ok(
-          false,
-          'shouldBackgroundReloadAll should not be called when { backgroundReload: true }'
-        );
+        assert.ok(false, 'shouldBackgroundReloadAll should not be called when { backgroundReload: true }');
       },
     });
 
@@ -770,11 +712,7 @@ module('integration/store - findAll', function(hooks) {
     run(() => {
       store.findAll('car', { backgroundReload: true }).then(cars => {
         assert.equal(cars.get('length'), 1, 'single cached car record is returned');
-        assert.equal(
-          cars.get('firstObject.model'),
-          'Mini',
-          'correct cached car record is returned'
-        );
+        assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned');
       });
     });
 
@@ -795,10 +733,7 @@ module('integration/store - findAll', function(hooks) {
       },
 
       shouldBackgroundReloadAll() {
-        assert.ok(
-          false,
-          'shouldBackgroundReloadAll should not be called when adapter.shouldReloadAll = true'
-        );
+        assert.ok(false, 'shouldBackgroundReloadAll should not be called when adapter.shouldReloadAll = true');
       },
     });
 
@@ -994,11 +929,7 @@ module('integration/store - deleteRecord', function(hooks) {
 
     run(() => store.deleteRecord(person));
 
-    assert.equal(
-      personDeleteRecord.called.length,
-      1,
-      'expected person.deleteRecord to have been called'
-    );
+    assert.equal(personDeleteRecord.called.length, 1, 'expected person.deleteRecord to have been called');
     assert.ok(person.get('isDeleted'), 'expect person to be isDeleted');
   });
 
@@ -1028,21 +959,20 @@ module('integration/store - deleteRecord', function(hooks) {
     }, /expected the primary data returned from a 'findRecord' response to be an object but instead it found an array/);
   });
 
-  testInDebug(
-    'store#didSaveRecord should assert when the response to a save does not include the id',
-    function(assert) {
-      env.adapter.createRecord = function() {
-        return {};
-      };
+  testInDebug('store#didSaveRecord should assert when the response to a save does not include the id', function(
+    assert
+  ) {
+    env.adapter.createRecord = function() {
+      return {};
+    };
 
-      assert.expectAssertion(() => {
-        run(() => {
-          let car = store.createRecord('car');
-          car.save();
-        });
-      }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
-    }
-  );
+    assert.expectAssertion(() => {
+      run(() => {
+        let car = store.createRecord('car');
+        car.save();
+      });
+    }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
+  });
 });
 
 module('integration/store - queryRecord', function(hooks) {
@@ -1050,26 +980,25 @@ module('integration/store - queryRecord', function(hooks) {
     initializeStore(DS.Adapter.extend());
   });
 
-  testInDebug(
-    'store#queryRecord should assert when normalized payload of adapter has an array an data',
-    function(assert) {
-      env.adapter.queryRecord = function() {
-        return {
-          cars: [{ id: 1 }],
-        };
+  testInDebug('store#queryRecord should assert when normalized payload of adapter has an array an data', function(
+    assert
+  ) {
+    env.adapter.queryRecord = function() {
+      return {
+        cars: [{ id: 1 }],
       };
+    };
 
-      env.serializer.normalizeQueryRecordResponse = function() {
-        return {
-          data: [{ id: 1, type: 'car' }],
-        };
+    env.serializer.normalizeQueryRecordResponse = function() {
+      return {
+        data: [{ id: 1, type: 'car' }],
       };
+    };
 
-      assert.expectAssertion(() => {
-        run(() => store.queryRecord('car', {}));
-      }, /Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array./);
-    }
-  );
+    assert.expectAssertion(() => {
+      run(() => store.queryRecord('car', {}));
+    }, /Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array./);
+  });
 
   test('The store should trap exceptions that are thrown from adapter#findRecord', function(assert) {
     assert.expect(1);

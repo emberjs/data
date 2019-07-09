@@ -306,9 +306,7 @@ module('unit/store/finders', function(hooks) {
       return serializerFor.call(this.store, modelName);
     };
 
-    let storePromise = run(() =>
-      this.store.queryRecord('person', { first_duke_of_marlborough: true })
-    );
+    let storePromise = run(() => this.store.queryRecord('person', { first_duke_of_marlborough: true }));
     assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
     return run(() => {

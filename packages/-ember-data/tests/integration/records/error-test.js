@@ -88,9 +88,7 @@ module('integration/records/error', function(hooks) {
     ]);
   });
 
-  testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function(
-    assert
-  ) {
+  testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function(assert) {
     let person = store.createRecord('person', {
       id: 'wat',
       firstName: 'Yehuda',
@@ -112,14 +110,10 @@ module('integration/records/error', function(hooks) {
 
     person.get('errors').add('firstName', 'is invalid');
 
-    assert.deepEqual(person.get('errors').toArray(), [
-      { attribute: 'firstName', message: 'is invalid' },
-    ]);
+    assert.deepEqual(person.get('errors').toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
 
-  testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(
-    assert
-  ) {
+  testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(assert) {
     let person = store.createRecord('person', {
       id: 'wat',
       firstName: 'Yehuda',
@@ -144,9 +138,7 @@ module('integration/records/error', function(hooks) {
 
     assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
-    assert.deepEqual(person.get('errors').toArray(), [
-      { attribute: 'firstName', message: 'is invalid' },
-    ]);
+    assert.deepEqual(person.get('errors').toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
 
   test('using setProperties to clear errors', function(assert) {

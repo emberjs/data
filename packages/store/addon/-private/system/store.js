@@ -30,15 +30,7 @@ import { normalizeResponseHelper } from './store/serializer-response';
 import { serializerForAdapter } from './store/serializers';
 import recordDataFor from './record-data-for';
 
-import {
-  _find,
-  _findMany,
-  _findHasMany,
-  _findBelongsTo,
-  _findAll,
-  _query,
-  _queryRecord,
-} from './store/finders';
+import { _find, _findMany, _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
 
 import coerceId from './coerce-id';
 import RecordArrayManager from './record-array-manager';
@@ -193,8 +185,7 @@ const Store = Service.extend({
     this.storeWrapper = new RecordDataStoreWrapper(this);
 
     if (DEBUG) {
-      this.shouldAssertMethodCallsOnDestroyedStore =
-        this.shouldAssertMethodCallsOnDestroyedStore || false;
+      this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
       if (this.shouldTrackAsyncRequests === undefined) {
         this.shouldTrackAsyncRequests = false;
       }
@@ -335,10 +326,7 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
-    assert(
-      `You need to pass a model name to the store's createRecord method`,
-      isPresent(modelName)
-    );
+    assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -472,10 +460,7 @@ const Store = Service.extend({
       `Calling store.find(modelName, id, { preload: preload }) is no longer supported. Use store.findRecord(modelName, id, { preload: preload }) instead.`,
       !options
     );
-    assert(
-      `You need to pass the model name and id to the store's find method`,
-      arguments.length === 2
-    );
+    assert(`You need to pass the model name and id to the store's find method`, arguments.length === 2);
     assert(
       `You cannot pass '${id}' as id to the store's find method`,
       typeof id === 'string' || typeof id === 'number'
@@ -723,10 +708,7 @@ const Store = Service.extend({
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
-    assert(
-      badIdFormatAssertion,
-      (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id))
-    );
+    assert(badIdFormatAssertion, (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id)));
 
     let normalizedModelName = normalizeModelName(modelName);
 
@@ -739,10 +721,7 @@ const Store = Service.extend({
 
     let fetchedInternalModel = this._findRecord(internalModel, options);
 
-    return promiseRecord(
-      fetchedInternalModel,
-      `DS: Store#findRecord ${normalizedModelName} with id: ${id}`
-    );
+    return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${normalizedModelName} with id: ${id}`);
   },
 
   _findRecord(internalModel, options) {
@@ -826,9 +805,7 @@ const Store = Service.extend({
       promises[i] = this.findRecord(normalizedModelName, ids[i]);
     }
 
-    return promiseArray(
-      RSVP.all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`)
-    );
+    return promiseArray(RSVP.all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
   },
 
   /**
@@ -940,10 +917,7 @@ const Store = Service.extend({
     }
 
     function _fetchRecord(recordResolverPair) {
-      let recordFetch = store._fetchRecord(
-        recordResolverPair.internalModel,
-        recordResolverPair.options
-      );
+      let recordFetch = store._fetchRecord(recordResolverPair.internalModel, recordResolverPair.options);
 
       recordResolverPair.resolver.resolve(recordFetch);
     }
@@ -1048,10 +1022,7 @@ const Store = Service.extend({
           var pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
         } else {
-          assert(
-            "You cannot return an empty array from adapter's method groupRecordsForFindMany",
-            false
-          );
+          assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
         }
       }
     } else {
@@ -1202,10 +1173,7 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'hasRecordForId');
     }
-    assert(
-      `You need to pass a model name to the store's hasRecordForId method`,
-      isPresent(modelName)
-    );
+    assert(`You need to pass a model name to the store's hasRecordForId method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -1356,26 +1324,22 @@ const Store = Service.extend({
 
     // fetch via link
     if (shouldFindViaLink) {
-      return this.findHasMany(
-        parentInternalModel,
-        resource.links.related,
-        relationshipMeta,
-        options
-      ).then(internalModels => {
-        let payload = { data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()) };
-        if (internalModels.meta !== undefined) {
-          payload.meta = internalModels.meta;
+      return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options).then(
+        internalModels => {
+          let payload = { data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()) };
+          if (internalModels.meta !== undefined) {
+            payload.meta = internalModels.meta;
+          }
+          parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, payload);
+          return internalModels;
         }
-        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, payload);
-        return internalModels;
-      });
+      );
     }
 
     let preferLocalCache = hasAnyRelationshipData && !relationshipIsEmpty;
 
     let hasLocalPartialData =
-      hasDematerializedInverse ||
-      (relationshipIsEmpty && Array.isArray(resource.data) && resource.data.length > 0);
+      hasDematerializedInverse || (relationshipIsEmpty && Array.isArray(resource.data) && resource.data.length > 0);
 
     // fetch using data, pulling from local cache if possible
     if (!shouldForceReload && !relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
@@ -1437,20 +1401,17 @@ const Store = Service.extend({
       // should we warn here, not sure cause its an internal method
       return RSVP.resolve(null);
     }
-    return this.findBelongsTo(
-      parentInternalModel,
-      resource.links.related,
-      relationshipMeta,
-      options
-    ).then(internalModel => {
-      let response = internalModel && recordDataFor(internalModel).getResourceIdentifier();
-      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
-      if (internalModel === null) {
-        return null;
+    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
+      internalModel => {
+        let response = internalModel && recordDataFor(internalModel).getResourceIdentifier();
+        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
+        if (internalModel === null) {
+          return null;
+        }
+        // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
+        return internalModel.getRecord();
       }
-      // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
-      return internalModel.getRecord();
-    });
+    );
   },
 
   _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
@@ -1485,16 +1446,10 @@ const Store = Service.extend({
 
     // fetch via link
     if (shouldFindViaLink) {
-      return this._fetchBelongsToLinkFromResource(
-        resource,
-        parentInternalModel,
-        relationshipMeta,
-        options
-      );
+      return this._fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options);
     }
 
-    let preferLocalCache =
-      hasAnyRelationshipData && allInverseRecordsAreLoaded && !relationshipIsEmpty;
+    let preferLocalCache = hasAnyRelationshipData && allInverseRecordsAreLoaded && !relationshipIsEmpty;
     let hasLocalPartialData = hasDematerializedInverse || (relationshipIsEmpty && resource.data);
     // null is explicit empty, undefined is "we don't know anything"
     let localDataIsEmpty = resource.data === undefined || resource.data === null;
@@ -1735,27 +1690,22 @@ const Store = Service.extend({
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
     }
 
-    assert(
-      `You tried to make a query but you have no adapter (for ${normalizedModelName})`,
-      adapter
-    );
+    assert(`You tried to make a query but you have no adapter (for ${normalizedModelName})`, adapter);
     assert(
       `You tried to make a query but your adapter does not implement 'queryRecord'`,
       typeof adapter.queryRecord === 'function'
     );
 
     return promiseObject(
-      _queryRecord(adapter, this, normalizedModelName, query, adapterOptionsWrapper).then(
-        internalModel => {
-          // the promise returned by store.queryRecord is expected to resolve with
-          // an instance of DS.Model
-          if (internalModel) {
-            return internalModel.getRecord();
-          }
-
-          return null;
+      _queryRecord(adapter, this, normalizedModelName, query, adapterOptionsWrapper).then(internalModel => {
+        // the promise returned by store.queryRecord is expected to resolve with
+        // an instance of DS.Model
+        if (internalModel) {
+          return internalModel.getRecord();
         }
-      )
+
+        return null;
+      })
     );
   },
 
@@ -2369,10 +2319,7 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyedStoreOnly(this, '_modelFactoryFor');
     }
-    assert(
-      `You need to pass a model name to the store's _modelFactoryFor method`,
-      isPresent(modelName)
-    );
+    assert(`You need to pass a model name to the store's _modelFactoryFor method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -2620,9 +2567,9 @@ const Store = Service.extend({
       }
 
       assert(
-        `Expected an object in the 'data' property in a call to 'push' for ${
-          jsonApiDoc.type
-        }, but was ${typeOf(jsonApiDoc.data)}`,
+        `Expected an object in the 'data' property in a call to 'push' for ${jsonApiDoc.type}, but was ${typeOf(
+          jsonApiDoc.data
+        )}`,
         typeOf(jsonApiDoc.data) === 'object'
       );
 
@@ -3007,9 +2954,7 @@ const Store = Service.extend({
     // no model specific adapter or application adapter, check for an `adapter`
     // property defined on the store
     let adapterName = this.get('adapter');
-    adapter = adapterName
-      ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`)
-      : undefined;
+    adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
@@ -3059,10 +3004,7 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'serializerFor');
     }
-    assert(
-      `You need to pass a model name to the store's serializerFor method`,
-      isPresent(modelName)
-    );
+    assert(`You need to pass a model name to the store's serializerFor method`, isPresent(modelName));
     assert(
       `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
@@ -3201,11 +3143,9 @@ const Store = Service.extend({
     }
 
     assert(
-      `A ${
-        relationship.internalModel.modelName
-      } record was pushed into the store with the value of ${relationship.key} being ${inspect(
-        resourceIdentifier
-      )}, but ${
+      `A ${relationship.internalModel.modelName} record was pushed into the store with the value of ${
+        relationship.key
+      } being ${inspect(resourceIdentifier)}, but ${
         relationship.key
       } is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
       !Array.isArray(resourceIdentifier)
@@ -3221,11 +3161,9 @@ const Store = Service.extend({
     }
 
     assert(
-      `A ${
-        relationship.internalModel.modelName
-      } record was pushed into the store with the value of ${relationship.key} being '${inspect(
-        resourceIdentifiers
-      )}', but ${
+      `A ${relationship.internalModel.modelName} record was pushed into the store with the value of ${
+        relationship.key
+      } being '${inspect(resourceIdentifiers)}', but ${
         relationship.key
       } is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`,
       Array.isArray(resourceIdentifiers)
@@ -3275,14 +3213,7 @@ function _commit(adapter, store, operation, snapshot) {
       store._backburner.join(() => {
         let payload, data, sideloaded;
         if (adapterPayload) {
-          payload = normalizeResponseHelper(
-            serializer,
-            store,
-            modelClass,
-            adapterPayload,
-            snapshot.id,
-            operation
-          );
+          payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
           if (payload.included) {
             sideloaded = payload.included;
           }

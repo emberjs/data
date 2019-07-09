@@ -65,10 +65,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     assert.equal(person.get('firstName'), 'updated first name');
     assert.strictEqual(person.get('lastName'), undefined);
     assert.equal(person.get('currentState.stateName'), 'root.loaded.updated.uncommitted');
-    assert.deepEqual(person.changedAttributes().firstName, [
-      'original first name',
-      'updated first name',
-    ]);
+    assert.deepEqual(person.changedAttributes().firstName, ['original first name', 'updated first name']);
 
     run(() => {
       store.push({
@@ -354,11 +351,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       });
     });
 
-    assert.equal(
-      post.get('postTitle'),
-      'Ember rocks (updated)',
-      'You can update data in the store'
-    );
+    assert.equal(post.get('postTitle'), 'Ember rocks (updated)', 'You can update data in the store');
   });
 
   test('Calling pushPayload allows pushing singular payload properties', function(assert) {
@@ -384,11 +377,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       });
     });
 
-    assert.equal(
-      post.get('postTitle'),
-      'Ember rocks (updated)',
-      'You can update data in the store'
-    );
+    assert.equal(post.get('postTitle'), 'Ember rocks (updated)', 'You can update data in the store');
   });
 
   test(`Calling pushPayload should use the type's serializer for normalizing`, function(assert) {
@@ -558,60 +547,56 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     });
   });
 
-  testInDebug(
-    'Calling push with a link for a non async relationship should warn if no data',
-    function(assert) {
-      Person.reopen({
-        phoneNumbers: hasMany('phone-number', { async: false }),
-      });
+  testInDebug('Calling push with a link for a non async relationship should warn if no data', function(assert) {
+    Person.reopen({
+      phoneNumbers: hasMany('phone-number', { async: false }),
+    });
 
-      assert.expectWarning(() => {
-        run(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: '1',
-              relationships: {
-                phoneNumbers: {
-                  links: {
-                    related: '/api/people/1/phone-numbers',
-                  },
+    assert.expectWarning(() => {
+      run(() => {
+        store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            relationships: {
+              phoneNumbers: {
+                links: {
+                  related: '/api/people/1/phone-numbers',
                 },
               },
             },
-          });
+          },
         });
-      }, /You pushed a record of type 'person' with a relationship 'phoneNumbers' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty./);
-    }
-  );
-
-  testInDebug(
-    'Calling push with a link for a non async relationship should not warn when data is present',
-    function(assert) {
-      Person.reopen({
-        phoneNumbers: hasMany('phone-number', { async: false }),
       });
+    }, /You pushed a record of type 'person' with a relationship 'phoneNumbers' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty./);
+  });
 
-      assert.expectNoWarning(() => {
-        run(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: '1',
-              relationships: {
-                phoneNumbers: {
-                  data: [{ type: 'phone-number', id: '2' }, { type: 'phone-number', id: '3' }],
-                  links: {
-                    related: '/api/people/1/phone-numbers',
-                  },
+  testInDebug('Calling push with a link for a non async relationship should not warn when data is present', function(
+    assert
+  ) {
+    Person.reopen({
+      phoneNumbers: hasMany('phone-number', { async: false }),
+    });
+
+    assert.expectNoWarning(() => {
+      run(() => {
+        store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            relationships: {
+              phoneNumbers: {
+                data: [{ type: 'phone-number', id: '2' }, { type: 'phone-number', id: '3' }],
+                links: {
+                  related: '/api/people/1/phone-numbers',
                 },
               },
             },
-          });
+          },
         });
       });
-    }
-  );
+    });
+  });
 
   testInDebug(
     'Calling push with a link for a non async relationship should not reset an existing relationship',
@@ -668,9 +653,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     }
   );
 
-  testInDebug('Calling push with an unknown model name throws an assertion error', function(
-    assert
-  ) {
+  testInDebug('Calling push with an unknown model name throws an assertion error', function(assert) {
     assert.expectAssertion(() => {
       run(() => {
         store.push({
@@ -735,9 +718,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     assert.equal(person.get('firstName'), 'Tan', 'you can use links that contain null as a value');
   });
 
-  testInDebug('calling push with hasMany relationship the value must be an array', function(
-    assert
-  ) {
+  testInDebug('calling push with hasMany relationship the value must be an array', function(assert) {
     assert.expectAssertion(() => {
       run(() => {
         store.push({
@@ -771,9 +752,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     });
   });
 
-  testInDebug('calling push with belongsTo relationship the value must not be an array', function(
-    assert
-  ) {
+  testInDebug('calling push with belongsTo relationship the value must not be an array', function(assert) {
     assert.expectAssertion(() => {
       run(() => {
         store.push({
@@ -791,59 +770,53 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     }, /must not be an array/);
   });
 
-  testInDebug(
-    'Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown attributes',
-    function(assert) {
-      run(() => {
-        let originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
-        try {
-          Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
-          assert.expectWarning(() => {
-            store.push({
-              data: {
-                type: 'person',
-                id: '1',
-                attributes: {
-                  firstName: 'Tomster',
-                  emailAddress: 'tomster@emberjs.com',
-                  isMascot: true,
-                },
+  testInDebug('Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown attributes', function(assert) {
+    run(() => {
+      let originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
+      try {
+        Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
+        assert.expectWarning(() => {
+          store.push({
+            data: {
+              type: 'person',
+              id: '1',
+              attributes: {
+                firstName: 'Tomster',
+                emailAddress: 'tomster@emberjs.com',
+                isMascot: true,
               },
-            });
-          }, `The payload for 'person' contains these unknown attributes: emailAddress,isMascot. Make sure they've been defined in your model.`);
-        } finally {
-          Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
-        }
-      });
-    }
-  );
+            },
+          });
+        }, `The payload for 'person' contains these unknown attributes: emailAddress,isMascot. Make sure they've been defined in your model.`);
+      } finally {
+        Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
+      }
+    });
+  });
 
-  testInDebug(
-    'Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown relationships',
-    function(assert) {
-      run(() => {
-        var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
-        try {
-          Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
-          assert.expectWarning(() => {
-            store.push({
-              data: {
-                type: 'person',
-                id: '1',
-                relationships: {
-                  phoneNumbers: {},
-                  emailAddresses: {},
-                  mascots: {},
-                },
+  testInDebug('Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown relationships', function(assert) {
+    run(() => {
+      var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
+      try {
+        Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
+        assert.expectWarning(() => {
+          store.push({
+            data: {
+              type: 'person',
+              id: '1',
+              relationships: {
+                phoneNumbers: {},
+                emailAddresses: {},
+                mascots: {},
               },
-            });
-          }, `The payload for 'person' contains these unknown relationships: emailAddresses,mascots. Make sure they've been defined in your model.`);
-        } finally {
-          Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
-        }
-      });
-    }
-  );
+            },
+          });
+        }, `The payload for 'person' contains these unknown relationships: emailAddresses,mascots. Make sure they've been defined in your model.`);
+      } finally {
+        Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
+      }
+    });
+  });
 
   testInDebug('Calling push with unknown keys should not warn by default', function(assert) {
     assert.expectNoWarning(() => {

@@ -72,16 +72,11 @@ function addonBuildConfigForDataPackage(PackageName) {
     buildBabelOptions() {
       let babelOptions = this.options.babel || {};
       let existingPlugins = babelOptions.plugins || [];
-      let customPlugins = require('./stripped-build-plugins')(
-        process.env.EMBER_ENV,
-        this.isLocalBuild()
-      );
+      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this.isLocalBuild());
       let plugins = existingPlugins.map(plugin => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
-      plugins = plugins
-        .concat(customPlugins.plugins)
-        .concat(require('./debug-macros')(process.env.EMBER_ENV));
+      plugins = plugins.concat(customPlugins.plugins).concat(require('./debug-macros')(process.env.EMBER_ENV));
 
       return {
         loose: true,
@@ -140,10 +135,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       });
 
       let withoutPrivate = new Funnel(treeWithVersion, {
-        exclude: [
-          '-private',
-          isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false,
-        ].filter(Boolean),
+        exclude: ['-private', isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false].filter(Boolean),
 
         destDir: PackageName,
       });

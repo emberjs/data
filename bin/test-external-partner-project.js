@@ -17,8 +17,7 @@ const skipSmokeTest =
   (process.argv[4] && process.argv[4] === '--skip-smoke-test') ||
   (process.argv[5] && process.argv[5] === '--skip-smoke-test');
 const skipClone =
-  (process.argv[4] && process.argv[4] === '--skip-clone') ||
-  (process.argv[5] && process.argv[5] === '--skip-clone');
+  (process.argv[4] && process.argv[4] === '--skip-clone') || (process.argv[5] && process.argv[5] === '--skip-clone');
 // we share this for the build
 const cachePath = '../__external-test-cache';
 const tempDir = path.join(projectRoot, cachePath);
@@ -26,13 +25,9 @@ const projectTempDir = path.join(tempDir, externalProjectName);
 const insertTarballsToPackageJson = require('./-tarball-info').insertTarballsToPackageJson;
 
 if (!gitUrl) {
-  throw new Error(
-    'No git url provided to `test-external-partner`. An https git url should be the first argument.'
-  );
+  throw new Error('No git url provided to `test-external-partner`. An https git url should be the first argument.');
 } else if (gitUrl.indexOf('https') !== 0) {
-  throw new Error(
-    `The git url provided to \`node test-external-partner\` should use https. Received '${gitUrl}'`
-  );
+  throw new Error(`The git url provided to \`node test-external-partner\` should use https. Received '${gitUrl}'`);
 }
 
 console.log(
@@ -103,9 +98,7 @@ try {
       execExternal(`${useYarn ? 'yarn install' : 'npm install'}`);
     } catch (e) {
       debug(e);
-      throw new Error(
-        `Unable to complete install of dependencies for external project ${externalProjectName}`
-      );
+      throw new Error(`Unable to complete install of dependencies for external project ${externalProjectName}`);
     }
     execExternal(`ember test`, true);
   }
@@ -139,9 +132,7 @@ try {
 if (skipSmokeTest && !commitTestPassed) {
   throw new Error('Commit may result in a regression, but the smoke test was skipped.');
 } else if (!smokeTestPassed && !commitTestPassed) {
-  throw new Error(
-    `Commit may result in a regression, but the smoke test for ${externalProjectName} also failed.`
-  );
+  throw new Error(`Commit may result in a regression, but the smoke test for ${externalProjectName} also failed.`);
 } else if (smokeTestPassed && !commitTestPassed) {
   throw new Error(`Commit results in a regression in ${externalProjectName}`);
 } else if (!smokeTestPassed) {

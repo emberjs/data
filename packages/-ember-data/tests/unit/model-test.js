@@ -88,10 +88,7 @@ module('unit/model - Model', function(hooks) {
 
       let currentState = record._internalModel.currentState;
 
-      assert.ok(
-        currentState.stateName === 'root.deleted.saved',
-        'record is in a persisted deleted state'
-      );
+      assert.ok(currentState.stateName === 'root.deleted.saved', 'record is in a persisted deleted state');
       assert.equal(get(record, 'isDeleted'), true);
       assert.ok(
         store.peekRecord('person', '1') !== null,
@@ -110,15 +107,9 @@ module('unit/model - Model', function(hooks) {
 
       currentState = record._internalModel.currentState;
 
-      assert.ok(
-        currentState.stateName === 'root.deleted.saved',
-        'record is still in a persisted deleted state'
-      );
+      assert.ok(currentState.stateName === 'root.deleted.saved', 'record is still in a persisted deleted state');
       assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
-      assert.ok(
-        get(record, 'isArchived') === true,
-        'The record reflects the update to canonical state'
-      );
+      assert.ok(get(record, 'isArchived') === true, 'The record reflects the update to canonical state');
     });
 
     test('Does not support dirtying in root.deleted.saved', async function(assert) {
@@ -140,10 +131,7 @@ module('unit/model - Model', function(hooks) {
 
       let currentState = record._internalModel.currentState;
 
-      assert.ok(
-        currentState.stateName === 'root.deleted.saved',
-        'record is in a persisted deleted state'
-      );
+      assert.ok(currentState.stateName === 'root.deleted.saved', 'record is in a persisted deleted state');
       assert.equal(get(record, 'isDeleted'), true);
       assert.ok(
         store.peekRecord('person', '1') !== null,
@@ -156,10 +144,7 @@ module('unit/model - Model', function(hooks) {
 
       currentState = record._internalModel.currentState;
 
-      assert.ok(
-        currentState.stateName === 'root.deleted.saved',
-        'record is still in a persisted deleted state'
-      );
+      assert.ok(currentState.stateName === 'root.deleted.saved', 'record is still in a persisted deleted state');
       assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
       assert.ok(get(record, 'isArchived') === false, 'The record reflects canonical state');
     });
@@ -260,11 +245,7 @@ module('unit/model - Model', function(hooks) {
 
         let record = await store.findRecord('person', 'watch');
 
-        assert.equal(
-          get(record, 'id'),
-          'watch',
-          'record is successfully created and could be found by its id'
-        );
+        assert.equal(get(record, 'id'), 'watch', 'record is successfully created and could be found by its id');
       } finally {
         if (!hasWatchMethod) {
           delete Object.prototype.watch;
@@ -443,11 +424,7 @@ module('unit/model - Model', function(hooks) {
       this.owner.register('model:tag', Tag);
 
       let tag = store.createRecord('tag');
-      assert.equal(
-        get(tag, 'createdAt'),
-        'le default value',
-        'the defaultValue function is evaluated'
-      );
+      assert.equal(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
     });
 
     test('a defaultValue function gets the record, options, and key', async function(assert) {
@@ -469,9 +446,7 @@ module('unit/model - Model', function(hooks) {
       get(tag, 'createdAt');
     });
 
-    testInDebug('We assert when defaultValue is a constant non-primitive instance', async function(
-      assert
-    ) {
+    testInDebug('We assert when defaultValue is a constant non-primitive instance', async function(assert) {
       class Tag extends Model {
         @attr({ defaultValue: [] })
         tagInfo;
@@ -502,11 +477,7 @@ module('unit/model - Model', function(hooks) {
 
         let record = store.peekRecord('model', 1);
 
-        assert.deepEqual(
-          get(record, 'name'),
-          expected,
-          type + ' coerces ' + provided + ' to ' + expected
-        );
+        assert.deepEqual(get(record, 'name'), expected, type + ' coerces ' + provided + ' to ' + expected);
       });
     }
 
@@ -528,11 +499,7 @@ module('unit/model - Model', function(hooks) {
           })
         );
 
-        assert.deepEqual(
-          get(record, 'name'),
-          expected,
-          type + ' coerces ' + provided + ' to ' + expected
-        );
+        assert.deepEqual(get(record, 'name'), expected, type + ' coerces ' + provided + ' to ' + expected);
       });
     }
 
@@ -555,11 +522,7 @@ module('unit/model - Model', function(hooks) {
         });
 
         set(record, 'name', provided);
-        assert.deepEqual(
-          record.serialize().name,
-          expected,
-          type + ' saves ' + provided + ' as ' + expected
-        );
+        assert.deepEqual(record.serialize().name, expected, type + ' saves ' + provided + ' as ' + expected);
       });
     }
 
@@ -747,64 +710,61 @@ module('unit/model - Model', function(hooks) {
 
     ['_internalModel', 'currentState'].forEach(testReservedProperty);
 
-    testInDebug(
-      'A subclass of Model throws an error when calling create() directly',
-      async function(assert) {
-        class NativePerson extends Model {}
-        const LegacyPerson = Model.extend({});
-        const EmberObjectNewError = 'was not instantiated correctly.';
+    testInDebug('A subclass of Model throws an error when calling create() directly', async function(assert) {
+      class NativePerson extends Model {}
+      const LegacyPerson = Model.extend({});
+      const EmberObjectNewError = 'was not instantiated correctly.';
 
-        assert.throws(
-          () => {
-            NativePerson.create();
-          },
-          /You should not call `create` on a model/,
-          'Throws an error when calling create() on model'
-        );
+      assert.throws(
+        () => {
+          NativePerson.create();
+        },
+        /You should not call `create` on a model/,
+        'Throws an error when calling create() on model'
+      );
 
-        assert.throws(
-          () => {
-            try {
-              // the `{}` here is so that in recent ember we throw a nice error vs an
-              // obtuse error. An error will thrown in any case though.
-              new NativePerson({});
-            } catch (e) {
-              if (e.message.indexOf(EmberObjectNewError) !== -1) {
-                throw new Error('You should not call `create` on a model');
-              }
-              throw e;
+      assert.throws(
+        () => {
+          try {
+            // the `{}` here is so that in recent ember we throw a nice error vs an
+            // obtuse error. An error will thrown in any case though.
+            new NativePerson({});
+          } catch (e) {
+            if (e.message.indexOf(EmberObjectNewError) !== -1) {
+              throw new Error('You should not call `create` on a model');
             }
-          },
-          /You should not call `create` on a model/,
-          'Throws an error when calling instantiating via new Model'
-        );
+            throw e;
+          }
+        },
+        /You should not call `create` on a model/,
+        'Throws an error when calling instantiating via new Model'
+      );
 
-        assert.throws(
-          () => {
-            LegacyPerson.create();
-          },
-          /You should not call `create` on a model/,
-          'Throws an error when calling create() on model'
-        );
+      assert.throws(
+        () => {
+          LegacyPerson.create();
+        },
+        /You should not call `create` on a model/,
+        'Throws an error when calling create() on model'
+      );
 
-        assert.throws(
-          () => {
-            try {
-              // the `{}` here is so that in recent ember we throw a nice error vs an
-              // obtuse error. An error will thrown in any case though.
-              new LegacyPerson({});
-            } catch (e) {
-              if (e.message.indexOf(EmberObjectNewError) !== -1) {
-                throw new Error('You should not call `create` on a model');
-              }
-              throw e;
+      assert.throws(
+        () => {
+          try {
+            // the `{}` here is so that in recent ember we throw a nice error vs an
+            // obtuse error. An error will thrown in any case though.
+            new LegacyPerson({});
+          } catch (e) {
+            if (e.message.indexOf(EmberObjectNewError) !== -1) {
+              throw new Error('You should not call `create` on a model');
             }
-          },
-          /You should not call `create` on a model/,
-          'Throws an error when calling instantiating view new Model()'
-        );
-      }
-    );
+            throw e;
+          }
+        },
+        /You should not call `create` on a model/,
+        'Throws an error when calling instantiating view new Model()'
+      );
+    });
   });
 
   module('init()', function() {
@@ -821,11 +781,7 @@ module('unit/model - Model', function(hooks) {
 
       let person = await store.findRecord('person', 1);
 
-      assert.equal(
-        get(person, 'currentState.stateName'),
-        'root.loaded.saved',
-        'model is in loaded state'
-      );
+      assert.equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
       assert.equal(get(person, 'isLoaded'), true, 'model is loaded');
     });
 
@@ -844,11 +800,7 @@ module('unit/model - Model', function(hooks) {
         },
       });
 
-      assert.equal(
-        person.get('isNew'),
-        false,
-        'push should put move the record into the loaded state'
-      );
+      assert.equal(person.get('isNew'), false, 'push should put move the record into the loaded state');
       // TODO either this is a bug or being able to push a record with the same ID as a client created one is a bug
       //   probably the bug is the former
       assert.equal(
@@ -1072,11 +1024,7 @@ module('unit/model - Model', function(hooks) {
 
       set(person, 'name', 'Niceguy Dale');
 
-      assert.equal(
-        recordData._attributes.name,
-        'Niceguy Dale',
-        'the `_attributes` hash contains the changed value'
-      );
+      assert.equal(recordData._attributes.name, 'Niceguy Dale', 'the `_attributes` hash contains the changed value');
 
       set(person, 'name', 'Scumbag Dale');
 
@@ -1091,11 +1039,7 @@ module('unit/model - Model', function(hooks) {
       set(record, 'anotherNotAnAttr', 'my other value');
 
       assert.equal(get(record, 'notAnAttr'), 'my value', 'property was set on the record');
-      assert.equal(
-        get(record, 'anotherNotAnAttr'),
-        'my other value',
-        'property was set on the record'
-      );
+      assert.equal(get(record, 'anotherNotAnAttr'), 'my other value', 'property was set on the record');
       assert.strictEqual(get(record, 'isDrugAddict'), false, 'property was set on the record');
       assert.equal(get(record, 'name'), 'bar', 'property was set on the record');
     });
@@ -1114,11 +1058,7 @@ module('unit/model - Model', function(hooks) {
 
       let person = await store.findRecord('person', '1');
 
-      assert.equal(
-        person.get('hasDirtyAttributes'),
-        false,
-        'precond - person record should not be dirty'
-      );
+      assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
 
       person.set('name', 'Peter');
       person.set('isDrugAddict', true);
@@ -1144,11 +1084,7 @@ module('unit/model - Model', function(hooks) {
 
       let person = await store.findRecord('person', '1');
 
-      assert.equal(
-        person.get('hasDirtyAttributes'),
-        false,
-        'precond - person record should not be dirty'
-      );
+      assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
 
       person.set('isDrugAddict', false);
 
@@ -1214,11 +1150,7 @@ module('unit/model - Model', function(hooks) {
 
       let person = await store.findRecord('person', 1);
 
-      assert.equal(
-        person.get('hasDirtyAttributes'),
-        false,
-        'precond - person record should not be dirty'
-      );
+      assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
       person.set('isDrugAddict', false);
       assert.equal(
         person.get('hasDirtyAttributes'),
@@ -1271,11 +1203,7 @@ module('unit/model - Model', function(hooks) {
 
       let person = store.peekRecord('person', 1);
 
-      assert.equal(
-        person.get('hasDirtyAttributes'),
-        false,
-        'precond - person record should not be dirty'
-      );
+      assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
       person.set('name', 'Wolf');
       assert.equal(
         person.get('hasDirtyAttributes'),
@@ -1294,11 +1222,7 @@ module('unit/model - Model', function(hooks) {
 
           person.set('name', 'Peter');
 
-          assert.equal(
-            person.get('isValid'),
-            true,
-            'record is valid after resetting attribute to old value'
-          );
+          assert.equal(person.get('isValid'), true, 'record is valid after resetting attribute to old value');
           assert.equal(
             person.get('hasDirtyAttributes'),
             false,
@@ -1333,11 +1257,7 @@ module('unit/model - Model', function(hooks) {
 
       let person = store.peekRecord('person', 1);
 
-      assert.equal(
-        person.get('hasDirtyAttributes'),
-        false,
-        'precond - person record should not be dirty'
-      );
+      assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
       person.set('name', 'Wolf');
       person.set('isDrugAddict', false);
       assert.equal(
@@ -1357,11 +1277,7 @@ module('unit/model - Model', function(hooks) {
 
           person.set('name', 'Peter');
 
-          assert.equal(
-            person.get('isValid'),
-            true,
-            'record is valid after resetting invalid attribute to old value'
-          );
+          assert.equal(person.get('isValid'), true, 'record is valid after resetting invalid attribute to old value');
           assert.equal(person.get('hasDirtyAttributes'), true, 'record still has dirty attributes');
         });
     });
@@ -1418,11 +1334,7 @@ module('unit/model - Model', function(hooks) {
         },
       });
 
-      assert.equal(
-        Object.keys(mascot.changedAttributes()).length,
-        0,
-        'there are no initial changes'
-      );
+      assert.equal(Object.keys(mascot.changedAttributes()).length, 0, 'there are no initial changes');
 
       mascot.set('name', 'Tomster'); // new value
       mascot.set('likes', 'Ember.js'); // changed value
@@ -1435,11 +1347,7 @@ module('unit/model - Model', function(hooks) {
 
       mascot.rollbackAttributes();
 
-      assert.equal(
-        Object.keys(mascot.changedAttributes()).length,
-        0,
-        'after rollback attributes there are no changes'
-      );
+      assert.equal(Object.keys(mascot.changedAttributes()).length, 0, 'after rollback attributes there are no changes');
     });
 
     test('changedAttributes() works while the record is being saved', async function(assert) {

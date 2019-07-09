@@ -90,13 +90,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         },
       };
 
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        HomePlanet,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, HomePlanet, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -123,11 +117,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         ],
       };
 
-      assert.deepEqual(
-        normalizedJsonApi,
-        expectedOutput,
-        'We normalized to json-api and extracted the super-villain'
-      );
+      assert.deepEqual(normalizedJsonApi, expectedOutput, 'We normalized to json-api and extracted the super-villain');
     });
 
     test('normalizeResponse with embedded objects inside embedded objects', async function(assert) {
@@ -170,13 +160,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         },
       };
 
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        HomePlanet,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, HomePlanet, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -252,13 +236,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           ],
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        Comment,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, Comment, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -340,13 +318,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           ],
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        Comment,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, Comment, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -450,13 +422,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           ],
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        HomePlanet,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, HomePlanet, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -554,13 +520,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        EvilMinion,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, EvilMinion, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -663,13 +623,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           ],
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        SuperVillain,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, SuperVillain, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           attributes: {
@@ -748,13 +702,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        SuperVillain,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, SuperVillain, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -830,13 +778,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        SuperVillain,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, SuperVillain, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           attributes: {
@@ -903,13 +845,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        EvilMinion,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, EvilMinion, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -936,11 +872,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         ],
       };
 
-      assert.deepEqual(
-        normalizedJsonApi,
-        expectedOutput,
-        'we normalize to json-api with custom belongsTo primary key'
-      );
+      assert.deepEqual(normalizedJsonApi, expectedOutput, 'we normalize to json-api with custom belongsTo primary key');
     });
   });
 
@@ -972,13 +904,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         ],
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        HomePlanet,
-        rawPayload,
-        null,
-        'findAll'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, HomePlanet, rawPayload, null, 'findAll');
       const expectedOutput = {
         data: [
           {
@@ -1046,13 +972,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         ],
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        HomePlanet,
-        rawPayload,
-        null,
-        'findAll'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, HomePlanet, rawPayload, null, 'findAll');
       const expectedOutput = {
         data: [
           {
@@ -1125,13 +1045,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         ],
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        HomePlanet,
-        rawPayload,
-        null,
-        'findAll'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, HomePlanet, rawPayload, null, 'findAll');
       const expectedOutput = {
         data: [
           {
@@ -1171,11 +1085,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         ],
       };
 
-      assert.deepEqual(
-        normalizedJsonApi,
-        expectedOutput,
-        'when the key for a relationship and an attribute collide, '
-      );
+      assert.deepEqual(normalizedJsonApi, expectedOutput, 'when the key for a relationship and an attribute collide, ');
     });
 
     test('normalizeResponse with embedded objects of same type as primary type', async function(assert) {
@@ -1210,13 +1120,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         ],
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        Comment,
-        rawPayload,
-        null,
-        'findAll'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, Comment, rawPayload, null, 'findAll');
       const expectedOutput = {
         data: [
           {
@@ -1334,13 +1238,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
         ],
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        HomePlanet,
-        rawPayload,
-        null,
-        'findAll'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, HomePlanet, rawPayload, null, 'findAll');
       const expectedOutput = {
         data: [
           {
@@ -1476,13 +1374,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           secretWeapons: [],
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        SuperVillain,
-        rawPayload,
-        '1',
-        'findRecord'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, SuperVillain, rawPayload, '1', 'findRecord');
       const expectedOutput = {
         data: {
           id: '1',
@@ -1574,13 +1466,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           ],
         },
       };
-      const normalizedJsonApi = serializer.normalizeResponse(
-        store,
-        SuperVillain,
-        rawPayload,
-        '1',
-        'findAll'
-      );
+      const normalizedJsonApi = serializer.normalizeResponse(store, SuperVillain, rawPayload, '1', 'findAll');
       const expectedOutput = {
         data: {
           id: '1',
@@ -1616,11 +1502,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         ],
       };
 
-      assert.deepEqual(
-        normalizedJsonApi,
-        expectedOutput,
-        'We normalize to json-api with a polymorphic hasMany'
-      );
+      assert.deepEqual(normalizedJsonApi, expectedOutput, 'We normalize to json-api with a polymorphic hasMany');
     });
   });
 
@@ -1648,11 +1530,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         secretLab: null,
       };
 
-      assert.deepEqual(
-        serializedRestJson,
-        expectedOutput,
-        'We do not serialize attrs defined with serialize:false'
-      );
+      assert.deepEqual(serializedRestJson, expectedOutput, 'We do not serialize attrs defined with serialize:false');
     });
 
     test('Mixin can be used with RESTSerializer which does not define keyForAttribute', async function(assert) {
@@ -1892,9 +1770,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      testInDebug('serialize with embedded objects (unknown hasMany relationship)', async function(
-        assert
-      ) {
+      testInDebug('serialize with embedded objects (unknown hasMany relationship)', async function(assert) {
         this.owner.register(
           'serializer:home-planet',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1925,11 +1801,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           serializedRestJson = serializer.serialize(league._createSnapshot());
         }, /The embedded relationship 'villains' is undefined for 'home-planet' with id '123'. Please include it in your original payload./);
 
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'We serialize the missing hasMany to an empty array'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'We serialize the missing hasMany to an empty array');
       });
 
       test('serialize with embedded objects (hasMany relationship) supports serialize:false', async function(assert) {
@@ -2047,11 +1919,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           secretLab: null,
           secretWeapons: ['1'],
         };
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'We only embed relationships we are told to embed'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'We only embed relationships we are told to embed');
       });
 
       test('serialize has many relationship using the `ids-and-types` strategy', async function(assert) {
@@ -2109,11 +1977,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           ],
         };
 
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'We serialized both ids and types for the hasMany'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized both ids and types for the hasMany');
       });
 
       test('serializing embedded hasMany respects remapped attrs key', async function(assert) {
@@ -2194,11 +2058,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           name: 'Hoth',
           notable_persons: [superVillain.id],
         };
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'we serialized respecting the custom key in attrs'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'we serialized respecting the custom key in attrs');
       });
     });
 
@@ -2569,11 +2429,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           secretLab: '101',
         };
 
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'We serialized the belongsTo relationships to IDs'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
       test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function(assert) {
@@ -2608,11 +2464,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           secretLab: '101',
         };
 
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'We serialized the belongsTo relationships to IDs'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
       test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function(assert) {
@@ -2647,11 +2499,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           secretLab: '101',
         };
 
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'We serialized the belongsTo relationships to IDs'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
       test('serialize with embedded object (belongsTo relationship) supports serialize:false', async function(assert) {
@@ -2693,10 +2541,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       });
 
       test('serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified', async function(assert) {
-        this.owner.register(
-          'serializer:super-villain',
-          RESTSerializer.extend(EmbeddedRecordsMixin)
-        );
+        this.owner.register('serializer:super-villain', RESTSerializer.extend(EmbeddedRecordsMixin));
 
         // records with an id, persisted
         let tom = store.createRecord('super-villain', {
@@ -2720,11 +2565,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           secretLab: '101',
         };
 
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'We serialized the belongsTo relationships to IDs'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
       test('when related record is not present, serialize embedded record (with a belongsTo relationship) as null', async function(assert) {
@@ -2833,11 +2674,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           secretLab: null,
         };
 
-        assert.deepEqual(
-          serializedRestJson,
-          expectedOutput,
-          'we respect the remapped attrs key when serializing'
-        );
+        assert.deepEqual(serializedRestJson, expectedOutput, 'we respect the remapped attrs key when serializing');
       });
 
       test('serializing id belongsTo respects remapped attrs key', async function(assert) {

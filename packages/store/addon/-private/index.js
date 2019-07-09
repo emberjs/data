@@ -6,11 +6,7 @@ export { default as Store } from './system/store';
 export { default as Snapshot } from './system/snapshot';
 
 // maybe public ?
-export {
-  default as recordDataFor,
-  relationshipStateFor,
-  relationshipsFor,
-} from './system/record-data-for';
+export { default as recordDataFor, relationshipStateFor, relationshipsFor } from './system/record-data-for';
 export { default as normalizeModelName } from './system/normalize-model-name';
 export { default as coerceId } from './system/coerce-id';
 

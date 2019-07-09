@@ -59,11 +59,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     };
 
     let allRecords = await store.findAll('person');
-    assert.equal(
-      get(allRecords, 'length'),
-      1,
-      "the record array's length is 1 after a record is loaded into it"
-    );
+    assert.equal(get(allRecords, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
     assert.equal(
       allRecords.objectAt(0).get('name'),
       'Braaaahm Dale',
@@ -109,16 +105,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
       assert.ok(true, 'The rejection should get here');
       return store.findAll('person');
     });
-    assert.equal(
-      get(all, 'length'),
-      1,
-      "the record array's length is 1 after a record is loaded into it"
-    );
-    assert.equal(
-      all.objectAt(0).get('name'),
-      'Braaaahm Dale',
-      'the first item in the record array is Braaaahm Dale'
-    );
+    assert.equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
+    assert.equal(all.objectAt(0).get('name'), 'Braaaahm Dale', 'the first item in the record array is Braaaahm Dale');
   });
 
   test('When all records for a type are requested, records that are already loaded should be returned immediately.', async assert => {
@@ -174,9 +162,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     );
   });
 
-  testInDebug('When all records are requested, assert the payload is not blank', async function(
-    assert
-  ) {
+  testInDebug('When all records are requested, assert the payload is not blank', async function(assert) {
     let adapter = store.adapterFor('person');
     adapter.findAll = () => resolve({});
 

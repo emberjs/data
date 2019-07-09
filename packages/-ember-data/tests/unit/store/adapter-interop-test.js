@@ -54,17 +54,9 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       findRecord(store, type, id, snapshot) {
         assert.ok(true, 'Adapter#find was called');
         assert.equal(store, currentStore, 'Adapter#find was called with the right store');
-        assert.equal(
-          type,
-          store.modelFor('test'),
-          'Adapter#find was called with the type passed into Store#find'
-        );
+        assert.equal(type, store.modelFor('test'), 'Adapter#find was called with the type passed into Store#find');
         assert.equal(id, 1, 'Adapter#find was called with the id passed into Store#find');
-        assert.equal(
-          snapshot.id,
-          '1',
-          'Adapter#find was called with the record created from Store#find'
-        );
+        assert.equal(snapshot.id, '1', 'Adapter#find was called with the record created from Store#find');
 
         return resolve({
           data: {
@@ -314,11 +306,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
     let results = store.peekAll('person');
 
     assert.equal(get(results, 'length'), 1, 'record array should have the original object');
-    assert.equal(
-      get(results.objectAt(0), 'name'),
-      'Tom Dale',
-      'record has the correct information'
-    );
+    assert.equal(get(results.objectAt(0), 'name'), 'Tom Dale', 'record has the correct information');
 
     run(() => {
       store.push({
@@ -333,17 +321,9 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
     });
 
     assert.equal(get(results, 'length'), 2, 'record array should have the new object');
-    assert.equal(
-      get(results.objectAt(1), 'name'),
-      'Yehuda Katz',
-      'record has the correct information'
-    );
+    assert.equal(get(results.objectAt(1), 'name'), 'Yehuda Katz', 'record has the correct information');
 
-    assert.strictEqual(
-      results,
-      store.peekAll('person'),
-      'subsequent calls to peekAll return the same recordArray)'
-    );
+    assert.strictEqual(results, store.peekAll('person'), 'subsequent calls to peekAll return the same recordArray)');
   });
 
   test('a new record of a particular type is created via store.createRecord(type)', function(assert) {
@@ -362,37 +342,32 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
 
     run(() => set(person, 'name', 'Braaahm Dale'));
 
-    assert.equal(
-      get(person, 'name'),
-      'Braaahm Dale',
-      'Even if no hash is supplied, `set` still worked'
-    );
+    assert.equal(get(person, 'name'), 'Braaahm Dale', 'Even if no hash is supplied, `set` still worked');
   });
 
-  testInDebug(
-    "a new record with a specific id can't be created if this id is already used in the store",
-    function(assert) {
-      const Person = DS.Model.extend({
-        name: DS.attr('string'),
-      });
+  testInDebug("a new record with a specific id can't be created if this id is already used in the store", function(
+    assert
+  ) {
+    const Person = DS.Model.extend({
+      name: DS.attr('string'),
+    });
 
-      Person.reopenClass({
-        toString() {
-          return 'Person';
-        },
-      });
+    Person.reopenClass({
+      toString() {
+        return 'Person';
+      },
+    });
 
-      let store = createStore({
-        person: Person,
-      });
+    let store = createStore({
+      person: Person,
+    });
 
+    store.createRecord('person', { id: 5 });
+
+    assert.expectAssertion(() => {
       store.createRecord('person', { id: 5 });
-
-      assert.expectAssertion(() => {
-        store.createRecord('person', { id: 5 });
-      }, /The id 5 has already been used with another record for modelClass 'person'/);
-    }
-  );
+    }, /The id 5 has already been used with another record for modelClass 'person'/);
+  });
 
   test('an initial data hash can be provided via store.createRecord(type, hash)', function(assert) {
     const Person = DS.Model.extend({
@@ -1094,10 +1069,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
         return true;
       },
       shouldBackgroundReloadRecord(store, type, id, snapshot) {
-        assert.ok(
-          false,
-          'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true'
-        );
+        assert.ok(false, 'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true');
       },
       findRecord() {
         assert.ok(true, 'find should be called');
@@ -1133,10 +1105,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
 
     const TestAdapter = DS.Adapter.extend({
       shouldBackgroundReloadRecord(store, type, id, snapshot) {
-        assert.ok(
-          true,
-          'shouldBackgroundReloadRecord is called when record is loaded form the cache'
-        );
+        assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
         return false;
       },
       findRecord() {
@@ -1173,10 +1142,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
 
     const TestAdapter = DS.Adapter.extend({
       shouldBackgroundReloadRecord(store, type, id, snapshot) {
-        assert.ok(
-          true,
-          'shouldBackgroundReloadRecord is called when record is loaded form the cache'
-        );
+        assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
         return true;
       },
       findRecord() {
@@ -1278,10 +1244,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
         return true;
       },
       shouldBackgroundReloadAll(store, type, id, snapshot) {
-        assert.ok(
-          false,
-          'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true'
-        );
+        assert.ok(false, 'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true');
       },
       findAll() {
         assert.ok(true, 'find should be called');

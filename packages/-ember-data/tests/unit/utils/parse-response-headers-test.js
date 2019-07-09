@@ -21,11 +21,7 @@ module('unit/adapters/parse-response-headers', function() {
     let headers = parseResponseHeaders(headersString);
 
     assert.equal(headers['content-encoding'], 'gzip', 'parses basic header pair');
-    assert.equal(
-      headers['content-type'],
-      'application/json; charset=utf-8',
-      'parses header with complex value'
-    );
+    assert.equal(headers['content-type'], 'application/json; charset=utf-8', 'parses header with complex value');
     assert.equal(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
   });
 
@@ -38,11 +34,7 @@ module('unit/adapters/parse-response-headers', function() {
 
     let headers = parseResponseHeaders(headersString);
 
-    assert.equal(
-      headers['name-with-leading-whitespace'],
-      'some value',
-      'strips leading whitespace from field-name'
-    );
+    assert.equal(headers['name-with-leading-whitespace'], 'some value', 'strips leading whitespace from field-name');
     assert.equal(
       headers['name-with-whitespace-before-colon'],
       'another value',
@@ -71,25 +63,15 @@ module('unit/adapters/parse-response-headers', function() {
       'value without leading whitespace',
       'works without leaading whitespace in field-value'
     );
-    assert.equal(
-      headers['value-with-colon'],
-      'value with: a colon',
-      'has correct value when value contains a colon'
-    );
-    assert.equal(
-      headers['value-with-trailing-whitespace'],
-      'banana',
-      'strips trailing whitespace from field-value'
-    );
+    assert.equal(headers['value-with-colon'], 'value with: a colon', 'has correct value when value contains a colon');
+    assert.equal(headers['value-with-trailing-whitespace'], 'banana', 'strips trailing whitespace from field-value');
   });
   ('\r\nfoo: bar');
 
   test('ignores headers that do not contain a colon', function(assert) {
-    let headersString = [
-      'Content-Encoding: gzip',
-      'I am ignored because I do not contain a colon',
-      'apple: pie',
-    ].join(CRLF);
+    let headersString = ['Content-Encoding: gzip', 'I am ignored because I do not contain a colon', 'apple: pie'].join(
+      CRLF
+    );
 
     let headers = parseResponseHeaders(headersString);
 
@@ -116,11 +98,7 @@ module('unit/adapters/parse-response-headers', function() {
     let headers = parseResponseHeaders(headersString);
 
     assert.equal(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
-    assert.equal(
-      headers['content-type'],
-      'application/json; charset=utf-8',
-      'parses header with complex value'
-    );
+    assert.equal(headers['content-type'], 'application/json; charset=utf-8', 'parses header with complex value');
     assert.equal(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
   });
 });

@@ -97,15 +97,7 @@ test('_debugInfo supports arbitray relationship types', function(assert) {
       },
       {
         name: 'Flags',
-        properties: [
-          'isLoaded',
-          'hasDirtyAttributes',
-          'isSaving',
-          'isDeleted',
-          'isError',
-          'isNew',
-          'isValid',
-        ],
+        properties: ['isLoaded', 'hasDirtyAttributes', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid'],
       },
     ],
     expensiveProperties: ['maritalStatus', 'posts'],

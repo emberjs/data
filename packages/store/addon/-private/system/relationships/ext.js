@@ -33,16 +33,10 @@ export const relatedTypesDescriptor = computed(function() {
       meta.key = name;
       let modelName = typeForRelationshipMeta(meta);
 
-      assert(
-        `You specified a hasMany (${meta.type}) on ${parentModelName} but ${meta.type} was not found.`,
-        modelName
-      );
+      assert(`You specified a hasMany (${meta.type}) on ${parentModelName} but ${meta.type} was not found.`, modelName);
 
       if (!types.includes(modelName)) {
-        assert(
-          `Trying to sideload ${name} on ${this.toString()} but the type doesn't exist.`,
-          !!modelName
-        );
+        assert(`Trying to sideload ${name} on ${this.toString()} but the type doesn't exist.`, !!modelName);
         types.push(modelName);
       }
     }

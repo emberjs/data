@@ -10,15 +10,7 @@ import DS from 'ember-data';
 let env, store, adapter;
 let passedUrl, passedVerb, passedHash;
 
-let User,
-  Post,
-  Comment,
-  Handle,
-  GithubHandle,
-  TwitterHandle,
-  Company,
-  DevelopmentShop,
-  DesignStudio;
+let User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
 
 module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) {
   hooks.beforeEach(function() {
@@ -206,14 +198,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
 
         assert.equal(posts.get('firstObject.comments.length'), 0);
 
-        assert.equal(
-          posts.get('lastObject.comments.firstObject.text'),
-          'This is the first comment'
-        );
-        assert.equal(
-          posts.get('lastObject.comments.lastObject.text'),
-          'This is the second comment'
-        );
+        assert.equal(posts.get('lastObject.comments.firstObject.text'), 'This is the first comment');
+        assert.equal(posts.get('lastObject.comments.lastObject.text'), 'This is the second comment');
       });
     });
   });
@@ -335,11 +321,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
 
     return run(() => {
       return store.findRecord('post', 1).then(post => {
-        assert.equal(
-          passedUrl[0],
-          '/posts/1',
-          'The primary record post:1 was fetched by the correct url'
-        );
+        assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
         assert.equal(post.get('id'), '1');
         assert.equal(post.get('title'), 'Ember.js rocks');
@@ -391,21 +373,13 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
 
     return run(() => {
       return store.findRecord('post', 1).then(post => {
-        assert.equal(
-          passedUrl[0],
-          '/posts/1',
-          'The primary record post:1 was fetched by the correct url'
-        );
+        assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
         assert.equal(post.get('id'), '1');
         assert.equal(post.get('title'), 'Ember.js rocks');
 
         return post.get('author').then(author => {
-          assert.equal(
-            passedUrl[1],
-            '/users/2',
-            'The relationship user:2 was fetched by the correct url'
-          );
+          assert.equal(passedUrl[1], '/users/2', 'The relationship user:2 was fetched by the correct url');
 
           assert.equal(author.get('id'), '2');
           assert.equal(author.get('firstName'), 'Yehuda');
@@ -497,11 +471,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
 
     return run(() => {
       return store.findRecord('post', 1).then(post => {
-        assert.equal(
-          passedUrl[0],
-          '/posts/1',
-          'The primary record post:1 was fetched by the correct url'
-        );
+        assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
         assert.equal(post.get('id'), '1');
         assert.equal(post.get('title'), 'Ember.js rocks');
@@ -1017,10 +987,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
                 },
                 relationships: {
                   handles: {
-                    data: [
-                      { type: 'github-handles', id: '2' },
-                      { type: 'twitter-handles', id: '3' },
-                    ],
+                    data: [{ type: 'github-handles', id: '2' }, { type: 'twitter-handles', id: '3' }],
                   },
                 },
               },

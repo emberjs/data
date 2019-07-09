@@ -34,9 +34,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain("import DS from 'ember-data';")
           .to.contain('export default DS.JSONAPISerializer.extend(');
 
-        expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-          fixture(__dirname, 'serializer-test/rfc232.js')
-        );
+        expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
       });
     });
 
@@ -49,9 +47,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
             .to.contain("import ApplicationSerializer from './application';")
             .to.contain('export default ApplicationSerializer.extend({');
 
-          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-            fixture(__dirname, 'serializer-test/rfc232.js')
-          );
+          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
         })
       );
     });
@@ -64,19 +60,14 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain("import BarSerializer from './bar';")
           .to.contain('export default BarSerializer.extend({');
 
-        expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-          fixture(__dirname, 'serializer-test/rfc232.js')
-        );
+        expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
       });
     });
 
     xit('serializer throws when --base-class is same as name', function() {
       let args = ['serializer', 'foo', '--base-class=foo'];
 
-      return expect(emberGenerate(args)).to.be.rejectedWith(
-        SilentError,
-        /Serializers cannot extend from themself/
-      );
+      return expect(emberGenerate(args)).to.be.rejectedWith(SilentError, /Serializers cannot extend from themself/);
     });
 
     it('serializer when is named "application"', function() {
@@ -97,18 +88,13 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       let args = ['serializer-test', 'foo'];
 
       return emberGenerateDestroy(args, _file => {
-        expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
-          fixture(__dirname, 'serializer-test/rfc232.js')
-        );
+        expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
       });
     });
 
     describe('serializer-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -123,10 +109,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
@@ -263,10 +246,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('serializer-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -285,10 +265,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
@@ -409,9 +386,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         _file => {
           expect(_file('src/data/models/application/serializer.js'))
             .to.contain("import DS from 'ember-data';")
-            .to.contain(
-              'export default class ApplicationSerializer extends DS.JSONAPISerializer {'
-            );
+            .to.contain('export default class ApplicationSerializer extends DS.JSONAPISerializer {');
 
           expect(_file('src/data/models/application/serializer-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/application-default.js')
@@ -437,10 +412,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('serializer-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -459,10 +431,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 

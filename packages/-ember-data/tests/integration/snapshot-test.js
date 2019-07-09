@@ -52,11 +52,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
     };
 
     assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-    assert.deepEqual(
-      snapshot.attributes(),
-      expected,
-      'We generated attributes with default values'
-    );
+    assert.deepEqual(snapshot.attributes(), expected, 'We generated attributes with default values');
 
     run(() => store.destroy());
   });
@@ -137,11 +133,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
   test('an initial findRecord call has no record for internal-model when a snapshot is generated', function(assert) {
     assert.expect(2);
     env.adapter.findRecord = (store, type, id, snapshot) => {
-      assert.equal(
-        snapshot._internalModel.hasRecord,
-        false,
-        'We do not have a materialized record'
-      );
+      assert.equal(snapshot._internalModel.hasRecord, false, 'We do not have a materialized record');
       assert.equal(snapshot.__attributes, null, 'attributes were not populated initially');
       return resolve({
         data: {
@@ -275,11 +267,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
 
       let attributes = snapshot.attributes();
 
-      assert.deepEqual(
-        attributes,
-        { author: undefined, title: 'Hello World' },
-        'attributes are returned correctly'
-      );
+      assert.deepEqual(attributes, { author: undefined, title: 'Hello World' }, 'attributes are returned correctly');
     });
   });
 
@@ -302,11 +290,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
 
       let changes = snapshot.changedAttributes();
 
-      assert.deepEqual(
-        changes.title,
-        ['Hello World', 'Hello World!'],
-        'changed attributes are returned correctly'
-      );
+      assert.deepEqual(changes.title, ['Hello World', 'Hello World!'], 'changed attributes are returned correctly');
     });
   });
 
@@ -566,16 +550,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
         let hasManyRelationship = postSnapshot.hasMany('comments');
         let belongsToRelationship = commentSnapshot.belongsTo('post');
 
-        assert.ok(
-          hasManyRelationship instanceof Array,
-          'hasMany relationship is an instance of Array'
-        );
+        assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
         assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-        assert.ok(
-          belongsToRelationship instanceof Snapshot,
-          'belongsTo relationship is an instance of Snapshot'
-        );
+        assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
         assert.equal(
           belongsToRelationship.attr('title'),
           'Hello World',
@@ -618,16 +596,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
       let hasManyRelationship = postSnapshot.hasMany('comments');
       let belongsToRelationship = commentSnapshot.belongsTo('post');
 
-      assert.ok(
-        hasManyRelationship instanceof Array,
-        'hasMany relationship is an instance of Array'
-      );
+      assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
       assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-      assert.ok(
-        belongsToRelationship instanceof Snapshot,
-        'belongsTo relationship is an instance of Snapshot'
-      );
+      assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
       assert.equal(
         belongsToRelationship.attr('title'),
         'Hello World',
@@ -804,11 +776,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
       assert.ok(relationship1 instanceof Snapshot, 'relationship item is an instance of Snapshot');
 
       assert.equal(relationship1.id, '1', 'relationship item id is correct');
-      assert.equal(
-        relationship1.attr('body'),
-        'This is the first comment',
-        'relationship item body is correct'
-      );
+      assert.equal(relationship1.attr('body'), 'This is the first comment', 'relationship item body is correct');
     });
   });
 
@@ -1064,11 +1032,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
             },
             relationships: {
               comments: {
-                data: [
-                  { type: 'comment', id: '1' },
-                  { type: 'comment', id: '2' },
-                  { type: 'comment', id: '3' },
-                ],
+                data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
               },
             },
           },
@@ -1144,18 +1108,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
       let snapshot;
 
       snapshot = comment._createSnapshot();
-      assert.deepEqual(
-        getRelationships(snapshot),
-        ['post'],
-        'relationships are iterated correctly'
-      );
+      assert.deepEqual(getRelationships(snapshot), ['post'], 'relationships are iterated correctly');
 
       snapshot = post._createSnapshot();
-      assert.deepEqual(
-        getRelationships(snapshot),
-        ['comments'],
-        'relationships are iterated correctly'
-      );
+      assert.deepEqual(getRelationships(snapshot), ['comments'], 'relationships are iterated correctly');
     });
   });
 
@@ -1246,11 +1202,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
       };
       assert.deepEqual(snapshot.serialize(), expected, 'shapshot serializes correctly');
       expected.data.id = '1';
-      assert.deepEqual(
-        snapshot.serialize({ includeId: true }),
-        expected,
-        'serialize takes options'
-      );
+      assert.deepEqual(snapshot.serialize({ includeId: true }), expected, 'serialize takes options');
     });
   });
 });

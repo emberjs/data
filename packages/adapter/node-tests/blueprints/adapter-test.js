@@ -34,9 +34,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain("import DS from 'ember-data';")
           .to.contain('export default DS.JSONAPIAdapter.extend({');
 
-        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
-          fixture(__dirname, 'adapter-test/rfc232.js')
-        );
+        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
       });
     });
 
@@ -49,9 +47,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
             .to.contain("import ApplicationAdapter from './application';")
             .to.contain('export default ApplicationAdapter.extend({');
 
-          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/rfc232.js')
-          );
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         })
       );
     });
@@ -64,19 +60,14 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain("import BarAdapter from './bar';")
           .to.contain('export default BarAdapter.extend({');
 
-        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
-          fixture(__dirname, 'adapter-test/rfc232.js')
-        );
+        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
       });
     });
 
     xit('adapter throws when --base-class is same as name', function() {
       let args = ['adapter', 'foo', '--base-class=foo'];
 
-      return expect(emberGenerate(args)).to.be.rejectedWith(
-        SilentError,
-        /Adapters cannot extend from themself/
-      );
+      return expect(emberGenerate(args)).to.be.rejectedWith(SilentError, /Adapters cannot extend from themself/);
     });
 
     it('adapter when is named "application"', function() {
@@ -97,36 +88,26 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       let args = ['adapter-test', 'foo'];
 
       return emberGenerateDestroy(args, _file => {
-        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
-          fixture(__dirname, 'adapter-test/rfc232.js')
-        );
+        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
       });
     });
 
     describe('adapter-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
       it('adapter-test-test foo', function() {
         return emberGenerateDestroy(['adapter-test', 'foo'], _file => {
-          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/foo-default.js')
-          );
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/foo-default.js'));
         });
       });
     });
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
@@ -149,9 +130,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
 
       it('adapter-test for mocha v0.14+', function() {
         return emberGenerateDestroy(['adapter-test', 'foo'], _file => {
-          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/mocha-rfc232.js')
-          );
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/mocha-rfc232.js'));
         });
       });
     });
@@ -172,9 +151,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
             .to.contain("import DS from 'ember-data';")
             .to.contain('export default DS.JSONAPIAdapter.extend({');
 
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -191,9 +168,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
               .to.contain("import ApplicationAdapter from '../application/adapter';")
               .to.contain('export default ApplicationAdapter.extend({');
 
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-              fixture(__dirname, 'adapter-test/rfc232.js')
-            );
+            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
           },
           { isModuleUnification: true }
         )
@@ -210,9 +185,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
             .to.contain("import BarAdapter from '../bar/adapter';")
             .to.contain('export default BarAdapter.extend({');
 
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -242,9 +215,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       return emberGenerateDestroy(
         args,
         _file => {
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -252,10 +223,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
 
     describe('adapter-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -274,10 +242,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
@@ -335,9 +300,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
             .to.contain("import DS from 'ember-data';")
             .to.contain('export default class FooAdapter extends DS.JSONAPIAdapter {');
 
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -354,9 +317,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
               .to.contain("import ApplicationAdapter from '../application/adapter';")
               .to.contain('export default class FooAdapter extends ApplicationAdapter {');
 
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-              fixture(__dirname, 'adapter-test/rfc232.js')
-            );
+            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
           },
           { isModuleUnification: true }
         )
@@ -373,9 +334,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
             .to.contain("import BarAdapter from '../bar/adapter';")
             .to.contain('export default class FooAdapter extends BarAdapter {');
 
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -405,9 +364,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       return emberGenerateDestroy(
         args,
         _file => {
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -415,10 +372,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
 
     describe('adapter-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -437,10 +391,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 

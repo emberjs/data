@@ -132,9 +132,7 @@ export default class Snapshot {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
-    throw new EmberError(
-      "Model '" + inspect(this.record) + "' has no attribute named '" + keyName + "' defined."
-    );
+    throw new EmberError("Model '" + inspect(this.record) + "' has no attribute named '" + keyName + "' defined.");
   }
 
   /**
@@ -233,11 +231,7 @@ export default class Snapshot {
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
     if (!(relationshipMeta && relationshipMeta.kind === 'belongsTo')) {
       throw new EmberError(
-        "Model '" +
-          inspect(this.record) +
-          "' has no belongsTo relationship named '" +
-          keyName +
-          "' defined."
+        "Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined."
       );
     }
 
@@ -315,11 +309,7 @@ export default class Snapshot {
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
     if (!(relationshipMeta && relationshipMeta.kind === 'hasMany')) {
       throw new EmberError(
-        "Model '" +
-          inspect(this.record) +
-          "' has no hasMany relationship named '" +
-          keyName +
-          "' defined."
+        "Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined."
       );
     }
 

@@ -111,16 +111,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
       assert.equal(get(user, 'lastName'), 'Katz', 'lastName is correct');
       assert.equal(get(user, 'company.name'), 'Tilde Inc.', 'company.name is correct');
-      assert.equal(
-        get(user, 'handles.firstObject.username'),
-        'wycats',
-        'handles.firstObject.username is correct'
-      );
-      assert.equal(
-        get(user, 'handles.lastObject.nickname'),
-        '@wycats',
-        'handles.lastObject.nickname is correct'
-      );
+      assert.equal(get(user, 'handles.firstObject.username'), 'wycats', 'handles.firstObject.username is correct');
+      assert.equal(get(user, 'handles.lastObject.nickname'), '@wycats', 'handles.lastObject.nickname is correct');
     });
   });
 
@@ -137,9 +129,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     assert.expectWarning(function() {
       run(function() {
-        env.store
-          .serializerFor('user')
-          .normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
+        env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
       });
     }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
   });
@@ -172,16 +162,12 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     assert.expectWarning(function() {
       run(function() {
-        env.store
-          .serializerFor('user')
-          .normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
+        env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
       });
     }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
   });
 
-  testInDebug('Warns but does not fail when pushing payload with unknown type included', function(
-    assert
-  ) {
+  testInDebug('Warns but does not fail when pushing payload with unknown type included', function(assert) {
     var documentHash = {
       data: {
         type: 'users',
@@ -212,9 +198,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
   });
 
-  testInDebug('Errors when pushing payload with unknown type included in relationship', function(
-    assert
-  ) {
+  testInDebug('Errors when pushing payload with unknown type included in relationship', function(assert) {
     var documentHash = {
       data: {
         type: 'users',
@@ -250,9 +234,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     assert.expectAssertion(function() {
       run(function() {
-        env.store
-          .serializerFor('user')
-          .normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
+        env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
       });
     }, /Encountered a resource object with an undefined type/);
   });
@@ -294,9 +276,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       ],
     };
 
-    var user = env.store
-      .serializerFor('user')
-      .normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
+    var user = env.store.serializerFor('user').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
 
     assert.equal(user.data.attributes.firstName, 'Yehuda');
     assert.equal(user.data.attributes.title, 'director');
@@ -361,9 +341,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       },
     };
 
-    var project = env.store
-      .serializerFor('project')
-      .normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
+    var project = env.store.serializerFor('project').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
 
     assert.equal(project.data.attributes['company-name'], 'Tilde Inc.');
   });
@@ -680,45 +658,35 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     }, /The JSONAPISerializer does not work with the EmbeddedRecordsMixin/);
   });
 
-  testInDebug(
-    'Asserts when normalized attribute key is not found in payload but original key is',
-    function(assert) {
-      var jsonHash = {
-        data: {
-          type: 'users',
-          id: '1',
-          attributes: {
-            firstName: 'Yehuda',
-          },
+  testInDebug('Asserts when normalized attribute key is not found in payload but original key is', function(assert) {
+    var jsonHash = {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          firstName: 'Yehuda',
         },
-      };
-      assert.expectAssertion(function() {
-        env.store
-          .serializerFor('user')
-          .normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
-      }, /Your payload for 'user' contains 'firstName', but your serializer is setup to look for 'first-name'/);
-    }
-  );
+      },
+    };
+    assert.expectAssertion(function() {
+      env.store.serializerFor('user').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
+    }, /Your payload for 'user' contains 'firstName', but your serializer is setup to look for 'first-name'/);
+  });
 
-  testInDebug(
-    'Asserts when normalized relationship key is not found in payload but original key is',
-    function(assert) {
-      var jsonHash = {
-        data: {
-          type: 'users',
-          id: '1',
-          relationships: {
-            reportsTo: {
-              data: null,
-            },
+  testInDebug('Asserts when normalized relationship key is not found in payload but original key is', function(assert) {
+    var jsonHash = {
+      data: {
+        type: 'users',
+        id: '1',
+        relationships: {
+          reportsTo: {
+            data: null,
           },
         },
-      };
-      assert.expectAssertion(function() {
-        env.store
-          .serializerFor('user')
-          .normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
-      }, /Your payload for 'user' contains 'reportsTo', but your serializer is setup to look for 'reports-to'/);
-    }
-  );
+      },
+    };
+    assert.expectAssertion(function() {
+      env.store.serializerFor('user').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
+    }, /Your payload for 'user' contains 'reportsTo', but your serializer is setup to look for 'reports-to'/);
+  });
 });

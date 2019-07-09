@@ -98,30 +98,18 @@ module('integration/record_array_manager', function(hooks) {
 
     assert.equal(allSummary.called.length, 0);
     assert.equal(adapterPopulatedSummary.called.length, 0);
-    assert.equal(
-      internalPersonModel._recordArrays.size,
-      1,
-      'expected the person to be a member of 1 recordArrays'
-    );
+    assert.equal(internalPersonModel._recordArrays.size, 1, 'expected the person to be a member of 1 recordArrays');
     assert.equal('person' in manager._liveRecordArrays, true);
 
     run(all, all.destroy);
 
-    assert.equal(
-      internalPersonModel._recordArrays.size,
-      0,
-      'expected the person to be a member of 1 recordArrays'
-    );
+    assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of 1 recordArrays');
     assert.equal(allSummary.called.length, 1);
     assert.equal('person' in manager._liveRecordArrays, false);
 
     run(manager, manager.destroy);
 
-    assert.equal(
-      internalPersonModel._recordArrays.size,
-      0,
-      'expected the person to be a member of no recordArrays'
-    );
+    assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
     assert.equal(allSummary.called.length, 1);
     assert.equal(adapterPopulatedSummary.called.length, 1);
   });
