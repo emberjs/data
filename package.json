@@ -96,7 +96,7 @@
     "rimraf": "^2.6.2",
     "rsvp": "^4.8.5",
     "semver": "^6.1.2",
-    "typescript": "~3.5.2"
+    "typescript": "~3.5.3"
   },
   "bin": {
     "test-partner-project": "./bin/test-external-partner-project.js",
