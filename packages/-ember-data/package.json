@@ -14,7 +14,7 @@
     "test": "ember test",
     "test:all": "ember try:each",
     "test:production": "ember test -e production",
-    "test:optional-features": "EMBER_DATA_FEATURE_OVERRIDE=ENABLE_ALL_OPTIONAL ember test || ember test",
+    "test:optional-features": "ember test",
     "test:try-one": "ember try:one",
     "prepublishOnly": "ember build --environment=production && ember ts:precompile",
     "postpublish": "ember ts:clean"
