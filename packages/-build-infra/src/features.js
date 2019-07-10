@@ -1,11 +1,8 @@
 'use strict';
 
+const requireEsm = require('esm')(module);
 function getFeatures() {
-  const features = {
-    SAMPLE_FEATURE_FLAG: null,
-    RECORD_DATA_ERRORS: null,
-    RECORD_DATA_STATE: null,
-  };
+  const { default: features } = requireEsm('@ember-data/canary-features/addon/default-features.js');
 
   const FEATURE_OVERRIDES = process.env.EMBER_DATA_FEATURE_OVERRIDE;
   if (FEATURE_OVERRIDES === 'ENABLE_ALL_OPTIONAL') {
@@ -21,7 +18,7 @@ function getFeatures() {
     // enable only the specific features listed in the environment
     // variable (comma separated)
     const forcedFeatures = FEATURE_OVERRIDES.split(',');
-    for (var i = 0; i < forcedFeatures.length; i++) {
+    for (let i = 0; i < forcedFeatures.length; i++) {
       let featureName = forcedFeatures[i];
 
       features[featureName] = true;
