@@ -72,6 +72,8 @@ jobs:
 
       - script: |
           yarn test:enabled-in-progress-features
+        variables:
+          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
         displayName: 'In progress features'
 
       - script: |
