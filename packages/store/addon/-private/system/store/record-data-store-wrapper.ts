@@ -12,7 +12,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   [BRAND_SYMBOL]: 'RecordDataStoreWrapper';
   _store: Store;
   _willUpdateManyArrays: boolean;
-  _pendingManyArrayUpdates: StringOrNullOrUndefined[];
+  private _pendingManyArrayUpdates: StringOrNullOrUndefined[];
 
   constructor(store: Store) {
     this._store = store;
