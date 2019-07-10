@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 import InternalModel from './model/internal-model';
-import { Dict } from '../types';
+import { Dict } from '../ts-interfaces/utils';
 
 /**
  `InternalModelMap` is a custom storage map for internalModels of a given modelName

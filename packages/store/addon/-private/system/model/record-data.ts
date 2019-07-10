@@ -11,7 +11,6 @@ import Relationship from '../relationships/state/relationship';
 import RecordData, { ChangedAttributesHash } from '../../ts-interfaces/record-data';
 import {
   JsonApiResource,
-  JsonApiResourceIdentity,
   JsonApiBelongsToRelationship,
   JsonApiHasManyRelationship,
   JsonApiValidationError,
@@ -20,6 +19,7 @@ import {
 import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
 import { RecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { RecordIdentifier } from '../../ts-interfaces/identifier';
 
 let nextBfsId = 1;
 
@@ -27,6 +27,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
   _errors?: JsonApiValidationError[];
   __relationships: Relationships | null;
   __implicitRelationships: { [key: string]: Relationship } | null;
+  modelName: string;
+  clientId: string;
+  id: string | null;
   isDestroyed: boolean;
   _isNew: boolean;
   _bfsId: number;
@@ -37,15 +40,12 @@ export default class RecordDataDefault implements RelationshipRecordData {
   _isDeleted: boolean;
   _isDeletionCommited: boolean;
 
-  constructor(
-    public modelName: string,
-    public id: string | null,
-    public clientId: string,
-    public storeWrapper: RecordDataStoreWrapper
-  ) {
+  constructor(private identifier: RecordIdentifier, public storeWrapper: RecordDataStoreWrapper) {
+    this.modelName = identifier.type;
     this.__relationships = null;
     this.__implicitRelationships = null;
-    this.storeWrapper = storeWrapper;
+    this.clientId = identifier.lid;
+    this.id = identifier.id;
     this.isDestroyed = false;
     this._isNew = false;
     // Used during the mark phase of unloading to avoid checking the same internal
@@ -56,12 +56,8 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
   // PUBLIC API
 
-  getResourceIdentifier(): JsonApiResourceIdentity {
-    return {
-      id: this.id,
-      type: this.modelName,
-      clientId: this.clientId,
-    };
+  getResourceIdentifier(): RecordIdentifier {
+    return this.identifier;
   }
 
   pushData(data: JsonApiResource, calculateChange: boolean) {

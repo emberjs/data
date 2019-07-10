@@ -8,7 +8,8 @@ import EmberObject from '@ember/object';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 import { InvalidError, ServerError } from '@ember-data/adapter/error';
 import { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
-import RecordData, { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/record-data';
+import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
+import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 
 class Person extends Model {

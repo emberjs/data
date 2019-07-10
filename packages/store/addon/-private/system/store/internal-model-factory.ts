@@ -1,15 +1,14 @@
 import coerceId from '../coerce-id';
 import { assert, warn } from '@ember/debug';
+import { IdentifierCache, identifierCacheFor } from '../../identifiers/cache';
 import InternalModel from '../model/internal-model';
 import Store from '../store';
 import IdentityMap from '../identity-map';
+import { RecordIdentifier } from '../../ts-interfaces/identifier';
 import InternalModelMap from '../internal-model-map';
 import { isNone } from '@ember/utils';
-import { JsonApiResourceIdentity } from '../../ts-interfaces/record-data-json-api';
 
 const FactoryCache = new WeakMap<object, InternalModelFactory>();
-
-let globalClientIdCounter = 1;
 
 export function internalModelFactoryFor(store: Store): InternalModelFactory {
   let factory = FactoryCache.get(store);
@@ -32,8 +31,10 @@ export function internalModelFactoryFor(store: Store): InternalModelFactory {
 export default class InternalModelFactory {
   private _identityMap: IdentityMap;
   private _newlyCreated: IdentityMap;
+  public identifierCache: IdentifierCache;
 
   constructor(public store: Store) {
+    this.identifierCache = identifierCacheFor(store);
     this._identityMap = new IdentityMap();
     // To keep track of clientIds for newly created records
     this._newlyCreated = new IdentityMap();
@@ -91,15 +92,15 @@ export default class InternalModelFactory {
     return internalModel;
   }
 
-  getByResource(resource: JsonApiResourceIdentity): InternalModel {
+  getByResource(resource: RecordIdentifier): InternalModel {
     let internalModel: InternalModel | null = null;
 
-    if (resource.clientId) {
-      internalModel = this._newlyCreatedModelsFor(resource.type).get(resource.clientId);
+    if (resource.lid) {
+      internalModel = this._newlyCreatedModelsFor(resource.type).get(resource.lid);
     }
 
     if (internalModel === null) {
-      internalModel = this.lookup(resource.type, resource.id, resource.clientId);
+      internalModel = this.lookup(resource.type, resource.id, resource.lid);
     }
 
     return internalModel;
@@ -146,6 +147,8 @@ export default class InternalModelFactory {
 
     this.modelMapFor(internalModel.modelName).set(id, internalModel);
     this._newlyCreatedModelsFor(internalModel.modelName).remove(internalModel, lid);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier({ type: modelName, id, lid });
+    this.identifierCache.updateRecordIdentifier(identifier, { type: modelName, id });
 
     internalModel.setId(id);
   }
@@ -176,13 +179,23 @@ export default class InternalModelFactory {
       );
     }
 
+    const { identifierCache } = this;
+    let identifier;
+
     if (id === null && !clientId) {
-      clientId = `client-id:${this.newClientId()}`;
+      identifier = identifierCache.createIdentifierForNewRecord({ type: modelName });
+      clientId = identifier.lid;
+    } else {
+      identifier = identifierCache.getOrCreateRecordIdentifier({
+        type: modelName,
+        id,
+        lid: clientId as string,
+      });
     }
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    let internalModel = new InternalModel(modelName, id, this.store, clientId);
+    let internalModel = new InternalModel(this.store, identifier);
     if (clientId) {
       this._newlyCreatedModelsFor(modelName).add(internalModel, clientId);
     }
@@ -190,10 +203,6 @@ export default class InternalModelFactory {
     this.modelMapFor(modelName).add(internalModel, id);
 
     return internalModel;
-  }
-
-  newClientId() {
-    return globalClientIdCounter++;
   }
 
   remove(internalModel: InternalModel): void {

@@ -2,17 +2,23 @@ import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
-import { RelationshipRecordData } from "../../../ts-interfaces/relationship-record-data";
-import { JsonApiBelongsToRelationship, JsonApiResourceIdentity } from "../../../ts-interfaces/record-data-json-api";
-import { RelationshipSchema } from "../../../ts-interfaces/record-data-schemas";
+import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
+import { JsonApiBelongsToRelationship } from '../../../ts-interfaces/record-data-json-api';
+import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
+import { ResourceIdentifierObject } from '../../../ts-interfaces/ember-data-json-api';
 
 export default class BelongsToRelationship extends Relationship {
-
   inverseRecordData: RelationshipRecordData | null;
   canonicalState: RelationshipRecordData | null;
   key: string;
 
-  constructor(store: any, inverseKey: string, relationshipMeta: RelationshipSchema, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
+  constructor(
+    store: any,
+    inverseKey: string,
+    relationshipMeta: RelationshipSchema,
+    recordData: RelationshipRecordData,
+    inverseIsAsync: boolean
+  ) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.key = relationshipMeta.key;
     this.inverseRecordData = null;
@@ -143,12 +149,7 @@ export default class BelongsToRelationship extends Relationship {
   notifyBelongsToChange() {
     let recordData = this.recordData;
     let storeWrapper = this.recordData.storeWrapper;
-    storeWrapper.notifyBelongsToChange(
-      recordData.modelName,
-      recordData.id,
-      recordData.clientId,
-      this.key
-    );
+    storeWrapper.notifyBelongsToChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
   }
 
   removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData) {
@@ -207,7 +208,7 @@ export default class BelongsToRelationship extends Relationship {
     return !isEmpty;
   }
 
-  updateData(data: JsonApiResourceIdentity, initial: boolean) {
+  updateData(data: ResourceIdentifierObject, initial: boolean) {
     let recordData;
     if (isNone(data)) {
       recordData = null;
@@ -222,7 +223,7 @@ export default class BelongsToRelationship extends Relationship {
     );
 
     if (recordData !== null) {
-      recordData = this.recordData.storeWrapper.recordDataFor(data.type, (data.id as string));
+      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id as string);
     }
     if (initial) {
       this.setInitialCanonicalRecordData(recordData);

@@ -40,10 +40,11 @@ import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-featur
 import { Record } from '../ts-interfaces/record';
 
 import promiseRecord from '../utils/promise-record';
+import { identifierCacheFor } from '../identifiers/cache';
 import { internalModelFactoryFor } from './store/internal-model-factory';
+import { RecordIdentifier } from '../ts-interfaces/identifier';
 import RecordData from '../ts-interfaces/record-data';
 import { RecordReference } from './references';
-import { JsonApiResourceIdentity } from '../ts-interfaces/record-data-json-api';
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
 
@@ -2190,7 +2191,8 @@ const Store = Service.extend({
   _load(data) {
     const modelName = normalizeModelName(data.type);
     const id = coerceId(data.id);
-    const internalModel = internalModelFactoryFor(this).lookup(modelName, id);
+    const lid = coerceId(data.lid);
+    const internalModel = internalModelFactoryFor(this).lookup(modelName, id, lid);
 
     let isUpdate = internalModel.currentState.isEmpty === false;
 
@@ -2663,7 +2665,7 @@ const Store = Service.extend({
     return relationships;
   },
 
-  _internalModelForResource(resource: JsonApiResourceIdentity): InternalModel {
+  _internalModelForResource(resource: RecordIdentifier): InternalModel {
     return internalModelFactoryFor(this).getByResource(resource);
   },
 
@@ -2681,7 +2683,12 @@ const Store = Service.extend({
   },
 
   createRecordDataFor(modelName, id, clientId, storeWrapper): RecordData {
-    return new RecordDataDefault(modelName, id, clientId, storeWrapper);
+    let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+      type: modelName,
+      id,
+      lid: clientId,
+    });
+    return new RecordDataDefault(identifier, storeWrapper);
   },
 
   recordDataFor(modelName: string, id: string | null, clientId?: string | null): RecordData {

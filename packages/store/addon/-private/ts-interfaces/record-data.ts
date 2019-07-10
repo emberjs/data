@@ -5,14 +5,10 @@ import {
   JsonApiValidationError,
 } from './record-data-json-api';
 
+import { RecordIdentifier } from './identifier';
+
 export interface ChangedAttributesHash {
   [key: string]: [string, string];
-}
-
-export interface RecordIdentifier {
-  id?: string | null;
-  type?: string;
-  lid?: string;
 }
 
 export default interface RecordData {

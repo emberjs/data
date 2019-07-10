@@ -11,6 +11,7 @@ import Model from '@ember-data/model';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import DS from 'ember-data';
 import { RecordData, recordDataFor, relationshipsFor, relationshipStateFor } from '@ember-data/store/-private';
+import { identifierCacheFor } from '@ember-data/store/-private';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
@@ -1891,8 +1892,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
   test("belongsTo relationship doesn't trigger when model data doesn't support implicit relationship", function(assert) {
     class TestRecordData extends RecordData {
-      constructor(modelName, id, clientId, storeWrapper, store) {
-        super(modelName, id, clientId, storeWrapper, store);
+      constructor(identifier, storeWrapper) {
+        super(identifier, storeWrapper);
         delete this.__implicitRelationships;
         delete this.__relationships;
       }
@@ -1930,7 +1931,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     const createRecordDataFor = env.store.createRecordDataFor;
     env.store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
       if (modelName === 'book1' || modelName === 'section') {
-        return new TestRecordData(modelName, id, lid, storeWrapper, this);
+        let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+          type: modelName,
+          id,
+          lid,
+        });
+        return new TestRecordData(identifier, storeWrapper);
       }
       return createRecordDataFor.call(this, modelName, id, lid, storeWrapper);
     };

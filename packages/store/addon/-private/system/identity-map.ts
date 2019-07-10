@@ -1,5 +1,5 @@
 import InternalModelMap from './internal-model-map';
-import { Dict } from '../types';
+import { Dict } from '../ts-interfaces/utils';
 
 /**
  `IdentityMap` is a custom storage map for records by modelName
