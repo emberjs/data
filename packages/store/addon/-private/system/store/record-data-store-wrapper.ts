@@ -8,6 +8,8 @@ import RecordData from '../../ts-interfaces/record-data';
 type Store = InstanceType<typeof Store>;
 type StringOrNullOrUndefined = string | null | undefined;
 
+const MISSING_ID_ARG_ERROR_MESSAGE = `Either an id or a clientId is required as an argument.`;
+
 export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   [BRAND_SYMBOL]: 'RecordDataStoreWrapper';
   _store: Store;
@@ -101,27 +103,30 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   notifyPropertyChange(modelName: string, id: string | null, clientId: string, key: string): void;
   notifyPropertyChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
   notifyPropertyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void {
-    if (assertValidId(id, clientId)) {
-      let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
-      internalModel.notifyPropertyChange(key);
+    if (!hasValidId(id, clientId)) {
+      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
+    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
+    internalModel.notifyPropertyChange(key);
   }
 
   notifyHasManyChange(modelName: string, id: string | null, clientId: string, key: string): void;
   notifyHasManyChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
   notifyHasManyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void {
-    if (assertValidId(id, clientId)) {
-      this._scheduleManyArrayUpdate(modelName, id, clientId, key);
+    if (!hasValidId(id, clientId)) {
+      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
+    this._scheduleManyArrayUpdate(modelName, id, clientId, key);
   }
 
   notifyBelongsToChange(modelName: string, id: string | null, clientId: string, key: string): void;
   notifyBelongsToChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
   notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void {
-    if (assertValidId(id, clientId)) {
-      let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
-      internalModel.notifyBelongsToChange(key);
+    if (!hasValidId(id, clientId)) {
+      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
+    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
+    internalModel.notifyBelongsToChange(key);
   }
 
   notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void {
@@ -133,10 +138,12 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
 
   recordDataFor(modelName: string, id: string | null, clientId: string): RecordData;
   recordDataFor(modelName: string, id: string, clientId: string | null | undefined): RecordData;
-  recordDataFor(modelName: string, id: string | null, clientId: string | null | undefined) {
-    if (assertValidId(id, clientId)) {
-      return this._store.recordDataFor(modelName, id, clientId);
+  recordDataFor(modelName: string, id: string | null, clientId: string | null | undefined): RecordData {
+    if (!hasValidId(id, clientId)) {
+      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
+
+    return this._store.recordDataFor(modelName, id, clientId);
   }
 
   setRecordId(modelName: string, id: string, clientId: string) {
@@ -145,32 +152,36 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
 
   isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
   isRecordInUse(modelName: string, id: string, clientId?: string | null): boolean;
-  isRecordInUse(modelName: string, id: string | null, clientId?: string | null) {
-    if (assertValidId(id, clientId)) {
-      let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
-      if (!internalModel) {
-        return false;
-      }
-      return internalModel.isRecordInUse();
+  isRecordInUse(modelName: string, id: string | null, clientId?: string | null): boolean {
+    if (!hasValidId(id, clientId)) {
+      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
+
+    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
+    if (!internalModel) {
+      return false;
+    }
+    return internalModel.isRecordInUse();
   }
 
   disconnectRecord(modelName: string, id: string | null, clientId: string): void;
   disconnectRecord(modelName: string, id: string, clientId?: string | null): void;
-  disconnectRecord(modelName: string, id: string | null, clientId?: string | null) {
-    if (assertValidId(id, clientId)) {
-      let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
-      if (internalModel) {
-        internalModel.destroyFromRecordData();
-      }
+  disconnectRecord(modelName: string, id: string | null, clientId?: string | null): void {
+    if (!hasValidId(id, clientId)) {
+      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
+    }
+
+    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
+    if (internalModel) {
+      internalModel.destroyFromRecordData();
     }
   }
 }
 
-function assertValidId(id?: string | null, clientId?: string | null): id is string {
+function hasValidId(id?: string | null, clientId?: string | null): id is string {
   // weed out anything falsey
   if (!id && !clientId) {
-    throw new Error(`Either an id or a clientId is required as an argument.`);
+    return false;
   }
   return true;
 }
