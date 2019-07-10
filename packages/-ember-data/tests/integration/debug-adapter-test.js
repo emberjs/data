@@ -39,11 +39,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       assert.equal(types.length, 1, 'added one type');
       assert.equal(types[0].name, 'post', 'the type is post');
       assert.equal(types[0].count, 0, 'we added zero posts');
-      assert.strictEqual(
-        types[0].object,
-        store.modelFor('post'),
-        'we received the ModelClass for post'
-      );
+      assert.strictEqual(types[0].object, store.modelFor('post'), 'we received the ModelClass for post');
     }
 
     function updated(types) {
@@ -100,22 +96,14 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     assert.equal(get(addedRecords, 'length'), 1, 'We initially have 1 post');
     let record = addedRecords[0];
-    assert.deepEqual(
-      record.columnValues,
-      { id: '1', title: 'Clean Post' },
-      'The initial post has the right values'
-    );
+    assert.deepEqual(record.columnValues, { id: '1', title: 'Clean Post' }, 'The initial post has the right values');
     assert.deepEqual(
       record.filterValues,
       { isNew: false, isModified: false, isClean: true },
       'The initial post has the right state'
     );
     assert.deepEqual(record.searchKeywords, ['1', 'Clean Post'], 'We have meaningful keywords');
-    assert.deepEqual(
-      record.color,
-      'black',
-      'We are given the right display color for a clean value'
-    );
+    assert.deepEqual(record.color, 'black', 'We are given the right display color for a clean value');
 
     let post = await store.findRecord('post', 1);
 
@@ -133,11 +121,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       { isNew: false, isModified: true, isClean: false },
       'The modified state is correct for the post'
     );
-    assert.deepEqual(
-      record.searchKeywords,
-      ['1', 'Modified Post'],
-      'The keywords have been updated'
-    );
+    assert.deepEqual(record.searchKeywords, ['1', 'Modified Post'], 'The keywords have been updated');
     assert.deepEqual(record.color, 'blue', 'we have a color to represent we were modified');
 
     // reset
@@ -148,11 +132,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     await settled();
 
-    assert.equal(
-      get(addedRecords, 'length'),
-      1,
-      'We are notified when we add a newly created post'
-    );
+    assert.equal(get(addedRecords, 'length'), 1, 'We are notified when we add a newly created post');
     record = addedRecords[0];
     assert.deepEqual(
       record && record.columnValues,
@@ -180,11 +160,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     await settled();
 
-    assert.equal(
-      removedIndex,
-      1,
-      'We are notified of the start index of a removal when we remove posts'
-    );
+    assert.equal(removedIndex, 1, 'We are notified of the start index of a removal when we remove posts');
     assert.equal(removedCount, 1, 'We are notified of the total posts removed');
   });
 

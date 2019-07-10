@@ -85,16 +85,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
         assert.ok(user1, 'user should be populated');
 
         return store.findRecord('organisation', 2).then(org2FromFind => {
-          assert.equal(
-            user1.belongsTo('organisation').remoteType(),
-            'id',
-            `user's belongsTo is based on id`
-          );
-          assert.equal(
-            user1.belongsTo('organisation').id(),
-            1,
-            `user's belongsTo has its id populated`
-          );
+          assert.equal(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
+          assert.equal(user1.belongsTo('organisation').id(), 1, `user's belongsTo has its id populated`);
 
           return user1.get('organisation').then(orgFromUser => {
             assert.equal(
@@ -186,10 +178,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
         assert.ok(false, 'adapter findMany called instead of using findRecord');
       },
       findRecord(_, __, id) {
-        assert.ok(
-          id !== '1',
-          `adapter findRecord called for all IDs except "1", called for "${id}"`
-        );
+        assert.ok(id !== '1', `adapter findRecord called for all IDs except "1", called for "${id}"`);
         return resolve({
           data: {
             type: 'pet',
@@ -728,10 +717,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findHasMany = (_, __, link) => {
-        assert.ok(
-          link === payloads.user.data.relationships.pets.links.related,
-          'We fetched the appropriate link'
-        );
+        assert.ok(link === payloads.user.data.relationships.pets.links.related, 'We fetched the appropriate link');
         return resolve(deepCopy(payloads.pets));
       };
 
@@ -764,10 +750,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             'We fetched this link even though we really should not have'
           );
         } else {
-          assert.ok(
-            link === payloads.user.data.relationships.pets.links.related,
-            'We fetched the appropriate link'
-          );
+          assert.ok(link === payloads.user.data.relationships.pets.links.related, 'We fetched the appropriate link');
         }
         return resolve(deepCopy(payloads.pets));
       };
@@ -806,10 +789,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           assert.ok(false, 'We should not fetch a relationship we believe is empty');
           didFetchInitially = true;
         } else {
-          assert.ok(
-            link === payloads.user.data.relationships.home.links.related,
-            'We fetched the appropriate link'
-          );
+          assert.ok(link === payloads.user.data.relationships.home.links.related, 'We fetched the appropriate link');
         }
         return resolve(deepCopy(payloads.home));
       };
@@ -1010,10 +990,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findHasMany = (_, __, link) => {
-        assert.ok(
-          link === payloads.user.data.relationships.pets.links.related,
-          'We fetched the appropriate link'
-        );
+        assert.ok(link === payloads.user.data.relationships.pets.links.related, 'We fetched the appropriate link');
         return resolve(deepCopy(payloads.pets));
       };
 
@@ -1038,10 +1015,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findHasMany = (_, __, link) => {
-        assert.ok(
-          link === payloads.user.data.relationships.pets.links.related,
-          'We fetched the appropriate link'
-        );
+        assert.ok(link === payloads.user.data.relationships.pets.links.related, 'We fetched the appropriate link');
         return resolve(deepCopy(payloads.pets));
       };
 
@@ -1067,10 +1041,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findBelongsTo = (_, __, link) => {
-        assert.ok(
-          link === payloads.user.data.relationships.home.links.related,
-          'We fetched the appropriate link'
-        );
+        assert.ok(link === payloads.user.data.relationships.home.links.related, 'We fetched the appropriate link');
         return resolve(deepCopy(payloads.home));
       };
 
@@ -1095,10 +1066,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findBelongsTo = (_, __, link) => {
-        assert.ok(
-          link === payloads.user.data.relationships.home.links.related,
-          'We fetched the appropriate link'
-        );
+        assert.ok(link === payloads.user.data.relationships.home.links.related, 'We fetched the appropriate link');
         return resolve(deepCopy(payloads.home));
       };
 
@@ -1177,60 +1145,37 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     },
   });
 
-  shouldReloadWithLinkTests(
-    'a link and empty data (`data: []` or `data: null`), true inverse loaded',
-    {
-      user: {
-        data: {
-          type: 'user',
-          id: '1',
-          attributes: {
-            name: '@runspired',
+  shouldReloadWithLinkTests('a link and empty data (`data: []` or `data: null`), true inverse loaded', {
+    user: {
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
+        },
+        relationships: {
+          pets: {
+            links: {
+              related: './runspired/pets',
+            },
+            data: [],
           },
-          relationships: {
-            pets: {
-              links: {
-                related: './runspired/pets',
-              },
-              data: [],
+          home: {
+            links: {
+              related: './runspired/address',
             },
-            home: {
-              links: {
-                related: './runspired/address',
-              },
-              data: null,
-            },
+            data: null,
           },
         },
       },
-      pets: {
-        data: [
-          {
-            type: 'pet',
-            id: '1',
-            attributes: {
-              name: 'Shen',
-            },
-            relationships: {
-              owner: {
-                data: {
-                  type: 'user',
-                  id: '1',
-                },
-                links: {
-                  related: './user/1',
-                },
-              },
-            },
-          },
-        ],
-      },
-      home: {
-        data: {
-          type: 'home',
+    },
+    pets: {
+      data: [
+        {
+          type: 'pet',
           id: '1',
           attributes: {
-            address: 'Oakland, Ca',
+            name: 'Shen',
           },
           relationships: {
             owner: {
@@ -1244,61 +1189,61 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             },
           },
         },
-      },
-    }
-  );
-
-  shouldReloadWithLinkTests(
-    'a link and empty data (`data: []` or `data: null`), true inverse unloaded',
-    {
-      user: {
-        data: {
-          type: 'user',
-          id: '1',
-          attributes: {
-            name: '@runspired',
-          },
-          relationships: {
-            pets: {
-              links: {
-                related: './runspired/pets',
-              },
-              data: [],
+      ],
+    },
+    home: {
+      data: {
+        type: 'home',
+        id: '1',
+        attributes: {
+          address: 'Oakland, Ca',
+        },
+        relationships: {
+          owner: {
+            data: {
+              type: 'user',
+              id: '1',
             },
-            home: {
-              links: {
-                related: './runspired/address',
-              },
-              data: null,
+            links: {
+              related: './user/1',
             },
           },
         },
       },
-      pets: {
-        data: [
-          {
-            type: 'pet',
-            id: '1',
-            attributes: {
-              name: 'Shen',
+    },
+  });
+
+  shouldReloadWithLinkTests('a link and empty data (`data: []` or `data: null`), true inverse unloaded', {
+    user: {
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
+        },
+        relationships: {
+          pets: {
+            links: {
+              related: './runspired/pets',
             },
-            relationships: {
-              owner: {
-                data: {
-                  type: 'user',
-                  id: '1',
-                },
-              },
-            },
+            data: [],
           },
-        ],
+          home: {
+            links: {
+              related: './runspired/address',
+            },
+            data: null,
+          },
+        },
       },
-      home: {
-        data: {
-          type: 'home',
+    },
+    pets: {
+      data: [
+        {
+          type: 'pet',
           id: '1',
           attributes: {
-            address: 'Oakland, Ca',
+            name: 'Shen',
           },
           relationships: {
             owner: {
@@ -1309,9 +1254,26 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             },
           },
         },
+      ],
+    },
+    home: {
+      data: {
+        type: 'home',
+        id: '1',
+        attributes: {
+          address: 'Oakland, Ca',
+        },
+        relationships: {
+          owner: {
+            data: {
+              type: 'user',
+              id: '1',
+            },
+          },
+        },
       },
-    }
-  );
+    },
+  });
 
   /*
     Ad Hoc Situations when we don't have a link
@@ -1930,10 +1892,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       if (!requestedUser) {
         assert.ok(false, failureDescription);
       } else {
-        assert.ok(
-          link === requestedUser.data.relationships.pets.links.related,
-          'We fetched the appropriate link'
-        );
+        assert.ok(link === requestedUser.data.relationships.pets.links.related, 'We fetched the appropriate link');
       }
 
       return resolve({
@@ -1961,8 +1920,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     // should not fire a request
     requestedUser = null;
-    failureDescription =
-      'We improperly fetched the link for a previously fetched and found to be empty relationship';
+    failureDescription = 'We improperly fetched the link for a previously fetched and found to be empty relationship';
     run(() => user2.get('pets'));
   });
 

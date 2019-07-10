@@ -27,15 +27,9 @@ export function deprecatedTest(testName, deprecation, testCallback) {
   } else {
     test(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, function(assert) {
       if (deprecation.refactor === true) {
-        assert.ok(
-          false,
-          'This test includes use of a deprecated feature that should now be refactored.'
-        );
+        assert.ok(false, 'This test includes use of a deprecated feature that should now be refactored.');
       } else {
-        assert.ok(
-          false,
-          'This test is for a deprecated feature whose time has come and should be removed'
-        );
+        assert.ok(false, 'This test is for a deprecated feature whose time has come and should be removed');
       }
     });
   }

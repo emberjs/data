@@ -203,16 +203,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
 
     run(() => person.deleteRecord());
 
-    assert.equal(
-      people.get('length'),
-      1,
-      'a deleted record appears in record array until it is saved'
-    );
-    assert.equal(
-      people.objectAt(0),
-      person,
-      'a deleted record appears in record array until it is saved'
-    );
+    assert.equal(people.get('length'), 1, 'a deleted record appears in record array until it is saved');
+    assert.equal(people.objectAt(0), person, 'a deleted record appears in record array until it is saved');
 
     return run(() => {
       return person
@@ -355,26 +347,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       person.deleteRecord();
     });
 
-    assert.equal(
-      people.get('length'),
-      1,
-      'a deleted record appears in the record array until it is saved'
-    );
-    assert.equal(
-      people.objectAt(0),
-      person,
-      'a deleted record appears in the record array until it is saved'
-    );
+    assert.equal(people.get('length'), 1, 'a deleted record appears in the record array until it is saved');
+    assert.equal(people.objectAt(0), person, 'a deleted record appears in the record array until it is saved');
 
     assert.equal(person.get('isDeleted'), true, 'must be deleted');
 
     run(() => person.rollbackAttributes());
 
-    assert.equal(
-      people.get('length'),
-      1,
-      'the rollbacked record should appear again in the record array'
-    );
+    assert.equal(people.get('length'), 1, 'the rollbacked record should appear again in the record array');
     assert.equal(person.get('isDeleted'), false, 'must not be deleted');
     assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
   });

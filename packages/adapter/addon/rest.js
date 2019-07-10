@@ -9,12 +9,7 @@ import { getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import { assign } from '@ember/polyfills';
-import {
-  determineBodyPromise,
-  fetch,
-  parseResponseHeaders,
-  serializeQueryParams,
-} from './-private';
+import { determineBodyPromise, fetch, parseResponseHeaders, serializeQueryParams } from './-private';
 import {
   AdapterError,
   InvalidError,
@@ -304,8 +299,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   useFetch: computed(function() {
     let ENV = getOwner(this).resolveRegistration('config:environment');
     // TODO: https://github.com/emberjs/data/issues/6093
-    let jQueryIntegrationDisabled =
-      ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
+    let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
 
     if (jQueryIntegrationDisabled) {
       return true;
@@ -799,10 +793,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       expandedURL[expandedURL.length - 1] = '';
     } else if (endsWith(lastSegment, '?id=' + id)) {
       //Case when the url is of the format ...something?id=:id
-      expandedURL[expandedURL.length - 1] = lastSegment.substring(
-        0,
-        lastSegment.length - id.length - 1
-      );
+      expandedURL[expandedURL.length - 1] = lastSegment.substring(0, lastSegment.length - id.length - 1);
     }
 
     return expandedURL.join('/');
@@ -1234,12 +1225,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 function ajaxSuccess(adapter, payload, requestData, responseData) {
   let response;
   try {
-    response = adapter.handleResponse(
-      responseData.status,
-      responseData.headers,
-      payload,
-      requestData
-    );
+    response = adapter.handleResponse(responseData.status, responseData.headers, payload, requestData);
   } catch (error) {
     return Promise.reject(error);
   }

@@ -3,14 +3,7 @@ const Rollup = require('broccoli-rollup');
 const BroccoliDebug = require('broccoli-debug');
 
 module.exports = function rollupPrivateModule(tree, options) {
-  const {
-    onWarn,
-    destDir,
-    babelCompiler,
-    babelOptions,
-    externalDependencies,
-    packageName,
-  } = options;
+  const { onWarn, destDir, babelCompiler, babelOptions, externalDependencies, packageName } = options;
   const debugTree = BroccoliDebug.buildDebugCallback(`ember-data:${packageName}:rollup-private`);
   tree = debugTree(tree, 'input');
 

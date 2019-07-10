@@ -42,10 +42,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     };
 
     return run(() => {
-      return EmberPromise.all([
-        adapter.findRecord(store, Person, 1, {}),
-        adapter.findRecord(store, Place, 1, {}),
-      ]);
+      return EmberPromise.all([adapter.findRecord(store, Person, 1, {}), adapter.findRecord(store, Place, 1, {})]);
     });
   });
 
@@ -143,11 +140,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
         error: noop,
       });
 
-      assert.equal(
-        typeof fetchPlacePromise.then,
-        'function',
-        '_fetchRequest does not return a promise'
-      );
+      assert.equal(typeof fetchPlacePromise.then, 'function', '_fetchRequest does not return a promise');
 
       return fetchPlacePromise;
     });

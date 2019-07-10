@@ -18,14 +18,7 @@ module.exports = function(type, baseClass, options) {
 
   let applicationEntityPath;
   if (isModuleUnification) {
-    applicationEntityPath = path.join(
-      options.project.root,
-      'src',
-      'data',
-      'models',
-      'application',
-      `${type}.js`
-    );
+    applicationEntityPath = path.join(options.project.root, 'src', 'data', 'models', 'application', `${type}.js`);
   } else {
     applicationEntityPath = path.join(options.project.root, 'app', `${type}s`, 'application.js');
   }

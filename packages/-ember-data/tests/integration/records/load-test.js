@@ -43,9 +43,7 @@ module('integration/load - Loading Records', function(hooks) {
     });
   });
 
-  todo('Empty records remain in the empty state while data is being fetched', async function(
-    assert
-  ) {
+  todo('Empty records remain in the empty state while data is being fetched', async function(assert) {
     let payloads = [
       {
         data: {
@@ -130,16 +128,8 @@ module('integration/load - Loading Records', function(hooks) {
     let recordPromise = store.findRecord('person', '1');
 
     // test that during the initial load our state is correct
-    assert.todo.equal(
-      internalModel.isEmpty(),
-      true,
-      'awaiting first fetch: We remain in the empty state'
-    );
-    assert.equal(
-      internalModel.isLoading(),
-      true,
-      'awaiting first fetch: We have now triggered a load'
-    );
+    assert.todo.equal(internalModel.isEmpty(), true, 'awaiting first fetch: We remain in the empty state');
+    assert.equal(internalModel.isLoading(), true, 'awaiting first fetch: We have now triggered a load');
     assert.equal(internalModel.isReloading, false, 'awaiting first fetch: We are not reloading');
 
     let record = await recordPromise;

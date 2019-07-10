@@ -19,9 +19,7 @@ function moveRecordOutOfInFlight(record) {
   });
 }
 
-module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration test', function(
-  hooks
-) {
+module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration test', function(hooks) {
   hooks.beforeEach(function() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
@@ -133,16 +131,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       tom = records.tom;
       yehuda = records.yehuda;
 
-      assert.asyncEqual(
-        tom,
-        store.findRecord('person', 1),
-        'Once an ID is in, findRecord returns the same object'
-      );
-      assert.asyncEqual(
-        yehuda,
-        store.findRecord('person', 2),
-        'Once an ID is in, findRecord returns the same object'
-      );
+      assert.asyncEqual(tom, store.findRecord('person', 1), 'Once an ID is in, findRecord returns the same object');
+      assert.asyncEqual(yehuda, store.findRecord('person', 2), 'Once an ID is in, findRecord returns the same object');
       assert.equal(get(tom, 'updatedAt'), 'now', 'The new information is received');
       assert.equal(get(yehuda, 'updatedAt'), 'now', 'The new information is received');
     });
@@ -456,11 +446,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         .then(tom => {
           tom.set('name', "Tom Mothereffin' Dale");
 
-          assert.equal(
-            get(tom, 'hasDirtyAttributes'),
-            true,
-            'precond - record should be dirty after editing'
-          );
+          assert.equal(get(tom, 'hasDirtyAttributes'), true, 'precond - record should be dirty after editing');
 
           tom.deleteRecord();
           return tom.save();
@@ -556,16 +542,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
           set(yehuda, 'name', 'Brohuda Brokatz');
 
-          assert.equal(
-            get(yehuda, 'isValid'),
-            true,
-            'the record is no longer invalid after changing'
-          );
-          assert.equal(
-            get(yehuda, 'hasDirtyAttributes'),
-            true,
-            'the record has outstanding changes'
-          );
+          assert.equal(get(yehuda, 'isValid'), true, 'the record is no longer invalid after changing');
+          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
 
           assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
 
@@ -618,16 +596,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
           set(yehuda, 'name', 'Brohuda Brokatz');
 
-          assert.equal(
-            get(yehuda, 'isValid'),
-            false,
-            'the record is still invalid as far as we know'
-          );
-          assert.equal(
-            get(yehuda, 'hasDirtyAttributes'),
-            true,
-            'the record has outstanding changes'
-          );
+          assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid as far as we know');
+          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
 
           assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
 
@@ -680,11 +650,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
             'It should fail due to being invalid'
           );
           assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
-          assert.equal(
-            get(yehuda, 'hasDirtyAttributes'),
-            true,
-            'the record has outstanding changes'
-          );
+          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
           assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
           assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
           return yehuda.save();
@@ -696,11 +662,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
             'It should fail due to being invalid'
           );
           assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
-          assert.equal(
-            get(yehuda, 'hasDirtyAttributes'),
-            true,
-            'the record has outstanding changes'
-          );
+          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
           assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
           assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
           set(yehuda, 'name', 'Brohuda Brokatz');
@@ -776,11 +738,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
           assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is valid');
           set(yehuda, 'name', 'Yehuda Katz');
-          assert.equal(
-            get(yehuda, 'isValid'),
-            true,
-            'precond - the record is still valid as far as we know'
-          );
+          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is still valid as far as we know');
 
           assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is dirty');
 
@@ -794,16 +752,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
 
           set(yehuda, 'name', 'Brohuda Brokatz');
-          assert.equal(
-            get(yehuda, 'isValid'),
-            true,
-            'the record is no longer invalid after changing'
-          );
-          assert.equal(
-            get(yehuda, 'hasDirtyAttributes'),
-            true,
-            'the record has outstanding changes'
-          );
+          assert.equal(get(yehuda, 'isValid'), true, 'the record is no longer invalid after changing');
+          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
 
           return yehuda.save();
         })
@@ -855,11 +805,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
           assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is valid');
           set(yehuda, 'name', 'Yehuda Katz');
-          assert.equal(
-            get(yehuda, 'isValid'),
-            true,
-            'precond - the record is still valid as far as we know'
-          );
+          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is still valid as far as we know');
 
           assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is dirty');
 
@@ -882,11 +828,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
             false,
             "the record is still invalid after changing (only server can know if it's now valid)"
           );
-          assert.equal(
-            get(yehuda, 'hasDirtyAttributes'),
-            true,
-            'the record has outstanding changes'
-          );
+          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
 
           return yehuda.save();
         })
@@ -943,11 +885,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
           assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is valid');
           set(yehuda, 'name', 'Yehuda Katz');
-          assert.equal(
-            get(yehuda, 'isValid'),
-            true,
-            'precond - the record is still valid as far as we know'
-          );
+          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is still valid as far as we know');
 
           assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is dirty');
 
@@ -1587,50 +1525,41 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     );
   });
 
-  testInDebug(
-    'There should be a friendly error for if the adapter does not implement createRecord',
-    function(assert) {
-      adapter.createRecord = null;
+  testInDebug('There should be a friendly error for if the adapter does not implement createRecord', function(assert) {
+    adapter.createRecord = null;
 
-      let tom = run(() => store.createRecord('person', { name: 'Tom Dale' }));
+    let tom = run(() => store.createRecord('person', { name: 'Tom Dale' }));
 
-      assert.expectAssertion(() => {
-        run(() => tom.save());
-      }, /does not implement 'createRecord'/);
+    assert.expectAssertion(() => {
+      run(() => tom.save());
+    }, /does not implement 'createRecord'/);
 
-      moveRecordOutOfInFlight(tom);
-    }
-  );
+    moveRecordOutOfInFlight(tom);
+  });
 
-  testInDebug(
-    'There should be a friendly error for if the adapter does not implement updateRecord',
-    function(assert) {
-      adapter.updateRecord = null;
+  testInDebug('There should be a friendly error for if the adapter does not implement updateRecord', function(assert) {
+    adapter.updateRecord = null;
 
-      let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
-      assert.expectAssertion(() => {
-        run(() => tom.save());
-      }, /does not implement 'updateRecord'/);
+    let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
+    assert.expectAssertion(() => {
+      run(() => tom.save());
+    }, /does not implement 'updateRecord'/);
 
-      moveRecordOutOfInFlight(tom);
-    }
-  );
+    moveRecordOutOfInFlight(tom);
+  });
 
-  testInDebug(
-    'There should be a friendly error for if the adapter does not implement deleteRecord',
-    function(assert) {
-      adapter.deleteRecord = null;
+  testInDebug('There should be a friendly error for if the adapter does not implement deleteRecord', function(assert) {
+    adapter.deleteRecord = null;
 
-      let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
+    let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
 
-      assert.expectAssertion(() => {
-        run(() => {
-          tom.deleteRecord();
-          return tom.save();
-        });
-      }, /does not implement 'deleteRecord'/);
+    assert.expectAssertion(() => {
+      run(() => {
+        tom.deleteRecord();
+        return tom.save();
+      });
+    }, /does not implement 'deleteRecord'/);
 
-      moveRecordOutOfInFlight(tom);
-    }
-  );
+    moveRecordOutOfInFlight(tom);
+  });
 });

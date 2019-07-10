@@ -99,9 +99,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     let post = env.store.createRecord('post', { title: 'Rails is omakase' });
     let json = {};
 
-    env.store
-      .serializerFor('post')
-      .serializeAttribute(post._createSnapshot(), json, 'title', { type: 'string' });
+    env.store.serializerFor('post').serializeAttribute(post._createSnapshot(), json, 'title', { type: 'string' });
 
     assert.deepEqual(json, { TITLE: 'Rails is omakase' });
   });
@@ -163,9 +161,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     let comment = env.store.createRecord('comment', { body: 'Omakase is delicious', post: post });
     let json = {};
 
-    env.store
-      .serializerFor('post')
-      .serializeBelongsTo(comment._createSnapshot(), json, { key: 'post', options: {} });
+    env.store.serializerFor('post').serializeBelongsTo(comment._createSnapshot(), json, { key: 'post', options: {} });
 
     assert.deepEqual(json, {
       POST: '1',
@@ -195,9 +191,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
 
     let json = {};
 
-    env.store
-      .serializerFor('post')
-      .serializeHasMany(post._createSnapshot(), json, { key: 'comments', options: {} });
+    env.store.serializerFor('post').serializeHasMany(post._createSnapshot(), json, { key: 'comments', options: {} });
 
     assert.deepEqual(json, {
       COMMENTS: ['1'],
@@ -218,9 +212,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     );
     let json = {};
 
-    env.store
-      .serializerFor('post')
-      .serializeHasMany(post._createSnapshot(), json, { key: 'comments', options: {} });
+    env.store.serializerFor('post').serializeHasMany(post._createSnapshot(), json, { key: 'comments', options: {} });
 
     assert.ok(!json.hasOwnProperty('comments'), 'Does not add the relationship key to json');
   });
@@ -233,14 +225,9 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     var relationship = snapshot.record.relationshipFor('comments');
     var key = relationship.key;
 
-    var shouldSerialize = env.store
-      .serializerFor('post')
-      .shouldSerializeHasMany(snapshot, relationship, key);
+    var shouldSerialize = env.store.serializerFor('post').shouldSerializeHasMany(snapshot, relationship, key);
 
-    assert.ok(
-      shouldSerialize,
-      'shouldSerializeHasMany correctly identifies with hasMany relationship'
-    );
+    assert.ok(shouldSerialize, 'shouldSerializeHasMany correctly identifies with hasMany relationship');
   });
 
   test('serializeIntoHash', function(assert) {
@@ -266,10 +253,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
           let belongsTo = record.belongsTo(key);
           json[relationship.key + 'TYPE'] = belongsTo.modelName;
 
-          assert.ok(
-            true,
-            'serializePolymorphicType is called when serialize a polymorphic belongsTo'
-          );
+          assert.ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
         },
       })
     );
@@ -279,11 +263,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
 
     env.store
       .serializerFor('comment')
-      .serializeBelongsTo(
-        comment._createSnapshot(),
-        {},
-        { key: 'post', options: { polymorphic: true } }
-      );
+      .serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { polymorphic: true } });
   });
 
   test('serializePolymorphicType async', function(assert) {
@@ -297,10 +277,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       'serializer:comment',
       DS.JSONSerializer.extend({
         serializePolymorphicType(record, json, relationship) {
-          assert.ok(
-            true,
-            'serializePolymorphicType is called when serialize a polymorphic belongsTo'
-          );
+          assert.ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
         },
       })
     );
@@ -310,11 +287,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
 
     env.store
       .serializerFor('comment')
-      .serializeBelongsTo(
-        comment._createSnapshot(),
-        {},
-        { key: 'post', options: { async: true, polymorphic: true } }
-      );
+      .serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { async: true, polymorphic: true } });
   });
 
   test('normalizeResponse normalizes each record in the array', function(assert) {
@@ -354,9 +327,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       my_comments: [1, 2],
     };
 
-    var post = env.store
-      .serializerFor('post')
-      .normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+    var post = env.store.serializerFor('post').normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
     assert.equal(post.data.attributes.title, 'Rails is omakase');
     assert.deepEqual(post.data.relationships.comments.data, [
@@ -387,9 +358,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       author_name_key: 'DHH',
     };
 
-    var post = env.store
-      .serializerFor('post')
-      .normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+    var post = env.store.serializerFor('post').normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
     assert.equal(post.data.attributes.authorName, 'DHH');
   });
@@ -461,9 +430,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     };
 
     var Parent = env.store.modelFor('parent');
-    var payload = env.store
-      .serializerFor('parent')
-      .normalizeResponse(env.store, Parent, jsonHash, '1', 'findRecord');
+    var payload = env.store.serializerFor('parent').normalizeResponse(env.store, Parent, jsonHash, '1', 'findRecord');
     assert.deepEqual(payload.included, [
       {
         id: '1',
@@ -509,9 +476,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     };
 
     var Parent = env.store.modelFor('parent');
-    var payload = env.store
-      .serializerFor('parent')
-      .normalizeResponse(env.store, Parent, jsonHash, '1', 'findRecord');
+    var payload = env.store.serializerFor('parent').normalizeResponse(env.store, Parent, jsonHash, '1', 'findRecord');
     assert.deepEqual(payload.included, [
       {
         id: '1',
@@ -544,10 +509,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     let payload = env.store.serializerFor('post').serialize(post._createSnapshot());
 
     assert.ok(!payload.hasOwnProperty('title'), 'Does not add the key to instance');
-    assert.ok(
-      !payload.hasOwnProperty('[object Object]'),
-      'Does not add some random key like [object Object]'
-    );
+    assert.ok(!payload.hasOwnProperty('[object Object]'), 'Does not add some random key like [object Object]');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function(assert) {
@@ -724,9 +686,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     );
 
     let jsonHash = { _ID_: 1, title: 'Rails is omakase' };
-    let post = env.store
-      .serializerFor('post')
-      .normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+    let post = env.store.serializerFor('post').normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
     assert.equal(post.data.id, '1');
     assert.equal(post.data.attributes.title, 'Rails is omakase');
@@ -741,9 +701,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     );
 
     let post = env.store.createRecord('post', { id: '1', title: 'Rails is omakase' });
-    let payload = env.store
-      .serializerFor('post')
-      .serialize(post._createSnapshot(), { includeId: true });
+    let payload = env.store.serializerFor('post').serialize(post._createSnapshot(), { includeId: true });
 
     assert.equal(payload._ID_, '1');
   });
@@ -937,9 +895,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       },
     };
 
-    var post = env.store
-      .serializerFor('post')
-      .normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+    var post = env.store.serializerFor('post').normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
     assert.deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
   });
@@ -952,9 +908,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       title: 'Rails is omakase',
     };
 
-    var post = env.store
-      .serializerFor('post')
-      .normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+    var post = env.store.serializerFor('post').normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
     assert.deepEqual(post.included, []);
   });
@@ -968,9 +922,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       comments: null,
     };
 
-    var post = env.store
-      .serializerFor('post')
-      .normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+    var post = env.store.serializerFor('post').normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
     assert.deepEqual(post.included, []);
   });
@@ -992,9 +944,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       comments: [{ id: '1', body: 'comment 1' }, { id: '2', body: 'comment 2' }],
     };
 
-    var post = env.store
-      .serializerFor('post')
-      .normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+    var post = env.store.serializerFor('post').normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
     assert.deepEqual(post.included, [
       { id: '1', type: 'comment', attributes: { body: 'comment 1' }, relationships: {} },
@@ -1026,9 +976,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       },
     ];
 
-    var post = env.store
-      .serializerFor('post')
-      .normalizeResponse(env.store, Post, payload, '1', 'findAll');
+    var post = env.store.serializerFor('post').normalizeResponse(env.store, Post, payload, '1', 'findAll');
 
     assert.deepEqual(post.included, [
       { id: '1', type: 'comment', attributes: { body: 'comment 1' }, relationships: {} },
@@ -1055,9 +1003,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     };
 
     assert.expectWarning(function() {
-      var post = env.store
-        .serializerFor('post')
-        .normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+      var post = env.store.serializerFor('post').normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
       assert.equal(post.data.attributes.title, 'Rails is omakase');
     }, /There is no attribute or relationship with the name/);
   });
@@ -1126,9 +1072,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       },
     };
 
-    var post = env.container
-      .lookup('serializer:post')
-      .normalizeSingleResponse(env.store, Post, jsonHash);
+    var post = env.container.lookup('serializer:post').normalizeSingleResponse(env.store, Post, jsonHash);
 
     assert.equal(post.data.attributes.title, 'Rails is omakase');
     assert.equal(post.data.relationships.comments.links.related, 'posts/1/comments');

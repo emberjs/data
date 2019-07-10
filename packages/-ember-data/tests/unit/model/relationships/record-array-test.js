@@ -94,11 +94,7 @@ module('unit/model/relationships - RecordArray', function() {
       return store.findRecord('person', 1).then(person => {
         person.get('tags').createRecord({ name: 'cool' });
 
-        assert.equal(
-          get(person, 'name'),
-          'Tom Dale',
-          'precond - retrieves person record from store'
-        );
+        assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
         assert.equal(get(person, 'tags.length'), 1, 'tag is added to the parent record');
         assert.equal(
           get(person, 'tags')

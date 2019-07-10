@@ -258,27 +258,15 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     assert.ok(scumbag.get('tag') === tag, "precond - the scumbag's tag has been set");
     assert.equal(get(recordArray, 'length'), 1, 'precond - record array has one item');
-    assert.equal(
-      get(recordArray.objectAt(0), 'name'),
-      'Scumbag Dale',
-      'item at index 0 is record with id 1'
-    );
+    assert.equal(get(recordArray.objectAt(0), 'name'), 'Scumbag Dale', 'item at index 0 is record with id 1');
 
     scumbag.deleteRecord();
 
-    assert.equal(
-      get(recordArray, 'length'),
-      1,
-      'record is still in the record array until it is saved'
-    );
+    assert.equal(get(recordArray, 'length'), 1, 'record is still in the record array until it is saved');
 
     await scumbag.save();
 
-    assert.equal(
-      get(recordArray, 'length'),
-      0,
-      'record is removed from the array when it is saved'
-    );
+    assert.equal(get(recordArray, 'length'), 0, 'record is removed from the array when it is saved');
   });
 
   test("a loaded record is not removed from a record array when it is deleted even if the belongsTo side isn't defined", async function(assert) {
@@ -395,11 +383,7 @@ module('unit/record-array - RecordArray', function(hooks) {
       name: 'Scumbag Dale',
     });
 
-    assert.equal(
-      get(recordArray, 'length'),
-      1,
-      'precond - record array already has the first created item'
-    );
+    assert.equal(get(recordArray, 'length'), 1, 'precond - record array already has the first created item');
 
     store.createRecord('person', { name: 'p1' });
     store.createRecord('person', { name: 'p2' });
@@ -445,11 +429,7 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     let recordArray = store.peekAll('person');
 
-    assert.strictEqual(
-      recordArray.objectAt(20),
-      undefined,
-      'objects outside of the range just return undefined'
-    );
+    assert.strictEqual(recordArray.objectAt(20), undefined, 'objects outside of the range just return undefined');
   });
 
   // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
@@ -482,21 +462,9 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     let recordArray = store.peekAll('person');
 
-    assert.equal(
-      get(recordArray.objectAt(2), 'id'),
-      '3',
-      'should retrieve correct record at index 2'
-    );
-    assert.equal(
-      get(recordArray.objectAt(1), 'id'),
-      '2',
-      'should retrieve correct record at index 1'
-    );
-    assert.equal(
-      get(recordArray.objectAt(0), 'id'),
-      '1',
-      'should retrieve correct record at index 0'
-    );
+    assert.equal(get(recordArray.objectAt(2), 'id'), '3', 'should retrieve correct record at index 2');
+    assert.equal(get(recordArray.objectAt(1), 'id'), '2', 'should retrieve correct record at index 1');
+    assert.equal(get(recordArray.objectAt(0), 'id'), '1', 'should retrieve correct record at index 0');
   });
 
   test("an AdapterPopulatedRecordArray knows if it's loaded or not", async function(assert) {

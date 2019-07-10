@@ -71,10 +71,7 @@ module('unit/adapters/build-url-mixin/build-url - DS.BuildURLMixin#buildURL', fu
       assert.equal(type, 'super-user');
       return originalMethod.apply(this, arguments);
     };
-    assert.equal(
-      adapter.buildURL('super-user', null, null, 'queryRecord', queryStub),
-      '/superUsers'
-    );
+    assert.equal(adapter.buildURL('super-user', null, null, 'queryRecord', queryStub), '/superUsers');
   });
 
   test('buildURL - findMany requestType delegates to urlForFindMany', function(assert) {

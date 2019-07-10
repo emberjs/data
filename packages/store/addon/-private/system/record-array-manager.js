@@ -284,9 +284,7 @@ export default class RecordArrayManager {
   }
 
   willDestroy() {
-    Object.keys(this._liveRecordArrays).forEach(modelName =>
-      this._liveRecordArrays[modelName].destroy()
-    );
+    Object.keys(this._liveRecordArrays).forEach(modelName => this._liveRecordArrays[modelName].destroy());
     this._adapterPopulatedRecordArrays.forEach(destroy);
     this.isDestroyed = true;
   }

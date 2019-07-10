@@ -28,9 +28,7 @@ module('integration/references/belongs-to', function(hooks) {
     run(env.container, 'destroy');
   });
 
-  testInDebug("record#belongsTo asserts when specified relationship doesn't exist", function(
-    assert
-  ) {
+  testInDebug("record#belongsTo asserts when specified relationship doesn't exist", function(assert) {
     var person;
     run(function() {
       person = env.store.push({
@@ -48,26 +46,25 @@ module('integration/references/belongs-to', function(hooks) {
     }, "There is no belongsTo relationship named 'unknown-relationship' on a model of modelClass 'person'");
   });
 
-  testInDebug(
-    "record#belongsTo asserts when the type of the specified relationship isn't the requested one",
-    function(assert) {
-      var family;
-      run(function() {
-        family = env.store.push({
-          data: {
-            type: 'family',
-            id: 1,
-          },
-        });
+  testInDebug("record#belongsTo asserts when the type of the specified relationship isn't the requested one", function(
+    assert
+  ) {
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1,
+        },
       });
+    });
 
-      assert.expectAssertion(function() {
-        run(function() {
-          family.belongsTo('persons');
-        });
-      }, "You tried to get the 'persons' relationship on a 'family' via record.belongsTo('persons'), but the relationship is of kind 'hasMany'. Use record.hasMany('persons') instead.");
-    }
-  );
+    assert.expectAssertion(function() {
+      run(function() {
+        family.belongsTo('persons');
+      });
+    }, "You tried to get the 'persons' relationship on a 'family' via record.belongsTo('persons'), but the relationship is of kind 'hasMany'. Use record.hasMany('persons') instead.");
+  });
 
   test('record#belongsTo', function(assert) {
     var person;

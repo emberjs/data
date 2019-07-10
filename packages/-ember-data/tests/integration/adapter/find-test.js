@@ -203,9 +203,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     );
   });
 
-  testInDebug('coerces ids before warning when returned record has different id', async function(
-    assert
-  ) {
+  testInDebug('coerces ids before warning when returned record has different id', async function(assert) {
     env.owner.register(
       'serializer:application',
       JSONAPISerializer.extend({

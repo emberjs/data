@@ -36,12 +36,8 @@ if (DEBUG) {
 
     _deprecateEvented(eventName) {
       let deprecations = lookupDeprecations(this);
-      const _deprecationData = this._getDeprecatedEventedInfo
-        ? `on ${this._getDeprecatedEventedInfo()}`
-        : '';
-      const deprecationMessage = _deprecationData
-        ? `Called ${eventName} ${_deprecationData}`
-        : eventName;
+      const _deprecationData = this._getDeprecatedEventedInfo ? `on ${this._getDeprecatedEventedInfo()}` : '';
+      const deprecationMessage = _deprecationData ? `Called ${eventName} ${_deprecationData}` : eventName;
       deprecate(deprecationMessage, deprecations[eventName], {
         id: 'ember-data:evented-api-usage',
         until: '4.0',

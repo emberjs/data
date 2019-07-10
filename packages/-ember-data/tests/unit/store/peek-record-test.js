@@ -58,9 +58,7 @@ module('unit/store/peekRecord - Store peekRecord', function(hooks) {
     });
   });
 
-  testInDebug('peekRecord should assert if passed a model class instead of model name', function(
-    assert
-  ) {
+  testInDebug('peekRecord should assert if passed a model class instead of model name', function(assert) {
     run(() => {
       assert.expectAssertion(() => {
         let modelClass = EmberObject.extend();

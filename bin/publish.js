@@ -34,9 +34,7 @@ const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
 
 function cleanProject() {
-  execWithLog(
-    `cd ${projectRoot} && rm -rf packages/*/dist packages/*/tmp packages/*/node_modules node_modules`
-  );
+  execWithLog(`cd ${projectRoot} && rm -rf packages/*/dist packages/*/tmp packages/*/node_modules node_modules`);
   execWithLog(`cd ${projectRoot} && yarn install`);
 }
 
@@ -117,9 +115,7 @@ function assertGitIsClean() {
           chalk.grey('Use ') +
           chalk.white('--force') +
           chalk.grey(' to ignore this warning and publish anyway\n') +
-          chalk.yellow(
-            '⚠️  Publishing from an unclean working state may result in a broken release ⚠️'
-          )
+          chalk.yellow('⚠️  Publishing from an unclean working state may result in a broken release ⚠️')
       );
       process.exit(1);
     }
@@ -139,9 +135,7 @@ function assertGitIsClean() {
           chalk.grey('Use ') +
           chalk.white('--force') +
           chalk.grey(' to ignore this warning and publish anyway\n') +
-          chalk.yellow(
-            '⚠️  Publishing from an unsynced working state may result in a broken release ⚠️'
-          )
+          chalk.yellow('⚠️  Publishing from an unsynced working state may result in a broken release ⚠️')
       );
       process.exit(1);
     }
@@ -150,9 +144,7 @@ function assertGitIsClean() {
   let expectedChannelBranch = options.distTag === 'canary' ? 'master' : options.distTag;
 
   if (options.channel === 'lts') {
-    expectedChannelBranch = `lts-${semver.major(options.currentVersion)}-${semver.minor(
-      options.currentVersion
-    )}`;
+    expectedChannelBranch = `lts-${semver.major(options.currentVersion)}-${semver.minor(options.currentVersion)}`;
   }
 
   let foundBranch = status.split('\n')[0];

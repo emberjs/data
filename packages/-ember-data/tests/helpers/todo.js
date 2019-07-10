@@ -31,9 +31,7 @@ function hijackAssert(assert, todos) {
         return function captureResult(assertion) {
           let result = assertion.result;
           assertion.isTodo = true;
-          assertion.message = `[TODO ${result === true ? 'COMPLETED' : 'INCOMPLETE'}] ${
-            assertion.message
-          }`;
+          assertion.message = `[TODO ${result === true ? 'COMPLETED' : 'INCOMPLETE'}] ${assertion.message}`;
 
           todos.push(assertion);
           origMethod.call(target, assertion);
@@ -75,8 +73,7 @@ function assertTestStatus(assert, todos) {
       isTodo: true,
       actual: false,
       expected: true,
-      message:
-        '[REGRESSION MUST-FIX] This TODO is has regressed (a non "todo" assertion has failed) and MUST be fixed',
+      message: '[REGRESSION MUST-FIX] This TODO is has regressed (a non "todo" assertion has failed) and MUST be fixed',
       result: false,
     });
   } else if (hasSomeCompletedTodos) {

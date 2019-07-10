@@ -232,11 +232,7 @@ module('async has-many rendering tests', function(hooks) {
       let items = this.element.querySelectorAll('li');
       let names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
     test('Re-rendering an async hasMany does not cause a new fetch', async function(assert) {
@@ -264,11 +260,7 @@ module('async has-many rendering tests', function(hooks) {
       let items = this.element.querySelectorAll('li');
       let names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
       this.set('parent', null);
 
@@ -280,11 +272,7 @@ module('async has-many rendering tests', function(hooks) {
       items = this.element.querySelectorAll('li');
       names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
     test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
@@ -323,11 +311,7 @@ module('async has-many rendering tests', function(hooks) {
       let items = this.element.querySelectorAll('li');
       let names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent'],
-        'We rendered only the names for successful requests'
-      );
+      assert.deepEqual(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
 
       let relationshipState = parent.hasMany('children').hasManyRelationship;
       let RelationshipPromiseCache = parent._internalModel._relationshipPromisesCache;
@@ -335,36 +319,16 @@ module('async has-many rendering tests', function(hooks) {
 
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
-      assert.equal(
-        relationshipState.hasDematerializedInverse,
-        true,
-        'The relationship has a dematerialized inverse'
-      );
+      assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship has a dematerialized inverse');
       assert.equal(
         relationshipState.allInverseRecordsAreLoaded,
         false,
         'The relationship is missing some or all related resources'
       );
-      assert.equal(
-        relationshipState.hasAnyRelationshipData,
-        true,
-        'The relationship knows which record it needs'
-      );
-      assert.equal(
-        !!RelationshipPromiseCache['children'],
-        false,
-        'The relationship has no fetch promise'
-      );
-      assert.equal(
-        relationshipState.hasFailedLoadAttempt === true,
-        true,
-        'The relationship has attempted a load'
-      );
-      assert.equal(
-        !!RelationshipProxyCache['children'],
-        true,
-        'The relationship has a promise proxy'
-      );
+      assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
+      assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
+      assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
+      assert.equal(!!RelationshipProxyCache['children'], true, 'The relationship has a promise proxy');
       assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
 
       Ember.onerror = originalOnError;
@@ -378,9 +342,7 @@ module('async has-many rendering tests', function(hooks) {
         data: people.dict['3:has-2-children-and-parent'],
       });
 
-      adapter.setupPayloads(assert, [
-        people.links['./person/3:has-2-children-and-parent/children'],
-      ]);
+      adapter.setupPayloads(assert, [people.links['./person/3:has-2-children-and-parent/children']]);
 
       // render
       this.set('parent', parent);
@@ -396,11 +358,7 @@ module('async has-many rendering tests', function(hooks) {
       let items = this.element.querySelectorAll('li');
       let names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
     test('Re-rendering an async hasMany with a link does not cause a new fetch', async function(assert) {
@@ -409,9 +367,7 @@ module('async has-many rendering tests', function(hooks) {
         data: people.dict['3:has-2-children-and-parent'],
       });
 
-      adapter.setupPayloads(assert, [
-        people.links['./person/3:has-2-children-and-parent/children'],
-      ]);
+      adapter.setupPayloads(assert, [people.links['./person/3:has-2-children-and-parent/children']]);
 
       // render
       this.set('parent', parent);
@@ -427,11 +383,7 @@ module('async has-many rendering tests', function(hooks) {
       let items = this.element.querySelectorAll('li');
       let names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
       this.set('parent', null);
 
@@ -443,11 +395,7 @@ module('async has-many rendering tests', function(hooks) {
       items = this.element.querySelectorAll('li');
       names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
     test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
@@ -457,15 +405,10 @@ module('async has-many rendering tests', function(hooks) {
         data: people.dict['3:has-2-children-and-parent'],
       });
 
-      adapter.setupPayloads(assert, [
-        people.links['./person/3:has-2-children-and-parent/children'],
-      ]);
+      adapter.setupPayloads(assert, [people.links['./person/3:has-2-children-and-parent/children']]);
 
       adapter.setupPayloads(assert, [
-        new ServerError(
-          [],
-          'hard error while finding link ./person/3:has-2-children-and-parent/children'
-        ),
+        new ServerError([], 'hard error while finding link ./person/3:has-2-children-and-parent/children'),
       ]);
 
       // render
@@ -510,26 +453,10 @@ module('async has-many rendering tests', function(hooks) {
         true,
         'The relationship is missing some or all related resources'
       );
-      assert.equal(
-        relationshipState.hasAnyRelationshipData,
-        false,
-        'The relationship knows which record it needs'
-      );
-      assert.equal(
-        !!RelationshipPromiseCache['children'],
-        false,
-        'The relationship has no fetch promise'
-      );
-      assert.equal(
-        !!RelationshipProxyCache['children'],
-        true,
-        'The relationship has a promise proxy'
-      );
-      assert.equal(
-        relationshipState.hasFailedLoadAttempt === true,
-        true,
-        'The relationship has attempted a load'
-      );
+      assert.equal(relationshipState.hasAnyRelationshipData, false, 'The relationship knows which record it needs');
+      assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
+      assert.equal(!!RelationshipProxyCache['children'], true, 'The relationship has a promise proxy');
+      assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
       assert.equal(!!relationshipState.link, true, 'The relationship has a link');
 
       Ember.onerror = originalOnError;
@@ -543,9 +470,7 @@ module('async has-many rendering tests', function(hooks) {
         data: people.dict['3:has-2-children-and-parent'],
       });
 
-      adapter.setupPayloads(assert, [
-        people.links['./person/3:has-2-children-and-parent/children'],
-      ]);
+      adapter.setupPayloads(assert, [people.links['./person/3:has-2-children-and-parent/children']]);
 
       // render
       this.set('parent', parent);
@@ -561,21 +486,14 @@ module('async has-many rendering tests', function(hooks) {
       let items = this.element.querySelectorAll('li');
       let names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
     test('Rendering an async hasMany with a link and data where data has been side-loaded does not fetch the link', async function(assert) {
       let people = makePeopleWithRelationshipLinks(false);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
-        included: [
-          people.dict['4:has-parent-no-children'],
-          people.dict['5:has-parent-no-children'],
-        ],
+        included: [people.dict['4:has-parent-no-children'], people.dict['5:has-parent-no-children']],
       });
 
       // no requests should be made
@@ -595,11 +513,7 @@ module('async has-many rendering tests', function(hooks) {
       let items = this.element.querySelectorAll('li');
       let names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
     test('Re-rendering an async hasMany with a link and data does not cause a new fetch', async function(assert) {
@@ -608,9 +522,7 @@ module('async has-many rendering tests', function(hooks) {
         data: people.dict['3:has-2-children-and-parent'],
       });
 
-      adapter.setupPayloads(assert, [
-        people.links['./person/3:has-2-children-and-parent/children'],
-      ]);
+      adapter.setupPayloads(assert, [people.links['./person/3:has-2-children-and-parent/children']]);
 
       // render
       this.set('parent', parent);
@@ -626,11 +538,7 @@ module('async has-many rendering tests', function(hooks) {
       let items = this.element.querySelectorAll('li');
       let names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
       this.set('parent', null);
 
@@ -642,11 +550,7 @@ module('async has-many rendering tests', function(hooks) {
       items = this.element.querySelectorAll('li');
       names = domListToArray(items).map(e => e.textContent);
 
-      assert.deepEqual(
-        names,
-        ['Selena has a parent', 'Sedona has a parent'],
-        'We rendered the names'
-      );
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
   });
 });

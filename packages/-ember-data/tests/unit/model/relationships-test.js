@@ -82,11 +82,7 @@ module('[@ember-data/model] unit - relationships', function(hooks) {
 
     Person.eachRelatedType(modelName => relations.push(modelName));
 
-    assert.deepEqual(
-      relations,
-      ['occupation', 'person'],
-      'eachRelatedType() did not return duplicate modelNames'
-    );
+    assert.deepEqual(relations, ['occupation', 'person'], 'eachRelatedType() did not return duplicate modelNames');
   });
 
   test('normalizing belongsTo relationship names', function(assert) {

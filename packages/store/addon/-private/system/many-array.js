@@ -202,21 +202,14 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
     let internalModels;
     if (amt > 0) {
       internalModels = this.currentState.slice(idx, idx + amt);
-      this.get('recordData').removeFromHasMany(
-        this.get('key'),
-        internalModels.map(im => recordDataFor(im))
-      );
+      this.get('recordData').removeFromHasMany(this.get('key'), internalModels.map(im => recordDataFor(im)));
     }
     if (objects) {
       assert(
         'The third argument to replace needs to be an array.',
         Array.isArray(objects) || EmberArray.detect(objects)
       );
-      this.get('recordData').addToHasMany(
-        this.get('key'),
-        objects.map(obj => recordDataFor(obj)),
-        idx
-      );
+      this.get('recordData').addToHasMany(this.get('key'), objects.map(obj => recordDataFor(obj)), idx);
     }
     this.retrieveLatest();
   },
@@ -258,12 +251,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
   */
   reload(options) {
     // TODO this is odd, we don't ask the store for anything else like this?
-    return this.get('store').reloadManyArray(
-      this,
-      this.get('internalModel'),
-      this.get('key'),
-      options
-    );
+    return this.get('store').reloadManyArray(this, this.get('internalModel'), this.get('key'), options);
   },
 
   /**
@@ -309,10 +297,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
     const store = get(this, 'store');
     const type = get(this, 'type');
 
-    assert(
-      `You cannot add '${type.modelName}' records to this polymorphic relationship.`,
-      !get(this, 'isPolymorphic')
-    );
+    assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
     let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 

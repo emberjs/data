@@ -478,11 +478,7 @@ export default Mixin.create({
       if (parentRecord) {
         let name = parentRecord.name;
         let embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
-        let parentKey = embeddedSerializer.keyForRelationship(
-          name,
-          parentRecord.kind,
-          'deserialize'
-        );
+        let parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
         if (parentKey) {
           delete json[parentKey];
         }
@@ -594,11 +590,7 @@ export default Mixin.create({
       return;
     }
 
-    let { data, included } = this._normalizeEmbeddedRelationship(
-      store,
-      relationshipMeta,
-      relationshipHash
-    );
+    let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, relationshipHash);
     hash.included = hash.included || [];
     hash.included.push(data);
     if (included) {

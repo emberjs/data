@@ -7,11 +7,7 @@ const FeatureFlags = require.resolve('babel-plugin-feature-flags');
 const StripClassCallCheck = require.resolve('babel6-plugin-strip-class-callcheck');
 const StripFilteredImports = require.resolve('./transforms/babel-plugin-remove-imports');
 const TransformBlockScoping = require.resolve('@babel/plugin-transform-block-scoping');
-const {
-  isInstrumentedBuild,
-  wantsEnabledFeatures,
-  getManuallyEnabledFeatures,
-} = require('./cli-flags');
+const { isInstrumentedBuild, wantsEnabledFeatures, getManuallyEnabledFeatures } = require('./cli-flags');
 
 function uniqueAdd(obj, key, values) {
   const a = (obj[key] = obj[key] || []);
@@ -47,13 +43,9 @@ module.exports = function(environment, isLocalBuild) {
     if (manuallyEnabled[flag]) {
       if (state === true) {
         // eslint-disable-next-line no-console
-        console.warn(
-          'You specified the in-progress-feature "' + flag + '" but it was already active'
-        );
+        console.warn('You specified the in-progress-feature "' + flag + '" but it was already active');
       } else if (state === undefined) {
-        throw new Error(
-          'You specified the in-progress-feature "' + flag + '" but no such flag exists!'
-        );
+        throw new Error('You specified the in-progress-feature "' + flag + '" but no such flag exists!');
       } else {
         // eslint-disable-next-line no-console
         console.warn('Manually Actived in-progress-feature: ' + flag);

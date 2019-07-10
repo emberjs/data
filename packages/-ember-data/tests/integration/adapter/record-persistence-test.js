@@ -159,28 +159,26 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
       });
     });
 
-    return all([env.store.findRecord('person', 1), env.store.findRecord('person', 2)]).then(
-      array => {
-        tom = array[0];
-        yehuda = array[1];
+    return all([env.store.findRecord('person', 1), env.store.findRecord('person', 2)]).then(array => {
+      tom = array[0];
+      yehuda = array[1];
 
-        tom.set('name', 'Michael Phelps');
-        yehuda.set('name', 'Usain Bolt');
+      tom.set('name', 'Michael Phelps');
+      yehuda.set('name', 'Usain Bolt');
 
-        assert.ok(tom.get('hasDirtyAttributes'), 'tom is dirty');
-        assert.ok(yehuda.get('hasDirtyAttributes'), 'yehuda is dirty');
+      assert.ok(tom.get('hasDirtyAttributes'), 'tom is dirty');
+      assert.ok(yehuda.get('hasDirtyAttributes'), 'yehuda is dirty');
 
-        let savedTom = assert.assertClean(tom.save()).then(record => {
-          assert.equal(record, tom, 'The record is correct');
-        });
+      let savedTom = assert.assertClean(tom.save()).then(record => {
+        assert.equal(record, tom, 'The record is correct');
+      });
 
-        let savedYehuda = assert.assertClean(yehuda.save()).then(record => {
-          assert.equal(record, yehuda, 'The record is correct');
-        });
+      let savedYehuda = assert.assertClean(yehuda.save()).then(record => {
+        assert.equal(record, yehuda, 'The record is correct');
+      });
 
-        return all([savedTom, savedYehuda]);
-      }
-    );
+      return all([savedTom, savedYehuda]);
+    });
   });
 
   test('An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.', function(assert) {

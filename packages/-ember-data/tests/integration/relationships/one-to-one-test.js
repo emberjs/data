@@ -285,21 +285,13 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     assert.equal(user1bestFriendState.currentState, null, '<user:1>.job is locally empty');
     assert.equal(user1bestFriendState.relationshipIsEmpty, true, 'The relationship is empty');
     assert.equal(user1bestFriendState.relationshipIsStale, false, 'The relationship is not stale');
-    assert.equal(
-      user1bestFriendState.shouldForceReload,
-      false,
-      'The relationship does not require reload'
-    );
+    assert.equal(user1bestFriendState.shouldForceReload, false, 'The relationship does not require reload');
     assert.equal(
       user1bestFriendState.hasAnyRelationshipData,
       true,
       'The relationship considers its canonical data complete'
     );
-    assert.equal(
-      user1bestFriendState.allInverseRecordsAreLoaded,
-      true,
-      'The relationship has all required data'
-    );
+    assert.equal(user1bestFriendState.allInverseRecordsAreLoaded, true, 'The relationship has all required data');
   });
 
   test('Fetching a belongsTo that is set to a different record, sets the old relationship to null - sync', async function(assert) {
@@ -380,21 +372,9 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     assert.equal(user1JobState.currentState, null, '<user:1>.job is locally empty');
     assert.equal(user1JobState.relationshipIsEmpty, true, 'The relationship is empty');
     assert.equal(user1JobState.relationshipIsStale, false, 'The relationship is not stale');
-    assert.equal(
-      user1JobState.shouldForceReload,
-      false,
-      'The relationship does not require reload'
-    );
-    assert.equal(
-      user1JobState.hasAnyRelationshipData,
-      true,
-      'The relationship considers its canonical data complete'
-    );
-    assert.equal(
-      user1JobState.allInverseRecordsAreLoaded,
-      true,
-      'The relationship has all required data'
-    );
+    assert.equal(user1JobState.shouldForceReload, false, 'The relationship does not require reload');
+    assert.equal(user1JobState.hasAnyRelationshipData, true, 'The relationship considers its canonical data complete');
+    assert.equal(user1JobState.allInverseRecordsAreLoaded, true, 'The relationship has all required data');
   });
 
   /*
@@ -501,18 +481,10 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     run(function() {
       newFriend.set('bestFriend', stanleysFriend.get('bestFriend'));
       stanley.get('bestFriend').then(function(fetchedUser) {
-        assert.equal(
-          fetchedUser,
-          newFriend,
-          `Stanley's bestFriend relationship was updated correctly to newFriend`
-        );
+        assert.equal(fetchedUser, newFriend, `Stanley's bestFriend relationship was updated correctly to newFriend`);
       });
       newFriend.get('bestFriend').then(function(fetchedUser) {
-        assert.equal(
-          fetchedUser,
-          stanley,
-          `newFriend's bestFriend relationship was updated correctly to be Stanley`
-        );
+        assert.equal(fetchedUser, stanley, `newFriend's bestFriend relationship was updated correctly to be Stanley`);
       });
     });
   });
@@ -564,46 +536,43 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     });
   });
 
-  testInDebug(
-    "Setting a BelongsTo to a promise that didn't come from a relationship errors out",
-    function(assert) {
-      var stanley, igor;
-      run(function() {
-        stanley = store.push({
-          data: {
-            id: 1,
-            type: 'user',
-            attributes: {
-              name: 'Stanley',
-            },
-            relationships: {
-              bestFriend: {
-                data: {
-                  id: 2,
-                  type: 'user',
-                },
+  testInDebug("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function(assert) {
+    var stanley, igor;
+    run(function() {
+      stanley = store.push({
+        data: {
+          id: 1,
+          type: 'user',
+          attributes: {
+            name: 'Stanley',
+          },
+          relationships: {
+            bestFriend: {
+              data: {
+                id: 2,
+                type: 'user',
               },
             },
           },
-        });
-        igor = store.push({
-          data: {
-            id: 3,
-            type: 'user',
-            attributes: {
-              name: 'Igor',
-            },
-          },
-        });
+        },
       });
+      igor = store.push({
+        data: {
+          id: 3,
+          type: 'user',
+          attributes: {
+            name: 'Igor',
+          },
+        },
+      });
+    });
 
-      assert.expectAssertion(function() {
-        run(function() {
-          stanley.set('bestFriend', resolve(igor));
-        });
-      }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
-    }
-  );
+    assert.expectAssertion(function() {
+      run(function() {
+        stanley.set('bestFriend', resolve(igor));
+      });
+    }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
+  });
 
   test('Setting a BelongsTo to a promise multiple times is resistant to race conditions- async', function(assert) {
     assert.expect(1);
@@ -672,11 +641,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       newFriend.set('bestFriend', stanley.get('bestFriend'));
       newFriend.set('bestFriend', igor.get('bestFriend'));
       newFriend.get('bestFriend').then(function(fetchedUser) {
-        assert.equal(
-          fetchedUser.get('name'),
-          "Igor's friend",
-          'User relationship was updated correctly'
-        );
+        assert.equal(fetchedUser.get('name'), "Igor's friend", 'User relationship was updated correctly');
       });
     });
   });
@@ -830,11 +795,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
         });
 
         stanley.get('bestFriend').then(function(fetchedNewFriend) {
-          assert.equal(
-            fetchedNewFriend,
-            stanleysNewFriend,
-            'User relationship was updated correctly'
-          );
+          assert.equal(fetchedNewFriend, stanleysNewFriend, 'User relationship was updated correctly');
         });
 
         stanleysFriend.get('bestFriend').then(function(fetchedOldFriend) {

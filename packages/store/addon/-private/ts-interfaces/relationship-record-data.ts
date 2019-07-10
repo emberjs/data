@@ -1,8 +1,12 @@
 import Relationships from '../system/relationships/state/create';
 import Relationship from '../system/relationships/state/relationship';
 import RecordData from './record-data';
-import { JsonApiResourceIdentity } from "./record-data-json-api";
-import { RecordDataStoreWrapper } from "./record-data-store-wrapper";
+import { JsonApiResourceIdentity } from './record-data-json-api';
+
+// we import the class not the interface because we expect
+// because we expect to use this internally with the more complete set
+// of APIs
+import { RecordDataStoreWrapper } from './record-data-store-wrapper';
 
 export interface RelationshipRecordData extends RecordData {
   //Required by the relationship layer
@@ -13,7 +17,6 @@ export interface RelationshipRecordData extends RecordData {
   clientId: string | null;
   isEmpty(): boolean;
   getResourceIdentifier(): JsonApiResourceIdentity;
-  store: any;
   _relationships: Relationships;
   _implicitRelationships: {
     [key: string]: Relationship;

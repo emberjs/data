@@ -10,12 +10,7 @@ import Store from '@ember-data/store';
 import Model from '@ember-data/model';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import DS from 'ember-data';
-import {
-  RecordData,
-  recordDataFor,
-  relationshipsFor,
-  relationshipStateFor,
-} from '@ember-data/store/-private';
+import { RecordData, recordDataFor, relationshipsFor, relationshipStateFor } from '@ember-data/store/-private';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
@@ -180,14 +175,8 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
     chris.set('bestDog', null);
     bestDog = await chris.get('bestDog');
 
-    assert.ok(
-      shen.get('bestHuman') === null,
-      "scene 3 - Chris remains no longer Shen's best human"
-    );
-    assert.ok(
-      pirate.get('bestHuman') === null,
-      'scene 3 - pirate no longer has Chris as best human'
-    );
+    assert.ok(shen.get('bestHuman') === null, "scene 3 - Chris remains no longer Shen's best human");
+    assert.ok(pirate.get('bestHuman') === null, 'scene 3 - pirate no longer has Chris as best human');
     assert.ok(bestDog === null, 'scene 3 - Chris has no best dog');
   });
 });
@@ -462,38 +451,37 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     }, `Assertion Failed: Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected a json-api identifier with type 'user' but found '{"id":"1","type":null}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`);
   });
 
-  testInDebug(
-    'Only a record of the same modelClass can be used with a monomorphic belongsTo relationship',
-    function(assert) {
-      assert.expect(1);
-      env.adapter.shouldBackgroundReloadRecord = () => false;
-      run(() => {
-        store.push({
-          data: {
-            id: '1',
-            type: 'post',
-          },
-        });
-        store.push({
-          data: {
-            id: '2',
-            type: 'comment',
-          },
-        });
+  testInDebug('Only a record of the same modelClass can be used with a monomorphic belongsTo relationship', function(
+    assert
+  ) {
+    assert.expect(1);
+    env.adapter.shouldBackgroundReloadRecord = () => false;
+    run(() => {
+      store.push({
+        data: {
+          id: '1',
+          type: 'post',
+        },
       });
+      store.push({
+        data: {
+          id: '2',
+          type: 'comment',
+        },
+      });
+    });
 
-      return run(() => {
-        return hash({
-          post: store.findRecord('post', 1),
-          comment: store.findRecord('comment', 2),
-        }).then(records => {
-          assert.expectAssertion(() => {
-            records.post.set('user', records.comment);
-          }, /The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'/);
-        });
+    return run(() => {
+      return hash({
+        post: store.findRecord('post', 1),
+        comment: store.findRecord('comment', 2),
+      }).then(records => {
+        assert.expectAssertion(() => {
+          records.post.set('user', records.comment);
+        }, /The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'/);
       });
-    }
-  );
+    });
+  });
 
   testInDebug(
     'Only a record of the same base modelClass can be used with a polymorphic belongsTo relationship',
@@ -1303,10 +1291,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
         },
       });
 
-      assert.ok(
-        !relationshipsFor(user).has('favouriteMessage'),
-        'Newly created record should not have relationships'
-      );
+      assert.ok(!relationshipsFor(user).has('favouriteMessage'), 'Newly created record should not have relationships');
     });
   });
 
@@ -1850,27 +1835,24 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     });
   });
 
-  testInDebug(
-    'A belongsTo relationship warns if malformatted data is pushed into the store',
-    function(assert) {
-      assert.expectAssertion(() => {
-        run(() => {
-          let chapter = env.store.push({
-            data: {
-              type: 'chapter',
-              id: 1,
-              relationships: {
-                book: {
-                  data: { id: 1, name: 'The Gallic Wars' },
-                },
+  testInDebug('A belongsTo relationship warns if malformatted data is pushed into the store', function(assert) {
+    assert.expectAssertion(() => {
+      run(() => {
+        let chapter = env.store.push({
+          data: {
+            type: 'chapter',
+            id: 1,
+            relationships: {
+              book: {
+                data: { id: 1, name: 'The Gallic Wars' },
               },
             },
-          });
-          chapter.get('book');
+          },
         });
-      }, /Encountered a relationship identifier without a type for the belongsTo relationship 'book' on <chapter:1>, expected a json-api identifier with type 'book'/);
-    }
-  );
+        chapter.get('book');
+      });
+    }, /Encountered a relationship identifier without a type for the belongsTo relationship 'book' on <chapter:1>, expected a json-api identifier with type 'book'/);
+  });
 
   test("belongsTo relationship with links doesn't trigger extra change notifications - #4942", function(assert) {
     Chapter.reopen({
@@ -2040,10 +2022,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       recordDataFor(book2)._implicitRelationships,
       'no support for implicit relationship in custom RecordData'
     );
-    assert.ok(
-      recordDataFor(book)._implicitRelationships,
-      'support for implicit relationship in default RecordData'
-    );
+    assert.ok(recordDataFor(book)._implicitRelationships, 'support for implicit relationship in default RecordData');
 
     // No inverse setup is created for section
     assert.notOk(section1.get('chapter'));

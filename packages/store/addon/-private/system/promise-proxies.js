@@ -87,19 +87,14 @@ export const PromiseBelongsTo = PromiseObject.extend({
   meta: computed(function() {
     assert(
       'You attempted to access meta on the promise for the async belongsTo relationship ' +
-        `${this.get('_belongsToState').internalModel.modelName}:${
-          this.get('_belongsToState').key
-        }'.` +
+        `${this.get('_belongsToState').internalModel.modelName}:${this.get('_belongsToState').key}'.` +
         '\nUse `record.belongsTo(relationshipName).meta()` instead.',
       false
     );
   }),
 
   reload(options) {
-    assert(
-      'You are trying to reload an async belongsTo before it has been created',
-      this.get('content') !== undefined
-    );
+    assert('You are trying to reload an async belongsTo before it has been created', this.get('content') !== undefined);
     let { key, store, originatingInternalModel } = this._belongsToState;
 
     return store.reloadBelongsTo(this, originatingInternalModel, key, options).then(() => this);
@@ -130,10 +125,7 @@ export function proxyToContent(method) {
 */
 export const PromiseManyArray = PromiseArray.extend({
   reload(options) {
-    assert(
-      'You are trying to reload an async manyArray before it has been created',
-      get(this, 'content')
-    );
+    assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
     this.set('promise', this.get('content').reload(options));
     return this;
   },

@@ -231,11 +231,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       return { data: { type: 'user', id: 2 } };
     };
 
-    assert.deepEqual(
-      contacts.map(c => c.get('id')),
-      ['2', '3', '4'],
-      'user should have expected contacts'
-    );
+    assert.deepEqual(contacts.map(c => c.get('id')), ['2', '3', '4'], 'user should have expected contacts');
 
     run(() => {
       contacts.addObject(env.store.createRecord('user', { id: 5 }));
@@ -329,11 +325,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       return { data: { type: 'user', id: 2 } };
     };
 
-    assert.deepEqual(
-      contacts.map(c => c.get('id')),
-      ['2', '3', '4'],
-      'user should have expected contacts'
-    );
+    assert.deepEqual(contacts.map(c => c.get('id')), ['2', '3', '4'], 'user should have expected contacts');
 
     run(() => {
       contacts.addObject(env.store.createRecord('user', { id: 5 }));
@@ -379,11 +371,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       id: '1',
       relationships: {
         chapters: {
-          data: [
-            { type: 'chapter', id: '2' },
-            { type: 'chapter', id: '3' },
-            { type: 'chapter', id: '3' },
-          ],
+          data: [{ type: 'chapter', id: '2' }, { type: 'chapter', id: '3' }, { type: 'chapter', id: '3' }],
         },
       },
     };
@@ -541,11 +529,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     return all([promise1, promise2]).then(() => {
-      assert.equal(
-        promise1.get('promise'),
-        promise2.get('promise'),
-        'Same promise is returned both times'
-      );
+      assert.equal(promise1.get('promise'), promise2.get('promise'), 'Same promise is returned both times');
     });
   });
 
@@ -885,11 +869,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           return comments.reload();
         })
         .then(function(newComments) {
-          assert.equal(
-            newComments.get('firstObject.body'),
-            'FirstUpdated',
-            'Record body was correctly updated'
-          );
+          assert.equal(newComments.get('firstObject.body'), 'FirstUpdated', 'Record body was correctly updated');
         });
     });
   });
@@ -947,11 +927,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           return comments.reload();
         })
         .then(function(newComments) {
-          assert.equal(
-            newComments.get('firstObject.body'),
-            'FirstUpdated',
-            'Record body was correctly updated'
-          );
+          assert.equal(newComments.get('firstObject.body'), 'FirstUpdated', 'Record body was correctly updated');
         });
     });
   });
@@ -1015,19 +991,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       assert.ok(true, `An error was thrown on the second reload via manyArray: ${e.message}`);
     }
 
-    assert.equal(
-      manyArray.get('isLoaded'),
-      true,
-      'the second reload failed, comments are still loaded though'
-    );
+    assert.equal(manyArray.get('isLoaded'), true, 'the second reload failed, comments are still loaded though');
 
     let reloadedManyArray = await manyArray.reload();
 
-    assert.equal(
-      reloadedManyArray.get('isLoaded'),
-      true,
-      'the third reload worked, comments are loaded again'
-    );
+    assert.equal(reloadedManyArray.get('isLoaded'), true, 'the third reload worked, comments are loaded again');
     assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
     assert.equal(loadingCount, 4, 'We only fired 4 requests');
   });
@@ -1074,11 +1042,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           .then(function(comments) {
             assert.equal(comments.get('isLoaded'), true, 'comments are loaded');
             assert.equal(comments.get('length'), 2, 'comments have 2 length');
-            assert.equal(
-              comments.get('firstObject.body'),
-              'FirstUpdated',
-              'Record body was correctly updated'
-            );
+            assert.equal(comments.get('firstObject.body'), 'FirstUpdated', 'Record body was correctly updated');
           });
       });
     });
@@ -1120,11 +1084,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       env.store.findRecord('post', 1).then(function(post) {
         post.get('comments').then(function(comments) {
           all([comments.reload(), comments.reload(), comments.reload()]).then(function(comments) {
-            assert.equal(
-              count,
-              2,
-              'One request for the original access and only one request for the mulitple reloads'
-            );
+            assert.equal(count, 2, 'One request for the original access and only one request for the mulitple reloads');
             done();
           });
         });
@@ -1171,11 +1131,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           .then(function(comments) {
             assert.equal(comments.get('isLoaded'), true, 'comments are loaded');
             assert.equal(comments.get('length'), 2, 'comments have 2 length');
-            assert.equal(
-              comments.get('firstObject.body'),
-              'FirstUpdated',
-              'Record body was correctly updated'
-            );
+            assert.equal(comments.get('firstObject.body'), 'FirstUpdated', 'Record body was correctly updated');
           });
       });
     });
@@ -1218,11 +1174,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       env.store.findRecord('post', 1).then(function(post) {
         post.get('comments').then(function(comments) {
           all([comments.reload(), comments.reload(), comments.reload()]).then(function(comments) {
-            assert.equal(
-              count,
-              2,
-              'One request for the original access and only one request for the mulitple reloads'
-            );
+            assert.equal(count, 2, 'One request for the original access and only one request for the mulitple reloads');
             done();
           });
         });
@@ -1415,11 +1367,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         post.get('comments').then(function(newComments) {
           assert.equal(comments, newComments, 'hasMany array was kept the same');
           assert.equal(newComments.get('length'), 3, 'comments updated successfully');
-          assert.equal(
-            newComments.objectAt(0).get('body'),
-            'Third',
-            'third comment loaded successfully'
-          );
+          assert.equal(newComments.objectAt(0).get('body'), 'Third', 'third comment loaded successfully');
         });
       });
     });
@@ -1686,16 +1634,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     assert.equal(post.get('contact'), email, 'The polymorphic belongsTo is set up correctly');
-    assert.equal(
-      get(email, 'posts.length'),
-      1,
-      'The inverse has many is set up correctly on the email side.'
-    );
+    assert.equal(get(email, 'posts.length'), 1, 'The inverse has many is set up correctly on the email side.');
   });
 
-  testInDebug("A record can't be created from a polymorphic hasMany relationship", function(
-    assert
-  ) {
+  testInDebug("A record can't be created from a polymorphic hasMany relationship", function(assert) {
     env.adapter.shouldBackgroundReloadRecord = () => false;
     run(function() {
       env.store.push({
@@ -1725,114 +1667,108 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
   });
 
-  testInDebug(
-    'Only records of the same type can be added to a monomorphic hasMany relationship',
-    function(assert) {
-      assert.expect(1);
-      env.adapter.shouldBackgroundReloadRecord = () => false;
-      run(function() {
-        env.store.push({
-          data: [
-            {
-              type: 'post',
-              id: '1',
-              relationships: {
-                comments: {
-                  data: [],
-                },
+  testInDebug('Only records of the same type can be added to a monomorphic hasMany relationship', function(assert) {
+    assert.expect(1);
+    env.adapter.shouldBackgroundReloadRecord = () => false;
+    run(function() {
+      env.store.push({
+        data: [
+          {
+            type: 'post',
+            id: '1',
+            relationships: {
+              comments: {
+                data: [],
               },
             },
-            {
-              type: 'post',
-              id: '2',
+          },
+          {
+            type: 'post',
+            id: '2',
+          },
+        ],
+      });
+    });
+
+    run(function() {
+      all([env.store.findRecord('post', 1), env.store.findRecord('post', 2)]).then(function(records) {
+        assert.expectAssertion(function() {
+          records[0].get('comments').pushObject(records[1]);
+        }, /The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'/);
+      });
+    });
+  });
+
+  testInDebug('Only records of the same base modelClass can be added to a polymorphic hasMany relationship', function(
+    assert
+  ) {
+    assert.expect(2);
+    env.adapter.shouldBackgroundReloadRecord = () => false;
+    run(function() {
+      env.store.push({
+        data: [
+          {
+            type: 'user',
+            id: '1',
+            relationships: {
+              messages: {
+                data: [],
+              },
             },
-          ],
-        });
+          },
+          {
+            type: 'user',
+            id: '2',
+            relationships: {
+              messages: {
+                data: [],
+              },
+            },
+          },
+        ],
+        included: [
+          {
+            type: 'post',
+            id: '1',
+            relationships: {
+              comments: {
+                data: [],
+              },
+            },
+          },
+          {
+            type: 'comment',
+            id: '3',
+          },
+        ],
+      });
+    });
+    let asyncRecords;
+
+    run(function() {
+      asyncRecords = hash({
+        user: env.store.findRecord('user', 1),
+        anotherUser: env.store.findRecord('user', 2),
+        post: env.store.findRecord('post', 1),
+        comment: env.store.findRecord('comment', 3),
       });
 
-      run(function() {
-        all([env.store.findRecord('post', 1), env.store.findRecord('post', 2)]).then(function(
-          records
-        ) {
+      asyncRecords
+        .then(function(records) {
+          records.messages = records.user.get('messages');
+          return hash(records);
+        })
+        .then(function(records) {
+          records.messages.pushObject(records.post);
+          records.messages.pushObject(records.comment);
+          assert.equal(records.messages.get('length'), 2, 'The messages are correctly added');
+
           assert.expectAssertion(function() {
-            records[0].get('comments').pushObject(records[1]);
-          }, /The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'/);
+            records.messages.pushObject(records.anotherUser);
+          }, /The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
         });
-      });
-    }
-  );
-
-  testInDebug(
-    'Only records of the same base modelClass can be added to a polymorphic hasMany relationship',
-    function(assert) {
-      assert.expect(2);
-      env.adapter.shouldBackgroundReloadRecord = () => false;
-      run(function() {
-        env.store.push({
-          data: [
-            {
-              type: 'user',
-              id: '1',
-              relationships: {
-                messages: {
-                  data: [],
-                },
-              },
-            },
-            {
-              type: 'user',
-              id: '2',
-              relationships: {
-                messages: {
-                  data: [],
-                },
-              },
-            },
-          ],
-          included: [
-            {
-              type: 'post',
-              id: '1',
-              relationships: {
-                comments: {
-                  data: [],
-                },
-              },
-            },
-            {
-              type: 'comment',
-              id: '3',
-            },
-          ],
-        });
-      });
-      let asyncRecords;
-
-      run(function() {
-        asyncRecords = hash({
-          user: env.store.findRecord('user', 1),
-          anotherUser: env.store.findRecord('user', 2),
-          post: env.store.findRecord('post', 1),
-          comment: env.store.findRecord('comment', 3),
-        });
-
-        asyncRecords
-          .then(function(records) {
-            records.messages = records.user.get('messages');
-            return hash(records);
-          })
-          .then(function(records) {
-            records.messages.pushObject(records.post);
-            records.messages.pushObject(records.comment);
-            assert.equal(records.messages.get('length'), 2, 'The messages are correctly added');
-
-            assert.expectAssertion(function() {
-              records.messages.pushObject(records.anotherUser);
-            }, /The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
-          });
-      });
-    }
-  );
+    });
+  });
 
   test('A record can be removed from a polymorphic association', function(assert) {
     assert.expect(4);
@@ -1995,11 +1931,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       post.get('comments').pushObject(comment);
       return post.save();
     }).then(() => {
-      assert.equal(
-        get(post, 'comments.length'),
-        1,
-        "The unsaved comment should be in the post's comments array"
-      );
+      assert.equal(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
     });
   });
 
@@ -2055,25 +1987,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           let postComments = comment.get('post.comments');
           let postCommentsLength = comment.get('post.comments.length');
 
-          assert.deepEqual(
-            post,
-            commentPost,
-            'expect the new comments post, to be the correct post'
-          );
+          assert.deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
           assert.ok(postComments, 'comments should exist');
-          assert.equal(
-            postCommentsLength,
-            2,
-            "comment's post should have a internalModel back to comment"
-          );
-          assert.ok(
-            postComments && postComments.indexOf(firstComment) !== -1,
-            'expect to contain first comment'
-          );
-          assert.ok(
-            postComments && postComments.indexOf(comment) !== -1,
-            'expected to contain the new comment'
-          );
+          assert.equal(postCommentsLength, 2, "comment's post should have a internalModel back to comment");
+          assert.ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
+          assert.ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
         });
     });
   });
@@ -2120,11 +2038,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     let fetchedComments = await post.get('comments');
 
     assert.equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
-    assert.equal(
-      fetchedComments.objectAt(0).get('body'),
-      'first',
-      'first comment loaded successfully'
-    );
+    assert.equal(fetchedComments.objectAt(0).get('body'), 'first', 'first comment loaded successfully');
 
     store.push({
       data: {
@@ -2132,11 +2046,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         id: '1',
         relationships: {
           comments: {
-            data: [
-              { type: 'comment', id: '1' },
-              { type: 'comment', id: '2' },
-              { type: 'comment', id: '3' },
-            ],
+            data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
           },
         },
       },
@@ -2145,11 +2055,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     let newlyFetchedComments = await post.get('comments');
 
     assert.equal(newlyFetchedComments.get('length'), 3, 'all three comments fetched successfully');
-    assert.equal(
-      newlyFetchedComments.objectAt(2).get('body'),
-      'third',
-      'third comment loaded successfully'
-    );
+    assert.equal(newlyFetchedComments.objectAt(2).get('body'), 'third', 'third comment loaded successfully');
   });
 
   testInDebug('A sync hasMany errors out if there are unloaded records in it', function(assert) {
@@ -2247,11 +2153,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
       post = env.store.peekRecord('post', 1);
 
-      assert.deepEqual(
-        post.get('comments').toArray(),
-        [comment1, comment2],
-        'Initial ordering is correct'
-      );
+      assert.deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
     });
 
     run(() => {
@@ -2267,11 +2169,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         },
       });
     });
-    assert.deepEqual(
-      post.get('comments').toArray(),
-      [comment2, comment1],
-      'Updated ordering is correct'
-    );
+    assert.deepEqual(post.get('comments').toArray(), [comment2, comment1], 'Updated ordering is correct');
 
     run(() => {
       env.store.push({
@@ -2325,11 +2223,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         },
       });
     });
-    assert.deepEqual(
-      post.get('comments').toArray(),
-      [comment4, comment3],
-      'Updated ordering is correct'
-    );
+    assert.deepEqual(post.get('comments').toArray(), [comment4, comment3], 'Updated ordering is correct');
 
     run(() => {
       env.store.push({
@@ -2395,11 +2289,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
     return run(() => {
       return book.get('chapters').then(fetchedChapters => {
-        assert.equal(
-          fetchedChapters.objectAt(0),
-          chapter,
-          'Book has a chapter after rollback attributes'
-        );
+        assert.equal(fetchedChapters.objectAt(0), chapter, 'Book has a chapter after rollback attributes');
       });
     });
   });
@@ -2441,11 +2331,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     run(() => {
-      assert.equal(
-        book.get('chapters.firstObject'),
-        chapter,
-        'Book has a chapter after rollback attributes'
-      );
+      assert.equal(book.get('chapters.firstObject'), chapter, 'Book has a chapter after rollback attributes');
     });
   });
 
@@ -2847,11 +2733,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             id: '1',
             relationships: {
               comments: {
-                data: [
-                  { type: 'comment', id: '1' },
-                  { type: 'comment', id: '2' },
-                  { type: 'comment', id: '3' },
-                ],
+                data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
               },
             },
           },
@@ -3064,10 +2946,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         },
       });
       user = env.store.peekRecord('user', 1);
-      assert.ok(
-        !relationshipsFor(user).has('messages'),
-        'Newly created record should not have relationships'
-      );
+      assert.ok(!relationshipsFor(user).has('messages'), 'Newly created record should not have relationships');
     });
   });
 
@@ -3114,11 +2993,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     run(() => {
-      assert.equal(
-        relationshipStateFor(book, 'chapters').meta.where,
-        'the lefkada sea',
-        'meta is there'
-      );
+      assert.equal(relationshipStateFor(book, 'chapters').meta.where, 'the lefkada sea', 'meta is there');
     });
   });
 
@@ -3291,11 +3166,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
 
       return post.get('comments').then(comments => {
-        assert.equal(
-          comments.get('firstObject.body'),
-          'This is comment',
-          'comment body is correct'
-        );
+        assert.equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
       });
     });
   });
@@ -3352,11 +3223,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
 
       return post.get('comments').then(comments => {
-        assert.equal(
-          comments.get('firstObject.body'),
-          'This is comment',
-          'comment body is correct'
-        );
+        assert.equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
       });
     });
   });
@@ -3410,11 +3277,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
 
       return post.get('comments').then(comments => {
-        assert.equal(
-          comments.get('firstObject.body'),
-          'This is comment',
-          'comment body is correct'
-        );
+        assert.equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
       });
     });
   });
@@ -3487,11 +3350,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
 
       return post.get('comments').then(comments => {
-        assert.equal(
-          comments.get('firstObject.body'),
-          'This is comment fetched by link',
-          'comment body is correct'
-        );
+        assert.equal(comments.get('firstObject.body'), 'This is comment fetched by link', 'comment body is correct');
       });
     });
   });
@@ -3546,11 +3405,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
 
       return post.get('comments').then(comments => {
-        assert.equal(
-          comments.get('firstObject.body'),
-          'This is updated comment',
-          'comment body is correct'
-        );
+        assert.equal(comments.get('firstObject.body'), 'This is updated comment', 'comment body is correct');
       });
     });
   });
@@ -3639,13 +3494,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         return { data: null };
       };
 
-      assert.deepEqual(posts.map(x => x.get('id')), [
-        'post-1',
-        'post-2',
-        'post-3',
-        'post-4',
-        'post-5',
-      ]);
+      assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-2', 'post-3', 'post-4', 'post-5']);
 
       return run(() => {
         return env.store

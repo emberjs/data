@@ -107,11 +107,7 @@ module('unit/store async-waiter and leak detection', function(hooks) {
 
     await findRecordWasInvokedPromise;
 
-    assert.equal(
-      store._trackedAsyncRequests.length,
-      1,
-      'We return true even though a request is pending'
-    );
+    assert.equal(store._trackedAsyncRequests.length, 1, 'We return true even though a request is pending');
     assert.equal(waiter(), true, 'We return true even though a request is pending');
 
     await request;
@@ -165,11 +161,7 @@ module('unit/store async-waiter and leak detection', function(hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         findRecord() {
-          assert.equal(
-            waiter(),
-            false,
-            'We return false to keep waiting while requests are pending'
-          );
+          assert.equal(waiter(), false, 'We return false to keep waiting while requests are pending');
           throw new Error('Invalid Request!');
         },
       })

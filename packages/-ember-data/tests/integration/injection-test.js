@@ -30,11 +30,7 @@ module('integration/injection factoryFor enabled', function(hooks) {
 
     assert.strictEqual(modelClass, Model, 'expected the factory itself to be returned');
 
-    assert.equal(
-      modelClass.modelName,
-      'super-villain',
-      'expected the factory itself to be returned'
-    );
+    assert.equal(modelClass.modelName, 'super-villain', 'expected the factory itself to be returned');
   });
 });
 

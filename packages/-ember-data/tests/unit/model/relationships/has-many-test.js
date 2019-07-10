@@ -118,11 +118,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       return store
         .findRecord('person', 1)
         .then(person => {
-          assert.equal(
-            get(person, 'name'),
-            'Tom Dale',
-            'precond - retrieves person record from store'
-          );
+          assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
           let tags = get(person, 'tags');
           assert.equal(get(tags, 'length'), 1, 'the list of tags should have the correct length');
@@ -145,16 +141,8 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
             });
           });
 
-          assert.equal(
-            tags,
-            get(person, 'tags'),
-            'a relationship returns the same object every time'
-          );
-          assert.equal(
-            get(get(person, 'tags'), 'length'),
-            2,
-            'the length is updated after new data is loaded'
-          );
+          assert.equal(tags, get(person, 'tags'), 'a relationship returns the same object every time');
+          assert.equal(get(get(person, 'tags'), 'length'), 2, 'the length is updated after new data is loaded');
 
           assert.strictEqual(
             get(person, 'tags').objectAt(0),
@@ -207,11 +195,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           return store.findRecord('person', 4);
         })
         .then(cyvid => {
-          assert.equal(
-            get(cyvid, 'name'),
-            'Cyvid Hamluck',
-            'precond - retrieves person record from store'
-          );
+          assert.equal(get(cyvid, 'name'), 'Cyvid Hamluck', 'precond - retrieves person record from store');
 
           let pets = get(cyvid, 'pets');
           assert.equal(get(pets, 'length'), 1, 'the list of pets should have the correct length');
@@ -234,16 +218,8 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
             });
           });
 
-          assert.equal(
-            pets,
-            get(cyvid, 'pets'),
-            'a relationship returns the same object every time'
-          );
-          assert.equal(
-            get(get(cyvid, 'pets'), 'length'),
-            2,
-            'the length is updated after new data is loaded'
-          );
+          assert.equal(pets, get(cyvid, 'pets'), 'a relationship returns the same object every time');
+          assert.equal(get(get(cyvid, 'pets'), 'length'), 2, 'the length is updated after new data is loaded');
         });
     });
   });
@@ -889,11 +865,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         .then(function(person) {
           wycats = person;
 
-          assert.equal(
-            get(wycats, 'name'),
-            'Yehuda Katz',
-            'precond - retrieves person record from store'
-          );
+          assert.equal(get(wycats, 'name'), 'Yehuda Katz', 'precond - retrieves person record from store');
 
           return hash({
             wycats,
@@ -901,16 +873,8 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           });
         })
         .then(records => {
-          assert.equal(
-            get(records.tags, 'length'),
-            1,
-            'the list of tags should have the correct length'
-          );
-          assert.equal(
-            get(records.tags.objectAt(0), 'name'),
-            'oohlala',
-            'the first tag should be a Tag'
-          );
+          assert.equal(get(records.tags, 'length'), 1, 'the list of tags should have the correct length');
+          assert.equal(get(records.tags.objectAt(0), 'name'), 'oohlala', 'the first tag should be a Tag');
 
           assert.strictEqual(
             records.tags.objectAt(0),
@@ -1070,16 +1034,8 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
 
     return run(() => {
       return env.store.findRecord('person', 1).then(person => {
-        assert.equal(
-          get(person, 'name'),
-          'Tom Dale',
-          'precond - retrieves person record from store'
-        );
-        assert.equal(
-          get(person, 'tags.length'),
-          2,
-          'the list of tags should have the correct length'
-        );
+        assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
+        assert.equal(get(person, 'tags.length'), 2, 'the list of tags should have the correct length');
       });
     });
   });
@@ -1280,11 +1236,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     const rebel = store.peekRecord('pet', '3');
 
     assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-    assert.deepEqual(
-      pets.map(p => get(p, 'id')),
-      ['1'],
-      'precond - relationship has the correct pets to start'
-    );
+    assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pets to start');
 
     run(() => {
       pets.pushObjects([rambo, rebel]);
@@ -1302,248 +1254,210 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       });
     });
 
-    assert.deepEqual(
-      pets.map(p => get(p, 'id')),
-      ['2', '3'],
-      'relationship now has the correct two pets'
-    );
+    assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
   });
 
-  todo(
-    '[push hasMany] new items added to a hasMany relationship are not cleared by a store.push',
-    function(assert) {
-      assert.expect(5);
+  todo('[push hasMany] new items added to a hasMany relationship are not cleared by a store.push', function(assert) {
+    assert.expect(5);
 
-      const Person = DS.Model.extend({
-        name: DS.attr('string'),
-        pets: DS.hasMany('pet', { async: false, inverse: null }),
-      });
+    const Person = DS.Model.extend({
+      name: DS.attr('string'),
+      pets: DS.hasMany('pet', { async: false, inverse: null }),
+    });
 
-      const Pet = DS.Model.extend({
-        name: DS.attr('string'),
-        person: DS.belongsTo('person', { async: false, inverse: null }),
-      });
+    const Pet = DS.Model.extend({
+      name: DS.attr('string'),
+      person: DS.belongsTo('person', { async: false, inverse: null }),
+    });
 
-      let env = setupStore({
-        person: Person,
-        pet: Pet,
-      });
-      env.adapter.shouldBackgroundReloadRecord = () => false;
-      env.adapter.deleteRecord = () => {
-        return EmberPromise.resolve({ data: null });
-      };
+    let env = setupStore({
+      person: Person,
+      pet: Pet,
+    });
+    env.adapter.shouldBackgroundReloadRecord = () => false;
+    env.adapter.deleteRecord = () => {
+      return EmberPromise.resolve({ data: null });
+    };
 
-      let { store } = env;
+    let { store } = env;
 
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
+    run(() => {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
+          relationships: {
+            pets: {
+              data: [{ type: 'pet', id: '1' }],
+            },
+          },
+        },
+        included: [
+          {
+            type: 'pet',
             id: '1',
             attributes: {
-              name: 'Chris Thoburn',
-            },
-            relationships: {
-              pets: {
-                data: [{ type: 'pet', id: '1' }],
-              },
+              name: 'Shenanigans',
             },
           },
-          included: [
-            {
-              type: 'pet',
-              id: '1',
-              attributes: {
-                name: 'Shenanigans',
-              },
-            },
-            {
-              type: 'pet',
-              id: '2',
-              attributes: {
-                name: 'Rambunctious',
-              },
-            },
-            {
-              type: 'pet',
-              id: '3',
-              attributes: {
-                name: 'Rebel',
-              },
-            },
-          ],
-        });
-      });
-
-      const person = store.peekRecord('person', '1');
-      const pets = run(() => person.get('pets'));
-
-      const shen = pets.objectAt(0);
-      const rebel = store.peekRecord('pet', '3');
-
-      assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-      assert.deepEqual(
-        pets.map(p => get(p, 'id')),
-        ['1'],
-        'precond - relationship has the correct pets to start'
-      );
-
-      run(() => {
-        pets.pushObjects([rebel]);
-      });
-
-      assert.deepEqual(
-        pets.map(p => get(p, 'id')),
-        ['1', '3'],
-        'precond2 - relationship now has the correct two pets'
-      );
-
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            relationships: {
-              pets: {
-                data: [{ type: 'pet', id: '2' }],
-              },
+          {
+            type: 'pet',
+            id: '2',
+            attributes: {
+              name: 'Rambunctious',
             },
           },
-        });
+          {
+            type: 'pet',
+            id: '3',
+            attributes: {
+              name: 'Rebel',
+            },
+          },
+        ],
       });
+    });
 
-      let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalMembers.list;
+    const person = store.peekRecord('person', '1');
+    const pets = run(() => person.get('pets'));
 
-      assert.todo.deepEqual(
-        pets.map(p => get(p, 'id')),
-        ['2', '3'],
-        'relationship now has the correct current pets'
-      );
-      assert.deepEqual(
-        hasManyCanonical.map(p => get(p, 'id')),
-        ['2'],
-        'relationship now has the correct canonical pets'
-      );
-    }
-  );
+    const shen = pets.objectAt(0);
+    const rebel = store.peekRecord('pet', '3');
 
-  todo(
-    '[push hasMany] items removed from a hasMany relationship are not cleared by a store.push',
-    function(assert) {
-      assert.expect(5);
+    assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+    assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pets to start');
 
-      const Person = DS.Model.extend({
-        name: DS.attr('string'),
-        pets: DS.hasMany('pet', { async: false, inverse: null }),
+    run(() => {
+      pets.pushObjects([rebel]);
+    });
+
+    assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '3'], 'precond2 - relationship now has the correct two pets');
+
+    run(() => {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            pets: {
+              data: [{ type: 'pet', id: '2' }],
+            },
+          },
+        },
       });
+    });
 
-      const Pet = DS.Model.extend({
-        name: DS.attr('string'),
-        person: DS.belongsTo('person', { async: false, inverse: null }),
-      });
+    let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalMembers.list;
 
-      let env = setupStore({
-        person: Person,
-        pet: Pet,
-      });
-      env.adapter.shouldBackgroundReloadRecord = () => false;
-      env.adapter.deleteRecord = () => {
-        return EmberPromise.resolve({ data: null });
-      };
+    assert.todo.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct current pets');
+    assert.deepEqual(hasManyCanonical.map(p => get(p, 'id')), ['2'], 'relationship now has the correct canonical pets');
+  });
 
-      let { store } = env;
+  todo('[push hasMany] items removed from a hasMany relationship are not cleared by a store.push', function(assert) {
+    assert.expect(5);
 
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
+    const Person = DS.Model.extend({
+      name: DS.attr('string'),
+      pets: DS.hasMany('pet', { async: false, inverse: null }),
+    });
+
+    const Pet = DS.Model.extend({
+      name: DS.attr('string'),
+      person: DS.belongsTo('person', { async: false, inverse: null }),
+    });
+
+    let env = setupStore({
+      person: Person,
+      pet: Pet,
+    });
+    env.adapter.shouldBackgroundReloadRecord = () => false;
+    env.adapter.deleteRecord = () => {
+      return EmberPromise.resolve({ data: null });
+    };
+
+    let { store } = env;
+
+    run(() => {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
+          relationships: {
+            pets: {
+              data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '3' }],
+            },
+          },
+        },
+        included: [
+          {
+            type: 'pet',
             id: '1',
             attributes: {
-              name: 'Chris Thoburn',
-            },
-            relationships: {
-              pets: {
-                data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '3' }],
-              },
+              name: 'Shenanigans',
             },
           },
-          included: [
-            {
-              type: 'pet',
-              id: '1',
-              attributes: {
-                name: 'Shenanigans',
-              },
-            },
-            {
-              type: 'pet',
-              id: '2',
-              attributes: {
-                name: 'Rambunctious',
-              },
-            },
-            {
-              type: 'pet',
-              id: '3',
-              attributes: {
-                name: 'Rebel',
-              },
-            },
-          ],
-        });
-      });
-
-      const person = store.peekRecord('person', '1');
-      const pets = run(() => person.get('pets'));
-
-      const shen = pets.objectAt(0);
-      const rebel = store.peekRecord('pet', '3');
-
-      assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-      assert.deepEqual(
-        pets.map(p => get(p, 'id')),
-        ['1', '3'],
-        'precond - relationship has the correct pets to start'
-      );
-
-      run(() => {
-        pets.removeObject(rebel);
-      });
-
-      assert.deepEqual(
-        pets.map(p => get(p, 'id')),
-        ['1'],
-        'precond2 - relationship now has the correct pet'
-      );
-
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            relationships: {
-              pets: {
-                data: [{ type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
-              },
+          {
+            type: 'pet',
+            id: '2',
+            attributes: {
+              name: 'Rambunctious',
             },
           },
-        });
+          {
+            type: 'pet',
+            id: '3',
+            attributes: {
+              name: 'Rebel',
+            },
+          },
+        ],
       });
+    });
 
-      let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalMembers.list;
+    const person = store.peekRecord('person', '1');
+    const pets = run(() => person.get('pets'));
 
-      assert.todo.deepEqual(
-        pets.map(p => get(p, 'id')),
-        ['2'],
-        'relationship now has the correct current pets'
-      );
-      assert.deepEqual(
-        hasManyCanonical.map(p => get(p, 'id')),
-        ['2', '3'],
-        'relationship now has the correct canonical pets'
-      );
-    }
-  );
+    const shen = pets.objectAt(0);
+    const rebel = store.peekRecord('pet', '3');
+
+    assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+    assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '3'], 'precond - relationship has the correct pets to start');
+
+    run(() => {
+      pets.removeObject(rebel);
+    });
+
+    assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond2 - relationship now has the correct pet');
+
+    run(() => {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            pets: {
+              data: [{ type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
+            },
+          },
+        },
+      });
+    });
+
+    let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalMembers.list;
+
+    assert.todo.deepEqual(pets.map(p => get(p, 'id')), ['2'], 'relationship now has the correct current pets');
+    assert.deepEqual(
+      hasManyCanonical.map(p => get(p, 'id')),
+      ['2', '3'],
+      'relationship now has the correct canonical pets'
+    );
+  });
 
   test('new items added to an async hasMany relationship are not cleared by a delete', function(assert) {
     assert.expect(7);
@@ -1619,11 +1533,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         const rebel = store.peekRecord('pet', '3');
 
         assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-        assert.deepEqual(
-          pets.map(p => get(p, 'id')),
-          ['1'],
-          'precond - relationship has the correct pet to start'
-        );
+        assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pet to start');
         assert.equal(get(petsProxy, 'length'), 1, 'precond - proxy has only one pet to start');
 
         pets.pushObjects([rambo, rebel]);
@@ -1638,11 +1548,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         return shen.destroyRecord({}).then(() => {
           shen.unloadRecord();
 
-          assert.deepEqual(
-            pets.map(p => get(p, 'id')),
-            ['2', '3'],
-            'relationship now has the correct two pets'
-          );
+          assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
           assert.equal(get(petsProxy, 'length'), 2, 'proxy now reflects two pets');
         });
       });
@@ -1725,11 +1631,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         shen.unloadRecord();
 
         dog = person.get('dog');
-        assert.equal(
-          dog,
-          rambo,
-          'The currentState of the belongsTo was preserved after the delete'
-        );
+        assert.equal(dog, rambo, 'The currentState of the belongsTo was preserved after the delete');
       });
     });
   });
@@ -1809,10 +1711,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           shen.unloadRecord();
 
           dog = person.get('dog.content');
-          assert.ok(
-            dog === rambo,
-            'The currentState of the belongsTo was preserved after the delete'
-          );
+          assert.ok(dog === rambo, 'The currentState of the belongsTo was preserved after the delete');
         });
       });
     });
@@ -2058,11 +1957,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     const rebel = store.peekRecord('pet', '3');
 
     assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-    assert.deepEqual(
-      pets.map(p => get(p, 'id')),
-      ['1', '2'],
-      'precond - relationship has the correct pets to start'
-    );
+    assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2'], 'precond - relationship has the correct pets to start');
 
     run(() => {
       pets.pushObjects([rebel]);
@@ -2331,10 +2226,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     let { store } = setupStore({ tag: Tag, person: Person });
     let tag = store.createRecord('tag');
 
-    assert.ok(
-      tag.get('people') instanceof DS.PromiseArray,
-      'people should be an async relationship'
-    );
+    assert.ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
   });
 
   test('hasMany is stable', function(assert) {
@@ -2385,11 +2277,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         let isRecordDataBuild = people.recordData !== undefined;
         tag.unloadRecord();
         // TODO Check all unloading behavior
-        assert.equal(
-          people.isDestroying,
-          false,
-          'people is NOT destroying sync after unloadRecord'
-        );
+        assert.equal(people.isDestroying, false, 'people is NOT destroying sync after unloadRecord');
         assert.equal(people.isDestroyed, false, 'people is NOT destroyed sync after unloadRecord');
 
         // unload is not the same as destroy, and we may cancel
@@ -2401,23 +2289,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           isRecordDataBuild,
           'peopleProxy is not destroying sync after unloadRecord'
         );
-        assert.equal(
-          peopleProxy.isDestroyed,
-          false,
-          'peopleProxy is NOT YET destroyed sync after unloadRecord'
-        );
+        assert.equal(peopleProxy.isDestroyed, false, 'peopleProxy is NOT YET destroyed sync after unloadRecord');
       });
 
-      assert.equal(
-        peopleProxy.isDestroying,
-        true,
-        'peopleProxy is destroying after the run post unloadRecord'
-      );
-      assert.equal(
-        peopleProxy.isDestroyed,
-        true,
-        'peopleProxy is destroyed after the run post unloadRecord'
-      );
+      assert.equal(peopleProxy.isDestroying, true, 'peopleProxy is destroying after the run post unloadRecord');
+      assert.equal(peopleProxy.isDestroyed, true, 'peopleProxy is destroyed after the run post unloadRecord');
     });
   });
 
@@ -2444,17 +2320,9 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     //assert.ok(!hasManyRelationship._manyArray);
 
     run(() => {
-      assert.equal(
-        peopleDidChange,
-        0,
-        'expect people hasMany to not emit a change event (before access)'
-      );
+      assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
       tag.get('people');
-      assert.equal(
-        peopleDidChange,
-        0,
-        'expect people hasMany to not emit a change event (sync after access)'
-      );
+      assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (sync after access)');
     });
 
     assert.equal(
@@ -2467,11 +2335,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     let person = env.store.createRecord('person');
 
     run(() => {
-      assert.equal(
-        peopleDidChange,
-        0,
-        'expect people hasMany to not emit a change event (before access)'
-      );
+      assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
       tag.get('people').addObject(person);
       assert.equal(peopleDidChange, 1, 'expect people hasMany to have changed exactly once');
     });

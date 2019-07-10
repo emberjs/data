@@ -7,9 +7,7 @@ import { get } from '@ember/object';
   @param modelClass
  */
 function modelHasAttributeOrRelationshipNamedType(modelClass) {
-  return (
-    get(modelClass, 'attributes').has('type') || get(modelClass, 'relationshipsByName').has('type')
-  );
+  return get(modelClass, 'attributes').has('type') || get(modelClass, 'relationshipsByName').has('type');
 }
 
 export { modelHasAttributeOrRelationshipNamedType };

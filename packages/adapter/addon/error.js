@@ -172,10 +172,7 @@ AdapterError.extend = extendFn(AdapterError);
   @class InvalidError
   @extends AdapterError
 */
-export const InvalidError = extend(
-  AdapterError,
-  'The adapter rejected the commit because it was invalid'
-);
+export const InvalidError = extend(AdapterError, 'The adapter rejected the commit because it was invalid');
 
 /**
   A `TimeoutError` is used by an adapter to signal that a request
@@ -321,9 +318,6 @@ export const ConflictError = extend(AdapterError, 'The adapter operation failed 
   @class ServerError
   @extends AdapterError
 */
-export const ServerError = extend(
-  AdapterError,
-  'The adapter operation failed due to a server error'
-);
+export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');
 
 export { errorsHashToArray, errorsArrayToHash } from '@ember-data/store/-private';

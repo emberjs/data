@@ -32,9 +32,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('const { Model } = DS;')
           .to.contain('export default Model.extend(');
 
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(
-          fixture(__dirname, 'model-test/rfc232.js')
-        );
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
       });
     });
 
@@ -66,9 +64,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain("  name: attr('string'),")
           .to.contain("  customAttr: attr('custom-transform')");
 
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(
-          fixture(__dirname, 'model-test/rfc232.js')
-        );
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
       });
     });
 
@@ -100,9 +96,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain("  comments: hasMany('comment')")
           .to.contain("  otherComments: hasMany('comment')");
 
-        expect(_file('tests/unit/models/post-test.js')).to.equal(
-          fixture(__dirname, 'model-test/post-default.js')
-        );
+        expect(_file('tests/unit/models/post-test.js')).to.equal(fixture(__dirname, 'model-test/post-default.js'));
       });
     });
 
@@ -110,36 +104,26 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       let args = ['model-test', 'foo'];
 
       return emberGenerateDestroy(args, _file => {
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(
-          fixture(__dirname, 'model-test/rfc232.js')
-        );
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
       });
     });
 
     describe('model-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
       it('model-test-test foo', function() {
         return emberGenerateDestroy(['model-test', 'foo'], _file => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(
-            fixture(__dirname, 'model-test/foo-default.js')
-          );
+          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
         });
       });
     });
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
@@ -147,9 +131,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         let args = ['model-test', 'foo'];
 
         return emberGenerateDestroy(args, _file => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(
-            fixture(__dirname, 'model-test/foo-mocha-0.12.js')
-          );
+          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-mocha-0.12.js'));
         });
       });
     });
@@ -164,9 +146,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         let args = ['model-test', 'foo'];
 
         return emberGenerateDestroy(args, _file => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(
-            fixture(__dirname, 'model-test/mocha-rfc232.js')
-          );
+          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/mocha-rfc232.js'));
         });
       });
     });
@@ -188,9 +168,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
             .to.contain('const { Model } = DS;')
             .to.contain('export default Model.extend(');
 
-          expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture(__dirname, 'model-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/model-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -226,9 +204,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
             .to.contain("  name: attr('string'),")
             .to.contain("  customAttr: attr('custom-transform')");
 
-          expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture(__dirname, 'model-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/model-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -282,9 +258,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       return emberGenerateDestroy(
         args,
         _file => {
-          expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture(__dirname, 'model-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/model-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -292,10 +266,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
     describe('model-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -314,10 +285,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
@@ -374,9 +342,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
             .to.contain("import DS from 'ember-data';")
             .to.contain('export default class FooModel extends Model {');
 
-          expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture(__dirname, 'model-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/model-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -412,9 +378,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
             .to.contain("  @attr('string') name;")
             .to.contain("  @attr('custom-transform') customAttr;");
 
-          expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture(__dirname, 'model-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/model-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -468,9 +432,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       return emberGenerateDestroy(
         args,
         _file => {
-          expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture(__dirname, 'model-test/rfc232.js')
-          );
+          expect(_file('src/data/models/foo/model-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
         },
         { isModuleUnification: true }
       );
@@ -478,10 +440,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
     describe('model-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -500,10 +459,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 

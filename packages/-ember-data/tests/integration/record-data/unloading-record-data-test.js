@@ -148,14 +148,8 @@ module('RecordData Compatibility', function(hooks) {
     let shen = pets.objectAt(0);
 
     assert.equal(shen.get('name'), 'Shen', 'We found Shen');
-    assert.ok(
-      recordDataFor(chris) instanceof RecordData,
-      'We used the default record-data for person'
-    );
-    assert.ok(
-      recordDataFor(shen) instanceof CustomRecordData,
-      'We used the custom record-data for pets'
-    );
+    assert.ok(recordDataFor(chris) instanceof RecordData, 'We used the default record-data for person');
+    assert.ok(recordDataFor(shen) instanceof CustomRecordData, 'We used the custom record-data for pets');
 
     try {
       run(() => chris.unloadRecord());
@@ -238,11 +232,7 @@ module('RecordData Compatibility', function(hooks) {
         }
 
         findRecord() {
-          assert.equal(
-            recordDataInstances,
-            0,
-            'no instance created from findRecord before adapter promise resolves'
-          );
+          assert.equal(recordDataInstances, 0, 'no instance created from findRecord before adapter promise resolves');
 
           return resolve({
             data: {

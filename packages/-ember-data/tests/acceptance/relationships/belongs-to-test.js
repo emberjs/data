@@ -289,14 +289,8 @@ module('async belongs-to rendering tests', function(hooks) {
       await settled();
 
       assert.equal(this.element.textContent.trim(), '');
-      assert.ok(
-        shen.get('bestHuman') === null,
-        "scene 3 - Chris remains no longer Shen's best human"
-      );
-      assert.ok(
-        pirate.get('bestHuman') === null,
-        'scene 3 - pirate no longer has Chris as best human'
-      );
+      assert.ok(shen.get('bestHuman') === null, "scene 3 - Chris remains no longer Shen's best human");
+      assert.ok(pirate.get('bestHuman') === null, 'scene 3 - pirate no longer has Chris as best human');
       assert.ok(bestDog === null, 'scene 3 - Chris has no best dog');
     });
   });
@@ -381,9 +375,7 @@ module('async belongs-to rendering tests', function(hooks) {
         data: people.dict['5:has-parent-no-children'],
       });
 
-      adapter.setupPayloads(assert, [
-        new ServerError([], 'hard error while finding <person>5:has-parent-no-children'),
-      ]);
+      adapter.setupPayloads(assert, [new ServerError([], 'hard error while finding <person>5:has-parent-no-children')]);
 
       // render
       this.set('sedona', sedona);
@@ -417,41 +409,17 @@ module('async belongs-to rendering tests', function(hooks) {
 
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
-      assert.equal(
-        relationshipState.hasDematerializedInverse,
-        true,
-        'The relationship inverse is dematerialized'
-      );
+      assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship inverse is dematerialized');
       assert.equal(
         relationshipState.allInverseRecordsAreLoaded,
         false,
         'The relationship is missing some or all related resources'
       );
-      assert.equal(
-        relationshipState.hasAnyRelationshipData,
-        true,
-        'The relationship knows which record it needs'
-      );
-      assert.equal(
-        !!RelationshipPromiseCache['parent'],
-        false,
-        'The relationship has no fetch promise'
-      );
-      assert.equal(
-        relationshipState.hasFailedLoadAttempt === true,
-        true,
-        'The relationship has attempted a load'
-      );
-      assert.equal(
-        relationshipState.shouldForceReload === false,
-        true,
-        'The relationship will not force a reload'
-      );
-      assert.equal(
-        !!RelationshipProxyCache['parent'],
-        true,
-        'The relationship has a promise proxy'
-      );
+      assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
+      assert.equal(!!RelationshipPromiseCache['parent'], false, 'The relationship has no fetch promise');
+      assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
+      assert.equal(relationshipState.shouldForceReload === false, true, 'The relationship will not force a reload');
+      assert.equal(!!RelationshipProxyCache['parent'], true, 'The relationship has a promise proxy');
       assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
 
       try {
