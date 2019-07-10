@@ -2,7 +2,7 @@
 
 const requireEsm = require('esm')(module);
 function getFeatures() {
-  const { DEFAULT_FEATURES: features } = requireEsm(
+  const { default: features } = requireEsm(
     '@ember-data/canary-features/addon/default-features.js'
   );
 
