@@ -9,13 +9,13 @@ import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
-import { default as RSVP, Promise } from 'rsvp';
+import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
 import Ember from 'ember';
 import { InvalidError } from '@ember-data/adapter/error';
-import { assert, deprecate, warn, inspect } from '@ember/debug';
+import { assert, warn, deprecate, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from './normalize-model-name';
@@ -38,6 +38,7 @@ import InternalModel from './model/internal-model';
 import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { Record } from '../ts-interfaces/record';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
@@ -699,7 +700,7 @@ const Store = Service.extend({
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  findRecord(modelName, id, options) {
+  findRecord(modelName: string, id: string | number, options?: any): Promise<Record> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
     }
@@ -751,7 +752,7 @@ const Store = Service.extend({
     return Promise.resolve(internalModel);
   },
 
-  _findByInternalModel(internalModel, options = {}) {
+  _findByInternalModel(internalModel, options: { preload?: any } = {}) {
     if (options.preload) {
       internalModel.preloadData(options.preload);
     }
@@ -805,7 +806,7 @@ const Store = Service.extend({
       promises[i] = this.findRecord(normalizedModelName, ids[i]);
     }
 
-    return promiseArray(RSVP.all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
+    return promiseArray(all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
   },
 
   /**
@@ -847,8 +848,13 @@ const Store = Service.extend({
     }
 
     let { id, modelName } = internalModel;
-    let resolver = RSVP.defer(`Fetching ${modelName}' with id: ${id}`);
-    let pendingFetchItem = {
+    let resolver = defer(`Fetching ${modelName}' with id: ${id}`);
+    let pendingFetchItem: {
+      internalModel: InternalModel;
+      resolver: RSVP.Deferred<unknown>;
+      options: any;
+      trace?: Error;
+    } = {
       internalModel,
       resolver,
       options,
@@ -937,7 +943,7 @@ const Store = Service.extend({
       }
 
       // reject missing records
-      let missingInternalModels = [];
+      let missingInternalModels: InternalModel[] = [];
 
       for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
         let internalModel = expectedInternalModels[i];
@@ -961,10 +967,10 @@ const Store = Service.extend({
       }
     }
 
-    function rejectInternalModels(internalModels, error) {
+    function rejectInternalModels(internalModels: InternalModel[], error?: Error) {
       for (let i = 0, l = internalModels.length; i < l; i++) {
         let internalModel = internalModels[i];
-        let pair = seeking[internalModel.id];
+        let pair = seeking[internalModel.id as string];
 
         if (pair) {
           pair.resolver.reject(
@@ -1302,7 +1308,7 @@ const Store = Service.extend({
 
   _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource) {
-      return RSVP.resolve([]);
+      return resolve([]);
     }
 
     let {
@@ -1326,7 +1332,9 @@ const Store = Service.extend({
     if (shouldFindViaLink) {
       return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options).then(
         internalModels => {
-          let payload = { data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()) };
+          let payload: { data: any[]; meta?: any } = {
+            data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()),
+          };
           if (internalModels.meta !== undefined) {
             payload.meta = internalModels.meta;
           }
@@ -1359,7 +1367,7 @@ const Store = Service.extend({
 
     // we were explicitly told we have no data and no links.
     //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-    return RSVP.resolve([]);
+    return resolve([]);
   },
 
   _getHasManyByJsonApiResource(resource) {
@@ -1399,7 +1407,7 @@ const Store = Service.extend({
   _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource || !resource.links || !resource.links.related) {
       // should we warn here, not sure cause its an internal method
-      return RSVP.resolve(null);
+      return resolve(null);
     }
     return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
       internalModel => {
@@ -1416,7 +1424,7 @@ const Store = Service.extend({
 
   _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource) {
-      return RSVP.resolve(null);
+      return resolve(null);
     }
 
     let internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
@@ -1460,7 +1468,7 @@ const Store = Service.extend({
         We have canonical data, but our local state is empty
        */
       if (localDataIsEmpty) {
-        return RSVP.resolve(null);
+        return resolve(null);
       }
 
       return this._findByInternalModel(internalModel, options);
@@ -1469,7 +1477,7 @@ const Store = Service.extend({
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
 
     if (resourceIsLocal) {
-      return RSVP.resolve(internalModel.getRecord());
+      return resolve(internalModel.getRecord());
     }
 
     // fetch by data
@@ -1481,7 +1489,7 @@ const Store = Service.extend({
 
     // we were explicitly told we have no data and no links.
     //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-    return RSVP.resolve(null);
+    return resolve(null);
   },
 
   /**
@@ -1545,7 +1553,7 @@ const Store = Service.extend({
       typeof modelName === 'string'
     );
 
-    let adapterOptionsWrapper = {};
+    let adapterOptionsWrapper: { adapterOptions?: any } = {};
 
     if (options && options.adapterOptions) {
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
@@ -1684,7 +1692,7 @@ const Store = Service.extend({
 
     let normalizedModelName = normalizeModelName(modelName);
     let adapter = this.adapterFor(normalizedModelName);
-    let adapterOptionsWrapper = {};
+    let adapterOptionsWrapper: { adapterOptions?: any } = {};
 
     if (options && options.adapterOptions) {
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
@@ -1920,7 +1928,7 @@ const Store = Service.extend({
     @param {RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll(modelName, array, options = {}) {
+  _fetchAll(modelName, array, options: { reload?: boolean; backgroundReload?: boolean } = {}) {
     let adapter = this.adapterFor(modelName);
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
