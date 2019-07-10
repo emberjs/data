@@ -17,10 +17,6 @@ export interface RecordDataStoreWrapper {
   /**
    * update the `id` for the record of type `modelName` with the corresponding `clientId`
    * This operation can only be done for records whose `id` is `null`.
-   *
-   * @param modelName
-   * @param id
-   * @param clientId
    */
   setRecordId(modelName: string, id: string, clientId: string): void;
 

@@ -16,10 +16,7 @@ export interface UpgradeMap {
  * Casts a public interface to the matching internal class implementation
  *
  * @internal
- * @param external
  */
-export function upgradeForInternal<K extends keyof UpgradeMap>(external: {
-  [BRAND_SYMBOL]: K;
-}): UpgradeMap[K] {
+export function upgradeForInternal<K extends keyof UpgradeMap>(external: { [BRAND_SYMBOL]: K }): UpgradeMap[K] {
   return (external as unknown) as UpgradeMap[K];
 }

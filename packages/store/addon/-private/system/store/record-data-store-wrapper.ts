@@ -25,7 +25,6 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
    * in DEBUG for relationships. Should be refactored away.
    *
    * @internal
-   * @param modelName
    */
   _hasModelFor(modelName: string) {
     return this._store._hasModelFor(modelName);
@@ -33,10 +32,6 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
 
   /**
    * @internal
-   * @param modelName
-   * @param id
-   * @param clientId
-   * @param key
    */
   _scheduleManyArrayUpdate(modelName: string, id: string | null, clientId: string, key: string): void;
   _scheduleManyArrayUpdate(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
