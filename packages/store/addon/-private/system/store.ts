@@ -3327,4 +3327,6 @@ if (DEBUG) {
   };
 }
 
+type Store = InstanceType<typeof Store>;
+
 export default Store;

@@ -5,7 +5,6 @@ import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import { upgradeForInternal } from '../ts-upgrade-map';
 import RecordData from '../../ts-interfaces/record-data';
 
-type Store = InstanceType<typeof Store>;
 type StringOrNullOrUndefined = string | null | undefined;
 
 const MISSING_ID_ARG_ERROR_MESSAGE = `Either an id or a clientId is required as an argument.`;

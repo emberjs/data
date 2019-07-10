@@ -5,8 +5,6 @@ import { RelationshipSchema } from '../ts-interfaces/record-data-schemas';
 import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
 import Store from './store';
 
-type Store = InstanceType<typeof Store>;
-
 export function typeForRelationshipMeta(meta) {
   let modelName;
 
