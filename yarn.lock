@@ -3313,10 +3313,10 @@ broccoli-persistent-filter@^1.1.5, broccoli-persistent-filter@^1.1.6, broccoli-p
     symlink-or-copy "^1.0.1"
     walk-sync "^0.3.1"
 
-broccoli-persistent-filter@^2.1.1, broccoli-persistent-filter@^2.2.1, broccoli-persistent-filter@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/broccoli-persistent-filter/-/broccoli-persistent-filter-2.3.0.tgz#191e6272e20693c6e110e844cce58bdb46238035"
-  integrity sha512-3ckoDlHB4IVsMrPFUOmFhPlSj6GC6p4PgxVRZU581GCq0j2IdEfmhzjm/s+ctkkl2PFUANBSs3Ot5W9wYgP4ZQ==
+broccoli-persistent-filter@^2.1.1, broccoli-persistent-filter@^2.2.1, broccoli-persistent-filter@^2.3.0, broccoli-persistent-filter@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/broccoli-persistent-filter/-/broccoli-persistent-filter-2.3.1.tgz#4a052e0e0868b344c3a2977e35a3d497aa9eca72"
+  integrity sha512-hVsmIgCDrl2NFM+3Gs4Cr2TA6UPaIZip99hN8mtkaUPgM8UeVnCbxelCvBjUBHo0oaaqP5jzqqnRVvb568Yu5g==
   dependencies:
     async-disk-cache "^1.2.1"
     async-promise-queue "^1.0.3"
@@ -4853,14 +4853,14 @@ ember-cli-htmlbars-inline-precompile@*, ember-cli-htmlbars-inline-precompile@^2.
     heimdalljs-logger "^0.1.9"
     silent-error "^1.1.0"
 
-ember-cli-htmlbars@*, ember-cli-htmlbars@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-3.0.1.tgz#01e21f0fd05e0a6489154f26614b1041769e3e58"
-  integrity sha512-pyyB2s52vKTXDC5svU3IjU7GRLg2+5O81o9Ui0ZSiBS14US/bZl46H2dwcdSJAK+T+Za36ZkQM9eh1rNwOxfoA==
+ember-cli-htmlbars@*, ember-cli-htmlbars@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/ember-cli-htmlbars/-/ember-cli-htmlbars-3.1.0.tgz#87806c2a0bca2ab52d4fb8af8e2215c1ca718a99"
+  integrity sha512-cgvRJM73IT0aePUG7oQ/afB7vSRBV3N0wu9BrWhHX2zkR7A7cUBI7KC9VPk6tbctCXoM7BRGsCC4aIjF7yrfXA==
   dependencies:
-    broccoli-persistent-filter "^1.4.3"
-    hash-for-dep "^1.2.3"
-    json-stable-stringify "^1.0.0"
+    broccoli-persistent-filter "^2.3.1"
+    hash-for-dep "^1.5.1"
+    json-stable-stringify "^1.0.1"
     strip-bom "^3.0.0"
 
 ember-cli-inject-live-reload@*, ember-cli-inject-live-reload@^2.0.1:
@@ -6723,7 +6723,7 @@ has@^1.0.1, has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hash-for-dep@^1.0.2, hash-for-dep@^1.2.3, hash-for-dep@^1.4.7, hash-for-dep@^1.5.0:
+hash-for-dep@^1.0.2, hash-for-dep@^1.2.3, hash-for-dep@^1.4.7, hash-for-dep@^1.5.0, hash-for-dep@^1.5.1:
   version "1.5.1"
   resolved "https://registry.npmjs.org/hash-for-dep/-/hash-for-dep-1.5.1.tgz#497754b39bee2f1c4ade4521bfd2af0a7c1196e3"
   integrity sha512-/dQ/A2cl7FBPI2pO0CANkvuuVi/IFS5oTyJ0PsOb6jW6WbVW1js5qJXMJTNbWHXBIPdFTWFbabjB+mE0d+gelw==
