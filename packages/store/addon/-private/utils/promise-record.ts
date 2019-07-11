@@ -12,9 +12,7 @@ export type PromiseProxy<T> = Promise<T>;
  *
  * Useful for returning from find methods
  *
- * @private
- * @param internalModelPromise
- * @param label
+ * @internal
  */
 export default function promiseRecord(
   internalModelPromise: Promise<InternalModel>,
