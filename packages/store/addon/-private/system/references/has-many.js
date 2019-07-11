@@ -200,7 +200,7 @@ export default class HasManyReference extends Reference {
     //TODO Igor cleanup
     return members.every(recordData => {
       let store = this.parentInternalModel.store;
-      let internalModel = store._internalModelForRecordData(recordData);
+      let internalModel = store._internalModelForResource(recordData.getResourceIdentifier());
       return internalModel.isLoaded() === true;
     });
   }
