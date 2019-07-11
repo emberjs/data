@@ -2769,10 +2769,6 @@ const Store = Service.extend({
     return recordDataFor(internalModel);
   },
 
-  _internalModelForRecordData(recordData) {
-    let resource = recordData.getResourceIdentifier();
-    return this._internalModelForId(resource.type, resource.id, resource.clientId);
-  },
   /**
     `normalize` converts a json payload into the normalized form that
     [push](#method_push) expects.
