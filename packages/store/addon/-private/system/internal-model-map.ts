@@ -24,8 +24,8 @@ export default class InternalModelMap {
    * @param id {String}
    * @return {InternalModel}
    */
-  get(id: string): InternalModel | undefined {
-    return this._idToModel[id];
+  get(id: string): InternalModel | null {
+    return this._idToModel[id] || null;
   }
 
   has(id: string): boolean {
@@ -37,10 +37,7 @@ export default class InternalModelMap {
   }
 
   set(id: string, internalModel: InternalModel): void {
-    assert(
-      `You cannot index an internalModel by an empty id'`,
-      typeof id === 'string' && id.length > 0
-    );
+    assert(`You cannot index an internalModel by an empty id'`, typeof id === 'string' && id.length > 0);
     assert(
       `You cannot set an index for an internalModel to something other than an internalModel`,
       internalModel instanceof InternalModel
@@ -57,7 +54,7 @@ export default class InternalModelMap {
     this._idToModel[id] = internalModel;
   }
 
-  add(internalModel: InternalModel, id?: string): void {
+  add(internalModel: InternalModel, id: string | null): void {
     assert(
       `You cannot re-add an already present InternalModel to the InternalModelMap.`,
       !this.contains(internalModel)

@@ -4,6 +4,7 @@ import { AttributesSchema, RelationshipsSchema } from '../../ts-interfaces/recor
 import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import { upgradeForInternal } from '../ts-upgrade-map';
 import RecordData from '../../ts-interfaces/record-data';
+import { internalModelFactoryFor } from './internal-model-factory';
 
 type StringOrNullOrUndefined = string | null | undefined;
 
@@ -53,8 +54,11 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   }
 
   notifyErrorsChange(modelName: string, id: string | null, clientId: string | null) {
-    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
-    internalModel.notifyErrorsChange();
+    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+
+    if (internalModel) {
+      internalModel.notifyErrorsChange();
+    }
   }
 
   _flushPendingManyArrayUpdates(): void {
@@ -65,15 +69,18 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     let pending = this._pendingManyArrayUpdates;
     this._pendingManyArrayUpdates = [];
     this._willUpdateManyArrays = false;
-    let store = this._store;
+    const factory = internalModelFactoryFor(this._store);
 
     for (let i = 0; i < pending.length; i += 4) {
-      let modelName = pending[i];
-      let id = pending[i + 1];
+      let modelName = pending[i] as string;
+      let id = pending[i + 1] || null;
       let clientId = pending[i + 2];
-      let key = pending[i + 3];
-      let internalModel = store._getInternalModelForId(modelName, id, clientId);
-      internalModel.notifyHasManyChange(key);
+      let key = pending[i + 3] as string;
+      let internalModel = factory.peekId(modelName, id, clientId);
+
+      if (internalModel) {
+        internalModel.notifyHasManyChange(key);
+      }
     }
   }
 
@@ -105,8 +112,11 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     if (!hasValidId(id, clientId)) {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
-    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
-    internalModel.notifyPropertyChange(key);
+    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+
+    if (internalModel) {
+      internalModel.notifyPropertyChange(key);
+    }
   }
 
   notifyHasManyChange(modelName: string, id: string | null, clientId: string, key: string): void;
@@ -124,12 +134,16 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     if (!hasValidId(id, clientId)) {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
-    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
-    internalModel.notifyBelongsToChange(key);
+    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+
+    if (internalModel) {
+      internalModel.notifyBelongsToChange(key);
+    }
   }
 
   notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void {
-    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
+    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+
     if (internalModel) {
       internalModel.notifyStateChange(key);
     }
@@ -156,7 +170,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
 
-    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
+    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
     if (!internalModel) {
       return false;
     }
@@ -170,7 +184,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
 
-    let internalModel = this._store._getInternalModelForId(modelName, id, clientId);
+    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
     if (internalModel) {
       internalModel.destroyFromRecordData();
     }

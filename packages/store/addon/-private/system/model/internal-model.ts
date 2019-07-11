@@ -25,6 +25,8 @@ import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/rec
 import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../types';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { internalModelFactoryFor } from '../store/internal-model-factory';
+import coerceId from '../coerce-id';
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof ManyArray>;
@@ -98,10 +100,6 @@ let InternalModelReferenceId = 1;
   @class InternalModel
 */
 export default class InternalModel {
-  id: string | null;
-  store: Store;
-  modelName: string;
-  clientId: string | null;
   __recordData: RecordData | null;
   _isDestroyed: boolean;
   isError: boolean;
@@ -131,12 +129,12 @@ export default class InternalModel {
   currentState: any;
   error: any;
 
-  constructor(modelName: string, id: string | null, store, data, clientId) {
-    this.id = id;
-    this.store = store;
-    this.modelName = modelName;
-    this.clientId = clientId;
-
+  constructor(
+    public modelName: string,
+    public id: string | null,
+    public store: Store,
+    public clientId?: string | null
+  ) {
     this.__recordData = null;
 
     // this ensure ordered set can quickly identify this as unique
@@ -183,7 +181,7 @@ export default class InternalModel {
 
   get _recordData(): RecordData {
     if (this.__recordData === null) {
-      let recordData = this.store._createRecordData(this.modelName, this.id, this.clientId, this);
+      let recordData = this.store._createRecordData(this.modelName, this.id, this.clientId);
       this._recordData = recordData;
       return recordData;
     }
@@ -344,7 +342,11 @@ export default class InternalModel {
         );
 
         if ('id' in properties) {
-          this.setId(properties.id);
+          const id = coerceId(properties.id);
+
+          if (id !== null) {
+            this.setId(id);
+          }
         }
 
         // convert relationship Records to RecordDatas before passing to RecordData
@@ -834,7 +836,7 @@ export default class InternalModel {
       delete this._retainedManyArrayCache[key];
     });
 
-    this.store._removeFromIdMap(this);
+    internalModelFactoryFor(this.store).remove(this);
     this._isDestroyed = true;
   }
 
@@ -997,7 +999,7 @@ export default class InternalModel {
     }
   }
 
-  notifyHasManyChange(key, record, idx) {
+  notifyHasManyChange(key: string) {
     if (this.hasRecord) {
       let manyArray = this._manyArrayCache[key];
       if (manyArray) {
@@ -1014,9 +1016,9 @@ export default class InternalModel {
     }
   }
 
-  notifyBelongsToChange(key, record) {
+  notifyBelongsToChange(key: string) {
     if (this.hasRecord) {
-      this._record.notifyBelongsToChange(key, record);
+      this._record.notifyBelongsToChange(key, this._record);
       this.updateRecordArrays();
     }
   }
@@ -1251,7 +1253,7 @@ export default class InternalModel {
     this.store.recordArrayManager.recordDidChange(this);
   }
 
-  setId(id) {
+  setId(id: string) {
     assert(
       "A record's id cannot be changed once it is in the loaded state",
       this.id === null || this.id === id || this.isNew()
@@ -1261,7 +1263,7 @@ export default class InternalModel {
     this.id = id;
 
     if (didChange && id !== null) {
-      this.store._setRecordId(this, id, this.clientId);
+      this.store.setRecordId(this.modelName, id, this.clientId as string);
     }
 
     if (didChange && this.hasRecord) {

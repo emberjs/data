@@ -15,11 +15,21 @@ export interface JsonApiResource {
   };
   meta?: any;
 }
-export interface JsonApiResourceIdentity {
-  id?: string | null;
+
+export interface ExistingResourceIdentifierObject {
   type: string;
-  clientId?: string;
+  id: string;
+  clientId?: string | null;
 }
+
+export interface NewResourceIdentifierObject {
+  type: string;
+  id: string | null;
+  clientId: string;
+}
+
+export type JsonApiResourceIdentity = ExistingResourceIdentifierObject | NewResourceIdentifierObject;
+
 export interface JsonApiBelongsToRelationship {
   data?: JsonApiResourceIdentity;
   meta?: any;
