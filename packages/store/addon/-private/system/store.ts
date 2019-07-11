@@ -970,7 +970,7 @@ const Store = Service.extend({
     function rejectInternalModels(internalModels: InternalModel[], error?: Error) {
       for (let i = 0, l = internalModels.length; i < l; i++) {
         let internalModel = internalModels[i];
-        let pair = seeking[internalModel.id as string];
+        let pair = seeking[internalModel.id!];
 
         if (pair) {
           pair.resolver.reject(
