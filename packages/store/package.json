@@ -32,6 +32,8 @@
   },
   "devDependencies": {
     "@ember/optional-features": "*",
+    "@types/ember": "*",
+    "@types/rsvp": "*",
     "broccoli-asset-rev": "*",
     "ember-cli": "*",
     "ember-cli-dependency-checker": "*",

@@ -9,7 +9,9 @@ import Reference from './reference';
 */
 export default class RecordReference extends Reference {
   public type = this.internalModel.modelName;
-  private _id = this.internalModel.id;
+  private get _id() {
+    return this.internalModel.id;
+  }
 
   /**
      The `id` of the record that this reference refers to.
@@ -136,7 +138,10 @@ export default class RecordReference extends Reference {
      @return {Promise<record>} the record for this RecordReference
   */
   load() {
-    return this.store.findRecord(this.type, this._id);
+    if (this._id !== null) {
+      return this.store.findRecord(this.type, this._id);
+    }
+    throw new Error(`Unable to fetch record of type ${this.type} without an id`);
   }
 
   /**

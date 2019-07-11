@@ -6,8 +6,6 @@ import Store from '../../store';
 import RecordDataStoreWrapper from '../../store/record-data-store-wrapper';
 import { upgradeForInternal } from '../../ts-upgrade-map';
 
-type Store = InstanceType<typeof Store>;
-
 function createRelationshipFor(
   relationshipMeta: RelationshipSchema,
   store: Store,
@@ -15,21 +13,12 @@ function createRelationshipFor(
   key: string
 ) {
   let inverseKey = recordData.storeWrapper.inverseForRelationship(recordData.modelName, key);
-  let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(
-    recordData.modelName,
-    key
-  );
+  let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(recordData.modelName, key);
 
   if (relationshipMeta.kind === 'hasMany') {
     return new ManyRelationship(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
   } else {
-    return new BelongsToRelationship(
-      store,
-      inverseKey,
-      relationshipMeta,
-      recordData,
-      inverseIsAsync
-    );
+    return new BelongsToRelationship(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
   }
 }
 
@@ -60,17 +49,10 @@ export default class Relationships {
 
     if (!relationship) {
       let recordData = this.recordData;
-      let rel = this.recordData.storeWrapper.relationshipsDefinitionFor(this.recordData.modelName)[
-        key
-      ];
+      let rel = this.recordData.storeWrapper.relationshipsDefinitionFor(this.recordData.modelName)[key];
 
       if (rel) {
-        relationship = relationships[key] = createRelationshipFor(
-          rel,
-          this._store,
-          recordData,
-          key
-        );
+        relationship = relationships[key] = createRelationshipFor(rel, this._store, recordData, key);
       }
     }
 

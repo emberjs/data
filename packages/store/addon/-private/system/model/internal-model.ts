@@ -28,7 +28,6 @@ import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-featur
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof ManyArray>;
-type Store = InstanceType<typeof Store>;
 type PromiseBelongsTo = InstanceType<typeof PromiseBelongsTo>;
 type PromiseManyArray = InstanceType<typeof PromiseManyArray>;
 
@@ -241,12 +240,7 @@ export default class InternalModel {
     } else {
       isRecordFullyDeleted = this.currentState.stateName === 'root.deleted.saved';
     }
-    return (
-      this._isDematerializing ||
-      this.hasScheduledDestroy() ||
-      this.isDestroyed ||
-      isRecordFullyDeleted
-    );
+    return this._isDematerializing || this.hasScheduledDestroy() || this.isDestroyed || isRecordFullyDeleted;
   }
 
   _isRecordFullyDeleted(): boolean {
@@ -550,11 +544,7 @@ export default class InternalModel {
     this.send('unloadRecord');
     this.dematerializeRecord();
     if (this._scheduledDestroy === null) {
-      this._scheduledDestroy = run.backburner.schedule(
-        'destroy',
-        this,
-        '_checkForOrphanedInternalModels'
-      );
+      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
     }
   }
 
@@ -616,14 +606,7 @@ export default class InternalModel {
     return this.store
       ._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options)
       .then(
-        internalModel =>
-          handleCompletedRelationshipRequest(
-            this,
-            key,
-            resource._relationship,
-            internalModel,
-            null
-          ),
+        internalModel => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
         e => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
       );
   }
@@ -643,8 +626,7 @@ export default class InternalModel {
     };
 
     if (isAsync) {
-      let internalModel =
-        resource && resource.data ? store._internalModelForResource(resource.data) : null;
+      let internalModel = resource && resource.data ? store._internalModelForResource(resource.data) : null;
 
       if (resource!._relationship!.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key];
@@ -733,8 +715,7 @@ export default class InternalModel {
         return manyArray;
       })
       .then(
-        manyArray =>
-          handleCompletedRelationshipRequest(this, key, jsonApi._relationship, manyArray, null),
+        manyArray => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, manyArray, null),
         e => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, null, e)
       ) as RSVP.Promise<unknown>;
     this._relationshipPromisesCache[key] = loadingPromise;
@@ -1237,10 +1218,7 @@ export default class InternalModel {
     let modelClass = relationshipMeta.type;
     let data;
     if (relationshipMeta.kind === 'hasMany') {
-      assert(
-        'You need to pass in an array to set a hasMany property on a record',
-        Array.isArray(preloadValue)
-      );
+      assert('You need to pass in an array to set a hasMany property on a record', Array.isArray(preloadValue));
       data = preloadValue.map(value => this._convertPreloadRelationshipToJSON(value, modelClass));
     } else {
       data = this._convertPreloadRelationshipToJSON(preloadValue, modelClass);
@@ -1512,9 +1490,7 @@ function assertRecordsPassedToHasMany(records) {
     Array.isArray(records) || EmberArray.detect(records)
   );
   assert(
-    `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(
-      records
-    )}`,
+    `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(records)}`,
     (function() {
       return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
     })()
