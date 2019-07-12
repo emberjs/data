@@ -8,6 +8,7 @@ import { run as emberRunloop } from '@ember/runloop';
 import { assert } from '@ember/debug';
 import cloneNull from './clone-null';
 import { RecordArray, AdapterPopulatedRecordArray } from './record-arrays';
+import { internalModelFactoryFor } from './store/internal-model-factory';
 
 const emberRun = emberRunloop.backburner;
 
@@ -99,7 +100,7 @@ export default class RecordArrayManager {
     let pending = this._pending[modelName];
     let hasPendingChanges = Array.isArray(pending);
     let hasNoPotentialDeletions = !hasPendingChanges || pending.length === 0;
-    let map = this.store._internalModelsFor(modelName);
+    let map = internalModelFactoryFor(this.store).modelMapFor(modelName);
     let hasNoInsertionsOrRemovals = get(map, 'length') === get(array, 'length');
 
     /*
@@ -171,7 +172,7 @@ export default class RecordArrayManager {
   }
 
   _visibleInternalModelsByType(modelName) {
-    let all = this.store._internalModelsFor(modelName)._models;
+    let all = internalModelFactoryFor(this.store).modelMapFor(modelName)._models;
     let visible = [];
     for (let i = 0; i < all.length; i++) {
       let model = all[i];

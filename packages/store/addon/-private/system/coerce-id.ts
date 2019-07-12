@@ -6,9 +6,8 @@
 // corresponding record, we will not know if it is a string or a number.
 type Coercable = string | number | boolean | null | undefined | symbol;
 
-function coerceId(id: number | boolean | symbol): string;
-function coerceId(id: null | undefined | ''): null;
-function coerceId(id: string | undefined): string | null;
+function coerceId(id: null | undefined | string): null;
+function coerceId(id: string | number | boolean | symbol): string;
 function coerceId(id: Coercable): string | null {
   if (id === null || id === undefined || id === '') {
     return null;

@@ -18,6 +18,7 @@ import Ember from 'ember';
 import InternalModel from './internal-model';
 import RootState from './states';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import coerceId from '../coerce-id';
 
 const { changeProperties } = Ember;
 
@@ -1240,7 +1241,11 @@ Object.defineProperty(Model.prototype, 'data', {
 const ID_DESCRIPTOR = {
   configurable: false,
   set(id) {
-    this._internalModel.setId(id);
+    const normalizedId = coerceId(id);
+
+    if (normalizedId !== null) {
+      this._internalModel.setId(normalizedId);
+    }
   },
 
   get() {
