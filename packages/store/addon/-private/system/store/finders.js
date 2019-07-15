@@ -337,16 +337,8 @@ export function _findAll(adapter, store, modelName, options) {
 export function _query(adapter, store, modelName, query, recordArray, options) {
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
 
-  let promise;
-  let createRecordArray =
-    adapter.query.length > 3 || (adapter.query.wrappedFunction && adapter.query.wrappedFunction.length > 3);
-
-  if (createRecordArray) {
-    recordArray = recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
-    promise = Promise.resolve().then(() => adapter.query(store, modelClass, query, recordArray, options));
-  } else {
-    promise = Promise.resolve().then(() => adapter.query(store, modelClass, query));
-  }
+  recordArray = recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
+  let promise = Promise.resolve().then(() => adapter.query(store, modelClass, query, recordArray, options));
 
   let label = `DS: Handle Adapter#query of ${modelName}`;
   promise = guardDestroyedStore(promise, store, label);

@@ -163,7 +163,7 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
     );
   });
 
-  test('pass record array to adapter.query based on arity', function(assert) {
+  test('pass record array to adapter.query regardless of arity', function(assert) {
     let env = setupStore({ person: Person });
     let store = env.store;
 
@@ -175,7 +175,8 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
     };
 
     env.adapter.query = function(store, type, query) {
-      assert.equal(arguments.length, 3);
+      // Due to #6232, we now expect 5 arguments regardless of arity
+      assert.equal(arguments.length, 5);
       return payload;
     };
 
@@ -188,7 +189,7 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
     });
   });
 
-  test('pass record array to adapter.query based on arity', function(assert) {
+  test('pass record array to adapter.query regardless of arity', function(assert) {
     let env = setupStore({ person: Person });
     let store = env.store;
 
@@ -214,7 +215,8 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
     };
 
     env.adapter.query = function(store, type, query) {
-      assert.equal(arguments.length, 3);
+      // Due to #6232, we now expect 5 arguments regardless of arity
+      assert.equal(arguments.length, 5);
       return payload;
     };
 
