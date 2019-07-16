@@ -15,6 +15,8 @@ import {
 import coerceId from '../system/coerce-id';
 import uuidv4 from './utils/uuid-v4';
 import normalizeModelName from '../system/normalize-model-name';
+import isStableIdentifier from './is-stable-identifier';
+import isNonEmptyString from '../utils/is-non-empty-string';
 
 type IdentifierMap = Dict<string, StableRecordIdentifier>;
 type TypeMap = Dict<string, KeyOptions>;
@@ -25,10 +27,10 @@ interface KeyOptions {
   _allIdentifiers: StableRecordIdentifier[];
 }
 
-let configuredForgetMethod: ForgetMethod | null = null;
-let configuredGenerationMethod: GenerationMethod | null = null;
-let configuredResetMethod: ResetMethod | null = null;
-let configuredUpdateMethod: UpdateMethod | null = null;
+let configuredForgetMethod: ForgetMethod;
+let configuredGenerationMethod: GenerationMethod;
+let configuredResetMethod: ResetMethod;
+let configuredUpdateMethod: UpdateMethod;
 
 export function setIdentifierGenerationMethod(method: GenerationMethod): void {
   configuredGenerationMethod = method;
@@ -70,13 +72,7 @@ export function identifierCacheFor(store: object): IdentifierCache {
   return cache;
 }
 
-function defaultUpdateMethod(
-  identifier: StableRecordIdentifier,
-  data: ResourceIdentifierObject,
-  bucket: string
-): void {}
-function defaultForgetMethod(identifier: StableRecordIdentifier, bucket: string): void {}
-function defaultResetMethod() {}
+function defaultEmptyCallback(...args: any[]): any {}
 
 let DEBUG_MAP;
 if (DEBUG) {
@@ -100,20 +96,20 @@ export class IdentifierCache {
     // we cache the user configuredGenerationMethod at init because it must
     // be configured prior and is not allowed to be changed
     this._generate = configuredGenerationMethod || defaultGenerationMethod;
-    this._update = configuredUpdateMethod || defaultUpdateMethod;
-    this._forget = configuredForgetMethod || defaultForgetMethod;
-    this._reset = configuredResetMethod || defaultResetMethod;
+    this._update = configuredUpdateMethod || defaultEmptyCallback;
+    this._forget = configuredForgetMethod || defaultEmptyCallback;
+    this._reset = configuredResetMethod || defaultEmptyCallback;
   }
 
   // allows us to peek without generating when needed
   // useful for the "create" case when we need to see if
   // we are accidentally overwritting something
   peekRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
-  peekRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: false): StableRecordIdentifier | null;
+  peekRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: false): StableRecordIdentifier | undefined;
   peekRecordIdentifier(
     resource: ResourceIdentifierObject,
     shouldGenerate: boolean = false
-  ): StableRecordIdentifier | null {
+  ): StableRecordIdentifier | undefined {
     // short circuit if we're already the stable version
     if (isStableIdentifier(resource)) {
       if (DEBUG) {
@@ -134,26 +130,22 @@ export class IdentifierCache {
 
     let type = normalizeModelName(resource.type);
     let keyOptions = getTypeIndex(this._cache.types, type);
-    let identifier: StableRecordIdentifier | null = null;
+    let identifier: StableRecordIdentifier | undefined;
     let lid = coerceId(resource.lid);
-    let id;
+    let id = coerceId(resource.id);
 
     // go straight for the stable RecordIdentifier key'd to `lid`
     if (lid !== null) {
-      identifier = keyOptions.lid[lid] || null;
+      identifier = keyOptions.lid[lid];
     }
 
     // we may have not seen this resource before
     // but just in case we check our own secondary lookup (`id`)
-    if (identifier === null) {
-      id = coerceId(resource.id);
-
-      if (id !== null) {
-        identifier = keyOptions.id[id] || null;
-      }
+    if (identifier === undefined && id !== null) {
+      identifier = keyOptions.id[id];
     }
 
-    if (identifier === null) {
+    if (identifier === undefined) {
       // we have definitely not seen this resource before
       // so we allow the user configured `GenerationMethod` to tell us
       let newLid = this._generate(resource, 'record');
@@ -168,11 +160,11 @@ export class IdentifierCache {
         // seen this `lid` before. E.g. a secondary lookup
         // connects this resource to a previously seen
         // resource.
-        identifier = keyOptions.lid[newLid] || null;
+        identifier = keyOptions.lid[newLid];
       }
 
       if (shouldGenerate === true) {
-        if (identifier === null) {
+        if (identifier === undefined) {
           // if we still don't have an identifier, time to generate one
           identifier = makeStableRecordIdentifier(id, type, newLid, 'record', false);
 
@@ -235,7 +227,7 @@ export class IdentifierCache {
    with the signature `generateMethod({ type }, 'record')`.
 
   */
-  createIdentifierForNewRecord(data: { type: string; id?: string }): StableRecordIdentifier {
+  createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
     let identifier = makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
     let keyOptions = getTypeIndex(this._cache.types, data.type);
@@ -243,7 +235,7 @@ export class IdentifierCache {
     // populate our unique table
     if (DEBUG) {
       if (identifier.lid in this._cache.lids) {
-        throw new Error(`The lid generated for the new record fails to be unique as it matches an existing identifier`);
+        throw new Error(`The lid generated for the new record is not unique as it matches an existing identifier`);
       }
     }
     this._cache.lids[identifier.lid] = identifier;
@@ -285,7 +277,7 @@ export class IdentifierCache {
 
         if (existingIdentifier !== undefined) {
           throw new Error(
-            `Attempted to update the 'id' for the RecordIdentifier '${identifier}' to '${newId}', but that id is already in use by '${existingIdentifier}'`
+            `Failed to update the 'id' for the RecordIdentifier '${identifier}' to '${newId}', because that id is already in use by '${existingIdentifier}'`
           );
         }
       }
@@ -325,14 +317,6 @@ export class IdentifierCache {
   }
 }
 
-function isNonEmptyString(str?: string | null): str is string {
-  return typeof str === 'string' && str.length > 0;
-}
-
-function isStableIdentifier(identifier: StableRecordIdentifier | Object): identifier is StableRecordIdentifier {
-  return identifier[IS_IDENTIFIER] === true;
-}
-
 function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
   let typeIndex: KeyOptions = typeMap[type];
 
@@ -341,7 +325,7 @@ function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
       lid: Object.create(null),
       id: Object.create(null),
       _allIdentifiers: [],
-    } as KeyOptions;
+    };
     typeMap[type] = typeIndex;
   }
 
@@ -354,9 +338,9 @@ function makeStableRecordIdentifier(
   lid: string,
   bucket: string,
   clientOriginated: boolean = false
-): StableRecordIdentifier {
-  let recordIdentifier: StableRecordIdentifier = {
-    [IS_IDENTIFIER]: true,
+): Readonly<StableRecordIdentifier> {
+  let recordIdentifier = {
+    [IS_IDENTIFIER]: true as const,
     lid,
     id,
     type,
@@ -365,8 +349,8 @@ function makeStableRecordIdentifier(
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
-    let wrapper: StableRecordIdentifier = {
-      [IS_IDENTIFIER]: true,
+    let wrapper = Object.freeze({
+      [IS_IDENTIFIER]: true as const,
       [DEBUG_CLIENT_ORIGINATED]: clientOriginated,
       [DEBUG_IDENTIFIER_BUCKET]: bucket,
       get lid() {
@@ -382,8 +366,7 @@ function makeStableRecordIdentifier(
         let { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
       },
-    };
-    Object.freeze(wrapper);
+    });
     DEBUG_MAP.set(wrapper, recordIdentifier);
     return wrapper;
   }

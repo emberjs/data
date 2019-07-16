@@ -1271,7 +1271,7 @@ const Store = Service.extend({
     return _findHasMany(adapter, this, internalModel, link, relationship, options);
   },
 
-  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
+  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options): Promise<unknown> {
     if (!resource) {
       return resolve([]);
     }

@@ -704,7 +704,7 @@ export default class InternalModel {
     return manyArray;
   }
 
-  fetchAsyncHasMany(key, relationshipMeta, jsonApi, manyArray, options): RSVP.Promise<any> {
+  fetchAsyncHasMany(key, relationshipMeta, jsonApi, manyArray, options): RSVP.Promise<unknown> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     let loadingPromise = this._relationshipPromisesCache[key];
     if (loadingPromise) {
@@ -723,7 +723,7 @@ export default class InternalModel {
       .then(
         manyArray => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, manyArray, null),
         e => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, null, e)
-      ) as RSVP.Promise<unknown>;
+      );
     this._relationshipPromisesCache[key] = loadingPromise;
     return loadingPromise;
   }

@@ -5,7 +5,7 @@ import Relationship from './relationship';
 import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
 import { JsonApiBelongsToRelationship } from '../../../ts-interfaces/record-data-json-api';
 import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
-import { ResourceIdentifierObject } from '../../../ts-interfaces/ember-data-json-api';
+import { ExistingResourceIdentifierObject } from '../../../ts-interfaces/ember-data-json-api';
 
 export default class BelongsToRelationship extends Relationship {
   inverseRecordData: RelationshipRecordData | null;
@@ -208,7 +208,7 @@ export default class BelongsToRelationship extends Relationship {
     return !isEmpty;
   }
 
-  updateData(data: ResourceIdentifierObject, initial: boolean) {
+  updateData(data: ExistingResourceIdentifierObject, initial: boolean) {
     let recordData;
     if (isNone(data)) {
       recordData = null;
@@ -223,7 +223,7 @@ export default class BelongsToRelationship extends Relationship {
     );
 
     if (recordData !== null) {
-      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id as string);
+      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id);
     }
     if (initial) {
       this.setInitialCanonicalRecordData(recordData);
