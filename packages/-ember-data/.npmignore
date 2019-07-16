@@ -37,6 +37,9 @@
 /bin
 /docs
 /node-tests
-!/dist/docs # ignore all assets except /dist/docs folder
 .appveyor.yml
 lib/scripts
+
+# whitelist yuidoc's data.json for api docs generation
+!/dist/docs/data.json
+
