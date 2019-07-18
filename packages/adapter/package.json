@@ -18,8 +18,7 @@
     "test": "ember test",
     "test:all": "ember try:each",
     "test:node": "node node-tests/nodetest-runner.js",
-    "prepublishOnly": "ember build --environment=production && ember ts:precompile",
-    "postpublish": "ember ts:clean"
+    "prepublishOnly": "ember build --environment=production"
   },
   "dependencies": {
     "@ember-data/-build-infra": "^3.11.0",
@@ -53,7 +52,6 @@
   "engines": {
     "node": ">= 8.0.0"
   },
-  "types": "./stripped-types.d.ts",
   "ember-addon": {
     "configPath": "tests/dummy/config"
   }
