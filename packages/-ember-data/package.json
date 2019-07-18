@@ -16,8 +16,7 @@
     "test:production": "ember test -e production",
     "test:optional-features": "ember test",
     "test:try-one": "ember try:one",
-    "prepublishOnly": "ember build --environment=production && ember ts:precompile",
-    "postpublish": "ember ts:clean"
+    "prepublishOnly": "ember build --environment=production"
   },
   "author": "",
   "license": "MIT",

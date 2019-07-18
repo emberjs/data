@@ -19,8 +19,7 @@
     "test": "ember test",
     "test:all": "ember try:each",
     "test:node": "mocha",
-    "prepublishOnly": "ember build --environment=production && ember ts:precompile",
-    "postpublish": "ember ts:clean"
+    "prepublishOnly": "ember build --environment=production"
   },
   "dependencies": {
     "@ember-data/-build-infra": "^3.12.0-canary.2",
