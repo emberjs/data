@@ -248,6 +248,25 @@ function packAllPackages() {
     const pkgInfo = require(pkgPath);
     if (pkgInfo.private !== true) {
       // will pack into the project root directory
+      // due to an issue where npm does not run prepublishOnly for pack, we run it here
+      // however this is also a timing bug, as typically it would be run *after* prepublish
+      // and prepare and now it is run *before*
+      // we do not use `prepublish` or `prepare` so this should be fine for now.
+      // https://docs.npmjs.com/misc/scripts
+      // https://github.com/npm/npm/issues/15363
+      if (pkgInfo.scripts) {
+        if (pkgInfo.scripts.prepublishOnly) {
+          if (pkgInfo.scripts.prepublish || pkgInfo.scripts.prepare) {
+            console.log(
+              `⚠️ ` +
+                chalk.grey(
+                  `${pkgInfo.name} has both a 'prepublishOnly' and either 'prepare' or 'publish' scripts. Running prepublishOnly manually before instead of after publish and prepare. See https://github.com/npm/npm/issues/15363`
+                )
+            );
+          }
+          execWithLog(`cd ${pkgDir} && npm run prepublishOnly`);
+        }
+      }
       execWithLog(`npm pack ${pkgDir}`);
     }
   });
