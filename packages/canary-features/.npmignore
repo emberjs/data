@@ -1,6 +1,8 @@
 # compiled output
 /dist/
 /tmp/
+/types/
+**/*.d.ts
 
 # misc
 /.bowerrc

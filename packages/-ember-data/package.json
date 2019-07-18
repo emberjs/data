@@ -87,7 +87,6 @@
   "keywords": [
     "ember-addon"
   ],
-  "types": "./stripped-types.d.ts",
   "ember-addon": {
     "configPath": "tests/dummy/config"
   }

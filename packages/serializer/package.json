@@ -55,7 +55,6 @@
   "engines": {
     "node": ">= 8.0.0"
   },
-  "types": "./stripped-types.d.ts",
   "ember-addon": {
     "configPath": "tests/dummy/config"
   }
