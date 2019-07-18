@@ -1,5 +1,6 @@
 # compiled output
 /dist/
+/dist/**/*
 /tmp/
 /types/
 **/*.d.ts
@@ -31,3 +32,6 @@
 /.node_modules.ember-try/
 /bower.json.ember-try
 /package.json.ember-try
+
+# whitelist yuidoc's data.json for api docs generation
+!/dist/docs/data.json
