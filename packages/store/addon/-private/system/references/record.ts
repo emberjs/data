@@ -92,7 +92,7 @@ export default class RecordReference extends Reference {
      ```
 
     @method push
-    @param objectOrPromise
+    @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
   */
   push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<Record> {

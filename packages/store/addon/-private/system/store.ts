@@ -160,7 +160,11 @@ let globalClientIdCounter = 1;
   @class Store
   @extends Ember.Service
 */
-export default class Store extends Service {
+interface Store {
+  adapter: string;
+}
+
+class Store extends Service {
   /**
    * EmberData specific backburner instance
    */
@@ -172,7 +176,7 @@ export default class Store extends Service {
 
   private _adapterCache = Object.create(null);
   private _serializerCache = Object.create(null);
-  private storeWrapper = new RecordDataStoreWrapper(this);
+  private _storeWrapper = new RecordDataStoreWrapper(this);
 
   /*
     Ember Data uses several specialized micro-queues for organizing
@@ -252,7 +256,7 @@ export default class Store extends Service {
           }
         }
 
-        let token: AsyncTrackingToken = Object.freeze({
+        let token = Object.freeze({
           label,
           trace,
         });
@@ -301,7 +305,7 @@ export default class Store extends Service {
   */
   @computed('adapter')
   get defaultAdapter() {
-    let adapter = (this as any).adapter || '-json-api';
+    let adapter = this.adapter || '-json-api';
 
     assert(
       'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
@@ -939,6 +943,8 @@ export default class Store extends Service {
       let internalModel = pendingItem.internalModel;
       internalModels[i] = internalModel;
       optionsMap.set(internalModel, pendingItem.options);
+      // We can remove this "not null" cast once we have enough typing
+      // to know we are only dealing with ExistingResourceIdentifierObjects
       seeking[internalModel.id!] = pendingItem;
     }
 
@@ -953,6 +959,9 @@ export default class Store extends Service {
       let found = Object.create(null);
       for (let i = 0, l = foundInternalModels.length; i < l; i++) {
         let internalModel = foundInternalModels[i];
+
+        // We can remove this "not null" cast once we have enough typing
+        // to know we are only dealing with ExistingResourceIdentifierObjects
         let pair = seeking[internalModel.id!];
         found[internalModel.id!] = internalModel;
 
@@ -968,6 +977,8 @@ export default class Store extends Service {
       for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
         let internalModel = expectedInternalModels[i];
 
+        // We can remove this "not null" cast once we have enough typing
+        // to know we are only dealing with ExistingResourceIdentifierObjects
         if (!found[internalModel.id!]) {
           missingInternalModels.push(internalModel);
         }
@@ -990,6 +1001,9 @@ export default class Store extends Service {
     function rejectInternalModels(internalModels: InternalModel[], error?: Error) {
       for (let i = 0, l = internalModels.length; i < l; i++) {
         let internalModel = internalModels[i];
+
+        // We can remove this "not null" cast once we have enough typing
+        // to know we are only dealing with ExistingResourceIdentifierObjects
         let pair = seeking[internalModel.id!];
 
         if (pair) {
@@ -1417,7 +1431,7 @@ export default class Store extends Service {
       return resolve(null);
     }
 
-    let internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
+    const internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
     let {
       relationshipIsStale,
       allInverseRecordsAreLoaded,
@@ -1438,8 +1452,7 @@ export default class Store extends Service {
     // short circuit if we are already loading
     if (internalModel && internalModel.isLoading()) {
       return internalModel._promiseProxy.then(() => {
-        // TODO is this necessary?
-        return internalModel!.getRecord();
+        return internalModel.getRecord();
       });
     }
 
@@ -1474,8 +1487,7 @@ export default class Store extends Service {
     // fetch by data
     if (internalModel && !localDataIsEmpty) {
       return this._scheduleFetch(internalModel, options).then(() => {
-        // TODO is this necessary?
-        return internalModel!.getRecord();
+        return internalModel.getRecord();
       });
     }
 
@@ -2711,7 +2723,7 @@ export default class Store extends Service {
   }
 
   _createRecordData(modelName, id, clientId): RecordData {
-    return this.createRecordDataFor(modelName, id, clientId, this.storeWrapper);
+    return this.createRecordDataFor(modelName, id, clientId, this._storeWrapper);
   }
 
   createRecordDataFor(modelName, id, clientId, storeWrapper): RecordData {
@@ -2851,7 +2863,7 @@ export default class Store extends Service {
 
     // no model specific adapter or application adapter, check for an `adapter`
     // property defined on the store
-    let adapterName = (this as any).adapter || '-json-api';
+    let adapterName = this.adapter || '-json-api';
     adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
     if (adapter !== undefined) {
       set(adapter, 'store', this);
@@ -3034,6 +3046,8 @@ export default class Store extends Service {
     updated.length = 0;
   }
 }
+
+export default Store;
 
 function _commit(adapter, store, operation, snapshot) {
   let internalModel = snapshot._internalModel;
