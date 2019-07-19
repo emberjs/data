@@ -2,6 +2,12 @@
 
 ### Master
 
+## Release 3.11.1 (July 19, 2019)
+
+- [#6256](https://github.com/emberjs/data/pull/6256) [BUGFIX release] fix type overrides (#6256)
+- [62ac6580](https://github.com/emberjs/data/commit/62ac658048eafa779cf7f566f6b2c088fb6c6a4a) [BUGFIX docs] ensure we publish docs (#6257)
+- [fa67c329](https://github.com/emberjs/data/commit/fa67c329f4a11c2ea16d374684239d1a89869cc6) [BUGFIX release] Add blueprints to ember-data package.
+
 ## Release 3.11.0 (June 28, 2019)
  
 - [#6189](https://github.com/emberjs/data/pull/6189) Update model API docs to use the new packages import syntax (#6137)
