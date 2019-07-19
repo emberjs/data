@@ -21,7 +21,7 @@ export default interface RecordData {
    * @deprecated
    */
   commitWasRejected(recordIdentifier?: {}, errors?: JsonApiValidationError[]): void;
-  commitWasRejected(recordIdentifier?: RecordIdentifier | {}, errors?: JsonApiValidationError[]): void;
+
   unloadRecord(): void;
   rollbackAttributes(): string[];
   changedAttributes(): ChangedAttributesHash;
@@ -54,7 +54,6 @@ export default interface RecordData {
    * @deprecated
    */
   getErrors?({}): JsonApiValidationError[];
-  getErrors?(recordIdentifier: RecordIdentifier | {}): JsonApiValidationError[];
 
   isNew?(): boolean;
   isDeleted?(): boolean;
