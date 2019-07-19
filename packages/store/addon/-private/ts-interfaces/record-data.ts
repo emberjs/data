@@ -15,7 +15,13 @@ export default interface RecordData {
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;
+
   commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiValidationError[]): void;
+  /**
+   * @deprecated
+   */
+  commitWasRejected(recordIdentifier?: {}, errors?: JsonApiValidationError[]): void;
+  commitWasRejected(recordIdentifier?: RecordIdentifier | {}, errors?: JsonApiValidationError[]): void;
   unloadRecord(): void;
   rollbackAttributes(): string[];
   changedAttributes(): ChangedAttributesHash;
@@ -43,10 +49,14 @@ export default interface RecordData {
   _initRecordCreateOptions(options: any): object;
 
   // new
-
   getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
-  isNew?(): boolean;
+  /**
+   * @deprecated
+   */
+  getErrors?({}): JsonApiValidationError[];
+  getErrors?(recordIdentifier: RecordIdentifier | {}): JsonApiValidationError[];
 
+  isNew?(): boolean;
   isDeleted?(): boolean;
 
   isDeletionCommitted?(): boolean;

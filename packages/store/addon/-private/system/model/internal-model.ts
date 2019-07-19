@@ -24,7 +24,7 @@ import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../ts-interfaces/utils';
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 import { identifierCacheFor } from '../../identifiers/cache';
 import { RecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
@@ -1336,7 +1336,7 @@ export default class InternalModel {
   hasErrors() {
     if (RECORD_DATA_ERRORS) {
       if (this._recordData.getErrors) {
-        return this._recordData.getErrors(this.identifier).length > 0;
+        return this._recordData.getErrors(IDENTIFIERS ? this.identifier : {}).length > 0;
       } else {
         let errors = get(this.getRecord(), 'errors');
         return errors.get('length') > 0;
@@ -1370,10 +1370,10 @@ export default class InternalModel {
         if (jsonApiErrors.length === 0) {
           jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
         }
-        this._recordData.commitWasRejected(this.identifier, jsonApiErrors);
+        this._recordData.commitWasRejected(IDENTIFIERS ? this.identifier : {}, jsonApiErrors);
       } else {
         this.send('becameError');
-        this._recordData.commitWasRejected(this.identifier);
+        this._recordData.commitWasRejected(IDENTIFIERS ? this.identifier : {});
       }
     } else {
       let attribute;
@@ -1393,7 +1393,7 @@ export default class InternalModel {
   notifyErrorsChange() {
     let invalidErrors;
     if (this._recordData.getErrors) {
-      invalidErrors = this._recordData.getErrors(this.identifier) || [];
+      invalidErrors = this._recordData.getErrors(IDENTIFIERS ? this.identifier : {}) || [];
     } else {
       return;
     }

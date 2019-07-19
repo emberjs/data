@@ -6,6 +6,7 @@ export const DEBUG_IDENTIFIER_BUCKET = Symbol('identifier-bucket');
 
 export interface Identifier {
   lid: string;
+  clientId?: string;
 }
 
 /**

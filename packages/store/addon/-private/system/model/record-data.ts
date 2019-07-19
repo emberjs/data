@@ -18,7 +18,7 @@ import {
 } from '../../ts-interfaces/record-data-json-api';
 import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
 import { RecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 import { RecordIdentifier } from '../../ts-interfaces/identifier';
 
 let nextBfsId = 1;
@@ -39,13 +39,32 @@ export default class RecordDataDefault implements RelationshipRecordData {
   _scheduledDestroy: any;
   _isDeleted: boolean;
   _isDeletionCommited: boolean;
+  private identifier: RecordIdentifier;
+  public storeWrapper: RecordDataStoreWrapper;
 
-  constructor(private identifier: RecordIdentifier, public storeWrapper: RecordDataStoreWrapper) {
-    this.modelName = identifier.type;
+  constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper);
+  /**
+   * @deprecated
+   */
+  constructor(modelName: string, id: string | null, clientId: string, storeWrapper: RecordDataStoreWrapper);
+  constructor(arg1: RecordIdentifier | string, arg2: RecordDataStoreWrapper | string | null) {
+    if (IDENTIFIERS) {
+      const [identifier, storeWrapper] = arguments;
+      this.identifier = identifier;
+      this.modelName = identifier.type;
+      this.clientId = identifier.lid;
+      this.id = identifier.id;
+      this.storeWrapper = storeWrapper;
+    } else {
+      const [modelName, id, clientId, storeWrapper] = arguments;
+      this.modelName = modelName;
+      this.clientId = clientId;
+      this.id = id;
+      this.storeWrapper = storeWrapper;
+    }
+
     this.__relationships = null;
     this.__implicitRelationships = null;
-    this.clientId = identifier.lid;
-    this.id = identifier.id;
     this.isDestroyed = false;
     this._isNew = false;
     // Used during the mark phase of unloading to avoid checking the same internal
@@ -57,7 +76,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
   // PUBLIC API
 
   getResourceIdentifier(): RecordIdentifier {
-    return this.identifier;
+    return IDENTIFIERS
+      ? this.identifier
+      : { id: this.id, type: this.modelName, lid: this.clientId, clientId: this.clientId };
   }
 
   pushData(data: JsonApiResource, calculateChange: boolean) {

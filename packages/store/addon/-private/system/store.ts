@@ -36,7 +36,7 @@ import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
 import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 import { Record } from '../ts-interfaces/record';
 
 import promiseRecord from '../utils/promise-record';
@@ -2683,12 +2683,16 @@ const Store = Service.extend({
   },
 
   createRecordDataFor(modelName, id, clientId, storeWrapper): RecordData {
-    let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
-      type: modelName,
-      id,
-      lid: clientId,
-    });
-    return new RecordDataDefault(identifier, storeWrapper);
+    if (IDENTIFIERS) {
+      let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+        type: modelName,
+        id,
+        lid: clientId,
+      });
+      return new RecordDataDefault(identifier, storeWrapper);
+    } else {
+      return new RecordDataDefault(modelName, id, clientId, storeWrapper);
+    }
   },
 
   recordDataFor(modelName: string, id: string | null, clientId?: string | null): RecordData {
