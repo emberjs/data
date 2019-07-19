@@ -84,9 +84,10 @@ jobs:
           TARGET_IE11=true yarn test
         displayName: 'Max transpilation Tests'
 
-      - script: |
-          yarn test:node
-        displayName: 'Node Tests'
+      # See https://github.com/emberjs/data/pull/6241
+      # - script: |
+      #     yarn test:node
+      #   displayName: 'Node Tests'
 
       - script: |
           yarn test:try-one with-ember-fetch
