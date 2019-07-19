@@ -65,9 +65,10 @@ jobs:
       env: TARGET_IE11=true
       script: yarn test
 
-    - name: 'Node Tests'
-      install: yarn install
-      script: yarn test:node
+    # See https://github.com/emberjs/data/pull/6241
+    # - name: 'Node Tests'
+    #   install: yarn install
+    #   script: yarn test:node
 
     # runs tests against each supported Ember version
     - stage: ember version tests
