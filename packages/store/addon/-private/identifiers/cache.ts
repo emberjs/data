@@ -17,15 +17,16 @@ import uuidv4 from './utils/uuid-v4';
 import normalizeModelName from '../system/normalize-model-name';
 import isStableIdentifier from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
-
-type IdentifierMap = Dict<string, StableRecordIdentifier>;
-type TypeMap = Dict<string, KeyOptions>;
+import Store from '../system/store';
 
 interface KeyOptions {
   lid: IdentifierMap;
   id: IdentifierMap;
   _allIdentifiers: StableRecordIdentifier[];
 }
+
+type IdentifierMap = Dict<string, StableRecordIdentifier>;
+type TypeMap = Dict<string, KeyOptions>;
 
 let configuredForgetMethod: ForgetMethod;
 let configuredGenerationMethod: GenerationMethod;
@@ -59,9 +60,9 @@ function defaultGenerationMethod(data: ResourceIdentifierObject, bucket: string)
   return uuidv4();
 }
 
-const IdentifierCaches = new WeakMap<object, IdentifierCache>();
+const IdentifierCaches = new WeakMap<Store, IdentifierCache>();
 
-export function identifierCacheFor(store: object): IdentifierCache {
+export function identifierCacheFor(store: Store): IdentifierCache {
   let cache = IdentifierCaches.get(store);
 
   if (cache === undefined) {
@@ -101,12 +102,15 @@ export class IdentifierCache {
     this._reset = configuredResetMethod || defaultEmptyCallback;
   }
 
-  // allows us to peek without generating when needed
-  // useful for the "create" case when we need to see if
-  // we are accidentally overwritting something
-  peekRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
-  peekRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: false): StableRecordIdentifier | undefined;
-  peekRecordIdentifier(
+  /**
+   * @internal
+   */
+  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
+  private _getRecordIdentifier(
+    resource: ResourceIdentifierObject,
+    shouldGenerate: false
+  ): StableRecordIdentifier | undefined;
+  private _getRecordIdentifier(
     resource: ResourceIdentifierObject,
     shouldGenerate: boolean = false
   ): StableRecordIdentifier | undefined {
@@ -204,6 +208,17 @@ export class IdentifierCache {
     return identifier;
   }
 
+  /**
+   * allows us to peek without generating when needed
+   * useful for the "create" case when we need to see if
+   * we are accidentally overwritting something
+   *
+   * @internal
+   */
+  peekRecordIdentifier(resource: ResourceIdentifierObject): StableRecordIdentifier | undefined {
+    return this._getRecordIdentifier(resource, false);
+  }
+
   /*
     Returns the Identifier for the given Resource, creates one if it does not yet exist.
 
@@ -215,7 +230,7 @@ export class IdentifierCache {
     - this referential stability of the object itself is guaranteed
   */
   getOrCreateRecordIdentifier(resource: ResourceIdentifierObject): StableRecordIdentifier {
-    return this.peekRecordIdentifier(resource, true);
+    return this._getRecordIdentifier(resource, true);
   }
 
   /*
