@@ -4,6 +4,7 @@ export { default as Errors } from './system/model/errors';
 export { default as Store } from './system/store';
 
 export { default as Snapshot } from './system/snapshot';
+export { identifierCacheFor } from './identifiers/cache';
 
 // maybe public ?
 export { default as recordDataFor, relationshipStateFor, relationshipsFor } from './system/record-data-for';

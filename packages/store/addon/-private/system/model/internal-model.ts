@@ -23,8 +23,10 @@ import { default as recordDataFor, relationshipStateFor } from '../record-data-f
 import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
-import { Dict } from '../../types';
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { Dict } from '../../ts-interfaces/utils';
+import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { identifierCacheFor } from '../../identifiers/cache';
+import { RecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 import coerceId from '../coerce-id';
 
@@ -81,8 +83,6 @@ function extractPivotName(name) {
   return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
 }
 
-let InternalModelReferenceId = 1;
-
 /*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
   Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
@@ -100,6 +100,9 @@ let InternalModelReferenceId = 1;
   @class InternalModel
 */
 export default class InternalModel {
+  id: string | null;
+  modelName: string;
+  clientId: string;
   __recordData: RecordData | null;
   _isDestroyed: boolean;
   isError: boolean;
@@ -129,16 +132,15 @@ export default class InternalModel {
   currentState: any;
   error: any;
 
-  constructor(
-    public modelName: string,
-    public id: string | null,
-    public store: Store,
-    public clientId?: string | null
-  ) {
+  constructor(public store: Store, private identifier: RecordIdentifier) {
+    this.id = identifier.id;
+    this.modelName = identifier.type;
+    this.clientId = identifier.lid;
+
     this.__recordData = null;
 
     // this ensure ordered set can quickly identify this as unique
-    this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
+    this[Ember.GUID_KEY] = identifier.lid;
 
     this._promiseProxy = null;
     this._record = null;
@@ -615,6 +617,8 @@ export default class InternalModel {
 
   getBelongsTo(key, options) {
     let resource = this._recordData.getBelongsTo(key);
+    let identifier =
+      resource && resource.data ? identifierCacheFor(this.store).getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
     let parentInternalModel = this;
@@ -628,7 +632,7 @@ export default class InternalModel {
     };
 
     if (isAsync) {
-      let internalModel = resource && resource.data ? store._internalModelForResource(resource.data) : null;
+      let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
 
       if (resource!._relationship!.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key];
@@ -642,10 +646,10 @@ export default class InternalModel {
         _belongsToState,
       });
     } else {
-      if (!resource || !resource.data) {
+      if (identifier === null) {
         return null;
       } else {
-        let internalModel = store._internalModelForResource(resource.data);
+        let internalModel = store._internalModelForResource(identifier);
         let toReturn = internalModel.getRecord();
         assert(
           "You looked up the '" +
@@ -719,7 +723,7 @@ export default class InternalModel {
       .then(
         manyArray => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, manyArray, null),
         e => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, null, e)
-      ) as RSVP.Promise<unknown>;
+      );
     this._relationshipPromisesCache[key] = loadingPromise;
     return loadingPromise;
   }
@@ -753,7 +757,7 @@ export default class InternalModel {
     kind: 'hasMany' | 'belongsTo',
     key: string,
     args: {
-      promise: RSVP.Promise<unknown>;
+      promise: RSVP.Promise<any>;
       content?: Record | ManyArray | null;
       _belongsToState?: BelongsToMetaWrapper;
     }
@@ -1263,7 +1267,7 @@ export default class InternalModel {
     this.id = id;
 
     if (didChange && id !== null) {
-      this.store.setRecordId(this.modelName, id, this.clientId as string);
+      this.store.setRecordId(this.modelName, id, this.clientId);
     }
 
     if (didChange && this.hasRecord) {
@@ -1332,7 +1336,7 @@ export default class InternalModel {
   hasErrors() {
     if (RECORD_DATA_ERRORS) {
       if (this._recordData.getErrors) {
-        return this._recordData.getErrors({}).length > 0;
+        return this._recordData.getErrors(IDENTIFIERS ? this.identifier : {}).length > 0;
       } else {
         let errors = get(this.getRecord(), 'errors');
         return errors.get('length') > 0;
@@ -1366,10 +1370,10 @@ export default class InternalModel {
         if (jsonApiErrors.length === 0) {
           jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
         }
-        this._recordData.commitWasRejected({}, jsonApiErrors);
+        this._recordData.commitWasRejected(IDENTIFIERS ? this.identifier : {}, jsonApiErrors);
       } else {
         this.send('becameError');
-        this._recordData.commitWasRejected({});
+        this._recordData.commitWasRejected(IDENTIFIERS ? this.identifier : {});
       }
     } else {
       let attribute;
@@ -1389,7 +1393,7 @@ export default class InternalModel {
   notifyErrorsChange() {
     let invalidErrors;
     if (this._recordData.getErrors) {
-      invalidErrors = this._recordData.getErrors({}) || [];
+      invalidErrors = this._recordData.getErrors(IDENTIFIERS ? this.identifier : {}) || [];
     } else {
       return;
     }
