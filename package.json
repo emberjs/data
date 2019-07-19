@@ -90,7 +90,7 @@
     "json-typescript": "^1.1.0",
     "lerna": "^3.15.0",
     "loader.js": "^4.7.0",
-    "mocha": "^6.1.2",
+    "mocha": "^6.2.0",
     "pre-commit": "^1.2.2",
     "prettier": "~1.18.2",
     "rimraf": "^2.6.2",
