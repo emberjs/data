@@ -1,5 +1,8 @@
 import RSVP, { resolve } from 'rsvp';
 import Reference from './reference';
+import { Record } from '../../ts-interfaces/record';
+import { JsonApiResource } from '../../ts-interfaces/record-data-json-api';
+import { JsonApiDocument, SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 
 /**
    An RecordReference is a low-level API that allows users and
@@ -89,10 +92,10 @@ export default class RecordReference extends Reference {
      ```
 
     @method push
-    @param objectOrPromise {Promise|Object}
-    @return RSVP.Promise<record> a promise for the value (record or relationship)
+    @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
+    @return a promise for the value (record or relationship)
   */
-  push(objectOrPromise): RSVP.Promise<object> {
+  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<Record> {
     return resolve(objectOrPromise).then(data => {
       return this.store.push(data);
     });

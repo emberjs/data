@@ -189,15 +189,15 @@ function getInverse(store, parentInternalModel, parentRelationship, type) {
   return recordDataFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship, type);
 }
 
-function recordDataFindInverseRelationshipInfo({ storeWrapper }, parentInternalModel, parentRelationship, type) {
+function recordDataFindInverseRelationshipInfo({ _storeWrapper }, parentInternalModel, parentRelationship, type) {
   let { name: lhs_relationshipName } = parentRelationship;
   let { modelName } = parentInternalModel;
-  let inverseKey = storeWrapper.inverseForRelationship(modelName, lhs_relationshipName);
+  let inverseKey = _storeWrapper.inverseForRelationship(modelName, lhs_relationshipName);
 
   if (inverseKey) {
     let {
       meta: { kind },
-    } = storeWrapper.relationshipsDefinitionFor(type)[inverseKey];
+    } = _storeWrapper.relationshipsDefinitionFor(type)[inverseKey];
     return {
       inverseKey,
       kind,

@@ -66,7 +66,8 @@ export default function setupStore(options) {
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
 
-  owner.register('service:store', Store.extend({ adapter }));
+  const TestStore = Store.extend({ adapter });
+  owner.register('service:store', TestStore);
   owner.register('serializer:-default', JSONAPISerializer);
   owner.register('serializer:-json', JSONSerializer);
   owner.register('serializer:-rest', RESTSerializer);

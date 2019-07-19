@@ -45,10 +45,31 @@ import { internalModelFactoryFor } from './store/internal-model-factory';
 import { RecordIdentifier } from '../ts-interfaces/identifier';
 import RecordData from '../ts-interfaces/record-data';
 import { RecordReference } from './references';
+import { Backburner } from '@ember/runloop/-private/backburner';
+import Snapshot from './snapshot';
+import Relationship from './relationships/state/relationship';
+import {
+  EmptyResourceDocument,
+  SingleResourceDocument,
+  CollectionResourceDocument,
+  JsonApiDocument,
+} from '../ts-interfaces/ember-data-json-api';
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
+type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
+type PromiseArray<T> = Promise<T[]>;
+type PendingFetchItem = {
+  internalModel: InternalModel;
+  resolver: RSVP.Deferred<InternalModel>;
+  options: any;
+  trace?: Error;
+};
+type PendingSaveItem = {
+  snapshot: Snapshot;
+  resolver: RSVP.Deferred<InternalModel>;
+};
 
 let globalClientIdCounter = 1;
 
@@ -139,44 +160,79 @@ let globalClientIdCounter = 1;
   @class Store
   @extends Ember.Service
 */
-const Store = Service.extend({
+interface Store {
+  adapter: string;
+}
+
+class Store extends Service {
+  /**
+   * EmberData specific backburner instance
+   */
+  public _backburner: Backburner = edBackburner;
+  private recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
+  private _modelFactoryCache = Object.create(null);
+  private _relationshipsDefCache = Object.create(null);
+  private _attributesDefCache = Object.create(null);
+
+  private _adapterCache = Object.create(null);
+  private _serializerCache = Object.create(null);
+  private _storeWrapper = new RecordDataStoreWrapper(this);
+
+  /*
+    Ember Data uses several specialized micro-queues for organizing
+    and coalescing similar async work.
+
+    These queues are currently controlled by a flush scheduled into
+    ember-data's custom backburner instance.
+    */
+  // used for coalescing record save requests
+  private _pendingSave: PendingSaveItem[] = [];
+  // used for coalescing relationship updates
+  private _updatedRelationships: Relationship[] = [];
+  // used for coalescing internal model updates
+  private _updatedInternalModels: InternalModel[] = [];
+
+  // used to keep track of all the find requests that need to be coalesced
+  private _pendingFetch = new Map<string, PendingFetchItem[]>();
+
+  // DEBUG-only properties
+  private _trackedAsyncRequests: AsyncTrackingToken[];
+  shouldAssertMethodCallsOnDestroyedStore: boolean = false;
+  shouldTrackAsyncRequests: boolean = false;
+  generateStackTracesForTrackedRequests: boolean = false;
+  private _trackAsyncRequestStart: (str: string) => void;
+  private _trackAsyncRequestEnd: (token: AsyncTrackingToken) => void;
+  private __asyncWaiter: () => boolean;
+
+  /**
+    The default adapter to use to communicate to a backend server or
+    other persistence layer. This will be overridden by an application
+    adapter if present.
+
+    If you want to specify `app/adapters/custom.js` as a string, do:
+
+    ```js
+    import Store from '@ember-data/store';
+
+    export default Store.extend({
+      init() {
+        this._super(...arguments);
+        this.adapter = 'custom';
+      }
+    });
+    ```
+
+    @property adapter
+    @default '-json-api'
+    @type {String}
+  */
+
   /**
     @method init
     @private
   */
-  init() {
-    this._super(...arguments);
-    this._backburner = edBackburner;
-    // internal bookkeeping; not observable
-    this.recordArrayManager = new RecordArrayManager({ store: this });
-    this._pendingSave = [];
-    this._modelFactoryCache = Object.create(null);
-    this._relationshipsDefCache = Object.create(null);
-    this._attributesDefCache = Object.create(null);
-
-    /*
-      Ember Data uses several specialized micro-queues for organizing
-      and coalescing similar async work.
-
-      These queues are currently controlled by a flush scheduled into
-      ember-data's custom backburner instance.
-     */
-    // used for coalescing record save requests
-    this._pendingSave = [];
-    // used for coalescing relationship updates
-    this._updatedRelationships = [];
-    // used for coalescing relationship setup needs
-    this._pushedInternalModels = [];
-    // used for coalescing internal model updates
-    this._updatedInternalModels = [];
-
-    // used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = new Map();
-
-    this._adapterCache = Object.create(null);
-    this._serializerCache = Object.create(null);
-
-    this.storeWrapper = new RecordDataStoreWrapper(this);
+  constructor() {
+    super(...arguments);
 
     if (DEBUG) {
       this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
@@ -230,33 +286,7 @@ const Store = Service.extend({
 
       registerWaiter(this.__asyncWaiter);
     }
-  },
-
-  /**
-   * EmberData specific backburner instance
-   */
-  _backburner: null,
-
-  /**
-    The default adapter to use to communicate to a backend server or
-    other persistence layer. This will be overridden by an application
-    adapter if present.
-
-    If you want to specify `app/adapters/custom.js` as a string, do:
-
-    ```js
-    import Store from '@ember-data/store';
-
-    export default Store.extend({
-      adapter: 'custom',
-    });
-    ```
-
-    @property adapter
-    @default '-json-api'
-    @type {String}
-  */
-  adapter: '-json-api',
+  }
 
   /**
     This property returns the adapter, after resolving a possible
@@ -273,8 +303,9 @@ const Store = Service.extend({
     @private
     @return Adapter
   */
-  defaultAdapter: computed('adapter', function() {
-    let adapter = get(this, 'adapter');
+  @computed('adapter')
+  get defaultAdapter() {
+    let adapter = this.adapter || '-json-api';
 
     assert(
       'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
@@ -282,7 +313,7 @@ const Store = Service.extend({
     );
 
     return this.adapterFor(adapter);
-  }),
+  }
 
   // .....................
   // . CREATE NEW RECORD .
@@ -358,7 +389,7 @@ const Store = Service.extend({
         return internalModel.getRecord(properties);
       });
     });
-  },
+  }
 
   /**
     If possible, this method asks the adapter to generate an ID for
@@ -378,7 +409,7 @@ const Store = Service.extend({
     }
 
     return null;
-  },
+  }
 
   // .................
   // . DELETE RECORD .
@@ -405,7 +436,7 @@ const Store = Service.extend({
       assertDestroyingStore(this, 'deleteRecord');
     }
     record.deleteRecord();
-  },
+  }
 
   /**
     For symmetry, a record can be unloaded via the store.
@@ -427,7 +458,7 @@ const Store = Service.extend({
       assertDestroyingStore(this, 'unloadRecord');
     }
     record.unloadRecord();
-  },
+  }
 
   // ................
   // . FIND RECORDS .
@@ -471,7 +502,7 @@ const Store = Service.extend({
     );
 
     return this.findRecord(modelName, id);
-  },
+  }
 
   /**
     This method returns a record for a given type and id combination.
@@ -718,7 +749,7 @@ const Store = Service.extend({
     let fetchedInternalModel = this._findRecord(internalModel, options);
 
     return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${normalizedModelName} with id: ${id}`);
-  },
+  }
 
   _findRecord(internalModel, options) {
     // Refetch if the reload option is passed
@@ -745,7 +776,7 @@ const Store = Service.extend({
 
     // Return the cached record
     return Promise.resolve(internalModel);
-  },
+  }
 
   _findByInternalModel(internalModel, options: { preload?: any } = {}) {
     if (options.preload) {
@@ -758,7 +789,7 @@ const Store = Service.extend({
       fetchedInternalModel,
       `DS: Store#findRecord ${internalModel.modelName} with id: ${internalModel.id}`
     );
-  },
+  }
 
   _findEmptyInternalModel(internalModel, options) {
     if (internalModel.isEmpty()) {
@@ -771,7 +802,7 @@ const Store = Service.extend({
     }
 
     return Promise.resolve(internalModel);
-  },
+  }
 
   /**
     This method makes a series of requests to the adapter's `find` method
@@ -802,7 +833,7 @@ const Store = Service.extend({
     }
 
     return promiseArray(all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
-  },
+  }
 
   /**
     This method is called by `findRecord` if it discovers that a particular
@@ -814,7 +845,7 @@ const Store = Service.extend({
     @param {InternalModel} internalModel model
     @return {Promise} promise
    */
-  _fetchRecord(internalModel, options) {
+  _fetchRecord(internalModel: InternalModel, options): Promise<InternalModel> {
     let modelName = internalModel.modelName;
     let adapter = this.adapterFor(modelName);
 
@@ -825,7 +856,7 @@ const Store = Service.extend({
     );
 
     return _find(adapter, this, internalModel.type, internalModel.id, internalModel, options);
-  },
+  }
 
   _scheduleFetchMany(internalModels, options) {
     let fetches = new Array(internalModels.length);
@@ -835,21 +866,16 @@ const Store = Service.extend({
     }
 
     return Promise.all(fetches);
-  },
+  }
 
-  _scheduleFetch(internalModel, options) {
+  _scheduleFetch(internalModel: InternalModel, options): Promise<InternalModel> {
     if (internalModel._promiseProxy) {
       return internalModel._promiseProxy;
     }
 
     let { id, modelName } = internalModel;
-    let resolver = defer(`Fetching ${modelName}' with id: ${id}`);
-    let pendingFetchItem: {
-      internalModel: InternalModel;
-      resolver: RSVP.Deferred<unknown>;
-      options: any;
-      trace?: Error;
-    } = {
+    let resolver = defer<InternalModel>(`Fetching ${modelName}' with id: ${id}`);
+    let pendingFetchItem: PendingFetchItem = {
       internalModel,
       resolver,
       options,
@@ -881,14 +907,17 @@ const Store = Service.extend({
     }
 
     let fetches = this._pendingFetch;
-    if (!fetches.has(modelName)) {
-      fetches.set(modelName, []);
+    let pending = fetches.get(modelName);
+
+    if (pending === undefined) {
+      pending = [];
+      fetches.set(modelName, pending);
     }
 
-    fetches.get(modelName).push(pendingFetchItem);
+    pending.push(pendingFetchItem);
 
     return promise;
-  },
+  }
 
   flushAllPendingFetches() {
     if (this.isDestroyed || this.isDestroying) {
@@ -897,9 +926,9 @@ const Store = Service.extend({
 
     this._pendingFetch.forEach(this._flushPendingFetchForType, this);
     this._pendingFetch.clear();
-  },
+  }
 
-  _flushPendingFetchForType(pendingFetchItems, modelName) {
+  _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
     let store = this;
     let adapter = store.adapterFor(modelName);
     let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
@@ -914,7 +943,9 @@ const Store = Service.extend({
       let internalModel = pendingItem.internalModel;
       internalModels[i] = internalModel;
       optionsMap.set(internalModel, pendingItem.options);
-      seeking[internalModel.id] = pendingItem;
+      // We can remove this "not null" cast once we have enough typing
+      // to know we are only dealing with ExistingResourceIdentifierObjects
+      seeking[internalModel.id!] = pendingItem;
     }
 
     function _fetchRecord(recordResolverPair) {
@@ -923,13 +954,16 @@ const Store = Service.extend({
       recordResolverPair.resolver.resolve(recordFetch);
     }
 
-    function handleFoundRecords(foundInternalModels, expectedInternalModels) {
+    function handleFoundRecords(foundInternalModels: InternalModel[], expectedInternalModels: InternalModel[]) {
       // resolve found records
       let found = Object.create(null);
       for (let i = 0, l = foundInternalModels.length; i < l; i++) {
         let internalModel = foundInternalModels[i];
-        let pair = seeking[internalModel.id];
-        found[internalModel.id] = internalModel;
+
+        // We can remove this "not null" cast once we have enough typing
+        // to know we are only dealing with ExistingResourceIdentifierObjects
+        let pair = seeking[internalModel.id!];
+        found[internalModel.id!] = internalModel;
 
         if (pair) {
           let resolver = pair.resolver;
@@ -943,7 +977,9 @@ const Store = Service.extend({
       for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
         let internalModel = expectedInternalModels[i];
 
-        if (!found[internalModel.id]) {
+        // We can remove this "not null" cast once we have enough typing
+        // to know we are only dealing with ExistingResourceIdentifierObjects
+        if (!found[internalModel.id!]) {
           missingInternalModels.push(internalModel);
         }
       }
@@ -965,6 +1001,9 @@ const Store = Service.extend({
     function rejectInternalModels(internalModels: InternalModel[], error?: Error) {
       for (let i = 0, l = internalModels.length; i < l; i++) {
         let internalModel = internalModels[i];
+
+        // We can remove this "not null" cast once we have enough typing
+        // to know we are only dealing with ExistingResourceIdentifierObjects
         let pair = seeking[internalModel.id!];
 
         if (pair) {
@@ -1031,7 +1070,7 @@ const Store = Service.extend({
         _fetchRecord(pendingFetchItems[i]);
       }
     }
-  },
+  }
 
   /**
     Get the reference for the specified record.
@@ -1078,7 +1117,7 @@ const Store = Service.extend({
     const normalizedId = coerceId(id);
 
     return internalModelFactoryFor(this).lookup(normalizedModelName, normalizedId, null).recordReference;
-  },
+  }
 
   /**
     Get a record by a given type and ID without triggering a fetch.
@@ -1126,7 +1165,7 @@ const Store = Service.extend({
     } else {
       return null;
     }
-  },
+  }
 
   /**
     This method is called by the record's `reload` method.
@@ -1153,7 +1192,7 @@ const Store = Service.extend({
     );
 
     return this._scheduleFetch(internalModel, options);
-  },
+  }
 
   /**
    This method returns true if a record for a given modelName and id is already
@@ -1189,7 +1228,7 @@ const Store = Service.extend({
     const internalModel = internalModelFactoryFor(this).peekId(normalizedModelName, trueId, null);
 
     return !!internalModel && internalModel.isLoaded();
-  },
+  }
 
   /**
     Returns id record for a given type and ID. If one isn't already loaded,
@@ -1214,7 +1253,7 @@ const Store = Service.extend({
     return internalModelFactoryFor(this)
       .lookup(modelName, coerceId(id), null)
       .getRecord();
-  },
+  }
 
   /**
     @method findMany
@@ -1233,7 +1272,7 @@ const Store = Service.extend({
     }
 
     return Promise.all(finds);
-  },
+  }
 
   /**
     If a relationship was originally populated by the adapter as a link
@@ -1269,7 +1308,7 @@ const Store = Service.extend({
     );
 
     return _findHasMany(adapter, this, internalModel, link, relationship, options);
-  },
+  }
 
   _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options): Promise<unknown> {
     if (!resource) {
@@ -1333,7 +1372,7 @@ const Store = Service.extend({
     // we were explicitly told we have no data and no links.
     //   TODO if the relationshipIsStale, should we hit the adapter anyway?
     return resolve([]);
-  },
+  }
 
   _getHasManyByJsonApiResource(resource) {
     let internalModels = [];
@@ -1341,7 +1380,7 @@ const Store = Service.extend({
       internalModels = resource.data.map(reference => this._internalModelForResource(reference));
     }
     return internalModels;
-  },
+  }
 
   /**
     @method findBelongsTo
@@ -1367,7 +1406,7 @@ const Store = Service.extend({
     );
 
     return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
-  },
+  }
 
   _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource || !resource.links || !resource.links.related) {
@@ -1385,14 +1424,14 @@ const Store = Service.extend({
         return internalModel.getRecord();
       }
     );
-  },
+  }
 
   _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource) {
       return resolve(null);
     }
 
-    let internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
+    const internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
     let {
       relationshipIsStale,
       allInverseRecordsAreLoaded,
@@ -1441,12 +1480,12 @@ const Store = Service.extend({
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
 
-    if (resourceIsLocal) {
+    if (internalModel && resourceIsLocal) {
       return resolve(internalModel.getRecord());
     }
 
     // fetch by data
-    if (!localDataIsEmpty) {
+    if (internalModel && !localDataIsEmpty) {
       return this._scheduleFetch(internalModel, options).then(() => {
         return internalModel.getRecord();
       });
@@ -1455,7 +1494,7 @@ const Store = Service.extend({
     // we were explicitly told we have no data and no links.
     //   TODO if the relationshipIsStale, should we hit the adapter anyway?
     return resolve(null);
-  },
+  }
 
   /**
     This method delegates a query to the adapter. This is the one place where
@@ -1507,7 +1546,7 @@ const Store = Service.extend({
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName, query, options) {
+  query(modelName: string, query, options): PromiseArray<Record> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1526,9 +1565,9 @@ const Store = Service.extend({
 
     let normalizedModelName = normalizeModelName(modelName);
     return this._query(normalizedModelName, query, null, adapterOptionsWrapper);
-  },
+  }
 
-  _query(modelName, query, array, options) {
+  _query(modelName: string, query, array, options): PromiseArray<Record> {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
@@ -1545,7 +1584,7 @@ const Store = Service.extend({
     );
 
     return promiseArray(_query(adapter, this, modelName, query, array, options));
-  },
+  }
 
   /**
     This method makes a request for one record, where the `id` is not known
@@ -1680,7 +1719,7 @@ const Store = Service.extend({
         return null;
       })
     );
-  },
+  }
 
   /**
     `findAll` asks the adapter's `findAll` method to find the records for the
@@ -1884,7 +1923,7 @@ const Store = Service.extend({
     let fetch = this._fetchAll(normalizedModelName, this.peekAll(normalizedModelName), options);
 
     return fetch;
-  },
+  }
 
   /**
     @method _fetchAll
@@ -1924,7 +1963,7 @@ const Store = Service.extend({
     }
 
     return promiseArray(Promise.resolve(array));
-  },
+  }
 
   /**
     @method _didUpdateAll
@@ -1933,7 +1972,7 @@ const Store = Service.extend({
   */
   _didUpdateAll(modelName) {
     this.recordArrayManager._didUpdateAll(modelName);
-  },
+  }
 
   /**
     This method returns a filtered array that contains all of the
@@ -1970,7 +2009,7 @@ const Store = Service.extend({
     );
     let normalizedModelName = normalizeModelName(modelName);
     return this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
-  },
+  }
 
   /**
     This method unloads all records in the store.
@@ -2003,14 +2042,14 @@ const Store = Service.extend({
       let normalizedModelName = normalizeModelName(modelName);
       factory.clear(normalizedModelName);
     }
-  },
+  }
 
   filter() {
     assert(
       'The filter API has been moved to a plugin. To enable store.filter using an environment flag, or to use an alternative, you can visit the ember-data-filter addon page. https://github.com/ember-data/ember-data-filter',
       false
     );
-  },
+  }
 
   // ..............
   // . PERSISTING .
@@ -2028,7 +2067,7 @@ const Store = Service.extend({
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave(internalModel, resolver, options) {
+  scheduleSave(internalModel: InternalModel, resolver: RSVP.Deferred<InternalModel>, options) {
     let snapshot = internalModel.createSnapshot(options);
     if (internalModel._isRecordFullyDeleted()) {
       resolver.resolve();
@@ -2042,7 +2081,7 @@ const Store = Service.extend({
     });
 
     emberRun.scheduleOnce('actions', this, this.flushPendingSave);
-  },
+  }
 
   /**
     This method is called at the end of the run loop, and
@@ -2087,7 +2126,7 @@ const Store = Service.extend({
 
       resolver.resolve(_commit(adapter, this, operation, snapshot));
     }
-  },
+  }
 
   /**
     This method is called once the promise returned by an
@@ -2120,7 +2159,7 @@ const Store = Service.extend({
     //We first make sure the primary data has been updated
     //TODO try to move notification to the user to the end of the runloop
     internalModel.adapterDidCommit(data);
-  },
+  }
 
   /**
     This method is called once the promise returned by an
@@ -2141,7 +2180,7 @@ const Store = Service.extend({
     } else {
       internalModel.adapterDidInvalidate(parsedErrors);
     }
-  },
+  }
 
   /**
     This method is called once the promise returned by an
@@ -2158,7 +2197,7 @@ const Store = Service.extend({
       assertDestroyingStore(this, 'recordWasError');
     }
     internalModel.adapterDidError(error);
-  },
+  }
 
   /**
     Sets newly received ID from the adapter's `createRecord`, `updateRecord`
@@ -2175,7 +2214,7 @@ const Store = Service.extend({
       assertDestroyingStore(this, 'setRecordId');
     }
     internalModelFactoryFor(this).setRecordId(modelName, newId, clientId);
-  },
+  }
 
   // ................
   // . LOADING DATA .
@@ -2205,7 +2244,7 @@ const Store = Service.extend({
     }
 
     return internalModel;
-  },
+  }
 
   /**
     Returns the model class for the particular `modelName`.
@@ -2233,7 +2272,7 @@ const Store = Service.extend({
 
     // for factorFor factory/class split
     return maybeFactory.class ? maybeFactory.class : maybeFactory;
-  },
+  }
 
   _modelFactoryFor(modelName) {
     if (DEBUG) {
@@ -2252,7 +2291,7 @@ const Store = Service.extend({
     }
 
     return factory;
-  },
+  }
 
   /*
   Returns whether a ModelClass exists for a given modelName
@@ -2278,7 +2317,7 @@ const Store = Service.extend({
     let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
     return factory !== null;
-  },
+  }
 
   /**
     Push some data for a given type into the store.
@@ -2427,10 +2466,13 @@ const Store = Service.extend({
 
     @method push
     @param {Object} data
-    @return {Model|Array} the record(s) that was created or
+    @return the record(s) that was created or
       updated.
   */
-  push(data) {
+  push(data: EmptyResourceDocument): null;
+  push(data: SingleResourceDocument): Record;
+  push(data: CollectionResourceDocument): Record[];
+  push(data: JsonApiDocument): Record | Record[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
@@ -2447,7 +2489,7 @@ const Store = Service.extend({
 
     let record = pushed.getRecord();
     return record;
-  },
+  }
 
   /*
     Push some data in the form of a json-api document into the store,
@@ -2458,7 +2500,7 @@ const Store = Service.extend({
     @param {Object} jsonApiDoc
     @return {InternalModel|Array<InternalModel>} pushed InternalModel(s)
   */
-  _push(jsonApiDoc) {
+  _push(jsonApiDoc): InternalModel | InternalModel[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
@@ -2495,8 +2537,10 @@ const Store = Service.extend({
 
       return this._pushInternalModel(jsonApiDoc.data);
     });
-    return internalModelOrModels;
-  },
+
+    // this typecast is necessary because `backburner.join` is mistyped to return void
+    return (internalModelOrModels as unknown) as InternalModel | InternalModel[];
+  }
 
   _pushInternalModel(data) {
     let modelName = data.type;
@@ -2542,7 +2586,7 @@ const Store = Service.extend({
     //    this._setupRelationshipsForModel(internalModel, data);
 
     return internalModel;
-  },
+  }
 
   /**
     Push some raw data into the store.
@@ -2622,21 +2666,21 @@ const Store = Service.extend({
       serializer = this.serializerFor(normalizedModelName);
     }
     serializer.pushPayload(this, payload);
-  },
+  }
 
   reloadManyArray(manyArray, internalModel, key, options) {
     return internalModel.reloadHasMany(key, options);
-  },
+  }
 
   reloadBelongsTo(belongsToProxy, internalModel, key, options) {
     return internalModel.reloadBelongsTo(key, options);
-  },
+  }
 
   _relationshipMetaFor(modelName, id, key) {
     let modelClass = this.modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
     return relationshipsByName.get(key);
-  },
+  }
 
   _attributesDefinitionFor(modelName) {
     let attributes = this._attributesDefCache[modelName];
@@ -2651,7 +2695,7 @@ const Store = Service.extend({
     }
 
     return attributes;
-  },
+  }
 
   _relationshipsDefinitionFor(modelName) {
     let relationships = this._relationshipsDefCache[modelName];
@@ -2663,11 +2707,11 @@ const Store = Service.extend({
     }
 
     return relationships;
-  },
+  }
 
   _internalModelForResource(resource: RecordIdentifier): InternalModel {
     return internalModelFactoryFor(this).getByResource(resource);
-  },
+  }
 
   /**
    * TODO Only needed temporarily for test support
@@ -2676,11 +2720,11 @@ const Store = Service.extend({
    */
   _internalModelForId(modelName: string, id: string | null, lid: string | null): InternalModel {
     return internalModelFactoryFor(this).lookup(modelName, id, lid);
-  },
+  }
 
   _createRecordData(modelName, id, clientId): RecordData {
-    return this.createRecordDataFor(modelName, id, clientId, this.storeWrapper);
-  },
+    return this.createRecordDataFor(modelName, id, clientId, this._storeWrapper);
+  }
 
   createRecordDataFor(modelName, id, clientId, storeWrapper): RecordData {
     if (IDENTIFIERS) {
@@ -2693,12 +2737,12 @@ const Store = Service.extend({
     } else {
       return new RecordDataDefault(modelName, id, clientId, storeWrapper);
     }
-  },
+  }
 
   recordDataFor(modelName: string, id: string | null, clientId?: string | null): RecordData {
     let internalModel = internalModelFactoryFor(this).lookup(modelName, id, clientId);
     return recordDataFor(internalModel);
-  },
+  }
 
   /**
     `normalize` converts a json payload into the normalized form that
@@ -2734,11 +2778,11 @@ const Store = Service.extend({
     let serializer = this.serializerFor(normalizedModelName);
     let model = this.modelFor(normalizedModelName);
     return serializer.normalize(model, payload);
-  },
+  }
 
   newClientId() {
     return globalClientIdCounter++;
-  },
+  }
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
   recordWasLoaded(record) {
@@ -2746,7 +2790,7 @@ const Store = Service.extend({
       assertDestroyingStore(this, 'recordWasLoaded');
     }
     this.recordArrayManager.recordWasLoaded(record);
-  },
+  }
 
   // ...............
   // . DESTRUCTION .
@@ -2759,7 +2803,7 @@ const Store = Service.extend({
    */
   _internalModelsFor(modelName: string) {
     return internalModelFactoryFor(this).modelMapFor(modelName);
-  },
+  }
 
   // ......................
   // . PER-TYPE ADAPTERS
@@ -2819,7 +2863,7 @@ const Store = Service.extend({
 
     // no model specific adapter or application adapter, check for an `adapter`
     // property defined on the store
-    let adapterName = this.get('adapter');
+    let adapterName = this.adapter || '-json-api';
     adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
     if (adapter !== undefined) {
       set(adapter, 'store', this);
@@ -2839,7 +2883,7 @@ const Store = Service.extend({
     _adapterCache[normalizedModelName] = adapter;
     _adapterCache['-json-api'] = adapter;
     return adapter;
-  },
+  }
 
   // ..............................
   // . RECORD CHANGE NOTIFICATION .
@@ -2927,11 +2971,10 @@ const Store = Service.extend({
     _serializerCache['-default'] = serializer;
 
     return serializer;
-  },
+  }
 
   willDestroy() {
-    this._super(...arguments);
-    this._pushedInternalModels = null;
+    super.willDestroy();
     this.recordArrayManager.destroy();
 
     this._adapterCache = null;
@@ -2963,9 +3006,9 @@ const Store = Service.extend({
         }
       }
     }
-  },
+  }
 
-  _updateRelationshipState(relationship) {
+  _updateRelationshipState(relationship: Relationship) {
     if (this._updatedRelationships.push(relationship) !== 1) {
       return;
     }
@@ -2973,7 +3016,7 @@ const Store = Service.extend({
     this._backburner.join(() => {
       this._backburner.schedule('syncRelationships', this, this._flushUpdatedRelationships);
     });
-  },
+  }
 
   _flushUpdatedRelationships() {
     let updated = this._updatedRelationships;
@@ -2983,15 +3026,15 @@ const Store = Service.extend({
     }
 
     updated.length = 0;
-  },
+  }
 
-  _updateInternalModel(internalModel) {
+  _updateInternalModel(internalModel: InternalModel) {
     if (this._updatedInternalModels.push(internalModel) !== 1) {
       return;
     }
 
     emberRun.schedule('actions', this, this._flushUpdatedInternalModels);
-  },
+  }
 
   _flushUpdatedInternalModels() {
     let updated = this._updatedInternalModels;
@@ -3001,8 +3044,10 @@ const Store = Service.extend({
     }
 
     updated.length = 0;
-  },
-});
+  }
+}
+
+export default Store;
 
 function _commit(adapter, store, operation, snapshot) {
   let internalModel = snapshot._internalModel;
@@ -3188,7 +3233,3 @@ if (DEBUG) {
     }
   };
 }
-
-type Store = InstanceType<typeof Store>;
-
-export default Store;

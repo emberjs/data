@@ -64,6 +64,34 @@ export interface NewResourceIdentifierObject {
   lid: string;
 }
 
-export type ResourceIdentifierObject =
-  | ExistingResourceIdentifierObject
-  | NewResourceIdentifierObject;
+export type ResourceIdentifierObject = ExistingResourceIdentifierObject | NewResourceIdentifierObject;
+
+/**
+ * Contains the data for an existing resource in JSON:API format
+ */
+export interface ExistingResourceObject extends ExistingResourceIdentifierObject {
+  meta?: Dict<string, JSONValue>;
+  attributes?: Dict<string, JSONValue>;
+  // these are lossy, need improved typing
+  relationships?: Dict<string, JSONValue>;
+  links?: Dict<string, JSONValue>;
+}
+
+interface Document {
+  meta?: Dict<string, JSONValue>;
+  included?: ExistingResourceObject[];
+}
+
+export interface EmptyResourceDocument extends Document {
+  data: null;
+}
+
+export interface SingleResourceDocument extends Document {
+  data: ExistingResourceObject;
+}
+
+export interface CollectionResourceDocument extends Document {
+  data: ExistingResourceObject[];
+}
+
+export type JsonApiDocument = EmptyResourceDocument | SingleResourceDocument | CollectionResourceDocument;
