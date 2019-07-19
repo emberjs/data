@@ -1,6 +1,9 @@
 # compiled output
 /dist/
+/dist/**/*
 /tmp/
+/types/
+**/*.d.ts
 
 # dependencies
 /bower_components/
@@ -32,3 +35,6 @@
 
 # ember-data
 /node-tests
+
+# whitelist yuidoc's data.json for api docs generation
+!/dist/docs/data.json

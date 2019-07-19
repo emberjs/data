@@ -1,6 +1,9 @@
 # compiled output
 /dist/
+/dist/**/*
 /tmp/
+/types/
+**/*.d.ts
 
 # dependencies
 /bower_components/
