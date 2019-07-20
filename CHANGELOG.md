@@ -2,6 +2,10 @@
 
 ### Master
 
+## Release 3.11.2 (July 20, 2019)
+
+- [#6252](https://github.com/emberjs/data/pull/6252) [BUGFIX] Includes yuidoc's output data.json to published package
+
 ## Release 3.11.1 (July 19, 2019)
 
 - [#6256](https://github.com/emberjs/data/pull/6256) [BUGFIX release] fix type overrides (#6256)
