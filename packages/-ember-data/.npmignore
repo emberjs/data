@@ -41,5 +41,4 @@
 lib/scripts
 
 # whitelist yuidoc's data.json for api docs generation
-!/dist/docs/data.json
-
+!dist/docs/data.json
