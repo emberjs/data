@@ -333,7 +333,10 @@ async function main() {
   let nextVersion = options.currentVersion;
   if (!options.skipVersion) {
     nextVersion = retrieveNextVersion();
-    execWithLog(`lerna version ${nextVersion}`, true);
+    // we use --force-publish=* here to ensure that regardless of changes
+    // all packages are incremented and published, otherwise only packages
+    // with changes will be published.
+    execWithLog(`lerna version ${nextVersion} --force-publish=*`, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
