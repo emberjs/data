@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/adapter",
-  "version": "3.11.1",
+  "version": "3.11.2",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
@@ -21,7 +21,7 @@
     "prepublishOnly": "ember build --environment=production"
   },
   "dependencies": {
-    "@ember-data/-build-infra": "^3.11.1",
+    "@ember-data/-build-infra": "^3.11.2",
     "ember-cli-babel": "^7.7.3",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-typescript": "^2.0.1"
