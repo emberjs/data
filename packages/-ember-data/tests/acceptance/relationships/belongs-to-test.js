@@ -193,6 +193,7 @@ module('async belongs-to rendering tests', function(hooks) {
   hooks.beforeEach(function() {
     let { owner } = this;
     owner.register('model:person', Person);
+    owner.register('model:pet', Pet);
     owner.register('adapter:application', TestAdapter);
     owner.register(
       'serializer:application',

@@ -29,6 +29,7 @@ import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/comm
 import { normalizeResponseHelper } from './store/serializer-response';
 import { serializerForAdapter } from './store/serializers';
 import recordDataFor from './record-data-for';
+import FetchManager, { SaveOp } from './fetch-manager';
 
 import { _find, _findMany, _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
 
@@ -37,7 +38,7 @@ import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
 import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
-import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import { Record } from '../ts-interfaces/record';
 
 import promiseRecord from '../utils/promise-record';
@@ -57,6 +58,10 @@ import {
   ExistingResourceObject,
 } from '../ts-interfaces/ember-data-json-api';
 import hasValidId from '../utils/has-valid-id';
+import { RequestPromise } from './request-cache';
+import { PromiseProxy } from '../ts-interfaces/promise-proxies';
+import { DSModel } from '../ts-interfaces/ds-model';
+
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
@@ -70,7 +75,7 @@ type PendingFetchItem = {
 };
 type PendingSaveItem = {
   snapshot: Snapshot;
-  resolver: RSVP.Deferred<InternalModel>;
+  resolver: RSVP.Deferred<InternalModel | void>;
 };
 
 let globalClientIdCounter = 1;
@@ -197,6 +202,7 @@ class Store extends Service {
   // used to keep track of all the find requests that need to be coalesced
   private _pendingFetch = new Map<string, PendingFetchItem[]>();
 
+  private _fetchManager: FetchManager;
   // DEBUG-only properties
   private _trackedAsyncRequests: AsyncTrackingToken[];
   shouldAssertMethodCallsOnDestroyedStore: boolean = false;
@@ -235,6 +241,10 @@ class Store extends Service {
   */
   constructor() {
     super(...arguments);
+
+    if (REQUEST_SERVICE) {
+      this._fetchManager = new FetchManager(this);
+    }
 
     if (DEBUG) {
       this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
@@ -288,6 +298,13 @@ class Store extends Service {
 
       registerWaiter(this.__asyncWaiter);
     }
+  }
+
+  getRequestStateService() {
+    if (REQUEST_SERVICE) {
+      return this._fetchManager.requestCache;
+    }
+    throw 'RequestService is not available unless the feature flag is on and running on a canary build';
   }
 
   /**
@@ -735,7 +752,7 @@ class Store extends Service {
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  findRecord(modelName: string, id: string | number, options?: any): Promise<Record> {
+  findRecord(modelName: string, id: string | number, options?: any): PromiseProxy<DSModel> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
     }
@@ -805,8 +822,14 @@ class Store extends Service {
     }
 
     //TODO double check about reloading
-    if (internalModel.isLoading()) {
-      return internalModel._promiseProxy;
+    if (!REQUEST_SERVICE) {
+      if (internalModel.isLoading()) {
+        return internalModel._promiseProxy;
+      }
+    } else {
+      if (internalModel.isLoading()) {
+        return this._scheduleFetch(internalModel, options);
+      }
     }
 
     return Promise.resolve(internalModel);
@@ -876,64 +899,107 @@ class Store extends Service {
     return Promise.all(fetches);
   }
 
-  _scheduleFetch(internalModel: InternalModel, options): Promise<InternalModel> {
-    if (internalModel._promiseProxy) {
-      return internalModel._promiseProxy;
-    }
-
-    let { id, modelName } = internalModel;
-    let resolver = defer<InternalModel>(`Fetching ${modelName}' with id: ${id}`);
-    let pendingFetchItem: PendingFetchItem = {
-      internalModel,
-      resolver,
-      options,
-    };
-
-    if (DEBUG) {
-      if (this.generateStackTracesForTrackedRequests === true) {
-        let trace;
-
-        try {
-          throw new Error(`Trace Origin for scheduled fetch for ${modelName}:${id}.`);
-        } catch (e) {
-          trace = e;
+  _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
+    let generateStackTrace = this.generateStackTracesForTrackedRequests;
+    // TODO  remove this once we dont rely on state machine
+    internalModel.loadingData();
+    let identifier = internalModel.identifier;
+    let promise = this._fetchManager.scheduleFetch(internalModel.identifier, options, generateStackTrace);
+    return promise.then(
+      payload => {
+        if (IDENTIFIERS) {
+          // ensure that regardless of id returned we assign to the correct record
+          if (payload.data && !Array.isArray(payload.data)) {
+            payload.data.lid = identifier.lid;
+          }
         }
 
-        // enable folks to discover the origin of this findRecord call when
-        // debugging. Ideally we would have a tracked queue for requests with
-        // labels or local IDs that could be used to merge this trace with
-        // the trace made available when we detect an async leak
-        pendingFetchItem.trace = trace;
+        // Returning this._push here, breaks typing but not any tests, invesstigate potential missing tests
+        let potentiallyNewIm = this._push(payload);
+        if (potentiallyNewIm && !Array.isArray(potentiallyNewIm)) {
+          return potentiallyNewIm;
+        } else {
+          return internalModel;
+        }
+      },
+      error => {
+        // TODO  remove this once we dont rely on state machine
+        internalModel.notFound();
+        if (internalModel.isEmpty()) {
+          internalModel.unloadRecord();
+        }
+        throw error;
       }
+    );
+  }
+
+  _scheduleFetch(internalModel: InternalModel, options): RSVP.Promise<InternalModel> {
+    if (REQUEST_SERVICE) {
+      return this._scheduleFetchThroughFetchManager(internalModel, options);
+    } else {
+      if (internalModel._promiseProxy) {
+        return internalModel._promiseProxy;
+      }
+
+      let { id, modelName } = internalModel;
+      let resolver = defer<InternalModel>(`Fetching ${modelName}' with id: ${id}`);
+      let pendingFetchItem: PendingFetchItem = {
+        internalModel,
+        resolver,
+        options,
+      };
+
+      if (DEBUG) {
+        if (this.generateStackTracesForTrackedRequests === true) {
+          let trace;
+
+          try {
+            throw new Error(`Trace Origin for scheduled fetch for ${modelName}:${id}.`);
+          } catch (e) {
+            trace = e;
+          }
+
+          // enable folks to discover the origin of this findRecord call when
+          // debugging. Ideally we would have a tracked queue for requests with
+          // labels or local IDs that could be used to merge this trace with
+          // the trace made available when we detect an async leak
+          pendingFetchItem.trace = trace;
+        }
+      }
+
+      let promise = resolver.promise;
+
+      internalModel.loadingData(promise);
+      if (this._pendingFetch.size === 0) {
+        emberRun.schedule('actions', this, this.flushAllPendingFetches);
+      }
+
+      let fetches = this._pendingFetch;
+      let pending = fetches.get(modelName);
+
+      if (pending === undefined) {
+        pending = [];
+        fetches.set(modelName, pending);
+      }
+
+      pending.push(pendingFetchItem);
+
+      return promise;
     }
-
-    let promise = resolver.promise;
-
-    internalModel.loadingData(promise);
-    if (this._pendingFetch.size === 0) {
-      emberRun.schedule('actions', this, this.flushAllPendingFetches);
-    }
-
-    let fetches = this._pendingFetch;
-    let pending = fetches.get(modelName);
-
-    if (pending === undefined) {
-      pending = [];
-      fetches.set(modelName, pending);
-    }
-
-    pending.push(pendingFetchItem);
-
-    return promise;
   }
 
   flushAllPendingFetches() {
-    if (this.isDestroyed || this.isDestroying) {
+    if (REQUEST_SERVICE) {
       return;
-    }
+      //assert here
+    } else {
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
 
-    this._pendingFetch.forEach(this._flushPendingFetchForType, this);
-    this._pendingFetch.clear();
+      this._pendingFetch.forEach(this._flushPendingFetchForType, this);
+      this._pendingFetch.clear();
+    }
   }
 
   _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
@@ -1186,7 +1252,10 @@ class Store extends Service {
     @param options optional to include adapterOptions
     @return {Promise} promise
   */
-  _reloadRecord(internalModel, options) {
+  _reloadRecord(internalModel, options): RSVP.Promise<InternalModel> {
+    if (REQUEST_SERVICE) {
+      options.isReloading = true;
+    }
     let { id, modelName } = internalModel;
     let adapter = this.adapterFor(modelName);
 
@@ -1319,7 +1388,7 @@ class Store extends Service {
     return _findHasMany(adapter, this, internalModel, link, relationship, options);
   }
 
-  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options): Promise<unknown> {
+  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options): RSVP.Promise<unknown> {
     if (!resource) {
       return resolve([]);
     }
@@ -1458,11 +1527,24 @@ class Store extends Service {
         relationshipIsStale ||
         (!allInverseRecordsAreLoaded && !relationshipIsEmpty));
 
-    // short circuit if we are already loading
-    if (internalModel && internalModel.isLoading()) {
-      return internalModel._promiseProxy.then(() => {
-        return internalModel.getRecord();
-      });
+    if (internalModel) {
+      // short circuit if we are already loading
+      if (REQUEST_SERVICE) {
+        // Temporary fix for requests already loading until we move this inside the fetch manager
+        let pendingRequests = this.getRequestStateService()
+          .getPendingRequestsForRecord(internalModel.identifier)
+          .filter(req => req.type === 'query');
+
+        if (pendingRequests.length > 0) {
+          return pendingRequests[0][RequestPromise].then(() => internalModel.getRecord());
+        }
+      } else {
+        if (internalModel.isLoading()) {
+          return internalModel._promiseProxy.then(() => {
+            return internalModel.getRecord();
+          });
+        }
+      }
     }
 
     // fetch via link
@@ -1555,7 +1637,7 @@ class Store extends Service {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName: string, query, options): PromiseArray<Record> {
+  query(modelName: string, query, options): PromiseArray<DSModel> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1576,7 +1658,7 @@ class Store extends Service {
     return this._query(normalizedModelName, query, null, adapterOptionsWrapper);
   }
 
-  _query(modelName: string, query, array, options): PromiseArray<Record> {
+  _query(modelName: string, query, array, options): PromiseArray<DSModel> {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
@@ -2076,14 +2158,61 @@ class Store extends Service {
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave(internalModel: InternalModel, resolver: RSVP.Deferred<InternalModel>, options) {
+  scheduleSave(
+    internalModel: InternalModel,
+    resolver: RSVP.Deferred<InternalModel | void>,
+    options
+  ): void | RSVP.Promise<void> {
     let snapshot = internalModel.createSnapshot(options);
     if (internalModel._isRecordFullyDeleted()) {
       resolver.resolve();
-      return resolver.promise;
+      return resolver.promise as RSVP.Promise<void>;
     }
 
     internalModel.adapterWillCommit();
+    if (REQUEST_SERVICE) {
+      if (!options) {
+        options = {};
+      }
+      let recordData = internalModel._recordData;
+      let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
+
+      // TODO handle missing isNew
+      if (recordData.isNew && recordData.isNew()) {
+        operation = 'createRecord';
+      } else if (recordData.isDeleted && recordData.isDeleted()) {
+        operation = 'deleteRecord';
+      }
+      options[SaveOp] = operation;
+
+      let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
+      let promise = fetchManagerPromise.then(
+        payload => {
+          /*
+        Note to future spelunkers hoping to optimize.
+        We rely on this `run` to create a run loop if needed
+        that `store._push` and `store.didSaveRecord` will both share.
+   
+        We use `join` because it is often the case that we
+        have an outer run loop available still from the first
+        call to `store._push`;
+       */
+          this._backburner.join(() => {
+            let data = payload && payload.data;
+            this.didSaveRecord(internalModel, { data }, operation);
+            if (payload && payload.included) {
+              this._push({ data: null, included: payload.included });
+            }
+          });
+        },
+        ({ error, parsedErrors }) => {
+          this.recordWasInvalid(internalModel, parsedErrors, error);
+          throw error;
+        }
+      );
+
+      return promise;
+    }
     this._pendingSave.push({
       snapshot: snapshot,
       resolver: resolver,
@@ -2100,6 +2229,10 @@ class Store extends Service {
     @private
   */
   flushPendingSave() {
+    if (REQUEST_SERVICE) {
+      // assert here
+      return;
+    }
     let pending = this._pendingSave.slice();
     this._pendingSave = [];
 
@@ -3031,8 +3164,9 @@ class Store extends Service {
     super.willDestroy();
     this.recordArrayManager.destroy();
 
-    this._adapterCache = null;
-    this._serializerCache = null;
+    // Check if we need to null this out
+    // this._adapterCache = null;
+    // this._serializerCache = null;
 
     identifierCacheFor(this).destroy();
 

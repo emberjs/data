@@ -14,13 +14,14 @@ import { relationshipStateFor } from './record-data-for';
   @param {Model} internalModel The model to create a snapshot from
 */
 export default class Snapshot {
-  constructor(internalModel, options = {}) {
+  constructor(options, identifier, store) {
     this.__attributes = null;
     this._belongsToRelationships = Object.create(null);
     this._belongsToIds = Object.create(null);
     this._hasManyRelationships = Object.create(null);
     this._hasManyIds = Object.create(null);
-    this._internalModel = internalModel;
+    let internalModel = (this._internalModel = store._internalModelForResource(identifier));
+    this._store = store;
 
     /*
       If the internalModel does not yet have a record, then we are

@@ -24,7 +24,7 @@ import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../ts-interfaces/utils';
-import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import { identifierCacheFor } from '../../identifiers/cache';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
@@ -344,9 +344,12 @@ export default class InternalModel {
         store,
         _internalModel: this,
         currentState: this.currentState,
-        isError: this.isError,
-        adapterError: this.error,
       };
+
+      if (!REQUEST_SERVICE) {
+        createOptions.isError = this.isError;
+        createOptions.adapterError = this.error;
+      }
 
       if (properties !== undefined) {
         assert(
@@ -490,8 +493,12 @@ export default class InternalModel {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<InternalModel>(promiseLabel);
 
-    this.store.scheduleSave(this, resolver, options);
-    return resolver.promise;
+    if (REQUEST_SERVICE) {
+      return this.store.scheduleSave(this, resolver, options);
+    } else {
+      this.store.scheduleSave(this, resolver, options);
+      return resolver.promise;
+    }
   }
 
   startedReloading() {
@@ -519,28 +526,54 @@ export default class InternalModel {
   }
 
   reload(options) {
-    this.startedReloading();
-    let internalModel = this;
-    let promiseLabel = 'DS: Model#reload of ' + this;
+    if (REQUEST_SERVICE) {
+      if (!options) {
+        options = {};
+      }
+      this.startedReloading();
+      let internalModel = this;
+      let promiseLabel = 'DS: Model#reload of ' + this;
 
-    return new Promise(function(resolve) {
-      internalModel.send('reloadRecord', { resolve, options });
-    }, promiseLabel)
-      .then(
-        function() {
-          internalModel.didCleanError();
-          return internalModel;
-        },
-        function(error) {
-          internalModel.didError(error);
-          throw error;
-        },
-        'DS: Model#reload complete, update flags'
-      )
-      .finally(function() {
-        internalModel.finishedReloading();
-        internalModel.updateRecordArrays();
-      });
+      return internalModel.store
+        ._reloadRecord(internalModel, options)
+        .then(
+          function() {
+            //TODO NOW seems like we shouldn't need to do this
+            return internalModel;
+          },
+          function(error) {
+            throw error;
+          },
+          'DS: Model#reload complete, update flags'
+        )
+        .finally(function() {
+          internalModel.finishedReloading();
+          internalModel.updateRecordArrays();
+        });
+    } else {
+      this.startedReloading();
+      let internalModel = this;
+      let promiseLabel = 'DS: Model#reload of ' + this;
+
+      return new Promise(function(resolve) {
+        internalModel.send('reloadRecord', { resolve, options });
+      }, promiseLabel)
+        .then(
+          function() {
+            internalModel.didCleanError();
+            return internalModel;
+          },
+          function(error) {
+            internalModel.didError(error);
+            throw error;
+          },
+          'DS: Model#reload complete, update flags'
+        )
+        .finally(function() {
+          internalModel.finishedReloading();
+          internalModel.updateRecordArrays();
+        });
+    }
   }
 
   /*
@@ -918,7 +951,7 @@ export default class InternalModel {
     @private
   */
   createSnapshot(options) {
-    return new Snapshot(this, options);
+    return new Snapshot(options || {}, this.identifier, this.store);
   }
 
   /*
@@ -926,8 +959,12 @@ export default class InternalModel {
     @private
     @param {Promise} promise
   */
-  loadingData(promise) {
-    this.send('loadingData', promise);
+  loadingData(promise?) {
+    if (REQUEST_SERVICE) {
+      this.send('loadingData');
+    } else {
+      this.send('loadingData', promise);
+    }
   }
 
   /*
@@ -955,9 +992,16 @@ export default class InternalModel {
   }
 
   hasChangedAttributes() {
-    if (this.isLoading() && !this.isReloading) {
-      // no need to instantiate _recordData in this case
-      return false;
+    if (REQUEST_SERVICE) {
+      if (!this.__recordData) {
+        // no need to calculate changed attributes when calling `findRecord`
+        return false;
+      }
+    } else {
+      if (this.isLoading() && !this.isReloading) {
+        // no need to calculate changed attributes when calling `findRecord`
+        return false;
+      }
     }
     return this._recordData.hasChangedAttributes();
   }
@@ -970,9 +1014,16 @@ export default class InternalModel {
     @private
   */
   changedAttributes() {
-    if (this.isLoading() && !this.isReloading) {
-      // no need to calculate changed attributes when calling `findRecord`
-      return {};
+    if (REQUEST_SERVICE) {
+      if (!this.__recordData) {
+        // no need to calculate changed attributes when calling `findRecord`
+        return {};
+      }
+    } else {
+      if (this.isLoading() && !this.isReloading) {
+        // no need to calculate changed attributes when calling `findRecord`
+        return {};
+      }
     }
     return this._recordData.changedAttributes();
   }
@@ -1100,6 +1151,7 @@ export default class InternalModel {
 
     let pivotName = extractPivotName(name);
     let state = this.currentState;
+    let oldState = state;
     let transitionMapId = `${state.stateName}->${name}`;
 
     do {
@@ -1289,26 +1341,30 @@ export default class InternalModel {
   }
 
   didError(error) {
-    this.error = error;
-    this.isError = true;
+    if (!REQUEST_SERVICE) {
+      this.error = error;
+      this.isError = true;
 
-    if (this.hasRecord) {
-      this._record.setProperties({
-        isError: true,
-        adapterError: error,
-      });
+      if (this.hasRecord) {
+        this._record.setProperties({
+          isError: true,
+          adapterError: error,
+        });
+      }
     }
   }
 
   didCleanError() {
-    this.error = null;
-    this.isError = false;
+    if (!REQUEST_SERVICE) {
+      this.error = null;
+      this.isError = false;
 
-    if (this.hasRecord) {
-      this._record.setProperties({
-        isError: false,
-        adapterError: null,
-      });
+      if (this.hasRecord) {
+        this._record.setProperties({
+          isError: false,
+          adapterError: null,
+        });
+      }
     }
   }
 

@@ -2,7 +2,7 @@
   @module @ember-data/store
 */
 import { assert } from '@ember/debug';
-
+import { REQUEST_SERVICE } from '@ember-data/canary-features';
 /*
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
@@ -490,7 +490,9 @@ const RootState = {
 
     // EVENTS
     loadingData(internalModel, promise) {
-      internalModel._promiseProxy = promise;
+      if (!REQUEST_SERVICE) {
+        internalModel._promiseProxy = promise;
+      }
       internalModel.transitionTo('loading');
     },
 
@@ -519,6 +521,8 @@ const RootState = {
     exit(internalModel) {
       internalModel._promiseProxy = null;
     },
+
+    loadingData() {},
 
     // EVENTS
     pushedData(internalModel) {
@@ -576,7 +580,9 @@ const RootState = {
       },
 
       reloadRecord(internalModel, { resolve, options }) {
-        resolve(internalModel.store._reloadRecord(internalModel, options));
+        if (!REQUEST_SERVICE) {
+          resolve(internalModel.store._reloadRecord(internalModel, options));
+        }
       },
 
       deleteRecord(internalModel) {

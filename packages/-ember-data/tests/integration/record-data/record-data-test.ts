@@ -77,6 +77,12 @@ class TestRecordData {
   removeFromInverseRelationships(isNew: boolean) {}
 
   _initRecordCreateOptions(options) {}
+  isNew() {
+    return false;
+  }
+  isDeleted() {
+    return false;
+  }
 }
 
 let CustomStore = Store.extend({
@@ -194,6 +200,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     let calledUnloadRecord = 0;
     let calledRollbackAttributes = 0;
     let calledDidCommit = 0;
+    let isNew = false;
 
     class LifecycleRecordData extends TestRecordData {
       pushData(data, calculateChange?: boolean) {
@@ -202,6 +209,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
       clientDidCreate() {
         calledClientDidCreate++;
+        isNew = true;
       }
 
       willCommit() {
@@ -222,6 +230,11 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
       didCommit(data) {
         calledDidCommit++;
+        isNew = false;
+      }
+
+      isNew() {
+        return isNew;
       }
     }
 
