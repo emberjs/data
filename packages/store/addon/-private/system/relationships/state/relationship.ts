@@ -1,6 +1,6 @@
 import { guidFor } from '@ember/object/internals';
 import { get } from '@ember/object';
-import { relationshipStateFor } from '../../record-data-for';
+import { relationshipStateFor, implicitRelationshipStateFor } from '../../record-data-for';
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
@@ -484,7 +484,7 @@ export default class Relationship {
     @private
    */
   removeCompletelyFromInverse() {
-    if (!this.inverseKey) {
+    if (!this.inverseKey && !this.inverseKeyForImplicit) {
       return;
     }
 
@@ -493,15 +493,28 @@ export default class Relationship {
     let seen = Object.create(null);
     const recordData = this.recordData;
 
-    const unload = inverseRecordData => {
-      const id = guidFor(inverseRecordData);
+    let unload;
+    if (this.inverseKey) {
+      unload = inverseRecordData => {
+        const id = guidFor(inverseRecordData);
 
-      if (this._hasSupportForRelationships(inverseRecordData) && seen[id] === undefined) {
-        const relationship = relationshipStateFor(inverseRecordData, this.inverseKey);
-        relationship.removeCompletelyFromOwn(recordData);
-        seen[id] = true;
+        if (this._hasSupportForRelationships(inverseRecordData) && seen[id] === undefined) {
+          const relationship = relationshipStateFor(inverseRecordData, this.inverseKey);
+          relationship.removeCompletelyFromOwn(recordData);
+          seen[id] = true;
+        }
+      };
+    } else {
+      unload = inverseRecordData => {
+        const id = guidFor(inverseRecordData);
+
+        if (this._hasSupportForImplicitRelationships(inverseRecordData) && seen[id] === undefined) {
+          const relationship = implicitRelationshipStateFor(inverseRecordData, this.inverseKeyForImplicit)
+          relationship.removeCompletelyFromOwn(recordData);
+          seen[id] = true;
+        }
       }
-    };
+    }
 
     this.members.forEach(unload);
     this.canonicalMembers.forEach(unload);
