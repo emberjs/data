@@ -26,8 +26,8 @@ import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../ts-interfaces/utils';
 import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 import { identifierCacheFor } from '../../identifiers/cache';
-import { RecordIdentifier } from '../../ts-interfaces/identifier';
-import { internalModelFactoryFor } from '../store/internal-model-factory';
+import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
 import coerceId from '../coerce-id';
 
 /**
@@ -104,7 +104,7 @@ function extractPivotName(name) {
   @class InternalModel
 */
 export default class InternalModel {
-  id: string | null;
+  _id: string | null;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;
@@ -136,8 +136,8 @@ export default class InternalModel {
   currentState: any;
   error: any;
 
-  constructor(public store: Store, private identifier: RecordIdentifier) {
-    this.id = identifier.id;
+  constructor(public store: Store, public identifier: StableRecordIdentifier) {
+    this._id = identifier.id;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
 
@@ -168,6 +168,13 @@ export default class InternalModel {
     this.__recordArrays = null;
     this._references = null;
     this._recordReference = null;
+  }
+
+  get id(): string | null {
+    if (IDENTIFIERS) {
+      return this.identifier.id; // || this._id;
+    }
+    return this._id;
   }
 
   get modelClass() {
@@ -389,6 +396,9 @@ export default class InternalModel {
       setOwner(createOptions, getOwner(store));
 
       this._record = store._modelFactoryFor(this.modelName).create(createOptions);
+      if (IDENTIFIERS) {
+        setRecordIdentifier(this._record, this.identifier);
+      }
       if (DEBUG) {
         let klass = this._record.constructor;
         let deprecations = lookupDeprecations(klass);
@@ -1262,13 +1272,12 @@ export default class InternalModel {
   }
 
   setId(id: string) {
-    assert(
-      "A record's id cannot be changed once it is in the loaded state",
-      this.id === null || this.id === id || this.isNew()
-    );
-    let didChange = id !== this.id;
+    if (!IDENTIFIERS) {
+      assert("A record's id cannot be changed once it is in the loaded state", this.id === null || this.id === id);
+    }
+    let didChange = id !== this._id;
 
-    this.id = id;
+    this._id = id;
 
     if (didChange && id !== null) {
       this.store.setRecordId(this.modelName, id, this.clientId);

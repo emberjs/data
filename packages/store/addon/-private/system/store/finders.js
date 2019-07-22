@@ -10,6 +10,7 @@ import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import { normalizeResponseHelper } from './serializer-response';
 import { serializerForAdapter } from './serializers';
 import { assign } from '@ember/polyfills';
+import { IDENTIFIERS } from '@ember-data/canary-features';
 
 /**
   @module @ember-data/store
@@ -30,6 +31,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
     return adapter.findRecord(store, modelClass, id, snapshot);
   });
   let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
+  const { identifier } = internalModel;
 
   promise = guardDestroyedStore(promise, store, label);
 
@@ -53,6 +55,11 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
           id: 'ds.store.findRecord.id-mismatch',
         }
       );
+
+      if (IDENTIFIERS) {
+        // ensure that regardless of id returned we assign to the correct record
+        payload.data.lid = identifier.lid;
+      }
 
       return store._push(payload);
     },

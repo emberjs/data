@@ -32,7 +32,7 @@ import recordDataFor from './record-data-for';
 
 import { _find, _findMany, _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
 
-import coerceId from './coerce-id';
+import coerceId, { ensureStringId } from './coerce-id';
 import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
 import RecordDataDefault from './model/record-data';
@@ -41,7 +41,7 @@ import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/
 import { Record } from '../ts-interfaces/record';
 
 import promiseRecord from '../utils/promise-record';
-import { identifierCacheFor } from '../identifiers/cache';
+import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
 import { internalModelFactoryFor } from './store/internal-model-factory';
 import { RecordIdentifier } from '../ts-interfaces/identifier';
 import RecordData from '../ts-interfaces/record-data';
@@ -54,8 +54,9 @@ import {
   SingleResourceDocument,
   CollectionResourceDocument,
   JsonApiDocument,
+  ExistingResourceObject,
 } from '../ts-interfaces/ember-data-json-api';
-const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
+import hasValidId from '../utils/has-valid-id';
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
@@ -314,6 +315,13 @@ class Store extends Service {
     );
 
     return this.adapterFor(adapter);
+  }
+
+  get identifierCache(): IdentifierCache {
+    if (!IDENTIFIERS) {
+      throw new Error(`Store.identifierCache is unavailable in this build of EmberData`);
+    }
+    return identifierCacheFor(this);
   }
 
   // .....................
@@ -736,10 +744,9 @@ class Store extends Service {
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
-    assert(badIdFormatAssertion, (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id)));
 
     const normalizedModelName = normalizeModelName(modelName);
-    const normalizedId = coerceId(id);
+    const normalizedId = ensureStringId(id);
     const internalModel = internalModelFactoryFor(this).lookup(normalizedModelName, normalizedId, null);
     options = options || {};
 
@@ -1115,7 +1122,9 @@ class Store extends Service {
       assertDestroyingStore(this, 'getReference');
     }
     const normalizedModelName = normalizeModelName(modelName);
-    const normalizedId = coerceId(id);
+    const normalizedId = ensureStringId(id);
+
+    assert(`You must pass a valid id to getReference`, typeof normalizedId === 'string' && normalizedId.length > 0);
 
     return internalModelFactoryFor(this).lookup(normalizedModelName, normalizedId, null).recordReference;
   }
@@ -1149,15 +1158,11 @@ class Store extends Service {
     }
     assert(`You need to pass a model name to the store's peekRecord method`, isPresent(modelName));
     assert(
-      `You need to pass both a model name and id to the store's peekRecord method`,
-      isPresent(modelName) && isPresent(id)
-    );
-    assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
     let normalizedModelName = normalizeModelName(modelName);
-    const normalizedId = coerceId(id);
+    const normalizedId = ensureStringId(id);
 
     if (this.hasRecordForId(normalizedModelName, normalizedId)) {
       return internalModelFactoryFor(this)
@@ -1225,8 +1230,9 @@ class Store extends Service {
     );
 
     const normalizedModelName = normalizeModelName(modelName);
-    const trueId = coerceId(id);
-    const internalModel = internalModelFactoryFor(this).peekId(normalizedModelName, trueId, null);
+    const trueId = ensureStringId(id);
+
+    const internalModel = internalModelFactoryFor(this).peek(normalizedModelName, trueId, null);
 
     return !!internalModel && internalModel.isLoaded();
   }
@@ -1251,8 +1257,10 @@ class Store extends Service {
       typeof modelName === 'string'
     );
 
+    const trueId = ensureStringId(id);
+
     return internalModelFactoryFor(this)
-      .lookup(modelName, coerceId(id), null)
+      .lookup(modelName, trueId, null)
       .getRecord();
   }
 
@@ -2141,8 +2149,9 @@ class Store extends Service {
     @private
     @param {InternalModel} internalModel the in-flight internal model
     @param {Object} data optional data (see above)
+    @param {string} op the adapter operation that was committed
   */
-  didSaveRecord(internalModel, dataArg) {
+  didSaveRecord(internalModel, dataArg, op: 'createRecord' | 'updateRecord' | 'deleteRecord') {
     if (DEBUG) {
       assertDestroyingStore(this, 'didSaveRecord');
     }
@@ -2155,6 +2164,15 @@ class Store extends Service {
         `Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
         internalModel.id
       );
+    }
+
+    if (IDENTIFIERS) {
+      const cache = identifierCacheFor(this);
+      const identifier = internalModel.identifier;
+
+      if (op !== 'deleteRecord' && data) {
+        cache.updateRecordIdentifier(identifier, data);
+      }
     }
 
     //We first make sure the primary data has been updated
@@ -2228,13 +2246,40 @@ class Store extends Service {
     @private
     @param {Object} data
   */
-  _load(data) {
+  _load(data: ExistingResourceObject) {
     const modelName = normalizeModelName(data.type);
-    const id = coerceId(data.id);
+    const id = ensureStringId(data.id);
     const lid = coerceId(data.lid);
-    const internalModel = internalModelFactoryFor(this).lookup(modelName, id, lid);
 
-    let isUpdate = internalModel.currentState.isEmpty === false;
+    let internalModel = internalModelFactoryFor(this).lookup(modelName, id, lid, data);
+
+    // store.push will be from empty
+    // findRecord will be from root.loading
+    // all else will be updates
+    const isLoading = internalModel.currentState.stateName === 'root.loading';
+    const isUpdate = internalModel.currentState.isEmpty === false && !isLoading;
+
+    if (IDENTIFIERS) {
+      // exclude store.push (root.empty) case
+      if (isUpdate || isLoading) {
+        let identifier = internalModel.identifier;
+        let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
+
+        if (updatedIdentifier !== identifier) {
+          // we encountered a merge of identifiers in which
+          // two identifiers (and likely two internalModels)
+          // existed for the same resource. Now that we have
+          // determined the correct identifier to use, make sure
+          // that we also use the correct internalModel.
+          identifier = updatedIdentifier;
+          internalModel = internalModelFactoryFor(this).lookup(
+            identifier.type,
+            identifier.id as string,
+            identifier.lid
+          );
+        }
+      }
+    }
 
     internalModel.setupData(data);
 
@@ -2720,6 +2765,9 @@ class Store extends Service {
    * @internal
    */
   _internalModelForId(modelName: string, id: string | null, lid: string | null): InternalModel {
+    if (!hasValidId(id, lid)) {
+      throw new Error(`Expected id or lid to be a string with some length`);
+    }
     return internalModelFactoryFor(this).lookup(modelName, id, lid);
   }
 
@@ -2740,7 +2788,12 @@ class Store extends Service {
     }
   }
 
+  recordDataFor(modelName: string, id: string, clientId?: string | null): RecordData;
+  recordDataFor(modelName: string, id: string | null, clientId: string): RecordData;
   recordDataFor(modelName: string, id: string | null, clientId?: string | null): RecordData {
+    if (!hasValidId(id, clientId)) {
+      throw new Error(`Expected either id or clientId to be valid id`);
+    }
     let internalModel = internalModelFactoryFor(this).lookup(modelName, id, clientId);
     return recordDataFor(internalModel);
   }
@@ -2981,6 +3034,8 @@ class Store extends Service {
     this._adapterCache = null;
     this._serializerCache = null;
 
+    identifierCacheFor(this).destroy();
+
     this.unloadAll();
 
     if (DEBUG) {
@@ -3092,7 +3147,7 @@ function _commit(adapter, store, operation, snapshot) {
           }
           data = payload.data;
         }
-        store.didSaveRecord(internalModel, { data });
+        store.didSaveRecord(internalModel, { data }, operation);
         // seems risky, but if the tests pass might be fine?
         if (sideloaded) {
           store._push({ data: null, included: sideloaded });

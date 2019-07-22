@@ -24,16 +24,10 @@
       "@ember-data/store": ["../store/addon"],
       "@ember-data/store/*": ["../store/addon/*"],
       "@ember-data/adapter/error": ["../adapter/addon/error"],
+      "@ember-data/canary-features": ["../canary-features/addon"],
       "*": ["../store/types/*"]
     }
   },
-  "include": [
-    "app/**/*",
-    "addon/**/*",
-    "tests/**/*",
-    "types/**/*",
-    "test-support/**/*",
-    "addon-test-support/**/*"
-  ],
+  "include": ["app/**/*", "addon/**/*", "tests/**/*", "types/**/*", "test-support/**/*", "addon-test-support/**/*"],
   "exclude": ["node_modules"]
 }

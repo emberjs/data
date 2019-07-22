@@ -538,7 +538,7 @@ module('integration/store - findRecord', function() {
         badValues.map(item => {
           assert.expectAssertion(() => {
             store.findRecord('car', item);
-          }, '`id` passed to `findRecord()` has to be non-empty string or number');
+          }, `Expected id to be a string or number, recieved ${String(item)}`);
         });
       });
     }

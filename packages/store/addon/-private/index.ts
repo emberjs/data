@@ -7,8 +7,16 @@ export { default as Model } from './system/model/model';
 export { default as Errors } from './system/model/errors';
 export { default as Store } from './system/store';
 
+export { recordIdentifierFor } from './system/store/internal-model-factory';
+
 export { default as Snapshot } from './system/snapshot';
-export { identifierCacheFor } from './identifiers/cache';
+export {
+  identifierCacheFor,
+  setIdentifierGenerationMethod,
+  setIdentifierUpdateMethod,
+  setIdentifierForgetMethod,
+  setIdentifierResetMethod,
+} from './identifiers/cache';
 
 // maybe public ?
 export { default as recordDataFor, relationshipStateFor, relationshipsFor } from './system/record-data-for';

@@ -5,6 +5,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
+import { IDENTIFIERS } from '@ember-data/canary-features';
 
 const { attr, belongsTo, hasMany, Model } = DS;
 
@@ -113,12 +114,20 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     assert.equal(person.get('cars.length'), 1, 'The inital length of cars is correct');
 
     assert.equal(env.store.hasRecordForId('person', 1), true, 'The person is in the store');
-    assert.equal(env.store._internalModelsFor('person').has(1), true, 'The person internalModel is loaded');
+    assert.equal(
+      env.store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      true,
+      'The person internalModel is loaded'
+    );
 
     run(() => person.unloadRecord());
 
     assert.equal(env.store.hasRecordForId('person', 1), false, 'The person is unloaded');
-    assert.equal(env.store._internalModelsFor('person').has(1), false, 'The person internalModel is freed');
+    assert.equal(
+      env.store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      false,
+      'The person internalModel is freed'
+    );
 
     run(() => {
       env.store.push({
@@ -222,9 +231,17 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
 
     // assert our initial cache state
     assert.equal(env.store.hasRecordForId('person', '1'), true, 'The person is in the store');
-    assert.equal(env.store._internalModelsFor('person').has('1'), true, 'The person internalModel is loaded');
+    assert.equal(
+      env.store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      true,
+      'The person internalModel is loaded'
+    );
     assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is in the store');
-    assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is loaded');
+    assert.equal(
+      env.store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      true,
+      'The boat internalModel is loaded'
+    );
 
     let boats = run(() => adam.get('boats'));
     assert.equal(boats.get('length'), 2, 'Before unloading boats.length is correct');
@@ -234,7 +251,11 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
 
     // assert our new cache state
     assert.equal(env.store.hasRecordForId('boat', '1'), false, 'The boat is unloaded');
-    assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is retained');
+    assert.equal(
+      env.store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      true,
+      'The boat internalModel is retained'
+    );
 
     // cause a rematerialization, this should also cause us to fetch boat '1' again
     boats = run(() => adam.get('boats'));
@@ -247,6 +268,10 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     assert.ok(rematerializedBoaty !== boaty, 'the boat is rematerialized, not recycled');
 
     assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is loaded');
-    assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is retained');
+    assert.equal(
+      env.store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      true,
+      'The boat internalModel is retained'
+    );
   });
 });

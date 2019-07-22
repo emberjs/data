@@ -310,6 +310,25 @@ module('unit/model - Model', function(hooks) {
       assert.ok(person === record, 'The cache has an entry for john');
     });
 
+    test('mutating the id after createRecord but before save works', async function(assert) {
+      let person = store.createRecord('person', { id: 'chris' });
+
+      assert.equal(person.get('id'), 'chris', 'initial created model id should be null');
+
+      try {
+        person.set('id', 'john');
+        assert.ok(false, 'we should have thrown an error during mutation');
+      } catch (e) {
+        assert.ok(true, 'we did throw');
+      }
+
+      let chris = store.peekRecord('person', 'chris');
+      let john = store.peekRecord('person', 'john');
+
+      assert.ok(chris === person, 'The cache still has an entry for chris');
+      assert.ok(john === null, 'The cache has no entry for john');
+    });
+
     test('updating the id with store.setRecordId should work correctly when the id property is watched', async function(assert) {
       const OddPerson = Model.extend({
         name: DSattr('string'),
