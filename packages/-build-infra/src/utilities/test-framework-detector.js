@@ -32,10 +32,7 @@ module.exports = function(blueprint) {
       }
     } else if ('ember-mocha' in dependencies) {
       let checker = new VersionChecker(this.project);
-      if (
-        fs.existsSync(blueprint.root + '/mocha-rfc-232-files') &&
-        checker.for('ember-mocha', 'npm').gte('0.14.0')
-      ) {
+      if (fs.existsSync(blueprint.root + '/mocha-rfc-232-files') && checker.for('ember-mocha', 'npm').gte('0.14.0')) {
         type = 'mocha-rfc-232';
       } else {
         type = 'mocha';
