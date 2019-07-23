@@ -9,7 +9,7 @@ module.exports = useEditionDetector({
 
   availableOptions: [{ name: 'base-class', type: String }],
 
-  blueprintPath: __dirname,
+  root: __dirname,
 
   fileMapTokens(options) {
     if (isModuleUnificationProject(this.project)) {

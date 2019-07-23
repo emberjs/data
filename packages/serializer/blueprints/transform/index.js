@@ -6,7 +6,7 @@ const useEditionDetector = require('@ember-data/-build-infra/src/utilities/editi
 module.exports = useEditionDetector({
   description: 'Generates an ember-data value transform.',
 
-  blueprintPath: __dirname,
+  root: __dirname,
 
   fileMapTokens(options) {
     if (isModuleUnificationProject(this.project)) {
