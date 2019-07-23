@@ -11,6 +11,8 @@ module.exports = useEditionDetector({
 
   anonymousOptions: ['name', 'attr:type'],
 
+  blueprintPath: __dirname,
+
   fileMapTokens(options) {
     if (isModuleUnificationProject(this.project)) {
       return {

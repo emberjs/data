@@ -41,7 +41,7 @@ module.exports = function(blueprint) {
       type = 'qunit';
     }
 
-    return path.join(this.path, type + '-files');
+    return path.join(blueprint.blueprintPath, type + '-files');
   };
 
   return blueprint;
