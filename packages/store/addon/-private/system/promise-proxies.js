@@ -6,6 +6,10 @@ import { reads } from '@ember/object/computed';
 import { Promise } from 'rsvp';
 import { assert } from '@ember/debug';
 
+/**
+  @module @ember-data/store
+*/
+
 /*
   A `PromiseArray` is an object that acts like both an `Ember.Array`
   and a promise. When the promise is resolved the resulting value

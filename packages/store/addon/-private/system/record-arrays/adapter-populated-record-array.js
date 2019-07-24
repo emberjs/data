@@ -6,6 +6,10 @@ import cloneNull from '../clone-null';
 import { DEBUG } from '@glimmer/env';
 
 /**
+  @module @ember-data/store
+*/
+
+/**
   Represents an ordered list of records whose order and membership is
   determined by the adapter. For example, a query sent to the adapter
   may trigger a search on the server, whose results would be loaded

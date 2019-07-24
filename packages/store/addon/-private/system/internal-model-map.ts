@@ -3,6 +3,10 @@ import InternalModel from './model/internal-model';
 import { Dict } from '../ts-interfaces/utils';
 
 /**
+  @module @ember-data/store
+*/
+
+/**
  `InternalModelMap` is a custom storage map for internalModels of a given modelName
  used by `IdentityMap`.
 

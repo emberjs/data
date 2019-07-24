@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/canary-features
+*/
+
 /*
   This list of features is used both at build time (by `@ember-data/-build-infra`)
   and at runtime (by `@ember-data/canary-features`).

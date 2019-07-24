@@ -2,6 +2,10 @@ import { ResourceIdentifierObject } from './ember-data-json-api';
 import BelongsToRelationship from '../system/relationships/state/belongs-to';
 import ManyRelationship from '../system/relationships/state/has-many';
 
+/**
+  @module @ember-data/store
+*/
+
 export interface AttributesHash {
   attributes?: {
     [key: string]: any;

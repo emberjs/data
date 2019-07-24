@@ -4,6 +4,10 @@ import { get } from '@ember/object';
 import { pluralize } from 'ember-inflector';
 
 /**
+  @module @ember-data/adapter
+*/
+
+/**
 
   WARNING: This interface is likely to change in order to accommodate [RFC: Ember Data url templates](https://github.com/emberjs/rfcs/pull/4)
 

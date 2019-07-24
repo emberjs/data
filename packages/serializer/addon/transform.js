@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/serializer
+*/
+
 // TODO: @heroiceric
 // These individual transforms shouldn't be exported
 export { default as BooleanTransform } from './transforms/boolean';

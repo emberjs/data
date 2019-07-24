@@ -2,6 +2,10 @@ import Relationships from '../system/relationships/state/create';
 import Relationship from '../system/relationships/state/relationship';
 import RecordData from './record-data';
 
+/**
+  @module @ember-data/store
+*/
+
 // we import the class not the interface because we expect
 // because we expect to use this internally with the more complete set
 // of APIs

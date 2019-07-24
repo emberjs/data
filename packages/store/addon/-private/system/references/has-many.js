@@ -6,6 +6,10 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import recordDataFor from '../record-data-for';
 
 /**
+  @module @ember-data/store
+*/
+
+/**
  A HasManyReference is a low-level API that allows users and addon
  author to perform meta-operations on a has-many relationship.
 

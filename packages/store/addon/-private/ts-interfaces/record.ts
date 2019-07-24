@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/store
+*/
+
 /*
   A `Record` is the result of the store instantiating a class to present data for a resource to the UI.
 

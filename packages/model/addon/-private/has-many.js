@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/model
 */
 import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';

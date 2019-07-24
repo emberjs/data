@@ -7,6 +7,10 @@ import {
 
 import { RecordIdentifier } from './identifier';
 
+/**
+  @module @ember-data/store
+*/
+
 export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }

@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/store
+*/
+
 // support IE11
 declare global {
   interface Window {

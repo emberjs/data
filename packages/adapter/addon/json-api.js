@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/adapter
 */
 import { dasherize } from '@ember/string';
 import RESTAdapter from './rest';

@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/serializer
 */
 
 import EmberObject from '@ember/object';

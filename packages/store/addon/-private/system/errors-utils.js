@@ -1,6 +1,10 @@
 import { makeArray } from '@ember/array';
 import { isPresent } from '@ember/utils';
 
+/**
+  @module @ember-data/store
+*/
+
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
 const PRIMARY_ATTRIBUTE_KEY = 'base';

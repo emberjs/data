@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/store
 */
 import { inspect } from '@ember/debug';
 import EmberError from '@ember/error';

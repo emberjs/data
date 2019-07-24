@@ -5,6 +5,10 @@ import { RelationshipSchema } from '../ts-interfaces/record-data-schemas';
 import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
 import Store from './store';
 
+/**
+  @module @ember-data/store
+*/
+
 export function typeForRelationshipMeta(meta) {
   let modelName;
 

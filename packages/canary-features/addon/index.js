@@ -1,5 +1,9 @@
 /* globals EmberDataENV */
 
+/**
+  @module @ember-data/canary-features
+*/
+
 import { assign } from '@ember/polyfills';
 import DEFAULT_FEATURES from './default-features';
 

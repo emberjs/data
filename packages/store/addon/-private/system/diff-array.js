@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/store
+*/
+
 /*
   @namespace
   @method diffArray

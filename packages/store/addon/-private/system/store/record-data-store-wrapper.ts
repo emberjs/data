@@ -6,6 +6,10 @@ import { upgradeForInternal } from '../ts-upgrade-map';
 import RecordData from '../../ts-interfaces/record-data';
 import { internalModelFactoryFor } from './internal-model-factory';
 
+/**
+  @module @ember-data/store
+*/
+
 type StringOrNullOrUndefined = string | null | undefined;
 
 const MISSING_ID_ARG_ERROR_MESSAGE = `Either an id or a clientId is required as an argument.`;

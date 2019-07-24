@@ -6,6 +6,10 @@ import Store from '../../store';
 import RecordDataStoreWrapper from '../../store/record-data-store-wrapper';
 import { upgradeForInternal } from '../../ts-upgrade-map';
 
+/**
+  @module @ember-data/store
+*/
+
 function createRelationshipFor(
   relationshipMeta: RelationshipSchema,
   store: Store,

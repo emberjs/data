@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/adapter
 */
 
 import EmberObject from '@ember/object';

@@ -5,7 +5,7 @@ import { recordDataFor } from '@ember-data/store/-private';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 
 /**
-  @module ember-data
+  @module @ember-data/model
 */
 
 function getDefaultValue(record, options, key) {

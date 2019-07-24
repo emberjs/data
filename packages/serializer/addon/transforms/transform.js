@@ -1,6 +1,10 @@
 import EmberObject from '@ember/object';
 
 /**
+  @module @ember-data/serializer
+*/
+
+/**
   The `Transform` class is used to serialize and deserialize model
   attributes when they are saved or loaded from an
   adapter. Subclassing `Transform` is useful for creating custom

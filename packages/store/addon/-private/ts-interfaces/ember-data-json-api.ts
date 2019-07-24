@@ -1,6 +1,10 @@
 import { Value as JSONValue } from 'json-typescript';
 import { Dict } from './utils';
 
+/**
+  @module @ember-data/store
+*/
+
 export type Meta = Dict<string, JSONValue>;
 
 /**

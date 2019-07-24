@@ -2,6 +2,10 @@ import InternalModel from '../system/model/internal-model';
 import { promiseObject } from '../system/promise-proxies';
 import { Record } from '../ts-interfaces/record';
 
+/**
+  @module @ember-data/store
+*/
+
 // shim type until we can properly type
 // these proxies
 export type PromiseProxy<T> = Promise<T>;

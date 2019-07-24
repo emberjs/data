@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/store
+*/
+
 import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { RelationshipDefinition } from './relationship-meta';

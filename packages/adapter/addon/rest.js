@@ -1,6 +1,7 @@
 /* globals najax jQuery */
+
 /**
-  @module ember-data
+  @module @ember-data/adapter
 */
 
 import RSVP, { Promise as EmberPromise } from 'rsvp';
