@@ -286,9 +286,8 @@ const hasNajax = typeof najax !== 'undefined';
 
   @class RESTAdapter
   @constructor
-  @namespace DS
-  @extends DS.Adapter
-  @uses DS.BuildURLMixin
+  @extends Adapter
+  @uses BuildURLMixin
 */
 const RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',

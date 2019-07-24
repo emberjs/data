@@ -138,8 +138,7 @@ import { pluralize } from 'ember-inflector';
   @since 1.13.0
   @class JSONAPIAdapter
   @constructor
-  @namespace DS
-  @extends DS.RESTAdapter
+  @extends RESTAdapter
 */
 const JSONAPIAdapter = RESTAdapter.extend({
   defaultSerializer: '-json-api',

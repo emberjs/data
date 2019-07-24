@@ -73,7 +73,6 @@ import EmberObject from '@ember/object';
   ```
 
   @class Transform
-  @namespace DS
  */
 export default EmberObject.extend({
   /**

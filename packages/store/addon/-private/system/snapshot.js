@@ -9,10 +9,9 @@ import { relationshipStateFor } from './record-data-for';
 
 /**
   @class Snapshot
-  @namespace DS
   @private
   @constructor
-  @param {DS.Model} internalModel The model to create a snapshot from
+  @param {Model} internalModel The model to create a snapshot from
 */
 export default class Snapshot {
   constructor(internalModel, options = {}) {

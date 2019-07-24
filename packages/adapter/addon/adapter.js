@@ -56,7 +56,6 @@ import EmberObject from '@ember/object';
   included REST adapter.
 
   @class Adapter
-  @namespace DS
   @extends EmberObject
 */
 

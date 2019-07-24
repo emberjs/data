@@ -20,7 +20,6 @@ import EmberObject from '@ember/object';
   [DS.JSONSerializer](DS.JSONSerializer), the included JSON serializer.
 
   @class Serializer
-  @namespace DS
   @extends EmberObject
 */
 

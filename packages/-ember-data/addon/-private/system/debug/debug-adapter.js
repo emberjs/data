@@ -14,7 +14,6 @@ import Model from '@ember-data/model';
   Extend `Ember.DataAdapter` with ED specific code.
 
   @class DebugAdapter
-  @namespace DS
   @extends Ember.DataAdapter
   @private
 */

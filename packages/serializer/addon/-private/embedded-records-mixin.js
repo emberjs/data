@@ -99,7 +99,6 @@ import { warn } from '@ember/debug';
   * [serializeHasMany](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeHasMany)
 
   @class EmbeddedRecordsMixin
-  @namespace DS
 */
 export default Mixin.create({
   /**

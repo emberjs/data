@@ -34,7 +34,6 @@ import { pluralize } from 'ember-inflector';
   The `host` and `namespace` attributes will be used if defined, and are optional.
 
   @class BuildURLMixin
-  @namespace DS
 */
 export default Mixin.create({
   /**
