@@ -104,7 +104,6 @@ function hasValue(internalModel, key) {
 
   @namespace
   @method attr
-  @for DS
   @param {String|Object} type the attribute type
   @param {Object} options a hash of options
   @return {Attribute}

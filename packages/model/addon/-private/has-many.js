@@ -138,7 +138,6 @@ import { DEBUG } from '@glimmer/env';
 
   @namespace
   @method hasMany
-  @for DS
   @param {String} type (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
