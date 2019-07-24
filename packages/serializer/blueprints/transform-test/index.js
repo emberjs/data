@@ -7,6 +7,8 @@ const path = require('path');
 module.exports = useTestFrameworkDetector({
   description: 'Generates a transform unit test.',
 
+  root: __dirname,
+
   fileMapTokens(options) {
     if (isModuleUnificationProject(this.project)) {
       return {
