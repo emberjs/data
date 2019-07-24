@@ -45,7 +45,6 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   ```
   @method errorsHashToArray
   @public
-  @namespace
   @param {Object} errors hash with errors as properties
   @return {Array} array of errors in JSON-API format
 */
@@ -111,7 +110,6 @@ export function errorsHashToArray(errors) {
 
   @method errorsArrayToHash
   @public
-  @namespace
   @param {Array} errors array of errors in JSON-API format
   @return {Object}
 */

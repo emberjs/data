@@ -136,7 +136,6 @@ import { DEBUG } from '@glimmer/env';
   If you are using `links` with sync relationships, you have to use
   `ref.reload` to fetch the resources.
 
-  @namespace
   @method hasMany
   @param {String} type (optional) type of the relationship
   @param {Object} options (optional) a hash of options

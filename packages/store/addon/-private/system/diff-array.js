@@ -3,7 +3,6 @@
 */
 
 /*
-  @namespace
   @method diffArray
   @private
   @param {Array} oldArray the old array
