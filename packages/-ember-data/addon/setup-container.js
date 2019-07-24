@@ -6,7 +6,7 @@ import RESTSerializer from '@ember-data/serializer/rest';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 
-import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/transform';
+import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
 
 function has(applicationOrRegistry, fullName) {
   if (applicationOrRegistry.has) {
