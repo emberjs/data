@@ -11,6 +11,10 @@ import { modelHasAttributeOrRelationshipNamedType } from './-private';
 import { normalizeModelName } from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
 
+/**
+  @module @ember-data/serializer
+*/
+
 const emberAssign = assign || merge;
 
 /**

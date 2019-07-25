@@ -5,6 +5,10 @@ import { JsonApiResource } from '../../ts-interfaces/record-data-json-api';
 import { JsonApiDocument, SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 
 /**
+  @module @ember-data/store
+*/
+
+/**
    An RecordReference is a low-level API that allows users and
    addon author to perform meta-operations on a record.
 
@@ -78,12 +82,12 @@ export default class RecordReference extends Reference {
      let userRef = store.getReference('user', 1);
 
      // provide data for reference
-     userRef.push({ 
-       data: { 
-         id: "1", 
+     userRef.push({
+       data: {
+         id: "1",
          type: "user",
          attributes: {
-           username: "@user" 
+           username: "@user"
          }
        }
      }).then(function(user) {

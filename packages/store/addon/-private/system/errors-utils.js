@@ -1,6 +1,10 @@
 import { makeArray } from '@ember/array';
 import { isPresent } from '@ember/utils';
 
+/**
+  @module @ember-data/store
+*/
+
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
 const PRIMARY_ATTRIBUTE_KEY = 'base';
@@ -39,10 +43,8 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   //   }
   // ]
   ```
-   @method errorsHashToArray
+  @method errorsHashToArray
   @public
-  @namespace
-  @for DS
   @param {Object} errors hash with errors as properties
   @return {Array} array of errors in JSON-API format
 */
@@ -75,12 +77,12 @@ export function errorsHashToArray(errors) {
 
 /**
   Convert an array of errors in JSON-API format into an object.
- 
+
   ```javascript
   import DS from 'ember-data';
- 
+
   const { errorsArrayToHash } = DS;
- 
+
   let errorsArray = [
     {
       title: 'Invalid Attribute',
@@ -98,18 +100,16 @@ export function errorsHashToArray(errors) {
       source: { pointer: '/data/attributes/age' }
     }
   ];
- 
+
   let errors = errorsArrayToHash(errorsArray);
   // {
   //   "name": ["Must be present"],
   //   "age":  ["Must be present", "must be a number"]
   // }
   ```
- 
+
   @method errorsArrayToHash
   @public
-  @namespace
-  @for DS
   @param {Array} errors array of errors in JSON-API format
   @return {Object}
 */

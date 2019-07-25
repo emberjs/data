@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/store
+*/
+
 // // public
 export { default as Model } from './system/model/model';
 export { default as Errors } from './system/model/errors';

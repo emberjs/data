@@ -1,5 +1,9 @@
 import { get } from '@ember/object';
 
+/**
+  @module @ember-data/serializer
+*/
+
 /*
   Check if the passed model has a `type` attribute or a relationship named `type`.
 

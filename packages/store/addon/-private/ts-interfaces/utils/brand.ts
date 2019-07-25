@@ -1,4 +1,8 @@
 /**
+  @module @ember-data/store
+*/
+
+/**
  * Use this brand to assign a string key to an interface
  * for mapping the interface to a tightly coupled internal
  * class implementation.

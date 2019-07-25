@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/adapter
 */
 
 import EmberObject from '@ember/object';
@@ -56,7 +56,6 @@ import EmberObject from '@ember/object';
   included REST adapter.
 
   @class Adapter
-  @namespace DS
   @extends EmberObject
 */
 

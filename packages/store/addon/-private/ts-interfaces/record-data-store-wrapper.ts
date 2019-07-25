@@ -2,6 +2,10 @@ import { RelationshipsSchema, AttributesSchema } from './record-data-schemas';
 import { BRAND_SYMBOL } from './utils/brand';
 
 /**
+  @module @ember-data/store
+*/
+
+/**
  * Provides a encapsulated API access to a subset of store methods
  * for RecordData implementations.
  */

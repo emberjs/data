@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/store
+*/
+
 import { registerWaiter } from '@ember/test';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';

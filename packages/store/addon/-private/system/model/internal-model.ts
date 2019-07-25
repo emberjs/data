@@ -30,6 +30,10 @@ import { RecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 import coerceId from '../coerce-id';
 
+/**
+  @module @ember-data/store
+*/
+
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof ManyArray>;
 type PromiseBelongsTo = InstanceType<typeof PromiseBelongsTo>;

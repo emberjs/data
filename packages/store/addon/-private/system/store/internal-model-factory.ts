@@ -8,6 +8,10 @@ import { RecordIdentifier } from '../../ts-interfaces/identifier';
 import InternalModelMap from '../internal-model-map';
 import { isNone } from '@ember/utils';
 
+/**
+  @module @ember-data/store
+*/
+
 const FactoryCache = new WeakMap<object, InternalModelFactory>();
 
 export function internalModelFactoryFor(store: Store): InternalModelFactory {

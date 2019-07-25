@@ -19,6 +19,10 @@ import isStableIdentifier from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import Store from '../system/store';
 
+/**
+  @module @ember-data/store
+*/
+
 interface KeyOptions {
   lid: IdentifierMap;
   id: IdentifierMap;

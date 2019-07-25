@@ -3,6 +3,10 @@ import Mixin from '@ember/object/mixin';
 import { deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+/**
+  @module @ember-data/store
+*/
+
 let INSTANCE_DEPRECATIONS;
 let lookupDeprecations;
 let DeprecatedEvented;

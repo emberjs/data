@@ -1,6 +1,7 @@
 /**
-  @module ember-data
+  @module @ember-data/store
 */
+
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 
 import { A } from '@ember/array';

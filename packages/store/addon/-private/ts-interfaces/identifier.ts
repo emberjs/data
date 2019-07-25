@@ -1,3 +1,6 @@
+/**
+  @module @ember-data/store
+*/
 export const IS_IDENTIFIER = Symbol('is-identifier');
 
 // provided for additional debuggability
@@ -59,7 +62,7 @@ export interface StableRecordIdentifier extends StableIdentifier {
   The method must return a unique (to at-least the given bucket) string identifier
   for the given data as a string to be used as the `lid` of an `Identifier` token.
 
-  This method will only be called by either `getOrCreateIdentifier` or 
+  This method will only be called by either `getOrCreateIdentifier` or
   `createIdentifierForNewRecord` when an identifier for the supplied data
   is not already known via `lid` or `type + id` combo and one needs to be
   generated or retrieved from a proprietary cache.
@@ -79,7 +82,7 @@ export type GenerationMethod = (data: Object, bucket: string) => string;
  This method is called everytime `updateRecordIdentifier` is called and
   with the same arguments. It provides the opportunity to update secondary
   lookup tables for existing identifiers.
-  
+
  It will always be called after an identifier created with `createIdentifierForNewRecord`
   has been committed, or after an update to the `record` a `RecordIdentifier`
   is assigned to has been committed. Committed here meaning that the server

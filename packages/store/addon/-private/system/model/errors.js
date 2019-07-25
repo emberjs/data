@@ -6,7 +6,7 @@ import { makeArray, A } from '@ember/array';
 import { DEBUG } from '@glimmer/env';
 
 /**
-@module ember-data
+  @module @ember-data/store
 */
 
 /**
