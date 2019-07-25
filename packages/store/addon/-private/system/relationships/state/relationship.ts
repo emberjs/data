@@ -9,6 +9,10 @@ import RecordData from '../../../ts-interfaces/record-data';
 import { JsonApiRelationship } from "../../../ts-interfaces/record-data-json-api";
 import { RelationshipSchema } from "../../../ts-interfaces/record-data-schemas";
 
+/**
+  @module @ember-data/store
+*/
+
 interface ImplicitRelationshipMeta {
   key?: string, 
   kind?: string;

@@ -5,7 +5,7 @@ import { get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
 
 /**
-@module ember-data
+  @module @ember-data/store
 */
 
 /**

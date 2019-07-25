@@ -4,7 +4,7 @@ import { DEBUG } from '@glimmer/env';
 import { recordDataFor } from '@ember-data/store/-private';
 
 /**
-  @module ember-data
+  @module @ember-data/model
 */
 
 function getDefaultValue(record, options, key) {
@@ -101,9 +101,7 @@ function hasValue(internalModel, key) {
   })
   ```
 
-  @namespace
   @method attr
-  @for DS
   @param {String|Object} type the attribute type
   @param {Object} options a hash of options
   @return {Attribute}

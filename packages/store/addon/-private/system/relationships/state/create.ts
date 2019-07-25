@@ -1,9 +1,18 @@
 import ManyRelationship from './has-many';
 import BelongsToRelationship from './belongs-to';
-import { RelationshipRecordData } from "../../../ts-interfaces/relationship-record-data";
-import { RelationshipSchema } from "../../../ts-interfaces/record-data-schemas";
+import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
+import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
 
-function createRelationshipFor(relationshipMeta: RelationshipSchema, store: any, recordData: RelationshipRecordData, key) {
+/**
+  @module @ember-data/store
+*/
+
+function createRelationshipFor(
+  relationshipMeta: RelationshipSchema,
+  store: any,
+  recordData: RelationshipRecordData,
+  key
+) {
   let inverseKey = recordData.storeWrapper.inverseForRelationship(recordData.modelName, key);
   let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(
     recordData.modelName,
@@ -24,8 +33,8 @@ function createRelationshipFor(relationshipMeta: RelationshipSchema, store: any,
 }
 
 export default class Relationships {
-  recordData: RelationshipRecordData
-  initializedRelationships: {[key: string]: BelongsToRelationship | ManyRelationship}
+  recordData: RelationshipRecordData;
+  initializedRelationships: { [key: string]: BelongsToRelationship | ManyRelationship };
   constructor(recordData) {
     this.recordData = recordData;
     this.initializedRelationships = Object.create(null);

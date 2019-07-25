@@ -1,6 +1,7 @@
 /* globals najax jQuery */
+
 /**
-  @module ember-data
+  @module @ember-data/adapter
 */
 
 import RSVP, { Promise as EmberPromise } from 'rsvp';
@@ -290,9 +291,8 @@ const hasNajax = typeof najax !== 'undefined';
 
   @class RESTAdapter
   @constructor
-  @namespace DS
-  @extends DS.Adapter
-  @uses DS.BuildURLMixin
+  @extends Adapter
+  @uses BuildURLMixin
 */
 const RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',

@@ -4,6 +4,10 @@ import { get } from '@ember/object';
 import { pluralize } from 'ember-inflector';
 
 /**
+  @module @ember-data/adapter
+*/
+
+/**
 
   WARNING: This interface is likely to change in order to accommodate [RFC: Ember Data url templates](https://github.com/emberjs/rfcs/pull/4)
 
@@ -30,7 +34,6 @@ import { pluralize } from 'ember-inflector';
   The `host` and `namespace` attributes will be used if defined, and are optional.
 
   @class BuildURLMixin
-  @namespace DS
 */
 export default Mixin.create({
   /**

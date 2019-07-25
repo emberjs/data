@@ -1,4 +1,8 @@
 
+/**
+  @module @ember-data/store
+*/
+
 export interface RelationshipSchema {
   kind: string;
   type: string;

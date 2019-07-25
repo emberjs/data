@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/store
+*/
+
 // Used by the store to normalize IDs entering the store.  Despite the fact
 // that developers may provide IDs as numbers (e.g., `store.findRecord('person', 1)`),
 // it is important that internally we use strings, since IDs may be serialized

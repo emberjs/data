@@ -1,5 +1,9 @@
 import { dasherize } from '@ember/string';
 
+/**
+  @module @ember-data/store
+*/
+
 // All modelNames are dasherized internally. Changing this function may
 // require changes to other normalization hooks (such as typeForRoot).
 

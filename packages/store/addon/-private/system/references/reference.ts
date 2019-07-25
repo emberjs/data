@@ -3,6 +3,10 @@ import InternalModel from '../model/internal-model';
 import recordDataFor from '../record-data-for';
 import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
+/**
+  @module @ember-data/store
+*/
+
 interface ResourceIdentifier {
   links?: {
     related?: string;

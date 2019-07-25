@@ -6,6 +6,10 @@ import { set, get } from '@ember/object';
 import { warn } from '@ember/debug';
 
 /**
+  @module @ember-data/serializer
+*/
+
+/**
   ## Using Embedded Records
 
   `EmbeddedRecordsMixin` supports serializing embedded records.
@@ -95,7 +99,6 @@ import { warn } from '@ember/debug';
   * [serializeHasMany](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeHasMany)
 
   @class EmbeddedRecordsMixin
-  @namespace DS
 */
 export default Mixin.create({
   /**

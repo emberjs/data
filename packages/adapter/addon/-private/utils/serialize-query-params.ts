@@ -4,7 +4,7 @@ function isPlainObject(obj: any): boolean {
   return Object.prototype.toString.call(obj) === '[object Object]';
 }
 
-/**
+/*
  * Helper function that turns the data/body of a request into a query param string.
  * This is directly copied from jQuery.param.
  */
@@ -52,7 +52,7 @@ export function serializeQueryParams(
     .replace(/%20/g, '+');
 }
 
-/**
+/*
  * Part of the `serializeQueryParams` helper function.
  */
 function add(s: Array<any>, k: string, v?: string | (() => string)) {

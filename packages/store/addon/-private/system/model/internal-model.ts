@@ -20,6 +20,10 @@ import RecordDataDefault from './record-data';
 import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource } from '../../ts-interfaces/record-data-json-api';
 
+/**
+  @module @ember-data/store
+*/
+
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
   when transitioning from one state to another, so that future transitions can replay the
@@ -503,12 +507,12 @@ export default class InternalModel {
     let parentInternalModel = this;
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
-    let _belongsToState = { 
-      key, 
-      store, 
+    let _belongsToState = {
+      key,
+      store,
       originatingInternalModel: this,
-      modelName: relationshipMeta.type
-    }
+      modelName: relationshipMeta.type,
+    };
 
     if (isAsync) {
       let internalModel =
@@ -620,9 +624,7 @@ export default class InternalModel {
     } else {
       manyArray.set('isLoaded', true);
       assert(
-        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${
-          this.id
-        } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
+        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
         !manyArray.anyUnloaded()
       );
 

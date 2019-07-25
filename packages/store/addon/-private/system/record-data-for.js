@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/store
+*/
+
 /*
  * Returns the RecordData instance associated with a given
  * Model or InternalModel.

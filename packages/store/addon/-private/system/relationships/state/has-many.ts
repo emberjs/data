@@ -9,6 +9,10 @@ import {
 } from '../../../ts-interfaces/record-data-json-api';
 import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
 
+/**
+  @module @ember-data/store
+*/
+
 export default class ManyRelationship extends Relationship {
   canonicalState: RelationshipRecordData[];
   currentState: RelationshipRecordData[];

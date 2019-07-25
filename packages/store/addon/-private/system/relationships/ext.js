@@ -3,6 +3,10 @@ import { computed, get } from '@ember/object';
 import { assert } from '@ember/debug';
 import { typeForRelationshipMeta, relationshipFromMeta } from '../relationship-meta';
 
+/**
+  @module @ember-data/store
+*/
+
 export const relationshipsDescriptor = computed(function() {
   let map = new Map();
   let relationshipsByName = get(this, 'relationshipsByName');

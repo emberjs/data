@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/serializer
 */
 
 import { typeOf, isNone } from '@ember/utils';

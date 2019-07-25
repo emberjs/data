@@ -6,6 +6,10 @@ import { RelationshipRecordData } from "../../../ts-interfaces/relationship-reco
 import { JsonApiBelongsToRelationship, JsonApiResourceIdentity } from "../../../ts-interfaces/record-data-json-api";
 import { RelationshipSchema } from "../../../ts-interfaces/record-data-schemas";
 
+/**
+  @module @ember-data/store
+*/
+
 export default class BelongsToRelationship extends Relationship {
 
   inverseRecordData: RelationshipRecordData | null;

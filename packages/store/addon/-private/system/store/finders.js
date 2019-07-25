@@ -11,6 +11,10 @@ import { normalizeResponseHelper } from './serializer-response';
 import { serializerForAdapter } from './serializers';
 import { assign } from '@ember/polyfills';
 
+/**
+  @module @ember-data/store
+*/
+
 function payloadIsNotBlank(adapterPayload) {
   if (Array.isArray(adapterPayload)) {
     return true;

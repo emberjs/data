@@ -1,6 +1,10 @@
 import Transform from './transform';
 
 /**
+  @module @ember-data/serializer
+*/
+
+/**
  The `DateTransform` class is used to serialize and deserialize
  date attributes on Ember Data record objects. This transform is used
  when `date` is passed as the type parameter to the

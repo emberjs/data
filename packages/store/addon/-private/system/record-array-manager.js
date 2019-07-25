@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/store
 */
 
 import { A } from '@ember/array';

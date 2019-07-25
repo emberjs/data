@@ -4,6 +4,10 @@ import {
   JsonApiBelongsToRelationship,
 } from './record-data-json-api';
 
+/**
+  @module @ember-data/store
+*/
+
 export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }

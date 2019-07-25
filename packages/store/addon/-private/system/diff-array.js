@@ -1,5 +1,8 @@
+/**
+  @module @ember-data/store
+*/
+
 /*
-  @namespace
   @method diffArray
   @private
   @param {Array} oldArray the old array

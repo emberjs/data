@@ -1,6 +1,10 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+/**
+  @module @ember-data/store
+*/
+
 /*
   This is a helper method that validates a JSON API top-level document
 

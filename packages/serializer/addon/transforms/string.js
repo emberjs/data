@@ -2,6 +2,10 @@ import { isNone as none } from '@ember/utils';
 import Transform from './transform';
 
 /**
+  @module @ember-data/serializer
+*/
+
+/**
   The `StringTransform` class is used to serialize and deserialize
   string attributes on Ember Data record objects. This transform is
   used when `string` is passed as the type parameter to the
