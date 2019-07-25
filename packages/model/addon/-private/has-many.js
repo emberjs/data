@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/model
 */
 import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
@@ -136,9 +136,7 @@ import { DEBUG } from '@glimmer/env';
   If you are using `links` with sync relationships, you have to use
   `ref.reload` to fetch the resources.
 
-  @namespace
   @method hasMany
-  @for DS
   @param {String} type (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship

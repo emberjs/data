@@ -19,7 +19,7 @@ import RootState from './states';
 const { changeProperties } = Ember;
 
 /**
-  @module ember-data
+  @module @ember-data/store
 */
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {

@@ -13,6 +13,10 @@ import { JsonApiResource, JsonApiResourceIdentity, JsonApiBelongsToRelationship,
 import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
 import { RecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
 
+/**
+  @module @ember-data/store
+*/
+
 let nextBfsId = 1;
 
 export default class RecordDataDefault implements RelationshipRecordData {

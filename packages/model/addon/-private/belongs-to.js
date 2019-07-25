@@ -4,6 +4,10 @@ import { normalizeModelName } from '@ember-data/store';
 import { DEBUG } from '@glimmer/env';
 
 /**
+  @module @ember-data/model
+*/
+
+/**
   `belongsTo` is used to define One-To-One and One-To-Many
   relationships on a [Model](/api/data/classes/DS.Model.html).
 

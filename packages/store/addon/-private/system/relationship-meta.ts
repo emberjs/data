@@ -3,6 +3,10 @@ import { DEBUG } from '@glimmer/env';
 import normalizeModelName from './normalize-model-name';
 import { RelationshipSchema } from "../ts-interfaces/record-data-schemas";
 
+/**
+  @module @ember-data/store
+*/
+
 export function typeForRelationshipMeta(meta) {
   let modelName;
 

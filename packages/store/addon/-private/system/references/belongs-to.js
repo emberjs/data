@@ -5,6 +5,10 @@ import Reference from './reference';
 import recordDataFor from '../record-data-for';
 
 /**
+  @module @ember-data/store
+*/
+
+/**
  A BelongsToReference is a low-level API that allows users and
  addon author to perform meta-operations on a belongs-to
  relationship.

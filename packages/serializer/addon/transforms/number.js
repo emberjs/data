@@ -1,5 +1,9 @@
 import Transform from './transform';
 
+/**
+  @module @ember-data/serializer
+*/
+
 function isNumber(value) {
   return value === value && value !== Infinity && value !== -Infinity;
 }

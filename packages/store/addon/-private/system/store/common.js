@@ -2,6 +2,10 @@ import { get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 import { resolve } from 'rsvp';
 
+/**
+  @module @ember-data/store
+*/
+
 export function _bind(fn, ...args) {
   return function() {
     return fn.apply(undefined, args);

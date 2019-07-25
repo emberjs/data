@@ -2,6 +2,10 @@ import InternalModelMap from './internal-model-map';
 import { Dict } from '../types';
 
 /**
+  @module @ember-data/store
+*/
+
+/**
  `IdentityMap` is a custom storage map for records by modelName
  used by `Store`.
 
