@@ -11,8 +11,7 @@ import { run } from '@ember/runloop';
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import { assign } from '@ember/polyfills';
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeQueryParams } from './-private';
-import {
-  AdapterError,
+import AdapterError, {
   InvalidError,
   UnauthorizedError,
   ForbiddenError,

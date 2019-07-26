@@ -38,20 +38,16 @@ import 'ember-inflector';
 import setupContainer from './setup-container';
 import initializeStoreService from './initialize-store-service';
 
-import Transform, {
-  BooleanTransform,
-  DateTransform,
-  NumberTransform,
-  StringTransform,
-} from '@ember-data/serializer/transform';
+import Transform from '@ember-data/serializer/transform';
+
+import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 
-import {
+import AdapterError, {
   AbortError,
-  AdapterError,
   ConflictError,
   ForbiddenError,
   InvalidError,
