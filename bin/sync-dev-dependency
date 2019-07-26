@@ -1,0 +1,81 @@
+#!/usr/bin/env node
+/**
+ * Ensures that the version of a devDependency in root
+ * is reflected in individual packages. Hoists any
+ * devDependencies not yet in root to root.
+ *
+ * Usage
+ *
+ * ```
+ * yarn run sync-dev
+ * ```
+ */
+/* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
+const { shellSync } = require('execa');
+const path = require('path');
+const fs = require('fs');
+const semver = require('semver');
+
+const projectRoot = path.resolve(__dirname, '../');
+const rootJson = path.join(projectRoot, './package.json');
+const packagesDir = path.join(projectRoot, './packages');
+const packages = fs.readdirSync(packagesDir);
+
+function execWithLog(command) {
+  return shellSync(command, { stdio: [0, 1, 2] });
+}
+
+// gather deps not yet in root
+const rootPackage = require(rootJson);
+const rootUpdates = {};
+const packageJsons = {};
+
+// hoist anything needed to root
+packages.forEach(localName => {
+  const pkgDir = path.join(packagesDir, localName);
+  const pkgPath = path.join(pkgDir, 'package.json');
+
+  if (!fs.existsSync(pkgPath)) {
+    return;
+  }
+
+  const pkg = require(pkgPath);
+
+  // for each package with this devDep, run command
+  if (pkg.devDependencies) {
+    packageJsons[pkgPath] = pkg;
+    const packageNames = Object.keys(pkg.devDependencies);
+
+    packageNames.forEach(name => {
+      if (!rootPackage.devDependencies[name]) {
+        if (
+          !rootUpdates[name] ||
+          (pkg.devDependencies[name] !== '*' && semver.lt(rootUpdates[name], pkg.devDependencies[name]))
+        ) {
+          rootUpdates[name] = pkg.devDependencies[name];
+        }
+      }
+    });
+  }
+});
+
+// merge hoisted to root and write
+if (Object.keys(rootUpdates) > 0) {
+  Object.assign(rootPackage.devDependencies, rootUpdates);
+  fs.writeFileSync(rootJson, JSON.stringify(rootPackage, null, 2));
+}
+
+// assign root versions to sub-packages and write
+Object.keys(packageJsons).forEach(key => {
+  const pkg = packageJsons[key];
+
+  Object.keys(rootPackage.devDependencies).forEach(packageName => {
+    if (pkg.devDependencies[packageName]) {
+      pkg.devDependencies[packageName] = rootPackage.devDependencies[packageName];
+    }
+  });
+
+  fs.writeFileSync(key, JSON.stringify(pkg, null, 2));
+});
+
+execWithLog(`yarn install`);
