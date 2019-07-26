@@ -2,15 +2,50 @@
 
 ### Master
 
-## Release 3.10.0-beta.1 (April 19, 2019)
+## Release 3.11.3 (July 25, 2019)
 
-- [#5974](https://github.com/emberjs/data/pull/5974) Remove Publish job from CI (#5974)
-- [#5987](https://github.com/emberjs/data/pull/5987) [CHORE packages] hoist dev-deps and linting
-- [#5989](https://github.com/emberjs/data/pull/5989) [CHORE release] backport fixes from release branch for releasing
+- [#6280](https://github.com/emberjs/data/pull/6280) [DOC release] Fix API doc issues with package split. (#6280)
+- [#6281](https://github.com/emberjs/data/pull/6281) [BUGFIX release] ensure all packages in correct RFC locations (#6281)
+
+## Release 3.11.2 (July 20, 2019)
+
+- [#6252](https://github.com/emberjs/data/pull/6252) [BUGFIX] Includes yuidoc's output data.json to published package
+
+## Release 3.11.1 (July 19, 2019)
+
+- [#6256](https://github.com/emberjs/data/pull/6256) [BUGFIX release] fix type overrides (#6256)
+- [62ac6580](https://github.com/emberjs/data/commit/62ac658048eafa779cf7f566f6b2c088fb6c6a4a) [BUGFIX docs] ensure we publish docs (#6257)
+- [fa67c329](https://github.com/emberjs/data/commit/fa67c329f4a11c2ea16d374684239d1a89869cc6) [BUGFIX release] Add blueprints to ember-data package.
+
+## Release 3.11.0 (June 28, 2019)
+ 
+- [#6189](https://github.com/emberjs/data/pull/6189) Update model API docs to use the new packages import syntax (#6137)
+- [#6075](https://github.com/emberjs/data/pull/6075) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
+- [6c2ae3d4](https://github.com/emberjs/data/commit/6c2ae3d4eaae5c090d9b4bda6e5afc8f15f73d70) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
+- [88b37e2b](https://github.com/emberjs/data/commit/88b37e2bfdf749987aeca96636a203216c3d7ebf) [BUGFIX unloadRecord] Fix unloadRecord() when unloading a previous parent of a child record
+- [a4c47189](https://github.com/emberjs/data/commit/a4c471899c4c17dca2b7385e5c554506921db45f) [BUGFIX docs] Update 'navigator.connection' example to spec (#6060)
+- [fc69c462](https://github.com/emberjs/data/commit/fc69c4629747d20e9faa132d11edd2e7bf2892a1) [BUGFIX docs] Fix broken ArrayProxy link on api docs (#6057)
 - [00df008f](https://github.com/emberjs/data/commit/00df008f874c2719c1253c217ecd10243d5fdb21) [FEAT packages] introduce build-infra package
 - [e4a4368d](https://github.com/emberjs/data/commit/e4a4368d2278179410553aa8b601cd72dd7f7db6) [FIX recordArrayManager] removes an extraneous flush
 - [781aecff](https://github.com/emberjs/data/commit/781aecff9b63781be5331c5885d06ac1be143d61) [DOC contributing.md] | Clarifying that yarn should be used to run tests, not ember
 - [d184441b](https://github.com/emberjs/data/commit/d184441bc4c6416f5c8539566bc5277f9270b764) [BUGFIX jQuery] avoid jQuery deprecation notice for intentional use
+- [67bf0b0e](https://github.com/emberjs/data/commit/67bf0b0e29a4f38285c6d24507204e644dd0effc) [BUGFIX blueprints] Add parans to the attr decorator when there is no transform type (#6054)
+- [#5974](https://github.com/emberjs/data/pull/5974) Remove Publish job from CI (#5974)
+- [678f3c9d](https://github.com/emberjs/data/commit/678f3c9d3eb962a039e02f25da0c3ae3473edb11) [BUGFIX partner-tests] fix directory resolution (#6064)
+
+## Release 3.10.0 (May 13, 2019)
+
+Re-release of 3.9.3 to allow for an extended stabilization period for the [Packages RFC](https://github.com/emberjs/data/labels/TRACK-packages)
+
+## Release 3.9.3 (May 9, 2019)
+
+- [ab45d352](https://github.com/emberjs/data/commit/ab45d352cac06c8a5fd10e92cf99accc96a19ff7) [BUGFIX release] Fix fetch detection.
+- [0dce363b](https://github.com/emberjs/data/commit/0dce363bb99118e8aae051a9660c78f9be880850) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
+
+## Release 3.9.2 (May 7, 2019)
+
+- [#6076](https://github.com/emberjs/data/pull/6076) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
+- [#6082](https://github.com/emberjs/data/pull/6082) [BUGFIX release] Remove ember-fetch dependency. (#6082)
 
 ## Release 3.9.1 (April 19, 2019)
 
