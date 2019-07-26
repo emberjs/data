@@ -310,7 +310,7 @@ module('unit/model - Model', function(hooks) {
       assert.ok(person === record, 'The cache has an entry for john');
     });
 
-    test('mutating the id after createRecord but before save works', async function(assert) {
+    testInDebug('mutating the id after createRecord but before save works', async function(assert) {
       let person = store.createRecord('person', { id: 'chris' });
 
       assert.equal(person.get('id'), 'chris', 'initial created model id should be null');
