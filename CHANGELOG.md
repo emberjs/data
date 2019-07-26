@@ -2,6 +2,44 @@
 
 ### Master
 
+## Release 3.12.0-beta.1 (July 25, 2019)
+
+- [#6062](https://github.com/emberjs/data/pull/6062) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
+- [#6079](https://github.com/emberjs/data/pull/6079) docs: fix RELEASE.md refs to publish.js
+- [#6078](https://github.com/emberjs/data/pull/6078) Use HTML comments in PR template. (#6078)
+- [#6077](https://github.com/emberjs/data/pull/6077) [BUGFIX release] Remove ember-fetch dependency. (#6077)
+- [82743675](https://github.com/emberjs/data/commit/8274367556e4f23b2b8f8ac49c91e3d410a1f7bb) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
+- [#6284](https://github.com/emberjs/data/pull/6284) cleanup changelog (#6284)
+- [#6091](https://github.com/emberjs/data/pull/6091) [CHORE] Use env variables instead of command flags (#6091)
+- [#6099](https://github.com/emberjs/data/pull/6099) [CHORE] Modernize unit/model/relationships-test.js test (#6099)
+- [#6100](https://github.com/emberjs/data/pull/6100) [CHORE tests] Converting unit tests to new qunit syntax (#6100)
+- [dc30984b](https://github.com/emberjs/data/commit/dc30984b6b036e98288ff60251ff6b34ffdc20c7) [FEAT] Adding eslint-plugin-qunit
+- [#6122](https://github.com/emberjs/data/pull/6122) Bump ember-source-channel-url from 1.1.0 to 2.0.1 (#6122)
+- [#6124](https://github.com/emberjs/data/pull/6124) chore: remove co usage (#6124)
+- [#6125](https://github.com/emberjs/data/pull/6125) [CHORE tests] replace `mocha-only-detector` with `mocha/no-exclusive-tests` rule (#6125)
+- [#5975](https://github.com/emberjs/data/pull/5975) Add a CI job for ember-release with jQuery (#5975)
+- [0b1c1b4f](https://github.com/emberjs/data/commit/0b1c1b4f38abe6d4bbbc214537f032b86eebdada) [BUGFIX tarballs] don't strip double slash from hostPath protocol (#6132)
+- [#6155](https://github.com/emberjs/data/pull/6155) Two small fixes to `fetch` (#6155)
+- [#6112](https://github.com/emberjs/data/pull/6112) [BUGFIX relationships] fix infinite retry bug for failed relationship fetches (#6112)
+- [48dd8120](https://github.com/emberjs/data/commit/48dd812035f974c56447ddc0cf81c37a83ce1e02) [BUGFIX reload] fix sync belongsTo reload w/dematerialize (#6158)
+- [#6168](https://github.com/emberjs/data/pull/6168) [DOCS adapter] remove remaining sinceToken and update docs (#6168)
+- [#6181](https://github.com/emberjs/data/pull/6181) Docs update for unloadRecord
+- [#6196](https://github.com/emberjs/data/pull/6196) Docs: fixing request->record typo (#6196)
+- [545285f1](https://github.com/emberjs/data/commit/545285f1ca519a282272ccae6dfeb1c480f2e015) [BUGFIX release] Fix rollup warning for ember-inflector. (#6242)
+- [#6250](https://github.com/emberjs/data/pull/6250) [BUGFIX query] Remove arity check for adapter.query (#6250)
+- [15753844](https://github.com/emberjs/data/commit/15753844a5ac4a92fb6b22d81e8f3f8e96a01c4b) [BUGFIX] Includes yuidoc's output data.json to published package
+- [#6252](https://github.com/emberjs/data/pull/6252) [BUGFIX] Includes yuidoc's output data.json to published package
+- [#6256](https://github.com/emberjs/data/pull/6256) [BUGFIX release] fix type overrides (#6256)
+- [c8d8c041](https://github.com/emberjs/data/commit/c8d8c041ecd1585624c3ed6a56c767383c9ab448) [BUGFIX release] Add blueprints to ember-data package.
+- [2a987140](https://github.com/emberjs/data/commit/2a987140930aa38a9ab65ed0adf644301556f2d6) [BUGFIX docs] ensure we publish docs (#6257)
+- [#6241](https://github.com/emberjs/data/pull/6241) [BUGFIX release] Add blueprints to ember-data package.
+- [#6247](https://github.com/emberjs/data/pull/6247) [RFC 403] Identifiers Infra (#6247)
+- [#6249](https://github.com/emberjs/data/pull/6249) chore: refactor store to class (#6249)
+- [#6274](https://github.com/emberjs/data/pull/6274) [BUGFIX RELEASE] Fix generating from blueprints (#6274)
+- [#6280](https://github.com/emberjs/data/pull/6280) [DOC release] Fix API doc issues with package split. (#6280)
+- [#6281](https://github.com/emberjs/data/pull/6281) [BUGFIX release] ensure all packages in correct RFC locations (#6281)
+
+
 ## Release 3.11.3 (July 25, 2019)
 
 - [#6280](https://github.com/emberjs/data/pull/6280) [DOC release] Fix API doc issues with package split. (#6280)
