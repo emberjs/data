@@ -8,6 +8,8 @@
     "lint:js"
   ],
   "scripts": {
+    "add-dev": "./bin/add-dev-dependency",
+    "sync-dev": "./bin/sync-dev-dependency",
     "build": "yarn workspace ember-data build",
     "build:production": "yarn workspace ember-data build:production",
     "lint:js": "./bin/lint-js",
