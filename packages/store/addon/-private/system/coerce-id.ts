@@ -36,7 +36,7 @@ export function ensureStringId(id: Coercable): string {
     throw new Error(`Expected id to be a string or number, recieved ${String(id)}`);
   }
 
-  return normalized as string;
+  return normalized!;
 }
 
 export default coerceId;
