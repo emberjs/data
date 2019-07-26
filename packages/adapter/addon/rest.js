@@ -16,8 +16,7 @@ import {
   parseResponseHeaders,
   serializeQueryParams,
 } from './-private';
-import {
-  AdapterError,
+import AdapterError, {
   InvalidError,
   UnauthorizedError,
   ForbiddenError,

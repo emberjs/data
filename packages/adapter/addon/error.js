@@ -77,7 +77,7 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
 
   @class AdapterError
 */
-export function AdapterError(errors, message = 'Adapter operation failed') {
+function AdapterError(errors, message = 'Adapter operation failed') {
   this.isAdapterError = true;
   let error = EmberError.call(this, message);
 
@@ -101,6 +101,8 @@ export function AdapterError(errors, message = 'Adapter operation failed') {
     },
   ];
 }
+
+export default AdapterError;
 
 function extendFn(ErrorClass) {
   return function({ message: defaultMessage } = {}) {
