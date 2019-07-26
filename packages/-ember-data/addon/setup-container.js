@@ -11,7 +11,7 @@ import {
   DateTransform,
   NumberTransform,
   StringTransform,
-} from '@ember-data/serializer/transform';
+} from '@ember-data/serializer/-private';
 
 function has(applicationOrRegistry, fullName) {
   if (applicationOrRegistry.has) {
