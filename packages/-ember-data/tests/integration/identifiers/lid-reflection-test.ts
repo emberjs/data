@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
-import { IDENTIFIERS } from '@ember-data/canary-features';
+import { IDENTIFIERS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 import Model, { attr } from '@ember-data/model';
 import Adapter from '@ember-data/adapter';
@@ -78,6 +78,7 @@ if (IDENTIFIERS) {
 
     test(`A newly created record can receive a payload by lid (after save, before Adapter.createRecord resolves)`, async function(assert) {
       const adapterPromise = defer();
+      const beganSavePromise = defer();
       class TestSerializer extends Serializer {
         normalizeResponse(_, __, payload) {
           return payload;
@@ -85,6 +86,7 @@ if (IDENTIFIERS) {
       }
       class TestAdapter extends Adapter {
         createRecord(store, ModelClass, snapshot) {
+          beganSavePromise.resolve();
           return adapterPromise.promise.then(() => {
             return {
               data: {
@@ -108,6 +110,9 @@ if (IDENTIFIERS) {
       assert.ok(identifier.lid !== null, 'We have an lid');
 
       const savePromise = record.save();
+
+      await beganSavePromise.promise;
+
       const pushedRecord = store.push({
         data: {
           type: 'user',
@@ -123,7 +128,12 @@ if (IDENTIFIERS) {
       assert.ok(pushedRecord === record, 'We have the same record instance');
       assert.strictEqual(record.name, 'Chris', 'We use the in-flight name');
       assert.strictEqual(record.age, 31, 'We received the pushed data');
-      assert.strictEqual(record.isNew, true, 'We are still in the new state');
+      if (RECORD_DATA_STATE) {
+        // once the payload is received the derived state shifts to "no longer new" in the RECORD_DATA_STATE world
+        assert.strictEqual(record.isNew, false, 'We are no longer in the new state');
+      } else {
+        assert.strictEqual(record.isNew, true, 'We are still in the new state');
+      }
 
       record.rollbackAttributes();
 
