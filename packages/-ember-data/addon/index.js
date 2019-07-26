@@ -40,7 +40,12 @@ import initializeStoreService from './initialize-store-service';
 
 import Transform from '@ember-data/serializer/transform';
 
-import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
+import {
+  BooleanTransform,
+  DateTransform,
+  NumberTransform,
+  StringTransform,
+} from '@ember-data/serializer/-private';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
