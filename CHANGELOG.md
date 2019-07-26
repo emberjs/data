@@ -2,6 +2,10 @@
 
 ### Master
 
+## Release 3.11.4 (July 26, 2019)
+
+- [#6286](https://github.com/emberjs/data/pull/6286) [BUGFIX RELEASE] Fix generating from blueprints (#6274) (#6286)
+
 ## Release 3.11.3 (July 25, 2019)
 
 - [#6280](https://github.com/emberjs/data/pull/6280) [DOC release] Fix API doc issues with package split. (#6280)
