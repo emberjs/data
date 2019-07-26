@@ -54,7 +54,7 @@ module('unit/store/peekRecord - Store peekRecord', function(hooks) {
     run(() => {
       assert.expectAssertion(() => {
         store.peekRecord('my-id');
-      }, /You need to pass both a model name and id/);
+      }, /Expected id to be a string or number, recieved undefined/);
     });
   });
 

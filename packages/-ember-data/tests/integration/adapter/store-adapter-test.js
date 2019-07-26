@@ -968,22 +968,22 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     run(() => store.findRecord('person', 1));
   });
 
-  test('relationships returned via `commit` do not trigger additional findManys', function(assert) {
+  test('relationships returned via `commit` do not trigger additional findManys', async function(assert) {
     Person.reopen({
       dogs: DS.hasMany('dog', { async: false }),
     });
 
-    run(() => {
-      env.store.push({
-        data: {
-          type: 'dog',
-          id: '1',
-          attributes: {
-            name: 'Scruffy',
-          },
+    store.push({
+      data: {
+        type: 'dog',
+        id: '1',
+        attributes: {
+          name: 'Scruffy',
         },
-      });
+      },
     });
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     adapter.findRecord = function(store, type, id, snapshot) {
       return resolve({
@@ -1034,20 +1034,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       assert.ok(false, 'Should not get here');
     };
 
-    return run(() => {
-      store
-        .findRecord('person', 1)
-        .then(person => {
-          return hash({ tom: person, dog: store.findRecord('dog', 1) });
-        })
-        .then(records => {
-          records.tom.get('dogs');
-          return records.dog.save();
-        })
-        .then(tom => {
-          assert.ok(true, 'Tom was saved');
-        });
-    });
+    const person = await store.findRecord('person', '1');
+    const dog = await store.findRecord('dog', '1');
+    await dog.save();
+    await person.get('dogs');
+
+    assert.ok(true, 'no findMany triggered');
   });
 
   test("relationships don't get reset if the links is the same", function(assert) {

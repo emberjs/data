@@ -34,7 +34,6 @@ export interface RecordIdentifier extends Identifier {
 export interface StableIdentifier extends Identifier {
   [IS_IDENTIFIER]: true;
   [DEBUG_IDENTIFIER_BUCKET]?: string;
-  toString?(): string;
 }
 
 /**
@@ -49,10 +48,6 @@ export interface StableRecordIdentifier extends StableIdentifier {
 }
 
 /**
- *
- */
-
-/*
   A method which can expect to receive various data as its first argument
   and the name of a bucket as its second argument. Currently the second
   argument will always be `record` data should conform to a `json-api`

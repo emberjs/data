@@ -5,6 +5,9 @@ import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import { upgradeForInternal } from '../ts-upgrade-map';
 import RecordData from '../../ts-interfaces/record-data';
 import { internalModelFactoryFor } from './internal-model-factory';
+import hasValidId from '../../utils/has-valid-id';
+import { IDENTIFIERS } from '@ember-data/canary-features';
+import { identifierCacheFor, IdentifierCache } from '../../identifiers/cache';
 
 /**
   @module @ember-data/store
@@ -24,6 +27,13 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     this._store = store;
     this._willUpdateManyArrays = false;
     this._pendingManyArrayUpdates = [];
+  }
+
+  get identifierCache(): IdentifierCache {
+    if (!IDENTIFIERS) {
+      throw new Error(`Store.identifierCache is unavailable in this build of EmberData`);
+    }
+    return identifierCacheFor(this._store);
   }
 
   /**
@@ -57,8 +67,13 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     });
   }
 
-  notifyErrorsChange(modelName: string, id: string | null, clientId: string | null) {
-    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+  notifyErrorsChange(modelName: string, id: string, clientId: string | null): void;
+  notifyErrorsChange(modelName: string, id: string | null, clientId: string): void;
+  notifyErrorsChange(modelName: string, id: string | null, clientId: string | null): void {
+    if (!hasValidId(id, clientId)) {
+      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
+    }
+    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
 
     if (internalModel) {
       internalModel.notifyErrorsChange();
@@ -80,7 +95,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
       let id = pending[i + 1] || null;
       let clientId = pending[i + 2];
       let key = pending[i + 3] as string;
-      let internalModel = factory.peekId(modelName, id, clientId);
+      let internalModel = factory.peek(modelName, id as string, clientId);
 
       if (internalModel) {
         internalModel.notifyHasManyChange(key);
@@ -116,7 +131,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     if (!hasValidId(id, clientId)) {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
-    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
 
     if (internalModel) {
       internalModel.notifyPropertyChange(key);
@@ -138,15 +153,20 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     if (!hasValidId(id, clientId)) {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
-    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
 
     if (internalModel) {
       internalModel.notifyBelongsToChange(key);
     }
   }
 
+  notifyStateChange(modelName: string, id: string, clientId: string | null, key?: string): void;
+  notifyStateChange(modelName: string, id: string | null, clientId: string, key?: string): void;
   notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void {
-    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+    if (!hasValidId(id, clientId)) {
+      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
+    }
+    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
 
     if (internalModel) {
       internalModel.notifyStateChange(key);
@@ -174,7 +194,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
 
-    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
     if (!internalModel) {
       return false;
     }
@@ -188,17 +208,9 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
 
-    let internalModel = internalModelFactoryFor(this._store).peekId(modelName, id, clientId);
+    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
     if (internalModel) {
       internalModel.destroyFromRecordData();
     }
   }
-}
-
-function hasValidId(id?: string | null, clientId?: string | null): id is string {
-  // weed out anything falsey
-  if (!id && !clientId) {
-    return false;
-  }
-  return true;
 }

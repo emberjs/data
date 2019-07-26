@@ -1,7 +1,7 @@
 import { DEBUG } from '@glimmer/env';
-import { assert } from '@ember/debug';
+import { warn } from '@ember/debug';
 import { Dict } from '../ts-interfaces/utils';
-import { ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
+import { ResourceIdentifierObject, ExistingResourceObject } from '../ts-interfaces/ember-data-json-api';
 import {
   StableRecordIdentifier,
   IS_IDENTIFIER,
@@ -11,6 +11,7 @@ import {
   UpdateMethod,
   ForgetMethod,
   ResetMethod,
+  RecordIdentifier,
 } from '../ts-interfaces/identifier';
 import coerceId from '../system/coerce-id';
 import uuidv4 from './utils/uuid-v4';
@@ -31,25 +32,30 @@ interface KeyOptions {
 
 type IdentifierMap = Dict<string, StableRecordIdentifier>;
 type TypeMap = Dict<string, KeyOptions>;
+export type MergeMethod = (
+  targetIdentifier: StableRecordIdentifier,
+  matchedIdentifier: StableRecordIdentifier,
+  resourceData: ResourceIdentifierObject | ExistingResourceObject
+) => StableRecordIdentifier;
 
-let configuredForgetMethod: ForgetMethod;
-let configuredGenerationMethod: GenerationMethod;
-let configuredResetMethod: ResetMethod;
-let configuredUpdateMethod: UpdateMethod;
+let configuredForgetMethod: ForgetMethod | null;
+let configuredGenerationMethod: GenerationMethod | null;
+let configuredResetMethod: ResetMethod | null;
+let configuredUpdateMethod: UpdateMethod | null;
 
-export function setIdentifierGenerationMethod(method: GenerationMethod): void {
+export function setIdentifierGenerationMethod(method: GenerationMethod | null): void {
   configuredGenerationMethod = method;
 }
 
-export function setIdentifierUpdateMethod(method: UpdateMethod): void {
+export function setIdentifierUpdateMethod(method: UpdateMethod | null): void {
   configuredUpdateMethod = method;
 }
 
-export function setIdentifierForgetMethod(method: ForgetMethod): void {
+export function setIdentifierForgetMethod(method: ForgetMethod | null): void {
   configuredForgetMethod = method;
 }
 
-export function setIdentifierResetMethod(method: ResetMethod): void {
+export function setIdentifierResetMethod(method: ResetMethod | null): void {
   configuredResetMethod = method;
 }
 
@@ -88,7 +94,8 @@ export class IdentifierCache {
   // Typescript still leaks private properties in the final
   // compiled class, so we may want to move these from _underscore
   // to a WeakMap to avoid leaking
-  private _cache = {
+  // currently we leak this for test purposes
+  _cache = {
     lids: Object.create(null) as IdentifierMap,
     types: Object.create(null) as TypeMap,
   };
@@ -96,6 +103,7 @@ export class IdentifierCache {
   private _update: UpdateMethod;
   private _forget: ForgetMethod;
   private _reset: ResetMethod;
+  private _merge: MergeMethod;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
@@ -104,6 +112,19 @@ export class IdentifierCache {
     this._update = configuredUpdateMethod || defaultEmptyCallback;
     this._forget = configuredForgetMethod || defaultEmptyCallback;
     this._reset = configuredResetMethod || defaultEmptyCallback;
+    this._merge = defaultEmptyCallback;
+  }
+
+  /**
+   * hook to allow management of merge conflicts with identifiers.
+   *
+   * we allow late binding of this private internal merge so that `internalModelFactory`
+   * can insert itself here to handle elimination of duplicates
+   *
+   * @internal
+   */
+  __configureMerge(method: MergeMethod | null) {
+    this._merge = method || defaultEmptyCallback;
   }
 
   /**
@@ -199,8 +220,11 @@ export class IdentifierCache {
         // even for the "successful" secondary lookup
         // by `_generate()`, since we missed the cache
         // previously
-        if (id !== null) {
-          keyOptions.id[id] = identifier;
+        // we use identifier.id instead of id here
+        // because they may not match and we prefer
+        // what we've set via resource data
+        if (identifier.id !== null) {
+          keyOptions.id[identifier.id] = identifier;
 
           // TODO allow filling out of `id` here
           // for the `username` non-client created
@@ -233,7 +257,7 @@ export class IdentifierCache {
       `id` + `type` or `lid` will return the same `lid` value)
     - this referential stability of the object itself is guaranteed
   */
-  getOrCreateRecordIdentifier(resource: ResourceIdentifierObject): StableRecordIdentifier {
+  getOrCreateRecordIdentifier(resource: ResourceIdentifierObject | ExistingResourceObject): StableRecordIdentifier {
     return this._getRecordIdentifier(resource, true);
   }
 
@@ -279,38 +303,65 @@ export class IdentifierCache {
 
     - sets `id` (if `id` was previously `null`)
     - `lid` and `type` MUST NOT be altered post creation
+
+    If a merge occurs, it is possible the returned identifier does not match the originally
+    provided identifier. In this case the abandoned identifier will go through the usual
+    `forgetRecordIdentifier` codepaths.
   */
-  updateRecordIdentifier(identifier: StableRecordIdentifier, data: ResourceIdentifierObject): void {
-    if (DEBUG) {
-      assert(
-        `The supplied identifier '${identifier}' does not belong to this store instance.`,
-        this._cache.lids[identifier.lid] === identifier
-      );
-
-      let id = identifier.id;
-      let newId = coerceId(data.id);
-
-      if (id !== null && id !== newId && newId !== null) {
-        let keyOptions = getTypeIndex(this._cache.types, identifier.type);
-        let existingIdentifier = keyOptions.id[newId];
-
-        if (existingIdentifier !== undefined) {
-          throw new Error(
-            `Failed to update the 'id' for the RecordIdentifier '${identifier}' to '${newId}', because that id is already in use by '${existingIdentifier}'`
-          );
-        }
-      }
-    }
+  updateRecordIdentifier(
+    identifierObject: RecordIdentifier,
+    data: ResourceIdentifierObject | ExistingResourceObject
+  ): StableRecordIdentifier {
+    let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
     let id = identifier.id;
+    let newId = coerceId(data.id);
+
+    const keyOptions = getTypeIndex(this._cache.types, identifier.type);
+    let existingIdentifier = detectMerge(keyOptions, identifier, newId);
+
+    if (existingIdentifier) {
+      identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
+    }
+
+    id = identifier.id;
     performRecordIdentifierUpdate(identifier, data, this._update);
-    let newId = identifier.id;
+    newId = identifier.id;
 
     // add to our own secondary lookup table
     if (id !== newId && newId !== null) {
       let keyOptions = getTypeIndex(this._cache.types, identifier.type);
       keyOptions.id[newId] = identifier;
+
+      if (id !== null) {
+        delete keyOptions.id[id];
+      }
     }
+
+    return identifier;
+  }
+
+  _mergeRecordIdentifiers(
+    keyOptions: KeyOptions,
+    identifier: StableRecordIdentifier,
+    existingIdentifier: StableRecordIdentifier,
+    data: ResourceIdentifierObject | ExistingResourceObject,
+    newId: string
+  ): StableRecordIdentifier {
+    // delegate determining which identifier to keep to the configured MergeMethod
+    let kept = this._merge(identifier, existingIdentifier, data);
+    let abandoned = kept === identifier ? existingIdentifier : identifier;
+
+    // cleanup the identifier we no longer need
+    this.forgetRecordIdentifier(abandoned);
+
+    // ensure a secondary cache entry for this id for the identifier we do keep
+    keyOptions.id[newId] = kept;
+
+    // make sure that the `lid` on the data we are processing matches the lid we kept
+    data.lid = kept.lid;
+
+    return kept;
   }
 
   /*
@@ -321,7 +372,8 @@ export class IdentifierCache {
    we do not care about the record anymore. Especially useful when an `id` of a
    deleted record might be reused later for a new record.
   */
-  forgetRecordIdentifier(identifier: StableRecordIdentifier): void {
+  forgetRecordIdentifier(identifierObject: RecordIdentifier): void {
+    let identifier = this.getOrCreateRecordIdentifier(identifierObject);
     let keyOptions = getTypeIndex(this._cache.types, identifier.type);
     if (identifier.id !== null) {
       delete keyOptions.id[identifier.id];
@@ -333,6 +385,10 @@ export class IdentifierCache {
     keyOptions._allIdentifiers.splice(index, 1);
 
     this._forget(identifier, 'record');
+  }
+
+  destroy() {
+    this._reset();
   }
 }
 
@@ -419,8 +475,12 @@ function performRecordIdentifierUpdate(
       let newId = coerceId(id);
 
       if (identifier.id !== null && identifier.id !== newId) {
-        throw new Error(
-          `The 'id' for a RecordIdentifier cannot be updated once it has been set. Attempted to set id for '${wrapper}' to '${newId}'.`
+        // here we warn and ignore, as this may be a mistake, but we allow the user
+        // to have multiple cache-keys pointing at a single lid so we cannot error
+        warn(
+          `The 'id' for a RecordIdentifier should not be updated once it has been set. Attempted to set id for '${wrapper}' to '${newId}'.`,
+          false,
+          { id: 'ember-data:multiple-ids-for-identifier' }
         );
       }
     }
@@ -438,8 +498,25 @@ function performRecordIdentifierUpdate(
   }
 
   // upgrade the ID, this is a "one time only" ability
-  // TODO do we need a strong check here?
+  // for the multiple-cache-key scenario we "could"
+  // use a heuristic to guess the best id for display
+  // (usually when `data.id` is available and `data.attributes` is not)
   if (id !== undefined) {
     identifier.id = coerceId(id);
   }
+}
+
+function detectMerge(
+  keyOptions: KeyOptions,
+  identifier: StableRecordIdentifier,
+  newId: string | null
+): StableRecordIdentifier | false {
+  const { id } = identifier;
+  if (id !== null && id !== newId && newId !== null) {
+    const existingIdentifier = keyOptions.id[newId];
+
+    return existingIdentifier !== undefined ? existingIdentifier : false;
+  }
+
+  return false;
 }

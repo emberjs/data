@@ -1,6 +1,7 @@
 /**
   @module @ember-data/store
 */
+import { DEBUG } from '@glimmer/env';
 
 // Used by the store to normalize IDs entering the store.  Despite the fact
 // that developers may provide IDs as numbers (e.g., `store.findRecord('person', 1)`),
@@ -10,8 +11,6 @@
 // corresponding record, we will not know if it is a string or a number.
 type Coercable = string | number | boolean | null | undefined | symbol;
 
-function coerceId(id: null | undefined | string): null;
-function coerceId(id: string | number | boolean | symbol): string;
 function coerceId(id: Coercable): string | null {
   if (id === null || id === undefined || id === '') {
     return null;
@@ -23,6 +22,21 @@ function coerceId(id: Coercable): string | null {
     return id.toString();
   }
   return '' + id;
+}
+
+export function ensureStringId(id: Coercable): string {
+  let normalized: string | null = null;
+  if (typeof id === 'string') {
+    normalized = id.length > 0 ? id : null;
+  } else if (typeof id === 'number' && !isNaN(id)) {
+    normalized = '' + id;
+  }
+
+  if (DEBUG && normalized === null) {
+    throw new Error(`Expected id to be a string or number, recieved ${String(id)}`);
+  }
+
+  return normalized!;
 }
 
 export default coerceId;
