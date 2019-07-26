@@ -34,10 +34,10 @@
     "test-external:ember-data-relationship-tracker": "./bin/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
-    "@babel/plugin-transform-typescript": "^7.5.2",
+    "@babel/plugin-transform-typescript": "^7.5.5",
     "@ember/optional-features": "^0.7.0",
-    "@types/ember": "~3.1.0",
-    "@types/ember-qunit": "~3.4.5",
+    "@types/ember": "^3.1.0",
+    "@types/ember-qunit": "^3.4.6",
     "@types/ember-test-helpers": "~1.0.5",
     "@types/ember-testing-helpers": "~0.0.3",
     "@types/ember__debug": "^3.0.3",
@@ -77,7 +77,7 @@
     "ember-qunit": "^4.4.1",
     "ember-qunit-assert-helpers": "^0.2.2",
     "ember-resolver": "^5.0.1",
-    "ember-source": "~3.11.1",
+    "ember-source": "^3.11.1",
     "ember-source-channel-url": "^2.0.1",
     "ember-try": "^1.2.1",
     "eslint": "^5.15.1",
