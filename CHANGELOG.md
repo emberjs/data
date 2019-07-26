@@ -2,6 +2,11 @@
 
 ### Master
 
+## Release 3.11.3 (July 25, 2019)
+
+- [#6280](https://github.com/emberjs/data/pull/6280) [DOC release] Fix API doc issues with package split. (#6280)
+- [#6281](https://github.com/emberjs/data/pull/6281) [BUGFIX release] ensure all packages in correct RFC locations (#6281)
+
 ## Release 3.11.2 (July 20, 2019)
 
 - [#6252](https://github.com/emberjs/data/pull/6252) [BUGFIX] Includes yuidoc's output data.json to published package
