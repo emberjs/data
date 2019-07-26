@@ -16,11 +16,11 @@
   "dependencies": {
     "babel-plugin-debug-macros": "^0.3.2",
     "babel-plugin-feature-flags": "^0.3.1",
-    "babel-plugin-filter-imports": "^2.0.4",
+    "babel-plugin-filter-imports": "^3.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-file-creator": "^2.1.1",
     "calculate-cache-key-for-tree": "^2.0.0",
-    "ember-cli-babel": "7.7.3",
+    "ember-cli-babel": "^7.8.0",
     "ember-cli-blueprint-test-helpers": "^0.19.1",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
@@ -34,10 +34,10 @@
     "silent-error": "^1.1.1"
   },
   "devDependencies": {
-    "broccoli-babel-transpiler": "*",
-    "broccoli-test-helper": "*",
+    "broccoli-babel-transpiler": "^7.2.0",
+    "broccoli-test-helper": "^2.0.0",
     "co": "*",
-    "common-tags": "*"
+    "common-tags": "^1.8.0"
   },
   "engines": {
     "node": ">= 8.0.0"
