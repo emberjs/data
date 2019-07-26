@@ -4,5 +4,5 @@
   "packages": [
     "packages/*"
   ],
-  "version": "3.12.0-canary.2"
+  "version": "3.12.0-beta.0"
 }
