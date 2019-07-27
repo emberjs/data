@@ -245,7 +245,7 @@ jobs:
           node ./bin/packages-for-commit.js
 
       - script: |
-          yarn test-external:travis-web
+          CI=true yarn test-external:travis-web
         displayName: 'External: travis-web'
 
   - job: External_Partner_tests_ember_observer
