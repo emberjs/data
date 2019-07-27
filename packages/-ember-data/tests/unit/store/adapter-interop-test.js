@@ -369,7 +369,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
 
     assert.expectAssertion(() => {
       store.createRecord('person', { id: 5 });
-    }, /The id 5 has already been used with another record for modelClass 'person'/);
+    }, /The id 5 has already been used with another 'person' record./);
   });
 
   test('an initial data hash can be provided via store.createRecord(type, hash)', function(assert) {

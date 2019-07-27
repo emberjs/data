@@ -9,14 +9,14 @@ import hasValidId from '../../utils/has-valid-id';
 import { IDENTIFIERS, CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { identifierCacheFor, IdentifierCache } from '../../identifiers/cache';
 import CoreStore from '../core-store';
+import constructResource from '../../utils/construct-resource';
+import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 
 /**
   @module @ember-data/store
 */
 
-type StringOrNullOrUndefined = string | null | undefined;
-
-const MISSING_ID_ARG_ERROR_MESSAGE = `Either an id or a clientId is required as an argument.`;
+type StringOrNullOrUndefined = StableRecordIdentifier | string;
 
 export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   [BRAND_SYMBOL]: 'RecordDataStoreWrapper';
@@ -41,18 +41,16 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
    *
    * @internal
    */
-  _hasModelFor(modelName: string) {
-    return this._store._hasModelFor(modelName);
+  _hasModelFor(type: string) {
+    return this._store._hasModelFor(type);
   }
 
   /**
    * @internal
    */
-  _scheduleManyArrayUpdate(modelName: string, id: string | null, clientId: string, key: string): void;
-  _scheduleManyArrayUpdate(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  _scheduleManyArrayUpdate(modelName: string, id: string | null, clientId: string | null | undefined, key: string) {
+  _scheduleManyArrayUpdate(identifier: StableRecordIdentifier, key: string) {
     let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
-    pending.push(modelName, id, clientId, key);
+    pending.push(identifier, key);
 
     if (this._willUpdateManyArrays === true) {
       return;
@@ -66,13 +64,13 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     });
   }
 
-  notifyErrorsChange(modelName: string, id: string, clientId: string | null): void;
-  notifyErrorsChange(modelName: string, id: string | null, clientId: string): void;
-  notifyErrorsChange(modelName: string, id: string | null, clientId: string | null): void {
-    if (!hasValidId(id, clientId)) {
-      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
-    }
-    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
+  notifyErrorsChange(type: string, id: string, lid: string | null): void;
+  notifyErrorsChange(type: string, id: string | null, lid: string): void;
+  notifyErrorsChange(type: string, id: string | null, lid: string | null): void {
+    const resource = constructResource(type, id, lid);
+    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+
+    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
       internalModel.notifyErrorsChange();
@@ -89,12 +87,10 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     this._willUpdateManyArrays = false;
     const factory = internalModelFactoryFor(this._store);
 
-    for (let i = 0; i < pending.length; i += 4) {
-      let modelName = pending[i] as string;
-      let id = pending[i + 1] || null;
-      let clientId = pending[i + 2];
-      let key = pending[i + 3] as string;
-      let internalModel = factory.peek(modelName, id as string, clientId);
+    for (let i = 0; i < pending.length; i += 2) {
+      let identifier = pending[i] as StableRecordIdentifier;
+      let key = pending[i + 1] as string;
+      let internalModel = factory.peek(identifier);
 
       if (internalModel) {
         internalModel.notifyHasManyChange(key);
@@ -102,17 +98,17 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     }
   }
 
-  attributesDefinitionFor(modelName: string): AttributesSchema {
-    return this._store._attributesDefinitionFor(modelName);
+  attributesDefinitionFor(type: string): AttributesSchema {
+    return this._store._attributesDefinitionFor(type);
   }
 
-  relationshipsDefinitionFor(modelName: string): RelationshipsSchema {
-    return this._store._relationshipsDefinitionFor(modelName);
+  relationshipsDefinitionFor(type: string): RelationshipsSchema {
+    return this._store._relationshipsDefinitionFor(type);
   }
 
-  inverseForRelationship(modelName: string, key: string): string | null {
-    const modelClass = this._store.modelFor(modelName);
-    const definition = upgradeForInternal(this.relationshipsDefinitionFor(modelName)[key]);
+  inverseForRelationship(type: string, key: string): string | null {
+    const modelClass = this._store.modelFor(type);
+    const definition = upgradeForInternal(this.relationshipsDefinitionFor(type)[key]);
     if (CUSTOM_MODEL_CLASS) {
       if (definition.inverse !== undefined) {
         return definition.inverse;
@@ -128,9 +124,9 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     }
   }
 
-  inverseIsAsyncForRelationship(modelName: string, key: string): boolean {
-    const modelClass = this._store.modelFor(modelName);
-    const definition = upgradeForInternal(this.relationshipsDefinitionFor(modelName)[key]);
+  inverseIsAsyncForRelationship(type: string, key: string): boolean {
+    const modelClass = this._store.modelFor(type);
+    const definition = upgradeForInternal(this.relationshipsDefinitionFor(type)[key]);
     if (CUSTOM_MODEL_CLASS) {
       if (definition.inverse === null) {
         return false;
@@ -145,87 +141,89 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     }
   }
 
-  notifyPropertyChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  notifyPropertyChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  notifyPropertyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void {
-    if (!hasValidId(id, clientId)) {
-      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
-    }
-    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
+  notifyPropertyChange(type: string, id: string | null, lid: string, key: string): void;
+  notifyPropertyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
+  notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+    const resource = constructResource(type, id, lid);
+    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
       internalModel.notifyPropertyChange(key);
     }
   }
 
-  notifyHasManyChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  notifyHasManyChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  notifyHasManyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void {
-    if (!hasValidId(id, clientId)) {
-      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
-    }
-    this._scheduleManyArrayUpdate(modelName, id, clientId, key);
+  notifyHasManyChange(type: string, id: string | null, lid: string, key: string): void;
+  notifyHasManyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
+  notifyHasManyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+    const resource = constructResource(type, id, lid);
+    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    this._scheduleManyArrayUpdate(identifier, key);
   }
 
-  notifyBelongsToChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  notifyBelongsToChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void {
-    if (!hasValidId(id, clientId)) {
-      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
-    }
-    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
+  notifyBelongsToChange(type: string, id: string | null, lid: string, key: string): void;
+  notifyBelongsToChange(type: string, id: string, lid: string | null | undefined, key: string): void;
+  notifyBelongsToChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+    const resource = constructResource(type, id, lid);
+    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
       internalModel.notifyBelongsToChange(key);
     }
   }
 
-  notifyStateChange(modelName: string, id: string, clientId: string | null, key?: string): void;
-  notifyStateChange(modelName: string, id: string | null, clientId: string, key?: string): void;
-  notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void {
-    if (!hasValidId(id, clientId)) {
-      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
-    }
-    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
+  notifyStateChange(type: string, id: string, lid: string | null, key?: string): void;
+  notifyStateChange(type: string, id: string | null, lid: string, key?: string): void;
+  notifyStateChange(type: string, id: string | null, lid: string | null, key?: string): void {
+    const resource = constructResource(type, id, lid);
+    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
       internalModel.notifyStateChange(key);
     }
   }
 
-  recordDataFor(modelName: string, id: string, clientId?: string | null): RecordData;
-  recordDataFor(modelName: string, id: string | null, clientId: string): RecordData;
-  recordDataFor(modelName: string): RecordData;
-  recordDataFor(modelName: string, id?: string | null, clientId?: string | null): RecordData {
-    return this._store.recordDataFor(modelName, id, clientId);
-  }
-
-  setRecordId(modelName: string, id: string, clientId: string) {
-    this._store.setRecordId(modelName, id, clientId);
-  }
-
-  isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
-  isRecordInUse(modelName: string, id: string, clientId?: string | null): boolean;
-  isRecordInUse(modelName: string, id: string | null, clientId?: string | null): boolean {
-    if (!hasValidId(id, clientId)) {
-      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
+  recordDataFor(type: string, id: string, lid?: string | null): RecordData;
+  recordDataFor(type: string, id: string | null, lid: string): RecordData;
+  recordDataFor(type: string): RecordData;
+  recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData {
+    let identifier: StableRecordIdentifier | { type: string };
+    let isCreate: boolean = false;
+    if (!id && !lid) {
+      isCreate = true;
+      identifier = { type };
+    } else {
+      const resource = constructResource(type, id, lid);
+      identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
     }
 
-    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
+    return this._store.recordDataFor(identifier, isCreate);
+  }
+
+  setRecordId(type: string, id: string, lid: string) {
+    this._store.setRecordId(type, id, lid);
+  }
+
+  isRecordInUse(type: string, id: string | null, lid: string): boolean;
+  isRecordInUse(type: string, id: string, lid?: string | null): boolean;
+  isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
+    const resource = constructResource(type, id, lid);
+    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
     if (!internalModel) {
       return false;
     }
     return internalModel.isRecordInUse();
   }
 
-  disconnectRecord(modelName: string, id: string | null, clientId: string): void;
-  disconnectRecord(modelName: string, id: string, clientId?: string | null): void;
-  disconnectRecord(modelName: string, id: string | null, clientId?: string | null): void {
-    if (!hasValidId(id, clientId)) {
-      throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
-    }
-
-    let internalModel = internalModelFactoryFor(this._store).peek(modelName, id, clientId);
+  disconnectRecord(type: string, id: string | null, lid: string): void;
+  disconnectRecord(type: string, id: string, lid?: string | null): void;
+  disconnectRecord(type: string, id: string | null, lid?: string | null): void {
+    const resource = constructResource(type, id, lid);
+    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
     if (internalModel) {
       internalModel.destroyFromRecordData();
     }
