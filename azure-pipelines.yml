@@ -138,11 +138,11 @@ jobs:
           yarn install --no-lockfile --non-interactive
 
       - script: |
-           yarn test:try-one default-with-jquery
+          yarn test:try-one default-with-jquery
         displayName: 'Basic Tests with jQuery'
 
       - script: |
-           yarn test:try-one ember-release-with-jquery
+          yarn test:try-one ember-release-with-jquery
         displayName: 'Ember Release Channel Tests with jQuery'
 
   - job: Floating_dependencies
@@ -188,18 +188,22 @@ jobs:
         displayName: 'Ember LTS test 3.4'
 
       - script: |
+          yarn install
           yarn test:try-one ember-lts-3.8
         displayName: 'Ember LTS test 3.8'
 
       - script: |
+          yarn install
           yarn test:try-one ember-release
         displayName: 'Ember Release'
 
       - script: |
+          yarn install
           yarn test:try-one ember-beta
         displayName: 'Ember Beta'
 
       - script: |
+          yarn install
           yarn test:try-one ember-canary
         displayName: 'Ember Canary'
 
