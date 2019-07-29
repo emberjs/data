@@ -41,7 +41,7 @@
   "devDependencies": {
     "broccoli-babel-transpiler": "^7.2.0",
     "broccoli-test-helper": "^2.0.0",
-    "co": "*",
+    "co": "^4.6.0",
     "common-tags": "^1.8.0"
   },
   "engines": {

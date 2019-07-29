@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@ember/optional-features": "^0.7.0",
-    "broccoli-asset-rev": "*",
+    "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "^3.10.1",
     "ember-cli-blueprint-test-helpers": "^0.19.1",
     "ember-cli-dependency-checker": "^3.2.0",
@@ -51,7 +51,7 @@
     "ember-source-channel-url": "^2.0.1",
     "ember-try": "^1.2.1",
     "loader.js": "^4.7.0",
-    "silent-error": "*"
+    "silent-error": "^1.1.1"
   },
   "engines": {
     "node": ">= 8.0.0"

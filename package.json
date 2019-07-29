@@ -45,6 +45,7 @@
     "@types/qunit": "^2.5.3",
     "@types/rsvp": "^4.0.2",
     "babel-eslint": "^10.0.2",
+    "broccoli-asset-rev": "^3.0.0",
     "broccoli-babel-transpiler": "^7.2.0",
     "broccoli-concat": "^3.7.3",
     "broccoli-stew": "^3.0.0",
@@ -52,6 +53,7 @@
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^3.0.0",
     "chalk": "^2.4.1",
+    "co": "^4.6.0",
     "command-line-args": "^5.1.1",
     "common-tags": "^1.8.0",
     "debug": "^4.1.1",
@@ -70,6 +72,8 @@
     "ember-cli-typescript-blueprints": "^2.0.0-beta.1",
     "ember-cli-uglify": "3.0.0",
     "ember-cli-yuidoc": "^0.8.8",
+    "ember-compatibility-helpers": "^1.2.0",
+    "ember-decorators-polyfill": "^1.0.6",
     "ember-disable-prototype-extensions": "^1.1.3",
     "ember-export-application-global": "^2.0.0",
     "ember-load-initializers": "^2.0.0",
@@ -98,6 +102,7 @@
     "rimraf": "^2.6.2",
     "rsvp": "^4.8.5",
     "semver": "^6.2.0",
+    "silent-error": "^1.1.1",
     "typescript": "~3.5.3"
   },
   "bin": {
