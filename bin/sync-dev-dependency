@@ -78,6 +78,7 @@ if (Object.keys(rootUpdates).length > 0) {
     }
   });
   // grab latest in case we wrote in the previous step
+  delete require.cache[rootJson];
   rootPackage = require(rootJson);
   debug(`Adding staged devDependencies to root: ${JSON.stringify(rootUpdates, null, 2)}`);
   Object.assign(rootPackage.devDependencies, rootUpdates);
