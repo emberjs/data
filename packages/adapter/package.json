@@ -27,6 +27,7 @@
     "ember-cli-typescript": "^2.0.2"
   },
   "devDependencies": {
+    "@ember-data/-test-infra": "^3.13.0-canary.0",
     "@ember/optional-features": "^0.7.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "^3.10.1",
