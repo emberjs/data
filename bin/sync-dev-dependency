@@ -14,6 +14,7 @@
 const { shellSync } = require('execa');
 const path = require('path');
 const fs = require('fs');
+const debug = require('debug')('sync-dev');
 const semver = require('semver');
 
 const projectRoot = path.resolve(__dirname, '../');
@@ -26,7 +27,7 @@ function execWithLog(command) {
 }
 
 // gather deps not yet in root
-const rootPackage = require(rootJson);
+let rootPackage = require(rootJson);
 const rootUpdates = {};
 const packageJsons = {};
 
@@ -47,20 +48,38 @@ packages.forEach(localName => {
     const packageNames = Object.keys(pkg.devDependencies);
 
     packageNames.forEach(name => {
+      debug(`checking devDependency "${name}"`);
       if (!rootPackage.devDependencies[name]) {
         if (
           !rootUpdates[name] ||
           (pkg.devDependencies[name] !== '*' && semver.lt(rootUpdates[name], pkg.devDependencies[name]))
         ) {
           rootUpdates[name] = pkg.devDependencies[name];
+          debug(`devDependency "${name}" staged for root with version "${rootUpdates[name]}"`);
+        } else {
+          debug(`devDependency "${name}" was already staged for root with version "${rootUpdates[name]}"`);
         }
+      } else {
+        debug(`devDependency "${name}" was already in root`);
       }
     });
   }
 });
 
 // merge hoisted to root and write
-if (Object.keys(rootUpdates) > 0) {
+if (Object.keys(rootUpdates).length > 0) {
+  // sync deps that need us to find the latest version
+  Object.keys(rootUpdates).forEach(packageName => {
+    const version = rootUpdates[packageName];
+
+    if (version === '*') {
+      execWithLog(`yarn add ${packageName}@latest --dev -W`);
+      delete rootUpdates[packageName];
+    }
+  });
+  // grab latest in case we wrote in the previous step
+  rootPackage = require(rootJson);
+  debug(`Adding staged devDependencies to root: ${JSON.stringify(rootUpdates, null, 2)}`);
   Object.assign(rootPackage.devDependencies, rootUpdates);
   fs.writeFileSync(rootJson, JSON.stringify(rootPackage, null, 2));
 }
