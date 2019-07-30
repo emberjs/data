@@ -2665,24 +2665,23 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-  if (hasJQuery) {
-    testInDebug('warns when an empty response is returned, though a valid stringified JSON is expected', function(
-      assert
-    ) {
-      server.post('/posts', function() {
-        return [201, { 'Content-Type': 'application/json' }, ''];
-      });
 
-      return run(() => {
-        return store.createRecord('post').save();
-      }).then(
-        () => {
-          assert.equal(true, false, 'should not have fulfilled');
-        },
-        reason => {
-          assert.ok(/JSON/.test(reason.message));
-        }
-      );
+  testInDebug('warns when an empty response is returned, though a valid stringified JSON is expected', function(
+    assert
+  ) {
+    server.post('/posts', function() {
+      return [201, { 'Content-Type': 'application/json' }, ''];
     });
-  }
+
+    return run(() => {
+      return store.createRecord('post').save();
+    }).then(
+      () => {
+        assert.equal(true, false, 'should not have fulfilled');
+      },
+      reason => {
+        assert.ok(/JSON/.test(reason.message));
+      }
+    );
+  });
 });
