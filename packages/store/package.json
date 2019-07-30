@@ -30,6 +30,7 @@
     "heimdalljs": "^0.3.0"
   },
   "devDependencies": {
+    "@ember-data/-test-infra": "^3.13.0-canary.0",
     "@ember/optional-features": "^0.7.0",
     "@types/ember": "^3.1.0",
     "@types/rsvp": "^4.0.3",
