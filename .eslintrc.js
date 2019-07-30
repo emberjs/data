@@ -50,6 +50,7 @@ module.exports = {
         '.prettierrc.js',
         'bin/*.js',
         'packages/-build-infra/src/**/*.js',
+        'packages/-test-infra/src/**/*.js',
         'packages/*/ember-cli-build.js',
         'packages/*/index.js',
         'packages/*/testem.js',
@@ -80,11 +81,7 @@ module.exports = {
 
     // node tests
     {
-      files: [
-        'packages/*/node-tests/**',
-        'node-tests/**',
-        'packages/-build-infra/src/node-test-helpers/setup-test-environment.js',
-      ],
+      files: ['packages/*/node-tests/**', 'node-tests/**', 'packages/-test-infra/src/node-test-helpers/**/*'],
 
       env: {
         mocha: true,
