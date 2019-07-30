@@ -2665,7 +2665,6 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-
   testInDebug('warns when an empty response is returned, though a valid stringified JSON is expected', function(
     assert
   ) {
