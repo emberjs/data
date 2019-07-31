@@ -1,5 +1,5 @@
 import InternalModelMap from './internal-model-map';
-import { Dict } from '../ts-interfaces/utils';
+import { Dict } from '../types';
 
 /**
   @module @ember-data/store

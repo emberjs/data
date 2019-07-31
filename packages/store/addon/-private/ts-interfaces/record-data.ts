@@ -5,8 +5,6 @@ import {
   JsonApiValidationError,
 } from './record-data-json-api';
 
-import { RecordIdentifier } from './identifier';
-
 /**
   @module @ember-data/store
 */
@@ -15,17 +13,17 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
+export interface RecordIdentifier {
+  id?: string | null;
+  type?: string;
+  lid?: string;
+}
+
 export default interface RecordData {
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;
-
   commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiValidationError[]): void;
-  /**
-   * @deprecated
-   */
-  commitWasRejected(recordIdentifier?: {}, errors?: JsonApiValidationError[]): void;
-
   unloadRecord(): void;
   rollbackAttributes(): string[];
   changedAttributes(): ChangedAttributesHash;
@@ -53,13 +51,10 @@ export default interface RecordData {
   _initRecordCreateOptions(options: any): object;
 
   // new
-  getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
-  /**
-   * @deprecated
-   */
-  getErrors?({}): JsonApiValidationError[];
 
+  getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
   isNew?(): boolean;
+
   isDeleted?(): boolean;
 
   isDeletionCommitted?(): boolean;

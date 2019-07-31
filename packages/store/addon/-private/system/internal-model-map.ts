@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 import InternalModel from './model/internal-model';
-import { Dict } from '../ts-interfaces/utils';
+import { Dict } from '../types';
 
 /**
   @module @ember-data/store

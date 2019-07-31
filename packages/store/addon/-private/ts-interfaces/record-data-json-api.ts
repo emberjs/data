@@ -1,4 +1,3 @@
-import { ResourceIdentifierObject } from './ember-data-json-api';
 import BelongsToRelationship from '../system/relationships/state/belongs-to';
 import ManyRelationship from '../system/relationships/state/has-many';
 
@@ -11,7 +10,6 @@ export interface AttributesHash {
     [key: string]: any;
   };
 }
-
 export interface JsonApiResource {
   id?: string | null;
   type?: string;
@@ -22,8 +20,22 @@ export interface JsonApiResource {
   meta?: any;
 }
 
+export interface ExistingResourceIdentifierObject {
+  type: string;
+  id: string;
+  clientId?: string | null;
+}
+
+export interface NewResourceIdentifierObject {
+  type: string;
+  id: string | null;
+  clientId: string;
+}
+
+export type JsonApiResourceIdentity = ExistingResourceIdentifierObject | NewResourceIdentifierObject;
+
 export interface JsonApiBelongsToRelationship {
-  data?: ResourceIdentifierObject;
+  data?: JsonApiResourceIdentity;
   meta?: any;
   links?: {
     [key: string]: string;
@@ -32,7 +44,7 @@ export interface JsonApiBelongsToRelationship {
   _relationship?: BelongsToRelationship;
 }
 export interface JsonApiHasManyRelationship {
-  data?: ResourceIdentifierObject[];
+  data?: JsonApiResourceIdentity[];
   meta?: any;
   links?: {
     [key: string]: string;
