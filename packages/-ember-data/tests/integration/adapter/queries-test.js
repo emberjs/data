@@ -107,10 +107,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
   });
 
   testInDebug('The store asserts when query is made and the adapter responses with a single record.', function(assert) {
-    env = setupStore({
-      person: Person,
-      adapter: DS.RESTAdapter,
-    });
+    env = setupStore({ person: Person, adapter: DS.RESTAdapter });
     store = env.store;
     adapter = env.adapter;
 
@@ -118,7 +115,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
       assert.equal(type, Person, 'the query method is called with the correct type');
 
       return resolve({
-        data: { id: 1, type: 'person', attributes: { name: 'Peter Wagenet' } },
+        data: [{ id: 1, type: 'person', attributes: { name: 'Peter Wagenet' } }],
       });
     };
 
