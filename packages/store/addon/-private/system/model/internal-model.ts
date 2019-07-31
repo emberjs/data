@@ -478,7 +478,7 @@ export default class InternalModel {
 
   save(options) {
     let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer<InternalModel>(promiseLabel);
+    let resolver = RSVP.defer(promiseLabel);
 
     this.store.scheduleSave(this, resolver, options);
     return resolver.promise;
