@@ -3,7 +3,10 @@ import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
 import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
-import { JsonApiHasManyRelationship } from '../../../ts-interfaces/record-data-json-api';
+import {
+  JsonApiHasManyRelationship,
+  JsonApiResourceIdentity,
+} from '../../../ts-interfaces/record-data-json-api';
 import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
 
 /**
@@ -202,13 +205,23 @@ export default class ManyRelationship extends Relationship {
   notifyManyArrayIsStale() {
     let recordData = this.recordData;
     let storeWrapper = recordData.storeWrapper;
-    storeWrapper.notifyPropertyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+    storeWrapper.notifyPropertyChange(
+      recordData.modelName,
+      recordData.id,
+      recordData.clientId,
+      this.key
+    );
   }
 
   notifyHasManyChange() {
     let recordData = this.recordData;
     let storeWrapper = recordData.storeWrapper;
-    storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+    storeWrapper.notifyHasManyChange(
+      recordData.modelName,
+      recordData.id,
+      recordData.clientId,
+      this.key
+    );
   }
 
   getData(): JsonApiHasManyRelationship {
@@ -239,7 +252,10 @@ export default class ManyRelationship extends Relationship {
     } else {
       recordDatas = new Array(data.length);
       for (let i = 0; i < data.length; i++) {
-        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(data[i].type, data[i].id) as RelationshipRecordData;
+        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(
+          data[i].type,
+          data[i].id
+        ) as RelationshipRecordData;
       }
     }
     if (initial) {
