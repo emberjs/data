@@ -198,9 +198,7 @@ export default class Relationship {
   }
 
   _hasSupportForImplicitRelationships(recordData: RelationshipRecordData): boolean {
-    return (
-      recordData._implicitRelationships !== undefined && recordData._implicitRelationships !== null
-    );
+    return recordData._implicitRelationships !== undefined && recordData._implicitRelationships !== null;
   }
 
   _hasSupportForRelationships(recordData: RelationshipRecordData): boolean {
@@ -399,9 +397,7 @@ export default class Relationship {
           this._hasSupportForImplicitRelationships(recordData) &&
           recordData._implicitRelationships[this.inverseKeyForImplicit]
         ) {
-          recordData._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalRecordData(
-            this.recordData
-          );
+          recordData._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalRecordData(this.recordData);
         }
       }
     }
@@ -426,9 +422,7 @@ export default class Relationship {
               this.isAsync
             );
           }
-          recordData._implicitRelationships[this.inverseKeyForImplicit].addRecordData(
-            this.recordData
-          );
+          recordData._implicitRelationships[this.inverseKeyForImplicit].addRecordData(this.recordData);
         }
       }
     }
@@ -445,9 +439,7 @@ export default class Relationship {
           this._hasSupportForImplicitRelationships(recordData) &&
           recordData._implicitRelationships[this.inverseKeyForImplicit]
         ) {
-          recordData._implicitRelationships[this.inverseKeyForImplicit].removeRecordData(
-            this.recordData
-          );
+          recordData._implicitRelationships[this.inverseKeyForImplicit].removeRecordData(this.recordData);
         }
       }
     }
@@ -562,18 +554,14 @@ export default class Relationship {
 
   updateLink(link: string | null) {
     warn(
-      `You pushed a record of type '${this.recordData.modelName}' with a relationship '${
-        this.key
-      }' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
+      `You pushed a record of type '${this.recordData.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
       this.isAsync || this.hasAnyRelationshipData,
       {
         id: 'ds.store.push-link-for-sync-relationship',
       }
     );
     assert(
-      `You have pushed a record of type '${this.recordData.modelName}' with '${
-        this.key
-      }' as a link, but the value of that link is not a string.`,
+      `You have pushed a record of type '${this.recordData.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`,
       typeof link === 'string' || link === null
     );
 
@@ -666,8 +654,7 @@ export default class Relationship {
      */
     this.setHasFailedLoadAttempt(false);
     if (hasRelationshipDataProperty) {
-      let relationshipIsEmpty =
-        payload.data === null || (Array.isArray(payload.data) && payload.data.length === 0);
+      let relationshipIsEmpty = payload.data === null || (Array.isArray(payload.data) && payload.data.length === 0);
 
       this.setHasAnyRelationshipData(true);
       this.setRelationshipIsStale(false);

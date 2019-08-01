@@ -17,8 +17,10 @@ import recordDataFor from '../record-data-for';
 import Ember from 'ember';
 import InternalModel from './internal-model';
 import RootState from './states';
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import coerceId from '../coerce-id';
+import { recordIdentifierFor } from '@ember-data/store';
+import { InvalidError } from '@ember-data/adapter/error';
 
 const { changeProperties } = Ember;
 
@@ -97,6 +99,43 @@ if (RECORD_DATA_STATE) {
   isNewCP = retrieveFromCurrentState;
 }
 
+let adapterError;
+if (REQUEST_SERVICE) {
+  adapterError = computed(function() {
+    let request = this._lastError;
+    if (!request) {
+      return null;
+    }
+    return request.state === 'rejected' && request.response.data;
+  });
+} else {
+  adapterError = null;
+}
+
+let isError;
+if (REQUEST_SERVICE) {
+  isError = computed(function() {
+    let errorReq = this._errorRequests[this._errorRequests.length - 1];
+    if (!errorReq) {
+      return false;
+    } else {
+      return true;
+    }
+  });
+} else {
+  isError = false;
+}
+
+let isReloading;
+if (REQUEST_SERVICE) {
+  isReloading = computed(function() {
+    let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
+    return !!requests.find(req => req.request.data[0].options.isReloading);
+  });
+} else {
+  isReloading = false;
+}
+
 /**
 
   The model class that all Ember Data records descend from.
@@ -110,13 +149,47 @@ if (RECORD_DATA_STATE) {
 const Model = EmberObject.extend(DeprecatedEvented, {
   init() {
     this._super(...arguments);
+
+    if (DEBUG) {
+      if (!this._internalModel) {
+        throw new EmberError(
+          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
+        );
+      }
+    }
+
     if (RECORD_DATA_ERRORS) {
       this._invalidRequests = [];
+    }
+
+    if (REQUEST_SERVICE) {
+      this.store.getRequestStateService().subscribeForRecord(this._internalModel.identifier, request => {
+        if (request.state === 'rejected') {
+          // TODO filter out queries
+          this._lastError = request;
+          if (!(request.response && request.response.data instanceof InvalidError)) {
+            this._errorRequests.push(request);
+          } else {
+            this._invalidRequests.push(request);
+          }
+        } else if (request.state === 'fulfilled') {
+          this._invalidRequests = [];
+          this._errorRequests = [];
+          this._lastError = null;
+        }
+        this._notifyNetworkChanges();
+      });
+      this._errorRequests = [];
+      this._lastError = null;
     }
   },
 
   _notifyNetworkChanges: function() {
-    this.notifyPropertyChange('isValid');
+    if (REQUEST_SERVICE) {
+      ['isSaving', 'isValid', 'isError', 'adapterError', 'isReloading'].forEach(key => this.notifyPropertyChange(key));
+    } else {
+      ['isValid'].forEach(key => this.notifyPropertyChange(key));
+    }
   },
 
   /**
@@ -336,7 +409,13 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isError: false,
+  isError: isError,
+
+  _markErrorRequestAsClean() {
+    this._errorRequests = [];
+    this._lastError = null;
+    this._notifyNetworkChanges();
+  },
 
   /**
     If `true` the store is attempting to reload the record from the adapter.
@@ -353,7 +432,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isReloading: false,
+  isReloading: isReloading,
 
   /**
     All ember models have an id property. This is an identifier
@@ -508,7 +587,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @property adapterError
     @type {AdapterError}
   */
-  adapterError: null,
+  adapterError: adapterError,
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -807,6 +886,9 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     this._internalModel.rollbackAttributes();
     if (RECORD_DATA_ERRORS) {
       this._markInvalidRequestAsClean();
+    }
+    if (REQUEST_SERVICE) {
+      this._markErrorRequestAsClean();
     }
   },
 
@@ -1287,12 +1369,6 @@ if (DEBUG) {
 
       if (DEBUG) {
         this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
-      }
-
-      if (!this._internalModel) {
-        throw new EmberError(
-          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
-        );
       }
 
       if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {

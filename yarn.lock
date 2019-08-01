@@ -1694,7 +1694,7 @@
   dependencies:
     "@types/ember__object" "*"
 
-"@types/ember__debug@*", "@types/ember__debug@^3.0.3":
+"@types/ember__debug@*", "@types/ember__debug@3.0.4", "@types/ember__debug@^3.0.3":
   version "3.0.4"
   resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.0.4.tgz#cdf87a580688a0e3053820eff6f390fbb7ba0e80"
   integrity sha512-jTdLdNGvDn3MhktfskhdxOaDHO09QtQqeh+krI7EDePl2+Xom+KnNeveFeCkzxDkYOa+/R7UNSxW4yN/3YTw3w==

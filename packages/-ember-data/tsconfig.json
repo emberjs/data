@@ -19,10 +19,10 @@
       "dummy/*": ["tests/dummy/app/*", "app/*"],
       "ember-data": ["addon"],
       "ember-data/*": ["addon/*"],
-      "ember-data/test-support": ["addon-test-support"],
-      "ember-data/test-support/*": ["addon-test-support/*"],
       "@ember-data/store": ["../store/addon"],
       "@ember-data/store/*": ["../store/addon/*"],
+      "ember-data/test-support": ["addon-test-support"],
+      "ember-data/test-support/*": ["addon-test-support/*"],
       "@ember-data/adapter/error": ["../adapter/addon/error"],
       "@ember-data/canary-features": ["../canary-features/addon"],
       "*": ["../store/types/*"]
