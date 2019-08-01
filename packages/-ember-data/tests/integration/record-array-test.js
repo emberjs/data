@@ -383,11 +383,14 @@ module('unit/record-array - RecordArray', function(hooks) {
       name: 'Scumbag Dale',
     });
 
+    await settled();
     assert.equal(get(recordArray, 'length'), 1, 'precond - record array already has the first created item');
 
     store.createRecord('person', { name: 'p1' });
     store.createRecord('person', { name: 'p2' });
     store.createRecord('person', { name: 'p3' });
+
+    await settled();
 
     assert.equal(get(recordArray, 'length'), 4, 'precond - record array has the created item');
     assert.equal(recordArray.objectAt(0), scumbag, 'item at index 0 is record with id 1');
