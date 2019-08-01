@@ -141,7 +141,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     );
   });
 
-  test('When all records for a type are requested, records that are created on the client should be added to the record array.', assert => {
+  test('When all records for a type are requested, records that are created on the client should be added to the record array.', async assert => {
     assert.expect(3);
 
     let allRecords = store.peekAll('person');
@@ -153,6 +153,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     );
 
     store.createRecord('person', { name: 'Carsten Nielsen' });
+
+    await settled();
 
     assert.equal(get(allRecords, 'length'), 1, "the record array's length is 1");
     assert.equal(
