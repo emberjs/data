@@ -17,8 +17,7 @@
     "lint:hbs": "ember-template-lint .",
     "start": "ember serve",
     "test": "ember test",
-    "test:all": "ember try:each",
-    "prepublishOnly": "ember build --environment=production"
+    "test:all": "ember try:each"
   },
   "dependencies": {
     "@ember-data/-build-infra": "^3.13.0-canary.0",
