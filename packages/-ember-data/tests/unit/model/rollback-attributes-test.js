@@ -3,14 +3,21 @@ import { addObserver } from '@ember/object/observers';
 import { Promise as EmberPromise, reject } from 'rsvp';
 import { run, later } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
+import Model, { attr } from '@ember-data/model';
+import RESTAdapter from '@ember-data/adapter/rest';
+import { InvalidError } from '@ember-data/adapter/error';
 
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+import { settled } from '@ember/test-helpers';
 
 let env, store, Person;
 
 module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     Person = DS.Model.extend({
       firstName: DS.attr(),
@@ -359,142 +366,141 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
   });
 
-  test("invalid record's attributes can be rollbacked", function(assert) {
+  test("invalid record's attributes can be rollbacked", async function(assert) {
     assert.expect(12);
-    const Dog = DS.Model.extend({
-      name: DS.attr(),
-      rolledBackCount: 0,
+
+    class Dog extends Model {
+      @attr() name;
+      rolledBackCount = 0;
       rolledBack() {
         this.incrementProperty('rolledBackCount');
-      },
-    });
-
-    let error = new DS.InvalidError([
+      }
+    }
+    const thrownAdapterError = new InvalidError([
       {
         detail: 'is invalid',
         source: { pointer: 'data/attributes/name' },
       },
     ]);
+    class TestAdapter extends RESTAdapter {
+      ajax() {
+        return reject(thrownAdapterError);
+      }
+    }
 
-    let adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
+    const { owner } = this;
+    owner.register(`model:dog`, Dog);
+    owner.register(`adapter:application`, TestAdapter);
+    const store = owner.lookup(`service:store`);
+
+    const dog = store.push({
+      data: {
+        type: 'dog',
+        id: '1',
+        attributes: {
+          name: 'Pluto',
+        },
       },
     });
+    dog.set('name', 'is a dwarf planet');
 
-    env = setupStore({ dog: Dog, adapter: adapter });
-    let dog;
-    run(() => {
-      env.store.push({
-        data: {
-          type: 'dog',
-          id: '1',
-          attributes: {
-            name: 'Pluto',
-          },
+    addObserver(dog, 'errors.name', function() {
+      assert.ok(true, 'errors.name did change');
+    });
+
+    dog.get('errors').addArrayObserver(
+      {},
+      {
+        willChange() {
+          assert.ok(true, 'errors will change');
         },
-      });
-      dog = env.store.peekRecord('dog', 1);
-      dog.set('name', 'is a dwarf planet');
-    });
+        didChange() {
+          assert.ok(true, 'errors did change');
+        },
+      }
+    );
 
-    return run(() => {
-      addObserver(dog, 'errors.name', function() {
-        assert.ok(true, 'errors.name did change');
-      });
+    try {
+      await dog.save();
+    } catch (reason) {
+      assert.equal(reason, thrownAdapterError);
 
-      dog.get('errors').addArrayObserver(
-        {},
-        {
-          willChange() {
-            assert.ok(true, 'errors will change');
-          },
-          didChange() {
-            assert.ok(true, 'errors did change');
-          },
-        }
-      );
+      dog.rollbackAttributes();
+      await settled();
 
-      return dog.save().catch(reason => {
-        assert.equal(reason, error);
-
-        run(() => {
-          dog.rollbackAttributes();
-        });
-
-        assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
-        assert.equal(dog.get('name'), 'Pluto');
-        assert.notOk(dog.get('errors.name'));
-        assert.ok(dog.get('isValid'));
-        assert.equal(dog.get('rolledBackCount'), 1);
-      });
-    });
+      assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
+      assert.equal(dog.get('name'), 'Pluto');
+      assert.notOk(dog.get('errors.name'));
+      assert.ok(dog.get('isValid'));
+      assert.equal(dog.get('rolledBackCount'), 1);
+    }
   });
 
-  test(`invalid record's attributes rolled back to correct state after set`, function(assert) {
+  test(`invalid record's attributes rolled back to correct state after set`, async function(assert) {
     assert.expect(14);
-    const Dog = DS.Model.extend({
-      name: DS.attr(),
-      breed: DS.attr(),
-    });
 
-    let error = new DS.InvalidError([
+    class Dog extends Model {
+      @attr() name;
+      @attr() breed;
+    }
+    const thrownAdapterError = new InvalidError([
       {
         detail: 'is invalid',
         source: { pointer: 'data/attributes/name' },
       },
     ]);
+    class TestAdapter extends RESTAdapter {
+      ajax() {
+        return reject(thrownAdapterError);
+      }
+    }
+    const { owner } = this;
+    owner.register(`model:dog`, Dog);
+    owner.register(`adapter:application`, TestAdapter);
+    const store = owner.lookup(`service:store`);
 
-    let adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
+    const dog = store.push({
+      data: {
+        type: 'dog',
+        id: '1',
+        attributes: {
+          name: 'Pluto',
+          breed: 'Disney',
+        },
       },
     });
 
-    env = setupStore({ dog: Dog, adapter: adapter });
-    let dog;
-    run(() => {
-      env.store.push({
-        data: {
-          type: 'dog',
-          id: '1',
-          attributes: {
-            name: 'Pluto',
-            breed: 'Disney',
-          },
-        },
-      });
-      dog = env.store.peekRecord('dog', 1);
-      dog.set('name', 'is a dwarf planet');
-      dog.set('breed', 'planet');
+    dog.set('name', 'is a dwarf planet');
+    dog.set('breed', 'planet');
+
+    addObserver(dog, 'errors.name', function() {
+      assert.ok(true, 'errors.name did change');
     });
 
-    return run(() => {
-      addObserver(dog, 'errors.name', function() {
-        assert.ok(true, 'errors.name did change');
-      });
+    try {
+      await dog.save();
+    } catch (reason) {
+      assert.equal(reason, thrownAdapterError);
+      assert.equal(dog.get('name'), 'is a dwarf planet');
+      assert.equal(dog.get('breed'), 'planet');
+      assert.ok(isPresent(dog.get('errors.name')));
+      assert.equal(dog.get('errors.name.length'), 1);
 
-      return dog.save().catch(reason => {
-        assert.equal(reason, error);
-        assert.equal(dog.get('name'), 'is a dwarf planet');
-        assert.equal(dog.get('breed'), 'planet');
-        assert.ok(isPresent(dog.get('errors.name')));
-        assert.equal(dog.get('errors.name.length'), 1);
+      dog.set('name', 'Seymour Asses');
+      await settled();
 
-        run(() => dog.set('name', 'Seymour Asses'));
+      assert.equal(dog.get('name'), 'Seymour Asses');
+      assert.equal(dog.get('breed'), 'planet');
 
-        assert.equal(dog.get('name'), 'Seymour Asses');
-        assert.equal(dog.get('breed'), 'planet');
+      dog.rollbackAttributes();
+      await settled();
 
-        run(() => dog.rollbackAttributes());
-
-        assert.equal(dog.get('name'), 'Pluto');
-        assert.equal(dog.get('breed'), 'Disney');
-        assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
-        assert.notOk(dog.get('errors.name'));
-        assert.ok(dog.get('isValid'));
-      });
-    });
+      assert.equal(dog.get('name'), 'Pluto');
+      assert.equal(dog.get('breed'), 'Disney');
+      assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
+      assert.notOk(dog.get('errors.name'));
+      assert.ok(dog.get('isValid'));
+    }
   });
 
   test(`when destroying a record setup the record state to invalid, the record's attributes can be rollbacked`, function(assert) {
