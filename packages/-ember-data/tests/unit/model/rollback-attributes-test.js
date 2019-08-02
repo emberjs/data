@@ -421,18 +421,19 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     );
 
     try {
+      assert.ok(true, 'saving');
       await dog.save();
     } catch (reason) {
-      assert.equal(reason, thrownAdapterError);
+      assert.equal(reason, thrownAdapterError, 'We threw the expected error during save');
 
       dog.rollbackAttributes();
       await settled();
 
       assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
-      assert.equal(dog.get('name'), 'Pluto');
-      assert.notOk(dog.get('errors.name'));
-      assert.ok(dog.get('isValid'));
-      assert.equal(dog.get('rolledBackCount'), 1);
+      assert.equal(dog.get('name'), 'Pluto', 'Name is rolled back');
+      assert.notOk(dog.get('errors.name'), 'We have no errors for name anymore');
+      assert.ok(dog.get('isValid'), 'We are now in a valid state');
+      assert.equal(dog.get('rolledBackCount'), 1, 'we only rolled back once');
     }
   });
 
