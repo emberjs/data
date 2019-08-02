@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "allowJs": true,
+    "allowJs": false,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
@@ -21,6 +21,12 @@
       "ember-data/*": ["addon/*"],
       "@ember-data/store": ["../store/addon"],
       "@ember-data/store/*": ["../store/addon/*"],
+      "@ember-data/model": ["../model/addon"],
+      "@ember-data/model/*": ["../model/addon/*"],
+      "@ember-data/adapter": ["../adapter/addon"],
+      "@ember-data/adapter/*": ["../adapter/addon/*"],
+      "@ember-data/serializer": ["../serializer/addon"],
+      "@ember-data/serializer/*": ["../serializer/addon/*"],
       "ember-data/test-support": ["addon-test-support"],
       "ember-data/test-support/*": ["addon-test-support/*"],
       "@ember-data/adapter/error": ["../adapter/addon/error"],
