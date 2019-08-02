@@ -131,7 +131,12 @@ function convertPackageNameToTarballName(str) {
 packages.forEach(localName => {
   const pkgDir = path.join(packagesDir, localName);
   const pkgPath = path.join(pkgDir, 'package.json');
-  const pkgInfo = require(pkgPath);
+  let pkgInfo;
+  try {
+    pkgInfo = require(pkgPath);
+  } catch (e) {
+    return;
+  }
   const version = `${pkgInfo.version}.${CurrentSha}`;
   const tarballName = `${convertPackageNameToTarballName(pkgInfo.name)}-${version}.tgz`;
   OurPackages[pkgInfo.name] = {

@@ -18,8 +18,7 @@
     "start": "ember serve",
     "test": "ember test",
     "test:all": "ember try:each",
-    "test:node": "mocha",
-    "prepublishOnly": "ember build --environment=production"
+    "test:node": "mocha"
   },
   "dependencies": {
     "@ember-data/-build-infra": "^3.13.0-canary.0",
