@@ -15,8 +15,9 @@ import RequestCache from './request-cache';
 import { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import { RecordIdentifier } from '../ts-interfaces/identifier';
 import { FindRecordQuery, SaveRecordMutation, Request } from '../ts-interfaces/fetch-manager';
-import Store from './store';
+import Store from './ds-model-store';
 import recordDataFor from './record-data-for';
+import CoreStore from './core-store';
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -53,7 +54,7 @@ export default class FetchManager {
   // fetches pending in the runloop, waiting to be coalesced
   _pendingFetch: Map<string, PendingFetchItem[]>;
 
-  constructor(private _store: Store) {
+  constructor(private _store: CoreStore) {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
@@ -354,7 +355,7 @@ export default class FetchManager {
 
   _findMany(
     adapter: any,
-    store: Store,
+    store: CoreStore,
     modelName: string,
     snapshots: Snapshot[],
     identifiers: RecordIdentifier[],

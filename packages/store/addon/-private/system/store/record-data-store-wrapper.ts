@@ -1,13 +1,14 @@
 import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import Store from '../store';
+import Store from '../ds-model-store';
 import { AttributesSchema, RelationshipsSchema } from '../../ts-interfaces/record-data-schemas';
 import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import { upgradeForInternal } from '../ts-upgrade-map';
 import RecordData from '../../ts-interfaces/record-data';
 import { internalModelFactoryFor } from './internal-model-factory';
 import hasValidId from '../../utils/has-valid-id';
-import { IDENTIFIERS } from '@ember-data/canary-features';
+import { IDENTIFIERS, CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { identifierCacheFor, IdentifierCache } from '../../identifiers/cache';
+import CoreStore from '../core-store';
 
 /**
   @module @ember-data/store
@@ -19,12 +20,10 @@ const MISSING_ID_ARG_ERROR_MESSAGE = `Either an id or a clientId is required as 
 
 export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   [BRAND_SYMBOL]: 'RecordDataStoreWrapper';
-  _store: Store;
   _willUpdateManyArrays: boolean;
   private _pendingManyArrayUpdates: StringOrNullOrUndefined[];
 
-  constructor(store: Store) {
-    this._store = store;
+  constructor(public _store: CoreStore) {
     this._willUpdateManyArrays = false;
     this._pendingManyArrayUpdates = [];
   }
@@ -111,18 +110,39 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     return this._store._relationshipsDefinitionFor(modelName);
   }
 
-  inverseForRelationship(modelName: string, key: string): string {
+  inverseForRelationship(modelName: string, key: string): string | null {
     const modelClass = this._store.modelFor(modelName);
     const definition = upgradeForInternal(this.relationshipsDefinitionFor(modelName)[key]);
-
-    return definition._inverseKey(this._store, modelClass);
+    if (CUSTOM_MODEL_CLASS) {
+      if (definition.inverse !== undefined) {
+        return definition.inverse;
+      } else {
+        //TODO add a test for this branch
+        if (!definition._inverseKey) {
+          return null;
+        }
+        return definition._inverseKey(this._store, modelClass);
+      }
+    } else {
+      return definition._inverseKey(this._store, modelClass);
+    }
   }
 
   inverseIsAsyncForRelationship(modelName: string, key: string): boolean {
     const modelClass = this._store.modelFor(modelName);
     const definition = upgradeForInternal(this.relationshipsDefinitionFor(modelName)[key]);
-
-    return definition._inverseIsAsync(this._store, modelClass);
+    if (CUSTOM_MODEL_CLASS) {
+      if (definition.inverse === null) {
+        return false;
+      }
+      if (definition.inverseIsAsync !== undefined) {
+        return !!definition.inverseIsAsync;
+      } else {
+        return definition._inverseIsAsync(this._store, modelClass);
+      }
+    } else {
+      return definition._inverseIsAsync(this._store, modelClass);
+    }
   }
 
   notifyPropertyChange(modelName: string, id: string | null, clientId: string, key: string): void;

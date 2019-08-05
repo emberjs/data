@@ -18,4 +18,5 @@ export default {
   RECORD_DATA_STATE: null,
   IDENTIFIERS: null,
   REQUEST_SERVICE: null,
+  CUSTOM_MODEL_CLASS: null,
 };

@@ -11,6 +11,7 @@ import { DEBUG } from '@glimmer/env';
 
 import JSONSerializer from '@ember-data/serializer/json';
 import { normalizeModelName } from '@ember-data/store';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 /**
   Ember Data 2.0 Serializer:
@@ -493,7 +494,12 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     if (this._canSerialize(key)) {
       let belongsTo = snapshot.belongsTo(key);
-      let belongsToIsNotNew = belongsTo && belongsTo.record && !belongsTo.record.get('isNew');
+      let belongsToIsNotNew;
+      if (CUSTOM_MODEL_CLASS) {
+        belongsToIsNotNew = belongsTo && !belongsTo.isNew;
+      } else {
+        belongsToIsNotNew = belongsTo && belongsTo.record && !belongsTo.record.get('isNew');
+      }
 
       if (belongsTo === null || belongsToIsNotNew) {
         json.relationships = json.relationships || {};

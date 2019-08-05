@@ -5,7 +5,7 @@
 // // public
 export { default as Model } from './system/model/model';
 export { default as Errors } from './system/model/errors';
-export { default as Store } from './system/store';
+export { default as Store } from './system/ds-model-store';
 
 export { recordIdentifierFor } from './system/store/internal-model-factory';
 

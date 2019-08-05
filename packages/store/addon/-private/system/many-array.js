@@ -13,7 +13,7 @@ import { PromiseArray } from './promise-proxies';
 import { _objectIsAlive } from './store/common';
 import diffArray from './diff-array';
 import recordDataFor from './record-data-for';
-
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
   relationship.
@@ -150,7 +150,13 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
   removeUnloadedInternalModel() {
     for (let i = 0; i < this.currentState.length; ++i) {
       let internalModel = this.currentState[i];
-      if (internalModel._isDematerializing || !internalModel.isLoaded()) {
+      let shouldRemove;
+      if (CUSTOM_MODEL_CLASS) {
+        shouldRemove = internalModel._isDematerializing;
+      } else {
+        shouldRemove = internalModel._isDematerializing || !internalModel.isLoaded();
+      }
+      if (shouldRemove) {
         this.arrayContentWillChange(i, 1, 0);
         this.currentState.splice(i, 1);
         this.set('length', this.currentState.length);

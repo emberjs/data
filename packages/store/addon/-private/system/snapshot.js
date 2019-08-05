@@ -5,7 +5,8 @@ import { inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { relationshipStateFor } from './record-data-for';
+import recordDataFor, { relationshipStateFor } from './record-data-for';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 /**
   @class Snapshot
@@ -22,6 +23,7 @@ export default class Snapshot {
     this._hasManyIds = Object.create(null);
     let internalModel = (this._internalModel = store._internalModelForResource(identifier));
     this._store = store;
+    this.modelName = identifier.type;
 
     /*
       If the internalModel does not yet have a record, then we are
@@ -47,7 +49,7 @@ export default class Snapshot {
      @property id
      @type {String}
      */
-    this.id = internalModel.id;
+    this.id = identifier.id;
 
     /**
      A hash of adapter options
@@ -65,7 +67,9 @@ export default class Snapshot {
      */
     this.modelName = internalModel.modelName;
 
-    this._changedAttributes = internalModel.changedAttributes();
+    if (internalModel.hasRecord) {
+      this._changedAttributes = recordDataFor(internalModel).changedAttributes();
+    }
   }
 
   /**
@@ -91,8 +95,18 @@ export default class Snapshot {
     if (attributes === null) {
       let record = this.record;
       attributes = this.__attributes = Object.create(null);
-
-      record.eachAttribute(keyName => (attributes[keyName] = get(record, keyName)));
+      let attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, record.id));
+      if (CUSTOM_MODEL_CLASS) {
+        attrs.forEach(keyName => {
+          if (this.type.isModel) {
+            attributes[keyName] = get(record, keyName);
+          } else {
+            attributes[keyName] = recordDataFor(this._internalModel).getAttr(keyName);
+          }
+        });
+      } else {
+        record.eachAttribute(keyName => (attributes[keyName] = get(record, keyName)));
+      }
     }
 
     return attributes;
@@ -111,6 +125,12 @@ export default class Snapshot {
     return this._internalModel.modelClass;
   }
 
+  get isNew() {
+    if (!CUSTOM_MODEL_CLASS) {
+      throw new Error('isNew is only available when custom model class ff is on');
+    }
+    return this._internalModel.isNew();
+  }
   /**
    Returns the value of an attribute.
 
@@ -357,7 +377,14 @@ export default class Snapshot {
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
   eachAttribute(callback, binding) {
-    this.record.eachAttribute(callback, binding);
+    if (CUSTOM_MODEL_CLASS) {
+      let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.id);
+      Object.keys(attrDefs).forEach(key => {
+        callback.call(binding, key, attrDefs[key]);
+      });
+    } else {
+      this.record.eachAttribute(callback, binding);
+    }
   }
 
   /**
@@ -377,7 +404,14 @@ export default class Snapshot {
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
   eachRelationship(callback, binding) {
-    this.record.eachRelationship(callback, binding);
+    if (CUSTOM_MODEL_CLASS) {
+      let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.id);
+      Object.keys(relationshipDefs).forEach(key => {
+        callback.call(binding, key, relationshipDefs[key]);
+      });
+    } else {
+      this.record.eachRelationship(callback, binding);
+    }
   }
 
   /**

@@ -71,6 +71,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this.__implicitRelationships = null;
     this.isDestroyed = false;
     this._isNew = false;
+    this._isDeleted = false;
     // Used during the mark phase of unloading to avoid checking the same internal
     // model twice in the same scan
     this._bfsId = 0;

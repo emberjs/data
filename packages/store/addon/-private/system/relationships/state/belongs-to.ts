@@ -18,7 +18,7 @@ export default class BelongsToRelationship extends Relationship {
 
   constructor(
     store: any,
-    inverseKey: string,
+    inverseKey: string | null,
     relationshipMeta: RelationshipSchema,
     recordData: RelationshipRecordData,
     inverseIsAsync: boolean

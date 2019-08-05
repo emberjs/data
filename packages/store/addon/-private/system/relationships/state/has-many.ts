@@ -5,6 +5,7 @@ import { isNone } from '@ember/utils';
 import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
 import { JsonApiHasManyRelationship } from '../../../ts-interfaces/record-data-json-api';
 import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 /**
   @module @ember-data/store
@@ -18,7 +19,7 @@ export default class ManyRelationship extends Relationship {
   key: string;
   constructor(
     store: any,
-    inverseKey: string,
+    inverseKey: string | null,
     relationshipMeta: RelationshipSchema,
     recordData: RelationshipRecordData,
     inverseIsAsync: boolean
@@ -202,7 +203,11 @@ export default class ManyRelationship extends Relationship {
   notifyManyArrayIsStale() {
     let recordData = this.recordData;
     let storeWrapper = recordData.storeWrapper;
-    storeWrapper.notifyPropertyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+    if (CUSTOM_MODEL_CLASS) {
+      storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+    } else {
+      storeWrapper.notifyPropertyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+    }
   }
 
   notifyHasManyChange() {

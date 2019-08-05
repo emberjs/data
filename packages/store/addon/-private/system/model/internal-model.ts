@@ -2,8 +2,8 @@ import { set, get } from '@ember/object';
 import EmberError from '@ember/error';
 import { default as EmberArray, A } from '@ember/array';
 import { setOwner, getOwner } from '@ember/application';
-import { run } from '@ember/runloop';
 import { assign } from '@ember/polyfills';
+import { run } from '@ember/runloop';
 import RSVP, { Promise, resolve } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
@@ -15,7 +15,7 @@ import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
-import Store from '../store';
+import Store from '../ds-model-store';
 import { errorsHashToArray, errorsArrayToHash } from '../errors-utils';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
@@ -24,10 +24,17 @@ import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../ts-interfaces/utils';
-import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
+import {
+  IDENTIFIERS,
+  RECORD_DATA_ERRORS,
+  RECORD_DATA_STATE,
+  REQUEST_SERVICE,
+  CUSTOM_MODEL_CLASS,
+} from '@ember-data/canary-features';
 import { identifierCacheFor } from '../../identifiers/cache';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
+import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
 
 /**
@@ -39,9 +46,14 @@ type ManyArray = InstanceType<typeof ManyArray>;
 type PromiseBelongsTo = InstanceType<typeof PromiseBelongsTo>;
 type PromiseManyArray = InstanceType<typeof PromiseManyArray>;
 
+// TODO this should be integrated with the code removal so we can use it together with the if condition
+// and not alongside it
+function isNotCustomModelClass(store: CoreStore | Store): store is Store {
+  return !CUSTOM_MODEL_CLASS;
+}
 interface BelongsToMetaWrapper {
   key: string;
-  store: Store;
+  store: CoreStore;
   originatingInternalModel: InternalModel;
   modelName: string;
 }
@@ -136,7 +148,7 @@ export default class InternalModel {
   currentState: any;
   error: any;
 
-  constructor(public store: Store, public identifier: StableRecordIdentifier) {
+  constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
     this._id = identifier.id;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
@@ -190,7 +202,9 @@ export default class InternalModel {
   }
 
   get modelClass() {
-    return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
+    if (this.store.modelFor) {
+      return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
+    }
   }
 
   get type() {
@@ -350,96 +364,101 @@ export default class InternalModel {
     if (!this._record && !this._isDematerializing) {
       let { store } = this;
 
-      // lookupFactory should really return an object that creates
-      // instances with the injections applied
-      let createOptions: any = {
-        store,
-        _internalModel: this,
-        currentState: this.currentState,
-      };
+      if (CUSTOM_MODEL_CLASS) {
+        this._record = store._instantiateRecord(this, this.modelName, this._recordData, this.identifier, properties);
+      } else {
+        if (isNotCustomModelClass(store)) {
+          // lookupFactory should really return an object that creates
+          // instances with the injections applied
+          let createOptions: any = {
+            store,
+            _internalModel: this,
+            currentState: this.currentState,
+          };
 
-      if (!REQUEST_SERVICE) {
-        createOptions.isError = this.isError;
-        createOptions.adapterError = this.error;
-      }
-
-      if (properties !== undefined) {
-        assert(
-          `You passed '${properties}' as properties for record creation instead of an object.`,
-          typeof properties === 'object' && properties !== null
-        );
-
-        if ('id' in properties) {
-          const id = coerceId(properties.id);
-
-          if (id !== null) {
-            this.setId(id);
+          if (!REQUEST_SERVICE) {
+            createOptions.isError = this.isError;
+            createOptions.adapterError = this.error;
           }
-        }
 
-        // convert relationship Records to RecordDatas before passing to RecordData
-        let defs = store._relationshipsDefinitionFor(this.modelName);
+          if (properties !== undefined) {
+            assert(
+              `You passed '${properties}' as properties for record creation instead of an object.`,
+              typeof properties === 'object' && properties !== null
+            );
 
-        if (defs !== null) {
-          let keys = Object.keys(properties);
-          let relationshipValue;
+            if ('id' in properties) {
+              const id = coerceId(properties.id);
 
-          for (let i = 0; i < keys.length; i++) {
-            let prop = keys[i];
-            let def = defs[prop];
-
-            if (def !== undefined) {
-              if (def.kind === 'hasMany') {
-                if (DEBUG) {
-                  assertRecordsPassedToHasMany(properties[prop]);
-                }
-                relationshipValue = extractRecordDatasFromRecords(properties[prop]);
-              } else {
-                relationshipValue = extractRecordDataFromRecord(properties[prop]);
+              if (id !== null) {
+                this.setId(id);
               }
+            }
 
-              properties[prop] = relationshipValue;
+            // convert relationship Records to RecordDatas before passing to RecordData
+            let defs = store._relationshipsDefinitionFor(this.modelName);
+
+            if (defs !== null) {
+              let keys = Object.keys(properties);
+              let relationshipValue;
+
+              for (let i = 0; i < keys.length; i++) {
+                let prop = keys[i];
+                let def = defs[prop];
+
+                if (def !== undefined) {
+                  if (def.kind === 'hasMany') {
+                    if (DEBUG) {
+                      assertRecordsPassedToHasMany(properties[prop]);
+                    }
+                    relationshipValue = extractRecordDatasFromRecords(properties[prop]);
+                  } else {
+                    relationshipValue = extractRecordDataFromRecord(properties[prop]);
+                  }
+
+                  properties[prop] = relationshipValue;
+                }
+              }
             }
           }
+
+          let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
+          assign(createOptions, additionalCreateOptions);
+
+          // ensure that `getOwner(this)` works inside a model instance
+          setOwner(createOptions, getOwner(store));
+
+          this._record = store._modelFactoryFor(this.modelName).create(createOptions);
+          if (IDENTIFIERS) {
+            setRecordIdentifier(this._record, this.identifier);
+          }
+          if (DEBUG) {
+            let klass = this._record.constructor;
+            let deprecations = lookupDeprecations(klass);
+            [
+              'becameError',
+              'becameInvalid',
+              'didCreate',
+              'didDelete',
+              'didLoad',
+              'didUpdate',
+              'ready',
+              'rolledBack',
+            ].forEach(methodName => {
+              if (this instanceof Model && typeof this._record[methodName] === 'function') {
+                deprecate(
+                  `Attempted to define ${methodName} on ${this._record.modelName}#${this._record.id}`,
+                  deprecations[methodName],
+                  {
+                    id: 'ember-data:record-lifecycle-event-methods',
+                    until: '4.0',
+                  }
+                );
+              }
+            });
+          }
         }
       }
-
-      let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
-      assign(createOptions, additionalCreateOptions);
-
-      // ensure that `getOwner(this)` works inside a model instance
-      setOwner(createOptions, getOwner(store));
-
-      this._record = store._modelFactoryFor(this.modelName).create(createOptions);
-      if (IDENTIFIERS) {
-        setRecordIdentifier(this._record, this.identifier);
-      }
-      if (DEBUG) {
-        let klass = this._record.constructor;
-        let deprecations = lookupDeprecations(klass);
-        [
-          'becameError',
-          'becameInvalid',
-          'didCreate',
-          'didDelete',
-          'didLoad',
-          'didUpdate',
-          'ready',
-          'rolledBack',
-        ].forEach(methodName => {
-          if (this instanceof Model && typeof this._record[methodName] === 'function') {
-            deprecate(
-              `Attempted to define ${methodName} on ${this._record.modelName}#${this._record.id}`,
-              deprecations[methodName],
-              {
-                id: 'ember-data:record-lifecycle-event-methods',
-                until: '4.0',
-              }
-            );
-          }
-        });
-      }
-
       this._triggerDeferredTriggers();
     }
 
@@ -461,7 +480,11 @@ export default class InternalModel {
     this._doNotDestroy = false;
 
     if (this._record) {
-      this._record.destroy();
+      if (CUSTOM_MODEL_CLASS) {
+        this.store.teardownRecord(this._record);
+      } else {
+        this._record.destroy();
+      }
 
       Object.keys(this._relationshipProxyCache).forEach(key => {
         if (this._relationshipProxyCache[key].destroy) {
@@ -506,7 +529,8 @@ export default class InternalModel {
     let resolver = RSVP.defer<InternalModel>(promiseLabel);
 
     if (REQUEST_SERVICE) {
-      return this.store.scheduleSave(this, resolver, options);
+      // Casting to narrow due to the feature flag paths inside scheduleSave
+      return this.store.scheduleSave(this, resolver, options) as RSVP.Promise<void>;
     } else {
       this.store.scheduleSave(this, resolver, options);
       return resolver.promise;
@@ -1074,24 +1098,32 @@ export default class InternalModel {
     return currentState[name](this, context);
   }
 
-  manyArrayRecordAdded(key) {
+  manyArrayRecordAdded(key: string) {
     if (this.hasRecord) {
-      this._record.notifyHasManyAdded(key);
+      if (CUSTOM_MODEL_CLASS) {
+        this.store._notificationManager.notify(this.identifier, 'relationships');
+      } else {
+        this._record.notifyHasManyAdded(key);
+      }
     }
   }
 
   notifyHasManyChange(key: string) {
     if (this.hasRecord) {
-      let manyArray = this._manyArrayCache[key];
-      if (manyArray) {
-        // TODO: this will "resurrect" previously unloaded records
-        // see test '1:many async unload many side'
-        //  in `tests/integration/records/unload-test.js`
-        //  probably we don't want to retrieve latest eagerly when notifyhasmany changed
-        //  but rather lazily when someone actually asks for a manyarray
-        //
-        //  that said, also not clear why we haven't moved this to retainedmanyarray so maybe that's the bit that's just not workign
-        manyArray.retrieveLatest();
+      if (CUSTOM_MODEL_CLASS) {
+        this.store._notificationManager.notify(this.identifier, 'relationships');
+      } else {
+        let manyArray = this._manyArrayCache[key];
+        if (manyArray) {
+          // TODO: this will "resurrect" previously unloaded records
+          // see test '1:many async unload many side'
+          //  in `tests/integration/records/unload-test.js`
+          //  probably we don't want to retrieve latest eagerly when notifyhasmany changed
+          //  but rather lazily when someone actually asks for a manyarray
+          //
+          //  that said, also not clear why we haven't moved this to retainedmanyarray so maybe that's the bit that's just not workign
+          manyArray.retrieveLatest();
+        }
       }
       this.updateRecordArrays();
     }
@@ -1099,23 +1131,47 @@ export default class InternalModel {
 
   notifyBelongsToChange(key: string) {
     if (this.hasRecord) {
-      this._record.notifyBelongsToChange(key, this._record);
+      if (CUSTOM_MODEL_CLASS) {
+        this.store._notificationManager.notify(this.identifier, 'relationships');
+      } else {
+        this._record.notifyBelongsToChange(key, this._record);
+      }
       this.updateRecordArrays();
     }
   }
 
-  notifyPropertyChange(key) {
-    if (this.hasRecord) {
-      this._record.notifyPropertyChange(key);
-      this.updateRecordArrays();
-    }
+  hasManyRemovalCheck(key) {
     let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
+    let didRemoveUnloadedModel = false;
     if (manyArray) {
-      let didRemoveUnloadedModel = manyArray.removeUnloadedInternalModel();
+      didRemoveUnloadedModel = manyArray.removeUnloadedInternalModel();
 
       if (this._manyArrayCache[key] && didRemoveUnloadedModel) {
         this._retainedManyArrayCache[key] = this._manyArrayCache[key];
         delete this._manyArrayCache[key];
+      }
+    }
+    return didRemoveUnloadedModel;
+  }
+
+  notifyPropertyChange(key) {
+    if (this.hasRecord) {
+      if (CUSTOM_MODEL_CLASS) {
+        this.store._notificationManager.notify(this.identifier, 'property');
+      } else {
+        this._record.notifyPropertyChange(key);
+      }
+      this.updateRecordArrays();
+    }
+    if (!CUSTOM_MODEL_CLASS) {
+      let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
+      if (manyArray) {
+        let didRemoveUnloadedModel = manyArray.removeUnloadedInternalModel();
+
+        if (this._manyArrayCache[key] && didRemoveUnloadedModel) {
+          this._retainedManyArrayCache[key] = this._manyArrayCache[key];
+          delete this._manyArrayCache[key];
+        }
       }
     }
   }
@@ -1123,11 +1179,15 @@ export default class InternalModel {
   notifyStateChange(key?) {
     assert('Cannot notify state change if Record Data State flag is not on', RECORD_DATA_STATE);
     if (this.hasRecord) {
-      if (!key || key === 'isNew') {
-        this.getRecord().notifyPropertyChange('isNew');
-      }
-      if (!key || key === 'isDeleted') {
-        this.getRecord().notifyPropertyChange('isDeleted');
+      if (CUSTOM_MODEL_CLASS) {
+        this.store._notificationManager.notify(this.identifier, 'state');
+      } else {
+        if (!key || key === 'isNew') {
+          this.getRecord().notifyPropertyChange('isNew');
+        }
+        if (!key || key === 'isDeleted') {
+          this.getRecord().notifyPropertyChange('isDeleted');
+        }
       }
     }
     if (!key || key === 'isDeletionCommitted') {
@@ -1249,9 +1309,12 @@ export default class InternalModel {
     let triggers = this._deferredTriggers;
     let record = this._record;
     let trigger = record.trigger;
-    for (let i = 0, l = triggers.length; i < l; i++) {
-      let eventName = triggers[i];
-      trigger.apply(record, eventName);
+    // TODO Igor make nicer check
+    if (trigger) {
+      for (let i = 0, l = triggers.length; i < l; i++) {
+        let eventName = triggers[i];
+        trigger.apply(record, eventName);
+      }
     }
 
     triggers.length = 0;
@@ -1348,7 +1411,11 @@ export default class InternalModel {
     }
 
     if (didChange && this.hasRecord) {
-      this._record.notifyPropertyChange('id');
+      if (CUSTOM_MODEL_CLASS) {
+        this.store._notificationManager.notify(this.identifier, 'identity');
+      } else {
+        this.notifyPropertyChange('id');
+      }
     }
   }
 
@@ -1398,8 +1465,11 @@ export default class InternalModel {
     if (!data) {
       return;
     }
-
-    this._record._notifyProperties(changedKeys);
+    if (CUSTOM_MODEL_CLASS) {
+      this.store._notificationManager.notify(this.identifier, 'attributes');
+    } else {
+      this._record._notifyProperties(changedKeys);
+    }
   }
 
   addErrorMessageToAttribute(attribute, message) {
@@ -1482,7 +1552,11 @@ export default class InternalModel {
   }
 
   notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {
-    this.getRecord().invalidErrorsChanged(jsonApiErrors);
+    if (CUSTOM_MODEL_CLASS) {
+      this.store._notificationManager.notify(this.identifier, 'errors');
+    } else {
+      this.getRecord().invalidErrorsChanged(jsonApiErrors);
+    }
   }
 
   /*
@@ -1507,7 +1581,7 @@ export default class InternalModel {
       // TODO IGOR AND DAVID REFACTOR
       let relationship = relationshipStateFor(this, name);
 
-      if (DEBUG) {
+      if (DEBUG && kind) {
         let modelName = this.modelName;
         assert(
           `There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`,
@@ -1521,9 +1595,10 @@ export default class InternalModel {
         );
       }
 
-      if (kind === 'belongsTo') {
+      let relationshipKind = relationship.relationshipMeta.kind;
+      if (relationshipKind === 'belongsTo') {
         reference = new BelongsToReference(this.store, this, relationship, name);
-      } else if (kind === 'hasMany') {
+      } else if (relationshipKind === 'hasMany') {
         reference = new HasManyReference(this.store, this, relationship, name);
       }
 
@@ -1570,7 +1645,7 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
   return value;
 }
 
-function assertRecordsPassedToHasMany(records) {
+export function assertRecordsPassedToHasMany(records) {
   // TODO only allow native arrays
   assert(
     `You must pass an array of records to set a hasMany relationship`,
@@ -1584,11 +1659,11 @@ function assertRecordsPassedToHasMany(records) {
   );
 }
 
-function extractRecordDatasFromRecords(records) {
+export function extractRecordDatasFromRecords(records) {
   return records.map(extractRecordDataFromRecord);
 }
 
-function extractRecordDataFromRecord(recordOrPromiseRecord) {
+export function extractRecordDataFromRecord(recordOrPromiseRecord) {
   if (!recordOrPromiseRecord) {
     return null;
   }
