@@ -17,6 +17,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
+      created: attr('date'),
       phoneNumbers: hasMany('phone-number', { async: false }),
     });
 
@@ -45,6 +46,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
   });
 
   test('Changed attributes are reset when matching data is pushed', function(assert) {
+    const originalDateStr = '2019-08-01T00:00:00.000Z';
     let person = run(() => {
       return store.push({
         data: {
@@ -52,20 +54,30 @@ module('unit/store/push - DS.Store#push', function(hooks) {
           id: 1,
           attributes: {
             firstName: 'original first name',
+            created: new Date(originalDateStr),
           },
         },
       });
     });
 
     assert.equal(person.get('firstName'), 'original first name');
+    assert.equal(person.get('created').getTime(), new Date(originalDateStr).getTime());
     assert.equal(person.get('currentState.stateName'), 'root.loaded.saved');
 
+    const updatedDateStr = '2020-09-02T00:00:00.000Z';
     run(() => person.set('firstName', 'updated first name'));
+    run(() => person.set('created', new Date(updatedDateStr)));
 
     assert.equal(person.get('firstName'), 'updated first name');
+    assert.equal(person.get('created').getTime(), new Date(updatedDateStr).getTime());
     assert.strictEqual(person.get('lastName'), undefined);
     assert.equal(person.get('currentState.stateName'), 'root.loaded.updated.uncommitted');
     assert.deepEqual(person.changedAttributes().firstName, ['original first name', 'updated first name']);
+
+    let changedAttributesForCreated = person.changedAttributes().created;
+    assert.equal(changedAttributesForCreated.length, 2);
+    assert.equal(changedAttributesForCreated[0].getTime(), new Date(originalDateStr).getTime());
+    assert.equal(changedAttributesForCreated[1].getTime(), new Date(updatedDateStr).getTime());
 
     run(() => {
       store.push({
@@ -74,14 +86,17 @@ module('unit/store/push - DS.Store#push', function(hooks) {
           id: 1,
           attributes: {
             firstName: 'updated first name',
+            created: new Date(updatedDateStr),
           },
         },
       });
     });
 
     assert.equal(person.get('firstName'), 'updated first name');
+    assert.equal(person.get('created').getTime(), new Date(updatedDateStr).getTime());
     assert.equal(person.get('currentState.stateName'), 'root.loaded.saved');
     assert.ok(!person.changedAttributes().firstName);
+    assert.ok(!person.changedAttributes().created);
   });
 
   test('Calling push with a normalized hash returns a record', function(assert) {
