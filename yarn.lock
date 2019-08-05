@@ -753,7 +753,7 @@
     ember-cli-babel "^6.16.0"
     ember-compatibility-helpers "^1.1.1"
 
-"@ember/test-helpers@^1.5.0":
+"@ember/test-helpers@^1.6.0":
   version "1.6.0"
   resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-1.6.0.tgz#e928c0190a19c312bf40dc8a6f4159735af48a7f"
   integrity sha512-t6K15t4p/iW1D7rUAfGZZwIWqLV8HoVm9Dxn44L9PwMFjw3GAJf4bHdwCbdr3jpsgjG14HH+5XzF9IBIvmOZ4A==
@@ -4830,7 +4830,7 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.5.0, ember-cli-babel@^7.7.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.7.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
   version "7.8.0"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.8.0.tgz#e596500eca0f5a7c9aaee755f803d1542f578acf"
   integrity sha512-xUBgJQ81fqd7k/KIiGU+pjpoXhrmmRf9pUrqLenNSU5N+yeNFT5a1+w0b+p1F7oBphfXVwuxApdZxrmAHOdA3Q==
@@ -5269,16 +5269,16 @@ ember-qunit-assert-helpers@^0.2.2:
     broccoli-filter "^1.0.1"
     ember-cli-babel "^6.9.0"
 
-ember-qunit@^4.4.1:
-  version "4.4.1"
-  resolved "https://registry.npmjs.org/ember-qunit/-/ember-qunit-4.4.1.tgz#3654cadf9fa7e2287fe7b61fc7f19c3eb06222b5"
-  integrity sha512-RYyEqn3UpwLri4+lL9sFdDp1uPa0AfN587661iKm7r3kTAzYHxZE7jRsBDIejhgSH2kVSky0+Q9Y7oLULYiM/Q==
+ember-qunit@^4.5.1:
+  version "4.5.1"
+  resolved "https://registry.npmjs.org/ember-qunit/-/ember-qunit-4.5.1.tgz#dc4b0a794fbeb6702a02f28bf19091de0f90fd5a"
+  integrity sha512-fOxXQLFdellP0yiMd9f3n7pIGggiDo8kBuswdGvsCrqTKq5aB1Cb49eeoNyBDQYGlhcxY0pOGUe+xElppChDBA==
   dependencies:
-    "@ember/test-helpers" "^1.5.0"
+    "@ember/test-helpers" "^1.6.0"
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.2"
     common-tags "^1.4.0"
-    ember-cli-babel "^7.5.0"
+    ember-cli-babel "^7.8.0"
     ember-cli-test-loader "^2.2.0"
     qunit "^2.9.2"
 
