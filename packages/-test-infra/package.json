@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/-test-infra",
-  "version": "3.13.0-canary.0",
+  "version": "3.12.0",
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [],
   "repository": "",
@@ -10,12 +10,9 @@
     "doc": "doc",
     "test": "tests"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "ember-cli-blueprint-test-helpers": "^0.19.1"
-  },
-  "devDependencies": {
   },
   "engines": {
     "node": ">= 8.0.0"
