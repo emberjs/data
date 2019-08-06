@@ -215,7 +215,7 @@ function retrieveNextVersion() {
     // bumpMinor is our first canary for an upcoming minor
     // else this is a new nightly canary
     let bumpType = options.bumpMajor ? 'premajor' : options.bumpMinor ? 'preminor' : 'prerelease';
-    v = semver.inc(options.currentVersion, bumpType, 'canary');
+    v = semver.inc(options.currentVersion, bumpType, 'alpha');
   }
 
   return v;
@@ -320,8 +320,11 @@ async function main() {
   }
   let nextVersion = options.currentVersion;
   if (!options.skipVersion) {
+    // https://github.com/lerna/lerna/tree/master/commands/version#--exact
+    // We use exact to ensure that our consumers always use the appropriate
+    // versions published with each other
     nextVersion = retrieveNextVersion();
-    execWithLog(`lerna version ${nextVersion}`, true);
+    execWithLog(`lerna version ${nextVersion} --exact`, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
