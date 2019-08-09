@@ -19,7 +19,7 @@ import InternalModel from './internal-model';
 import RootState from './states';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import coerceId from '../coerce-id';
-import { recordIdentifierFor } from '@ember-data/store';
+import { recordIdentifierFor } from '../store/internal-model-factory';
 import { InvalidError } from '@ember-data/adapter/error';
 
 const { changeProperties } = Ember;
