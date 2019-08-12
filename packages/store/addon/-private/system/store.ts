@@ -16,7 +16,8 @@ import { typeOf, isPresent, isNone } from '@ember/utils';
 
 import Ember from 'ember';
 import { InvalidError } from '@ember-data/adapter/error';
-import { assert, warn, deprecate, inspect } from '@ember/debug';
+import { assert, warn, inspect } from '@ember/debug';
+import { deprecate } from '@ember/application/deprecations';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from './normalize-model-name';
@@ -2192,7 +2193,7 @@ class Store extends Service {
         Note to future spelunkers hoping to optimize.
         We rely on this `run` to create a run loop if needed
         that `store._push` and `store.didSaveRecord` will both share.
-   
+
         We use `join` because it is often the case that we
         have an outer run loop available still from the first
         call to `store._push`;

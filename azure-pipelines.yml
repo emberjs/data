@@ -24,12 +24,12 @@ jobs:
         displayName: Node install
         inputs:
           versionSpec: '10.x' # The version we're installing
-
       - script: |
           yarn
           yarn lint:features
           yarn lint:prettier
-    displayName: 'Lint'
+          yarn problems
+        displayName: 'Lint'
 
   - job: Basic_Ember_Data_tests
     dependsOn: Lint

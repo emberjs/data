@@ -42,6 +42,7 @@ jobs:
       script:
         - yarn lint:features
         - yarn lint:prettier
+        - yarn problems
     - name: 'Basic Tests'
       script: yarn test
 

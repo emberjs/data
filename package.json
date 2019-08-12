@@ -15,6 +15,7 @@
     "lint:js": "./bin/lint-js",
     "lint:prettier": "eslint --plugin prettier .",
     "lint:features": "./bin/lint-features",
+    "problems": "yarn workspace ember-data problems",
     "start": "yarn workspace ember-data start",
     "test": "yarn workspace ember-data test",
     "test:all": "yarn workspace ember-data test:all",
