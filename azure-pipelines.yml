@@ -3,6 +3,8 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 #
+# random change
+#
 # | Type               | Master | Beta | Release | LTS  | Tags |
 # | ---                | ---    | ---  | ---     | ---  | ---  |
 # | Lint               | yes    | yes  | no      | no   | no   |
