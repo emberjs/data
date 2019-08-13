@@ -19,11 +19,12 @@
 # * Runs but skips tests for in-progress-features
 
 trigger:
-  - master
-  - beta
-  - release
-  - release-*
-  - lts-*
+  branches:
+    include:
+      - *
+  pr:
+    include:
+      - *
 
 jobs:
   - job: Lint
