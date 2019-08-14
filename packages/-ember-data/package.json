@@ -16,7 +16,8 @@
     "test:production": "ember test -e production",
     "test:optional-features": "ember test",
     "test:try-one": "ember try:one",
-    "prepublishOnly": "ember build --environment=production"
+    "prepublishOnly": "ember build --environment=production",
+    "problems": "tsc -p tsconfig.json --noEmit --pretty false"
   },
   "author": "",
   "license": "MIT",
