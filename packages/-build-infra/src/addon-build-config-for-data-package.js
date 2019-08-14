@@ -111,7 +111,7 @@ function addonBuildConfigForDataPackage(PackageName) {
     },
 
     treeForAddon(tree) {
-      if (this.shouldRollupPrivate !== true) {
+      if (process.env.EMBER_DATA_ROLLUP_PRIVATE !== 'false' && this.shouldRollupPrivate !== true) {
         return this._super.treeForAddon.call(this, tree);
       }
 
