@@ -19,6 +19,7 @@ import normalizeModelName from '../system/normalize-model-name';
 import isStableIdentifier from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import Store from '../system/store';
+import { IDENTIFIERS } from '@ember-data/canary-features';
 
 /**
   @module @ember-data/store
@@ -201,9 +202,11 @@ export class IdentifierCache {
           if (DEBUG) {
             // realistically if you hit this it means you changed `type` :/
             // TODO consider how to handle type change assertions more gracefully
+            //if (IDENTIFIERS) {
             if (identifier.lid in this._cache.lids) {
               throw new Error(`You should not change the <type> of a RecordIdentifier`);
             }
+            //}
           }
           this._cache.lids[identifier.lid] = identifier;
 

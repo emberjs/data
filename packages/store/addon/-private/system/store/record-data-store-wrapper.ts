@@ -176,9 +176,11 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   recordDataFor(modelName: string, id: string | null, clientId: string): RecordData;
   recordDataFor(modelName: string, id: string, clientId: string | null | undefined): RecordData;
   recordDataFor(modelName: string, id: string | null, clientId: string | null | undefined): RecordData {
+    /*
     if (!hasValidId(id, clientId)) {
       throw new Error(MISSING_ID_ARG_ERROR_MESSAGE);
     }
+    */
 
     return this._store.recordDataFor(modelName, id, clientId);
   }
