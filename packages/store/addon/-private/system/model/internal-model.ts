@@ -177,6 +177,18 @@ export default class InternalModel {
     return this._id;
   }
 
+  set id(value: string | null) {
+    if (IDENTIFIERS) {
+      if (value !== this._id) {
+        let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
+        identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
+        // TODO Show deprecation for private api
+      }
+    } else if (!IDENTIFIERS) {
+      this._id = value;
+    }
+  }
+
   get modelClass() {
     return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
   }
