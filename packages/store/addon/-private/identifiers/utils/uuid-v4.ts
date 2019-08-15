@@ -14,7 +14,7 @@ const CRYPTO =
   window.msCrypto &&
   typeof window.msCrypto.getRandomValues === 'function'
     ? window.msCrypto
-    : crypto;
+    : window.crypto;
 
 // we might be able to optimize this by requesting more bytes than we need at a time
 function rng() {
