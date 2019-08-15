@@ -7,7 +7,7 @@ import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { A } from '@ember/array';
 import EmberError from '@ember/error';
 import { run as emberRunLoop } from '@ember/runloop';
-import { set, get, computed } from '@ember/object';
+import { set, get, computed, defineProperty } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
@@ -237,6 +237,22 @@ class Store extends Service {
   */
 
   /**
+  This property returns the adapter, after resolving a possible
+  string key.
+
+  If the supplied `adapter` was a class, or a String property
+  path resolved to a class, this property will instantiate the
+  class.
+
+  This property is cacheable, so the same instance of a specified
+  adapter class should be used for the lifetime of the store.
+
+  @property defaultAdapter
+  @private
+  @return Adapter
+*/
+
+  /**
     @method init
     @private
   */
@@ -306,33 +322,6 @@ class Store extends Service {
       return this._fetchManager.requestCache;
     }
     throw 'RequestService is not available unless the feature flag is on and running on a canary build';
-  }
-
-  /**
-    This property returns the adapter, after resolving a possible
-    string key.
-
-    If the supplied `adapter` was a class, or a String property
-    path resolved to a class, this property will instantiate the
-    class.
-
-    This property is cacheable, so the same instance of a specified
-    adapter class should be used for the lifetime of the store.
-
-    @property defaultAdapter
-    @private
-    @return Adapter
-  */
-  @computed('adapter')
-  get defaultAdapter() {
-    let adapter = this.adapter || '-json-api';
-
-    assert(
-      'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
-      typeof adapter === 'string'
-    );
-
-    return this.adapterFor(adapter);
   }
 
   get identifierCache(): IdentifierCache {
@@ -3237,6 +3226,21 @@ class Store extends Service {
     updated.length = 0;
   }
 }
+
+defineProperty(
+  Store.prototype,
+  'defaultAdapter',
+  computed('adapter', function() {
+    let adapter = this.adapter || '-json-api';
+
+    assert(
+      'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
+      typeof adapter === 'string'
+    );
+
+    return this.adapterFor(adapter);
+  })
+);
 
 export default Store;
 
