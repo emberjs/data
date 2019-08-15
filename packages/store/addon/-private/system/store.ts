@@ -7,7 +7,7 @@ import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { A } from '@ember/array';
 import EmberError from '@ember/error';
 import { run as emberRunLoop } from '@ember/runloop';
-import { set, get, computed } from '@ember/object';
+import { set, get } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
@@ -181,6 +181,8 @@ class Store extends Service {
   private _modelFactoryCache = Object.create(null);
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);
+  private _adapterName: string;
+  private _adapterInstance: any;
 
   private _adapterCache = Object.create(null);
   private _serializerCache = Object.create(null);
@@ -323,16 +325,22 @@ class Store extends Service {
     @private
     @return Adapter
   */
-  @computed('adapter')
-  get defaultAdapter() {
+  get defaultAdapter(): any {
+    let adapterHasChanged = this.adapter !== this._adapterName;
+    if (!adapterHasChanged && this._adapterInstance) {
+      return this._adapterInstance;
+    }
+
     let adapter = this.adapter || '-json-api';
+    this._adapterName = adapter;
 
     assert(
       'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
       typeof adapter === 'string'
     );
 
-    return this.adapterFor(adapter);
+    this._adapterInstance = this.adapterFor(adapter);
+    return this._adapterInstance;
   }
 
   get identifierCache(): IdentifierCache {
