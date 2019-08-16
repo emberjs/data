@@ -2911,13 +2911,11 @@ class Store extends Service {
     }
   }
 
-  recordDataFor(modelName: string, id: string, clientId?: string | null): RecordData;
-  recordDataFor(modelName: string, id: string | null, clientId: string): RecordData;
-  recordDataFor(modelName: string, id: string | null, clientId?: string | null): RecordData {
-    let internalModel;
+  recordDataFor(modelName: string, id?: string | null, clientId?: string | null): RecordData {
+    let internalModel: InternalModel;
 
     if (!hasValidId(id, clientId)) {
-      internalModel = internalModelFactoryFor(this).build(modelName, id);
+      internalModel = internalModelFactoryFor(this).build(modelName, null);
     } else {
       internalModel = internalModelFactoryFor(this).lookup(modelName, id, clientId);
     }
