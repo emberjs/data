@@ -2914,10 +2914,14 @@ class Store extends Service {
   recordDataFor(modelName: string, id: string, clientId?: string | null): RecordData;
   recordDataFor(modelName: string, id: string | null, clientId: string): RecordData;
   recordDataFor(modelName: string, id: string | null, clientId?: string | null): RecordData {
+    let internalModel;
+
     if (!hasValidId(id, clientId)) {
-      throw new Error(`Expected either id or clientId to be valid id`);
+      internalModel = internalModelFactoryFor(this).build(modelName, id);
+    } else {
+      internalModel = internalModelFactoryFor(this).lookup(modelName, id, clientId);
     }
-    let internalModel = internalModelFactoryFor(this).lookup(modelName, id, clientId);
+
     return recordDataFor(internalModel);
   }
 
