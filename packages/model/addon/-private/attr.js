@@ -3,6 +3,7 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import { recordDataFor } from '@ember-data/store/-private';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { computedMacroWithOptionalParams } from './util';
 
 /**
   @module @ember-data/model
@@ -107,7 +108,7 @@ function hasValue(internalModel, key) {
   @param {Object} options a hash of options
   @return {Attribute}
 */
-export default function attr(type, options) {
+function attr(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -160,3 +161,5 @@ export default function attr(type, options) {
     },
   }).meta(meta);
 }
+
+export default computedMacroWithOptionalParams(attr);

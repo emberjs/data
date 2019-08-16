@@ -5,6 +5,7 @@ import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
 import { normalizeModelName } from '@ember-data/store';
 import { DEBUG } from '@glimmer/env';
+import { computedMacroWithOptionalParams } from './util';
 
 /**
   `hasMany` is used to define One-To-Many and Many-To-Many
@@ -141,7 +142,7 @@ import { DEBUG } from '@glimmer/env';
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-export default function hasMany(type, options) {
+function hasMany(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -199,3 +200,5 @@ export default function hasMany(type, options) {
     },
   }).meta(meta);
 }
+
+export default computedMacroWithOptionalParams(hasMany);
