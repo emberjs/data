@@ -368,11 +368,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
   });
 
   test("invalid record's attributes can be rollbacked", async function(assert) {
-    if (gte('3.13.0')) {
-      assert.expect(14);
-    } else {
-      assert.expect(13);
-    }
+    assert.expect(13);
 
     class Dog extends Model {
       @attr() name;
@@ -443,11 +439,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
   });
 
   test(`invalid record's attributes rolled back to correct state after set`, async function(assert) {
-    if (gte('3.13.0')) {
-      assert.expect(15);
-    } else {
-      assert.expect(14);
-    }
+    assert.expect(14);
 
     class Dog extends Model {
       @attr() name;
