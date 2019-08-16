@@ -130,7 +130,3 @@ export default function setupStore(options) {
 }
 
 export { setupStore };
-
-export function createStore(options) {
-  return setupStore(options).store;
-}

@@ -1,36 +1,40 @@
 import { resolve, reject, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { InvalidError } from '@ember-data/adapter/error';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-let Person;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr } from '@ember-data/model';
 
 module('unit/model/merge - Merging', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
-      name: DS.attr(),
-      city: DS.attr(),
+    const Person = Model.extend({
+      name: attr(),
+      city: attr(),
     });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    this.store = this.owner.lookup('service:store');
   });
 
   test('When a record is in flight, changes can be made', function(assert) {
     assert.expect(3);
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       createRecord(store, type, snapshot) {
         return { data: { id: 1, type: 'person', attributes: { name: 'Tom Dale' } } };
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = store.createRecord('person', { name: 'Tom Dale' });
+    let person = this.store.createRecord('person', { name: 'Tom Dale' });
 
     // Make sure saving isn't resolved synchronously
     return run(() => {
@@ -50,7 +54,7 @@ module('unit/model/merge - Merging', function(hooks) {
   test('Make sure snapshot is created at save time not at flush time', function(assert) {
     assert.expect(5);
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       updateRecord(store, type, snapshot) {
         assert.equal(snapshot.attr('name'), 'Thomas Dale');
 
@@ -58,11 +62,11 @@ module('unit/model/merge - Merging', function(hooks) {
       },
     });
 
-    let store = createStore({ adapter: Adapter, person: Person });
+    this.owner.register('adapter:application', ApplicationAdapter);
 
     let person;
     run(() => {
-      person = store.push({
+      person = this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -93,7 +97,7 @@ module('unit/model/merge - Merging', function(hooks) {
   test('When a record is in flight, pushes are applied underneath the in flight changes', function(assert) {
     assert.expect(6);
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       updateRecord(store, type, snapshot) {
         // Make sure saving isn't resolved synchronously
         return new EmberPromise(resolve => {
@@ -108,14 +112,12 @@ module('unit/model/merge - Merging', function(hooks) {
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('adapter:application', ApplicationAdapter);
+
     let person;
 
     run(() => {
-      person = store.push({
+      person = this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -134,7 +136,7 @@ module('unit/model/merge - Merging', function(hooks) {
 
       person.set('name', 'Tomasz Dale');
 
-      store.push({
+      this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -157,14 +159,10 @@ module('unit/model/merge - Merging', function(hooks) {
   });
 
   test('When a record is dirty, pushes are overridden by local changes', function(assert) {
-    let store = createStore({
-      adapter: DS.Adapter,
-      person: Person,
-    });
     let person;
 
     run(() => {
-      person = store.push({
+      person = this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -182,7 +180,7 @@ module('unit/model/merge - Merging', function(hooks) {
     assert.equal(person.get('city'), 'San Francisco', 'the original data applies');
 
     run(() => {
-      store.push({
+      this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -200,19 +198,18 @@ module('unit/model/merge - Merging', function(hooks) {
   });
 
   test('When a record is invalid, pushes are overridden by local changes', async function(assert) {
-    let store = createStore({
-      adapter: DS.Adapter,
-      person: Person,
+    const ApplicationAdapter = Adapter.extend({
+      updateRecord() {
+        return reject(new InvalidError());
+      },
     });
-    let person;
-    let adapter = store.adapterFor('application');
 
-    adapter.updateRecord = () => {
-      return reject(new InvalidError());
-    };
+    this.owner.register('adapter:application', ApplicationAdapter);
+
+    let person;
 
     run(() => {
-      person = store.push({
+      person = this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -238,7 +235,7 @@ module('unit/model/merge - Merging', function(hooks) {
     assert.equal(person.get('city'), 'Boston', 'the original data applies');
 
     run(() => {
-      store.push({
+      this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -259,22 +256,20 @@ module('unit/model/merge - Merging', function(hooks) {
   test('A record with no changes can still be saved', function(assert) {
     assert.expect(1);
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       updateRecord(store, type, snapshot) {
         return { data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale' } } };
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('adapter:application', ApplicationAdapter);
+
     let person = run(() => {
-      return store.push({
+      return this.store.push({
         data: {
           type: 'person',
           id: '1',
-          attributeS: {
+          attributes: {
             name: 'Tom Dale',
           },
         },
@@ -282,7 +277,7 @@ module('unit/model/merge - Merging', function(hooks) {
     });
 
     return run(() => {
-      return person.save().then(() => {
+      return person.save().then(foo => {
         assert.equal(person.get('name'), 'Thomas Dale', 'the updates occurred');
       });
     });
@@ -291,7 +286,7 @@ module('unit/model/merge - Merging', function(hooks) {
   test('A dirty record can be reloaded', function(assert) {
     assert.expect(3);
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return {
           data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale', city: 'Portland' } },
@@ -299,15 +294,12 @@ module('unit/model/merge - Merging', function(hooks) {
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('adapter:application', ApplicationAdapter);
 
     let person;
 
     run(() => {
-      person = store.push({
+      person = this.store.push({
         data: {
           type: 'person',
           id: '1',

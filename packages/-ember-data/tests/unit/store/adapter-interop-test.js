@@ -2,52 +2,36 @@ import { A } from '@ember/array';
 import { resolve, all, Promise as EmberPromise } from 'rsvp';
 import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
-import setupStore from 'dummy/tests/helpers/store';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
-let TestAdapter, store;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import JSONSerializer from '@ember-data/serializer/json';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import RESTAdapter from '@ember-data/adapter/rest';
+import Store from '@ember-data/store';
 
-module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', function(hooks) {
+module('unit/store/adapter-interop - Store working with a Adapter', function(hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
-    TestAdapter = DS.Adapter.extend();
-  });
-
-  hooks.afterEach(function() {
-    run(() => {
-      if (store) {
-        store.destroy();
-      }
-    });
-  });
-
-  test('Adapter can be set as a factory', function(assert) {
-    store = createStore({ adapter: TestAdapter });
-
-    assert.ok(store.get('defaultAdapter') instanceof TestAdapter);
-  });
-
   test('Adapter can be set as a name', function(assert) {
-    const env = setupStore({ adapter: 'custom-adapter' });
-    const { store, owner } = env;
-    const CustomAdapter = DS.Adapter.extend({ aCustomProp: 'Soo hot right now' });
-    owner.register('adapter:custom-adapter', CustomAdapter);
+    this.owner.register('service:store', Store.extend({ adapter: 'application' }));
 
-    assert.ok(store.get('defaultAdapter') instanceof CustomAdapter);
+    let store = this.owner.lookup('service:store');
+
+    assert.ok(store.get('defaultAdapter') instanceof RESTAdapter);
   });
 
   testInDebug('Adapter can not be set as an instance', function(assert) {
     assert.expect(1);
 
-    const BadStore = DS.Store.extend({
-      adapter: DS.Adapter.create(),
+    const BadStore = Store.extend({
+      adapter: Adapter.create(),
     });
+
     const { owner } = this;
 
     owner.unregister('service:store');
@@ -59,8 +43,9 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('Calling Store#find invokes its adapter#find', function(assert) {
     assert.expect(5);
 
-    let currentStore;
-    const Adapter = TestAdapter.extend({
+    let currentStore = this.owner.lookup('service:store');
+
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.ok(true, 'Adapter#find was called');
         assert.equal(store, currentStore, 'Adapter#find was called with the right store');
@@ -77,12 +62,9 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    const Type = DS.Model.extend();
-
-    currentStore = createStore({
-      adapter: Adapter,
-      test: Type,
-    });
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('model:test', Model.extend());
 
     return run(() => currentStore.findRecord('test', 1));
   });
@@ -90,7 +72,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('Calling Store#findRecord multiple times coalesces the calls into a adapter#findMany call', function(assert) {
     assert.expect(2);
 
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.ok(false, 'Adapter#findRecord was not called');
       },
@@ -102,11 +84,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       coalesceFindRequests: true,
     });
 
-    const Type = DS.Model.extend();
-    let store = createStore({
-      adapter: Adapter,
-      test: Type,
-    });
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('model:test', Model.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return all([store.findRecord('test', 1), store.findRecord('test', 2)]);
@@ -116,20 +98,17 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('Returning a promise from `findRecord` asynchronously loads data', function(assert) {
     assert.expect(1);
 
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return resolve({ data: { id: 1, type: 'test', attributes: { name: 'Scumbag Dale' } } });
       },
     });
 
-    const Type = DS.Model.extend({
-      name: DS.attr('string'),
-    });
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('model:test', Model.extend({ name: attr() }));
 
-    let store = createStore({
-      adapter: Adapter,
-      test: Type,
-    });
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findRecord('test', 1).then(object => {
@@ -141,21 +120,18 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('IDs provided as numbers are coerced to strings', function(assert) {
     assert.expect(5);
 
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.equal(typeof id, 'string', 'id has been normalized to a string');
         return resolve({ data: { id, type: 'test', attributes: { name: 'Scumbag Sylvain' } } });
       },
     });
 
-    const Type = DS.Model.extend({
-      name: DS.attr('string'),
-    });
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('model:test', Model.extend({ name: attr() }));
 
-    let store = createStore({
-      adapter: Adapter,
-      test: Type,
-    });
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store
@@ -190,18 +166,21 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('can load data for the same record if it is not dirty', function(assert) {
     assert.expect(3);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
-    let store = createStore({
-      person: Person,
-      adapter: DS.Adapter.extend({
-        shouldBackgroundReloadRecord() {
-          return false;
-        },
-      }),
+    const ApplicationAdapter = Adapter.extend({
+      shouldBackgroundReloadRecord() {
+        return false;
+      },
     });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({
@@ -237,11 +216,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
 
     let passedQuery = { page: 1 };
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       query(store, type, query) {
         assert.equal(type, store.modelFor('person'), 'The type was Person');
         assert.equal(query, passedQuery, 'The query was passed in');
@@ -249,57 +228,56 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     run(() => store.query('person', passedQuery));
   });
 
   test('Find with query calls the correct normalizeResponse', function(assert) {
     let passedQuery = { page: 1 };
+    let callCount = 0;
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       query(store, type, query) {
         return resolve([]);
       },
     });
 
-    let callCount = 0;
-
-    const ApplicationSerializer = DS.JSONSerializer.extend({
+    const ApplicationSerializer = JSONSerializer.extend({
       normalizeQueryResponse() {
         callCount++;
         return this._super(...arguments);
       },
     });
 
-    let env = setupStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', ApplicationSerializer);
 
-    let { store } = env;
-
-    env.owner.register('serializer:application', ApplicationSerializer);
+    let store = this.owner.lookup('service:store');
 
     run(() => store.query('person', passedQuery));
+
     assert.equal(callCount, 1, 'normalizeQueryResponse was called');
   });
 
   test('peekAll(type) returns a record array of all records of a specific type', function(assert) {
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
-    let store = createStore({
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     run(() => {
       store.push({
@@ -337,14 +315,13 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   });
 
   test('a new record of a particular type is created via store.createRecord(type)', function(assert) {
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-    let store = createStore({
-      person: Person,
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
-    let person = store.createRecord('person');
+    this.owner.register('model:person', Person);
+
+    let person = this.owner.lookup('service:store').createRecord('person');
 
     assert.equal(get(person, 'isLoaded'), true, 'A newly created record is loaded');
     assert.equal(get(person, 'isNew'), true, 'A newly created record is new');
@@ -358,8 +335,8 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   testInDebug("a new record with a specific id can't be created if this id is already used in the store", function(
     assert
   ) {
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
     Person.reopenClass({
@@ -368,9 +345,9 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
 
     store.createRecord('person', { id: 5 });
 
@@ -380,14 +357,13 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   });
 
   test('an initial data hash can be provided via store.createRecord(type, hash)', function(assert) {
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
-    let store = createStore({
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
 
+    let store = this.owner.lookup('service:store');
     let person = store.createRecord('person', { name: 'Brohuda Katz' });
 
     assert.equal(get(person, 'isLoaded'), true, 'A newly created record is loaded');
@@ -400,16 +376,18 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('if an id is supplied in the initial data hash, it can be looked up using `store.find`', function(assert) {
     assert.expect(1);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
-    let store = createStore({
-      person: Person,
-      adapter: DS.Adapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-      }),
+    const ApplicationAdapter = Adapter.extend({
+      shouldBackgroundReloadRecord: () => false,
     });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       let person = store.createRecord('person', { id: 1, name: 'Brohuda Katz' });
@@ -423,21 +401,22 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('initial values of attributes can be passed in as the third argument to find', function(assert) {
     assert.expect(1);
 
-    const Adapter = TestAdapter.extend({
+    const TestModel = Model.extend({
+      name: attr('string'),
+    });
+
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.equal(snapshot.attr('name'), 'Test', 'Preloaded attribtue set');
         return { data: { id: '1', type: 'test', attributes: { name: 'Test' } } };
       },
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
+    this.owner.register('model:test', TestModel);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    let store = createStore({
-      adapter: Adapter,
-      test: Person,
-    });
+    let store = this.owner.lookup('service:store');
 
     return run(() => store.findRecord('test', 1, { preload: { name: 'Test' } }));
   });
@@ -445,25 +424,23 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('initial values of belongsTo can be passed in as the third argument to find as records', function(assert) {
     assert.expect(1);
 
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.equal(snapshot.belongsTo('friend').attr('name'), 'Tom', 'Preloaded belongsTo set');
         return { data: { id, type: 'person' } };
       },
     });
 
-    let env = setupStore({
-      adapter: Adapter,
+    const Person = Model.extend({
+      name: attr('string'),
+      friend: belongsTo('person', { inverse: null, async: true }),
     });
 
-    let { store } = env;
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      friend: DS.belongsTo('person', { inverse: null, async: true }),
-    });
-
-    env.owner.register('model:person', Person);
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({
@@ -484,23 +461,22 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('initial values of belongsTo can be passed in as the third argument to find as ids', function(assert) {
     assert.expect(1);
 
-    const Adapter = TestAdapter.extend({
+    const Person = Model.extend({
+      name: attr('string'),
+      friend: belongsTo('person', { async: true, inverse: null }),
+    });
+
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return { data: { id, type: 'person' } };
       },
     });
 
-    let env = setupStore({
-      adapter: Adapter,
-    });
-    let { store } = env;
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      friend: DS.belongsTo('person', { async: true, inverse: null }),
-    });
-
-    env.owner.register('model:person', Person);
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findRecord('person', 1, { preload: { friend: 2 } }).then(() => {
@@ -517,25 +493,23 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('initial values of hasMany can be passed in as the third argument to find as records', function(assert) {
     assert.expect(1);
 
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.equal(snapshot.hasMany('friends')[0].attr('name'), 'Tom', 'Preloaded hasMany set');
         return { data: { id, type: 'person' } };
       },
     });
 
-    let env = setupStore({
-      adapter: Adapter,
+    const Person = Model.extend({
+      name: attr('string'),
+      friends: hasMany('person', { inverse: null, async: true }),
     });
 
-    let { store } = env;
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      friends: DS.hasMany('person', { inverse: null, async: true }),
-    });
-
-    env.owner.register('model:person', Person);
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({
@@ -556,24 +530,23 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('initial values of hasMany can be passed in as the third argument to find as ids', function(assert) {
     assert.expect(1);
 
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.equal(snapshot.hasMany('friends')[0].id, '2', 'Preloaded hasMany set');
         return { data: { id, type: 'person' } };
       },
     });
 
-    let env = setupStore({
-      adapter: Adapter,
-    });
-    let { store } = env;
-
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      friends: DS.hasMany('person', { async: true, inverse: null }),
+    const Person = Model.extend({
+      name: attr('string'),
+      friends: hasMany('person', { async: true, inverse: null }),
     });
 
-    env.owner.register('model:person', Person);
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => store.findRecord('person', 1, { preload: { friends: [2] } }));
   });
@@ -581,25 +554,23 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('initial empty values of hasMany can be passed in as the third argument to find as records', function(assert) {
     assert.expect(1);
 
-    const Adapter = TestAdapter.extend({
+    const Person = Model.extend({
+      name: attr('string'),
+      friends: hasMany('person', { inverse: null, async: true }),
+    });
+
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.equal(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
         return { data: { id, type: 'person' } };
       },
     });
 
-    let env = setupStore({
-      adapter: Adapter,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    let { store } = env;
-
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      friends: DS.hasMany('person', { inverse: null, async: true }),
-    });
-
-    env.owner.register('model:person', Person);
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findRecord('person', 1, { preload: { friends: [] } });
@@ -609,24 +580,23 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('initial values of hasMany can be passed in as the third argument to find as ids', function(assert) {
     assert.expect(1);
 
-    const Adapter = TestAdapter.extend({
+    const Person = Model.extend({
+      name: attr('string'),
+      friends: hasMany('person', { async: true, inverse: null }),
+    });
+
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.equal(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
         return { data: { id, type: 'person' } };
       },
     });
 
-    let env = setupStore({
-      adapter: Adapter,
-    });
-    let { store } = env;
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      friends: DS.hasMany('person', { async: true, inverse: null }),
-    });
-
-    env.owner.register('model:person', Person);
+    let store = this.owner.lookup('service:store');
 
     return run(() => store.findRecord('person', 1, { preload: { friends: [] } }));
   });
@@ -634,12 +604,12 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('records should have their ids updated when the adapter returns the id data', function(assert) {
     assert.expect(2);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr('string'),
     });
 
     let idCounter = 1;
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       createRecord(store, type, snapshot) {
         return {
           data: {
@@ -653,10 +623,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     let people = store.peekAll('person');
     let tom = store.createRecord('person', { name: 'Tom Dale' });
@@ -674,11 +645,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store.fetchMany should always return a promise', function(assert) {
     assert.expect(3);
 
-    const Person = DS.Model.extend();
-    let store = createStore({
-      adapter: TestAdapter.extend(),
-      person: Person,
-    });
+    const Person = Model.extend();
+
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
 
     store.createRecord('person');
 
@@ -696,10 +667,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store._scheduleFetchMany should not resolve until all the records are resolved', function(assert) {
     assert.expect(1);
 
-    const Person = DS.Model.extend();
-    const Phone = DS.Model.extend();
-
-    const adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         let record = { id, type: type.modelName };
 
@@ -719,11 +687,12 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      adapter: adapter,
-      test: Person,
-      phone: Phone,
-    });
+    this.owner.register('model:test', Model.extend());
+    this.owner.register('model:phone', Model.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+
+    let store = this.owner.lookup('service:store');
 
     store.createRecord('test');
 
@@ -745,9 +714,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('the store calls adapter.findMany according to groupings returned by adapter.groupRecordsForFindMany', function(assert) {
     assert.expect(3);
 
-    const Person = DS.Model.extend();
-
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       groupRecordsForFindMany(store, snapshots) {
         return [[snapshots[0]], [snapshots[1], snapshots[2]]];
       },
@@ -766,10 +733,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      test: Person,
-    });
+    this.owner.register('model:test', Model.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     let internalModels = [
       store._internalModelForId('test', 10),
@@ -790,8 +758,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
 
     let davidResolved = false;
 
-    const Person = DS.Model.extend();
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       groupRecordsForFindMany(store, snapshots) {
         return [[snapshots[0]], [snapshots[1]]];
       },
@@ -812,10 +779,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      test: Person,
-    });
+    this.owner.register('model:test', Model.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       let david = store.findRecord('test', 'david');
@@ -843,8 +811,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
 
     let davidResolved = false;
 
-    const Person = DS.Model.extend();
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       groupRecordsForFindMany(store, snapshots) {
         return [[snapshots[0]], [snapshots[1]]];
       },
@@ -865,10 +832,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      test: Person,
-    });
+    this.owner.register('model:test', Model.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       let david = store.findRecord('test', 'david');
@@ -896,19 +864,18 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
     function(assert) {
       assert.expect(3);
 
-      const Person = DS.Model.extend();
-
-      const Adapter = TestAdapter.extend({
+      const ApplicationAdapter = Adapter.extend({
         findMany(store, type, ids, snapshots) {
           let records = ids.map(id => ({ id, type: 'test' }));
           return { data: [records[0]] };
         },
       });
 
-      let store = createStore({
-        adapter: Adapter,
-        test: Person,
-      });
+      this.owner.register('model:test', Model.extend());
+      this.owner.register('adapter:application', ApplicationAdapter);
+      this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+      let store = this.owner.lookup('service:store');
 
       let wait = [];
       assert.expectWarning(() => {
@@ -926,9 +893,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   );
 
   testInDebug('store._fetchRecord warns when records are missing', function(assert) {
-    const Person = DS.Model.extend();
-
-    const Adapter = TestAdapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findMany(store, type, ids, snapshots) {
         let records = ids.map(id => ({ id, type: 'test' })).filter(({ id }) => id === 'david');
 
@@ -936,10 +901,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      test: Person,
-    });
+    this.owner.register('model:test', Model.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     let wait = [];
     let igorDidReject = true;
@@ -970,11 +936,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should not call shouldReloadRecord when the record is not in the store', function(assert) {
     assert.expect(1);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadRecord(store, type, id, snapshot) {
         assert.ok(false, 'shouldReloadRecord should not be called when the record is not loaded');
         return false;
@@ -985,10 +947,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    let store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Model.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => store.findRecord('person', 1));
   });
@@ -996,11 +959,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should not reload record when shouldReloadRecord returns false', function(assert) {
     assert.expect(1);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadRecord(store, type, id, snapshot) {
         assert.ok(true, 'shouldReloadRecord should be called when the record is in the store');
         return false;
@@ -1013,10 +972,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Model.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({
@@ -1033,11 +993,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should reload record when shouldReloadRecord returns true', function(assert) {
     assert.expect(3);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadRecord(store, type, id, snapshot) {
         assert.ok(true, 'shouldReloadRecord should be called when the record is in the store');
         return true;
@@ -1048,10 +1004,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Model.extend({ name: attr() }));
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({
@@ -1070,11 +1027,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should not call shouldBackgroundReloadRecord when the store is already loading the record', function(assert) {
     assert.expect(2);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr(),
     });
 
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadRecord(store, type, id, snapshot) {
         return true;
       },
@@ -1087,10 +1044,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({
@@ -1109,11 +1067,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should not reload a record when `shouldBackgroundReloadRecord` is false', function(assert) {
     assert.expect(2);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldBackgroundReloadRecord(store, type, id, snapshot) {
         assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
         return false;
@@ -1124,10 +1078,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Model.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({
@@ -1146,11 +1101,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should reload the record in the background when `shouldBackgroundReloadRecord` is true', function(assert) {
     assert.expect(4);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldBackgroundReloadRecord(store, type, id, snapshot) {
         assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
         return true;
@@ -1161,10 +1112,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Model.extend({ name: attr() }));
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     let done = run(() => {
       store.push({
@@ -1187,11 +1139,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should not reload record array when shouldReloadAll returns false', function(assert) {
     assert.expect(1);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadAll(store, snapshot) {
         assert.ok(true, 'shouldReloadAll should be called when the record is in the store');
         return false;
@@ -1204,10 +1152,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Model.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => store.findAll('person'));
   });
@@ -1215,11 +1164,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should reload all records when shouldReloadAll returns true', function(assert) {
     assert.expect(3);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr(),
     });
 
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadAll(store, type, id, snapshot) {
         assert.ok(true, 'shouldReloadAll should be called when the record is in the store');
         return true;
@@ -1230,10 +1179,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findAll('person').then(records => {
@@ -1245,11 +1195,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should not call shouldBackgroundReloadAll when the store is already loading all records', function(assert) {
     assert.expect(2);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr(),
     });
 
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadAll(store, type, id, snapshot) {
         return true;
       },
@@ -1262,10 +1212,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findAll('person').then(records => {
@@ -1277,11 +1228,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should not reload all records when `shouldBackgroundReloadAll` is false', function(assert) {
     assert.expect(3);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadAll(store, type, id, snapshot) {
         assert.ok(true, 'shouldReloadAll is called when record is loaded form the cache');
         return false;
@@ -1296,10 +1243,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Model.extend());
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findAll('person').then(records => {
@@ -1311,11 +1259,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('store should reload all records in the background when `shouldBackgroundReloadAll` is true', function(assert) {
     assert.expect(5);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      name: attr(),
     });
 
-    const TestAdapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       shouldReloadAll() {
         assert.ok(true, 'shouldReloadAll is called');
         return false;
@@ -1330,10 +1278,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
       },
     });
 
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     let done = run(() => {
       return store.findAll('person').then(records => {
@@ -1349,13 +1298,9 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   testInDebug('store should assert of the user tries to call store.filter', function(assert) {
     assert.expect(1);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
+    this.owner.register('model:person', Model.extend());
 
-    store = createStore({
-      person: Person,
-    });
+    let store = this.owner.lookup('service:store');
 
     assert.expectAssertion(() => {
       run(() => store.filter('person', {}));
@@ -1363,13 +1308,11 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   });
 
   testInDebug('Calling adapterFor with a model class should assert', function(assert) {
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-    });
+    let Person = Model.extend();
 
-    store = createStore({
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
 
     assert.expectAssertion(() => {
       store.adapterFor(Person);

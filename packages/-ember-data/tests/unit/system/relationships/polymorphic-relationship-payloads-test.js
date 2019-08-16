@@ -1,43 +1,33 @@
 import { run } from '@ember/runloop';
-import DS from 'ember-data';
-import { createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 import testInDebug from '../../../helpers/test-in-debug';
 
-const { Model, hasMany, belongsTo, attr } = DS;
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('unit/system/relationships/relationship-payloads-manager (polymorphic)', function(hooks) {
-  hooks.beforeEach(function() {
-    const User = DS.Model.extend({
-      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
-      sharedHats: hasMany('hat', { async: false, polymorphic: true, inverse: 'sharingUsers' }),
-    });
-    User.toString = () => 'User';
+  setupTest(hooks);
 
-    const Alien = User.extend({});
-    Alien.toString = () => 'Alien';
+  hooks.beforeEach(function() {
+    this.store = this.owner.lookup('service:store');
+  });
+
+  test('push one side is polymorphic, baseType then subTypes', function(assert) {
+    const User = Model.extend({
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+    });
 
     const Hat = Model.extend({
       type: attr('string'),
       user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
-      sharingUsers: belongsTo('users', { async: false, inverse: 'sharedHats', polymorphic: true }),
-      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
-      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true }),
     });
-    const BigHat = Hat.extend({});
-    const SmallHat = Hat.extend({});
 
-    this.store = createStore({
-      user: User,
-      alien: Alien,
-      hat: Hat,
-      'big-hat': BigHat,
-      'small-hat': SmallHat,
-    });
-  });
+    this.owner.register('model:user', User);
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+    this.owner.register('model:small-hat', Hat.extend({}));
 
-  test('push one side is polymorphic, baseType then subTypes', function(assert) {
     let id = 1;
 
     function makeHat(type, props) {
@@ -78,6 +68,20 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('push one side is polymorphic, subType then baseType', function(assert) {
+    let User = Model.extend({
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+    });
+
+    let Hat = Model.extend({
+      type: attr('string'),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+    });
+
+    this.owner.register('model:user', User);
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+    this.owner.register('model:small-hat', Hat.extend({}));
+
     let id = 1;
 
     function makeHat(type, props) {
@@ -119,6 +123,20 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('push one side is polymorphic, different subtypes', function(assert) {
+    let User = Model.extend({
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+    });
+
+    let Hat = Model.extend({
+      type: attr('string'),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+    });
+
+    this.owner.register('model:user', User);
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+    this.owner.register('model:small-hat', Hat.extend({}));
+
     let id = 1;
 
     function makeHat(type, props) {
@@ -161,6 +179,21 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('push both sides are polymorphic', function(assert) {
+    let User = Model.extend({
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+    });
+
+    let Hat = Model.extend({
+      type: attr('string'),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+    });
+
+    this.owner.register('model:user', User);
+    this.owner.register('model:alien', User.extend({}));
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+    this.owner.register('model:small-hat', Hat.extend({}));
+
     let id = 1;
 
     function makeHat(type, props) {
@@ -201,6 +234,30 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('handles relationships where both sides are polymorphic', function(assert) {
+    let Person = Model.extend({
+      hats: hasMany('hat', {
+        async: false,
+        polymorphic: true,
+        inverse: 'person',
+      }),
+    });
+
+    let Hat = Model.extend({
+      type: attr('string'),
+      person: belongsTo('person', {
+        async: false,
+        inverse: 'hats',
+        polymorphic: true,
+      }),
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('model:big-person', Person.extend({}));
+    this.owner.register('model:small-person', Person.extend({}));
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+    this.owner.register('model:small-hat', Hat.extend({}));
+
     let id = 1;
     function makePolymorphicHatForPolymorphicPerson(type, isForBigPerson = true) {
       return {
@@ -242,42 +299,12 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       included: [bigHatData3, smallHatData3],
     };
 
-    const PersonModel = Model.extend({
-      hats: hasMany('hat', {
-        async: false,
-        polymorphic: true,
-        inverse: 'person',
-      }),
-    });
-    const HatModel = Model.extend({
-      type: attr('string'),
-      person: belongsTo('person', {
-        async: false,
-        inverse: 'hats',
-        polymorphic: true,
-      }),
-    });
-    const BigHatModel = HatModel.extend({});
-    const SmallHatModel = HatModel.extend({});
-
-    const BigPersonModel = PersonModel.extend({});
-    const SmallPersonModel = PersonModel.extend({});
-
-    const store = (this.store = createStore({
-      person: PersonModel,
-      bigPerson: BigPersonModel,
-      smallPerson: SmallPersonModel,
-      hat: HatModel,
-      bigHat: BigHatModel,
-      smallHat: SmallHatModel,
-    }));
-
     const bigPerson = run(() => {
-      return store.push(bigPersonData);
+      return this.store.push(bigPersonData);
     });
 
     const smallPerson = run(() => {
-      return store.push(smallPersonData);
+      return this.store.push(smallPersonData);
     });
 
     const finalBigResult = bigPerson.get('hats').toArray();
@@ -314,15 +341,18 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       }
     }
 
-    let id = 1;
-    const Person = Model.extend({
+    let Person = Model.extend({
       name: attr(),
       family: hasMany('person', { async: false, polymorphic: true, inverse: 'family' }),
       twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' }),
     });
-    const Girl = Person.extend({});
-    const Boy = Person.extend({});
-    const Grownup = Person.extend({});
+
+    this.owner.register('model:person', Person);
+    this.owner.register('model:girl', Person.extend({}));
+    this.owner.register('model:boy', Person.extend({}));
+    this.owner.register('model:grownup', Person.extend({}));
+
+    let id = 1;
 
     const brotherPayload = {
       type: 'boy',
@@ -367,15 +397,8 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     ];
     const expectedTwinReference = { type: 'girl', id: sisterPayload.id };
 
-    const store = (this.store = createStore({
-      person: Person,
-      grownup: Grownup,
-      boy: Boy,
-      girl: Girl,
-    }));
-
     const boyInstance = run(() => {
-      return store.push(payload);
+      return this.store.push(payload);
     });
 
     const familyResultReferences = boyInstance
@@ -418,15 +441,18 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       }
     }
 
-    let id = 1;
     const Person = Model.extend({
       name: attr(),
       family: hasMany('person', { async: false, polymorphic: true, inverse: 'family' }),
       twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' }),
     });
-    const Girl = Person.extend({});
-    const Boy = Person.extend({});
-    const Grownup = Person.extend({});
+
+    this.owner.register('model:person', Person);
+    this.owner.register('model:girl', Person.extend({}));
+    this.owner.register('model:boy', Person.extend({}));
+    this.owner.register('model:grownup', Person.extend({}));
+
+    let id = 1;
 
     const brotherPayload = {
       type: 'boy',
@@ -474,15 +500,8 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     ];
     const expectedTwinReference = { type: 'girl', id: sisterPayload.id };
 
-    const store = (this.store = createStore({
-      person: Person,
-      grownup: Grownup,
-      boy: Boy,
-      girl: Girl,
-    }));
-
     const boyInstance = run(() => {
-      return store.push(payload);
+      return this.store.push(payload);
     });
 
     const familyResultReferences = boyInstance
@@ -502,7 +521,15 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('push polymorphic self-referential non-reflexive relationship', function(assert) {
-    const store = this.store;
+    let Hat = Model.extend({
+      type: attr('string'),
+      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
+      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true }),
+    });
+
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+
     const hat1Data = {
       data: {
         id: '1',
@@ -523,8 +550,8 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       },
     };
 
-    const hat1 = run(() => store.push(hat1Data));
-    const hat2 = run(() => store.push(hat2Data));
+    const hat1 = run(() => this.store.push(hat1Data));
+    const hat2 = run(() => this.store.push(hat2Data));
 
     const expectedHatReference = { id: '2', type: 'big-hat' };
     const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
@@ -546,7 +573,15 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('push polymorphic self-referential circular non-reflexive relationship', function(assert) {
-    const store = this.store;
+    let Hat = Model.extend({
+      type: attr('string'),
+      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
+      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true }),
+    });
+
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+
     const hatData = {
       data: {
         id: '1',
@@ -563,7 +598,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       },
     };
 
-    const hat = run(() => store.push(hatData));
+    const hat = run(() => this.store.push(hatData));
 
     const expectedHatReference = { id: '1', type: 'big-hat' };
     const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
@@ -585,6 +620,23 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('polymorphic hasMany to types with separate id-spaces', function(assert) {
+    let User = Model.extend({
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+    });
+
+    let Hat = Model.extend({
+      type: attr('string'),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+    });
+
+    let BigHat = Hat.extend({});
+    let SmallHat = Hat.extend({});
+
+    this.owner.register('model:user', User);
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', BigHat);
+    this.owner.register('model:small-hat', SmallHat);
+
     const user = run(() =>
       this.store.push({
         data: {
@@ -616,6 +668,20 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('polymorphic hasMany to types with separate id-spaces, from inverse payload', function(assert) {
+    let User = Model.extend({
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+    });
+
+    let Hat = Model.extend({
+      type: attr('string'),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+    });
+
+    this.owner.register('model:user', User);
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+    this.owner.register('model:small-hat', Hat.extend({}));
+
     const user = run(() =>
       this.store.push({
         data: {
@@ -652,6 +718,30 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces', function(assert) {
+    let Person = Model.extend({
+      hats: hasMany('hat', {
+        async: false,
+        polymorphic: true,
+        inverse: 'person',
+      }),
+    });
+
+    let Hat = Model.extend({
+      type: attr('string'),
+      person: belongsTo('person', {
+        async: false,
+        inverse: 'hats',
+        polymorphic: true,
+      }),
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('model:big-person', Person.extend({}));
+    this.owner.register('model:small-person', Person.extend({}));
+    this.owner.register('model:hat', Hat);
+    this.owner.register('model:big-hat', Hat.extend({}));
+    this.owner.register('model:small-hat', Hat.extend({}));
+
     let bigHatId = 1;
     let smallHatId = 1;
     function makePolymorphicHatForPolymorphicPerson(type, isForBigPerson = true) {
@@ -695,42 +785,12 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       included: [bigHatData3, smallHatData3],
     };
 
-    const PersonModel = Model.extend({
-      hats: hasMany('hat', {
-        async: false,
-        polymorphic: true,
-        inverse: 'person',
-      }),
-    });
-    const HatModel = Model.extend({
-      type: attr('string'),
-      person: belongsTo('person', {
-        async: false,
-        inverse: 'hats',
-        polymorphic: true,
-      }),
-    });
-    const BigHatModel = HatModel.extend({});
-    const SmallHatModel = HatModel.extend({});
-
-    const BigPersonModel = PersonModel.extend({});
-    const SmallPersonModel = PersonModel.extend({});
-
-    const store = (this.store = createStore({
-      person: PersonModel,
-      bigPerson: BigPersonModel,
-      smallPerson: SmallPersonModel,
-      hat: HatModel,
-      bigHat: BigHatModel,
-      smallHat: SmallHatModel,
-    }));
-
     const bigPerson = run(() => {
-      return store.push(bigPersonData);
+      return this.store.push(bigPersonData);
     });
 
     const smallPerson = run(() => {
-      return store.push(smallPersonData);
+      return this.store.push(smallPersonData);
     });
 
     const finalBigResult = bigPerson.get('hats').toArray();
@@ -755,20 +815,23 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   });
 
   testInDebug('Invalid inverses throw errors', function(assert) {
-    let PostModel = Model.extend({
-      comments: hasMany('comment', { async: false, inverse: 'post' }),
-    });
-    let CommentModel = Model.extend({
-      post: belongsTo('post', { async: false, inverse: null }),
-    });
-    let store = createStore({
-      post: PostModel,
-      comment: CommentModel,
-    });
+    this.owner.register(
+      'model:post',
+      Model.extend({
+        comments: hasMany('comment', { async: false, inverse: 'post' }),
+      })
+    );
 
-    function runInvalidPush() {
+    this.owner.register(
+      'model:comment',
+      Model.extend({
+        post: belongsTo('post', { async: false, inverse: null }),
+      })
+    );
+
+    let runInvalidPush = () => {
       return run(() => {
-        return store.push({
+        return this.store.push({
           data: {
             type: 'post',
             id: '1',
@@ -794,7 +857,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
           ],
         });
       });
-    }
+    };
 
     assert.expectAssertion(
       runInvalidPush,

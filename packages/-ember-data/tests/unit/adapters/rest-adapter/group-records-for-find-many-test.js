@@ -1,32 +1,33 @@
 import { run } from '@ember/runloop';
 import { Promise as EmberPromise } from 'rsvp';
-import { createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+import Model from '@ember-data/model';
+import RESTAdapter from '@ember-data/adapter/rest';
 
-let GroupsAdapter, store, requests;
+let store, requests;
 let maxLength;
 let lengths;
 
 module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAdapter#groupRecordsForFindMany', function(
   hooks
 ) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     maxLength = -1;
     requests = [];
     lengths = [];
 
-    GroupsAdapter = DS.RESTAdapter.extend({
+    const ApplicationAdapter = RESTAdapter.extend({
       coalesceFindRequests: true,
 
       findRecord(store, type, id, snapshot) {
         return { id };
       },
-    });
 
-    GroupsAdapter.reopen({
       ajax(url, type, options) {
         requests.push({
           url,
@@ -48,14 +49,10 @@ module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
       },
     });
 
-    store = createStore({
-      adapter: GroupsAdapter,
-      testRecord: DS.Model.extend(),
-    });
-  });
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('model:test-record', Model.extend());
 
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    store = this.owner.lookup('service:store');
   });
 
   test('groupRecordsForFindMany - findMany', function(assert) {

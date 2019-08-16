@@ -1,24 +1,25 @@
+import Model, { attr } from '@ember-data/model';
 import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
 import { get } from '@ember/object';
 import { watchProperties } from '../../helpers/watch-property';
 
 let store;
 
-const Person = DS.Model.extend({
-  name: DS.attr('string'),
+const Person = Model.extend({
+  name: attr('string'),
   toString() {
     return `<Person#${this.get('id')}>`;
   },
 });
 
 module('integration/peeked-records', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    store = createStore({
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    store = this.owner.lookup('service:store');
   });
 
   test('repeated calls to peekAll in separate run-loops works as expected', function(assert) {
