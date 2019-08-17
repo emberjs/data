@@ -12,7 +12,6 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 import { settled } from '@ember/test-helpers';
-import { gte } from 'ember-compatibility-helpers';
 
 let env, store, Person;
 
