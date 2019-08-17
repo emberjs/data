@@ -291,6 +291,8 @@ const hasNajax = typeof najax !== 'undefined';
 const RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
 
+  defaultContentType: 'application/json; charset=utf-8',
+
   fastboot: computed(function() {
     return getOwner(this).lookup('service:fastboot');
   }),
@@ -1093,15 +1095,13 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       options.headers = {};
     }
 
-    let contentType =
-      options.contentType ||
-      options.headers['Content-Type'] ||
-      options.headers['content-type'] ||
-      'application/json; charset=utf-8';
+    let contentType = options.contentType || this.defaultContentType;
 
     if (get(this, 'useFetch')) {
       if (options.data && options.type !== 'GET') {
-        options.headers['content-type'] = contentType;
+        if (!options.headers['Content-Type'] && !options.headers['content-type']) {
+          options.headers['content-type'] = contentType;
+        }
       }
       options = fetchOptions(options, this);
     } else {

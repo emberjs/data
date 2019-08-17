@@ -143,6 +143,8 @@ import { pluralize } from 'ember-inflector';
 const JSONAPIAdapter = RESTAdapter.extend({
   defaultSerializer: '-json-api',
 
+  defaultContentType: 'application/vnd.api+json',
+
   /**
     @method ajaxOptions
     @private
@@ -152,9 +154,8 @@ const JSONAPIAdapter = RESTAdapter.extend({
     @return {Object}
   */
   ajaxOptions(url, type, options = {}) {
-    options.contentType = options.contentType || 'application/vnd.api+json';
-
     let hash = this._super(url, type, options);
+
     hash.headers['Accept'] = hash.headers['Accept'] || 'application/vnd.api+json';
 
     return hash;

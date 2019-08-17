@@ -89,4 +89,59 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
       'headers assigned, Accept header not overwritten'
     );
   });
+
+  test('ajaxOptions() headers are set POST', function(assert) {
+    adapter.headers = { 'Other-Key': 'Other Value', Accept: 'application/json' };
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
+    let receivedHeaders = ajaxOptions.headers;
+
+    assert.deepEqual(
+      receivedHeaders,
+      {
+        Accept: 'application/json',
+        'content-type': 'application/vnd.api+json',
+        'Other-Key': 'Other Value',
+      },
+      'headers assigned on POST'
+    );
+  });
+
+  test('ajaxOptions() will not override with existing headers["Content-Type"] POST', function(assert) {
+    adapter.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
+    let receivedHeaders = ajaxOptions.headers;
+
+    assert.deepEqual(
+      receivedHeaders,
+      {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/vnd.api+json',
+      },
+      'content-type header not overwritten'
+    );
+  });
+
+  test('ajaxOptions() can override with options.contentType POST', function(assert) {
+    adapter.headers = {};
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {
+      contentType: 'application/x-www-form-urlencoded',
+      data: { type: 'post' },
+    });
+    let receivedHeaders = ajaxOptions.headers;
+
+    assert.deepEqual(
+      receivedHeaders,
+      {
+        'content-type': 'application/x-www-form-urlencoded',
+        Accept: 'application/vnd.api+json',
+      },
+      'content-type header overwritten'
+    );
+  });
 });
