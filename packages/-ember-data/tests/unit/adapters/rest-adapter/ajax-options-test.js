@@ -113,7 +113,30 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
     });
   });
 
-  test('ajaxOptions() can provide own Content-Type', function(assert) {
+  test('ajaxOptions() can provide own headers["Content-Type"]', function(assert) {
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data: { key: 'value' },
+    });
+
+    assert.deepEqual(ajaxOptions, {
+      credentials: 'same-origin',
+      data: { key: 'value' },
+      body: '{"key":"value"}',
+      type: 'POST',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      url: 'example.com',
+    });
+  });
+
+  test('ajaxOptions() can provide own contentType in options', function(assert) {
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, {

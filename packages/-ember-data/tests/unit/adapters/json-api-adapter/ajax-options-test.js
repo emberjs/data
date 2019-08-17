@@ -107,7 +107,7 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests with fet
     );
   });
 
-  test('ajaxOptions() will not override with existing headers["Content-Type"] POST', function(assert) {
+  test('ajaxOptions() does not override with existing headers["Content-Type"] POST', function(assert) {
     adapter.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
     let url = 'example.com';
     let type = 'POST';
