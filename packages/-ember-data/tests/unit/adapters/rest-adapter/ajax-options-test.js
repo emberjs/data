@@ -8,7 +8,7 @@ import DS from 'ember-data';
 
 var Person, Place, store, adapter, env;
 
-module('unit/adapters/rest-adapter/ajax-options - building requests fetch', function(hooks) {
+module('unit/adapters/rest-adapter/ajax-options - building requests with fetch', function(hooks) {
   hooks.beforeEach(function() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };

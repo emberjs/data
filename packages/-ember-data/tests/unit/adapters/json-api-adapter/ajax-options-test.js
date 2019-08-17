@@ -7,7 +7,7 @@ import DS from 'ember-data';
 
 let Person, Place, store, adapter, env;
 
-module('unit/adapters/json-api-adapter/ajax-options - building requests', function(hooks) {
+module('unit/adapters/json-api-adapter/ajax-options - building requests with fetch', function(hooks) {
   hooks.beforeEach(function() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
@@ -91,7 +91,7 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   });
 
   test('ajaxOptions() headers are set POST', function(assert) {
-    adapter.headers = { 'Other-Key': 'Other Value', Accept: 'application/json' };
+    adapter.headers = {};
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
@@ -100,9 +100,8 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
     assert.deepEqual(
       receivedHeaders,
       {
-        Accept: 'application/json',
+        Accept: 'application/vnd.api+json',
         'content-type': 'application/vnd.api+json',
-        'Other-Key': 'Other Value',
       },
       'headers assigned on POST'
     );
