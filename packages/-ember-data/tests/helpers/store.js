@@ -4,7 +4,6 @@ import EmberObject from '@ember/object';
 import Ember from 'ember';
 import Store from 'ember-data/store';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import RESTAdapter from '@ember-data/adapter/rest';
 import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
@@ -72,7 +71,6 @@ export default function setupStore(options) {
   owner.register('serializer:-json', JSONSerializer);
   owner.register('serializer:-rest', RESTSerializer);
   owner.register('adapter:-default', Adapter);
-  owner.register('adapter:-rest', RESTAdapter);
   owner.register('adapter:-json-api', JSONAPIAdapter);
 
   owner.inject('serializer', 'store', 'service:store');
