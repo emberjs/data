@@ -273,7 +273,7 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      var isPrimary = !forcedSecondary && this.isPrimaryType(modelName, PrimaryModelClass);
+      var isPrimary = !forcedSecondary && this.isPrimaryType(modelName, primaryModelClass);
       var value = payload[prop];
 
       if (value === null) {
@@ -351,8 +351,8 @@ const RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  isPrimaryType(modelName, PrimaryModelClass) {
-    return normalizeModelName(modelName) === PrimaryModelClass.modelName;
+  isPrimaryType(modelName, primaryModelClass) {
+    return normalizeModelName(modelName) === primaryModelClass.modelName;
   },
 
   /**
