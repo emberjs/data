@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@ember-data/-build-infra": "3.14.0-alpha.1",
+    "@ember-data/canary-features": "3.14.0-alpha.1",
     "@ember-data/store": "3.14.0-alpha.1",
     "ember-cli-babel": "^7.8.0",
     "ember-cli-string-utils": "^1.1.0",
