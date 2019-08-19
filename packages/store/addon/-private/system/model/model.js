@@ -1195,7 +1195,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
       if (properties === undefined) {
         properties = relationships[relationship.kind] = [];
         groups.push({
-          name: relationship.name,
+          name: relationship.kind,
           properties,
           expand: true,
         });
