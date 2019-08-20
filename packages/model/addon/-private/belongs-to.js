@@ -2,6 +2,7 @@ import { computed } from '@ember/object';
 import { assert, warn, inspect } from '@ember/debug';
 import { normalizeModelName } from '@ember-data/store';
 import { DEBUG } from '@glimmer/env';
+import { computedMacroWithOptionalParams } from './util';
 
 /**
   @module @ember-data/model
@@ -103,7 +104,7 @@ import { DEBUG } from '@glimmer/env';
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-export default function belongsTo(modelName, options) {
+function belongsTo(modelName, options) {
   let opts, userEnteredModelName;
   if (typeof modelName === 'object') {
     opts = modelName;
@@ -180,3 +181,5 @@ export default function belongsTo(modelName, options) {
     },
   }).meta(meta);
 }
+
+export default computedMacroWithOptionalParams(belongsTo);
