@@ -31,7 +31,6 @@ function initializeStore(registry) {
   registerOptionsForType.call(registry, 'adapter', { singleton: false });
   registry.register('serializer:-default', JSONSerializer);
   registry.register('serializer:-rest', RESTSerializer);
-  registry.register('adapter:-rest', RESTAdapter);
 
   registry.register('adapter:-json-api', JSONAPIAdapter);
   registry.register('serializer:-json-api', JSONAPISerializer);

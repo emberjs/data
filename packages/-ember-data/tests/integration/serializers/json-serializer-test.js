@@ -3,6 +3,7 @@ import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import JSONSerializer from '@ember-data/serializer/json';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
@@ -30,7 +31,8 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     env.store.modelFor('post');
     env.store.modelFor('comment');
     env.store.modelFor('favorite');
-    serializer = env.store.serializerFor('-json');
+    env.owner.register('serializer:json', JSONSerializer);
+    serializer = env.store.serializerFor('json');
   });
 
   hooks.afterEach(function() {

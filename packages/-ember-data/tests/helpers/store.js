@@ -3,11 +3,9 @@ import { setResolver } from '@ember/test-helpers';
 import EmberObject from '@ember/object';
 import Ember from 'ember';
 import Store from 'ember-data/store';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
-import JSONSerializer from '@ember-data/serializer/json';
 import config from '../../config/environment';
 import Resolver from '../../resolver';
 
@@ -54,8 +52,16 @@ export default function setupStore(options) {
   delete options.adapter;
 
   if (typeof adapter !== 'string') {
-    env.registry.register('adapter:-ember-data-test-custom', adapter);
-    adapter = '-ember-data-test-custom';
+    env.registry.register('adapter:application', adapter);
+    adapter = 'application';
+  } else if (adapter === '-default') {
+    // Tests using this should refactor.
+    // this allows for more incremental migration off of createStore
+    // by supplying the adapter vs forcing an immediate full refactor
+    // to modern syntax
+    // The minimal refactor is to set `adapter: Adapter` on usage of
+    // `createStore` that does not currently supply Adapter.
+    owner.register('adapter:-default', Adapter);
   }
 
   for (let prop in options) {
@@ -67,23 +73,31 @@ export default function setupStore(options) {
 
   const TestStore = Store.extend({ adapter });
   owner.register('service:store', TestStore);
-  owner.register('serializer:-default', JSONAPISerializer);
-  owner.register('serializer:-json', JSONSerializer);
-  owner.register('serializer:-rest', RESTSerializer);
-  owner.register('adapter:-default', Adapter);
-  owner.register('adapter:-json-api', JSONAPIAdapter);
 
   owner.inject('serializer', 'store', 'service:store');
-
-  owner.inject('serializer', 'store', 'service:store');
-
   registry.injection('serializer', 'store', 'service:store');
 
-  env.store = container.lookup('service:store');
-  env.restSerializer = container.lookup('serializer:-rest');
-  env.restSerializer.store = env.store;
-  env.serializer = env.store.serializerFor('-default');
-  env.serializer.store = env.store;
+  const store = (env.store = container.lookup('service:store'));
+
+  // this allows for more incremental migration off of createStore
+  // by supplying the serializer vs forcing an immediate full refactor
+  // to modern syntax
+  if (options.serializer) {
+    env.registry.register('serializer:application', options.serializer);
+    env.serializer = store.serializerFor('application');
+  } else {
+    // Many tests rely on falling back to this serializer
+    // they should refactor to register this as the application serializer
+    owner.register('serializer:-default', JSONAPISerializer);
+
+    // RESTAdapter specifies a defaultSerializer of -rest
+    // Tests using this should refactor to register this as the application serializer
+    owner.register('serializer:-rest', RESTSerializer);
+
+    env.restSerializer = store.serializerFor('-rest');
+    env.serializer = store.serializerFor('-default');
+  }
+
   // lazily create the adapter method because some tests depend on
   // modifiying the adapter in the container after setupStore is
   // called

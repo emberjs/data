@@ -32,9 +32,12 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   });
 
   test('Adapter can be set as a name', function(assert) {
-    store = createStore({ adapter: 'application' });
+    const env = setupStore({ adapter: 'custom-adapter' });
+    const { store, owner } = env;
+    const CustomAdapter = DS.Adapter.extend({ isCustomAdapter: true });
+    owner.register('adapter:custom-adapter', CustomAdapter);
 
-    assert.ok(store.get('defaultAdapter') instanceof DS.RESTAdapter);
+    assert.ok(store.get('defaultAdapter') instanceof CustomAdapter);
   });
 
   testInDebug('Adapter can not be set as an instance', function(assert) {
