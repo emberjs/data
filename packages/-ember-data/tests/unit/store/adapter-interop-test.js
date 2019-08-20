@@ -32,7 +32,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   });
 
   test('Adapter can be set as a name', function(assert) {
-    store = createStore({ adapter: '-rest' });
+    store = createStore({ adapter: 'application' });
 
     assert.ok(store.get('defaultAdapter') instanceof DS.RESTAdapter);
   });

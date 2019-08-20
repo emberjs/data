@@ -154,7 +154,7 @@ module('integration/store - adapterFor', function(hooks) {
   });
 
   test('we can specify a fallback adapter by name in place of the application adapter', async function(assert) {
-    store.adapter = '-rest';
+    store.adapter = '-fallback';
     let { owner } = this;
 
     let didInstantiateRestAdapter = false;
@@ -164,29 +164,29 @@ module('integration/store - adapterFor', function(hooks) {
         didInstantiateRestAdapter = true;
       }
     }
-    owner.register('adapter:-rest', RestAdapter);
+    owner.register('adapter:-fallback', RestAdapter);
 
     let adapter = store.adapterFor('person');
 
-    assert.ok(adapter instanceof RestAdapter, 'We found the fallback -rest adapter for person');
+    assert.ok(adapter instanceof RestAdapter, 'We found the -fallback adapter for person');
     assert.ok(didInstantiateRestAdapter, 'We instantiated the adapter');
     didInstantiateRestAdapter = false;
 
     let appAdapter = store.adapterFor('application');
 
-    assert.ok(appAdapter instanceof RestAdapter, 'We found the fallback -rest adapter for application');
+    assert.ok(appAdapter instanceof RestAdapter, 'We found the -fallback adapter for application');
     assert.ok(!didInstantiateRestAdapter, 'We did not instantiate the adapter again');
     didInstantiateRestAdapter = false;
 
-    let restAdapter = store.adapterFor('-rest');
+    let restAdapter = store.adapterFor('-fallback');
     assert.ok(restAdapter instanceof RestAdapter, 'We found the correct adapter');
     assert.ok(!didInstantiateRestAdapter, 'We did not instantiate the adapter again');
-    assert.ok(restAdapter === adapter, 'We fell back to the -rest adapter instance for the person adapters');
-    assert.ok(restAdapter === appAdapter, 'We fell back to the -rest adapter instance for the application adapter');
+    assert.ok(restAdapter === adapter, 'We fell back to the -fallback adapter instance for the person adapters');
+    assert.ok(restAdapter === appAdapter, 'We fell back to the -fallback adapter instance for the application adapter');
   });
 
   test('the application adapter has higher precedence than a fallback adapter defined via store.adapter', async function(assert) {
-    store.adapter = '-rest';
+    store.adapter = '-fallback';
     let { owner } = this;
 
     let didInstantiateAppAdapter = false;
@@ -205,12 +205,12 @@ module('integration/store - adapterFor', function(hooks) {
     }
 
     owner.register('adapter:application', AppAdapter);
-    owner.register('adapter:-rest', RestAdapter);
+    owner.register('adapter:-fallback', RestAdapter);
 
     let adapter = store.adapterFor('person');
 
     assert.ok(adapter instanceof AppAdapter, 'We found the store specified fallback adapter');
-    assert.ok(!didInstantiateRestAdapter, 'We did not instantiate the store.adapter (-rest) adapter');
+    assert.ok(!didInstantiateRestAdapter, 'We did not instantiate the store.adapter (-fallback) adapter');
     assert.ok(didInstantiateAppAdapter, 'We instantiated the application adapter');
     didInstantiateRestAdapter = false;
     didInstantiateAppAdapter = false;
@@ -223,36 +223,11 @@ module('integration/store - adapterFor', function(hooks) {
     didInstantiateRestAdapter = false;
     didInstantiateAppAdapter = false;
 
-    let restAdapter = store.adapterFor('-rest');
-    assert.ok(restAdapter instanceof RestAdapter, 'We found the correct adapter for -rest');
+    let restAdapter = store.adapterFor('-fallback');
+    assert.ok(restAdapter instanceof RestAdapter, 'We found the correct adapter for -fallback');
     assert.ok(!didInstantiateAppAdapter, 'We did not instantiate the application adapter again');
     assert.ok(didInstantiateRestAdapter, 'We instantiated the fallback adapter');
     assert.ok(restAdapter !== appAdapter, `We did not use the application adapter instance`);
-  });
-
-  test('we can specify a fallback adapter by name in place of the application adapter', async function(assert) {
-    store.adapter = '-rest';
-    let { owner } = this;
-
-    let didInstantiateRestAdapter = false;
-
-    class RestAdapter extends TestAdapter {
-      didInit() {
-        didInstantiateRestAdapter = true;
-      }
-    }
-    owner.register('adapter:-rest', RestAdapter);
-
-    let adapter = store.adapterFor('application');
-
-    assert.ok(adapter instanceof RestAdapter, 'We found the adapter');
-    assert.ok(didInstantiateRestAdapter, 'We instantiated the adapter');
-    didInstantiateRestAdapter = false;
-
-    let restAdapter = store.adapterFor('-rest');
-    assert.ok(restAdapter instanceof RestAdapter, 'We found the correct adapter');
-    assert.ok(!didInstantiateRestAdapter, 'We did not instantiate the adapter again');
-    assert.ok(restAdapter === adapter, 'We fell back to the -rest adapter instance for the application adapter');
   });
 
   test('When the per-type, application and specified fallback adapters do not exist, we fallback to the -json-api adapter', async function(assert) {
