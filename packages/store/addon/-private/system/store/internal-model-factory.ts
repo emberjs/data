@@ -2,7 +2,7 @@ import coerceId from '../coerce-id';
 import { assert, warn } from '@ember/debug';
 import { IdentifierCache, identifierCacheFor } from '../../identifiers/cache';
 import InternalModel from '../model/internal-model';
-import Store from '../store';
+import Store from '../ds-model-store';
 import IdentityMap from '../identity-map';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import InternalModelMap from '../internal-model-map';
@@ -12,12 +12,13 @@ import { Record } from '../../ts-interfaces/record';
 import { ResourceIdentifierObject, ExistingResourceObject } from '../../ts-interfaces/ember-data-json-api';
 import hasValidId from '../../utils/has-valid-id';
 import { DEBUG } from '@glimmer/env';
+import CoreStore from '../core-store';
 
 /**
   @module @ember-data/store
 */
 
-const FactoryCache = new WeakMap<Store, InternalModelFactory>();
+const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
 const RecordCache = new WeakMap<Record, StableRecordIdentifier>();
 
 export function recordIdentifierFor(record: Record): StableRecordIdentifier {
@@ -46,7 +47,7 @@ export function setRecordIdentifier(record: Record, identifier: StableRecordIden
   RecordCache.set(record, identifier);
 }
 
-export function internalModelFactoryFor(store: Store): InternalModelFactory {
+export function internalModelFactoryFor(store: CoreStore): InternalModelFactory {
   let factory = FactoryCache.get(store);
 
   if (factory === undefined) {
@@ -69,7 +70,7 @@ export default class InternalModelFactory {
   private _newlyCreated: IdentityMap;
   public identifierCache: IdentifierCache;
 
-  constructor(public store: Store) {
+  constructor(public store: CoreStore) {
     this.identifierCache = identifierCacheFor(store);
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
       const intendedIdentifier = identifier.id === resourceData.id ? identifier : matchedIdentifier;
@@ -175,7 +176,7 @@ export default class InternalModelFactory {
    * @internal
    */
   peek(modelName: string, id: string, clientId?: string | null): InternalModel | null;
-  peek(modelName: string, id: null, clientId: string): InternalModel | null;
+  peek(modelName: string, id: string | null, clientId: string): InternalModel | null;
   peek(modelName: string, id: string | null, clientId?: string | null): InternalModel | null {
     if (!hasValidId(id, clientId)) {
       throw new Error(`Either id or clientId must be a valid id`);

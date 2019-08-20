@@ -8,6 +8,7 @@ import { RelationshipRecordData } from '../../..//ts-interfaces/relationship-rec
 import RecordData from '../../../ts-interfaces/record-data';
 import { JsonApiRelationship } from '../../../ts-interfaces/record-data-json-api';
 import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 /**
   @module @ember-data/store
@@ -46,7 +47,7 @@ export default class Relationship {
 
   constructor(
     store: any,
-    inverseKey: string,
+    inverseKey: string | null,
     relationshipMeta: ImplicitRelationshipMeta,
     recordData: RelationshipRecordData,
     inverseIsAsync?: boolean
@@ -367,8 +368,7 @@ export default class Relationship {
       if (!relationship) {
         relationship = relationships[this.inverseKeyForImplicit] = new Relationship(
           this.store,
-          // we know we are not an implicit relationship here
-          this.key as string,
+          this.key,
           { options: { async: this.isAsync } },
           recordData
         );
@@ -415,8 +415,7 @@ export default class Relationship {
           if (!recordData._implicitRelationships[this.inverseKeyForImplicit]) {
             recordData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
               this.store,
-              // we know we are not an implicit relationship here
-              this.key as string,
+              this.key,
               { options: { async: this.isAsync } },
               recordData,
               this.isAsync
@@ -666,13 +665,17 @@ export default class Relationship {
       if (!initial) {
         let recordData = this.recordData;
         let storeWrapper = this.recordData.storeWrapper;
-        storeWrapper.notifyPropertyChange(
-          recordData.modelName,
-          recordData.id,
-          recordData.clientId,
-          // We know we are not an implicit relationship here
-          this.key as string
-        );
+        if (CUSTOM_MODEL_CLASS) {
+          storeWrapper.notifyBelongsToChange(recordData.modelName, recordData.id, recordData.clientId, this.key!);
+        } else {
+          storeWrapper.notifyPropertyChange(
+            recordData.modelName,
+            recordData.id,
+            recordData.clientId,
+            // We know we are not an implicit relationship here
+            this.key!
+          );
+        }
       }
     }
   }

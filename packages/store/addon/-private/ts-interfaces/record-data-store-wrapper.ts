@@ -44,7 +44,7 @@ export interface RecordDataStoreWrapper {
   notifyBelongsToChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
   notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
 
-  inverseForRelationship(modelName: string, key: string): string;
+  inverseForRelationship(modelName: string, key: string): string | null;
 
   inverseIsAsyncForRelationship(modelName: string, key: string): boolean;
   notifyErrorsChange(modelName: string, id: string | null, clientId: string | null): void;

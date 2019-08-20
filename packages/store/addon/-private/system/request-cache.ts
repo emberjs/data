@@ -13,7 +13,7 @@ import { _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './
 const Touching = Symbol('touching');
 export const RequestPromise = Symbol('promise');
 
-export interface InternalRequest extends RequestState {
+interface InternalRequest extends RequestState {
   [Touching]: RecordIdentifier[];
   [RequestPromise]?: Promise<any>;
 }

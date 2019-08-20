@@ -6,27 +6,13 @@ import {
 } from './record-data-json-api';
 
 import { RecordIdentifier } from './identifier';
+import { ChangedAttributesHash } from './record-data';
 
 /**
   @module @ember-data/store
 */
 
-export interface ChangedAttributesHash {
-  [key: string]: [string, string];
-}
-
-export default interface RecordData {
-  pushData(data: JsonApiResource, calculateChange?: boolean): void;
-  clientDidCreate(): void;
-  willCommit(): void;
-
-  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiValidationError[]): void;
-  /**
-   * @deprecated
-   */
-  commitWasRejected(recordIdentifier?: {}, errors?: JsonApiValidationError[]): void;
-
-  unloadRecord(): void;
+export default interface RecordDataRecordWrapper {
   rollbackAttributes(): string[];
   changedAttributes(): ChangedAttributesHash;
   hasChangedAttributes(): boolean;
@@ -35,22 +21,18 @@ export default interface RecordData {
   getAttr(key: string): any;
   getHasMany(key: string): JsonApiHasManyRelationship;
 
-  addToHasMany(key: string, recordDatas: RecordData[], idx?: number): void;
-  removeFromHasMany(key: string, recordDatas: RecordData[]): void;
-  setDirtyHasMany(key: string, recordDatas: RecordData[]): void;
+  addToHasMany(key: string, recordDatas: RecordDataRecordWrapper[], idx?: number): void;
+  removeFromHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
+  setDirtyHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
 
   getBelongsTo(key: string): JsonApiBelongsToRelationship;
 
-  setDirtyBelongsTo(name: string, recordData: RecordData | null): void;
-  didCommit(data: JsonApiResource | null): void;
+  setDirtyBelongsTo(name: string, recordData: RecordDataRecordWrapper | null): void;
 
   // ----- unspecced
   isAttrDirty(key: string): boolean;
   removeFromInverseRelationships(isNew: boolean): void;
   hasAttr(key: string): boolean;
-
-  isRecordInUse(): boolean;
-  _initRecordCreateOptions(options: any): { [key: string]: unknown };
 
   // new
   getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];

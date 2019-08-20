@@ -6,6 +6,7 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import todo from '../../../helpers/todo';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 let env;
 
@@ -2299,10 +2300,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
 
   test('DS.ManyArray is lazy', function(assert) {
     let peopleDidChange = 0;
+    let expectedNumberOfChanges = CUSTOM_MODEL_CLASS ? 1 : 2;
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
       people: DS.hasMany('person'),
-      peopleDidChange: observer('people', function() {
+      peopleDidChange: observer('people.@each', function() {
         peopleDidChange++;
       }),
     });
@@ -2337,7 +2339,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     run(() => {
       assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
       tag.get('people').addObject(person);
-      assert.equal(peopleDidChange, 1, 'expect people hasMany to have changed exactly once');
+      assert.equal(peopleDidChange, expectedNumberOfChanges, 'expect people hasMany to have changed exactly once');
     });
   });
 

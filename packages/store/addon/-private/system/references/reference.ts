@@ -1,7 +1,8 @@
-import Store from '../store';
+import Store from '../ds-model-store';
 import InternalModel from '../model/internal-model';
 import recordDataFor from '../record-data-for';
 import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
+import CoreStore from '../core-store';
 
 /**
   @module @ember-data/store
@@ -14,9 +15,7 @@ interface ResourceIdentifier {
   meta?: JSONObject;
 }
 
-function isResourceIdentiferWithRelatedLinks(
-  value: any
-): value is ResourceIdentifier & { links: { related: string } } {
+function isResourceIdentiferWithRelatedLinks(value: any): value is ResourceIdentifier & { links: { related: string } } {
   return value && value.links && value.links.related;
 }
 
@@ -28,18 +27,11 @@ function isResourceIdentiferWithRelatedLinks(
  */
 export default abstract class Reference {
   public recordData: InternalModel['_recordData'];
-  constructor(
-    // TODO: shouldn't have to instance<factory of instance>
-    public store: InstanceType<typeof Store>,
-    public internalModel: InternalModel
-  ) {
+  constructor(public store: CoreStore, public internalModel: InternalModel) {
     this.recordData = recordDataFor(this);
   }
 
-  public _resource():
-    | ResourceIdentifier
-    | (JSONObject & { meta?: { [k: string]: JSONValue } })
-    | void {}
+  public _resource(): ResourceIdentifier | (JSONObject & { meta?: { [k: string]: JSONValue } }) | void {}
 
   /**
    This returns a string that represents how the reference will be

@@ -9,21 +9,22 @@ export interface RelationshipSchema {
    * @internal
    */
   [BRAND_SYMBOL]: 'RelationshipSchema';
-  kind: string;
+  kind: 'belongsTo' | 'hasMany';
   type: string;
   key: string;
   options: {
     [key: string]: any;
   };
   name: string;
+  inverse?: string | null;
 }
 
 export interface RelationshipsSchema {
-  [key: string]: RelationshipSchema;
+  [key: string]: RelationshipSchema | undefined;
 }
 
 export interface AttributeSchema {
-  kind: string;
+  kind: 'attribute';
   name: string;
   options: {
     [key: string]: any;
@@ -32,5 +33,5 @@ export interface AttributeSchema {
 }
 
 export interface AttributesSchema {
-  [key: string]: AttributeSchema;
+  [key: string]: AttributeSchema | undefined;
 }

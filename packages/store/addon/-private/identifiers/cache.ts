@@ -18,7 +18,8 @@ import uuidv4 from './utils/uuid-v4';
 import normalizeModelName from '../system/normalize-model-name';
 import isStableIdentifier from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
-import Store from '../system/store';
+import Store from '../system/ds-model-store';
+import CoreStore from '../system/core-store';
 
 /**
   @module @ember-data/store
@@ -70,9 +71,9 @@ function defaultGenerationMethod(data: ResourceIdentifierObject, bucket: string)
   return uuidv4();
 }
 
-const IdentifierCaches = new WeakMap<Store, IdentifierCache>();
+const IdentifierCaches = new WeakMap<CoreStore, IdentifierCache>();
 
-export function identifierCacheFor(store: Store): IdentifierCache {
+export function identifierCacheFor(store: CoreStore): IdentifierCache {
   let cache = IdentifierCaches.get(store);
 
   if (cache === undefined) {

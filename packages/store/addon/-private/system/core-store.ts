@@ -4,11 +4,11 @@
 
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 
-import { A } from '@ember/array';
+import { default as EmberArray, A } from '@ember/array';
 import EmberError from '@ember/error';
+import { getOwner } from '@ember/application';
 import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed, defineProperty } from '@ember/object';
-import { getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
 import Service from '@ember/service';
@@ -36,18 +36,28 @@ import { _find, _findMany, _findHasMany, _findBelongsTo, _findAll, _query, _quer
 
 import coerceId, { ensureStringId } from './coerce-id';
 import RecordArrayManager from './record-array-manager';
-import InternalModel from './model/internal-model';
+import InternalModel, {
+  assertRecordsPassedToHasMany,
+  extractRecordDataFromRecord,
+  extractRecordDatasFromRecords,
+} from './model/internal-model';
 import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
-import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
+import {
+  IDENTIFIERS,
+  RECORD_DATA_ERRORS,
+  RECORD_DATA_STATE,
+  REQUEST_SERVICE,
+  CUSTOM_MODEL_CLASS,
+} from '@ember-data/canary-features';
 import { Record } from '../ts-interfaces/record';
 
 import promiseRecord from '../utils/promise-record';
 import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
-import { internalModelFactoryFor } from './store/internal-model-factory';
-import { RecordIdentifier } from '../ts-interfaces/identifier';
+import { internalModelFactoryFor, setRecordIdentifier, recordIdentifierFor } from './store/internal-model-factory';
+import { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
 import RecordData from '../ts-interfaces/record-data';
-import { RecordReference } from './references';
+import { RecordReference, HasManyReference, BelongsToReference } from './references';
 import { Backburner } from '@ember/runloop/-private/backburner';
 import Snapshot from './snapshot';
 import Relationship from './relationships/state/relationship';
@@ -62,6 +72,13 @@ import hasValidId from '../utils/has-valid-id';
 import { RequestPromise } from './request-cache';
 import { PromiseProxy } from '../ts-interfaces/promise-proxies';
 import { DSModel } from '../ts-interfaces/ds-model';
+import NotificationManager from './record-notification-manager';
+import { RelationshipsSchema, AttributeSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
+import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
+import ShimModelClass from './model/shim-model-class';
+import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
+import Reference from './references/reference';
+import { Dict } from '../ts-interfaces/utils';
 
 const emberRun = emberRunLoop.backburner;
 
@@ -168,20 +185,18 @@ let globalClientIdCounter = 1;
   @class Store
   @extends Ember.Service
 */
-interface Store {
+interface CoreStore {
   adapter: string;
 }
 
-class Store extends Service {
+abstract class CoreStore extends Service {
   /**
    * EmberData specific backburner instance
    */
   public _backburner: Backburner = edBackburner;
   private recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
-  private _modelFactoryCache = Object.create(null);
-  private _relationshipsDefCache = Object.create(null);
-  private _attributesDefCache = Object.create(null);
 
+  public _notificationManager: NotificationManager;
   private _adapterCache = Object.create(null);
   private _serializerCache = Object.create(null);
   private _storeWrapper = new RecordDataStoreWrapper(this);
@@ -204,6 +219,8 @@ class Store extends Service {
   private _pendingFetch = new Map<string, PendingFetchItem[]>();
 
   private _fetchManager: FetchManager;
+  public _schemaDefinitionService: SchemaDefinitionService;
+
   // DEBUG-only properties
   private _trackedAsyncRequests: AsyncTrackingToken[];
   shouldAssertMethodCallsOnDestroyedStore: boolean = false;
@@ -261,6 +278,10 @@ class Store extends Service {
 
     if (REQUEST_SERVICE) {
       this._fetchManager = new FetchManager(this);
+    }
+    if (CUSTOM_MODEL_CLASS) {
+      this._notificationManager = new NotificationManager(this);
+      this._recordDataForIdentifier = this._recordDataForIdentifier.bind(this);
     }
 
     if (DEBUG) {
@@ -321,7 +342,7 @@ class Store extends Service {
     if (REQUEST_SERVICE) {
       return this._fetchManager.requestCache;
     }
-    throw 'RequestService is not available unless the feature flag is on and running on a canary build';
+    throw new Error('RequestService is not available unless the feature flag is on and running on a canary build');
   }
 
   get identifierCache(): IdentifierCache {
@@ -329,6 +350,140 @@ class Store extends Service {
       throw new Error(`Store.identifierCache is unavailable in this build of EmberData`);
     }
     return identifierCacheFor(this);
+  }
+
+  _instantiateRecord(
+    internalModel: InternalModel,
+    modelName: string,
+    recordData: RecordData,
+    identifier: StableRecordIdentifier,
+    properties?: { [key: string]: any }
+  ) {
+    if (CUSTOM_MODEL_CLASS) {
+      // assert here
+      if (properties !== undefined) {
+        assert(
+          `You passed '${properties}' as properties for record creation instead of an object.`,
+          typeof properties === 'object' && properties !== null
+        );
+
+        if ('id' in properties) {
+          internalModel.setId(properties.id);
+        }
+
+        // convert relationship Records to RecordDatas before passing to RecordData
+        let defs = this._relationshipsDefinitionFor(modelName);
+
+        if (defs !== null) {
+          let keys = Object.keys(properties);
+          let relationshipValue;
+
+          for (let i = 0; i < keys.length; i++) {
+            let prop = keys[i];
+            let def = defs[prop];
+
+            if (def !== undefined) {
+              if (def.kind === 'hasMany') {
+                if (DEBUG) {
+                  assertRecordsPassedToHasMany(properties[prop]);
+                }
+                relationshipValue = extractRecordDatasFromRecords(properties[prop]);
+              } else {
+                relationshipValue = extractRecordDataFromRecord(properties[prop]);
+              }
+
+              properties[prop] = relationshipValue;
+            }
+          }
+        }
+      }
+
+      // TODO guard against initRecordOptions no being there
+      let createOptions = recordData._initRecordCreateOptions(properties);
+      //TODO Igor pass a wrapper instead of RD
+      let record = this.instantiateRecord(
+        identifier,
+        createOptions,
+        this._recordDataForIdentifier,
+        this._notificationManager
+      );
+      if (IDENTIFIERS) {
+        setRecordIdentifier(record, identifier);
+      }
+      //recordToInternalModelMap.set(record, internalModel);
+      return record;
+    } else {
+      throw new Error('should not be here, custom model class ff error');
+    }
+  }
+
+  abstract instantiateRecord(
+    identifier: StableRecordIdentifier,
+    createRecordArgs: { [key: string]: unknown }, // args passed in to store.createRecord() and processed by recordData to be set on creation
+    recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
+    notificationManager: NotificationManager
+  ): Record;
+
+  abstract teardownRecord(record: Record): void;
+
+  _internalDeleteRecord(internalModel: InternalModel) {
+    internalModel.deleteRecord();
+  }
+
+  // FeatureFlagged in the DSModelStore claas
+  _attributesDefinitionFor(modelName: string, id?: string | null): AttributesSchema {
+    return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+  }
+
+  _relationshipsDefinitionFor(modelName: string, id?: string | null) {
+    return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+  }
+
+  registerSchemaDefinitionService(schema: SchemaDefinitionService) {
+    this._schemaDefinitionService = schema;
+  }
+
+  getSchemaDefinitionService(): SchemaDefinitionService {
+    if (CUSTOM_MODEL_CLASS) {
+      return this._schemaDefinitionService;
+    } else {
+      throw new Error('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
+    }
+  }
+
+  // TODO Double check this return value is correct
+  _relationshipMetaFor(modelName: string, id: string | null, key: string) {
+    return this._relationshipsDefinitionFor(modelName)[key];
+  }
+
+  modelFor(modelName: string): ShimModelClass {
+    if (DEBUG) {
+      assertDestroyedStoreOnly(this, 'modelFor');
+    }
+
+    return new ShimModelClass(this, modelName);
+  }
+
+  // Feature Flagged in DSModelStore
+  /*
+  Returns whether a ModelClass exists for a given modelName
+  This exists for legacy support for the RESTSerializer,
+  which due to how it must guess whether a key is a model
+  must query for whether a match exists.
+
+  We should investigate an RFC to make this public or removing
+  this requirement.
+
+  @private
+ */
+  _hasModelFor(modelName: string): boolean {
+    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+    assert(
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+      typeof modelName === 'string'
+    );
+
+    return this.getSchemaDefinitionService().doesTypeExist(modelName);
   }
 
   // .....................
@@ -451,7 +606,17 @@ class Store extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'deleteRecord');
     }
-    record.deleteRecord();
+    if (CUSTOM_MODEL_CLASS) {
+      if (record instanceof Model) {
+        return record.deleteRecord();
+      } else {
+        let identifier = recordIdentifierFor(record);
+        let internalModel = internalModelFactoryFor(this).peek(identifier.type, identifier.id, identifier.lid);
+        internalModel!.deleteRecord();
+      }
+    } else {
+      record.deleteRecord();
+    }
   }
 
   /**
@@ -473,7 +638,17 @@ class Store extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
-    record.unloadRecord();
+    if (CUSTOM_MODEL_CLASS) {
+      if (record instanceof Model) {
+        return record.unloadRecord();
+      } else {
+        let identifier = recordIdentifierFor(record);
+        let internalModel = internalModelFactoryFor(this).peek(identifier.type, identifier.id, identifier.lid);
+        internalModel!.unloadRecord();
+      }
+    } else {
+      record.unloadRecord();
+    }
   }
 
   // ................
@@ -2416,79 +2591,6 @@ class Store extends Service {
   }
 
   /**
-    Returns the model class for the particular `modelName`.
-
-    The class of a model might be useful if you want to get a list of all the
-    relationship names of the model, see
-    [`relationshipNames`](https://emberjs.com/api/data/classes/DS.Model.html#property_relationshipNames)
-    for example.
-
-    @method modelFor
-    @param {String} modelName
-    @return {Model}
-  */
-  modelFor(modelName) {
-    if (DEBUG) {
-      assertDestroyedStoreOnly(this, 'modelFor');
-    }
-    assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-
-    let maybeFactory = this._modelFactoryFor(modelName);
-
-    // for factorFor factory/class split
-    return maybeFactory.class ? maybeFactory.class : maybeFactory;
-  }
-
-  _modelFactoryFor(modelName) {
-    if (DEBUG) {
-      assertDestroyedStoreOnly(this, '_modelFactoryFor');
-    }
-    assert(`You need to pass a model name to the store's _modelFactoryFor method`, isPresent(modelName));
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-    let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
-
-    if (factory === null) {
-      throw new EmberError(`No model was found for '${normalizedModelName}'`);
-    }
-
-    return factory;
-  }
-
-  /*
-  Returns whether a ModelClass exists for a given modelName
-  This exists for legacy support for the RESTSerializer,
-  which due to how it must guess whether a key is a model
-  must query for whether a match exists.
-
-  We should investigate an RFC to make this public or removing
-  this requirement.
-
-  @private
- */
-  _hasModelFor(modelName) {
-    if (DEBUG) {
-      assertDestroyingStore(this, '_hasModelFor');
-    }
-    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-    let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
-
-    return factory !== null;
-  }
-
-  /**
     Push some data for a given type into the store.
 
     This method expects normalized [JSON API](http://jsonapi.org/) document. This means you have to follow [JSON API specification](http://jsonapi.org/format/) with few minor adjustments:
@@ -2727,21 +2829,36 @@ class Store extends Service {
       // contains unknown attributes or relationships, log a warning.
 
       if (ENV.DS_WARN_ON_UNKNOWN_KEYS) {
-        let modelClass = this.modelFor(modelName);
+        let unknownAttributes, unknownRelationships;
+        if (CUSTOM_MODEL_CLASS) {
+          let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+          let attributes = this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+          // Check unknown attributes
+          unknownAttributes = Object.keys(data.attributes || {}).filter(key => {
+            return !attributes[key];
+          });
 
-        // Check unknown attributes
-        let unknownAttributes = Object.keys(data.attributes || {}).filter(key => {
-          return !get(modelClass, 'fields').has(key);
-        });
+          // Check unknown relationships
+          unknownRelationships = Object.keys(data.relationships || {}).filter(key => {
+            return !relationships[key];
+          });
+        } else {
+          let modelClass = this.modelFor(modelName);
+          // Check unknown attributes
+          unknownAttributes = Object.keys(data.attributes || {}).filter(key => {
+            return !get(modelClass, 'fields').has(key);
+          });
+
+          // Check unknown relationships
+          unknownRelationships = Object.keys(data.relationships || {}).filter(key => {
+            return !get(modelClass, 'fields').has(key);
+          });
+        }
         let unknownAttributesMessage = `The payload for '${modelName}' contains these unknown attributes: ${unknownAttributes}. Make sure they've been defined in your model.`;
         warn(unknownAttributesMessage, unknownAttributes.length === 0, {
           id: 'ds.store.unknown-keys-in-payload',
         });
 
-        // Check unknown relationships
-        let unknownRelationships = Object.keys(data.relationships || {}).filter(key => {
-          return !get(modelClass, 'fields').has(key);
-        });
         let unknownRelationshipsMessage = `The payload for '${modelName}' contains these unknown relationships: ${unknownRelationships}. Make sure they've been defined in your model.`;
         warn(unknownRelationshipsMessage, unknownRelationships.length === 0, {
           id: 'ds.store.unknown-keys-in-payload',
@@ -2845,39 +2962,6 @@ class Store extends Service {
     return internalModel.reloadBelongsTo(key, options);
   }
 
-  _relationshipMetaFor(modelName, id, key) {
-    let modelClass = this.modelFor(modelName);
-    let relationshipsByName = get(modelClass, 'relationshipsByName');
-    return relationshipsByName.get(key);
-  }
-
-  _attributesDefinitionFor(modelName) {
-    let attributes = this._attributesDefCache[modelName];
-
-    if (attributes === undefined) {
-      let modelClass = this.modelFor(modelName);
-      let attributeMap = get(modelClass, 'attributes');
-
-      attributes = Object.create(null);
-      attributeMap.forEach((meta, name) => (attributes[name] = meta));
-      this._attributesDefCache[modelName] = attributes;
-    }
-
-    return attributes;
-  }
-
-  _relationshipsDefinitionFor(modelName) {
-    let relationships = this._relationshipsDefCache[modelName];
-
-    if (relationships === undefined) {
-      let modelClass = this.modelFor(modelName);
-      relationships = get(modelClass, 'relationshipsObject') || null;
-      this._relationshipsDefCache[modelName] = relationships;
-    }
-
-    return relationships;
-  }
-
   _internalModelForResource(resource: RecordIdentifier): InternalModel {
     return internalModelFactoryFor(this).getByResource(resource);
   }
@@ -2894,11 +2978,50 @@ class Store extends Service {
     return internalModelFactoryFor(this).lookup(modelName, id, lid);
   }
 
-  _createRecordData(modelName, id, clientId): RecordData {
+  serializeRecord(record: Record, options?: Dict<string, unknown>): unknown {
+    if (CUSTOM_MODEL_CLASS) {
+      let identifier = recordIdentifierFor(record);
+      let internalModel = internalModelFactoryFor(this).peek(identifier.type, identifier.id, identifier.lid);
+      // TODO we used to check if the record was destroyed here
+      return internalModel!.createSnapshot(options).serialize(options);
+    } else {
+      throw new Error('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on');
+    }
+  }
+
+  saveRecord(record: Record, options?: Dict<string, unknown>): RSVP.Promise<Record> {
+    if (CUSTOM_MODEL_CLASS) {
+      let identifier = recordIdentifierFor(record);
+      let internalModel = internalModelFactoryFor(this).peek(identifier.type, identifier.id, identifier.lid);
+      // TODO we used to check if the record was destroyed here
+      // Casting can be removed once REQUEST_SERVICE ff is turned on
+      // because a `Record` is provided there will always be a matching internalModel
+      return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
+    } else {
+      throw new Error('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
+    }
+  }
+
+  relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
+    if (CUSTOM_MODEL_CLASS) {
+      let internalModel = internalModelFactoryFor(this).peek(identifier.type, identifier.id, identifier.lid);
+      // TODO we used to check if the record was destroyed here
+      return internalModel!.referenceFor(null, key);
+    } else {
+      throw new Error('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on');
+    }
+  }
+
+  _createRecordData(modelName: string, id: string | null, clientId: string): RecordData {
     return this.createRecordDataFor(modelName, id, clientId, this._storeWrapper);
   }
 
-  createRecordDataFor(modelName, id, clientId, storeWrapper): RecordData {
+  createRecordDataFor(
+    modelName: string,
+    id: string | null,
+    clientId: string,
+    storeWrapper: RecordDataStoreWrapper
+  ): RecordData {
     if (IDENTIFIERS) {
       let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
         type: modelName,
@@ -2920,6 +3043,11 @@ class Store extends Service {
       internalModel = internalModelFactoryFor(this).lookup(modelName, id, clientId);
     }
 
+    return recordDataFor(internalModel);
+  }
+
+  _recordDataForIdentifier(identifier: RecordIdentifier): RecordData {
+    let internalModel = internalModelFactoryFor(this).getByResource(identifier);
     return recordDataFor(internalModel);
   }
 
@@ -3230,7 +3358,7 @@ class Store extends Service {
 }
 
 defineProperty(
-  Store.prototype,
+  CoreStore.prototype,
   'defaultAdapter',
   computed('adapter', function() {
     let adapter = this.adapter || '-json-api';
@@ -3244,7 +3372,7 @@ defineProperty(
   })
 );
 
-export default Store;
+export default CoreStore;
 
 function _commit(adapter, store, operation, snapshot) {
   let internalModel = snapshot._internalModel;
@@ -3391,8 +3519,8 @@ function _modelForMixin(store, normalizedModelName) {
   return _lookupModelFactory(store, normalizedModelName);
 }
 
-let assertDestroyingStore;
-let assertDestroyedStoreOnly;
+let assertDestroyingStore: Function;
+let assertDestroyedStoreOnly: Function;
 
 if (DEBUG) {
   assertDestroyingStore = function assertDestroyedStore(store, method) {

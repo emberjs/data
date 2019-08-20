@@ -21,6 +21,8 @@ export interface UpgradeMap {
  *
  * @internal
  */
-export function upgradeForInternal<K extends keyof UpgradeMap>(external: { [BRAND_SYMBOL]: K }): UpgradeMap[K] {
+export function upgradeForInternal<K extends keyof UpgradeMap>(
+  external: { [BRAND_SYMBOL]: K } | undefined
+): UpgradeMap[K] {
   return (external as unknown) as UpgradeMap[K];
 }

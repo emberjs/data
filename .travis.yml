@@ -33,6 +33,8 @@ jobs:
   fail_fast: true
   allow_failures:
     - name: 'Ember Data Factory Guy'
+    - name: 'Ember Data Model Fragments'
+    - name: 'Ember Data Change Tracker'
 
   include:
     # runs tests with current locked deps and linting
