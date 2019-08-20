@@ -20,7 +20,7 @@ const resolver = Resolver.create({
 });
 
 // TODO get us to a setApplication world instead
-//   seems to require killing off createStore
+//   seems to require killing off setupStore
 setResolver(resolver);
 
 export default function setupStore(options) {
@@ -56,11 +56,11 @@ export default function setupStore(options) {
     adapter = 'application';
   } else if (adapter === '-default') {
     // Tests using this should refactor.
-    // this allows for more incremental migration off of createStore
+    // this allows for more incremental migration off of setupStore
     // by supplying the adapter vs forcing an immediate full refactor
     // to modern syntax
     // The minimal refactor is to set `adapter: Adapter` on usage of
-    // `createStore` that does not currently supply Adapter.
+    // `setupStore` that does not currently supply Adapter.
     owner.register('adapter:-default', Adapter);
   }
 
@@ -79,7 +79,7 @@ export default function setupStore(options) {
 
   const store = (env.store = container.lookup('service:store'));
 
-  // this allows for more incremental migration off of createStore
+  // this allows for more incremental migration off of setupStore
   // by supplying the serializer vs forcing an immediate full refactor
   // to modern syntax
   if (options.serializer) {
