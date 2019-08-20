@@ -5321,10 +5321,10 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.11.1:
-  version "3.11.1"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.11.1.tgz#2318fbe600c88d3a8abbf56fc2f3a61645ee42d8"
-  integrity sha512-FPHHHu/5FBbKQ3o1D2HXEIniBUVqG1N4vDB66BaP0ht2ZcO6EB3HMjGxVH8Ad3Of8QOcXtZrBfXDHZdIWLW4lQ==
+ember-source@^3.12.0:
+  version "3.12.0"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.12.0.tgz#92f72894836d4497e704901c1d061c61b066bddf"
+  integrity sha512-4iA2BgYmNLWysifLyt2LCQgU9ux/NiTR/MT7KTt9HUyTDJyivcdyKNtfrUQst/1InUvn+MxuQ0ZsbQICJkX6yA==
   dependencies:
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.2"
@@ -5339,7 +5339,7 @@ ember-source@^3.11.1:
     ember-router-generator "^1.2.3"
     inflection "^1.12.0"
     jquery "^3.4.1"
-    resolve "^1.10.1"
+    resolve "^1.11.1"
 
 ember-test-waiters@^1.0.0:
   version "1.0.0"
