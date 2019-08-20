@@ -4,8 +4,7 @@
 
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 
-import { default as EmberArray, A } from '@ember/array';
-import EmberError from '@ember/error';
+import { A } from '@ember/array';
 import { getOwner } from '@ember/application';
 import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed, defineProperty } from '@ember/object';
@@ -50,7 +49,7 @@ import {
   REQUEST_SERVICE,
   CUSTOM_MODEL_CLASS,
 } from '@ember-data/canary-features';
-import { Record } from '../ts-interfaces/record';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 
 import promiseRecord from '../utils/promise-record';
 import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
@@ -73,11 +72,10 @@ import { RequestPromise } from './request-cache';
 import { PromiseProxy } from '../ts-interfaces/promise-proxies';
 import { DSModel } from '../ts-interfaces/ds-model';
 import NotificationManager from './record-notification-manager';
-import { RelationshipsSchema, AttributeSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
+import { AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import ShimModelClass from './model/shim-model-class';
 import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
-import Reference from './references/reference';
 import { Dict } from '../ts-interfaces/utils';
 
 const emberRun = emberRunLoop.backburner;
@@ -422,9 +420,9 @@ abstract class CoreStore extends Service {
     createRecordArgs: { [key: string]: unknown }, // args passed in to store.createRecord() and processed by recordData to be set on creation
     recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): Record;
+  ): RecordInstance;
 
-  abstract teardownRecord(record: Record): void;
+  abstract teardownRecord(record: RecordInstance): void;
 
   _internalDeleteRecord(internalModel: InternalModel) {
     internalModel.deleteRecord();
@@ -1383,7 +1381,7 @@ abstract class CoreStore extends Service {
     @param {String|Integer} id
     @return {Model|null} record
   */
-  peekRecord(modelName: string, id: string | number): Record | null {
+  peekRecord(modelName: string, id: string | number): RecordInstance | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekRecord');
     }
@@ -1481,7 +1479,7 @@ abstract class CoreStore extends Service {
     @param {(String|Integer)} id
     @return {Model} record
   */
-  recordForId(modelName: string, id: string | number): Record {
+  recordForId(modelName: string, id: string | number): RecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordForId');
     }
@@ -2741,9 +2739,9 @@ abstract class CoreStore extends Service {
       updated.
   */
   push(data: EmptyResourceDocument): null;
-  push(data: SingleResourceDocument): Record;
-  push(data: CollectionResourceDocument): Record[];
-  push(data: JsonApiDocument): Record | Record[] | null {
+  push(data: SingleResourceDocument): RecordInstance;
+  push(data: CollectionResourceDocument): RecordInstance[];
+  push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
@@ -2978,7 +2976,7 @@ abstract class CoreStore extends Service {
     return internalModelFactoryFor(this).lookup(modelName, id, lid);
   }
 
-  serializeRecord(record: Record, options?: Dict<string, unknown>): unknown {
+  serializeRecord(record: RecordInstance, options?: Dict<string, unknown>): unknown {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier.type, identifier.id, identifier.lid);
@@ -2989,7 +2987,7 @@ abstract class CoreStore extends Service {
     }
   }
 
-  saveRecord(record: Record, options?: Dict<string, unknown>): RSVP.Promise<Record> {
+  saveRecord(record: RecordInstance, options?: Dict<string, unknown>): RSVP.Promise<RecordInstance> {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier.type, identifier.id, identifier.lid);

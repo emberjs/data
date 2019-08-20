@@ -14,4 +14,4 @@
 */
 
 // TODO Rename to RecordInstance
-export type Record = Object;
+export type RecordInstance = Object;

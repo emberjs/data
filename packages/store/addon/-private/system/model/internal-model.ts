@@ -22,7 +22,7 @@ import { RecordReference, BelongsToReference, HasManyReference } from '../refere
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
-import { Record } from '../../ts-interfaces/record';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 import { Dict } from '../../ts-interfaces/utils';
 import {
   IDENTIFIERS,
@@ -841,7 +841,7 @@ export default class InternalModel {
     key: string,
     args: {
       promise: RSVP.Promise<any>;
-      content?: Record | ManyArray | null;
+      content?: RecordInstance | ManyArray | null;
       _belongsToState?: BelongsToMetaWrapper;
     }
   ) {

@@ -2,13 +2,12 @@ import coerceId from '../coerce-id';
 import { assert, warn } from '@ember/debug';
 import { IdentifierCache, identifierCacheFor } from '../../identifiers/cache';
 import InternalModel from '../model/internal-model';
-import Store from '../ds-model-store';
 import IdentityMap from '../identity-map';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import InternalModelMap from '../internal-model-map';
 import { isNone } from '@ember/utils';
 import { IDENTIFIERS } from '@ember-data/canary-features';
-import { Record } from '../../ts-interfaces/record';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 import { ResourceIdentifierObject, ExistingResourceObject } from '../../ts-interfaces/ember-data-json-api';
 import hasValidId from '../../utils/has-valid-id';
 import { DEBUG } from '@glimmer/env';
@@ -19,9 +18,9 @@ import CoreStore from '../core-store';
 */
 
 const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
-const RecordCache = new WeakMap<Record, StableRecordIdentifier>();
+const RecordCache = new WeakMap<RecordInstance, StableRecordIdentifier>();
 
-export function recordIdentifierFor(record: Record): StableRecordIdentifier {
+export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   let identifier = RecordCache.get(record);
 
   if (DEBUG && identifier === undefined) {
@@ -31,7 +30,7 @@ export function recordIdentifierFor(record: Record): StableRecordIdentifier {
   return identifier as StableRecordIdentifier;
 }
 
-export function setRecordIdentifier(record: Record, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
   if (DEBUG && RecordCache.has(record)) {
     throw new Error(`${record} was already assigned an identifier`);
   }
