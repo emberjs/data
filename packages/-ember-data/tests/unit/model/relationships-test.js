@@ -3,6 +3,7 @@ import { module, test } from 'qunit';
 import Model from '@ember-data/model';
 import { hasMany, belongsTo } from '@ember-data/model';
 import { get } from '@ember/object';
+import { gte } from 'ember-compatibility-helpers';
 
 class Person extends Model {
   @hasMany('occupation', { async: false }) occupations;
@@ -125,4 +126,35 @@ module('[@ember-data/model] unit - relationships', function(hooks) {
 
     assert.equal(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
   });
+
+  if (gte('3.10.0')) {
+    test('decorators works without parens', function(assert) {
+      let store;
+      let { owner } = this;
+
+      class StreamItem extends Model {
+        @belongsTo user;
+      }
+
+      class User extends Model {
+        @hasMany streamItems;
+      }
+
+      owner.unregister('model:user');
+      owner.register('model:stream-item', StreamItem);
+      owner.register('model:user', User);
+
+      store = owner.lookup('service:store');
+
+      let user = store.modelFor('user');
+
+      const relationships = get(user, 'relationships');
+
+      assert.ok(relationships.has('stream-item'), 'relationship key has been normalized');
+
+      const relationship = relationships.get('stream-item')[0];
+
+      assert.equal(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
+    });
+  }
 });
