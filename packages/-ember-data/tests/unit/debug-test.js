@@ -37,8 +37,11 @@ test('_debugInfo groups the attributes and relationships correctly', function(as
   let propertyInfo = record._debugInfo().propertyInfo;
 
   assert.equal(propertyInfo.groups.length, 4);
+  assert.equal(propertyInfo.groups[0].name, 'Attributes');
   assert.deepEqual(propertyInfo.groups[0].properties, ['id', 'name', 'isDrugAddict']);
+  assert.equal(propertyInfo.groups[1].name, 'belongsTo');
   assert.deepEqual(propertyInfo.groups[1].properties, ['maritalStatus']);
+  assert.equal(propertyInfo.groups[2].name, 'hasMany');
   assert.deepEqual(propertyInfo.groups[2].properties, ['posts']);
 });
 
@@ -86,12 +89,12 @@ test('_debugInfo supports arbitray relationship types', function(assert) {
         expand: true,
       },
       {
-        name: 'maritalStatus',
+        name: 'belongsTo',
         properties: ['maritalStatus'],
         expand: true,
       },
       {
-        name: 'posts',
+        name: 'customRelationship',
         properties: ['posts'],
         expand: true,
       },
