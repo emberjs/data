@@ -1,36 +1,44 @@
 import { A } from '@ember/array';
-import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import OrderedSet from '@ember/ordered-set';
-
+import { settled } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+import Model from '@ember-data/model';
+import RESTAdapter from '@ember-data/adapter/rest';
+import { attr, belongsTo, hasMany } from '@ember-data/model';
 
-let store, env, manager;
+let store, manager;
 
-const Person = DS.Model.extend({
-  name: DS.attr('string'),
-  cars: DS.hasMany('car', { async: false }),
-});
+class Person extends Model {
+  @attr()
+  name;
 
-const Car = DS.Model.extend({
-  make: DS.attr('string'),
-  model: DS.attr('string'),
-  person: DS.belongsTo('person', { async: false }),
-});
+  @hasMany('car', { async: false })
+  cars;
+}
+
+class Car extends Model {
+  @attr()
+  make;
+
+  @attr()
+  model;
+
+  @belongsTo('person', { async: false })
+  person;
+}
 
 module('integration/record_array_manager', function(hooks) {
+  setupTest(hooks);
   hooks.beforeEach(function() {
-    env = setupStore({
-      adapter: DS.RESTAdapter.extend(),
-    });
-    store = env.store;
+    let { owner } = this;
+    owner.register('adapter:application', RESTAdapter);
+    owner.register('model:car', Car);
+    owner.register('model:person', Person);
 
+    store = owner.lookup('service:store');
     manager = store.recordArrayManager;
-
-    env.owner.register('model:car', Car);
-    env.owner.register('model:person', Person);
   });
 
   function tap(obj, methodName, callback) {
@@ -50,71 +58,70 @@ module('integration/record_array_manager', function(hooks) {
     return summary;
   }
 
-  test('destroying the store correctly cleans everything up', function(assert) {
-    let query = {};
-    let person;
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'car',
-          id: '1',
-          attributes: {
-            make: 'BMC',
-            model: 'Mini Cooper',
-          },
-          relationships: {
-            person: {
-              data: { type: 'person', id: '1' },
-            },
+  test('destroying the store correctly cleans everything up', async function(assert) {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini Cooper',
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' },
           },
         },
-      });
+      },
     });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom Dale',
-          },
-          relationships: {
-            cars: {
-              data: [{ type: 'car', id: '1' }],
-            },
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
+        },
+        relationships: {
+          cars: {
+            data: [{ type: 'car', id: '1' }],
           },
         },
-      });
-      person = store.peekRecord('person', 1);
+      },
     });
 
     let all = store.peekAll('person');
+    let query = {};
     let adapterPopulated = manager.createAdapterPopulatedRecordArray('person', query);
     let allSummary = tap(all, 'willDestroy');
     let adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
     let internalPersonModel = person._internalModel;
 
-    assert.equal(allSummary.called.length, 0);
-    assert.equal(adapterPopulatedSummary.called.length, 0);
-    assert.equal(internalPersonModel._recordArrays.size, 1, 'expected the person to be a member of 1 recordArrays');
-    assert.equal('person' in manager._liveRecordArrays, true);
+    assert.equal(allSummary.called.length, 0, 'initial: no calls to all.willDestroy');
+    assert.equal(adapterPopulatedSummary.called.length, 0, 'initial: no calls to adapterPopulated.willDestroy');
+    assert.equal(
+      internalPersonModel._recordArrays.size,
+      1,
+      'initial: expected the person to be a member of 1 recordArrays'
+    );
+    assert.equal('person' in manager._liveRecordArrays, true, 'initial: we have a live array for person');
 
-    run(all, all.destroy);
+    all.destroy();
+    await settled();
 
     assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of 1 recordArrays');
-    assert.equal(allSummary.called.length, 1);
-    assert.equal('person' in manager._liveRecordArrays, false);
+    assert.equal(allSummary.called.length, 1, 'all.willDestroy called once');
+    assert.equal('person' in manager._liveRecordArrays, false, 'no longer have a live array for person');
 
-    run(manager, manager.destroy);
+    manager.destroy();
+    await settled();
 
     assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
-    assert.equal(allSummary.called.length, 1);
-    assert.equal(adapterPopulatedSummary.called.length, 1);
+    assert.equal(allSummary.called.length, 1, 'all.willDestroy still only called once');
+    assert.equal(adapterPopulatedSummary.called.length, 1, 'adapterPopulated.willDestroy called once');
   });
 
-  test('batch liveRecordArray changes', function(assert) {
+  test('batch liveRecordArray changes', async function(assert) {
     let cars = store.peekAll('car');
     let arrayContentWillChangeCount = 0;
 
@@ -128,34 +135,33 @@ module('integration/record_array_manager', function(hooks) {
     assert.deepEqual(cars.toArray(), []);
     assert.equal(arrayContentWillChangeCount, 0, 'expected NO arrayChangeEvents yet');
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'car',
-            id: '1',
-            attributes: {
-              make: 'BMC',
-              model: 'Mini Cooper',
-            },
+    store.push({
+      data: [
+        {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini Cooper',
           },
-          {
-            type: 'car',
-            id: '2',
-            attributes: {
-              make: 'Jeep',
-              model: 'Wrangler',
-            },
+        },
+        {
+          type: 'car',
+          id: '2',
+          attributes: {
+            make: 'Jeep',
+            model: 'Wrangler',
           },
-        ],
-      });
+        },
+      ],
     });
+    await settled();
 
     assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
 
     assert.deepEqual(cars.toArray(), [store.peekRecord('car', 1), store.peekRecord('car', 2)]);
 
-    run(() => store.peekRecord('car', 1).set('model', 'Mini'));
+    store.peekRecord('car', 1).set('model', 'Mini');
 
     assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
 
@@ -168,60 +174,59 @@ module('integration/record_array_manager', function(hooks) {
 
     arrayContentWillChangeCount = 0;
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'car',
-            id: 2, // this ID is already present, array wont need to change
-            attributes: {
-              make: 'Tesla',
-              model: 'S',
-            },
+    store.push({
+      data: [
+        {
+          type: 'car',
+          id: 2, // this ID is already present, array wont need to change
+          attributes: {
+            make: 'Tesla',
+            model: 'S',
           },
-        ],
-      });
+        },
+      ],
     });
+    await settled();
 
     assert.equal(arrayContentWillChangeCount, 0, 'expected NO array change events');
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'car',
-            id: 3,
-            attributes: {
-              make: 'Tesla',
-              model: 'S',
-            },
-          },
-        ],
-      });
-    });
-
-    assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
-  });
-
-  test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', function(assert) {
-    run(() => {
-      store.push({
-        data: {
+    store.push({
+      data: [
+        {
           type: 'car',
-          id: '1',
+          id: 3,
           attributes: {
-            make: 'Honda',
-            model: 'fit',
+            make: 'Tesla',
+            model: 'S',
           },
         },
-      });
+      ],
+    });
+    await settled();
+
+    assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
+    // reset function so it doesn't execute after test finishes and store is torn down
+    cars.arrayContentWillChange = function() {};
+  });
+
+  test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', async function(assert) {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'Honda',
+          model: 'fit',
+        },
+      },
     });
 
     const query = {};
 
     let adapterPopulated = manager.createAdapterPopulatedRecordArray('car', query);
 
-    run(() => adapterPopulated.destroy());
+    adapterPopulated.destroy();
+    await settled();
 
     assert.equal(manager._adapterPopulatedRecordArrays.length, 0);
   });
@@ -274,17 +279,15 @@ module('integration/record_array_manager', function(hooks) {
       return superCreateRecordArray.apply(this, arguments);
     };
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'car',
-          id: '1',
-          attributes: {
-            make: 'BMC',
-            model: 'Mini Cooper',
-          },
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini Cooper',
         },
-      });
+      },
     });
 
     assert.equal(createRecordArrayCalled, 0, 'no record array has been created yet');

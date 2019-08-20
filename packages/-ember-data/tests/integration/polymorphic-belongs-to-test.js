@@ -1,40 +1,39 @@
-import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-
-import DS from 'ember-data';
-
-const { attr, belongsTo } = DS;
-
-let store;
-
-const Book = DS.Model.extend({
-  title: attr(),
-  author: belongsTo('person', { polymorphic: true, async: false }),
-});
-
-const Author = DS.Model.extend({
-  name: attr(),
-});
-
-const AsyncBook = DS.Model.extend({
-  author: belongsTo('person', { polymorphic: true }),
-});
+import Model from '@ember-data/model';
+import { attr, belongsTo } from '@ember-data/model';
 
 module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(hooks) {
-  hooks.beforeEach(function() {
-    let env = setupStore({
-      book: Book,
-      author: Author,
-      'async-book': AsyncBook,
-      person: DS.Model.extend(),
-    });
-    store = env.store;
-  });
+  setupTest(hooks);
+  let store;
 
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    class Book extends Model {
+      @attr()
+      title;
+
+      @belongsTo('person', { polymorphic: true, async: false })
+      author;
+    }
+
+    class Author extends Model {
+      @attr()
+      name;
+    }
+
+    class Person extends Model {}
+
+    class AsyncBook extends Model {
+      @belongsTo('person', { polymorphic: true })
+      author;
+    }
+    owner.register('model:book', Book);
+    owner.register('model:author', Author);
+    owner.register('model:person', Person);
+    owner.register('model:async-book', AsyncBook);
+
+    store = owner.lookup('service:store');
   });
 
   test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', assert => {
@@ -61,11 +60,8 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
       ],
     };
 
-    let book = run(() => {
-      store.push(payload);
-      return store.peekRecord('book', 1);
-    });
-
+    store.push(payload);
+    let book = store.peekRecord('book', 1);
     assert.equal(book.get('author.id'), 1);
 
     let payloadThatResetsBelongToRelationship = {
@@ -81,7 +77,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
       },
     };
 
-    run(() => store.push(payloadThatResetsBelongToRelationship));
+    store.push(payloadThatResetsBelongToRelationship);
     assert.strictEqual(book.get('author'), null);
   });
 
@@ -109,10 +105,8 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
       ],
     };
 
-    let book = run(() => {
-      store.push(payload);
-      return store.peekRecord('async-book', 1);
-    });
+    store.push(payload);
+    let book = store.peekRecord('async-book', 1);
 
     let payloadThatResetsBelongToRelationship = {
       data: {
@@ -131,7 +125,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
       .get('author')
       .then(author => {
         assert.equal(author.get('id'), 1);
-        run(() => store.push(payloadThatResetsBelongToRelationship));
+        store.push(payloadThatResetsBelongToRelationship);
         return book.get('author');
       })
       .then(author => {

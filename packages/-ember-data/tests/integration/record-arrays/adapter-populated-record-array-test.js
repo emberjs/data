@@ -1,6 +1,7 @@
 import { run } from '@ember/runloop';
 import { Promise } from 'rsvp';
 import { setupStore, createStore } from 'dummy/tests/helpers/store';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
@@ -151,8 +152,9 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
     );
   });
 
-  test('recordArray.replace() throws error', function(assert) {
+  test('recordArray.replace() throws error', async function(assert) {
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
+    await settled();
 
     assert.throws(
       () => {

@@ -2,7 +2,6 @@ import Namespace from '@ember/application/namespace';
 import Service, { inject as service } from '@ember/service';
 import Controller from '@ember/controller';
 import Application from '@ember/application';
-import { run } from '@ember/runloop';
 import Store from 'ember-data/store';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
@@ -110,12 +109,6 @@ module('integration/application - Attaching initializer', function(hooks) {
     this.owner = null;
   });
 
-  hooks.afterEach(function() {
-    if (this.application !== null) {
-      run(this.application, 'destroy');
-    }
-  });
-
   test('ember-data initializer is run', async function(assert) {
     let ran = false;
 
@@ -129,7 +122,7 @@ module('integration/application - Attaching initializer', function(hooks) {
 
     this.application = this.TestApplication.create({ autoboot: false });
 
-    await run(() => this.application.boot());
+    await this.application.boot();
 
     assert.ok(ran, 'ember-data initializer was found');
   });
@@ -149,7 +142,8 @@ module('integration/application - Attaching initializer', function(hooks) {
 
     this.application = this.TestApplication.create({ autoboot: false });
 
-    await run(() => this.application.boot().then(() => (this.owner = this.application.buildInstance())));
+    await this.application.boot();
+    this.owner = this.application.buildInstance();
 
     let store = this.owner.lookup('service:store');
     assert.ok(

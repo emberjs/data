@@ -1,9 +1,9 @@
 import { setupTest } from 'ember-qunit';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import Model from '@ember-data/model';
 import Adapter from '@ember-data/adapter';
+import { DebugAdapter } from 'ember-data/-private';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
 import { attr } from '@ember-data/model';
@@ -16,24 +16,25 @@ class Post extends Model {
 module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
   setupTest(hooks);
 
-  let store, debugAdapter;
+  let store;
 
   hooks.beforeEach(function() {
     let { owner } = this;
 
     owner.register('model:post', Post);
     store = owner.lookup('service:store');
-    debugAdapter = owner.lookup('data-adapter:main');
-
-    debugAdapter.reopen({
+    let _adapter = DebugAdapter.extend({
       getModelTypes() {
         return A([{ klass: Post, name: 'post' }]);
       },
     });
+    owner.register('data-adapter:main', _adapter);
   });
 
   test('Watching Model Types', async function(assert) {
     assert.expect(5);
+    let { owner } = this;
+    let debugAdapter = owner.lookup('data-adapter:main');
 
     function added(types) {
       assert.equal(types.length, 1, 'added one type');
@@ -60,6 +61,8 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
   });
 
   test('Watching Records', async function(assert) {
+    let { owner } = this;
+    let debugAdapter = owner.lookup('data-adapter:main');
     let addedRecords, updatedRecords, removedIndex, removedCount;
 
     this.owner.register(
@@ -156,7 +159,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     addedRecords = updatedRecords = [];
     removedCount = removedIndex = null;
 
-    run(() => post.unloadRecord());
+    post.unloadRecord();
 
     await settled();
 
@@ -165,6 +168,8 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
   });
 
   test('Column names', function(assert) {
+    let { owner } = this;
+    let debugAdapter = owner.lookup('data-adapter:main');
     class Person extends Model {
       @attr()
       title;
