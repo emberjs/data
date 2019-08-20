@@ -57,12 +57,12 @@ export interface StableRecordIdentifier extends StableIdentifier {
   The method must return a unique (to at-least the given bucket) string identifier
   for the given data as a string to be used as the `lid` of an `Identifier` token.
 
-  This method will only be called by either `getOrCreateIdentifier` or
+  This method will only be called by either `getOrCreateRecordIdentifier` or
   `createIdentifierForNewRecord` when an identifier for the supplied data
   is not already known via `lid` or `type + id` combo and one needs to be
   generated or retrieved from a proprietary cache.
 
-  `data` will be the same data argument provided to `getOrCreateIdentifier`
+  `data` will be the same data argument provided to `getOrCreateRecordIdentifier`
   and in the `createIdentifierForNewRecord` case will be an object with
   only `type` as a key.
 */
