@@ -34,7 +34,7 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   test('Adapter can be set as a name', function(assert) {
     const env = setupStore({ adapter: 'custom-adapter' });
     const { store, owner } = env;
-    const CustomAdapter = DS.Adapter.extend({ isCustomAdapter: true });
+    const CustomAdapter = DS.Adapter.extend({ aCustomProp: 'Soo hot right now' });
     owner.register('adapter:custom-adapter', CustomAdapter);
 
     assert.ok(store.get('defaultAdapter') instanceof CustomAdapter);
