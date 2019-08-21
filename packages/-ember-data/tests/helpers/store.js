@@ -8,6 +8,7 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import config from '../../config/environment';
 import Resolver from '../../resolver';
+import { StringTransform, DateTransform, NumberTransform, BooleanTransform } from '@ember-data/serializer/-private';
 
 const { _RegistryProxyMixin, _ContainerProxyMixin, Registry } = Ember;
 
@@ -68,6 +69,12 @@ export default function setupStore(options) {
     registry.register('model:' + dasherize(prop), options[prop]);
   }
 
+  // avoid the deprecation for auto-registration of transforms for our helper
+  registry.register('transform:string', StringTransform);
+  registry.register('transform:date', DateTransform);
+  registry.register('transform:number', NumberTransform);
+  registry.register('transform:boolean', BooleanTransform);
+
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
 
@@ -86,6 +93,10 @@ export default function setupStore(options) {
     env.registry.register('serializer:application', options.serializer);
     env.serializer = store.serializerFor('application');
   } else {
+    // avoid deprecations for -json-api serializer in our tests
+    // uncomment to find locations to refactor to explicit registration
+    owner.register('serializer:-json-api', JSONAPISerializer);
+
     // Many tests rely on falling back to this serializer
     // they should refactor to register this as the application serializer
     owner.register('serializer:-default', JSONAPISerializer);

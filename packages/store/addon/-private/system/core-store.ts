@@ -14,7 +14,7 @@ import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
-import require from 'require';
+import require, { has } from 'require';
 import Ember from 'ember';
 import { InvalidError } from '@ember-data/adapter/error';
 import { assert, warn, inspect } from '@ember/debug';
@@ -99,12 +99,13 @@ type PendingSaveItem = {
 
 let globalClientIdCounter = 1;
 
-function deprecateTestRegistration(
-  factoryType: 'serializer' | 'adapter',
-  factoryName: '-json-api' | '-rest' | '-default'
-) {
+const HAS_SERIALIZER_PACKAGE = has('@ember-data/serializer');
+
+function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
+// TODO add adapter here and deprecate those registrations as well after refactoring them to re-exports
+function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void {
   deprecate(
-    `You looked up the ${factoryName} ${factoryType} but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
+    `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
     false,
     {
       id: 'ember-data:-legacy-test-registrations',
@@ -300,28 +301,45 @@ abstract class CoreStore extends Service {
     }
 
     if (DEBUG) {
-      // support for moduleFor style unit tests
-      // that were relying on ember-test-helpers
-      // doing an auto-registration of the transform
-      // or us doing one
-      const Mapping = {
-        date: 'DateTransform',
-        boolean: 'BooleanTransform',
-        number: 'NumberTransform',
-        string: 'StringTransform',
-      };
+      if (HAS_SERIALIZER_PACKAGE) {
+        // support for legacy moduleFor style unit tests
+        // that did not include transforms in "needs"
+        // or which were not set to integration:true
+        // that were relying on ember-test-helpers
+        // doing an auto-registration of the transform
+        // or us doing one
+        const Mapping = {
+          date: 'DateTransform',
+          boolean: 'BooleanTransform',
+          number: 'NumberTransform',
+          string: 'StringTransform',
+        };
+        let shouldWarn = false;
 
-      Object.keys(Mapping).forEach(attributeType => {
-        const transform = getOwner(this).lookup(`transform:${attributeType}`);
+        Object.keys(Mapping).forEach((attributeType: keyof typeof Mapping) => {
+          const transform = getOwner(this).lookup(`transform:${attributeType}`);
 
-        if (!transform) {
-          // we don't deprecate this because the moduleFor style tests with the closed
-          // resolver will be deprecated on their own. When that deprecation completes
-          // we can drop this.
-          const Transform = require(`@ember-data/serializer/-private`)[Mapping[attributeType]];
-          getOwner(this).register(`transform:${attributeType}`, Transform);
+          if (!transform) {
+            // we don't deprecate this because the moduleFor style tests with the closed
+            // resolver will be deprecated on their own. When that deprecation completes
+            // we can drop this.
+            const Transform = require(`@ember-data/serializer/-private`)[Mapping[attributeType]];
+            getOwner(this).register(`transform:${attributeType}`, Transform);
+            shouldWarn = true;
+          }
+        });
+
+        if (shouldWarn) {
+          deprecate(
+            `You are relying on the automatic registration of the transforms "date", "number", "boolean", and "string". Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['transform:date', 'transform:boolean', 'transform:number', 'transform:string']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
+            false,
+            {
+              id: 'ember-data:-legacy-test-registrations',
+              until: '3.17',
+            }
+          );
         }
-      });
+      }
 
       this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
       if (this.shouldTrackAsyncRequests === undefined) {
@@ -3277,7 +3295,7 @@ abstract class CoreStore extends Service {
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
 
     // in production this is handled by the re-export
-    if (DEBUG && serializer === undefined) {
+    if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       if (normalizedModelName === '-json-api') {
         const Serializer = require('@ember-data/serializer/json-api').default;
         owner.register(`serializer:-json-api`, Serializer);
@@ -3292,7 +3310,7 @@ abstract class CoreStore extends Service {
         const Serializer = require('@ember-data/serializer/json').default;
         owner.register(`serializer:-default`, Serializer);
         serializer = owner.lookup(`serializer:-default`);
-        deprecateTestRegistration('serializer', '-default');
+        serializer && deprecateTestRegistration('serializer', '-default');
       }
     }
 
@@ -3320,7 +3338,7 @@ abstract class CoreStore extends Service {
       : undefined;
 
     // in production this is handled by the re-export
-    if (DEBUG && serializer === undefined) {
+    if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       if (serializerName === '-json-api') {
         const Serializer = require('@ember-data/serializer/json-api').default;
         owner.register(`serializer:-json-api`, Serializer);
@@ -3335,7 +3353,7 @@ abstract class CoreStore extends Service {
         const Serializer = require('@ember-data/serializer/json').default;
         owner.register(`serializer:-default`, Serializer);
         serializer = owner.lookup(`serializer:-default`);
-        deprecateTestRegistration('serializer', '-default');
+        serializer && deprecateTestRegistration('serializer', '-default');
       }
     }
 
@@ -3349,12 +3367,12 @@ abstract class CoreStore extends Service {
     // final fallback, no model specific serializer, no application serializer, no
     // `serializer` property on store: use JSON serializer
     serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
-    if (DEBUG && serializer === undefined) {
+    if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       const JSONSerializer = require('@ember-data/serializer/json').default;
       owner.register('serializer:-default', JSONSerializer);
       serializer = owner.lookup('serializer:-default');
 
-      deprecateTestRegistration('serializer', '-default');
+      serializer && deprecateTestRegistration('serializer', '-default');
     }
 
     assert(

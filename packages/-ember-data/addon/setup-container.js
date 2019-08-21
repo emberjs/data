@@ -22,6 +22,8 @@ function hasRegistration(application, registrationName) {
  @param {Ember.Registry} registry
  */
 function initializeStore(application) {
+  // we can just use registerOptionsForType when setupStore is killed
+  // see https://github.com/emberjs/data/issues/6357
   let registerOptionsForType = application.registerOptionsForType || application.optionsForType;
   registerOptionsForType.call(application, 'serializer', { singleton: false });
   registerOptionsForType.call(application, 'adapter', { singleton: false });
