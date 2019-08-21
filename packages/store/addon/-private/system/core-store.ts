@@ -3321,10 +3321,6 @@ abstract class CoreStore extends Service {
       `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
       serializer !== undefined
     );
-    deprecate(`Usage of the '-default' serializer is deprecated.`, false, {
-      id: 'ember-data:default-serializer-fallback',
-      until: '3.12.0',
-    });
 
     set(serializer, 'store', this);
     _serializerCache[normalizedModelName] = serializer;
