@@ -99,6 +99,20 @@ type PendingSaveItem = {
 
 let globalClientIdCounter = 1;
 
+function deprecateTestRegistration(
+  factoryType: 'serializer' | 'adapter',
+  factoryName: '-json-api' | '-rest' | '-default'
+) {
+  deprecate(
+    `You looked up the ${factoryName} ${factoryType} but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
+    false,
+    {
+      id: 'ember-data:-legacy-test-registrations',
+      until: '3.17',
+    }
+  );
+}
+
 // Implementors Note:
 //
 //   The variables in this file are consistently named according to the following
@@ -3262,12 +3276,24 @@ abstract class CoreStore extends Service {
 
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
 
-    // getting rid of this case will be handed by the deprecation of moduleFor in ember test helpers
     // in production this is handled by the re-export
-    if (DEBUG && serializer === undefined && normalizedModelName === '-json-api') {
-      const Serializer = require('@ember-data/serializer/json-api').default;
-      owner.register(`serializer:-json-api`, Serializer);
-      serializer = owner.lookup(`serializer:-json-api`);
+    if (DEBUG && serializer === undefined) {
+      if (normalizedModelName === '-json-api') {
+        const Serializer = require('@ember-data/serializer/json-api').default;
+        owner.register(`serializer:-json-api`, Serializer);
+        serializer = owner.lookup(`serializer:-json-api`);
+        deprecateTestRegistration('serializer', '-json-api');
+      } else if (normalizedModelName === '-rest') {
+        const Serializer = require('@ember-data/serializer/rest').default;
+        owner.register(`serializer:-rest`, Serializer);
+        serializer = owner.lookup(`serializer:-rest`);
+        deprecateTestRegistration('serializer', '-rest');
+      } else if (normalizedModelName === '-default') {
+        const Serializer = require('@ember-data/serializer/json').default;
+        owner.register(`serializer:-default`, Serializer);
+        serializer = owner.lookup(`serializer:-default`);
+        deprecateTestRegistration('serializer', '-default');
+      }
     }
 
     if (serializer !== undefined) {
@@ -3293,12 +3319,24 @@ abstract class CoreStore extends Service {
       ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
       : undefined;
 
-    // getting rid of this case will be handed by the deprecation of moduleFor in ember test helpers
     // in production this is handled by the re-export
-    if (DEBUG && serializer === undefined && serializerName === '-json-api') {
-      const Serializer = require('@ember-data/serializer/json-api').default;
-      owner.register(`serializer:-json-api`, Serializer);
-      serializer = owner.lookup(`serializer:-json-api`);
+    if (DEBUG && serializer === undefined) {
+      if (serializerName === '-json-api') {
+        const Serializer = require('@ember-data/serializer/json-api').default;
+        owner.register(`serializer:-json-api`, Serializer);
+        serializer = owner.lookup(`serializer:-json-api`);
+        deprecateTestRegistration('serializer', '-json-api');
+      } else if (serializerName === '-rest') {
+        const Serializer = require('@ember-data/serializer/rest').default;
+        owner.register(`serializer:-rest`, Serializer);
+        serializer = owner.lookup(`serializer:-rest`);
+        deprecateTestRegistration('serializer', '-rest');
+      } else if (serializerName === '-default') {
+        const Serializer = require('@ember-data/serializer/json').default;
+        owner.register(`serializer:-default`, Serializer);
+        serializer = owner.lookup(`serializer:-default`);
+        deprecateTestRegistration('serializer', '-default');
+      }
     }
 
     if (serializer !== undefined) {
@@ -3315,6 +3353,8 @@ abstract class CoreStore extends Service {
       const JSONSerializer = require('@ember-data/serializer/json').default;
       owner.register('serializer:-default', JSONSerializer);
       serializer = owner.lookup('serializer:-default');
+
+      deprecateTestRegistration('serializer', '-default');
     }
 
     assert(

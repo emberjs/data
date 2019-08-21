@@ -4,7 +4,8 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 function hasRegistration(application, registrationName) {
   // fallback our ember-data tests necessary
-  // until we kill-off createStore/setupStore
+  // until we kill-off setupStore
+  // see https://github.com/emberjs/data/issues/6357
   // or @ember/test-helpers kills off it's
   // legacy support that calls our initializer with registry
   // instead of application
