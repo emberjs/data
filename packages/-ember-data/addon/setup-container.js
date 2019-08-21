@@ -4,7 +4,6 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import JSONSerializer from '@ember-data/serializer/json';
 import RESTSerializer from '@ember-data/serializer/rest';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import RESTAdapter from '@ember-data/adapter/rest';
 
 import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
 
@@ -31,7 +30,6 @@ function initializeStore(registry) {
   registerOptionsForType.call(registry, 'adapter', { singleton: false });
   registry.register('serializer:-default', JSONSerializer);
   registry.register('serializer:-rest', RESTSerializer);
-  registry.register('adapter:-rest', RESTAdapter);
 
   registry.register('adapter:-json-api', JSONAPIAdapter);
   registry.register('serializer:-json-api', JSONAPISerializer);
