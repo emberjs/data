@@ -8,7 +8,7 @@ function hasRegistration(application, registrationName) {
   // or @ember/test-helpers kills off it's
   // legacy support that calls our initializer with registry
   // instead of application
-  if (!application.hasRegistration) {
+  if (typeof application.hasRegistration !== 'function') {
     return application.has(registrationName);
   }
   return application.hasRegistration(registrationName);
