@@ -31,8 +31,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/adapters/foo.js'))
-          .to.contain("import DS from 'ember-data';")
-          .to.contain('export default DS.JSONAPIAdapter.extend({');
+          .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
+          .to.contain('export default JSONAPIAdapter.extend({');
 
         expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
       });
@@ -75,8 +75,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/adapters/application.js'))
-          .to.contain("import DS from 'ember-data';")
-          .to.contain('export default DS.JSONAPIAdapter.extend({');
+          .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
+          .to.contain('export default JSONAPIAdapter.extend({');
 
         expect(_file('tests/unit/adapters/application-test.js')).to.equal(
           fixture(__dirname, 'adapter-test/application-default.js')
@@ -148,8 +148,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/adapter.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.JSONAPIAdapter.extend({');
+            .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
+            .to.contain('export default JSONAPIAdapter.extend({');
 
           expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         },
@@ -198,8 +198,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/application/adapter.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.JSONAPIAdapter.extend({');
+            .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
+            .to.contain('export default JSONAPIAdapter.extend({');
 
           expect(_file('src/data/models/application/adapter-test.js')).to.equal(
             fixture(__dirname, 'adapter-test/application-default.js')
@@ -297,8 +297,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/adapter.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default class FooAdapter extends DS.JSONAPIAdapter {');
+            .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
+            .to.contain('export default class FooAdapter extends JSONAPIAdapter {');
 
           expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
         },
@@ -347,8 +347,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/application/adapter.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default class ApplicationAdapter extends DS.JSONAPIAdapter {');
+            .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
+            .to.contain('export default class ApplicationAdapter extends JSONAPIAdapter {');
 
           expect(_file('src/data/models/application/adapter-test.js')).to.equal(
             fixture(__dirname, 'adapter-test/application-default.js')

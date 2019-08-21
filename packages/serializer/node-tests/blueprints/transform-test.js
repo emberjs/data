@@ -29,8 +29,8 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
         return emberGenerateDestroy(args, _file => {
           expect(_file('app/transforms/foo.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.Transform.extend(')
+            .to.contain(`import Transform from '@ember-data/serializer/transform';`)
+            .to.contain('export default Transform.extend(')
             .to.contain('deserialize(serialized) {')
             .to.contain('serialize(deserialized) {');
 
@@ -110,8 +110,8 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
           args,
           _file => {
             expect(_file('src/data/transforms/foo.js'))
-              .to.contain("import DS from 'ember-data';")
-              .to.contain('export default DS.Transform.extend(')
+              .to.contain(`import Transform from '@ember-data/serializer/transform';`)
+              .to.contain('export default Transform.extend(')
               .to.contain('deserialize(serialized) {')
               .to.contain('serialize(deserialized) {');
 
@@ -211,7 +211,7 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
           args,
           _file => {
             expect(_file('src/data/transforms/foo.js'))
-              .to.contain("import DS from 'ember-data';")
+              .to.contain(`import Transform from '@ember-data/serializer/transform';`)
               .to.contain('export default class FooTransform extends Transform {')
               .to.contain('deserialize(serialized) {')
               .to.contain('serialize(deserialized) {');

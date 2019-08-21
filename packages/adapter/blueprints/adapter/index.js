@@ -28,6 +28,6 @@ module.exports = useEditionDetector({
   },
 
   locals(options) {
-    return extendFromApplicationEntity('adapter', 'DS.JSONAPIAdapter', options);
+    return extendFromApplicationEntity('adapter', 'JSONAPIAdapter', options);
   },
 });

@@ -31,8 +31,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/serializers/foo.js'))
-          .to.contain("import DS from 'ember-data';")
-          .to.contain('export default DS.JSONAPISerializer.extend(');
+          .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
+          .to.contain('export default JSONAPISerializer.extend(');
 
         expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
       });
@@ -75,8 +75,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/serializers/application.js'))
-          .to.contain("import DS from 'ember-data';")
-          .to.contain('export default DS.JSONAPISerializer.extend({');
+          .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
+          .to.contain('export default JSONAPISerializer.extend({');
 
         expect(_file('tests/unit/serializers/application-test.js')).to.equal(
           fixture(__dirname, 'serializer-test/application-default.js')
@@ -154,8 +154,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/serializer.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.JSONAPISerializer.extend(');
+            .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
+            .to.contain('export default JSONAPISerializer.extend(');
 
           expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/rfc232.js')
@@ -219,8 +219,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/application/serializer.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.JSONAPISerializer.extend({');
+            .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
+            .to.contain('export default JSONAPISerializer.extend(');
 
           expect(_file('src/data/models/application/serializer-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/application-default.js')
@@ -320,8 +320,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/serializer.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default class FooSerializer extends DS.JSONAPISerializer {');
+            .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
+            .to.contain('export default class FooSerializer extends JSONAPISerializer {');
 
           expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/rfc232.js')
@@ -385,8 +385,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/application/serializer.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('export default class ApplicationSerializer extends DS.JSONAPISerializer {');
+            .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
+            .to.contain('export default class ApplicationSerializer extends JSONAPISerializer {');
 
           expect(_file('src/data/models/application/serializer-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/application-default.js')

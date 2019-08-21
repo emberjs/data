@@ -1,5 +1,4 @@
-import DS from 'ember-data';
-const { <%= importedModules %> } = DS;
+import Model<%= importedModules.length ? `, { ${importedModules} }` : '' %> from '@ember-data/model';
 
 export default Model.extend({
 <%= attrs.length ? attrs : '' %>

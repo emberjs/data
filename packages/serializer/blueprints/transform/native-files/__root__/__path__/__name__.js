@@ -1,5 +1,4 @@
-import DS from 'ember-data';
-const { Transform } = DS;
+import Transform from '@ember-data/serializer/transform';
 
 export default class <%= classifiedModuleName %>Transform extends Transform {
   deserialize(serialized) {
