@@ -1,0 +1,160 @@
+name: Node CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          version: 10.x
+      - name: Yarn install
+        run: yarn
+      - name: Lint features
+        run: yarn lint:features
+      - name: Lint prettier
+        run: yarn lint:features
+      - name: Check for TypeScript problems
+        run: yarn problems
+
+  basic-tests:
+    strategy:
+      matrix:
+        os: [macOS-10.14, windows-2016, ubuntu-18.04]
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests
+        run: yarn test
+      - name: Production build
+        run: yarn test:production
+      - name: Node Tests
+        run: yarn test:node
+      - name: In progress features
+        if: github.base_ref == 'master' || github.base_ref == 'beta'
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
+        run: yarn test:enabled-in-progress-features
+
+  lts:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic Tests with ember-lts-3.8
+        run: yarn test:try-one ember-lts-3.8
+
+  release-channels:
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [
+          ember-release,
+          ember-beta,
+          ember-canary,
+          ember-release-with-jquery
+        ]
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump strategy context
+        env:
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: echo "$STRATEGY_CONTEXT"
+      - name: Dump matrix context
+        env:
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        run: echo "$MATRIX_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - uses: actions/checkout@master
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests with ${{ matrix.scenario }}
+        run: yarn test:try-one ${{ matrix.scenario }}
+
+  additional-scenarios:
+    strategy:
+      matrix:
+        scenario: [
+          default-with-jquery,
+          with-ember-fetch,
+          with-max-transpilation
+        ]
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests with ${{ matrix.scenario }}
+        run: yarn test:try-one ${{ matrix.scenario }}
+
+  external-partners:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        partner: [
+          ember-data-change-tracker,
+          ember-data-relationship-tracker,
+          ember-m3,
+          ember-observer,
+          ember-resource-metadata,
+          factory-guy,
+          ilios-frontend,
+          model-fragments,
+          storefront,
+          travis-web
+        ]
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Generate package tarballs
+        run: node ./bin/packages-for-commit.js
+      - name: External ${{ matrix.partner }}
+        run: CI=true yarn test-external:${{ matrix.partner }}
