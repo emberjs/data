@@ -34,7 +34,8 @@ module.exports = function(type, baseClass, options) {
         's cannot extend from themself. To resolve this, remove the `--base-class` option or change to a different base-class.'
     );
   }
-  let importStatement = "import DS from 'ember-data';";
+
+  let importStatement;
 
   if (options.baseClass) {
     let baseClassPath = options.baseClass;
@@ -47,10 +48,22 @@ module.exports = function(type, baseClass, options) {
     }
 
     importStatement = `import ${baseClass} from '${relativePath}${baseClassPath}';`;
+  } else {
+    let baseClassPath = `@ember-data/${type}`;
+
+    if (baseClass.startsWith('JSONAPI')) {
+      baseClassPath += '/json-api';
+    }
+
+    if (baseClass.startsWith('REST')) {
+      baseClassPath += '/rest';
+    }
+
+    importStatement = `import ${baseClass} from '${baseClassPath}';`;
   }
 
   return {
-    importStatement: importStatement,
-    baseClass: baseClass,
+    importStatement,
+    baseClass,
   };
 };

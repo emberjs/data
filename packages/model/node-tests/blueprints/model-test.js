@@ -28,8 +28,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/models/foo.js'))
-          .to.contain("import DS from 'ember-data';")
-          .to.contain('const { Model } = DS;')
+          .to.contain(`import Model from '@ember-data/model';`)
           .to.contain('export default Model.extend(');
 
         expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
@@ -52,8 +51,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/models/foo.js'))
-          .to.contain("import DS from 'ember-data';")
-          .to.contain('const { Model, attr } = DS;')
+          .to.contain(`import Model, { attr } from '@ember-data/model';`)
           .to.contain('export default Model.extend(')
           .to.contain('  misc: attr(),')
           .to.contain("  skills: attr('array'),")
@@ -73,8 +71,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/models/comment.js'))
-          .to.contain("import DS from 'ember-data';")
-          .to.contain('const { Model, belongsTo } = DS;')
+          .to.contain(`import Model, { belongsTo } from '@ember-data/model';`)
           .to.contain('export default Model.extend(')
           .to.contain("  post: belongsTo('post'),")
           .to.contain("  author: belongsTo('user')");
@@ -90,8 +87,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/models/post.js'))
-          .to.contain("import DS from 'ember-data';")
-          .to.contain('const { Model, hasMany } = DS;')
+          .to.contain(`import Model, { hasMany } from '@ember-data/model';`)
           .to.contain('export default Model.extend(')
           .to.contain("  comments: hasMany('comment')")
           .to.contain("  otherComments: hasMany('comment')");
@@ -164,8 +160,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/model.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('const { Model } = DS;')
+            .to.contain(`import Model from '@ember-data/model';`)
             .to.contain('export default Model.extend(');
 
           expect(_file('src/data/models/foo/model-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
@@ -192,8 +187,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/model.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('const { Model, attr } = DS;')
+            .to.contain(`import Model, { attr } from '@ember-data/model';`)
             .to.contain('export default Model.extend(')
             .to.contain('  misc: attr(),')
             .to.contain("  skills: attr('array'),")
@@ -217,8 +211,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/comment/model.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('const { Model, belongsTo } = DS;')
+            .to.contain(`import Model, { belongsTo } from '@ember-data/model';`)
             .to.contain('export default Model.extend(')
             .to.contain("  post: belongsTo('post'),")
             .to.contain("  author: belongsTo('user')");
@@ -238,8 +231,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/post/model.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('const { Model, hasMany } = DS;')
+            .to.contain(`import Model, { hasMany } from '@ember-data/model';`)
             .to.contain('export default Model.extend(')
             .to.contain("  comments: hasMany('comment'),")
             .to.contain("  otherComments: hasMany('comment')");
@@ -339,7 +331,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/model.js'))
-            .to.contain("import DS from 'ember-data';")
+            .to.contain(`import Model from '@ember-data/model';`)
             .to.contain('export default class FooModel extends Model {');
 
           expect(_file('src/data/models/foo/model-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
@@ -366,8 +358,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/model.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('const { Model, attr } = DS;')
+            .to.contain(`import Model, { attr } from '@ember-data/model';`)
             .to.contain('export default class FooModel extends Model {')
             .to.contain('  @attr() misc;')
             .to.contain("  @attr('array') skills;")
@@ -391,8 +382,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/comment/model.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('const { Model, belongsTo } = DS;')
+            .to.contain(`import Model, { belongsTo } from '@ember-data/model';`)
             .to.contain('export default class CommentModel extends Model {')
             .to.contain('  @belongsTo post;')
             .to.contain("  @belongsTo('user') author;");
@@ -412,8 +402,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/post/model.js'))
-            .to.contain("import DS from 'ember-data';")
-            .to.contain('const { Model, hasMany } = DS;')
+            .to.contain(`import Model, { hasMany } from '@ember-data/model';`)
             .to.contain('export default class PostModel extends Model {')
             .to.contain('  @hasMany comments;')
             .to.contain("  @hasMany('comment') otherComments;");

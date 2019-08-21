@@ -28,6 +28,6 @@ module.exports = useEditionDetector({
   },
 
   locals(options) {
-    return extendFromApplicationEntity('serializer', 'DS.JSONAPISerializer', options);
+    return extendFromApplicationEntity('serializer', 'JSONAPISerializer', options);
   },
 });

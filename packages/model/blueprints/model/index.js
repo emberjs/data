@@ -105,7 +105,7 @@ module.exports = useEditionDetector({
     });
     needs = '  needs: [' + needsDeduplicated.join(', ') + ']';
 
-    let importedModules = ['Model'];
+    let importedModules = [];
     if (includeAttr) {
       importedModules.push('attr');
     }
@@ -118,9 +118,9 @@ module.exports = useEditionDetector({
     importedModules = importedModules.join(', ');
 
     return {
-      importedModules: importedModules,
-      attrs: attrs,
-      needs: needs,
+      importedModules,
+      attrs,
+      needs,
     };
   },
 });
