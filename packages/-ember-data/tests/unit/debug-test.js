@@ -1,37 +1,33 @@
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { computed } from '@ember/object';
-import { createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+module('Debug', function(hooks) {
+  setupTest(hooks);
 
-const TestAdapter = DS.Adapter.extend();
-
-module('Debug', function() {
   test('_debugInfo groups the attributes and relationships correctly', function(assert) {
-    const MaritalStatus = DS.Model.extend({
-      name: DS.attr('string'),
+    const MaritalStatus = Model.extend({
+      name: attr('string'),
     });
 
-    const Post = DS.Model.extend({
-      title: DS.attr('string'),
+    const Post = Model.extend({
+      title: attr('string'),
     });
 
-    const User = DS.Model.extend({
-      name: DS.attr('string'),
-      isDrugAddict: DS.attr('boolean'),
-      maritalStatus: DS.belongsTo('marital-status', { async: false }),
-      posts: DS.hasMany('post', { async: false }),
+    const User = Model.extend({
+      name: attr('string'),
+      isDrugAddict: attr('boolean'),
+      maritalStatus: belongsTo('marital-status', { async: false }),
+      posts: hasMany('post', { async: false }),
     });
 
-    let store = createStore({
-      adapter: TestAdapter.extend(),
-      maritalStatus: MaritalStatus,
-      post: Post,
-      user: User,
-    });
+    this.owner.register('model:marital-status', MaritalStatus);
+    this.owner.register('model:post', Post);
+    this.owner.register('model:user', User);
 
-    let record = store.createRecord('user');
+    let record = this.owner.lookup('service:store').createRecord('user');
 
     let propertyInfo = record._debugInfo().propertyInfo;
 
@@ -45,18 +41,18 @@ module('Debug', function() {
   });
 
   test('_debugInfo supports arbitray relationship types', function(assert) {
-    const MaritalStatus = DS.Model.extend({
-      name: DS.attr('string'),
+    const MaritalStatus = Model.extend({
+      name: attr('string'),
     });
 
-    const Post = DS.Model.extend({
-      title: DS.attr('string'),
+    const Post = Model.extend({
+      title: attr('string'),
     });
 
-    const User = DS.Model.extend({
-      name: DS.attr('string'),
-      isDrugAddict: DS.attr('boolean'),
-      maritalStatus: DS.belongsTo('marital-status', { async: false }),
+    const User = Model.extend({
+      name: attr('string'),
+      isDrugAddict: attr('boolean'),
+      maritalStatus: belongsTo('marital-status', { async: false }),
       posts: computed(() => [1, 2, 3])
         .readOnly()
         .meta({
@@ -68,14 +64,11 @@ module('Debug', function() {
         }),
     });
 
-    let store = createStore({
-      adapter: TestAdapter.extend(),
-      maritalStatus: MaritalStatus,
-      post: Post,
-      user: User,
-    });
+    this.owner.register('model:marital-status', MaritalStatus);
+    this.owner.register('model:post', Post);
+    this.owner.register('model:user', User);
 
-    let record = store.createRecord('user');
+    let record = this.owner.lookup('service:store').createRecord('user');
 
     let propertyInfo = record._debugInfo().propertyInfo;
 

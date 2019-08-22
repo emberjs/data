@@ -1,33 +1,39 @@
 import { resolve, reject } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr } from '@ember-data/model';
+import { InvalidError } from '@ember-data/adapter/error';
 
-module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
+module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
+  setupTest(hooks);
+
   test('a record receives a didLoad callback when it has finished loading', function(assert) {
     assert.expect(3);
 
-    const Person = DS.Model.extend({
-      name: DS.attr(),
+    const Person = Model.extend({
+      name: attr(),
       didLoad() {
         assert.ok('The didLoad callback was called');
       },
     });
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findRecord('person', 1).then(person => {
@@ -39,23 +45,26 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
 
   test(`TEMPORARY: a record receives a didLoad callback once it materializes if it wasn't materialized when loaded`, function(assert) {
     assert.expect(2);
+
     let didLoadCalled = 0;
-    const Person = DS.Model.extend({
-      name: DS.attr(),
+    const Person = Model.extend({
+      name: attr(),
       didLoad() {
         didLoadCalled++;
       },
     });
 
-    let store = createStore({
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
 
     run(() => {
       store._pushInternalModel({ id: 1, type: 'person' });
       assert.equal(didLoadCalled, 0, 'didLoad was not called');
     });
+
     run(() => store.peekRecord('person', 1));
+
     assert.equal(didLoadCalled, 1, 'didLoad was called');
   });
 
@@ -64,9 +73,9 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
 
     let callCount = 0;
 
-    const Person = DS.Model.extend({
-      bar: DS.attr('string'),
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      bar: attr('string'),
+      name: attr('string'),
 
       didUpdate() {
         callCount++;
@@ -75,24 +84,22 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
     });
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
       },
 
       updateRecord(store, type, snapshot) {
         assert.equal(callCount, 0, 'didUpdate callback was not called until didSaveRecord is called');
-
         return resolve();
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    let asyncPerson = run(() => store.findRecord('person', 1));
+    let asyncPerson = run(() => this.owner.lookup('service:store').findRecord('person', 1));
 
     assert.equal(callCount, 0, 'precond - didUpdate callback was not called yet');
 
@@ -115,7 +122,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
 
     let callCount = 0;
 
-    const Person = DS.Model.extend({
+    const Person = Model.extend({
       didCreate() {
         callCount++;
         assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
@@ -123,21 +130,22 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
     });
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       createRecord(store, type, snapshot) {
         assert.equal(callCount, 0, 'didCreate callback was not called until didSaveRecord is called');
-
         return resolve();
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
 
     assert.equal(callCount, 0, 'precond - didCreate callback was not called yet');
-    let person = store.createRecord('person', { id: 69, name: 'Newt Gingrich' });
+
+    let person = this.owner.lookup('service:store').createRecord('person', {
+      id: 69,
+      name: 'Newt Gingrich',
+    });
 
     return run(() => {
       return person.save().then(() => {
@@ -151,9 +159,9 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
 
     let callCount = 0;
 
-    const Person = DS.Model.extend({
-      bar: DS.attr('string'),
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      bar: attr('string'),
+      name: attr('string'),
 
       didDelete() {
         callCount++;
@@ -163,7 +171,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
     });
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
       },
@@ -175,11 +183,11 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
-    let asyncPerson = run(() => store.findRecord('person', 1));
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let asyncPerson = run(() => this.owner.lookup('service:store').findRecord('person', 1));
 
     assert.equal(callCount, 0, 'precond - didDelete callback was not called yet');
 
@@ -202,9 +210,9 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
 
     let callCount = 0;
 
-    const Person = DS.Model.extend({
-      bar: DS.attr('string'),
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      bar: attr('string'),
+      name: attr('string'),
 
       didDelete() {
         callCount++;
@@ -213,12 +221,11 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
     });
 
-    let store = createStore({
-      adapter: DS.Adapter.extend(),
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
 
-    let person = store.createRecord('person', { name: 'Tomster' });
+    let person = this.owner.lookup('service:store').createRecord('person', {
+      name: 'Tomster',
+    });
 
     assert.equal(callCount, 0, 'precond - didDelete callback was not called yet');
 
@@ -232,9 +239,9 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
 
     let callCount = 0;
 
-    const Person = DS.Model.extend({
-      bar: DS.attr('string'),
-      name: DS.attr('string'),
+    const Person = Model.extend({
+      bar: attr('string'),
+      name: attr('string'),
 
       becameInvalid() {
         callCount++;
@@ -244,7 +251,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
     });
 
-    const Adapter = DS.Adapter.extend({
+    const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
       },
@@ -253,7 +260,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
         assert.equal(callCount, 0, 'becameInvalid callback was not called until recordWasInvalid is called');
 
         return reject(
-          new DS.InvalidError([
+          new InvalidError([
             {
               title: 'Invalid Attribute',
               detail: 'error',
@@ -266,12 +273,11 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
     });
 
-    let store = createStore({
-      adapter: Adapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    let asyncPerson = run(() => store.findRecord('person', 1));
+    let asyncPerson = run(() => this.owner.lookup('service:store').findRecord('person', 1));
     assert.equal(callCount, 0, 'precond - becameInvalid callback was not called yet');
 
     // Make sure that the error handler has a chance to attach before

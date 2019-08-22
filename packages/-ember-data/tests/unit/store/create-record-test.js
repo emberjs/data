@@ -1,31 +1,12 @@
 import { A } from '@ember/array';
 import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
 
-const { Model, attr, belongsTo, hasMany } = DS;
-
-let store, Record, Storage;
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('unit/store/createRecord - Store creating records', function(hooks) {
-  hooks.beforeEach(function() {
-    Record = DS.Model.extend({
-      title: DS.attr('string'),
-    });
-
-    Storage = DS.Model.extend({
-      name: DS.attr('name'),
-      records: DS.hasMany('record', { async: false }),
-    });
-
-    store = createStore({
-      adapter: DS.Adapter.extend(),
-      record: Record,
-      storage: Storage,
-    });
-  });
+  setupTest(hooks);
 
   test(`doesn't modify passed in properties hash`, function(assert) {
     const Post = Model.extend({
@@ -33,20 +14,23 @@ module('unit/store/createRecord - Store creating records', function(hooks) {
       author: belongsTo('author', { async: false, inverse: 'post' }),
       comments: hasMany('comment', { async: false, inverse: 'post' }),
     });
+
     const Comment = Model.extend({
       text: attr(),
       post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
+
     const Author = Model.extend({
       name: attr(),
       post: belongsTo('post', { async: false, inverse: 'author' }),
     });
-    let env = setupStore({
-      post: Post,
-      comment: Comment,
-      author: Author,
-    });
-    let store = env.store;
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:author', Author);
+
+    let store = this.owner.lookup('service:store');
+
     let comment, author;
 
     run(() => {
@@ -89,6 +73,19 @@ module('unit/store/createRecord - Store creating records', function(hooks) {
   });
 
   test('allow passing relationships as well as attributes', function(assert) {
+    const Record = Model.extend({
+      title: attr('string'),
+    });
+
+    const Storage = Model.extend({
+      name: attr('name'),
+      records: hasMany('record', { async: false }),
+    });
+
+    this.owner.register('model:record', Record);
+    this.owner.register('model:storage', Storage);
+
+    let store = this.owner.lookup('service:store');
     let records, storage;
 
     run(() => {
@@ -130,16 +127,16 @@ module('unit/store/createRecord - Store creating records', function(hooks) {
 });
 
 module('unit/store/createRecord - Store with models by dash', function(hooks) {
-  hooks.beforeEach(function() {
-    let env = setupStore({
-      someThing: DS.Model.extend({
-        foo: DS.attr('string'),
-      }),
-    });
-    store = env.store;
-  });
+  setupTest(hooks);
 
   test('creating a record by dasherize string finds the model', function(assert) {
+    const SomeThing = Model.extend({
+      foo: attr('string'),
+    });
+
+    this.owner.register('model:some-thing', SomeThing);
+
+    let store = this.owner.lookup('service:store');
     let attributes = { foo: 'bar' };
     let record = store.createRecord('some-thing', attributes);
 

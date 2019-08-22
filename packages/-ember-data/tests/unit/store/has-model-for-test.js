@@ -1,20 +1,17 @@
-import { createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
-
-let store;
+import Model from '@ember-data/model';
 
 module('unit/store/has-model-For', function(hooks) {
-  hooks.beforeEach(function() {
-    store = createStore({
-      adapter: DS.Adapter.extend(),
-      'one-foo': DS.Model.extend({}),
-      'two-foo': DS.Model.extend({}),
-    });
-  });
+  setupTest(hooks);
 
   test(`hasModelFor correctly normalizes`, function(assert) {
+    this.owner.register('model:one-foo', Model.extend({}));
+    this.owner.register('model:two-foo', Model.extend({}));
+
+    let store = this.owner.lookup('service:store');
+
     assert.equal(store._hasModelFor('oneFoo'), true);
-    assert.equal(store._hasModelFor('twoFoo').true);
+    assert.equal(store._hasModelFor('twoFoo'), true);
   });
 });

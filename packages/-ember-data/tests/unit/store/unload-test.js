@@ -1,20 +1,24 @@
 import { resolve } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+import Adapter from '@ember-data/adapter';
+import Model, { attr, belongsTo } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-let store, tryToFind, Record;
+let store, tryToFind;
 
 module('unit/store/unload - Store unloading records', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Record = DS.Model.extend({
-      title: DS.attr('string'),
-      wasFetched: DS.attr('boolean'),
+    let Record = Model.extend({
+      title: attr('string'),
+      wasFetched: attr('boolean'),
     });
 
     Record.reopenClass({
@@ -23,22 +27,22 @@ module('unit/store/unload - Store unloading records', function(hooks) {
       },
     });
 
-    store = createStore({
-      adapter: DS.Adapter.extend({
+    this.owner.register('model:record', Record);
+    this.owner.register('serializer:application', JSONAPISerializer);
+
+    this.owner.register(
+      'adapter:application',
+      Adapter.extend({
         findRecord(store, type, id, snapshot) {
           tryToFind = true;
           return resolve({
             data: { id, type: snapshot.modelName, attributes: { 'was-fetched': true } },
           });
         },
-      }),
+      })
+    );
 
-      record: Record,
-    });
-  });
-
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    store = this.owner.lookup('service:store');
   });
 
   testInDebug('unload a dirty record asserts', function(assert) {
@@ -118,12 +122,14 @@ module('unit/store/unload - Store unloading records', function(hooks) {
   });
 });
 
-module('DS.Store - unload record with relationships', function() {
+module('Store - unload record with relationships', function(hooks) {
+  setupTest(hooks);
+
   test('can commit store after unload record with relationships', function(assert) {
     assert.expect(1);
 
-    const Brand = DS.Model.extend({
-      name: DS.attr('string'),
+    const Brand = Model.extend({
+      name: attr('string'),
     });
 
     Brand.reopenClass({
@@ -132,9 +138,9 @@ module('DS.Store - unload record with relationships', function() {
       },
     });
 
-    const Product = DS.Model.extend({
-      description: DS.attr('string'),
-      brand: DS.belongsTo('brand', {
+    const Product = Model.extend({
+      description: attr('string'),
+      brand: belongsTo('brand', {
         async: false,
       }),
     });
@@ -145,8 +151,8 @@ module('DS.Store - unload record with relationships', function() {
       },
     });
 
-    const Like = DS.Model.extend({
-      product: DS.belongsTo('product', {
+    const Like = Model.extend({
+      product: belongsTo('product', {
         async: false,
       }),
     });
@@ -157,8 +163,15 @@ module('DS.Store - unload record with relationships', function() {
       },
     });
 
-    let store = createStore({
-      adapter: DS.Adapter.extend({
+    this.owner.register('model:brand', Brand);
+    this.owner.register('model:product', Product);
+    this.owner.register('model:like', Like);
+
+    this.owner.register('serializer:application', JSONAPISerializer);
+
+    this.owner.register(
+      'adapter:application',
+      Adapter.extend({
         findRecord(store, type, id, snapshot) {
           return resolve({
             data: {
@@ -175,11 +188,10 @@ module('DS.Store - unload record with relationships', function() {
         createRecord(store, type, snapshot) {
           return resolve();
         },
-      }),
-      brand: Brand,
-      product: Product,
-      like: Like,
-    });
+      })
+    );
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       store.push({

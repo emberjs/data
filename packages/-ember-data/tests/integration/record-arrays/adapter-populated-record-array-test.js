@@ -1,36 +1,36 @@
 import { run } from '@ember/runloop';
 import { Promise } from 'rsvp';
-import { setupStore, createStore } from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { settled } from '@ember/test-helpers';
-
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+import Adapter from '@ember-data/adapter';
+import Model, { attr } from '@ember-data/model';
 
-let store;
-
-const Person = DS.Model.extend({
-  name: DS.attr('string'),
+const Person = Model.extend({
+  name: attr('string'),
   toString() {
     return `<Person#${this.get('id')}>`;
   },
 });
 
-const adapter = DS.Adapter.extend({
-  deleteRecord() {
-    return Promise.resolve();
-  },
-});
+module('integration/record-arrays/adapter_populated_record_array - AdapterPopulatedRecordArray', function(hooks) {
+  setupTest(hooks);
 
-module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPopulatedRecordArray', function(hooks) {
   hooks.beforeEach(function() {
-    store = createStore({
-      adapter: adapter,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
   });
 
   test('when a record is deleted in an adapter populated record array, it should be removed', function(assert) {
+    const ApplicationAdapter = Adapter.extend({
+      deleteRecord() {
+        return Promise.resolve();
+      },
+    });
+
+    this.owner.register('adapter:application', ApplicationAdapter);
+
+    let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
 
     let payload = {
@@ -71,6 +71,7 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
   });
 
   test('stores the metadata off the payload', function(assert) {
+    let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
 
     let payload = {
@@ -110,6 +111,7 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
   });
 
   test('stores the links off the payload', function(assert) {
+    let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
 
     let payload = {
@@ -153,7 +155,9 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
   });
 
   test('recordArray.replace() throws error', async function(assert) {
+    let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
+
     await settled();
 
     assert.throws(
@@ -166,8 +170,8 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
   });
 
   test('pass record array to adapter.query regardless of arity', function(assert) {
-    let env = setupStore({ person: Person });
-    let store = env.store;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     let payload = {
       data: [
@@ -176,14 +180,14 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
       ],
     };
 
-    env.adapter.query = function(store, type, query) {
+    adapter.query = function(store, type, query) {
       // Due to #6232, we now expect 5 arguments regardless of arity
       assert.equal(arguments.length, 5);
       return payload;
     };
 
     return store.query('person', {}).then(recordArray => {
-      env.adapter.query = function(store, type, query, _recordArray) {
+      adapter.query = function(store, type, query, _recordArray) {
         assert.equal(arguments.length, 5);
         return payload;
       };
@@ -192,8 +196,8 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
   });
 
   test('pass record array to adapter.query regardless of arity', function(assert) {
-    let env = setupStore({ person: Person });
-    let store = env.store;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     let payload = {
       data: [
@@ -216,14 +220,14 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
       return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
     };
 
-    env.adapter.query = function(store, type, query) {
+    adapter.query = function(store, type, query) {
       // Due to #6232, we now expect 5 arguments regardless of arity
       assert.equal(arguments.length, 5);
       return payload;
     };
 
     return store.query('person', actualQuery).then(recordArray => {
-      env.adapter.query = function(store, type, query, _recordArray) {
+      adapter.query = function(store, type, query, _recordArray) {
         assert.equal(arguments.length, 5);
         return payload;
       };
@@ -241,8 +245,8 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
   });
 
   test('loadRecord re-syncs internalModels recordArrays', function(assert) {
-    let env = setupStore({ person: Person });
-    let store = env.store;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     let payload = {
       data: [
@@ -251,7 +255,7 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
       ],
     };
 
-    env.adapter.query = function(store, type, query, recordArray) {
+    adapter.query = function(store, type, query, recordArray) {
       return payload;
     };
 
@@ -284,18 +288,18 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
     assert.expect(8);
 
     let queryPromise, queryArr, findPromise, findArray;
-    let env = setupStore({ person: Person });
-    let store = env.store;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
     let array = [{ id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } }];
 
     // resemble server side filtering
-    env.adapter.query = function(store, type, query, recordArray) {
+    adapter.query = function(store, type, query, recordArray) {
       return { data: array.slice(query.slice) };
     };
 
     // implement findAll to further test that query updates won't muddle
     // with the non-query record arrays
-    env.adapter.findAll = function(store, type, sinceToken) {
+    adapter.findAll = function(store, type, sinceToken) {
       return { data: array.slice(0) };
     };
 
