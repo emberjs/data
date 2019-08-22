@@ -26,7 +26,11 @@ export function wait(callback, timeout) {
 export function asyncEqual(a, b, message) {
   return all([resolve(a), resolve(b)]).then(
     this.wait(array => {
-      this.push(array[0] === array[1], array[0], array[1], message);
+      let actual = array[0];
+      let expected = array[1];
+      let result = actual === expected;
+
+      this.pushResult({ result, actual, expected, message });
     })
   );
 }
