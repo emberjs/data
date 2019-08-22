@@ -1,50 +1,43 @@
 import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-var env, store, User, Message, Account;
-
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var belongsTo = DS.belongsTo;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('integration/relationships/one_to_many_test - OneToMany relationships', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    User = DS.Model.extend({
+    const User = Model.extend({
       name: attr('string'),
       messages: hasMany('message', { async: true }),
       accounts: hasMany('account', { async: false }),
     });
 
-    Account = DS.Model.extend({
+    const Account = Model.extend({
       state: attr(),
       user: belongsTo('user', { async: false }),
     });
 
-    Message = DS.Model.extend({
+    const Message = Model.extend({
       title: attr('string'),
       user: belongsTo('user', { async: true }),
     });
 
-    env = setupStore({
-      user: User,
-      message: Message,
-      account: Account,
-      adapter: DS.Adapter.extend({
-        deleteRecord: () => resolve(),
-      }),
+    const ApplicationAdapter = Adapter.extend({
+      deleteRecord: () => resolve(),
     });
 
-    store = env.store;
-  });
+    this.owner.register('model:user', User);
+    this.owner.register('model:message', Message);
+    this.owner.register('model:account', Account);
 
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   /*
@@ -52,6 +45,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   */
 
   test('Relationship is available from the belongsTo side even if only loaded from the hasMany side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, message;
     run(function() {
       user = store.push({
@@ -91,6 +86,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Relationship is available from the belongsTo side even if only loaded from the hasMany side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var account, user;
     run(function() {
       account = store.push({
@@ -126,6 +123,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Relationship is available from the hasMany side even if only loaded from the belongsTo side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, message;
     run(function() {
       user = store.push({
@@ -163,6 +162,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Relationship is available from the hasMany side even if only loaded from the belongsTo side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, account;
     run(function() {
       user = store.push({
@@ -198,6 +199,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Fetching a belongsTo that is set to null removes the record from a relationship - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user;
     run(function() {
       user = store.push({
@@ -265,6 +268,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Fetching a belongsTo that is set to null removes the record from a relationship - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user;
     run(function() {
       store.push({
@@ -319,6 +324,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Fetching a belongsTo that is not defined does not remove the record from a relationship - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user;
     run(function() {
       user = store.push({
@@ -381,6 +388,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Fetching a belongsTo that is not defined does not remove the record from a relationship - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var account, user;
     run(function() {
       account = store.push({
@@ -428,6 +437,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsTo to null - async", function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user, message, message2;
     run(function() {
       user = store.push({
@@ -509,6 +520,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsTo to null - sync", function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let account1;
     let account2;
     let user;
@@ -581,6 +594,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Fetching the hasMany side where the hasMany is undefined does not change the belongsTo side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var message, user;
     run(function() {
       store.push({
@@ -638,6 +653,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Fetching the hasMany side where the hasMany is undefined does not change the belongsTo side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var account, user;
     run(function() {
       store.push({
@@ -706,6 +723,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   */
 
   test('Pushing to the hasMany reflects the change on the belongsTo side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, message2;
     run(function() {
       user = store.push({
@@ -758,6 +777,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Pushing to the hasMany reflects the change on the belongsTo side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, account2;
     run(function() {
       user = store.push({
@@ -813,6 +834,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Removing from the hasMany side reflects the change on the belongsTo side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, message;
     run(function() {
       user = store.push({
@@ -856,6 +879,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Removing from the hasMany side reflects the change on the belongsTo side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, account;
     run(function() {
       user = store.push({
@@ -904,6 +929,9 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
 
   test('Pushing to the hasMany side keeps the oneToMany invariant on the belongsTo side - async', function(assert) {
     assert.expect(2);
+
+    let store = this.owner.lookup('service:store');
+
     var user, user2, message;
     run(function() {
       user = store.push({
@@ -961,6 +989,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Pushing to the hasMany side keeps the oneToMany invariant - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, user2, account;
     run(function() {
       user = store.push({
@@ -1009,6 +1039,9 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
 
   test('Setting the belongsTo side keeps the oneToMany invariant on the hasMany- async', function(assert) {
     assert.expect(2);
+
+    let store = this.owner.lookup('service:store');
+
     var user, user2, message;
     run(function() {
       user = store.push({
@@ -1072,6 +1105,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Setting the belongsTo side keeps the oneToMany invariant on the hasMany- sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, user2, account;
     run(function() {
       user = store.push({
@@ -1128,6 +1163,9 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
 
   test('Setting the belongsTo side to null removes the record from the hasMany side - async', function(assert) {
     assert.expect(2);
+
+    let store = this.owner.lookup('service:store');
+
     var user, message;
     run(function() {
       user = store.push({
@@ -1182,6 +1220,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Setting the belongsTo side to null removes the record from the hasMany side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, account;
     run(function() {
       user = store.push({
@@ -1233,6 +1273,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   */
 
   test('Rollbacking attributes of a deleted record works correctly when the hasMany side has been deleted - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, message;
     run(function() {
       user = store.push({
@@ -1279,6 +1321,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Rollbacking attributes of a deleted record works correctly when the hasMany side has been deleted - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var account, user;
     run(function() {
       account = store.push({
@@ -1319,6 +1363,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Rollbacking attributes of deleted record works correctly when the belongsTo side has been deleted - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, message;
     run(function() {
       user = store.push({
@@ -1365,6 +1411,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Rollbacking attributes of a deleted record works correctly when the belongsTo side has been deleted - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var account, user;
     run(function() {
       account = store.push({
@@ -1409,6 +1457,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   */
 
   test('Rollbacking attributes of a created record works correctly when the hasMany side has been created - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, message;
     run(function() {
       user = store.push({
@@ -1437,6 +1487,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Rollbacking attributes of a created record works correctly when the hasMany side has been created - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, account;
     run(function() {
       user = store.push({
@@ -1458,6 +1510,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Rollbacking attributes of a created record works correctly when the belongsTo side has been created - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var message, user;
     run(function() {
       message = store.push({
@@ -1487,6 +1541,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('Rollbacking attributes of a created record works correctly when the belongsTo side has been created - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var account, user;
     run(function() {
       account = store.push({
@@ -1509,7 +1565,10 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
   });
 
   test('createRecord updates inverse record array which has observers', function(assert) {
-    env.adapter.findAll = () => {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findAll = () => {
       return {
         data: [
           {

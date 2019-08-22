@@ -1,49 +1,42 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(ada)" }]*/
 
-import { resolve, Promise as EmberPromise } from 'rsvp';
+import { Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import todo from '../../helpers/todo';
-import DS from 'ember-data';
 
-const { attr, hasMany } = DS;
-
-let Account, Topic, User, store, env;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, hasMany } from '@ember-data/model';
 
 module('integration/relationships/many_to_many_test - ManyToMany relationships', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    User = DS.Model.extend({
+    const User = Model.extend({
       name: attr('string'),
       topics: hasMany('topic', { async: true }),
       accounts: hasMany('account', { async: false }),
     });
 
-    Account = DS.Model.extend({
+    const Account = Model.extend({
       state: attr(),
       users: hasMany('user', { async: false }),
     });
 
-    Topic = DS.Model.extend({
+    const Topic = Model.extend({
       title: attr('string'),
       users: hasMany('user', { async: true }),
     });
 
-    env = setupStore({
-      user: User,
-      topic: Topic,
-      account: Account,
-      adapter: DS.Adapter.extend({
-        deleteRecord: () => resolve(),
-      }),
-    });
+    this.owner.register('model:topic', Topic);
+    this.owner.register('model:user', User);
+    this.owner.register('model:account', Account);
 
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(() => env.container.destroy());
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   /*
@@ -51,6 +44,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   */
 
   test('Loading from one hasMany side reflects on the other hasMany side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     run(() => {
       store.push({
         data: {
@@ -97,6 +92,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Relationship is available from one hasMany side even if only loaded from the other hasMany side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var account;
     run(() => {
       account = store.push({
@@ -135,8 +132,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Fetching a hasMany where a record was removed reflects on the other hasMany side - async', function(assert) {
-    let user, topic;
+    let store = this.owner.lookup('service:store');
 
+    let user, topic;
     run(() => {
       user = store.push({
         data: {
@@ -181,6 +179,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Fetching a hasMany where a record was removed reflects on the other hasMany side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let account, user;
     run(() => {
       account = store.push({
@@ -239,6 +239,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
 
   test('Pushing to a hasMany reflects on the other hasMany side - async', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+
     let user, topic;
 
     run(() => {
@@ -278,6 +281,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Pushing to a hasMany reflects on the other hasMany side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let account, stanley;
     run(() => {
       account = store.push({
@@ -307,6 +312,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Removing a record from a hasMany reflects on the other hasMany side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user, topic;
     run(() => {
       user = store.push({
@@ -352,6 +359,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Removing a record from a hasMany reflects on the other hasMany side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let account, user;
     run(() => {
       account = store.push({
@@ -397,6 +406,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   */
 
   test('Rollbacking attributes for a deleted record that has a ManyToMany relationship works correctly - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user, topic;
     run(() => {
       user = store.push({
@@ -448,6 +459,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let account, user;
     run(() => {
       account = store.push({
@@ -489,6 +502,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user, topic;
     run(() => {
       user = store.push({
@@ -525,6 +540,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Deleting an unpersisted record via rollbackAttributes that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let account, user;
     run(() => {
       account = store.push({
@@ -553,6 +570,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     'Re-loading a removed record should re add it to the relationship when the removed record is the last one in the relationship',
     function(assert) {
       assert.expect(4);
+
+      let store = this.owner.lookup('service:store');
+
       let account, ada, byron;
 
       run(() => {
