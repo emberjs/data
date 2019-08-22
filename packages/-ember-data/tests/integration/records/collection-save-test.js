@@ -1,36 +1,38 @@
 import { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-
-import DS from 'ember-data';
-
-let Post, env;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr } from '@ember-data/model';
 
 module('integration/records/collection_save - Save Collection of Records', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Post = DS.Model.extend({
-      title: DS.attr('string'),
+    const Post = Model.extend({
+      title: attr('string'),
     });
 
-    env = setupStore({ post: Post });
-  });
-
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('model:post', Post);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('Collection will resolve save on success', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let id = 1;
 
-    env.store.createRecord('post', { title: 'Hello' });
-    env.store.createRecord('post', { title: 'World' });
+    store.createRecord('post', { title: 'Hello' });
+    store.createRecord('post', { title: 'World' });
 
-    let posts = env.store.peekAll('post');
+    let posts = store.peekAll('post');
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function(store, type, snapshot) {
       return resolve({ data: { id: id++, type: 'post' } });
     };
 
@@ -42,12 +44,15 @@ module('integration/records/collection_save - Save Collection of Records', funct
   });
 
   test('Collection will reject save on error', function(assert) {
-    env.store.createRecord('post', { title: 'Hello' });
-    env.store.createRecord('post', { title: 'World' });
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
-    let posts = env.store.peekAll('post');
+    store.createRecord('post', { title: 'Hello' });
+    store.createRecord('post', { title: 'World' });
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    let posts = store.peekAll('post');
+
+    adapter.createRecord = function(store, type, snapshot) {
       return reject();
     };
 
@@ -59,15 +64,18 @@ module('integration/records/collection_save - Save Collection of Records', funct
   });
 
   test('Retry is allowed in a failure handler', function(assert) {
-    env.store.createRecord('post', { title: 'Hello' });
-    env.store.createRecord('post', { title: 'World' });
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
-    let posts = env.store.peekAll('post');
+    store.createRecord('post', { title: 'Hello' });
+    store.createRecord('post', { title: 'World' });
+
+    let posts = store.peekAll('post');
 
     let count = 0;
     let id = 1;
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function(store, type, snapshot) {
       if (count++ === 0) {
         return reject();
       } else {
@@ -75,7 +83,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
       }
     };
 
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    adapter.updateRecord = function(store, type, snapshot) {
       return resolve({ data: { id: snapshot.id, type: 'post' } });
     };
 
@@ -94,12 +102,15 @@ module('integration/records/collection_save - Save Collection of Records', funct
   test('Collection will reject save on invalid', function(assert) {
     assert.expect(1);
 
-    env.store.createRecord('post', { title: 'Hello' });
-    env.store.createRecord('post', { title: 'World' });
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
-    let posts = env.store.peekAll('post');
+    store.createRecord('post', { title: 'Hello' });
+    store.createRecord('post', { title: 'World' });
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    let posts = store.peekAll('post');
+
+    adapter.createRecord = function(store, type, snapshot) {
       return reject({ title: 'invalid' });
     };
 

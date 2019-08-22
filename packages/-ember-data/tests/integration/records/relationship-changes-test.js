@@ -1,14 +1,12 @@
 import { alias } from '@ember/object/computed';
 import { run } from '@ember/runloop';
 import EmberObject, { set, get } from '@ember/object';
-import setupStore from 'dummy/tests/helpers/store';
-
-import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-const { attr, belongsTo, hasMany, Model } = DS;
-
-let env, store;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 const Author = Model.extend({
   name: attr('string'),
@@ -18,7 +16,7 @@ const Post = Model.extend({
   author: belongsTo(),
 });
 
-const Person = DS.Model.extend({
+const Person = Model.extend({
   firstName: attr('string'),
   lastName: attr('string'),
   siblings: hasMany('person'),
@@ -95,23 +93,21 @@ const sibling5Ref = {
 };
 
 module('integration/records/relationship-changes - Relationship changes', function(hooks) {
-  hooks.beforeEach(function() {
-    env = setupStore({
-      person: Person,
-      author: Author,
-      post: Post,
-    });
-    store = env.store;
-  });
+  setupTest(hooks);
 
-  hooks.afterEach(function() {
-    run(() => {
-      env.container.destroy();
-    });
+  hooks.beforeEach(function() {
+    this.owner.register('model:author', Author);
+    this.owner.register('model:person', Person);
+    this.owner.register('model:post', Post);
+
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('Calling push with relationship triggers observers once if the relationship was empty and is added to', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
     let person = null;
     let observerCount = 0;
 
@@ -166,6 +162,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
   test('Calling push with relationship recalculates computed alias property if the relationship was empty and is added to', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+
     let Obj = EmberObject.extend({
       person: null,
       siblings: alias('person.siblings'),
@@ -218,6 +216,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
   test('Calling push with relationship recalculates computed alias property to firstObject if the relationship was empty and is added to', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+
     let Obj = EmberObject.extend({
       person: null,
       firstSibling: alias('person.siblings.firstObject'),
@@ -269,6 +269,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
   test('Calling push with relationship triggers observers once if the relationship was not empty and was added to', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
     let person = null;
     let observerCount = 0;
 
@@ -323,6 +325,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
   test('Calling push with relationship triggers observers once if the relationship was made shorter', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
     let person = null;
     let observerCount = 0;
 
@@ -377,6 +381,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
   test('Calling push with relationship triggers observers once if the relationship was reordered', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
     let person = null;
     let observerCount = 0;
 
@@ -431,6 +437,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
   test('Calling push with relationship does not trigger observers if the relationship was not changed', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
     let person = null;
     let observerCount = 0;
 
@@ -488,6 +496,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
   });
 
   test('Calling push with relationship triggers willChange and didChange with detail when appending', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let willChangeCount = 0;
     let didChangeCount = 0;
 
@@ -554,6 +564,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
   });
 
   test('Calling push with relationship triggers willChange and didChange with detail when truncating', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let willChangeCount = 0;
     let didChangeCount = 0;
 
@@ -620,6 +632,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
   });
 
   test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let willChangeCount = 0;
     let didChangeCount = 0;
 
@@ -685,6 +699,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
   });
 
   test('Calling push with relationship triggers willChange and didChange with detail when inserting in middle', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let willChangeCount = 0;
     let didChangeCount = 0;
 
@@ -748,6 +764,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
   });
 
   test('Calling push with relationship triggers willChange and didChange with detail when replacing different length in middle', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let willChangeCount = 0;
     let didChangeCount = 0;
 
@@ -815,10 +833,11 @@ module('integration/records/relationship-changes - Relationship changes', functi
   test('Calling push with updated belongsTo relationship trigger observer', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
     let observerCount = 0;
 
     run(() => {
-      let post = env.store.push({
+      let post = store.push({
         data: {
           type: 'post',
           id: '1',
@@ -842,7 +861,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
         observerCount++;
       });
 
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -861,10 +880,11 @@ module('integration/records/relationship-changes - Relationship changes', functi
   test('Calling push with same belongsTo relationship does not trigger observer', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
     let observerCount = 0;
 
     run(() => {
-      let post = env.store.push({
+      let post = store.push({
         data: {
           type: 'post',
           id: '1',
@@ -880,7 +900,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
         observerCount++;
       });
 
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',

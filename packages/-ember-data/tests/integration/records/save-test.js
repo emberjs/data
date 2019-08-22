@@ -1,32 +1,35 @@
 import { defer, reject, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-var Post, env;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr } from '@ember-data/model';
+import { InvalidError } from '@ember-data/adapter/error';
 
 module('integration/records/save - Save Record', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Post = DS.Model.extend({
-      title: DS.attr('string'),
+    const Post = Model.extend({
+      title: attr('string'),
     });
 
-    env = setupStore({ post: Post });
-  });
-
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('model:post', Post);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('Will resolve save on success', function(assert) {
     assert.expect(4);
-    let post = env.store.createRecord('post', { title: 'toto' });
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
 
     var deferred = defer();
-    env.adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function(store, type, snapshot) {
       return deferred.promise;
     };
 
@@ -46,11 +49,12 @@ module('integration/records/save - Save Record', function(hooks) {
   });
 
   test('Will reject save on error', function(assert) {
-    let post = env.store.createRecord('post', { title: 'toto' });
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
 
-    env.adapter.createRecord = function(store, type, snapshot) {
-      var error = new DS.InvalidError([{ title: 'not valid' }]);
-
+    adapter.createRecord = function(store, type, snapshot) {
+      let error = new InvalidError([{ title: 'not valid' }]);
       return reject(error);
     };
 
@@ -65,12 +69,14 @@ module('integration/records/save - Save Record', function(hooks) {
   });
 
   test('Retry is allowed in a failure handler', function(assert) {
-    let post = env.store.createRecord('post', { title: 'toto' });
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
 
     var count = 0;
 
-    env.adapter.createRecord = function(store, type, snapshot) {
-      var error = new DS.InvalidError([{ title: 'not valid' }]);
+    adapter.createRecord = function(store, type, snapshot) {
+      let error = new InvalidError([{ title: 'not valid' }]);
 
       if (count++ === 0) {
         return reject(error);
@@ -96,9 +102,12 @@ module('integration/records/save - Save Record', function(hooks) {
 
   test('Repeated failed saves keeps the record in uncommited state', function(assert) {
     assert.expect(4);
-    let post = env.store.createRecord('post', { title: 'toto' });
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
+
+    adapter.createRecord = function(store, type, snapshot) {
       return reject();
     };
 
@@ -117,10 +126,13 @@ module('integration/records/save - Save Record', function(hooks) {
 
   test('Repeated failed saves with invalid error marks the record as invalid', function(assert) {
     assert.expect(2);
-    let post = env.store.createRecord('post', { title: 'toto' });
 
-    env.adapter.createRecord = function(store, type, snapshot) {
-      var error = new DS.InvalidError([
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
+
+    adapter.createRecord = function(store, type, snapshot) {
+      let error = new InvalidError([
         {
           detail: 'is invalid',
           source: { pointer: 'data/attributes/title' },
@@ -143,11 +155,13 @@ module('integration/records/save - Save Record', function(hooks) {
 
   test('Repeated failed saves with invalid error without payload marks the record as invalid', function(assert) {
     assert.expect(2);
-    let post = env.store.createRecord('post', { title: 'toto' });
 
-    env.adapter.createRecord = function(store, type, snapshot) {
-      var error = new DS.InvalidError();
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
 
+    adapter.createRecord = function(store, type, snapshot) {
+      let error = new InvalidError();
       return reject(error);
     };
 
@@ -164,11 +178,13 @@ module('integration/records/save - Save Record', function(hooks) {
 
   test('Will reject save on invalid', function(assert) {
     assert.expect(1);
-    let post = env.store.createRecord('post', { title: 'toto' });
 
-    env.adapter.createRecord = function(store, type, snapshot) {
-      var error = new DS.InvalidError([{ title: 'not valid' }]);
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let post = store.createRecord('post', { title: 'toto' });
 
+    adapter.createRecord = function(store, type, snapshot) {
+      var error = new InvalidError([{ title: 'not valid' }]);
       return reject(error);
     };
 
@@ -184,9 +200,12 @@ module('integration/records/save - Save Record', function(hooks) {
 
   test('Will error when saving after unloading record via the store', function(assert) {
     assert.expect(1);
-    let post = env.store.createRecord('post', { title: 'toto' });
+
+    let store = this.owner.lookup('service:store');
+    let post = store.createRecord('post', { title: 'toto' });
+
     run(function() {
-      env.store.unloadAll('post');
+      store.unloadAll('post');
       assert.throws(function() {
         post.save();
       }, 'Attempting to save the unloaded record threw an error');
@@ -195,7 +214,10 @@ module('integration/records/save - Save Record', function(hooks) {
 
   test('Will error when saving after unloading record', function(assert) {
     assert.expect(1);
-    let post = env.store.createRecord('post', { title: 'toto' });
+
+    let store = this.owner.lookup('service:store');
+    let post = store.createRecord('post', { title: 'toto' });
+
     run(function() {
       post.unloadRecord();
       assert.throws(function() {
