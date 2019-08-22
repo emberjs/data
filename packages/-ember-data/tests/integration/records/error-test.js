@@ -1,34 +1,31 @@
 import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import RSVP from 'rsvp';
 
-var env, store, Person;
-var attr = DS.attr;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr } from '@ember-data/model';
+import { InvalidError } from '@ember-data/adapter/error';
 
 module('integration/records/error', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
+    const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
     });
 
-    env = setupStore({
-      person: Person,
-    });
-
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(function() {
-      env.container.destroy();
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   testInDebug('adding errors during root.loaded.created.invalid works', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var person = run(() => {
       store.push({
         data: {
@@ -63,6 +60,8 @@ module('integration/records/error', function(hooks) {
   });
 
   testInDebug('adding errors root.loaded.created.invalid works', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let person = store.createRecord('person', {
       id: 'wat',
       firstName: 'Yehuda',
@@ -89,6 +88,8 @@ module('integration/records/error', function(hooks) {
   });
 
   testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let person = store.createRecord('person', {
       id: 'wat',
       firstName: 'Yehuda',
@@ -114,6 +115,8 @@ module('integration/records/error', function(hooks) {
   });
 
   testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let person = store.createRecord('person', {
       id: 'wat',
       firstName: 'Yehuda',
@@ -142,10 +145,13 @@ module('integration/records/error', function(hooks) {
   });
 
   test('using setProperties to clear errors', function(assert) {
-    env.adapter.reopen({
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.reopen({
       createRecord() {
         return RSVP.reject(
-          new DS.InvalidError([
+          new InvalidError([
             {
               detail: 'Must be unique',
               source: { pointer: '/data/attributes/first-name' },

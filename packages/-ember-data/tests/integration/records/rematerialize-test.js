@@ -1,78 +1,48 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
 import { IDENTIFIERS } from '@ember-data/canary-features';
 
-const { attr, belongsTo, hasMany, Model } = DS;
-
-let env;
-
-let Person = Model.extend({
-  name: attr('string'),
-  cars: hasMany('car', { async: false }),
-  boats: hasMany('boat', { async: true }),
-});
-Person.reopenClass({
-  toString() {
-    return 'Person';
-  },
-});
-
-let Group = Model.extend({
-  people: hasMany('person', { async: false }),
-});
-Group.reopenClass({
-  toString() {
-    return 'Group';
-  },
-});
-
-let Car = Model.extend({
-  make: attr('string'),
-  model: attr('string'),
-  person: belongsTo('person', { async: false }),
-});
-Car.reopenClass({
-  toString() {
-    return 'Car';
-  },
-});
-
-let Boat = Model.extend({
-  name: attr('string'),
-  person: belongsTo('person', { async: false }),
-});
-Boat.toString = function() {
-  return 'Boat';
-};
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('integration/unload - Rematerializing Unloaded Records', function(hooks) {
-  hooks.beforeEach(function() {
-    env = setupStore({
-      adapter: DS.JSONAPIAdapter,
-      person: Person,
-      car: Car,
-      group: Group,
-      boat: Boat,
-    });
-  });
+  setupTest(hooks);
 
-  hooks.afterEach(function() {
-    run(function() {
-      env.container.destroy();
-    });
+  hooks.beforeEach(function() {
+    this.owner.register('adapter:application', JSONAPIAdapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('a sync belongs to relationship to an unloaded record can restore that record', function(assert) {
+    const Person = Model.extend({
+      name: attr('string'),
+      cars: hasMany('car', { async: false }),
+      toString: () => 'Person',
+    });
+
+    const Car = Model.extend({
+      make: attr('string'),
+      model: attr('string'),
+      person: belongsTo('person', { async: false }),
+      toString: () => 'Car',
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('model:car', Car);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     // disable background reloading so we do not re-create the relationship.
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     let adam = run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -87,11 +57,11 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
         },
       });
 
-      return env.store.peekRecord('person', 1);
+      return store.peekRecord('person', 1);
     });
 
     let bob = run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'car',
           id: '1',
@@ -107,30 +77,30 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
         },
       });
 
-      return env.store.peekRecord('car', 1);
+      return store.peekRecord('car', 1);
     });
 
-    let person = env.store.peekRecord('person', 1);
+    let person = store.peekRecord('person', 1);
     assert.equal(person.get('cars.length'), 1, 'The inital length of cars is correct');
 
-    assert.equal(env.store.hasRecordForId('person', 1), true, 'The person is in the store');
+    assert.equal(store.hasRecordForId('person', 1), true, 'The person is in the store');
     assert.equal(
-      env.store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
       true,
       'The person internalModel is loaded'
     );
 
     run(() => person.unloadRecord());
 
-    assert.equal(env.store.hasRecordForId('person', 1), false, 'The person is unloaded');
+    assert.equal(store.hasRecordForId('person', 1), false, 'The person is unloaded');
     assert.equal(
-      env.store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
       false,
       'The person internalModel is freed'
     );
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -156,8 +126,26 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
   test('an async has many relationship to an unloaded record can restore that record', function(assert) {
     assert.expect(16);
 
+    const Person = Model.extend({
+      name: attr('string'),
+      boats: hasMany('boat', { async: true }),
+      toString: () => 'Person',
+    });
+
+    const Boat = Model.extend({
+      name: attr('string'),
+      person: belongsTo('person', { async: false }),
+      toString: () => 'Boat',
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('model:boat', Boat);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     // disable background reloading so we do not re-create the relationship.
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     const BOAT_ONE = {
       type: 'boat',
@@ -186,7 +174,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     };
 
     let adapterCalls = 0;
-    env.adapter.findRecord = function(store, model, param) {
+    adapter.findRecord = function(store, model, param) {
       assert.ok(true, `adapter called ${++adapterCalls}x`);
 
       let data;
@@ -204,7 +192,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -221,24 +209,24 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     });
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [deepCopy(BOAT_ONE), deepCopy(BOAT_TWO)],
       });
     });
 
-    let adam = env.store.peekRecord('person', '1');
-    let boaty = env.store.peekRecord('boat', '1');
+    let adam = store.peekRecord('person', '1');
+    let boaty = store.peekRecord('boat', '1');
 
     // assert our initial cache state
-    assert.equal(env.store.hasRecordForId('person', '1'), true, 'The person is in the store');
+    assert.equal(store.hasRecordForId('person', '1'), true, 'The person is in the store');
     assert.equal(
-      env.store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
       true,
       'The person internalModel is loaded'
     );
-    assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is in the store');
+    assert.equal(store.hasRecordForId('boat', '1'), true, 'The boat is in the store');
     assert.equal(
-      env.store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
       true,
       'The boat internalModel is loaded'
     );
@@ -250,9 +238,9 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     assert.equal(boats.get('length'), 1, 'after unloading boats.length is correct');
 
     // assert our new cache state
-    assert.equal(env.store.hasRecordForId('boat', '1'), false, 'The boat is unloaded');
+    assert.equal(store.hasRecordForId('boat', '1'), false, 'The boat is unloaded');
     assert.equal(
-      env.store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
       true,
       'The boat internalModel is retained'
     );
@@ -267,9 +255,9 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     assert.equal(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
     assert.ok(rematerializedBoaty !== boaty, 'the boat is rematerialized, not recycled');
 
-    assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is loaded');
+    assert.equal(store.hasRecordForId('boat', '1'), true, 'The boat is loaded');
     assert.equal(
-      env.store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
       true,
       'The boat internalModel is retained'
     );

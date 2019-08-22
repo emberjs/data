@@ -1,35 +1,31 @@
 import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-var env, store, Person;
-var attr = DS.attr;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr } from '@ember-data/model';
 
 module('integration/records/property-changes - Property changes', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
+    const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
     });
 
-    env = setupStore({
-      person: Person,
-    });
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(function() {
-      env.container.destroy();
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('Calling push with partial records trigger observers for just those attributes that changed', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+
     var person;
 
     run(function() {
@@ -70,6 +66,9 @@ module('integration/records/property-changes - Property changes', function(hooks
 
   test('Calling push does not trigger observers for locally changed attributes with the same value', function(assert) {
     assert.expect(0);
+
+    let store = this.owner.lookup('service:store');
+
     var person;
 
     run(function() {
@@ -113,7 +112,10 @@ module('integration/records/property-changes - Property changes', function(hooks
     assert.expect(1);
     var person;
 
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.updateRecord = function(store, type, snapshot) {
       return resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
     };
 
@@ -147,6 +149,9 @@ module('integration/records/property-changes - Property changes', function(hooks
 
   test('store.push should not override a modified attribute', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+
     var person;
 
     run(function() {
