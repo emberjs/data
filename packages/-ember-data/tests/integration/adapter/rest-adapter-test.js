@@ -4,7 +4,7 @@ import { underscore } from '@ember/string';
 import { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { singularize } from 'ember-inflector';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
@@ -16,11 +16,13 @@ import DS from 'ember-data';
 
 const hasJQuery = typeof jQuery !== 'undefined';
 
-let env, store, adapter, Post, Comment, SuperUser;
+let store, adapter, Post, Comment, SuperUser;
 let passedUrl, passedVerb, passedHash;
 let server;
 
 module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     Post = DS.Model.extend({
       name: DS.attr('string'),
@@ -32,16 +34,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
     SuperUser = DS.Model.extend();
 
-    env = setupStore({
-      post: Post,
-      comment: Comment,
-      superUser: SuperUser,
-      adapter: DS.RESTAdapter,
-    });
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:super-user', SuperUser);
+
+    this.owner.register('adapter:application', DS.RESTAdapter.extend());
 
     server = new Pretender();
-    store = env.store;
-    adapter = env.adapter;
+    store = this.owner.lookup('service:store');
+    adapter = store.adapterFor('application');
 
     passedUrl = passedVerb = passedHash = null;
   });
@@ -213,7 +214,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test('findRecord - payload with an serializer-specified primary key', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         primaryKey: '_ID_',
@@ -235,7 +236,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test('findRecord - payload with a serializer-specified attribute mapping', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         attrs: {
@@ -382,7 +383,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test("createRecord - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         primaryKey: '_id_',
@@ -408,7 +409,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", function(assert) {
     let post;
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         attrs: {
@@ -431,7 +432,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test("createRecord - a serializer's attribute mapping takes precedence over keyForAttribute when building the payload", function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         attrs: {
@@ -458,7 +459,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (belongsTo) when building the payload", function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:comment',
       DS.RESTSerializer.extend({
         attrs: {
@@ -492,7 +493,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         attrs: {
@@ -892,7 +893,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test("updateRecord - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         primaryKey: '_id_',
@@ -1202,7 +1203,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test('findAll - data is normalized through custom serializers', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         primaryKey: '_ID_',
@@ -1365,7 +1366,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test('query - data is normalized through custom serializers', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         primaryKey: '_ID_',
@@ -1482,7 +1483,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test('queryRecord - data is normalized through custom serializers', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         primaryKey: '_ID_',
@@ -1709,7 +1710,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test('findMany - a custom serializer is used if present', function(assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         primaryKey: '_ID_',
@@ -1717,7 +1718,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'serializer:comment',
       DS.RESTSerializer.extend({
         primaryKey: '_ID_',
@@ -1923,7 +1924,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test('findMany - a custom serializer is used if present', function(assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         primaryKey: '_ID_',
@@ -1931,7 +1932,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'serializer:comment',
       DS.RESTSerializer.extend({
         primaryKey: '_ID_',
@@ -2150,7 +2151,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   test('normalizeKey - to set up _ids and _id', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:application',
       DS.RESTSerializer.extend({
         keyForAttribute(attr) {
@@ -2171,7 +2172,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'model:post',
       DS.Model.extend({
         name: DS.attr(),
@@ -2181,7 +2182,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'model:user',
       DS.Model.extend({
         createdAt: DS.attr(),
@@ -2189,7 +2190,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'model:comment',
       DS.Model.extend({
         body: DS.attr(),

@@ -1,42 +1,41 @@
 import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
-import RSVP, { resolve } from 'rsvp';
-import setupStore from 'dummy/tests/helpers/store';
-
+import RSVP, { all, hash, resolve } from 'rsvp';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
 
-const { all, hash } = RSVP;
-const { attr } = DS;
-
-let Person, env, store;
+import Model, { attr } from '@ember-data/model';
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/adapter/record_persistence - Persisting Records', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
+    const Person = Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
       firstName: attr('string'),
       lastName: attr('string'),
     });
 
-    env = setupStore({
-      adapter: DS.Adapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-      }),
-      person: Person,
+    const ApplicationAdapter = Adapter.extend({
+      shouldBackgroundReloadRecord: () => false,
     });
-    store = env.store;
-  });
 
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test("When a store is committed, the adapter's `commit` method should be called with records that have been changed.", function(assert) {
     assert.expect(2);
 
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
+    adapter.updateRecord = function(store, type, snapshot) {
       assert.equal(type, Person, 'the type is correct');
       assert.equal(snapshot.record, tom, 'the record is correct');
 
@@ -44,7 +43,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -58,7 +57,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     let tom;
 
     return run(() => {
-      return env.store.findRecord('person', 1).then(person => {
+      return store.findRecord('person', 1).then(person => {
         tom = person;
         set(tom, 'name', 'Tom Dale');
         return tom.save();
@@ -68,9 +67,14 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
 
   test("When a store is committed, the adapter's `commit` method should be called with records that have been created.", function(assert) {
     assert.expect(2);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     let tom;
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function(store, type, snapshot) {
       assert.equal(type, Person, 'the type is correct');
       assert.equal(snapshot.record, tom, 'the record is correct');
 
@@ -78,31 +82,39 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     };
 
     return run(() => {
-      tom = env.store.createRecord('person', { name: 'Tom Dale' });
+      tom = store.createRecord('person', { name: 'Tom Dale' });
       return tom.save();
     });
   });
 
   test('After a created record has been assigned an ID, finding a record by that ID returns the original record.', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let tom;
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function(store, type, snapshot) {
       return resolve({ data: { id: 1, type: 'person', attributes: { name: 'Tom Dale' } } });
     };
 
     return run(() => {
-      tom = env.store.createRecord('person', { name: 'Tom Dale' });
+      tom = store.createRecord('person', { name: 'Tom Dale' });
       return tom.save();
     }).then(tom => {
-      return env.store.find('person', 1).then(nextTom => {
+      return store.findRecord('person', 1).then(nextTom => {
         assert.equal(tom, nextTom, 'the retrieved record is the same as the created record');
       });
     });
   });
 
   test("when a store is committed, the adapter's `commit` method should be called with records that have been deleted.", function(assert) {
-    env.adapter.deleteRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
+    adapter.deleteRecord = function(store, type, snapshot) {
       assert.equal(type, Person, 'the type is correct');
       assert.equal(snapshot.record, tom, 'the record is correct');
 
@@ -112,7 +124,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     let tom;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -123,7 +135,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
       });
     });
 
-    return env.store
+    return store
       .findRecord('person', 1)
       .then(person => {
         tom = person;
@@ -138,14 +150,17 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
   test('An adapter can notify the store that records were updated by calling `didSaveRecords`.', function(assert) {
     assert.expect(6);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let tom, yehuda;
 
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    adapter.updateRecord = function(store, type, snapshot) {
       return resolve();
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
@@ -159,7 +174,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
       });
     });
 
-    return all([env.store.findRecord('person', 1), env.store.findRecord('person', 2)]).then(array => {
+    return all([store.findRecord('person', 1), store.findRecord('person', 2)]).then(array => {
       tom = array[0];
       yehuda = array[1];
 
@@ -182,7 +197,10 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
   });
 
   test('An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.', function(assert) {
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.updateRecord = function(store, type, snapshot) {
       if (snapshot.id === '1') {
         return resolve({
           data: { id: 1, type: 'person', attributes: { name: 'Tom Dale', 'updated-at': 'now' } },
@@ -199,7 +217,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
@@ -220,8 +238,8 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     });
 
     return hash({
-      tom: env.store.findRecord('person', 1),
-      yehuda: env.store.findRecord('person', 2),
+      tom: store.findRecord('person', 1),
+      yehuda: store.findRecord('person', 2),
     })
       .then(people => {
         people.tom.set('name', 'Draaaaaahm Dale');
@@ -257,7 +275,10 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
   });
 
   test('An adapter can notify the store that a record was updated by calling `didSaveRecord`.', function(assert) {
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.updateRecord = function(store, type, snapshot) {
       return resolve();
     };
 
@@ -292,7 +313,10 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
   });
 
   test('An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.', function(assert) {
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.updateRecord = function(store, type, snapshot) {
       switch (snapshot.id) {
         case '1':
           return resolve({
@@ -310,7 +334,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
@@ -368,12 +392,15 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
   });
 
   test('An adapter can notify the store that records were deleted by calling `didSaveRecords`.', function(assert) {
-    env.adapter.deleteRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.deleteRecord = function(store, type, snapshot) {
       return resolve();
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
