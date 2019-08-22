@@ -1,45 +1,35 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-const { attr, hasMany, belongsTo } = DS;
-
-let env, store, Elder, MiddleAger, Kid;
+import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 module('integration/relationships/nested_relationships_test - Nested relationships', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Elder = DS.Model.extend({
+    const Elder = Model.extend({
       name: attr('string'),
       middleAgers: hasMany('middle-ager'),
     });
 
-    MiddleAger = DS.Model.extend({
+    const MiddleAger = Model.extend({
       name: attr('string'),
       elder: belongsTo('elder'),
       kids: hasMany('kid'),
     });
 
-    Kid = DS.Model.extend({
+    const Kid = Model.extend({
       name: attr('string'),
       middleAger: belongsTo('middle-ager'),
     });
 
-    env = setupStore({
-      elder: Elder,
-      'middle-ager': MiddleAger,
-      kid: Kid,
-      adapter: DS.JSONAPIAdapter,
-    });
-
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('model:elder', Elder);
+    this.owner.register('model:middle-ager', MiddleAger);
+    this.owner.register('model:kid', Kid);
+    this.owner.register('adapter:application', JSONAPIAdapter.extend());
   });
 
   /*
@@ -47,9 +37,13 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
   */
 
   test('Sideloaded nested relationships load correctly', function(assert) {
-    env.adapter.shouldBackgroundReloadRecord = () => {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => {
       return false;
     };
+
     run(() => {
       store.push({
         data: {

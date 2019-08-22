@@ -1,52 +1,41 @@
 import Mixin from '@ember/object/mixin';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-var env, store, User, Message, NotMessage, Video;
-
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var belongsTo = DS.belongsTo;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module(
   'integration/relationships/polymorphic_mixins_has_many_test - Polymorphic hasMany relationships with mixins',
   function(hooks) {
+    setupTest(hooks);
+
     hooks.beforeEach(function() {
-      User = DS.Model.extend({
+      const User = Model.extend({
         name: attr('string'),
         messages: hasMany('message', { async: true, polymorphic: true }),
       });
 
-      Message = Mixin.create({
+      const Message = Mixin.create({
         title: attr('string'),
         user: belongsTo('user', { async: true }),
       });
 
-      Video = DS.Model.extend(Message, {
-        video: attr(),
-      });
+      const Video = Model.extend(Message, { video: attr() });
+      const NotMessage = Model.extend({ video: attr() });
 
-      NotMessage = DS.Model.extend({
-        video: attr(),
-      });
+      this.owner.register('model:user', User);
+      this.owner.register('model:video', Video);
+      this.owner.register('model:not-message', NotMessage);
 
-      env = setupStore({
-        user: User,
-        video: Video,
-        notMessage: NotMessage,
-      });
+      this.owner.register('mixin:message', Message);
 
-      env.owner.register('mixin:message', Message);
-      store = env.store;
-    });
-
-    hooks.afterEach(function() {
-      run(env.container, 'destroy');
+      this.owner.register('adapter:application', Adapter.extend());
+      this.owner.register('serializer:application', JSONAPISerializer.extend());
     });
 
     /*
@@ -54,6 +43,8 @@ module(
   */
 
     test('Relationship is available from the belongsTo side even if only loaded from the hasMany side - async', function(assert) {
+      let store = this.owner.lookup('service:store');
+
       var user, video;
       run(function() {
         store.push({
@@ -99,6 +90,8 @@ module(
     Local edits
   */
     test('Pushing to the hasMany reflects the change on the belongsTo side - async', function(assert) {
+      let store = this.owner.lookup('service:store');
+
       var user, video;
       run(function() {
         store.push({
@@ -144,6 +137,8 @@ module(
     testInDebug(
       'Pushing a an object that does not implement the mixin to the mixin accepting array errors out',
       function(assert) {
+        let store = this.owner.lookup('service:store');
+
         var user, notMessage;
         run(function() {
           store.push({
@@ -184,6 +179,8 @@ module(
     );
 
     test('Pushing to the hasMany reflects the change on the belongsTo side - model injections true', function(assert) {
+      let store = this.owner.lookup('service:store');
+
       var user, video;
       run(function() {
         store.push({
@@ -229,6 +226,8 @@ module(
     testInDebug(
       'Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true',
       function(assert) {
+        let store = this.owner.lookup('service:store');
+
         var user, notMessage;
         run(function() {
           store.push({

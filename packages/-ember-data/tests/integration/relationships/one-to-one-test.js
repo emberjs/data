@@ -1,44 +1,41 @@
 import { resolve, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-var env, store, User, Job;
-
-var attr = DS.attr;
-var belongsTo = DS.belongsTo;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, belongsTo } from '@ember-data/model';
 
 module('integration/relationships/one_to_one_test - OneToOne relationships', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    User = DS.Model.extend({
+    const User = Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: 'bestFriend' }),
       job: belongsTo('job', { async: false }),
     });
 
-    Job = DS.Model.extend({
+    const Job = Model.extend({
       name: attr(),
       isGood: attr(),
       user: belongsTo('user', { async: false }),
     });
 
-    env = setupStore({
-      user: User,
-      job: Job,
-      adapter: DS.Adapter.extend({
-        deleteRecord: () => resolve(),
-      }),
+    const ApplicationAdapter = Adapter.extend({
+      deleteRecord: () => resolve(),
     });
 
-    store = env.store;
-  });
+    const ApplicationSerializer = JSONAPISerializer.extend();
 
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('model:user', User);
+    this.owner.register('model:job', Job);
+
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', ApplicationSerializer);
   });
 
   /*
@@ -46,6 +43,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   */
 
   test('Relationship is available from both sides even if only loaded from one side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var stanley, stanleysFriend;
     run(function() {
       stanley = store.push({
@@ -82,6 +81,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Relationship is available from both sides even if only loaded from one side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var job, user;
     run(function() {
       job = store.push({
@@ -115,6 +116,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Fetching a belongsTo that is set to null removes the record from a relationship - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var stanleysFriend;
     run(function() {
       stanleysFriend = store.push({
@@ -155,6 +158,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Fetching a belongsTo that is set to null removes the record from a relationship - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var job;
     run(function() {
       job = store.push({
@@ -204,6 +209,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Fetching a belongsTo that is set to a different record, sets the old relationship to null - async', async function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user1 = store.push({
       data: {
         type: 'user',
@@ -295,6 +302,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Fetching a belongsTo that is set to a different record, sets the old relationship to null - sync', async function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user1 = store.push({
       data: {
         type: 'user',
@@ -382,6 +391,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   */
 
   test('Setting a OneToOne relationship reflects correctly on the other side- async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var stanley, stanleysFriend;
     run(function() {
       stanley = store.push({
@@ -412,6 +423,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Setting a OneToOne relationship reflects correctly on the other side- sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var job, user;
     run(function() {
       job = store.push({
@@ -440,6 +453,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Setting a BelongsTo to a promise unwraps the promise before setting- async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var stanley, stanleysFriend, newFriend;
     run(function() {
       stanley = store.push({
@@ -490,6 +505,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Setting a BelongsTo to a promise works when the promise returns null- async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var igor, newFriend;
     run(function() {
       store.push({
@@ -537,6 +554,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   testInDebug("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var stanley, igor;
     run(function() {
       stanley = store.push({
@@ -576,6 +595,10 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
   test('Setting a BelongsTo to a promise multiple times is resistant to race conditions- async', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     var stanley, igor, newFriend;
     run(function() {
       stanley = store.push({
@@ -623,7 +646,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
     });
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       if (id === '5') {
         return resolve({ data: { id: 5, type: 'user', attributes: { name: "Igor's friend" } } });
       } else if (id === '2') {
@@ -647,6 +670,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Setting a OneToOne relationship to null reflects correctly on the other side - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var stanley, stanleysFriend;
     run(function() {
       stanley = store.push({
@@ -694,6 +719,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Setting a OneToOne relationship to null reflects correctly on the other side - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var job, user;
     run(function() {
       job = store.push({
@@ -740,6 +767,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
   test('Setting a belongsTo to a different record, sets the old relationship to null - async', function(assert) {
     assert.expect(3);
+
+    let store = this.owner.lookup('service:store');
 
     var stanley, stanleysFriend;
     run(function() {
@@ -806,6 +835,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Setting a belongsTo to a different record, sets the old relationship to null - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var job, user, newBetterJob;
     run(function() {
       job = store.push({
@@ -862,6 +893,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   */
 
   test('Rollbacking attributes of deleted record restores the relationship on both sides - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var stanley, stanleysFriend;
     run(function() {
       stanley = store.push({
@@ -906,6 +939,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Rollbacking attributes of deleted record restores the relationship on both sides - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var job, user;
     run(function() {
       job = store.push({
@@ -944,6 +979,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Rollbacking attributes of created record removes the relationship on both sides - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var stanleysFriend, stanley;
     run(function() {
       stanleysFriend = store.push({
@@ -970,6 +1007,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   });
 
   test('Rollbacking attributes of created record removes the relationship on both sides - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var user, job;
     run(function() {
       user = store.push({

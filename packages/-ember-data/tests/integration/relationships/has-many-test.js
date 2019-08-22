@@ -4,100 +4,98 @@ import { A } from '@ember/array';
 import { resolve, Promise as EmberPromise, all, reject, hash } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import { module, test } from 'qunit';
 import { relationshipStateFor, relationshipsFor } from 'ember-data/-private';
-import DS from 'ember-data';
 
-let env, store, User, Contact, Email, Phone, Message, Post, Comment;
-let Book, Chapter, Page;
-
-const { attr, hasMany, belongsTo } = DS;
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('integration/relationships/has_many - Has-Many Relationships', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    User = DS.Model.extend({
+    const User = Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true, async: false }),
       contacts: hasMany('user', { inverse: null, async: false }),
     });
 
-    Contact = DS.Model.extend({
+    const Contact = Model.extend({
       user: belongsTo('user', { async: false }),
+      toString: () => 'Contact',
     });
-    Contact.reopenClass({ toString: () => 'Contact' });
 
-    Email = Contact.extend({
+    const Email = Contact.extend({
       email: attr('string'),
+      toString: () => 'Email',
     });
-    Email.reopenClass({ toString: () => 'Email' });
 
-    Phone = Contact.extend({
+    const Phone = Contact.extend({
       number: attr('string'),
+      toString: () => 'Phone',
     });
-    Phone.reopenClass({ toString: () => 'Phone' });
 
-    Message = DS.Model.extend({
+    const Message = Model.extend({
       user: belongsTo('user', { async: false }),
       created_at: attr('date'),
+      toString: () => 'Message',
     });
-    Message.reopenClass({ toString: () => 'Message' });
 
-    Post = Message.extend({
+    const Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment', { async: false }),
+      toString: () => 'Post',
     });
-    Post.reopenClass({ toString: () => 'Post' });
 
-    Comment = Message.extend({
-      body: DS.attr('string'),
-      message: DS.belongsTo('post', { polymorphic: true, async: true }),
+    const Comment = Message.extend({
+      body: attr('string'),
+      message: belongsTo('post', { polymorphic: true, async: true }),
+      toString: () => 'Comment',
     });
-    Comment.reopenClass({ toString: () => 'Comment' });
 
-    Book = DS.Model.extend({
+    const Book = Model.extend({
       title: attr(),
       chapters: hasMany('chapter', { async: true }),
+      toString: () => 'Book',
     });
-    Book.reopenClass({ toString: () => 'Book' });
 
-    Chapter = DS.Model.extend({
+    const Chapter = Model.extend({
       title: attr(),
       pages: hasMany('page', { async: false }),
+      toString: () => 'Chapter',
     });
-    Chapter.reopenClass({ toString: () => 'Chapter' });
 
-    Page = DS.Model.extend({
+    const Page = Model.extend({
       number: attr('number'),
       chapter: belongsTo('chapter', { async: false }),
-    });
-    Page.reopenClass({ toString: () => 'Page' });
-
-    env = setupStore({
-      user: User,
-      contact: Contact,
-      email: Email,
-      phone: Phone,
-      post: Post,
-      comment: Comment,
-      message: Message,
-      book: Book,
-      chapter: Chapter,
-      page: Page,
+      toString: () => 'Page',
     });
 
-    store = env.store;
-  });
+    this.owner.register('model:user', User);
+    this.owner.register('model:contact', Contact);
+    this.owner.register('model:email', Email);
+    this.owner.register('model:phone', Phone);
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:message', Message);
+    this.owner.register('model:book', Book);
+    this.owner.register('model:chapter', Chapter);
+    this.owner.register('model:page', Page);
 
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   testInDebug('Invalid hasMany relationship identifiers throw errors', function(assert) {
     assert.expect(2);
-    let { store } = env;
+
+    let store = this.owner.lookup('service:store');
 
     // test null id
     assert.expectAssertion(() => {
@@ -140,6 +138,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function(assert) {
     assert.expect(0);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let postData = {
       type: 'post',
       id: '1',
@@ -150,16 +151,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       },
     };
 
-    env.adapter.findMany = function(store, type, ids, snapshots) {
+    adapter.findMany = function(store, type, ids, snapshots) {
       assert.ok(false, "The adapter's find method should not be called");
     };
 
-    env.adapter.findRecord = function(store, type, ids, snapshots) {
+    adapter.findRecord = function(store, type, ids, snapshots) {
       return { data: postData };
     };
 
     return run(() => {
-      env.store.push({
+      store.push({
         data: postData,
         included: [
           {
@@ -169,7 +170,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         ],
       });
 
-      return env.store.findRecord('post', 1).then(post => {
+      return store.findRecord('post', 1).then(post => {
         return post.get('comments');
       });
     });
@@ -177,6 +178,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('hasMany + canonical vs currentState + destroyRecord  ', function(assert) {
     assert.expect(6);
+
+    let store = this.owner.lookup('service:store');
 
     let postData = {
       type: 'user',
@@ -205,7 +208,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: postData,
         included: [
           {
@@ -224,19 +227,19 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     });
 
-    let user = env.store.peekRecord('user', 1);
+    let user = store.peekRecord('user', 1);
     let contacts = user.get('contacts');
 
-    env.store.adapterFor('user').deleteRecord = function() {
+    store.adapterFor('user').deleteRecord = function() {
       return { data: { type: 'user', id: 2 } };
     };
 
     assert.deepEqual(contacts.map(c => c.get('id')), ['2', '3', '4'], 'user should have expected contacts');
 
     run(() => {
-      contacts.addObject(env.store.createRecord('user', { id: 5 }));
-      contacts.addObject(env.store.createRecord('user', { id: 6 }));
-      contacts.addObject(env.store.createRecord('user', { id: 7 }));
+      contacts.addObject(store.createRecord('user', { id: 5 }));
+      contacts.addObject(store.createRecord('user', { id: 6 }));
+      contacts.addObject(store.createRecord('user', { id: 7 }));
     });
 
     assert.deepEqual(
@@ -246,8 +249,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     );
 
     run(() => {
-      env.store.peekRecord('user', 2).destroyRecord();
-      env.store.peekRecord('user', 6).destroyRecord();
+      store.peekRecord('user', 2).destroyRecord();
+      store.peekRecord('user', 6).destroyRecord();
     });
 
     assert.deepEqual(
@@ -258,7 +261,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     assert.equal(contacts, user.get('contacts'));
 
     run(() => {
-      contacts.addObject(env.store.createRecord('user', { id: 8 }));
+      contacts.addObject(store.createRecord('user', { id: 8 }));
     });
 
     assert.deepEqual(
@@ -272,6 +275,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('hasMany + canonical vs currentState + unloadRecord', function(assert) {
     assert.expect(6);
 
+    let store = this.owner.lookup('service:store');
+
     let postData = {
       type: 'user',
       id: '1',
@@ -299,7 +304,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: postData,
         included: [
           {
@@ -318,19 +323,19 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     });
 
-    let user = env.store.peekRecord('user', 1);
+    let user = store.peekRecord('user', 1);
     let contacts = user.get('contacts');
 
-    env.store.adapterFor('user').deleteRecord = function() {
+    store.adapterFor('user').deleteRecord = function() {
       return { data: { type: 'user', id: 2 } };
     };
 
     assert.deepEqual(contacts.map(c => c.get('id')), ['2', '3', '4'], 'user should have expected contacts');
 
     run(() => {
-      contacts.addObject(env.store.createRecord('user', { id: 5 }));
-      contacts.addObject(env.store.createRecord('user', { id: 6 }));
-      contacts.addObject(env.store.createRecord('user', { id: 7 }));
+      contacts.addObject(store.createRecord('user', { id: 5 }));
+      contacts.addObject(store.createRecord('user', { id: 6 }));
+      contacts.addObject(store.createRecord('user', { id: 7 }));
     });
 
     assert.deepEqual(
@@ -340,8 +345,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     );
 
     run(() => {
-      env.store.peekRecord('user', 2).unloadRecord();
-      env.store.peekRecord('user', 6).unloadRecord();
+      store.peekRecord('user', 2).unloadRecord();
+      store.peekRecord('user', 6).unloadRecord();
     });
 
     assert.deepEqual(
@@ -352,7 +357,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     assert.equal(contacts, user.get('contacts'));
 
     run(() => {
-      contacts.addObject(env.store.createRecord('user', { id: 8 }));
+      contacts.addObject(store.createRecord('user', { id: 8 }));
     });
 
     assert.deepEqual(
@@ -366,6 +371,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship', function(assert) {
     assert.expect(2);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Chapter = store.modelFor('chapter');
+
     let bookData = {
       type: 'book',
       id: '1',
@@ -376,7 +385,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       },
     };
 
-    env.adapter.findMany = function(store, type, ids, snapshots) {
+    adapter.findMany = function(store, type, ids, snapshots) {
       assert.equal(type, Chapter, 'type passed to adapter.findMany is correct');
       assert.deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
 
@@ -388,16 +397,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
 
-    env.adapter.findRecord = function(store, type, ids, snapshots) {
+    adapter.findRecord = function(store, type, ids, snapshots) {
       return { data: bookData };
     };
 
     return run(() => {
-      env.store.push({
+      store.push({
         data: bookData,
       });
 
-      return env.store.findRecord('book', 1).then(book => {
+      return store.findRecord('book', 1).then(book => {
         return book.get('chapters');
       });
     });
@@ -408,13 +417,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   // common use case of this is to provide a URL to a collection that
   // is loaded later.
   test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    const Post = store.modelFor('post');
+
     Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true }),
     });
 
     // When the store asks the adapter for the record with ID 1,
     // provide some fake data.
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       assert.equal(type, Post, 'find type was Post');
       assert.equal(id, '1', 'find id was 1');
 
@@ -434,11 +448,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
     //({ id: 1, links: { comments: "/posts/1/comments" } });
 
-    env.adapter.findMany = function(store, type, ids, snapshots) {
+    adapter.findMany = function(store, type, ids, snapshots) {
       throw new Error("Adapter's findMany should not be called");
     };
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
       assert.equal(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
       assert.equal(relationship.type, 'comment', 'relationship was passed correctly');
 
@@ -451,7 +465,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     return run(() => {
-      return env.store
+      return store
         .findRecord('post', 1)
         .then(post => {
           return post.get('comments');
@@ -466,18 +480,22 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('Accessing a hasMany backed by a link multiple times triggers only one request', function(assert) {
     assert.expect(2);
-    let count = 0;
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    Comment.reopen({
-      message: DS.belongsTo('post', { async: true }),
+    store.modelFor('comment').reopen({
+      message: belongsTo('post', { async: true }),
     });
+
     let post;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -490,10 +508,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      post = env.store.peekRecord('post', 1);
+      post = store.peekRecord('post', 1);
     });
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    let count = 0;
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
       count++;
       assert.equal(count, 1, 'findHasMany has only been called once');
       return new EmberPromise((resolve, reject) => {
@@ -514,7 +533,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     run(() => {
       promise1 = post.get('comments');
       //Invalidate the post.comments CP
-      env.store.push({
+      store.push({
         data: {
           type: 'comment',
           id: '1',
@@ -535,15 +554,19 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('A hasMany backed by a link remains a promise after a record has been added to it', function(assert) {
     assert.expect(1);
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    Comment.reopen({
-      message: DS.belongsTo('post', { async: true }),
+    store.modelFor('comment').reopen({
+      message: belongsTo('post', { async: true }),
     });
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
       return resolve({
         data: [
           { id: 1, type: 'comment', attributes: { body: 'First' } },
@@ -551,9 +574,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         ],
       });
     };
+
     let post;
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -566,12 +590,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      post = env.store.peekRecord('post', 1);
+      post = store.peekRecord('post', 1);
     });
 
     return run(() => {
       return post.get('comments').then(() => {
-        env.store.push({
+        store.push({
           data: {
             type: 'comment',
             id: '3',
@@ -591,19 +615,22 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('A hasMany updated link should not remove new children', function(assert) {
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    Comment.reopen({
-      message: DS.belongsTo('post', { async: true }),
+    store.modelFor('comment').reopen({
+      message: belongsTo('post', { async: true }),
     });
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
       return resolve({ data: [] });
     };
 
-    env.adapter.createRecord = function(store, snapshot, link, relationship) {
+    adapter.createRecord = function(store, snapshot, link, relationship) {
       return resolve({
         data: {
           id: 1,
@@ -618,8 +645,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     return run(() => {
-      let post = env.store.createRecord('post', {});
-      env.store.createRecord('comment', { message: post });
+      let post = store.createRecord('post', {});
+      store.createRecord('comment', { message: post });
 
       return post
         .get('comments')
@@ -636,21 +663,24 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('A hasMany updated link should not remove new children when the parent record has children already', function(assert) {
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    Comment.reopen({
-      message: DS.belongsTo('post', { async: true }),
+    store.modelFor('comment').reopen({
+      message: belongsTo('post', { async: true }),
     });
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
       return resolve({
         data: [{ id: 5, type: 'comment', attributes: { body: 'hello' } }],
       });
     };
 
-    env.adapter.createRecord = function(store, snapshot, link, relationship) {
+    adapter.createRecord = function(store, snapshot, link, relationship) {
       return resolve({
         data: {
           id: 1,
@@ -665,8 +695,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     return run(() => {
-      let post = env.store.createRecord('post', {});
-      env.store.createRecord('comment', { message: post });
+      let post = store.createRecord('post', {});
+      store.createRecord('comment', { message: post });
 
       return post
         .get('comments')
@@ -682,24 +712,27 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test("A hasMany relationship doesn't contain duplicate children, after the canonical state of the relationship is updated via store#push", function(assert) {
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    Comment.reopen({
-      message: DS.belongsTo('post', { async: true }),
+    store.modelFor('comment').reopen({
+      message: belongsTo('post', { async: true }),
     });
 
-    env.adapter.createRecord = function(store, snapshot, link, relationship) {
+    adapter.createRecord = function(store, snapshot, link, relationship) {
       return resolve({ data: { id: 1, type: 'post' } });
     };
 
     return run(() => {
-      let post = env.store.createRecord('post', {});
+      let post = store.createRecord('post', {});
 
       // create a new comment with id 'local', which is in the 'comments'
       // relationship of post
-      let localComment = env.store.createRecord('comment', { id: 'local', message: post });
+      let localComment = store.createRecord('comment', { id: 'local', message: post });
 
       return post
         .get('comments')
@@ -722,7 +755,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           // This setup is needed to demonstrate the bug which has been fixed
           // in #4154, where the locally created comment was duplicated in the
           // comment relationship.
-          env.store.push({
+          store.push({
             data: {
               type: 'post',
               id: 1,
@@ -743,11 +776,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('A hasMany relationship can be reloaded if it was fetched via a link', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    const Post = store.modelFor('post');
+
     Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       assert.equal(type, Post, 'find type was Post');
       assert.equal(id, '1', 'find id was 1');
 
@@ -764,7 +802,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
       assert.equal(relationship.type, 'comment', 'findHasMany relationship type was Comment');
       assert.equal(relationship.key, 'comments', 'findHasMany relationship key was comments');
       assert.equal(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
@@ -778,7 +816,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(function() {
-      run(env.store, 'findRecord', 'post', 1)
+      run(store, 'findRecord', 'post', 1)
         .then(function(post) {
           return post.get('comments');
         })
@@ -786,7 +824,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           assert.equal(comments.get('isLoaded'), true, 'comments are loaded');
           assert.equal(comments.get('length'), 2, 'comments have 2 length');
 
-          env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+          adapter.findHasMany = function(store, snapshot, link, relationship) {
             assert.equal(relationship.type, 'comment', 'findHasMany relationship type was Comment');
             assert.equal(relationship.key, 'comments', 'findHasMany relationship key was comments');
             assert.equal(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
@@ -809,11 +847,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('A sync hasMany relationship can be reloaded if it was fetched via ids', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    const Post = store.modelFor('post');
+
     Post.reopen({
-      comments: DS.hasMany('comment', { async: false }),
+      comments: hasMany('comment', { async: false }),
     });
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       assert.equal(type, Post, 'find type was Post');
       assert.equal(id, '1', 'find id was 1');
 
@@ -831,7 +874,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(function() {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'comment',
@@ -850,14 +893,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         ],
       });
 
-      env.store
+      store
         .findRecord('post', '1')
         .then(function(post) {
           let comments = post.get('comments');
           assert.equal(comments.get('isLoaded'), true, 'comments are loaded');
           assert.equal(comments.get('length'), 2, 'comments have a length of 2');
 
-          env.adapter.findMany = function(store, type, ids, snapshots) {
+          adapter.findMany = function(store, type, ids, snapshots) {
             return resolve({
               data: [
                 { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
@@ -875,11 +918,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('A hasMany relationship can be reloaded if it was fetched via ids', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    const Post = store.modelFor('post');
+
     Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       assert.equal(type, Post, 'find type was Post');
       assert.equal(id, '1', 'find id was 1');
 
@@ -896,7 +944,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
 
-    env.adapter.findMany = function(store, type, ids, snapshots) {
+    adapter.findMany = function(store, type, ids, snapshots) {
       return resolve({
         data: [
           { id: 1, type: 'comment', attributes: { body: 'First' } },
@@ -906,7 +954,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(function() {
-      env.store
+      store
         .findRecord('post', 1)
         .then(function(post) {
           return post.get('comments');
@@ -915,7 +963,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           assert.equal(comments.get('isLoaded'), true, 'comments are loaded');
           assert.equal(comments.get('length'), 2, 'comments have 2 length');
 
-          env.adapter.findMany = function(store, type, ids, snapshots) {
+          adapter.findMany = function(store, type, ids, snapshots) {
             return resolve({
               data: [
                 { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
@@ -935,10 +983,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('A hasMany relationship can be reloaded even if it failed at the first time', async function(assert) {
     assert.expect(7);
 
-    const { store, adapter } = env;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
     adapter.findRecord = function() {
@@ -1003,11 +1052,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('A hasMany relationship can be directly reloaded if it was fetched via links', function(assert) {
     assert.expect(6);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Post = store.modelFor('post');
+
     Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, id) {
+    adapter.findRecord = function(store, type, id) {
       assert.equal(type, Post, 'find type was Post');
       assert.equal(id, '1', 'find id was 1');
 
@@ -1024,7 +1077,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
 
-    env.adapter.findHasMany = function(store, record, link, relationship) {
+    adapter.findHasMany = function(store, record, link, relationship) {
       assert.equal(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
 
       return resolve({
@@ -1035,7 +1088,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
     run(function() {
-      env.store.findRecord('post', 1).then(function(post) {
+      store.findRecord('post', 1).then(function(post) {
         return post
           .get('comments')
           .reload()
@@ -1050,13 +1103,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('Has many via links - Calling reload multiple times does not send a new request if the first one is not settled', function(assert) {
     assert.expect(1);
+
     let done = assert.async();
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, id) {
+    adapter.findRecord = function(store, type, id) {
       return resolve({
         data: {
           id: 1,
@@ -1071,7 +1128,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     let count = 0;
-    env.adapter.findHasMany = function(store, record, link, relationship) {
+    adapter.findHasMany = function(store, record, link, relationship) {
       count++;
       return resolve({
         data: [
@@ -1081,7 +1138,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
     run(function() {
-      env.store.findRecord('post', 1).then(function(post) {
+      store.findRecord('post', 1).then(function(post) {
         post.get('comments').then(function(comments) {
           all([comments.reload(), comments.reload(), comments.reload()]).then(function(comments) {
             assert.equal(count, 2, 'One request for the original access and only one request for the mulitple reloads');
@@ -1093,11 +1150,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('A hasMany relationship can be directly reloaded if it was fetched via ids', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Post = store.modelFor('post');
+
     Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       assert.equal(type, Post, 'find type was Post');
       assert.equal(id, '1', 'find id was 1');
 
@@ -1114,7 +1175,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
 
-    env.adapter.findMany = function(store, type, ids, snapshots) {
+    adapter.findMany = function(store, type, ids, snapshots) {
       return resolve({
         data: [
           { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
@@ -1124,7 +1185,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(function() {
-      env.store.findRecord('post', 1).then(function(post) {
+      store.findRecord('post', 1).then(function(post) {
         return post
           .get('comments')
           .reload()
@@ -1139,13 +1200,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('Has many via ids - Calling reload multiple times does not send a new request if the first one is not settled', function(assert) {
     assert.expect(1);
+
     let done = assert.async();
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       return resolve({
         data: {
           id: 1,
@@ -1160,7 +1225,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     let count = 0;
-    env.adapter.findMany = function(store, type, ids, snapshots) {
+    adapter.findMany = function(store, type, ids, snapshots) {
       count++;
       return resolve({
         data: [
@@ -1171,7 +1236,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(function() {
-      env.store.findRecord('post', 1).then(function(post) {
+      store.findRecord('post', 1).then(function(post) {
         post.get('comments').then(function(comments) {
           all([comments.reload(), comments.reload(), comments.reload()]).then(function(comments) {
             assert.equal(count, 2, 'One request for the original access and only one request for the mulitple reloads');
@@ -1185,11 +1250,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('PromiseArray proxies createRecord to its ManyArray once the hasMany is loaded', function(assert) {
     assert.expect(4);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
       return resolve({
         data: [
           { id: 1, type: 'comment', attributes: { body: 'First' } },
@@ -1200,7 +1268,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     let post;
 
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -1213,7 +1281,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      post = env.store.peekRecord('post', 1);
+      post = store.peekRecord('post', 1);
     });
 
     run(function() {
@@ -1237,11 +1305,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     function(assert) {
       assert.expect(6);
 
-      Post.reopen({
-        comments: DS.hasMany('comment', { async: true }),
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
+
+      store.modelFor('post').reopen({
+        comments: hasMany('comment', { async: true }),
       });
 
-      env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+      adapter.findHasMany = function(store, snapshot, link, relationship) {
         return resolve({
           data: [
             { id: 1, type: 'comment', attributes: { body: 'First' } },
@@ -1252,7 +1323,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       let post, comments;
 
       run(function() {
-        env.store.push({
+        store.push({
           data: {
             type: 'post',
             id: '1',
@@ -1265,7 +1336,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             },
           },
         });
-        post = env.store.peekRecord('post', 1);
+        post = store.peekRecord('post', 1);
         comments = post.get('comments');
       });
 
@@ -1303,11 +1374,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('An updated `links` value should invalidate a relationship cache', function(assert) {
     assert.expect(8);
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
       assert.equal(relationship.type, 'comment', 'relationship was passed correctly');
 
       if (link === '/first') {
@@ -1330,7 +1405,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     let post;
 
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -1343,7 +1418,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      post = env.store.peekRecord('post', 1);
+      post = store.peekRecord('post', 1);
     });
 
     run(function() {
@@ -1351,7 +1426,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         assert.equal(comments.get('isLoaded'), true, 'comments are loaded');
         assert.equal(comments.get('length'), 2, 'comments have 2 length');
         assert.equal(comments.objectAt(0).get('body'), 'First', 'comment 1 successfully loaded');
-        env.store.push({
+        store.push({
           data: {
             type: 'post',
             id: '1',
@@ -1386,16 +1461,19 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       },
     };
 
-    env.adapter.findMany = function(store, type, ids, snapshots) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findMany = function(store, type, ids, snapshots) {
       assert.ok(false, "The adapter's find method should not be called");
     };
 
-    env.adapter.findRecord = function(store, type, ids, snapshots) {
+    adapter.findRecord = function(store, type, ids, snapshots) {
       return { data: userData };
     };
 
     run(function() {
-      env.store.push({
+      store.push({
         data: userData,
         included: [
           {
@@ -1411,7 +1489,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     run(function() {
-      env.store.findRecord('user', 1).then(function(user) {
+      store.findRecord('user', 1).then(function(user) {
         let messages = user.get('messages');
         assert.equal(messages.get('length'), 2, 'The messages are correctly loaded');
       });
@@ -1419,20 +1497,24 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany or find methods if the records are not loaded", function(assert) {
-    User.reopen({
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('user').reopen({
       messages: hasMany('message', { polymorphic: true, async: true }),
     });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.findRecord = function(store, type, id, snapshot) {
-      if (type === Post) {
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.findRecord = function(store, type, id, snapshot) {
+      if (type === store.modelFor('post')) {
         return resolve({ data: { id: 1, type: 'post' } });
-      } else if (type === Comment) {
+      } else if (type === store.modelFor('comment')) {
         return resolve({ data: { id: 3, type: 'comment' } });
       }
     };
 
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'user',
           id: '1',
@@ -1446,7 +1528,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     run(function() {
-      env.store
+      store
         .findRecord('user', 1)
         .then(function(user) {
           return user.get('messages');
@@ -1460,9 +1542,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('polymorphic hasMany type-checks check the superclass', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+
     run(function() {
-      let igor = env.store.createRecord('user', { name: 'Igor' });
-      let comment = env.store.createRecord('comment', {
+      let igor = store.createRecord('user', { name: 'Igor' });
+      let comment = store.createRecord('comment', {
         body: 'Well I thought the title was fine',
       });
 
@@ -1475,7 +1559,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Type can be inferred from the key of a hasMany relationship', function(assert) {
     assert.expect(1);
 
-    env.adapter.findRecord = function(store, type, ids, snapshots) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, ids, snapshots) {
       return {
         data: {
           id: 1,
@@ -1490,7 +1577,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'user',
           id: '1',
@@ -1509,7 +1596,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     });
     run(function() {
-      env.store
+      store
         .findRecord('user', 1)
         .then(function(user) {
           return user.get('contacts');
@@ -1523,11 +1610,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Type can be inferred from the key of an async hasMany relationship', function(assert) {
     assert.expect(1);
 
-    User.reopen({
-      contacts: DS.hasMany({ async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('user').reopen({
+      contacts: hasMany({ async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, ids, snapshots) {
+    adapter.findRecord = function(store, type, ids, snapshots) {
       return {
         data: {
           id: 1,
@@ -1542,7 +1632,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'user',
           id: '1',
@@ -1561,7 +1651,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     });
     run(function() {
-      env.store
+      store
         .findRecord('user', 1)
         .then(function(user) {
           return user.get('contacts');
@@ -1573,17 +1663,21 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('Polymorphic relationships work with a hasMany whose type is inferred', function(assert) {
-    User.reopen({
-      contacts: DS.hasMany({ polymorphic: true, async: false }),
+    assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('user').reopen({
+      contacts: hasMany({ polymorphic: true, async: false }),
     });
 
-    env.adapter.findRecord = function(store, type, ids, snapshots) {
+    adapter.findRecord = function(store, type, ids, snapshots) {
       return { data: { id: 1, type: 'user' } };
     };
 
-    assert.expect(1);
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'user',
           id: '1',
@@ -1606,7 +1700,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     });
     run(function() {
-      env.store
+      store
         .findRecord('user', 1)
         .then(function(user) {
           return user.get('contacts');
@@ -1620,16 +1714,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Polymorphic relationships with a hasMany is set up correctly on both sides', function(assert) {
     assert.expect(2);
 
-    Contact.reopen({
-      posts: DS.hasMany('post', { async: false }),
+    let store = this.owner.lookup('service:store');
+
+    store.modelFor('contact').reopen({
+      posts: hasMany('post', { async: false }),
     });
 
-    Post.reopen({
-      contact: DS.belongsTo('contact', { polymorphic: true, async: false }),
+    store.modelFor('post').reopen({
+      contact: belongsTo('contact', { polymorphic: true, async: false }),
     });
 
-    let email = env.store.createRecord('email');
-    let post = env.store.createRecord('post', {
+    let email = store.createRecord('email');
+    let post = store.createRecord('post', {
       contact: email,
     });
 
@@ -1638,9 +1734,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   testInDebug("A record can't be created from a polymorphic hasMany relationship", function(assert) {
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'user',
           id: '1',
@@ -1654,7 +1754,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     run(function() {
-      env.store
+      store
         .findRecord('user', 1)
         .then(function(user) {
           return user.get('messages');
@@ -1669,9 +1769,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   testInDebug('Only records of the same type can be added to a monomorphic hasMany relationship', function(assert) {
     assert.expect(1);
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+
     run(function() {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'post',
@@ -1691,7 +1796,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     run(function() {
-      all([env.store.findRecord('post', 1), env.store.findRecord('post', 2)]).then(function(records) {
+      all([store.findRecord('post', 1), store.findRecord('post', 2)]).then(function(records) {
         assert.expectAssertion(function() {
           records[0].get('comments').pushObject(records[1]);
         }, /The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'/);
@@ -1703,9 +1808,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     assert
   ) {
     assert.expect(2);
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+
     run(function() {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'user',
@@ -1747,10 +1857,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
     run(function() {
       asyncRecords = hash({
-        user: env.store.findRecord('user', 1),
-        anotherUser: env.store.findRecord('user', 2),
-        post: env.store.findRecord('post', 1),
-        comment: env.store.findRecord('comment', 3),
+        user: store.findRecord('user', 1),
+        anotherUser: store.findRecord('user', 2),
+        post: store.findRecord('post', 1),
+        comment: store.findRecord('comment', 3),
       });
 
       asyncRecords
@@ -1772,9 +1882,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('A record can be removed from a polymorphic association', function(assert) {
     assert.expect(4);
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'user',
           id: '1',
@@ -1796,8 +1911,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
     run(function() {
       asyncRecords = hash({
-        user: env.store.findRecord('user', 1),
-        comment: env.store.findRecord('comment', 3),
+        user: store.findRecord('user', 1),
+        comment: store.findRecord('comment', 3),
       });
 
       asyncRecords
@@ -1820,7 +1935,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('When a record is created on the client, its hasMany arrays should be in a loaded state', function(assert) {
     assert.expect(3);
 
-    let post = env.store.createRecord('post');
+    let store = this.owner.lookup('service:store');
+    let post = store.createRecord('post');
 
     assert.ok(get(post, 'isLoaded'), 'The post should have isLoaded flag');
     let comments;
@@ -1836,11 +1952,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('When a record is created on the client, its async hasMany arrays should be in a loaded state', function(assert) {
     assert.expect(4);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    let post = env.store.createRecord('post');
+    let post = store.createRecord('post');
 
     assert.ok(get(post, 'isLoaded'), 'The post should have isLoaded flag');
 
@@ -1855,10 +1973,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('we can set records SYNC HM relationship', function(assert) {
     assert.expect(1);
-    let post = env.store.createRecord('post');
+
+    let store = this.owner.lookup('service:store');
+    let post = store.createRecord('post');
 
     run(function() {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'comment',
@@ -1876,21 +1996,25 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      post.set('comments', env.store.peekAll('comment'));
+      post.set('comments', store.peekAll('comment'));
     });
+
     assert.equal(get(post, 'comments.length'), 2, 'we can set HM relationship');
   });
 
   test('We can set records ASYNC HM relationship', function(assert) {
     assert.expect(1);
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+
+    let store = this.owner.lookup('service:store');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    let post = env.store.createRecord('post');
+    let post = store.createRecord('post');
 
     run(function() {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'comment',
@@ -1908,7 +2032,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      post.set('comments', env.store.peekAll('comment'));
+      post.set('comments', store.peekAll('comment'));
     });
 
     return post.get('comments').then(comments => {
@@ -1919,15 +2043,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('When a record is saved, its unsaved hasMany records should be kept', function(assert) {
     assert.expect(1);
 
-    let post, comment;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function(store, type, snapshot) {
       return resolve({ data: { id: 1, type: snapshot.modelName } });
     };
 
+    let post, comment;
     return run(() => {
-      post = env.store.createRecord('post');
-      comment = env.store.createRecord('comment');
+      post = store.createRecord('post');
+      comment = store.createRecord('comment');
       post.get('comments').pushObject(comment);
       return post.save();
     }).then(() => {
@@ -1936,23 +2062,27 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('dual non-async HM <-> BT', function(assert) {
-    Post.reopen({
-      comments: DS.hasMany('comment', { inverse: 'post', async: false }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { inverse: 'post', async: false }),
     });
 
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: false }),
+    store.modelFor('comment').reopen({
+      post: belongsTo('post', { async: false }),
     });
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function(store, type, snapshot) {
       let serialized = snapshot.record.serialize();
       serialized.data.id = 2;
       return resolve(serialized);
     };
+
     let post, firstComment;
 
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -1963,7 +2093,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      env.store.push({
+      store.push({
         data: {
           type: 'comment',
           id: '1',
@@ -1974,10 +2104,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      post = env.store.peekRecord('post', 1);
-      firstComment = env.store.peekRecord('comment', 1);
 
-      env.store
+      post = store.peekRecord('post', 1);
+      firstComment = store.peekRecord('comment', 1);
+
+      store
         .createRecord('comment', {
           post: post,
         })
@@ -1998,11 +2129,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched', async function(assert) {
     assert.expect(6);
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
-    });
 
-    const { store, adapter } = env;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
+    });
 
     let findManyCalls = 0;
     let findRecordCalls = 0;
@@ -2059,7 +2192,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   testInDebug('A sync hasMany errors out if there are unloaded records in it', function(assert) {
-    let post = env.store.push({
+    let store = this.owner.lookup('service:store');
+
+    let post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -2070,6 +2205,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         },
       },
     });
+
     const assertionMessage = /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded./;
 
     try {
@@ -2081,8 +2217,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('After removing and unloading a record, a hasMany relationship should still be valid', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     const post = run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -2094,11 +2232,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         },
         included: [{ type: 'comment', id: '1' }],
       });
-      const post = env.store.peekRecord('post', 1);
+      const post = store.peekRecord('post', 1);
       const comments = post.get('comments');
       const comment = comments.objectAt(0);
       comments.removeObject(comment);
-      env.store.unloadRecord(comment);
+      store.unloadRecord(comment);
       assert.equal(comments.get('length'), 0);
       return post;
     });
@@ -2108,11 +2246,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let comment1, comment2, comment3, comment4;
     let post;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'comment',
@@ -2133,14 +2273,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         ],
       });
 
-      comment1 = env.store.peekRecord('comment', 1);
-      comment2 = env.store.peekRecord('comment', 2);
-      comment3 = env.store.peekRecord('comment', 3);
-      comment4 = env.store.peekRecord('comment', 4);
+      comment1 = store.peekRecord('comment', 1);
+      comment2 = store.peekRecord('comment', 2);
+      comment3 = store.peekRecord('comment', 3);
+      comment4 = store.peekRecord('comment', 4);
     });
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -2151,13 +2291,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      post = env.store.peekRecord('post', 1);
+      post = store.peekRecord('post', 1);
 
       assert.deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
     });
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -2172,7 +2312,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     assert.deepEqual(post.get('comments').toArray(), [comment2, comment1], 'Updated ordering is correct');
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -2187,7 +2327,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     assert.deepEqual(post.get('comments').toArray(), [comment2], 'Updated ordering is correct');
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -2211,7 +2351,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     );
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -2226,7 +2366,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     assert.deepEqual(post.get('comments').toArray(), [comment4, comment3], 'Updated ordering is correct');
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -2252,10 +2392,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - async', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let book, chapter;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'book',
           id: '1',
@@ -2278,8 +2420,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      book = env.store.peekRecord('book', 1);
-      chapter = env.store.peekRecord('chapter', 2);
+      book = store.peekRecord('book', 1);
+      chapter = store.peekRecord('chapter', 2);
     });
 
     run(() => {
@@ -2295,10 +2437,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let book, chapter;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'book',
           id: '1',
@@ -2321,8 +2465,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      book = env.store.peekRecord('book', 1);
-      chapter = env.store.peekRecord('chapter', 2);
+      book = store.peekRecord('book', 1);
+      chapter = store.peekRecord('chapter', 2);
     });
 
     run(() => {
@@ -2336,14 +2480,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - async', function(assert) {
-    Page.reopen({
-      chapter: DS.belongsTo('chapter', { async: true }),
+    let store = this.owner.lookup('service:store');
+
+    store.modelFor('page').reopen({
+      chapter: belongsTo('chapter', { async: true }),
     });
 
     let chapter, page;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'chapter',
           id: '2',
@@ -2366,8 +2512,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      chapter = env.store.peekRecord('chapter', 2);
-      page = env.store.peekRecord('page', 3);
+      chapter = store.peekRecord('chapter', 2);
+      page = store.peekRecord('page', 3);
     });
 
     run(() => {
@@ -2383,9 +2529,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - sync', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let chapter, page;
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'chapter',
           id: '2',
@@ -2408,8 +2556,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      chapter = env.store.peekRecord('chapter', 2);
-      page = env.store.peekRecord('page', 3);
+      chapter = store.peekRecord('chapter', 2);
+      page = store.peekRecord('page', 3);
     });
 
     run(() => {
@@ -2424,11 +2572,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('ManyArray notifies the array observers and flushes bindings when removing', function(assert) {
     assert.expect(2);
+
+    let store = this.owner.lookup('service:store');
+
     let chapter, page, page2;
     let observe = false;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'page',
@@ -2458,9 +2609,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      page = env.store.peekRecord('page', 1);
-      page2 = env.store.peekRecord('page', 2);
-      chapter = env.store.peekRecord('chapter', 1);
+      page = store.peekRecord('page', 1);
+      page2 = store.peekRecord('page', 2);
+      chapter = store.peekRecord('chapter', 1);
 
       chapter.get('pages').addArrayObserver(this, {
         willChange(pages, index, removeCount, addCount) {
@@ -2485,11 +2636,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('ManyArray notifies the array observers and flushes bindings when adding', function(assert) {
     assert.expect(2);
+
+    let store = this.owner.lookup('service:store');
+
     let chapter, page, page2;
     let observe = false;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'page',
@@ -2519,9 +2673,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      page = env.store.peekRecord('page', 1);
-      page2 = env.store.peekRecord('page', 2);
-      chapter = env.store.peekRecord('chapter', 1);
+      page = store.peekRecord('page', 1);
+      page2 = store.peekRecord('page', 2);
+      chapter = store.peekRecord('chapter', 1);
 
       chapter.get('pages').addArrayObserver(this, {
         willChange(pages, index, removeCount, addCount) {
@@ -2548,9 +2702,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     assert.expect(1);
 
     assert.expectAssertion(() => {
-      User = DS.Model.extend();
+      const User = Model.extend();
 
-      Contact = DS.Model.extend({
+      Model.extend({
         users: hasMany(User, { async: false }),
       });
     }, /The first argument to hasMany must be a string/);
@@ -2559,16 +2713,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Relationship.clear removes all records correctly', function(assert) {
     let post;
 
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: false }),
+    let store = this.owner.lookup('service:store');
+
+    store.modelFor('comment').reopen({
+      post: belongsTo('post', { async: false }),
     });
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { inverse: 'post', async: false }),
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { inverse: 'post', async: false }),
     });
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'post',
@@ -2611,29 +2767,30 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      post = env.store.peekRecord('post', 2);
+      post = store.peekRecord('post', 2);
     });
 
     run(() => {
       relationshipStateFor(post, 'comments').clear();
-      let comments = A(env.store.peekAll('comment'));
+      let comments = A(store.peekAll('comment'));
       assert.deepEqual(comments.mapBy('post'), [null, null, null]);
     });
   });
 
   test('unloading a record with associated records does not prevent the store from tearing down', function(assert) {
+    let store = this.owner.lookup('service:store');
+
+    store.modelFor('comment').reopen({
+      post: belongsTo('post', { async: false }),
+    });
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { inverse: 'post', async: false }),
+    });
+
     let post;
-
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: false }),
-    });
-
-    Post.reopen({
-      comments: DS.hasMany('comment', { inverse: 'post', async: false }),
-    });
-
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'post',
@@ -2667,7 +2824,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      post = env.store.peekRecord('post', 2);
+      post = store.peekRecord('post', 2);
 
       // This line triggers the original bug that gets manifested
       // in teardown for apps, e.g. store.destroy that is caused by
@@ -2675,12 +2832,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       // Relationship#clear uses Ember.Set#forEach, which does incorrect
       // iteration when the set is being mutated (in our case, the index gets off
       // because records are being removed)
-      env.store.unloadRecord(post);
+      store.unloadRecord(post);
     });
 
     try {
       run(() => {
-        env.store.destroy();
+        store.destroy();
       });
       assert.ok(true, 'store destroyed correctly');
     } catch (error) {
@@ -2688,31 +2845,27 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     }
   });
 
-  test('adding and removing records from hasMany relationship #2666', function(assert) {
+  test('adding and removing records from hasMany relationship #2666', async function(assert) {
     assert.expect(4);
 
-    let Post = DS.Model.extend({
-      comments: DS.hasMany('comment', { async: true }),
+    const Post = Model.extend({
+      comments: hasMany('comment', { async: true }),
+      toString: () => 'Post',
     });
-    Post.reopenClass({ toString: () => 'Post' });
 
-    let Comment = DS.Model.extend({
-      post: DS.belongsTo('post', { async: false }),
+    const Comment = Model.extend({
+      post: belongsTo('post', { async: false }),
+      toString: () => 'Comment',
     });
-    Comment.reopenClass({ toString: () => 'Comment' });
 
-    env = setupStore({
-      post: Post,
-      comment: Comment,
-      adapter: DS.RESTAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-      }),
+    const ApplicationAdapter = RESTAdapter.extend({
+      shouldBackgroundReloadRecord: () => false,
     });
 
     let commentId = 4;
-    env.owner.register(
+    this.owner.register(
       'adapter:comment',
-      DS.RESTAdapter.extend({
+      RESTAdapter.extend({
         deleteRecord(record) {
           return resolve();
         },
@@ -2725,8 +2878,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       })
     );
 
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
+    let store = this.owner.lookup('service:store');
+
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'post',
@@ -2754,12 +2915,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
 
     return run(() => {
-      return env.store.findRecord('post', 1).then(post => {
+      return store.findRecord('post', 1).then(post => {
         let comments = post.get('comments');
         assert.equal(comments.get('length'), 3, 'Initial comments count');
 
         // Add comment #4
-        let comment = env.store.createRecord('comment');
+        let comment = store.createRecord('comment');
         comments.addObject(comment);
 
         return comment
@@ -2778,7 +2939,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             assert.equal(length, 3, 'Comments count after destroy');
 
             // Add another comment #4
-            let comment = env.store.createRecord('comment');
+            let comment = store.createRecord('comment');
             comments.addObject(comment);
             return comment.save();
           })
@@ -2793,11 +2954,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('hasMany hasAnyRelationshipData async loaded', function(assert) {
     assert.expect(1);
 
-    Chapter.reopen({
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('chapter').reopen({
       pages: hasMany('pages', { async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       return resolve({
         data: {
           id: 1,
@@ -2823,7 +2987,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('hasMany hasAnyRelationshipData sync loaded', function(assert) {
     assert.expect(1);
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id, snapshot) {
       return resolve({
         data: {
           id: 1,
@@ -2849,11 +3016,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('hasMany hasAnyRelationshipData async not loaded', function(assert) {
     assert.expect(1);
 
-    Chapter.reopen({
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('chapter').reopen({
       pages: hasMany('pages', { async: true }),
     });
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       return resolve({
         data: {
           id: 1,
@@ -2879,7 +3049,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('hasMany hasAnyRelationshipData sync not loaded', function(assert) {
     assert.expect(1);
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id, snapshot) {
       return resolve({
         data: {
           id: 1,
@@ -2900,7 +3073,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('hasMany hasAnyRelationshipData async created', function(assert) {
     assert.expect(2);
 
-    Chapter.reopen({
+    let store = this.owner.lookup('service:store');
+
+    store.modelFor('chapter').reopen({
       pages: hasMany('pages', { async: true }),
     });
 
@@ -2922,6 +3097,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('hasMany hasAnyRelationshipData sync created', function(assert) {
     assert.expect(2);
 
+    let store = this.owner.lookup('service:store');
     let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
     let relationship = relationshipStateFor(chapter, 'pages');
 
@@ -2937,23 +3113,27 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test("Model's hasMany relationship should not be created during model creation", function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user;
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'user',
           id: '1',
         },
       });
-      user = env.store.peekRecord('user', 1);
+      user = store.peekRecord('user', 1);
       assert.ok(!relationshipsFor(user).has('messages'), 'Newly created record should not have relationships');
     });
   });
 
   test("Model's belongsTo relationship should be created during 'get' method", function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user;
     run(() => {
-      user = env.store.createRecord('user');
+      user = store.createRecord('user');
       user.get('messages');
       assert.ok(
         relationshipsFor(user).has('messages'),
@@ -2964,13 +3144,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('metadata is accessible when pushed as a meta property for a relationship', function(assert) {
     assert.expect(1);
-    let book;
-    env.adapter.findHasMany = function() {
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findHasMany = function() {
       return resolve({});
     };
 
+    let book;
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'book',
           id: '1',
@@ -2989,7 +3173,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      book = env.store.peekRecord('book', 1);
+      book = store.peekRecord('book', 1);
     });
 
     run(() => {
@@ -2999,9 +3183,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
   test('metadata is accessible when return from a fetchLink', function(assert) {
     assert.expect(1);
-    env.owner.register('serializer:application', DS.RESTSerializer);
 
-    env.adapter.findHasMany = function() {
+    this.owner.register('serializer:application', RESTSerializer);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findHasMany = function() {
       return resolve({
         meta: {
           foo: 'bar',
@@ -3013,7 +3201,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     let book;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'book',
           id: '1',
@@ -3029,7 +3217,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         },
       });
-      book = env.store.peekRecord('book', 1);
+      book = store.peekRecord('book', 1);
     });
 
     return run(() => {
@@ -3041,10 +3229,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('metadata should be reset between requests', function(assert) {
-    let counter = 0;
-    env.owner.register('serializer:application', DS.RESTSerializer);
+    this.owner.register('serializer:application', RESTSerializer);
 
-    env.adapter.findHasMany = function() {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    let counter = 0;
+
+    adapter.findHasMany = function() {
       let data = {
         meta: {
           foo: 'bar',
@@ -3066,7 +3258,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     let book1, book2;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'book',
@@ -3098,8 +3290,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      book1 = env.store.peekRecord('book', 1);
-      book2 = env.store.peekRecord('book', 2);
+      book1 = store.peekRecord('book', 1);
+      book2 = store.peekRecord('book', 2);
     });
 
     return run(() => {
@@ -3118,23 +3310,28 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Related link should be fetched when no relationship data is present', function(assert) {
     assert.expect(3);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true, inverse: 'post' }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true, inverse: 'post' }),
     });
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: false, inverse: 'comments' }),
+
+    store.modelFor('comment').reopen({
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
-    env.adapter.shouldBackgroundReloadRecord = () => {
+
+    adapter.shouldBackgroundReloadRecord = () => {
       return false;
     };
-    env.adapter.findRecord = () => {
+    adapter.findRecord = () => {
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
-    env.adapter.findMany = () => {
+    adapter.findMany = () => {
       assert.ok(false, "The adapter's findMany method should not be called");
     };
 
-    env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    adapter.findHasMany = function(store, snapshot, url, relationship) {
       assert.equal(url, 'get-comments', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
       return resolve({
@@ -3151,7 +3348,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     return run(() => {
-      let post = env.store.push({
+      let post = store.push({
         data: {
           type: 'post',
           id: '1',
@@ -3174,23 +3371,28 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Related link should take precedence over relationship data when local record data is missing', function(assert) {
     assert.expect(3);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true, inverse: 'post' }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true, inverse: 'post' }),
     });
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: false, inverse: 'comments' }),
+
+    store.modelFor('comment').reopen({
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
-    env.adapter.shouldBackgroundReloadRecord = () => {
+
+    adapter.shouldBackgroundReloadRecord = () => {
       return false;
     };
-    env.adapter.findRecord = () => {
+    adapter.findRecord = () => {
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
-    env.adapter.findMany = () => {
+    adapter.findMany = () => {
       assert.ok(false, "The adapter's findMany method should not be called");
     };
 
-    env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    adapter.findHasMany = function(store, snapshot, url, relationship) {
       assert.equal(url, 'get-comments', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
       return resolve({
@@ -3207,7 +3409,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     return run(() => {
-      let post = env.store.push({
+      let post = store.push({
         data: {
           type: 'post',
           id: '1',
@@ -3231,28 +3433,33 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Local relationship data should take precedence over related link when local record data is available', function(assert) {
     assert.expect(1);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true, inverse: 'post' }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true, inverse: 'post' }),
     });
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: false, inverse: 'comments' }),
+
+    store.modelFor('comment').reopen({
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
-    env.adapter.shouldBackgroundReloadRecord = () => {
+
+    adapter.shouldBackgroundReloadRecord = () => {
       return false;
     };
-    env.adapter.findRecord = () => {
+    adapter.findRecord = () => {
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
-    env.adapter.findMany = () => {
+    adapter.findMany = () => {
       assert.ok(false, "The adapter's findMany method should not be called");
     };
 
-    env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    adapter.findHasMany = function(store, snapshot, url, relationship) {
       assert.ok(false, "The adapter's findHasMany method should not be called");
     };
 
     return run(() => {
-      let post = env.store.push({
+      let post = store.push({
         data: {
           type: 'post',
           id: '1',
@@ -3285,23 +3492,28 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Related link should take precedence over local record data when relationship data is not initially available', function(assert) {
     assert.expect(3);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true, inverse: 'post' }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true, inverse: 'post' }),
     });
-    Comment.reopen({
-      post: DS.belongsTo('post', { async: false, inverse: 'comments' }),
+
+    store.modelFor('comment').reopen({
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
-    env.adapter.shouldBackgroundReloadRecord = () => {
+
+    adapter.shouldBackgroundReloadRecord = () => {
       return false;
     };
-    env.adapter.findRecord = () => {
+    adapter.findRecord = () => {
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
-    env.adapter.findMany = () => {
+    adapter.findMany = () => {
       assert.ok(false, "The adapter's findMany method should not be called");
     };
 
-    env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    adapter.findHasMany = function(store, snapshot, url, relationship) {
       assert.equal(url, 'get-comments', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
       return resolve({
@@ -3318,7 +3530,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     return run(() => {
-      let post = env.store.push({
+      let post = store.push({
         data: {
           type: 'post',
           id: '1',
@@ -3358,11 +3570,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('Updated related link should take precedence over relationship data and local record data', function(assert) {
     assert.expect(3);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    adapter.findHasMany = function(store, snapshot, url, relationship) {
       assert.equal(url, 'comments-updated-link', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
       return resolve({
@@ -3370,12 +3585,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
     return run(() => {
-      let post = env.store.push({
+      let post = store.push({
         data: {
           type: 'post',
           id: '1',
@@ -3390,7 +3605,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         },
       });
 
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: '1',
@@ -3413,11 +3628,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   test('PromiseArray proxies createRecord to its ManyArray before the hasMany is loaded', function(assert) {
     assert.expect(1);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    env.adapter.findHasMany = function(store, record, link, relationship) {
+    adapter.findHasMany = function(store, record, link, relationship) {
       return resolve({
         data: [
           { id: 1, type: 'comment', attributes: { body: 'First' } },
@@ -3427,7 +3645,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     };
 
     return run(() => {
-      let post = env.store.push({
+      let post = store.push({
         data: {
           type: 'post',
           id: 1,
@@ -3450,15 +3668,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('deleteRecord + unloadRecord fun', function(assert) {
-    User.reopen({
-      posts: DS.hasMany('post', { inverse: null }),
+    let store = this.owner.lookup('service:store');
+
+    store.modelFor('user').reopen({
+      posts: hasMany('post', { inverse: null }),
     });
-    Post.reopen({
-      user: DS.belongsTo('user', { inverse: null, async: false }),
+
+    store.modelFor('post').reopen({
+      user: belongsTo('user', { inverse: null, async: false }),
     });
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'user',
@@ -3486,10 +3707,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         ],
       });
 
-      let user = env.store.peekRecord('user', 'user-1');
+      let user = store.peekRecord('user', 'user-1');
       let posts = user.get('posts');
 
-      env.store.adapterFor('post').deleteRecord = function() {
+      store.adapterFor('post').deleteRecord = function() {
         // just acknowledge all deletes, but with a noop
         return { data: null };
       };
@@ -3497,29 +3718,29 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-2', 'post-3', 'post-4', 'post-5']);
 
       return run(() => {
-        return env.store
+        return store
           .peekRecord('post', 'post-2')
           .destroyRecord()
           .then(record => {
-            return env.store.unloadRecord(record);
+            return store.unloadRecord(record);
           });
       })
         .then(() => {
           assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-3', 'post-4', 'post-5']);
-          return env.store
+          return store
             .peekRecord('post', 'post-3')
             .destroyRecord()
             .then(record => {
-              return env.store.unloadRecord(record);
+              return store.unloadRecord(record);
             });
         })
         .then(() => {
           assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-4', 'post-5']);
-          return env.store
+          return store
             .peekRecord('post', 'post-4')
             .destroyRecord()
             .then(record => {
-              return env.store.unloadRecord(record);
+              return store.unloadRecord(record);
             });
         })
         .then(() => {
@@ -3529,11 +3750,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('unloading and reloading a record with hasMany relationship - #3084', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let user;
     let message;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'user',
@@ -3554,20 +3777,20 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         ],
       });
 
-      user = env.store.peekRecord('user', 'user-1');
-      message = env.store.peekRecord('message', 'message-1');
+      user = store.peekRecord('user', 'user-1');
+      message = store.peekRecord('message', 'message-1');
 
       assert.equal(get(user, 'messages.firstObject.id'), 'message-1');
       assert.equal(get(message, 'user.id'), 'user-1');
     });
 
     run(() => {
-      env.store.unloadRecord(user);
+      store.unloadRecord(user);
     });
 
     run(() => {
       // The record is resurrected for some reason.
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'user',
@@ -3584,7 +3807,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         ],
       });
 
-      user = env.store.peekRecord('user', 'user-1');
+      user = store.peekRecord('user', 'user-1');
 
       assert.equal(get(user, 'messages.firstObject.id'), 'message-1', 'user points to message');
       assert.equal(get(message, 'user.id'), 'user-1', 'message points to user');
@@ -3592,15 +3815,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('deleted records should stay deleted', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
     let user;
     let message;
 
-    env.adapter.deleteRecord = function(store, type, id) {
+    adapter.deleteRecord = function(store, type, id) {
       return null;
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'user',
@@ -3625,8 +3850,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         ],
       });
 
-      user = env.store.peekRecord('user', 'user-1');
-      message = env.store.peekRecord('message', 'message-1');
+      user = store.peekRecord('user', 'user-1');
+      message = store.peekRecord('message', 'message-1');
 
       assert.equal(get(user, 'messages.length'), 2);
     });
@@ -3636,7 +3861,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     run(() => {
       // a new message is added to the user should not resurrected the
       // deleted message
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'message',
@@ -3659,8 +3884,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test("hasMany relationship with links doesn't trigger extra change notifications - #4942", function(assert) {
+    let store = this.owner.lookup('service:store');
+
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'book',
           id: '1',
@@ -3675,7 +3902,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     });
 
-    let book = env.store.peekRecord('book', '1');
+    let book = store.peekRecord('book', '1');
     let count = 0;
 
     book.addObserver('chapters', () => {
@@ -3690,19 +3917,22 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('A hasMany relationship with a link will trigger the link request even if a inverse related object is pushed to the store', function(assert) {
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
     });
 
-    Comment.reopen({
-      message: DS.belongsTo('post', { async: true }),
+    store.modelFor('comment').reopen({
+      message: belongsTo('post', { async: true }),
     });
 
     const postID = '1';
 
     run(function() {
       // load a record with a link hasMany relationship
-      env.store.push({
+      store.push({
         data: {
           type: 'post',
           id: postID,
@@ -3720,7 +3950,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       // the post.comments.link will not be requested
       //
       // If this comment is not inserted into the store, everything works properly
-      env.store.push({
+      store.push({
         data: {
           type: 'comment',
           id: '1',
@@ -3733,12 +3963,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         },
       });
 
-      env.adapter.findRecord = function(store, type, id, snapshot) {
+      adapter.findRecord = function(store, type, id, snapshot) {
         throw new Error(`findRecord for ${type} should not be called`);
       };
 
       let hasManyCounter = 0;
-      env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+      adapter.findHasMany = function(store, snapshot, link, relationship) {
         assert.equal(relationship.type, 'comment', 'findHasMany relationship type was Comment');
         assert.equal(relationship.key, 'comments', 'findHasMany relationship key was comments');
         assert.equal(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
@@ -3752,7 +3982,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         });
       };
 
-      const post = env.store.peekRecord('post', postID);
+      const post = store.peekRecord('post', postID);
       post.get('comments').then(function(comments) {
         assert.equal(comments.get('isLoaded'), true, 'comments are loaded');
         assert.equal(hasManyCounter, 1, 'link was requested');
