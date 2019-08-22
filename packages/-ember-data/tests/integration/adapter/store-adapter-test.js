@@ -1,14 +1,19 @@
 import { resolve, hash, Promise as EmberPromise, reject } from 'rsvp';
 import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
-import DS from 'ember-data';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import AdapterError, { InvalidError } from '@ember-data/adapter/error';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
 
-let Person, Dog, env, store, adapter;
+import { PromiseArray, Snapshot } from '@ember-data/store/-private';
 
 function moveRecordOutOfInFlight(record) {
   run(() => {
@@ -20,33 +25,28 @@ function moveRecordOutOfInFlight(record) {
 }
 
 module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration test', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
-      updatedAt: DS.attr('string'),
-      name: DS.attr('string'),
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
+    const Person = Model.extend({
+      updatedAt: attr('string'),
+      name: attr('string'),
     });
 
-    Dog = DS.Model.extend({
-      name: DS.attr('string'),
+    const Dog = Model.extend({
+      name: attr('string'),
     });
 
-    env = setupStore({
-      serializer: DS.JSONAPISerializer,
-      adapter: DS.JSONAPIAdapter,
-      person: Person,
-      dog: Dog,
-    });
-    store = env.store;
-    adapter = env.adapter;
-  });
-
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('adapter:application', JSONAPIAdapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('model:person', Person);
+    this.owner.register('model:dog', Dog);
   });
 
   test('Records loaded multiple times and retrieved in recordArray are ready to send state events', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.query = function(store, type, query, recordArray) {
       return resolve({
         data: [
@@ -90,6 +90,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('by default, createRecords calls createRecord once per record', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     let count = 1;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.createRecord = function(store, type, snapshot) {
@@ -139,6 +143,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('by default, updateRecords calls updateRecord once per record', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function(store, type, snapshot) {
@@ -160,7 +168,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
@@ -213,6 +221,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('calling store.didSaveRecord can provide an optional hash', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function(store, type, snapshot) {
@@ -239,7 +251,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
@@ -294,6 +306,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('by default, deleteRecord calls deleteRecord once per record', function(assert) {
     assert.expect(4);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = function(store, type, snapshot) {
@@ -313,7 +329,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
@@ -354,6 +370,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('by default, destroyRecord calls deleteRecord once per record without requiring .save', function(assert) {
     assert.expect(4);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     let count = 0;
 
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -374,7 +394,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
@@ -412,6 +432,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('if an existing model is edited then deleted, deleteRecord is called on the adapter', function(assert) {
     assert.expect(5);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = function(store, type, snapshot) {
@@ -428,7 +451,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     // Load data for a record into the store.
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: 'deleted-record',
@@ -459,8 +482,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a deleted record errors, it enters the error state', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let count = 0;
-    let error = new DS.AdapterError();
+    let error = new AdapterError();
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = function(store, type, snapshot) {
@@ -472,7 +498,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: 'deleted-record',
@@ -507,12 +533,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a created record is marked as invalid by the server, it enters an error state', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     adapter.createRecord = function(store, type, snapshot) {
       assert.equal(type, Person, 'the type is correct');
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
-          new DS.InvalidError([
+          new InvalidError([
             {
               title: 'Invalid Attribute',
               detail: 'common... name requires a "bro"',
@@ -559,10 +589,13 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('allows errors on arbitrary properties on create', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.createRecord = function(store, type, snapshot) {
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
-          new DS.InvalidError([
+          new InvalidError([
             {
               title: 'Invalid Attribute',
               detail: 'is a generally unsavoury character',
@@ -614,6 +647,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a created record is marked as invalid by the server, you can attempt the save again', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     let saveCount = 0;
     adapter.createRecord = function(store, type, snapshot) {
       assert.equal(type, Person, 'the type is correct');
@@ -621,7 +658,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
-          new DS.InvalidError([
+          new InvalidError([
             {
               title: 'Invalid Attribute',
               detail: 'common... name requires a "bro"',
@@ -678,7 +715,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a created record is marked as erred by the server, it enters an error state', function(assert) {
-    let error = new DS.AdapterError();
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    let error = new AdapterError();
 
     adapter.createRecord = function(store, type, snapshot) {
       return reject(error);
@@ -695,13 +735,17 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if an updated record is marked as invalid by the server, it enters an error state', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function(store, type, snapshot) {
       assert.equal(type, Person, 'the type is correct');
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
-          new DS.InvalidError([
+          new InvalidError([
             {
               title: 'Invalid Attribute',
               detail: 'common... name requires a "bro"',
@@ -717,7 +761,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     let yehuda = run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -765,11 +809,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('records can have errors on arbitrary properties after update', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function(store, type, snapshot) {
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
-          new DS.InvalidError([
+          new InvalidError([
             {
               title: 'Invalid Attribute',
               detail: 'is a generally unsavoury character',
@@ -785,7 +832,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     let yehuda = run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -842,6 +889,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if an updated record is marked as invalid by the server, you can attempt the save again', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     let saveCount = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function(store, type, snapshot) {
@@ -849,7 +900,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       saveCount++;
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
-          new DS.InvalidError([
+          new InvalidError([
             {
               title: 'Invalid Attribute',
               detail: 'common... name requires a "bro"',
@@ -865,7 +916,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     let yehuda = run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -922,7 +973,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a updated record is marked as erred by the server, it enters an error state', function(assert) {
-    let error = new DS.AdapterError();
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    let error = new AdapterError();
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function(store, type, snapshot) {
@@ -930,7 +984,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     let person = run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: '1',
@@ -957,8 +1011,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     );
   });
 
-  test('can be created after the DS.Store', function(assert) {
+  test('can be created after the Store', function(assert) {
     assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
 
     adapter.findRecord = function(store, type, id, snapshot) {
       assert.equal(type, Person, 'the type is correct');
@@ -969,8 +1027,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('relationships returned via `commit` do not trigger additional findManys', async function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     Person.reopen({
-      dogs: DS.hasMany('dog', { async: false }),
+      dogs: hasMany('dog', { async: false }),
     });
 
     store.push({
@@ -1002,7 +1064,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.updateRecord = function(store, type, snapshot) {
       return new EmberPromise((resolve, reject) => {
-        env.store.push({
+        store.push({
           data: {
             type: 'person',
             id: '1',
@@ -1043,13 +1105,17 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test("relationships don't get reset if the links is the same", function(assert) {
-    adapter.shouldBackgroundReloadRecord = () => false;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     Person.reopen({
-      dogs: DS.hasMany({ async: true }),
+      dogs: hasMany({ async: true }),
     });
 
-    let count = 0;
+    adapter.shouldBackgroundReloadRecord = () => false;
 
+    let count = 0;
     adapter.findHasMany = function(store, snapshot, link, relationship) {
       assert.ok(count++ === 0, 'findHasMany is only called once');
 
@@ -1103,7 +1169,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
               },
             },
           });
-          assert.ok(tom.get('dogs') instanceof DS.PromiseArray, 'dogs is a promise');
+          assert.ok(tom.get('dogs') instanceof PromiseArray, 'dogs is a promise');
           return tom.get('dogs');
         })
         .then(dogs => {
@@ -1113,8 +1179,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('async hasMany always returns a promise', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     Person.reopen({
-      dogs: DS.hasMany({ async: true }),
+      dogs: hasMany({ async: true }),
     });
 
     adapter.createRecord = function(store, type, snapshot) {
@@ -1135,12 +1205,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let tom = store.createRecord('person', { name: 'Tom Dale' });
 
     run(() => {
-      assert.ok(tom.get('dogs') instanceof DS.PromiseArray, 'dogs is a promise before save');
+      assert.ok(tom.get('dogs') instanceof PromiseArray, 'dogs is a promise before save');
     });
 
     return run(() => {
       return tom.save().then(() => {
-        assert.ok(tom.get('dogs') instanceof DS.PromiseArray, 'dogs is a promise after save');
+        assert.ok(tom.get('dogs') instanceof PromiseArray, 'dogs is a promise after save');
       });
     });
   });
@@ -1148,8 +1218,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('createRecord receives a snapshot', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.createRecord = function(store, type, snapshot) {
-      assert.ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
       return resolve();
     };
 
@@ -1161,8 +1234,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('updateRecord receives a snapshot', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.updateRecord = function(store, type, snapshot) {
-      assert.ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
       return resolve();
     };
 
@@ -1190,8 +1266,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('deleteRecord receives a snapshot', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.deleteRecord = function(store, type, snapshot) {
-      assert.ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
       return resolve();
     };
 
@@ -1219,8 +1298,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('findRecord receives a snapshot', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.findRecord = function(store, type, id, snapshot) {
-      assert.ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
       return resolve({ data: { id: 1, type: 'person' } });
     };
 
@@ -1230,14 +1312,18 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('findMany receives an array of snapshots', function(assert) {
     assert.expect(2);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     Person.reopen({
-      dogs: DS.hasMany({ async: true }),
+      dogs: hasMany({ async: true }),
     });
 
     adapter.coalesceFindRequests = true;
     adapter.findMany = function(store, type, ids, snapshots) {
-      assert.ok(snapshots[0] instanceof DS.Snapshot, 'snapshots[0] is an instance of DS.Snapshot');
-      assert.ok(snapshots[1] instanceof DS.Snapshot, 'snapshots[1] is an instance of DS.Snapshot');
+      assert.ok(snapshots[0] instanceof Snapshot, 'snapshots[0] is an instance of Snapshot');
+      assert.ok(snapshots[1] instanceof Snapshot, 'snapshots[1] is an instance of Snapshot');
       return resolve({ data: [{ id: 2, type: 'dog' }, { id: 3, type: 'dog' }] });
     };
 
@@ -1264,12 +1350,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('findHasMany receives a snapshot', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     Person.reopen({
-      dogs: DS.hasMany({ async: true }),
+      dogs: hasMany({ async: true }),
     });
 
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-      assert.ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+    adapter.findHasMany = function(store, snapshot, link, relationship) {
+      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
       return resolve({ data: [{ id: 2, type: 'dog' }, { id: 3, type: 'dog' }] });
     };
 
@@ -1298,12 +1388,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('findBelongsTo receives a snapshot', function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    let Person = store.modelFor('person');
+
     Person.reopen({
-      dog: DS.belongsTo({ async: true }),
+      dog: belongsTo({ async: true }),
     });
 
-    env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
-      assert.ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+    adapter.findBelongsTo = function(store, snapshot, link, relationship) {
+      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
       return resolve({ data: { id: 2, type: 'dog' } });
     };
 
@@ -1332,7 +1426,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('record.save should pass adapterOptions to the updateRecord method', function(assert) {
     assert.expect(1);
 
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.updateRecord = function(store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
       return resolve({ data: { id: 1, type: 'person' } });
     };
@@ -1355,7 +1452,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('record.save should pass adapterOptions to the createRecord method', function(assert) {
     assert.expect(1);
 
-    env.adapter.createRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.createRecord = function(store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
       return resolve({ data: { id: 1, type: 'person' } });
     };
@@ -1368,7 +1468,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('record.save should pass adapterOptions to the deleteRecord method', function(assert) {
     assert.expect(1);
 
-    env.adapter.deleteRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.deleteRecord = function(store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
       return resolve({ data: { id: 1, type: 'person' } });
     };
@@ -1391,7 +1494,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('store.findRecord should pass adapterOptions to adapter.findRecord', function(assert) {
     assert.expect(1);
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
       return resolve({ data: { id: 1, type: 'person' } });
     };
@@ -1404,7 +1510,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('store.query should pass adapterOptions to adapter.query ', function(assert) {
     assert.expect(2);
 
-    env.adapter.query = function(store, type, query, array, options) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.query = function(store, type, query, array, options) {
       assert.ok(!('adapterOptions' in query));
       assert.deepEqual(options.adapterOptions, { query: { embed: true } });
       return { data: [] };
@@ -1418,7 +1527,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('store.queryRecord should pass adapterOptions to adapter.queryRecord', function(assert) {
     assert.expect(2);
 
-    env.adapter.queryRecord = function(store, type, query, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.queryRecord = function(store, type, query, snapshot) {
       assert.ok(!('adapterOptions' in query));
       assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
       return { data: { type: 'person', id: 1, attributes: {} } };
@@ -1432,7 +1544,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test("store.findRecord should pass 'include' to adapter.findRecord", function(assert) {
     assert.expect(1);
 
-    env.adapter.findRecord = (store, type, id, snapshot) => {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = (store, type, id, snapshot) => {
       assert.equal(snapshot.include, 'books', 'include passed to adapter.findRecord');
       return resolve({ data: { id: 1, type: 'person' } });
     };
@@ -1443,7 +1558,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('store.findAll should pass adapterOptions to the adapter.findAll method', function(assert) {
     assert.expect(1);
 
-    env.adapter.findAll = function(store, type, sinceToken, arraySnapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findAll = function(store, type, sinceToken, arraySnapshot) {
       let adapterOptions = arraySnapshot.adapterOptions;
       assert.deepEqual(adapterOptions, { query: { embed: true } });
       return resolve({ data: [{ id: 1, type: 'person' }] });
@@ -1457,7 +1575,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test("store.findAll should pass 'include' to adapter.findAll", function(assert) {
     assert.expect(1);
 
-    env.adapter.findAll = function(store, type, sinceToken, arraySnapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findAll = function(store, type, sinceToken, arraySnapshot) {
       assert.equal(arraySnapshot.include, 'books', 'include passed to adapter.findAll');
       return resolve({ data: [{ id: 1, type: 'person' }] });
     };
@@ -1466,44 +1587,41 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord', function(assert) {
-    const Post = DS.Model.extend({
-      name: DS.attr('string'),
-      comments: DS.hasMany('comment', { async: true }),
+    const Post = Model.extend({
+      name: attr('string'),
+      comments: hasMany('comment', { async: true }),
     });
 
-    const Comment = DS.Model.extend({
-      name: DS.attr('string'),
+    const Comment = Model.extend({
+      name: attr('string'),
     });
 
-    env = setupStore({
-      post: Post,
-      comment: Comment,
-      adapter: DS.RESTAdapter.extend({
-        findRecord() {
-          return {
-            posts: {
-              id: 1,
-              name: 'Rails is omakase',
-              links: { comments: '/posts/1/comments' },
-            },
-          };
-        },
-        findHasMany() {
-          return resolve({
-            comments: [
-              { id: 1, name: 'FIRST' },
-              { id: 2, name: 'Rails is unagi' },
-              { id: 3, name: 'What is omakase?' },
-            ],
-          });
-        },
-        shouldBackgroundReloadRecord() {
-          assert.ok(false, 'shouldBackgroundReloadRecord should not be called');
-        },
-      }),
+    const ApplicationAdapter = RESTAdapter.extend({
+      findRecord() {
+        return {
+          posts: {
+            id: 1,
+            name: 'Rails is omakase',
+            links: { comments: '/posts/1/comments' },
+          },
+        };
+      },
+      findHasMany() {
+        return resolve({
+          comments: [{ id: 1, name: 'FIRST' }, { id: 2, name: 'Rails is unagi' }, { id: 3, name: 'What is omakase?' }],
+        });
+      },
+      shouldBackgroundReloadRecord() {
+        assert.ok(false, 'shouldBackgroundReloadRecord should not be called');
+      },
     });
 
-    store = env.store;
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     return run(() =>
       store
@@ -1518,6 +1636,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   testInDebug('There should be a friendly error for if the adapter does not implement createRecord', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.createRecord = null;
 
     let tom = run(() => store.createRecord('person', { name: 'Tom Dale' }));
@@ -1530,6 +1651,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   testInDebug('There should be a friendly error for if the adapter does not implement updateRecord', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.updateRecord = null;
 
     let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
@@ -1541,6 +1665,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   testInDebug('There should be a friendly error for if the adapter does not implement deleteRecord', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.deleteRecord = null;
 
     let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));

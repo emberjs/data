@@ -1,46 +1,47 @@
 import { Promise as EmberPromise, resolve } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
-
-let Person, env, store, adapter;
+import Model, { attr } from '@ember-data/model';
 
 module('integration/adapter/queries - Queries', function(hooks) {
-  hooks.beforeEach(function() {
-    Person = DS.Model.extend({
-      updatedAt: DS.attr('string'),
-      name: DS.attr('string'),
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-    });
-
-    env = setupStore({ person: Person });
-    store = env.store;
-    adapter = env.adapter;
-  });
-
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
-  });
+  setupTest(hooks);
 
   testInDebug('It raises an assertion when no type is passed', function(assert) {
+    const Person = Model.extend();
+
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
+
     assert.expectAssertion(() => {
       store.query();
     }, "You need to pass a model name to the store's query method");
   });
 
   testInDebug('It raises an assertion when no query hash is passed', function(assert) {
+    const Person = Model.extend();
+
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
+
     assert.expectAssertion(() => {
       store.query('person');
     }, "You need to pass a query hash to the store's query method");
   });
 
   test('When a query is made, the adapter should receive a record array it can populate with the results of the query.', function(assert) {
+    const Person = Model.extend({ name: attr() });
+
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.query = function(store, type, query, recordArray) {
       assert.equal(type, Person, 'the query method is called with the correct type');
 
@@ -74,6 +75,13 @@ module('integration/adapter/queries - Queries', function(hooks) {
   });
 
   test('a query can be updated via `update()`', function(assert) {
+    const Person = Model.extend();
+
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.query = function() {
       return resolve({ data: [{ id: 'first', type: 'person' }] });
     };
@@ -107,12 +115,12 @@ module('integration/adapter/queries - Queries', function(hooks) {
   });
 
   testInDebug('The store asserts when query is made and the adapter responses with a single record.', function(assert) {
-    env = setupStore({
-      person: Person,
-      adapter: DS.RESTAdapter,
-    });
-    store = env.store;
-    adapter = env.adapter;
+    const Person = Model.extend({ name: attr() });
+
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.query = function(store, type, query, recordArray) {
       assert.equal(type, Person, 'the query method is called with the correct type');

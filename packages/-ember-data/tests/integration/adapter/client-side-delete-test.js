@@ -1,35 +1,37 @@
 import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-
-import DS from 'ember-data';
 import { settled } from '@ember/test-helpers';
 
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { belongsTo, hasMany } from '@ember-data/model';
+
 module('integration/adapter/store-adapter - client-side delete', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    this.Bookstore = DS.Model.extend({
-      books: DS.hasMany('book', { async: false, inverse: 'bookstore' }),
-    });
-    this.Book = DS.Model.extend({
-      bookstore: DS.belongsTo('bookstore', { inverse: 'books' }),
-    });
-
-    this.env = setupStore({
-      bookstore: this.Bookstore,
-      book: this.Book,
-    });
-    this.store = this.env.store;
-    this.adapter = this.env.adapter;
-  });
-
-  hooks.afterEach(function() {
-    run(this.env.container, 'destroy');
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('client-side deleted records can be added back from an inverse', async function(assert) {
-    this.adapter.deleteRecord = function(store, modelClass, snapshot) {
+    const Bookstore = Model.extend({
+      books: hasMany('book', { async: false, inverse: 'bookstore' }),
+    });
+
+    const Book = Model.extend({
+      bookstore: belongsTo('bookstore', { inverse: 'books' }),
+    });
+
+    this.owner.register('model:bookstore', Bookstore);
+    this.owner.register('model:book', Book);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.deleteRecord = function(store, modelClass, snapshot) {
       if (snapshot.adapterOptions.clientSideDelete) {
         return resolve();
       }
@@ -37,7 +39,7 @@ module('integration/adapter/store-adapter - client-side delete', function(hooks)
       assert.ok(false, 'unreachable');
     };
 
-    let bookstore = this.store.push({
+    let bookstore = store.push({
       data: {
         id: '1',
         type: 'bookstore',
@@ -70,7 +72,7 @@ module('integration/adapter/store-adapter - client-side delete', function(hooks)
 
     assert.deepEqual(bookstore.get('books').mapBy('id'), ['1', '2'], 'initial hasmany loaded');
 
-    let book2 = this.store.peekRecord('book', '2');
+    let book2 = store.peekRecord('book', '2');
 
     await book2.destroyRecord({ adapterOptions: { clientSideDelete: true } });
 
@@ -78,10 +80,10 @@ module('integration/adapter/store-adapter - client-side delete', function(hooks)
 
     await settled();
 
-    assert.equal(this.store.hasRecordForId('book', '2'), false, 'book 2 unloaded');
+    assert.equal(store.hasRecordForId('book', '2'), false, 'book 2 unloaded');
     assert.deepEqual(bookstore.get('books').mapBy('id'), ['1'], 'one book client-side deleted');
 
-    this.store.push({
+    store.push({
       data: {
         id: '2',
         type: 'book',

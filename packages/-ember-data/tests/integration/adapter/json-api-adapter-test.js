@@ -1,18 +1,20 @@
 import RSVP from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import DS from 'ember-data';
 
-let env, store, adapter;
+let store, adapter;
 let passedUrl, passedVerb, passedHash;
 
 let User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
 
 module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     User = DS.Model.extend({
       firstName: DS.attr('string'),
@@ -58,26 +60,20 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       hipsters: DS.attr('number'),
     });
 
-    env = setupStore({
-      adapter: DS.JSONAPIAdapter.extend(),
+    this.owner.register('adapter:application', DS.JSONAPIAdapter.extend());
 
-      user: User,
-      post: Post,
-      comment: Comment,
-      handle: Handle,
-      'github-handle': GithubHandle,
-      'twitter-handle': TwitterHandle,
-      company: Company,
-      'development-shop': DevelopmentShop,
-      'design-studio': DesignStudio,
-    });
+    this.owner.register('model:user', User);
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('model:handle', Handle);
+    this.owner.register('model:github-handle', GithubHandle);
+    this.owner.register('model:twitter-handle', TwitterHandle);
+    this.owner.register('model:company', Company);
+    this.owner.register('model:development-shop', DevelopmentShop);
+    this.owner.register('model:design-studio', DesignStudio);
 
-    store = env.store;
-    adapter = env.adapter;
-  });
-
-  hooks.afterEach(function() {
-    run(env.store, 'destroy');
+    store = this.owner.lookup('service:store');
+    adapter = store.adapterFor('application');
   });
 
   function ajaxResponse(responses) {
@@ -925,7 +921,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    env.owner.register(
+    this.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
         attrs: {

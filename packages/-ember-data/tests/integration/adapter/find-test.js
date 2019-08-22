@@ -1,35 +1,28 @@
 import { Promise, reject, defer, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
+import Adapter from 'ember-data/adapter';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
-
-const { attr } = DS;
-
-let Person, store, env;
+import Model, { attr } from '@ember-data/model';
 
 module('integration/adapter/find - Finding Records', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
-      updatedAt: attr('string'),
+    const Person = Model.extend({
       name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
     });
 
-    env = setupStore({
-      person: Person,
-    });
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     assert.expectAssertion(() => {
       store.find('person', undefined);
     }, `You cannot pass 'undefined' as id to the store's find method`);
@@ -42,11 +35,13 @@ module('integration/adapter/find - Finding Records', function(hooks) {
   test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function(assert) {
     assert.expect(2);
 
-    let count = 0;
+    let store = this.owner.lookup('service:store');
+    let Person = store.modelFor('person');
 
-    env.owner.register(
+    let count = 0;
+    this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord(_, type) {
           assert.equal(type, Person, 'the find method is called with the correct type');
           assert.equal(count, 0, 'the find method is only called once');
@@ -65,6 +60,8 @@ module('integration/adapter/find - Finding Records', function(hooks) {
       })
     );
 
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
     run(() => {
       store.findRecord('person', 1);
       store.findRecord('person', 1);
@@ -74,14 +71,18 @@ module('integration/adapter/find - Finding Records', function(hooks) {
   test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', function(assert) {
     let deferred = defer();
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord() {
           return deferred.promise;
         },
       })
     );
+
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     let requestOne = run(() => {
       return store.findRecord('person', 1).then(person => {
@@ -113,14 +114,16 @@ module('integration/adapter/find - Finding Records', function(hooks) {
   });
 
   test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord() {
           return reject();
         },
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findRecord('person', 1).catch(() => {
@@ -132,14 +135,16 @@ module('integration/adapter/find - Finding Records', function(hooks) {
   test('When a single record is requested, and the promise is rejected, the record should be unloaded.', function(assert) {
     assert.expect(2);
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord() {
           return reject();
         },
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     return run(() => {
       return store.findRecord('person', 1).catch(reason => {
@@ -150,12 +155,14 @@ module('integration/adapter/find - Finding Records', function(hooks) {
   });
 
   testInDebug('When a single record is requested, and the payload is blank', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord: () => resolve({}),
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     assert.expectAssertion(() => {
       run(() => store.findRecord('person', 'the-id'));
@@ -163,13 +170,15 @@ module('integration/adapter/find - Finding Records', function(hooks) {
   });
 
   testInDebug('When multiple records are requested, and the payload is blank', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         coalesceFindRequests: true,
         findMany: () => resolve({}),
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     assert.expectAssertion(() => {
       run(() => {
@@ -180,9 +189,9 @@ module('integration/adapter/find - Finding Records', function(hooks) {
   });
 
   testInDebug('warns when returned record has different id', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord() {
           return {
             data: {
@@ -197,14 +206,16 @@ module('integration/adapter/find - Finding Records', function(hooks) {
       })
     );
 
+    let store = this.owner.lookup('service:store');
+
     assert.expectWarning(
-      () => run(() => env.store.findRecord('person', 'me')),
+      () => run(() => store.findRecord('person', 'me')),
       /You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/
     );
   });
 
   testInDebug('coerces ids before warning when returned record has different id', async function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:application',
       JSONAPISerializer.extend({
         normalizeResponse(_, __, payload) {
@@ -213,9 +224,9 @@ module('integration/adapter/find - Finding Records', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord() {
           return {
             data: {
@@ -230,12 +241,14 @@ module('integration/adapter/find - Finding Records', function(hooks) {
       })
     );
 
+    let store = this.owner.lookup('service:store');
+
     assert.expectNoWarning(
-      () => run(() => env.store.findRecord('person', 1)),
+      () => run(() => store.findRecord('person', 1)),
       /You requested a record of type 'person' with id '1' but the adapter returned a payload with primary data having an id of '1'/
     );
     assert.expectNoWarning(
-      () => run(() => env.store.findRecord('person', '1')),
+      () => run(() => store.findRecord('person', '1')),
       /You requested a record of type 'person' with id '1' but the adapter returned a payload with primary data having an id of '1'/
     );
   });
