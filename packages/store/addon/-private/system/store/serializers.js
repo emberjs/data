@@ -9,13 +9,5 @@ export function serializerForAdapter(store, adapter, modelName) {
     serializer = store.serializerFor(modelName);
   }
 
-  if (serializer === null || serializer === undefined) {
-    serializer = {
-      extract(store, type, payload) {
-        return payload;
-      },
-    };
-  }
-
   return serializer;
 }
