@@ -5,7 +5,6 @@ import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import { upgradeForInternal } from '../ts-upgrade-map';
 import RecordData from '../../ts-interfaces/record-data';
 import { internalModelFactoryFor } from './internal-model-factory';
-import hasValidId from '../../utils/has-valid-id';
 import { IDENTIFIERS, CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { identifierCacheFor, IdentifierCache } from '../../identifiers/cache';
 import CoreStore from '../core-store';
