@@ -61,6 +61,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     });
 
     this.owner.register('adapter:application', DS.JSONAPIAdapter.extend());
+    this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
 
     this.owner.register('model:user', User);
     this.owner.register('model:post', Post);

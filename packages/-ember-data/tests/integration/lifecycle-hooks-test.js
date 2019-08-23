@@ -3,6 +3,8 @@ import { setupTest } from 'ember-qunit';
 import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import Model from '@ember-data/model';
 import { attr } from '@ember-data/model';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 import { module } from 'qunit';
 
@@ -18,6 +20,8 @@ module('integration/lifecycle_hooks - Lifecycle Hooks', function(hooks) {
     }
 
     owner.register('model:person', Person);
+    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('serializer:application', JSONAPISerializer.extend());
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');
   });

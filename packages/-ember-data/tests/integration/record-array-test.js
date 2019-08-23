@@ -5,6 +5,8 @@ import { settled } from '@ember/test-helpers';
 import Model from '@ember-data/model';
 import { module, test } from 'qunit';
 import Adapter from '@ember-data/adapter';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
@@ -34,6 +36,8 @@ module('unit/record-array - RecordArray', function(hooks) {
     owner.register('model:person', Person);
     owner.register('model:tag', Tag);
     owner.register('model:tool', Tool);
+    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('serializer:application', JSONAPISerializer.extend());
 
     store = owner.lookup('service:store');
   });

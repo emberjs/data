@@ -40,6 +40,7 @@ module('unit/model - Model', function(hooks) {
       })
     );
     owner.register('serializer:-default', JSONAPISerializer);
+    owner.register('serializer:application', JSONAPISerializer.extend());
 
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');

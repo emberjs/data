@@ -5,10 +5,17 @@ import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr } from '@ember-data/model';
 
 module('integration/adapter/queries - Queries', function(hooks) {
   setupTest(hooks);
+
+  hooks.beforeEach(function() {
+    this.owner.register('adapter:application', JSONAPIAdapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+  });
 
   testInDebug('It raises an assertion when no type is passed', function(assert) {
     const Person = Model.extend();
