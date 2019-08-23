@@ -5,7 +5,6 @@ import Ember from 'ember';
 import Store from 'ember-data/store';
 import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import RESTSerializer from '@ember-data/serializer/rest';
 import config from '../../config/environment';
 import Resolver from '../../resolver';
 import { StringTransform, DateTransform, NumberTransform, BooleanTransform } from '@ember-data/serializer/-private';
@@ -50,6 +49,8 @@ export default function setupStore(options) {
   };
 
   let adapter = (env.adapter = options.adapter || '-default');
+  let serializer = options.serializer;
+  delete options.serializer;
   delete options.adapter;
 
   if (typeof adapter !== 'string') {
@@ -89,8 +90,8 @@ export default function setupStore(options) {
   // this allows for more incremental migration off of setupStore
   // by supplying the serializer vs forcing an immediate full refactor
   // to modern syntax
-  if (options.serializer) {
-    env.registry.register('serializer:application', options.serializer);
+  if (serializer) {
+    env.registry.register('serializer:application', serializer);
     env.serializer = store.serializerFor('application');
   } else {
     // avoid deprecations for -json-api serializer in our tests
@@ -101,11 +102,6 @@ export default function setupStore(options) {
     // they should refactor to register this as the application serializer
     owner.register('serializer:-default', JSONAPISerializer);
 
-    // RESTAdapter specifies a defaultSerializer of -rest
-    // Tests using this should refactor to register this as the application serializer
-    owner.register('serializer:-rest', RESTSerializer);
-
-    env.restSerializer = store.serializerFor('-rest');
     env.serializer = store.serializerFor('-default');
   }
 

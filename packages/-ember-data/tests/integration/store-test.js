@@ -5,6 +5,8 @@ import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
+import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
 
 import DS from 'ember-data';
 
@@ -33,9 +35,10 @@ Car.reopenClass({
   },
 });
 
-function initializeStore(adapter) {
+function initializeStore(adapter, serializer) {
   env = setupStore({
-    adapter: adapter,
+    adapter,
+    serializer,
   });
   store = env.store;
 
@@ -243,9 +246,8 @@ module('integration/store - findRecord', function() {
   test('store#findRecord fetches record from server when cached record is not present', function(assert) {
     assert.expect(2);
 
-    initializeStore(DS.RESTAdapter.extend());
+    initializeStore(RESTAdapter.extend(), RESTSerializer.extend());
 
-    env.owner.register('serializer:application', DS.RESTSerializer);
     ajaxResponse({
       cars: [
         {
@@ -269,7 +271,7 @@ module('integration/store - findRecord', function() {
   test('store#findRecord returns cached record immediately and reloads record in the background', function(assert) {
     assert.expect(2);
 
-    initializeStore(DS.RESTAdapter.extend());
+    initializeStore(RESTAdapter.extend(), RESTSerializer.extend());
 
     run(() => {
       store.push({
@@ -315,7 +317,7 @@ module('integration/store - findRecord', function() {
       },
     });
 
-    initializeStore(testAdapter);
+    initializeStore(testAdapter, RESTSerializer.extend());
 
     run(() => {
       store.push({
@@ -403,7 +405,7 @@ module('integration/store - findRecord', function() {
       },
     });
 
-    initializeStore(testAdapter);
+    initializeStore(testAdapter, RESTSerializer.extend());
 
     run(() => {
       store.push({
@@ -439,7 +441,7 @@ module('integration/store - findRecord', function() {
       },
     });
 
-    initializeStore(testAdapter);
+    initializeStore(testAdapter, RESTSerializer.extend());
 
     run(() => {
       store.push({
@@ -489,7 +491,7 @@ module('integration/store - findRecord', function() {
       },
     });
 
-    initializeStore(testAdapter);
+    initializeStore(testAdapter, RESTSerializer.extend());
 
     run(() => {
       store.push({
@@ -532,7 +534,7 @@ module('integration/store - findRecord', function() {
       const badValues = ['', undefined, null, NaN, false];
       assert.expect(badValues.length);
 
-      initializeStore(DS.RESTAdapter.extend());
+      initializeStore(RESTAdapter.extend(), RESTSerializer.extend());
 
       run(() => {
         badValues.map(item => {
@@ -547,7 +549,7 @@ module('integration/store - findRecord', function() {
 
 module('integration/store - findAll', function(hooks) {
   hooks.beforeEach(function() {
-    initializeStore(DS.RESTAdapter.extend());
+    initializeStore(RESTAdapter.extend(), RESTSerializer.extend());
   });
 
   test('Using store#findAll with no records triggers a query', function(assert) {
@@ -641,7 +643,7 @@ module('integration/store - findAll', function(hooks) {
       },
     });
 
-    initializeStore(testAdapter);
+    initializeStore(testAdapter, RESTSerializer.extend());
 
     run(() => {
       store.push({
@@ -679,7 +681,7 @@ module('integration/store - findAll', function(hooks) {
       },
     });
 
-    initializeStore(testAdapter);
+    initializeStore(testAdapter, RESTSerializer.extend());
 
     run(() => {
       store.push({
@@ -737,7 +739,7 @@ module('integration/store - findAll', function(hooks) {
       },
     });
 
-    initializeStore(testAdapter);
+    initializeStore(testAdapter, RESTSerializer.extend());
 
     run(() => {
       store.push({
@@ -903,7 +905,7 @@ module('integration/store - findAll', function(hooks) {
 
 module('integration/store - deleteRecord', function(hooks) {
   hooks.beforeEach(function() {
-    initializeStore(DS.RESTAdapter.extend());
+    initializeStore(RESTAdapter.extend(), RESTSerializer.extend());
   });
 
   test('Using store#deleteRecord should mark the model for removal', function(assert) {

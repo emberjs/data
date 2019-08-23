@@ -6,6 +6,7 @@ import { module, test } from 'qunit';
 
 import Model from '@ember-data/model';
 import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
 
 let store, requests;
 let maxLength;
@@ -50,6 +51,7 @@ module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
     });
 
     this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', RESTSerializer.extend());
     this.owner.register('model:test-record', Model.extend());
 
     store = this.owner.lookup('service:store');
