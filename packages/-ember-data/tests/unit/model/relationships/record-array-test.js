@@ -1,20 +1,23 @@
 import { A } from '@ember/array';
 import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-module('unit/model/relationships - RecordArray', function() {
+module('unit/model/relationships - RecordArray', function(hooks) {
+  setupTest(hooks);
+
   test('updating the content of a RecordArray updates its content', function(assert) {
     let Tag = DS.Model.extend({
       name: DS.attr('string'),
     });
 
-    let env = setupStore({ tag: Tag });
-    let store = env.store;
+    this.owner.register('model:tag', Tag);
+
+    let store = this.owner.lookup('service:store');
     let tags;
     let internalModels;
 
@@ -73,10 +76,13 @@ module('unit/model/relationships - RecordArray', function() {
       tags: DS.hasMany('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       store.push({

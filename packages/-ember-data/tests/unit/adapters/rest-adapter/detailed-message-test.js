@@ -1,19 +1,20 @@
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
 
-import DS from 'ember-data';
+module('unit/adapters/rest_adapter/detailed_message_test - RESTAdapter#generatedDetailedMessage', function(hooks) {
+  setupTest(hooks);
 
-let adapter, env;
-
-module('unit/adapters/rest_adapter/detailed_message_test - DS.RESTAdapter#generatedDetailedMessage', function(hooks) {
   hooks.beforeEach(function() {
-    env = setupStore({ adapter: DS.RESTAdapter });
-    adapter = env.adapter;
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
   });
 
   test('generating a wonderfully friendly error message should work', function(assert) {
     assert.expect(1);
+
+    let adapter = this.owner.lookup('adapter:application');
 
     let friendlyMessage = adapter.generatedDetailedMessage(
       418,
@@ -36,6 +37,8 @@ module('unit/adapters/rest_adapter/detailed_message_test - DS.RESTAdapter#genera
   });
 
   test('generating a friendly error message with a missing content-type header should work', function(assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
     let friendlyMessage = adapter.generatedDetailedMessage(418, {}, `I'm a little teapot, short and stout`, {
       url: '/teapots/testing',
       method: 'GET',

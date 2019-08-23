@@ -1,33 +1,27 @@
-import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-let container, store, registry, Person;
+let store, Person;
 
 module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     Person = DS.Model.extend({});
-    var env = setupStore({ person: Person });
-    store = env.store;
-    container = env.container;
-    registry = env.registry;
-  });
 
-  hooks.afterEach(function() {
-    run(() => {
-      container.destroy();
-      store.destroy();
-    });
+    this.owner.register('model:person', Person);
+
+    store = this.owner.lookup('service:store');
   });
 
   test('Calling serializerFor looks up `serializer:<type>` from the container', function(assert) {
     const PersonSerializer = DS.JSONSerializer.extend();
 
-    registry.register('serializer:person', PersonSerializer);
+    this.owner.register('serializer:person', PersonSerializer);
 
     assert.ok(
       store.serializerFor('person') instanceof PersonSerializer,
@@ -38,7 +32,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
   test('Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer', function(assert) {
     const ApplicationSerializer = DS.JSONSerializer.extend();
 
-    registry.register('serializer:application', ApplicationSerializer);
+    this.owner.register('serializer:application', ApplicationSerializer);
 
     assert.ok(
       store.serializerFor('person') instanceof ApplicationSerializer,

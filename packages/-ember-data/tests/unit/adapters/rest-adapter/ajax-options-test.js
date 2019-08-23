@@ -1,32 +1,33 @@
 import { resolve, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
 
-var Person, Place, store, adapter, env;
+let Person, Place;
 
-module('unit/adapters/rest-adapter/ajax-options - building requests with fetch', function(hooks) {
+module('unit/adapters/rest-adapter/ajax-options - building requests', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
-    env = setupStore({ adapter: DS.RESTAdapter, person: Person, place: Place });
-    store = env.store;
-    adapter = env.adapter;
-    adapter.set('useFetch', true);
-  });
 
-  hooks.afterEach(function() {
-    run(() => {
-      store.destroy();
-      env.container.destroy();
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('model:place', Place);
+
+    this.owner.register('adapter:application', RESTAdapter.extend({ useFetch: true }));
+    this.owner.register('serializer:application', RESTSerializer.extend());
   });
 
   test('When an id is searched, the correct url should be generated', function(assert) {
     assert.expect(2);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     let count = 0;
 
@@ -49,6 +50,9 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
   test(`id's should be sanatized`, function(assert) {
     assert.expect(1);
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.ajax = function(url, method) {
       assert.equal(url, '/people/..%2Fplace%2F1', 'should create the correct url');
       return resolve();
@@ -58,6 +62,9 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
   });
 
   test('ajaxOptions() headers are set', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.headers = {
       'Content-Type': 'application/json',
       'Other-key': 'Other Value',
@@ -79,6 +86,9 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
   });
 
   test('ajaxOptions() do not serializes data when GET', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
@@ -96,6 +106,9 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
   });
 
   test('ajaxOptions() serializes data when not GET', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
@@ -114,6 +127,9 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
   });
 
   test('ajaxOptions() can provide own headers["Content-Type"]', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, {
@@ -137,6 +153,9 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
   });
 
   test('ajaxOptions() can provide own contentType in options', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, {
@@ -159,6 +178,9 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
   });
 
   test('ajaxOptions() empty data', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
@@ -173,6 +195,9 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
   });
 
   test('_fetchRequest() returns a promise', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     let noop = function() {};
 
     return run(() => {
@@ -190,18 +215,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
 
   module('ajax-options - ajax', function(hooks) {
     hooks.beforeEach(function() {
-      adapter.set('useFetch', false);
-    });
-
-    hooks.afterEach(function() {
-      run(() => {
-        store.destroy();
-        env.container.destroy();
-      });
+      this.owner.register('adapter:application', RESTAdapter.extend({ useFetch: false }));
     });
 
     test('ajaxOptions() Content-Type is not set with ajax GET', function(assert) {
-      adapter.headers = {};
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       let url = 'example.com';
       let type = 'GET';
@@ -211,7 +230,8 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
     });
 
     test('ajaxOptions() Content-Type is not set with ajax POST no data', function(assert) {
-      adapter.headers = {};
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       let url = 'example.com';
       let type = 'POST';
@@ -221,7 +241,8 @@ module('unit/adapters/rest-adapter/ajax-options - building requests with fetch',
     });
 
     test('ajaxOptions() Content-Type is set with ajax POST with data', function(assert) {
-      adapter.headers = {};
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       let url = 'example.com';
       let type = 'POST';

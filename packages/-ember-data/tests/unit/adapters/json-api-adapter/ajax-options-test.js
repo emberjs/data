@@ -1,30 +1,20 @@
-import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-let Person, Place, store, adapter, env;
+module('unit/adapters/json-api-adapter/ajax-options - building requests', function(hooks) {
+  setupTest(hooks);
 
-module('unit/adapters/json-api-adapter/ajax-options - building requests with fetch', function(hooks) {
   hooks.beforeEach(function() {
-    Person = { modelName: 'person' };
-    Place = { modelName: 'place' };
-    env = setupStore({ adapter: DS.JSONAPIAdapter, person: Person, place: Place });
-    store = env.store;
-    adapter = env.adapter;
-    adapter.set('useFetch', true);
-  });
-
-  hooks.afterEach(function() {
-    run(() => {
-      store.destroy();
-      env.container.destroy();
-    });
+    this.owner.register('adapter:application', JSONAPIAdapter.extend({ useFetch: true }));
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('ajaxOptions() adds Accept when no other headers exist', function(assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
@@ -40,7 +30,10 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests with fet
   });
 
   test('ajaxOptions() adds Accept header to existing headers', function(assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
     adapter.headers = { 'Other-key': 'Other Value' };
+
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
@@ -57,7 +50,10 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests with fet
   });
 
   test('ajaxOptions() adds Accept header to existing computed properties headers', function(assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
     adapter.headers = { 'Other-key': 'Other Value' };
+
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
@@ -74,7 +70,10 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests with fet
   });
 
   test('ajaxOptions() does not overwrite passed value of Accept headers', function(assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
     adapter.headers = { 'Other-Key': 'Other Value', Accept: 'application/json' };
+
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
@@ -91,7 +90,10 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests with fet
   });
 
   test('ajaxOptions() headers are set POST', function(assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
     adapter.headers = {};
+
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
@@ -108,7 +110,10 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests with fet
   });
 
   test('ajaxOptions() does not override with existing headers["Content-Type"] POST', function(assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
     adapter.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
@@ -125,7 +130,10 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests with fet
   });
 
   test('ajaxOptions() can override with options.contentType POST', function(assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
     adapter.headers = {};
+
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, {

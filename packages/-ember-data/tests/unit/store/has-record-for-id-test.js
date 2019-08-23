@@ -1,39 +1,30 @@
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-
-import DS from 'ember-data';
-
-let env, store, Person, PhoneNumber;
-const { attr, hasMany, belongsTo } = DS;
+import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('unit/store/hasRecordForId - Store hasRecordForId', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
+    const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
       phoneNumbers: hasMany('phone-number', { async: false }),
     });
 
-    PhoneNumber = DS.Model.extend({
+    const PhoneNumber = Model.extend({
       number: attr('string'),
       person: belongsTo('person', { async: false }),
     });
 
-    env = setupStore({
-      person: Person,
-      'phone-number': PhoneNumber,
-    });
-
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    this.owner.register('model:person', Person);
+    this.owner.register('model:phone-number', PhoneNumber);
   });
 
   test('hasRecordForId should return false for records in the empty state ', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     run(() => {
       store.push({
         data: {
@@ -60,6 +51,8 @@ module('unit/store/hasRecordForId - Store hasRecordForId', function(hooks) {
   });
 
   test('hasRecordForId should return true for records in the loaded state ', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     run(() => {
       store.push({
         data: {

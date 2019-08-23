@@ -2,10 +2,11 @@ import { isPresent } from '@ember/utils';
 import { addObserver } from '@ember/object/observers';
 import { Promise as EmberPromise, reject } from 'rsvp';
 import { run, later } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
 import Model, { attr } from '@ember-data/model';
+import Adapter from '@ember-data/adapter';
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { InvalidError } from '@ember-data/adapter/error';
 
 import { module, test } from 'qunit';
@@ -14,13 +15,11 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 import { settled } from '@ember/test-helpers';
 
-let env, store, Person;
-
 module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
+    const Person = DS.Model.extend({
       firstName: DS.attr(),
       lastName: DS.attr(),
       rolledBackCount: 0,
@@ -34,11 +33,13 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       },
     });
 
-    env = setupStore({ person: Person });
-    store = env.store;
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('changes to attributes can be rolled back', function(assert) {
+    let store = this.owner.lookup('service:store');
     let person;
 
     run(() => {
@@ -68,6 +69,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
   });
 
   test('changes to unassigned attributes can be rolled back', function(assert) {
+    let store = this.owner.lookup('service:store');
     let person;
 
     run(() => {
@@ -97,7 +99,10 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
   });
 
   test('changes to attributes made after a record is in-flight only rolls back the local changes', function(assert) {
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.updateRecord = function(store, type, snapshot) {
       // Make sure the save is async
       return new EmberPromise(resolve => later(null, resolve, 15));
     };
@@ -144,7 +149,10 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
   });
 
   test("a record's changes can be made if it fails to save", function(assert) {
-    env.adapter.updateRecord = function(store, type, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.updateRecord = function(store, type, snapshot) {
       return reject();
     };
 
@@ -188,7 +196,11 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
 
   test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function(assert) {
     assert.expect(10);
-    env.adapter.deleteRecord = function(store, type, snapshot) {
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.deleteRecord = function(store, type, snapshot) {
       return reject();
     };
 
@@ -240,6 +252,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
   });
 
   test(`new record's attributes can be rollbacked`, function(assert) {
+    let store = this.owner.lookup('service:store');
     let person = store.createRecord('person', { id: 1 });
 
     assert.equal(person.get('isNew'), true, 'must be new');
@@ -268,9 +281,11 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       },
     });
 
-    env = setupStore({ person: Person, adapter: adapter, serializer: RESTSerializer.extend() });
+    this.owner.register('adapter:application', adapter);
+    this.owner.register('serializer:application', RESTSerializer.extend());
 
-    let person = env.store.createRecord('person', { id: 1 });
+    let store = this.owner.lookup('service:store');
+    let person = store.createRecord('person', { id: 1 });
 
     assert.equal(person.get('isNew'), true, 'must be new');
     assert.equal(person.get('hasDirtyAttributes'), true, 'must be dirty');
@@ -298,11 +313,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       },
     });
 
-    env = setupStore({ person: Person, adapter: adapter, serializer: RESTSerializer.extend() });
+    this.owner.register('adapter:application', adapter);
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     let person;
     run(() => {
-      person = env.store.push({
+      person = store.push({
         data: {
           type: 'person',
           id: 1,
@@ -341,6 +359,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
   });
 
   test(`deleted record's attributes can be rollbacked`, function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let person, people;
 
     run(() => {
@@ -525,9 +545,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       },
     });
 
-    env = setupStore({ dog: Dog, adapter: adapter, serializer: RESTSerializer.extend() });
+    this.owner.register('model:dog', Dog);
+    this.owner.register('adapter:application', adapter);
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
+    let store = this.owner.lookup('service:store');
+
     let dog = run(() => {
-      env.store.push({
+      store.push({
         data: {
           type: 'dog',
           id: '1',
@@ -536,7 +561,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
           },
         },
       });
-      return env.store.peekRecord('dog', 1);
+      return store.peekRecord('dog', 1);
     });
 
     return run(() => {
