@@ -1,6 +1,7 @@
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
@@ -52,6 +53,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       'twitter-handle': TwitterHandle,
       company: Company,
       project: Project,
+      serializer: JSONAPISerializer.extend(),
     });
 
     store = env.store;

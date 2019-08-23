@@ -5,6 +5,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 
 const { Model, attr, hasMany, belongsTo } = DS;
@@ -30,10 +31,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     env = setupStore({
       user: User,
       organisation: Organisation,
+      serializer: JSONAPISerializer.extend(),
     });
-
-    env.registry.optionsForType('serializer', { singleton: false });
-    env.registry.optionsForType('adapter', { singleton: false });
 
     const store = env.store;
 
@@ -115,10 +114,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     env = setupStore({
       parent: Parent,
       child: Child,
+      serializer: JSONAPISerializer.extend(),
     });
-
-    env.registry.optionsForType('serializer', { singleton: false });
-    env.registry.optionsForType('adapter', { singleton: false });
 
     const store = env.store;
 
@@ -195,6 +192,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
     env = setupStore({
       adapter: Adapter,
+      serializer: JSONAPISerializer.extend(),
       user: User,
       pet: Pet,
     });
@@ -278,6 +276,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
     env = setupStore({
       adapter: Adapter,
+      serializer: JSONAPISerializer.extend(),
       user: User,
       pet: Pet,
     });
@@ -363,6 +362,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
     env = setupStore({
       adapter: Adapter,
+      serializer: JSONAPISerializer.extend(),
       user: User,
       pet: Pet,
     });
@@ -450,6 +450,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
     env = setupStore({
       adapter: Adapter,
+      serializer: JSONAPISerializer.extend(),
       user: User,
       pet: Pet,
     });
@@ -539,6 +540,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
     env = setupStore({
       adapter: Adapter,
+      serializer: JSONAPISerializer.extend(),
       user: User,
       pet: Pet,
     });
@@ -610,6 +612,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
     env = setupStore({
       adapter: Adapter,
+      serializer: JSONAPISerializer.extend(),
       user: User,
       pet: Pet,
     });
@@ -674,6 +677,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     env = setupStore({
       adapter: Adapter,
+      serializer: JSONAPISerializer.extend(),
       user: User,
       pet: Pet,
       home: Home,

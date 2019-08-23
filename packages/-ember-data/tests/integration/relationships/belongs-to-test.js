@@ -242,9 +242,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       section: Section,
     });
 
-    env.registry.optionsForType('serializer', { singleton: false });
-    env.registry.optionsForType('adapter', { singleton: false });
-
     env.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({

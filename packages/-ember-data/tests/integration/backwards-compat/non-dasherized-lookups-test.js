@@ -5,6 +5,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 const { JSONAPIAdapter, Model, attr, belongsTo, hasMany } = DS;
 
@@ -27,6 +28,7 @@ module(
       const env = setupStore({
         postNote: PostNote,
         adapter: ApplicationAdapter,
+        serializer: JSONAPISerializer.extend(),
       });
 
       store = env.store;
@@ -111,6 +113,7 @@ module(
         notePost: NotePost,
         postNote: PostNote,
         adapter: ApplicationAdapter,
+        serializer: JSONAPISerializer.extend(),
       });
 
       store = env.store;

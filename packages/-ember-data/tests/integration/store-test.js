@@ -7,6 +7,7 @@ import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 import DS from 'ember-data';
 
@@ -375,7 +376,7 @@ module('integration/store - findRecord', function() {
       },
     });
 
-    initializeStore(testAdapter);
+    initializeStore(testAdapter, JSONAPISerializer.extend());
 
     let car = run(() => store.findRecord('car', '1'));
 
@@ -951,7 +952,8 @@ module('integration/store - deleteRecord', function(hooks) {
         findRecord() {
           return { data: [] };
         },
-      })
+      }),
+      JSONAPISerializer.extend()
     );
 
     assert.expectAssertion(() => {
