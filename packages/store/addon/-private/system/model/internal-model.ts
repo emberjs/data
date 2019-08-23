@@ -220,7 +220,7 @@ export default class InternalModel {
 
   get _recordData(): RecordData {
     if (this.__recordData === null) {
-      let recordData = this.store._createRecordData(this.modelName, this.id, this.clientId);
+      let recordData = this.store._createRecordData(this.identifier);
       this._recordData = recordData;
       return recordData;
     }
@@ -429,9 +429,7 @@ export default class InternalModel {
           setOwner(createOptions, getOwner(store));
 
           this._record = store._modelFactoryFor(this.modelName).create(createOptions);
-          if (IDENTIFIERS) {
-            setRecordIdentifier(this._record, this.identifier);
-          }
+          setRecordIdentifier(this._record, this.identifier);
           if (DEBUG) {
             let klass = this._record.constructor;
             let deprecations = lookupDeprecations(klass);

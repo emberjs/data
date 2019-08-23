@@ -9,16 +9,22 @@ import InternalModelMap from '../internal-model-map';
 import { isNone } from '@ember/utils';
 import { IDENTIFIERS } from '@ember-data/canary-features';
 import { Record } from '../../ts-interfaces/record';
-import { ResourceIdentifierObject, ExistingResourceObject } from '../../ts-interfaces/ember-data-json-api';
-import hasValidId from '../../utils/has-valid-id';
+import {
+  ResourceIdentifierObject,
+  ExistingResourceObject,
+  NewResourceIdentifierObject,
+} from '../../ts-interfaces/ember-data-json-api';
 import { DEBUG } from '@glimmer/env';
 import CoreStore from '../core-store';
+import constructResource from '../../utils/construct-resource';
 
 /**
   @module @ember-data/store
 */
 
 const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
+type NewResourceInfo = { type: string; id: string | null };
+
 const RecordCache = new WeakMap<Record, StableRecordIdentifier>();
 
 export function recordIdentifierFor(record: Record): StableRecordIdentifier {
@@ -134,9 +140,7 @@ export default class InternalModelFactory {
    *
    * @internal
    */
-  lookup(modelName: string, id: string, clientId?: string | null, data?: ExistingResourceObject): InternalModel;
-  lookup(modelName: string, id: null, clientId: string, data?: ExistingResourceObject): InternalModel;
-  lookup(modelName: string, id: string | null, clientId?: string | null, data?: ExistingResourceObject): InternalModel {
+  lookup(resource: ResourceIdentifierObject, data?: ExistingResourceObject): InternalModel {
     if (IDENTIFIERS && data !== undefined) {
       // if we've been given data associated with this lookup
       // we must first give secondary-caches for LIDs the
@@ -144,12 +148,8 @@ export default class InternalModelFactory {
       this.identifierCache.getOrCreateRecordIdentifier(data);
     }
 
-    let trueId = id === null ? null : coerceId(id);
-
-    if (!hasValidId(trueId, clientId)) {
-      throw new Error(`Either id or clientId must be a valid id`);
-    }
-    let internalModel = this.peek(modelName, trueId, clientId);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+    const internalModel = this.peek(identifier);
 
     if (internalModel) {
       // unloadRecord is async, if one attempts to unload + then sync push,
@@ -165,7 +165,7 @@ export default class InternalModelFactory {
       return internalModel;
     }
 
-    return this._build(modelName, trueId, clientId, false);
+    return this._build(identifier, false);
   }
 
   /**
@@ -175,31 +175,16 @@ export default class InternalModelFactory {
    *
    * @internal
    */
-  peek(modelName: string, id: string, clientId?: string | null): InternalModel | null;
-  peek(modelName: string, id: string | null, clientId: string): InternalModel | null;
-  peek(modelName: string, id: string | null, clientId?: string | null): InternalModel | null {
-    if (!hasValidId(id, clientId)) {
-      throw new Error(`Either id or clientId must be a valid id`);
-    }
-
+  peek(identifier: StableRecordIdentifier): InternalModel | null {
     if (IDENTIFIERS) {
-      let resource: ResourceIdentifierObject = { type: modelName, id };
-      if (clientId) {
-        resource.lid = clientId;
-      }
-
-      const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
-
-      return this.modelMapFor(modelName).get(identifier.lid);
+      return this.modelMapFor(identifier.type).get(identifier.lid);
     } else {
       let internalModel: InternalModel | null = null;
 
-      if (clientId) {
-        internalModel = this._newlyCreatedModelsFor(modelName).get(clientId);
-      }
+      internalModel = this._newlyCreatedModelsFor(identifier.type).get(identifier.lid);
 
-      if (!internalModel && id) {
-        internalModel = this.modelMapFor(modelName).get(id);
+      if (!internalModel && identifier.id) {
+        internalModel = this.modelMapFor(identifier.type).get(identifier.id);
       }
 
       return internalModel;
@@ -208,13 +193,11 @@ export default class InternalModelFactory {
 
   getByResource(resource: ResourceIdentifierObject): InternalModel {
     if (IDENTIFIERS) {
-      if (!hasValidId(resource.id, resource.lid)) {
-        throw new Error(`Either id or lid must be a valid id`);
-      }
+      const normalizedResource = constructResource(resource.type, resource.id, resource.lid);
 
-      return this.lookup(resource.type, resource.id, resource.lid || null);
+      return this.lookup(normalizedResource);
     } else {
-      let res = resource as { type: string; clientId?: string; id: string | null };
+      let res = resource as { type: string; clientId?: string; id: string | null; lid?: string };
       let internalModel: InternalModel | null = null;
 
       if (res.clientId) {
@@ -222,7 +205,7 @@ export default class InternalModelFactory {
       }
 
       if (internalModel === null) {
-        internalModel = this.lookup(res.type, res.id as string, resource.lid);
+        internalModel = this.lookup(resource);
       }
 
       return internalModel;
@@ -230,7 +213,9 @@ export default class InternalModelFactory {
   }
 
   setRecordId(type: string, id: string, lid: string) {
-    const internalModel = this.peek(type, id, lid);
+    const resource: NewResourceIdentifierObject = { type, id: null, lid };
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+    const internalModel = this.peek(identifier);
 
     if (internalModel === null) {
       throw new Error(`Cannot set the id ${id} on the record ${type}:${lid} as there is no such record in the cache.`);
@@ -270,28 +255,26 @@ export default class InternalModelFactory {
     );
 
     if (!IDENTIFIERS) {
-      this.modelMapFor(internalModel.modelName).set(id, internalModel);
-      this._newlyCreatedModelsFor(internalModel.modelName).remove(internalModel, lid);
+      this.modelMapFor(type).set(id, internalModel);
+      this._newlyCreatedModelsFor(type).remove(internalModel, lid);
     }
 
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier({ type: modelName, id, lid });
-
     if (identifier.id === null) {
-      this.identifierCache.updateRecordIdentifier(identifier, { type: modelName, id });
+      this.identifierCache.updateRecordIdentifier(identifier, { type, id });
     }
 
     internalModel.setId(id);
   }
 
-  peekById(modelName: string, id: string): InternalModel | null {
-    const identifier = this.identifierCache.peekRecordIdentifier({ type: modelName, id });
+  peekById(type: string, id: string): InternalModel | null {
+    const identifier = this.identifierCache.peekRecordIdentifier({ type, id });
 
     let internalModel: InternalModel | null;
 
     if (IDENTIFIERS) {
-      internalModel = identifier ? this.modelMapFor(modelName).get(identifier.lid) : null;
+      internalModel = identifier ? this.modelMapFor(type).get(identifier.lid) : null;
     } else {
-      internalModel = this.modelMapFor(modelName).get(id);
+      internalModel = this.modelMapFor(type).get(id);
     }
 
     if (internalModel && internalModel.hasScheduledDestroy()) {
@@ -307,18 +290,18 @@ export default class InternalModelFactory {
     return internalModel;
   }
 
-  build(modelName: string, id: string | null) {
-    return this._build(modelName, id, null, true);
+  build(newResourceInfo: NewResourceInfo): InternalModel {
+    return this._build(newResourceInfo, true);
   }
 
-  _build(type: string, id: string, lid: string | null | undefined, isCreate: false);
-  _build(type: string, id: string | null, lid: null | undefined, isCreate: true);
-  _build(type: string, id: string | null, lid: string | null | undefined, isCreate: boolean = false) {
-    if (id) {
-      let existingInternalModel = this.peekById(type, id);
+  _build(resource: StableRecordIdentifier, isCreate: false): InternalModel;
+  _build(resource: NewResourceInfo, isCreate: true): InternalModel;
+  _build(resource: StableRecordIdentifier | NewResourceInfo, isCreate: boolean = false): InternalModel {
+    if (isCreate === true && resource.id) {
+      let existingInternalModel = this.peekById(resource.type, resource.id);
 
       assert(
-        `The id ${id} has already been used with another record for modelClass '${type}'.`,
+        `The id ${resource.id} has already been used with another '${resource.type}' record.`,
         !existingInternalModel
       );
     }
@@ -327,14 +310,9 @@ export default class InternalModelFactory {
     let identifier: StableRecordIdentifier;
 
     if (isCreate === true) {
-      identifier = identifierCache.createIdentifierForNewRecord({ type, id });
+      identifier = identifierCache.createIdentifierForNewRecord(resource);
     } else {
-      let resource: ResourceIdentifierObject = { type, id: id as string };
-      if (lid) {
-        resource.lid = lid;
-      }
-
-      identifier = identifierCache.getOrCreateRecordIdentifier(resource);
+      identifier = resource as StableRecordIdentifier;
     }
 
     // lookupFactory should really return an object that creates
@@ -342,13 +320,13 @@ export default class InternalModelFactory {
     let internalModel = new InternalModel(this.store, identifier);
 
     if (IDENTIFIERS) {
-      this.modelMapFor(type).add(internalModel, identifier.lid);
+      this.modelMapFor(resource.type).add(internalModel, identifier.lid);
     } else {
       if (isCreate === true) {
         this._newlyCreatedModelsFor(identifier.type).add(internalModel, identifier.lid);
       }
       // TODO @runspired really?!
-      this.modelMapFor(type).add(internalModel, identifier.id);
+      this.modelMapFor(resource.type).add(internalModel, identifier.id);
     }
 
     return internalModel;
@@ -371,19 +349,19 @@ export default class InternalModelFactory {
     this.identifierCache.forgetRecordIdentifier(identifier);
   }
 
-  modelMapFor(modelName: string): InternalModelMap {
-    return this._identityMap.retrieve(modelName);
+  modelMapFor(type: string): InternalModelMap {
+    return this._identityMap.retrieve(type);
   }
 
-  _newlyCreatedModelsFor(modelName: string): InternalModelMap {
-    return this._newlyCreated.retrieve(modelName);
+  _newlyCreatedModelsFor(type: string): InternalModelMap {
+    return this._newlyCreated.retrieve(type);
   }
 
-  clear(modelName?: string) {
-    if (modelName === undefined) {
+  clear(type?: string) {
+    if (type === undefined) {
       this._identityMap.clear();
     } else {
-      this.modelMapFor(modelName).clear();
+      this.modelMapFor(type).clear();
     }
   }
 }
