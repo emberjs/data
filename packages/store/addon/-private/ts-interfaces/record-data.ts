@@ -4,7 +4,6 @@ import {
   JsonApiBelongsToRelationship,
   JsonApiValidationError,
 } from './record-data-json-api';
-import { ResourceIdentifierObject } from './json-api';
 import { RecordIdentifier } from './identifier';
 
 /**
@@ -15,7 +14,8 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
-export default interface RecordData {
+export default interface RecordDataV1 {
+  version?: '1';
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;
@@ -67,35 +67,6 @@ export default interface RecordData {
   setIsDeleted?(isDeleted: boolean): void;
 }
 
-export interface RecordDataV1 {
-  version?: '1';
-  pushData(data: object, calculateChanges: boolean);
-  unloadRecord();
-  isRecordInUse();
-  getAttr(propertyName: string);
-  isAttrDirty(propertyName: string);
-  changedAttributes();
-  hasChangedAttributes(): boolean;
-  rollbackAttributes();
-  getBelongsTo(propertyName: string);
-  getHasMany(propertyName: string);
-  willCommit();
-  didCommit(data: any);
-  commitWasRejected();
-  isEmpty();
-  isNew();
-  clientDidCreate();
-  _initRecordCreateOptions(options: object): object;
-  setDirtyBelongsTo(propertyName: string, value: RecordData | null);
-  removeFromInverseRelationships(isNew: boolean);
-  setDirtyAttribute(propertyName: string, value: any);
-  addToHasMany(propertyName: string, value: RecordData[], idx?: number);
-  removeFromHasMany(propertyName: string, value: RecordData[]);
-  setDirtyHasMany(propertyName: string, value: RecordData[]);
-  getHasMany(propertyName: string);
-  getResourceIdentifier(): ResourceIdentifierObject;
-}
-
 export interface RecordDataV2 {
   version: '2';
   pushData(data: object, calculateChanges: boolean);
@@ -125,4 +96,4 @@ export interface EmberDataRecordData extends RecordDataV1 {
   _relationships: object;
 }
 
-// export type RecordData = RecordDataV1 | RecordDataV2 | EmberDataRecordData;
+export type RecordData = RecordDataV1 | RecordDataV2 | EmberDataRecordData;
