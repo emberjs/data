@@ -9,6 +9,8 @@ import { singularize } from 'ember-inflector';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
+import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
 
 import Pretender from 'pretender';
 
@@ -38,7 +40,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     this.owner.register('model:comment', Comment);
     this.owner.register('model:super-user', SuperUser);
 
-    this.owner.register('adapter:application', DS.RESTAdapter.extend());
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
 
     server = new Pretender();
     store = this.owner.lookup('service:store');

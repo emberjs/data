@@ -5,6 +5,7 @@ import { run, later } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import Model, { attr } from '@ember-data/model';
 import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
 import { InvalidError } from '@ember-data/adapter/error';
 
 import { module, test } from 'qunit';
@@ -267,7 +268,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       },
     });
 
-    env = setupStore({ person: Person, adapter: adapter });
+    env = setupStore({ person: Person, adapter: adapter, serializer: RESTSerializer.extend() });
 
     let person = env.store.createRecord('person', { id: 1 });
 
@@ -297,7 +298,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       },
     });
 
-    env = setupStore({ person: Person, adapter: adapter });
+    env = setupStore({ person: Person, adapter: adapter, serializer: RESTSerializer.extend() });
 
     let person;
     run(() => {
@@ -391,6 +392,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     const { owner } = this;
     owner.register(`model:dog`, Dog);
     owner.register(`adapter:application`, TestAdapter);
+    owner.register(`serializer:application`, RESTSerializer.extend());
     const store = owner.lookup(`service:store`);
 
     const dog = store.push({
@@ -458,6 +460,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     const { owner } = this;
     owner.register(`model:dog`, Dog);
     owner.register(`adapter:application`, TestAdapter);
+    owner.register(`serializer:application`, RESTSerializer.extend());
     const store = owner.lookup(`service:store`);
 
     const dog = store.push({
@@ -522,7 +525,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       },
     });
 
-    env = setupStore({ dog: Dog, adapter: adapter });
+    env = setupStore({ dog: Dog, adapter: adapter, serializer: RESTSerializer.extend() });
     let dog = run(() => {
       env.store.push({
         data: {

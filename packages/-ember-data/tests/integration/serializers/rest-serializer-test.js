@@ -5,6 +5,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
+import RESTSerializer from '@ember-data/serializer/rest';
 
 let HomePlanet, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container, env;
 
@@ -54,6 +55,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
       comment: Comment,
       basket: Basket,
       container: Container,
+      serializer: RESTSerializer.extend(),
     });
     env.store.modelFor('super-villain');
     env.store.modelFor('home-planet');
@@ -73,8 +75,8 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     assert.expect(2);
     Inflector.inflector.uncountable('words');
     var expectedModelName = 'multi-words';
-    assert.equal(env.restSerializer.modelNameFromPayloadKey('multi_words'), expectedModelName);
-    assert.equal(env.restSerializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
+    assert.equal(env.serializer.modelNameFromPayloadKey('multi_words'), expectedModelName);
+    assert.equal(env.serializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
   });
 
   test('normalizeResponse should extract meta using extractMeta', function(assert) {
@@ -104,7 +106,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   test('normalizeResponse with custom modelNameFromPayloadKey', function(assert) {
     assert.expect(1);
 
-    env.restSerializer.modelNameFromPayloadKey = function(root) {
+    env.serializer.modelNameFromPayloadKey = function(root) {
       var camelized = camelize(root);
       return singularize(camelized);
     };
@@ -131,7 +133,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var array;
 
     run(function() {
-      array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
+      array = env.serializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
     });
 
     assert.deepEqual(array, {
@@ -170,7 +172,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
 
     var homePlanetNormalizeCount = 0;
 
-    env.restSerializer.modelNameFromPayloadKey = function(root) {
+    env.serializer.modelNameFromPayloadKey = function(root) {
       return 'home-planet';
     };
 
@@ -190,7 +192,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var array;
 
     run(function() {
-      array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findAll');
+      array = env.serializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findAll');
     });
 
     assert.deepEqual(array, {
@@ -211,10 +213,10 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
 
   testInDebug('normalizeResponse warning with custom modelNameFromPayloadKey', function(assert) {
     var homePlanet;
-    var oldModelNameFromPayloadKey = env.restSerializer.modelNameFromPayloadKey;
+    var oldModelNameFromPayloadKey = env.serializer.modelNameFromPayloadKey;
     env.owner.register('serializer:super-villain', DS.JSONSerializer);
     env.owner.register('serializer:home-planet', DS.JSONSerializer);
-    env.restSerializer.modelNameFromPayloadKey = function(root) {
+    env.serializer.modelNameFromPayloadKey = function(root) {
       //return some garbage that won"t resolve in the container
       return 'garbage';
     };
@@ -226,21 +228,21 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     assert.expectWarning(
       bind(null, function() {
         run(function() {
-          env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
+          env.serializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
         });
       }),
       /Encountered "home_planet" in payload, but no model was found for model name "garbage"/
     );
 
     // should not warn if a model is found.
-    env.restSerializer.modelNameFromPayloadKey = oldModelNameFromPayloadKey;
+    env.serializer.modelNameFromPayloadKey = oldModelNameFromPayloadKey;
     jsonHash = {
       home_planet: { id: '1', name: 'Umber', superVillains: [1] },
     };
 
     assert.expectNoWarning(function() {
       run(function() {
-        homePlanet = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, 1, 'findRecord');
+        homePlanet = env.serializer.normalizeResponse(env.store, HomePlanet, jsonHash, 1, 'findRecord');
       });
     });
 
@@ -252,7 +254,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var homePlanets;
     env.owner.register('serializer:super-villain', DS.JSONSerializer);
     env.owner.register('serializer:home-planet', DS.JSONSerializer);
-    env.restSerializer.modelNameFromPayloadKey = function(root) {
+    env.serializer.modelNameFromPayloadKey = function(root) {
       //return some garbage that won"t resolve in the container
       return 'garbage';
     };
@@ -262,11 +264,11 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     };
 
     assert.expectWarning(function() {
-      env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
+      env.serializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
     }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
     // should not warn if a model is found.
-    env.restSerializer.modelNameFromPayloadKey = function(root) {
+    env.serializer.modelNameFromPayloadKey = function(root) {
       return camelize(singularize(root));
     };
 
@@ -276,7 +278,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
 
     assert.expectNoWarning(function() {
       run(function() {
-        homePlanets = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
+        homePlanets = env.serializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
       });
     });
 
@@ -288,7 +290,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   test('serialize polymorphicType', function(assert) {
     let tom = env.store.createRecord('yellow-minion', { name: 'Alex', id: '124' });
     let ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: 'DeathRay' });
-    let json = env.restSerializer.serialize(ray._createSnapshot());
+    let json = env.serializer.serialize(ray._createSnapshot());
 
     assert.deepEqual(json, {
       name: 'DeathRay',
@@ -300,14 +302,14 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   test('serialize polymorphicType with decamelized modelName', function(assert) {
     let tom = env.store.createRecord('yellow-minion', { name: 'Alex', id: '124' });
     let ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: 'DeathRay' });
-    let json = env.restSerializer.serialize(ray._createSnapshot());
+    let json = env.serializer.serialize(ray._createSnapshot());
 
     assert.deepEqual(json['evilMinionType'], 'yellowMinion');
   });
 
   test('serialize polymorphic when associated object is null', function(assert) {
     let ray = env.store.createRecord('doomsday-device', { name: 'DeathRay' });
-    let json = env.restSerializer.serialize(ray._createSnapshot());
+    let json = env.serializer.serialize(ray._createSnapshot());
 
     assert.deepEqual(json['evilMinionType'], null);
   });
@@ -332,7 +334,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     };
 
     run(function() {
-      env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, '1', 'findRecord');
+      env.serializer.normalizeResponse(env.store, EvilMinion, jsonHash, '1', 'findRecord');
     });
 
     assert.equal(superVillainNormalizeCount, 1, 'superVillain is normalized once');
@@ -347,7 +349,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var value;
 
     run(function() {
-      value = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findRecord');
+      value = env.serializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findRecord');
     });
 
     assert.deepEqual(value, { data: null, included: [] }, 'returned value is null');
@@ -373,7 +375,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     };
 
     run(function() {
-      env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
+      env.serializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
     });
 
     assert.equal(superVillainNormalizeCount, 1, 'superVillain is normalized once');
@@ -381,7 +383,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
 
   test('normalize should allow for different levels of normalization', function(assert) {
     env.owner.register(
-      'serializer:application',
+      'serializer:evil-minion',
       DS.RESTSerializer.extend({
         attrs: {
           superVillain: 'is_super_villain',
@@ -398,7 +400,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var array;
 
     run(function() {
-      array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
+      array = env.serializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
     });
 
     assert.equal(array.data[0].relationships.superVillain.data.id, 1);
@@ -406,7 +408,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
 
   test('normalize should allow for different levels of normalization - attributes', function(assert) {
     env.owner.register(
-      'serializer:application',
+      'serializer:evil-minion',
       DS.RESTSerializer.extend({
         attrs: {
           name: 'full_name',
@@ -423,7 +425,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     var array;
 
     run(function() {
-      array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
+      array = env.serializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
     });
 
     assert.equal(array.data[0].attributes.name, 'Tom Dale');
@@ -433,7 +435,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     let league = env.store.createRecord('home-planet', { name: 'Umber', id: '123' });
     let json = {};
 
-    env.restSerializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
+    env.serializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
 
     assert.deepEqual(json, {
       homePlanet: {
@@ -446,7 +448,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     let league = env.store.createRecord('home-planet', { name: 'Umber', id: '123' });
     let json = {};
 
-    env.restSerializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
+    env.serializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
 
     assert.deepEqual(json, {
       homePlanet: {
@@ -465,7 +467,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
       evilMinion: evilMinion,
     });
 
-    env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, {
+    env.serializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, {
       key: 'evilMinion',
       options: { polymorphic: true, async: true },
     });
@@ -477,7 +479,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     let json = {};
     let expected = { evilMinion: '1', typeForEvilMinion: 'evilMinion' };
 
-    env.restSerializer.keyForPolymorphicType = function() {
+    env.serializer.keyForPolymorphicType = function() {
       return 'typeForEvilMinion';
     };
 
@@ -488,7 +490,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
       evilMinion: evilMinion,
     });
 
-    env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, {
+    env.serializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, {
       key: 'evilMinion',
       options: { polymorphic: true, async: true },
     });
@@ -522,11 +524,11 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
       included: [],
     };
 
-    env.restSerializer.keyForPolymorphicType = function() {
+    env.serializer.keyForPolymorphicType = function() {
       return 'typeForEvilMinion';
     };
 
-    var normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, json, null, 'findRecord');
+    var normalized = env.serializer.normalizeResponse(env.store, DoomsdayDevice, json, null, 'findRecord');
 
     assert.deepEqual(normalized, expected, 'normalized JSON is correct');
   });
@@ -556,7 +558,6 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   });
 
   test('normalizeResponse with async polymorphic belongsTo, using <relationshipName>Type', function(assert) {
-    env.owner.register('serializer:application', DS.RESTSerializer.extend());
     var store = env.store;
     env.adapter.findRecord = (store, type) => {
       if (type.modelName === 'doomsday-device') {
@@ -595,7 +596,6 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   });
 
   test('normalizeResponse with async polymorphic belongsTo', function(assert) {
-    env.owner.register('serializer:application', DS.RESTSerializer.extend());
     var store = env.store;
     env.adapter.findRecord = () => {
       return {
@@ -637,7 +637,6 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     SuperVillain.reopen({
       evilMinions: DS.hasMany('evil-minion', { async: true, polymorphic: true }),
     });
-    env.owner.register('serializer:application', DS.RESTSerializer.extend());
     var store = env.store;
     env.adapter.findRecord = () => {
       return {
@@ -688,7 +687,7 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     env.owner.register('serializer:comment', DS.JSONSerializer);
 
     run(function() {
-      array = env.restSerializer.normalizeResponse(env.store, Comment, jsonHash, '1', 'findRecord');
+      array = env.serializer.normalizeResponse(env.store, Comment, jsonHash, '1', 'findRecord');
     });
 
     assert.deepEqual(array, {
@@ -729,11 +728,9 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   });
 
   test("don't polymorphically deserialize base on the type key in payload when a type attribute exist", function(assert) {
-    env.owner.register('serializer:application', DS.RESTSerializer.extend());
-
     run(function() {
       env.store.push(
-        env.restSerializer.normalizeArrayResponse(env.store, Basket, {
+        env.serializer.normalizeArrayResponse(env.store, Basket, {
           basket: [{ type: 'bamboo', size: 10, id: '1' }, { type: 'yellowMinion', size: 10, id: '65536' }],
         })
       );
@@ -751,11 +748,9 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   });
 
   test("don't polymorphically deserialize base on the type key in payload when a type attribute exist on a singular response", function(assert) {
-    env.owner.register('serializer:application', DS.RESTSerializer.extend());
-
     run(function() {
       env.store.push(
-        env.restSerializer.normalizeSingleResponse(
+        env.serializer.normalizeSingleResponse(
           env.store,
           Basket,
           {
@@ -773,8 +768,6 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   });
 
   test("don't polymorphically deserialize based on the type key in payload when a relationship exists named type", function(assert) {
-    env.owner.register('serializer:application', DS.RESTSerializer.extend());
-
     env.adapter.findRecord = () => {
       return {
         containers: [{ id: 42, volume: '10 liters', type: 1 }],
