@@ -15,12 +15,12 @@ import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
   @module @ember-data/store
 */
 
-type StringOrNullOrUndefined = StableRecordIdentifier | string;
+type StableIdentifierOrString = StableRecordIdentifier | string;
 
 export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   [BRAND_SYMBOL]: 'RecordDataStoreWrapper';
   _willUpdateManyArrays: boolean;
-  private _pendingManyArrayUpdates: StringOrNullOrUndefined[];
+  private _pendingManyArrayUpdates: StableIdentifierOrString[];
 
   constructor(public _store: CoreStore) {
     this._willUpdateManyArrays = false;

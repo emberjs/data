@@ -310,7 +310,7 @@ export default class InternalModelFactory {
     let identifier: StableRecordIdentifier;
 
     if (isCreate === true) {
-      identifier = identifierCache.createIdentifierForNewRecord(resource as NewResourceInfo);
+      identifier = identifierCache.createIdentifierForNewRecord(resource);
     } else {
       identifier = resource as StableRecordIdentifier;
     }
