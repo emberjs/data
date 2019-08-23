@@ -278,6 +278,9 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     assert.expect(3);
     let { owner } = this;
     let count = 0;
+    let internalModel;
+    let recordData;
+
     class RecordDataForTest extends TestRecordData {
       id: string;
       _isNew: boolean = false;
@@ -288,14 +291,9 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
         this.id = id;
 
         if (count === 1) {
-          const recordData = storeWrapper.recordDataFor('house');
-          assert.ok(recordData, 'Our RecordData is new');
+          recordData = storeWrapper.recordDataFor('house');
         } else if (count === 2) {
-          const internalModel = store._internalModelForResource({ type: 'house', lid });
-          assert.ok(
-            internalModel.isNew(),
-            'The internalModel for a RecordData created via Wrapper.recordDataFor(type) is in the "new" state'
-          );
+          internalModel = store._internalModelForResource({ type: 'house', lid });
         }
       }
 
@@ -326,6 +324,12 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
         },
       },
     });
+
+    assert.ok(recordData._isNew, 'Our RecordData is new');
+    assert.ok(
+      internalModel.isNew(),
+      'The internalModel for a RecordData created via Wrapper.recordDataFor(type) is in the "new" state'
+    );
 
     assert.equal(count, 2, 'two TestRecordDatas have been created');
   });
