@@ -143,7 +143,7 @@ import { pluralize } from 'ember-inflector';
 const JSONAPIAdapter = RESTAdapter.extend({
   defaultSerializer: '-json-api',
 
-  defaultContentType: 'application/vnd.api+json',
+  _defaultContentType: 'application/vnd.api+json',
 
   /**
     @method ajaxOptions
