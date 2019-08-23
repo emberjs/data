@@ -291,6 +291,8 @@ const hasNajax = typeof najax !== 'undefined';
 const RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
 
+  _defaultContentType: 'application/json; charset=utf-8',
+
   fastboot: computed(function() {
     return getOwner(this).lookup('service:fastboot');
   }),
@@ -1093,14 +1095,21 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       options.headers = {};
     }
 
-    if (options.data && options.type !== 'GET') {
-      let contentType = options.contentType || 'application/json; charset=utf-8';
-      options.headers['content-type'] = contentType;
-    }
+    let contentType = options.contentType || this._defaultContentType;
 
     if (get(this, 'useFetch')) {
+      if (options.data && options.type !== 'GET') {
+        if (!options.headers['Content-Type'] && !options.headers['content-type']) {
+          options.headers['content-type'] = contentType;
+        }
+      }
       options = fetchOptions(options, this);
     } else {
+      // GET requests without a body should not have a content-type header
+      // and may be unexpected by a server
+      if (options.data && options.type !== 'GET') {
+        options = assign(options, { contentType });
+      }
       options = ajaxOptions(options, this);
     }
 
@@ -1370,7 +1379,6 @@ function ajaxOptions(options, adapter) {
 
   if (options.data && options.type !== 'GET') {
     options.data = JSON.stringify(options.data);
-    options.contentType = 'application/json; charset=utf-8';
   }
 
   options.beforeSend = function(xhr) {

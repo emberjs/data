@@ -8,7 +8,7 @@ import DS from 'ember-data';
 
 var Person, Place, store, adapter, env;
 
-module('unit/adapters/rest-adapter/ajax-options - building requests', function(hooks) {
+module('unit/adapters/rest-adapter/ajax-options - building requests with fetch', function(hooks) {
   hooks.beforeEach(function() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
@@ -82,7 +82,6 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
-    delete ajaxOptions.beforeSend;
 
     assert.deepEqual(ajaxOptions, {
       credentials: 'same-origin',
@@ -100,7 +99,6 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
-    delete ajaxOptions.beforeSend;
 
     assert.deepEqual(ajaxOptions, {
       credentials: 'same-origin',
@@ -115,11 +113,55 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
+  test('ajaxOptions() can provide own headers["Content-Type"]', function(assert) {
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data: { key: 'value' },
+    });
+
+    assert.deepEqual(ajaxOptions, {
+      credentials: 'same-origin',
+      data: { key: 'value' },
+      body: '{"key":"value"}',
+      type: 'POST',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      url: 'example.com',
+    });
+  });
+
+  test('ajaxOptions() can provide own contentType in options', function(assert) {
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {
+      contentType: 'application/x-www-form-urlencoded',
+      data: { key: 'value' },
+    });
+
+    assert.deepEqual(ajaxOptions, {
+      contentType: 'application/x-www-form-urlencoded',
+      credentials: 'same-origin',
+      data: { key: 'value' },
+      body: '{"key":"value"}',
+      type: 'POST',
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      url: 'example.com',
+    });
+  });
+
   test('ajaxOptions() empty data', function(assert) {
     let url = 'example.com';
     let type = 'POST';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    delete ajaxOptions.beforeSend;
 
     assert.deepEqual(ajaxOptions, {
       credentials: 'same-origin',
@@ -143,6 +185,49 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       assert.equal(typeof fetchPlacePromise.then, 'function', '_fetchRequest does not return a promise');
 
       return fetchPlacePromise;
+    });
+  });
+
+  module('ajax-options - ajax', function(hooks) {
+    hooks.beforeEach(function() {
+      adapter.set('useFetch', false);
+    });
+
+    hooks.afterEach(function() {
+      run(() => {
+        store.destroy();
+        env.container.destroy();
+      });
+    });
+
+    test('ajaxOptions() Content-Type is not set with ajax GET', function(assert) {
+      adapter.headers = {};
+
+      let url = 'example.com';
+      let type = 'GET';
+      let ajaxOptions = adapter.ajaxOptions(url, type, {});
+
+      assert.notOk(ajaxOptions.contentType, 'contentType not set with GET');
+    });
+
+    test('ajaxOptions() Content-Type is not set with ajax POST no data', function(assert) {
+      adapter.headers = {};
+
+      let url = 'example.com';
+      let type = 'POST';
+      let ajaxOptions = adapter.ajaxOptions(url, type, {});
+
+      assert.notOk(ajaxOptions.contentType, 'contentType not set with POST no data');
+    });
+
+    test('ajaxOptions() Content-Type is set with ajax POST with data', function(assert) {
+      adapter.headers = {};
+
+      let url = 'example.com';
+      let type = 'POST';
+      let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
+
+      assert.equal(ajaxOptions.contentType, 'application/json; charset=utf-8', 'contentType is set with POST');
     });
   });
 });
