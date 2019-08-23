@@ -7,6 +7,7 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import Model from '@ember-data/model';
 import { settled } from '@ember/test-helpers';
 import { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 class Person extends Model {
   @attr()
@@ -34,6 +35,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     let { owner } = this;
 
     owner.register('model:person', Person);
+    owner.register('serializer:application', JSONAPISerializer.extend());
+
     store = owner.lookup('service:store');
   });
 

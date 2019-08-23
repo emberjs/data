@@ -6,6 +6,8 @@ import { module, test } from 'qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 const Person = Model.extend({
   name: attr('string'),
@@ -19,6 +21,8 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
   hooks.beforeEach(function() {
     this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', JSONAPIAdapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('when a record is deleted in an adapter populated record array, it should be removed', function(assert) {

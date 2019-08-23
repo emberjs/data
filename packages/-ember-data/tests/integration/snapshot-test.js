@@ -2,6 +2,8 @@ import { resolve } from 'rsvp';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model from '@ember-data/model';
 import { Snapshot } from 'ember-data/-private';
 import { attr, belongsTo, hasMany } from '@ember-data/model';
@@ -34,6 +36,8 @@ module('integration/snapshot - Snapshot', function(hooks) {
     owner = this.owner;
     owner.register('model:post', Post);
     owner.register('model:comment', Comment);
+    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('serializer:application', JSONAPISerializer.extend());
     store = owner.lookup('service:store');
   });
 

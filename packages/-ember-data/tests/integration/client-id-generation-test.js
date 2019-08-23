@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import Model from '@ember-data/model';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('integration - Client Id Generation', function(hooks) {
@@ -34,7 +35,8 @@ module('integration - Client Id Generation', function(hooks) {
     owner.register('model:comment', Comment);
     owner.register('model:post', Post);
     owner.register('model:misc', Misc);
-    owner.register('adapter:application', JSONAPIAdapter);
+    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('serializer:application', JSONAPISerializer.extend());
 
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');

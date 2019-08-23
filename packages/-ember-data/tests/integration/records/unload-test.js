@@ -7,6 +7,8 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 import { recordDataFor } from 'ember-data/-private';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 function idsFromOrderedSet(set) {
   return set.list.map(i => i.id);
@@ -138,6 +140,8 @@ module('integration/unload - Unloading Records', function(hooks) {
     owner.register(`model:book`, Book);
     owner.register(`model:spoon`, Spoon);
     owner.register(`model:show`, Show);
+    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('serializer:application', JSONAPISerializer.extend());
 
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');
