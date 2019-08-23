@@ -402,9 +402,7 @@ abstract class CoreStore extends Service {
       let createOptions = recordData._initRecordCreateOptions(properties);
       //TODO Igor pass a wrapper instead of RD
       let record = this.instantiateRecord(identifier, createOptions, this.__recordDataFor, this._notificationManager);
-      if (IDENTIFIERS) {
-        setRecordIdentifier(record, identifier);
-      }
+      setRecordIdentifier(record, identifier);
       //recordToInternalModelMap.set(record, internalModel);
       return record;
     } else {
@@ -1463,9 +1461,8 @@ abstract class CoreStore extends Service {
     const trueId = ensureStringId(id);
     const resource = { type, id: trueId };
 
-    const identifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
-
-    const internalModel = internalModelFactoryFor(this).peek(identifier);
+    const identifier = identifierCacheFor(this).peekRecordIdentifier(resource);
+    const internalModel = identifier && internalModelFactoryFor(this).peek(identifier);
 
     return !!internalModel && internalModel.isLoaded();
   }

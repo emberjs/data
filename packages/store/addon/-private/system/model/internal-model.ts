@@ -429,9 +429,7 @@ export default class InternalModel {
           setOwner(createOptions, getOwner(store));
 
           this._record = store._modelFactoryFor(this.modelName).create(createOptions);
-          if (IDENTIFIERS) {
-            setRecordIdentifier(this._record, this.identifier);
-          }
+          setRecordIdentifier(this._record, this.identifier);
           if (DEBUG) {
             let klass = this._record.constructor;
             let deprecations = lookupDeprecations(klass);
