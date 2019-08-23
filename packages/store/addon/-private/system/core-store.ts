@@ -104,9 +104,6 @@ const HAS_SERIALIZER_PACKAGE = has('@ember-data/serializer');
 function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
 // TODO add adapter here and deprecate those registrations as well after refactoring them to re-exports
 function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void {
-  throw new Error(
-    `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`
-  );
   deprecate(
     `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
     false,
