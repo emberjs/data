@@ -4,6 +4,7 @@ import { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 const { JSONAPIAdapter, Model, attr, belongsTo, hasMany } = DS;
 
@@ -34,6 +35,7 @@ function setupModels(testState) {
 
   return setupStore({
     adapter: JSONAPIAdapter.extend(),
+    serializer: JSONAPISerializer.extend(),
     post: Post,
     comment: Comment,
     author: Author,
@@ -252,6 +254,7 @@ module('unit/model - init properties', function() {
     // how to get setUnknownProperty to continue working
     let { store } = setupStore({
       adapter: JSONAPIAdapter.extend(),
+      serializer: JSONAPISerializer.extend(),
       post: Model.extend({
         title: attr(),
         setUnknownProperty: function(key, value) {

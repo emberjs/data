@@ -76,9 +76,6 @@ export default function setupStore(options) {
   registry.register('transform:number', NumberTransform);
   registry.register('transform:boolean', BooleanTransform);
 
-  registry.optionsForType('serializer', { singleton: false });
-  registry.optionsForType('adapter', { singleton: false });
-
   const TestStore = Store.extend({ adapter });
   owner.register('service:store', TestStore);
 
