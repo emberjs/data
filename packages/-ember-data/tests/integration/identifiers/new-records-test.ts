@@ -13,7 +13,7 @@ module('Integration | Identifiers - creating new records', function(hooks) {
     owner.register(`service:store`, Store);
 
     class User extends Model {
-      @attr name;
+      @attr() name;
     }
 
     owner.register('model:user', User);
