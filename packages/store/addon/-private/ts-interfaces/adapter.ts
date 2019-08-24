@@ -9,7 +9,7 @@ export interface Adapter {
   updateRecord(store: any, type: string, snapshot: any): Promise<any>;
   deleteRecord(store: any, type: string, snapshot: any): Promise<any>;
   coalesceFindRequests: boolean;
-  findMany(store: any, type: string, ids: string | number[], snapshots: any[]): Promise<any[]>;
+  findMany(store: any, type: string, ids: string[] | number[], snapshots: any[]): Promise<any[]>;
   groupRecordsForFindMany(store: any, snapshots: any[]): object[][];
   shouldReloadRecord(store: any, snapshot: any): boolean;
   shouldReloadAll(store: any, snapshots: any[]): boolean;
