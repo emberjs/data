@@ -33,7 +33,7 @@
     "git-repo-info": "^2.0.0",
     "glob": "^7.1.4",
     "npm-git-info": "^1.0.3",
-    "rimraf": "^2.6.2",
+    "rimraf": "^3.0.0",
     "rsvp": "^4.8.5",
     "silent-error": "^1.1.1"
   },
