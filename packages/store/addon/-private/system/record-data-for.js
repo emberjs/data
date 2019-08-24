@@ -30,3 +30,13 @@ export function relationshipsFor(instance) {
 export function relationshipStateFor(instance, propertyName) {
   return relationshipsFor(instance).get(propertyName);
 }
+
+export function implicitRelationshipsFor(instance) {
+  let recordData = recordDataFor(instance) || instance;
+
+  return recordData.__implicitRelationships;
+}
+
+export function implicitRelationshipStateFor(instance, propertyName) {
+  return implicitRelationshipsFor(instance)[propertyName];
+}

@@ -25,6 +25,9 @@ class Person extends Model {
 class Pet extends Model {
   @belongsTo('person', { inverse: 'bestDog', async: false })
   bestHuman;
+  // inverse is an implicit hasMany relationship
+  @belongsTo('person', { async: true })
+  petOwner;
   @attr()
   name;
 }
@@ -213,6 +216,80 @@ module('async belongs-to rendering tests', function(hooks) {
       let { owner } = this;
       owner.register('model:person', Person);
       owner.register('model:pet', Pet);
+    });
+
+    test('record is removed from implicit relationships when destroyed', async function(assert) {
+      const pete = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: { name: 'Pete' },
+        },
+      });
+
+      const goofy = store.push({
+        data: {
+          type: 'pet',
+          id: '1',
+          attributes: { name: 'Goofy' },
+          relationships: {
+            petOwner: {
+              data: { type: 'person', id: '1' },
+            },
+          },
+        },
+      });
+
+      assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 1);
+
+      const tweety = store.push({
+        data: {
+          type: 'pet',
+          id: '2',
+          attributes: { name: 'Tweety' },
+          relationships: {
+            petOwner: {
+              data: { type: 'person', id: '1' },
+            },
+          },
+        },
+      });
+
+      assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 2);
+
+      let petOwner = await goofy.get('petOwner');
+      assert.equal(petOwner.get('name'), 'Pete');
+
+      petOwner = await tweety.get('petOwner');
+      assert.equal(petOwner.get('name'), 'Pete');
+
+      await goofy.destroyRecord();
+      assert.ok(goofy.isDeleted);
+
+      await tweety.destroyRecord();
+      assert.ok(tweety.isDeleted);
+
+      assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 0);
+
+      const jerry = store.push({
+        data: {
+          type: 'pet',
+          id: '3',
+          attributes: { name: 'Jerry' },
+          relationships: {
+            petOwner: {
+              data: { type: 'person', id: '1' },
+            },
+          },
+        },
+      });
+
+      petOwner = await jerry.get('petOwner');
+      assert.equal(petOwner.get('name'), 'Pete');
+
+      assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 1);
+
+      await settled();
     });
 
     test('async belongsTo returns correct new value after a local change', async function(assert) {
