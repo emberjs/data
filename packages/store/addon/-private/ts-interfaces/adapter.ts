@@ -12,7 +12,7 @@ export interface Adapter {
   findMany(store: any, type: string, ids: string | number[], snapshots: any[]): Promise<any[]>;
   groupRecordsForFindMany(store: any, snapshots: any[]): object[][];
   shouldReloadRecord(store: any, snapshot: any): boolean;
-  shouldReloadAll(store: any, snapshot: any[]): boolean;
+  shouldReloadAll(store: any, snapshots: any[]): boolean;
   shouldBackgroundReloadRecord(store: any, snapshot: any): boolean;
-  shouldBackgroundReloadAll(store: any, snapshot: any[]): boolean;
+  shouldBackgroundReloadAll(store: any, snapshots: any[]): boolean;
 }
