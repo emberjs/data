@@ -12,6 +12,7 @@ node_modules
 .env*
 .pnp*
 .sass-cache
+/.eslintcache
 /onnect.lock
 coverage/*
 libpeerconnection.log

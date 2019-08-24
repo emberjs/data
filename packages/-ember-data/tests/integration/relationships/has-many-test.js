@@ -2575,7 +2575,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
     let store = this.owner.lookup('service:store');
 
-    let chapter, page, page2;
+    let chapter, page2;
     let observe = false;
 
     run(() => {
@@ -2609,7 +2609,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      page = store.peekRecord('page', 1);
+      let page = store.peekRecord('page', 1);
       page2 = store.peekRecord('page', 2);
       chapter = store.peekRecord('chapter', 1);
 
@@ -2639,7 +2639,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
     let store = this.owner.lookup('service:store');
 
-    let chapter, page, page2;
+    let chapter, page2;
     let observe = false;
 
     run(() => {
@@ -2673,7 +2673,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           },
         ],
       });
-      page = store.peekRecord('page', 1);
+      let page = store.peekRecord('page', 1);
       page2 = store.peekRecord('page', 2);
       chapter = store.peekRecord('chapter', 1);
 

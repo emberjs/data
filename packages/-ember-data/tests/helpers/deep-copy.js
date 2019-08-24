@@ -1,4 +1,3 @@
-/* global WeakMap */
 export default function deepCopy(obj) {
   return _deepCopy(obj, new WeakMap());
 }

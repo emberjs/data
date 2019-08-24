@@ -31,6 +31,12 @@ module.exports = {
     'no-irregular-whitespace': 'error',
     'no-undef': 'error',
     'no-eq-null': 'error',
+    'no-console': 'error', // no longer recommended in eslint v6, this restores it
+
+    // probably want to fix these new rules later in separate PR
+    // Tracked in issue https://github.com/emberjs/data/issues/6405
+    'no-prototype-builtins': 'off',
+    'require-atomic-updates': 'off',
   },
   globals: {
     heimdall: true,
@@ -74,10 +80,7 @@ module.exports = {
         es6: true,
       },
       plugins: ['node'],
-      // eslint-disable-next-line node/no-unpublished-require
-      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
-        // add your custom rules and overrides for node files here
-      }),
+      extends: 'plugin:node/recommended',
     },
 
     // node tests

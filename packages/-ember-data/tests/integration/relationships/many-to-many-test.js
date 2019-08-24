@@ -573,7 +573,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
 
       let store = this.owner.lookup('service:store');
 
-      let account, ada, byron;
+      let account;
 
       run(() => {
         account = store.push({
@@ -585,7 +585,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
             },
           },
         });
-        ada = store.push({
+        let ada = store.push({
           data: {
             id: '1',
             type: 'user',
@@ -604,7 +604,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
             },
           },
         });
-        byron = store.push({
+        let byron = store.push({
           data: {
             id: '2',
             type: 'user',

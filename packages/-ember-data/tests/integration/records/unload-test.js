@@ -194,7 +194,7 @@ module('integration/unload - Unloading Records', function(hooks) {
   test('can unload all records for a given type', function(assert) {
     assert.expect(10);
 
-    let adam, bob, dudu, car;
+    let car;
     run(function() {
       store.push({
         data: [
@@ -214,8 +214,8 @@ module('integration/unload - Unloading Records', function(hooks) {
           },
         ],
       });
-      adam = store.peekRecord('person', 1);
-      bob = store.peekRecord('person', 2);
+      let adam = store.peekRecord('person', 1);
+      let bob = store.peekRecord('person', 2);
 
       car = store.push({
         data: {
@@ -232,7 +232,7 @@ module('integration/unload - Unloading Records', function(hooks) {
           },
         },
       });
-      dudu = bob = store.peekRecord('car', 1);
+      bob = store.peekRecord('car', 1);
     });
 
     assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
@@ -285,7 +285,6 @@ module('integration/unload - Unloading Records', function(hooks) {
   test('can unload all records', function(assert) {
     assert.expect(8);
 
-    let adam, bob, dudu;
     run(function() {
       store.push({
         data: [
@@ -305,8 +304,8 @@ module('integration/unload - Unloading Records', function(hooks) {
           },
         ],
       });
-      adam = store.peekRecord('person', 1);
-      bob = store.peekRecord('person', 2);
+      let adam = store.peekRecord('person', 1);
+      let bob = store.peekRecord('person', 2);
 
       store.push({
         data: {
@@ -323,7 +322,7 @@ module('integration/unload - Unloading Records', function(hooks) {
           },
         },
       });
-      dudu = bob = store.peekRecord('car', 1);
+      bob = store.peekRecord('car', 1);
     });
 
     assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
@@ -344,7 +343,6 @@ module('integration/unload - Unloading Records', function(hooks) {
   test('removes findAllCache after unloading all records', function(assert) {
     assert.expect(4);
 
-    let adam, bob;
     run(function() {
       store.push({
         data: [
@@ -364,8 +362,8 @@ module('integration/unload - Unloading Records', function(hooks) {
           },
         ],
       });
-      adam = store.peekRecord('person', 1);
-      bob = store.peekRecord('person', 2);
+      let adam = store.peekRecord('person', 1);
+      let bob = store.peekRecord('person', 2);
     });
 
     assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
@@ -381,7 +379,6 @@ module('integration/unload - Unloading Records', function(hooks) {
   });
 
   test('unloading all records also updates record array from peekAll()', function(assert) {
-    let adam, bob;
     run(function() {
       store.push({
         data: [
@@ -401,8 +398,8 @@ module('integration/unload - Unloading Records', function(hooks) {
           },
         ],
       });
-      adam = store.peekRecord('person', 1);
-      bob = store.peekRecord('person', 2);
+      let adam = store.peekRecord('person', 1);
+      let bob = store.peekRecord('person', 2);
     });
     let all = store.peekAll('person');
 
