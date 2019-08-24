@@ -3342,6 +3342,12 @@ abstract class CoreStore extends Service {
 
     // no model specific serializer or application serializer, check for the `defaultSerializer`
     // property defined on the adapter
+    if (DEBUG) {
+      deprecate('deprecate adapter.serializer and adapter.defaultSerializer fallbacks', false, {
+        id: 'ember-data:default-serializers',
+        until: '4.0',
+      });
+    }
     let adapter = this.adapterFor(modelName);
     let serializerName = get(adapter, 'defaultSerializer');
     serializer = serializerName
@@ -3376,7 +3382,13 @@ abstract class CoreStore extends Service {
     }
 
     // final fallback, no model specific serializer, no application serializer, no
-    // `serializer` property on store: use JSON serializer
+    // `serializer` property on store: use json-api serializer
+    if (DEBUG) {
+      deprecate('deprecate -default serializer fallback in store.serializerFor', false, {
+        id: 'ember-data:default-serializers',
+        until: '4.0',
+      });
+    }
     serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
     if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       const JSONSerializer = require('@ember-data/serializer/json').default;
@@ -3479,6 +3491,12 @@ defineProperty(
   CoreStore.prototype,
   'defaultAdapter',
   computed('adapter', function() {
+    if (DEBUG) {
+      deprecate('deprecate store.defaultAdapter (-json-api) and the -json-api adapter fallback behavior', false, {
+        id: 'ember-data:default-adapter',
+        until: '4.0',
+      });
+    }
     let adapter = this.adapter || '-json-api';
 
     assert(
