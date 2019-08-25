@@ -1,3 +1,6 @@
+import { warn } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
+
 /*
  * Function that always attempts to parse the response as json, and if an error is thrown,
  * returns `undefined` if the response is successful and has a status code of 204 (No Content),
@@ -22,6 +25,16 @@ export function determineBodyPromise(
       ) {
         ret = undefined;
       } else {
+        if (DEBUG) {
+          let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
+          if (payload === '') {
+            warn(message, true, {
+              id: 'ds.adapter.returned-empty-string-as-JSON',
+            });
+            throw error;
+          }
+        }
+
         console.warn('This response was unable to be parsed as json.', payload);
       }
     }
