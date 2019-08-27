@@ -1,16 +1,18 @@
 import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-let env, store, Post, Tag;
+let store, Post, Tag;
 
 const { attr, hasMany, belongsTo } = DS;
 
 module('unit/many_array - DS.ManyArray', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     Post = DS.Model.extend({
       title: attr('string'),
@@ -34,16 +36,10 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
       },
     });
 
-    env = setupStore({
-      post: Post,
-      tag: Tag,
-    });
+    this.owner.register('model:post', Post);
+    this.owner.register('model:tag', Tag);
 
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    store = this.owner.lookup('service:store');
   });
 
   test('manyArray.save() calls save() on all records', function(assert) {

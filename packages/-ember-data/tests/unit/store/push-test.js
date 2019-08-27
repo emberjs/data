@@ -1,7 +1,7 @@
 import EmberObject from '@ember/object';
 import { Promise as EmberPromise, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
@@ -9,10 +9,12 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-let env, store, Person, PhoneNumber, Post;
+let store, Person, PhoneNumber, Post;
 const { attr, hasMany, belongsTo } = DS;
 
 module('unit/store/push - DS.Store#push', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     Person = DS.Model.extend({
       firstName: attr('string'),
@@ -29,19 +31,14 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       postTitle: attr('string'),
     });
 
-    env = setupStore({
-      post: Post,
-      person: Person,
-      'phone-number': PhoneNumber,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('model:phone-number', PhoneNumber);
+    this.owner.register('model:post', Post);
 
-    store = env.store;
+    store = this.owner.lookup('service:store');
 
-    env.owner.register('serializer:post', DS.RESTSerializer);
-  });
-
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
+    this.owner.register('serializer:post', DS.RESTSerializer.extend());
   });
 
   test('Changed attributes are reset when matching data is pushed', function(assert) {
@@ -86,7 +83,10 @@ module('unit/store/push - DS.Store#push', function(hooks) {
 
   test('Calling push with a normalized hash returns a record', function(assert) {
     assert.expect(2);
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     return run(() => {
       let person = store.push({
@@ -117,10 +117,13 @@ module('unit/store/push - DS.Store#push', function(hooks) {
 
   test('Supplying a model class for `push` is the same as supplying a string', function(assert) {
     assert.expect(1);
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     const Programmer = Person.extend();
-    env.owner.register('model:programmer', Programmer);
+    this.owner.register('model:programmer', Programmer);
 
     return run(() => {
       store.push({
@@ -178,7 +181,10 @@ module('unit/store/push - DS.Store#push', function(hooks) {
 
   test('Calling push with partial records updates just those attributes', function(assert) {
     assert.expect(2);
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     return run(() => {
       store.push({
@@ -220,7 +226,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
   });
 
   test('Calling push on normalize allows partial updates with raw JSON', function(assert) {
-    env.owner.register('serializer:person', DS.RESTSerializer);
+    this.owner.register('serializer:person', DS.RESTSerializer);
     let person;
 
     run(() => {
@@ -256,7 +262,9 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       }),
     });
 
-    env.adapter.findRecord = function(store, type, id) {
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id) {
       if (id === '1') {
         return resolve({
           data: {
@@ -383,7 +391,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
   test(`Calling pushPayload should use the type's serializer for normalizing`, function(assert) {
     assert.expect(4);
 
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         normalize() {
@@ -393,7 +401,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'serializer:person',
       DS.RESTSerializer.extend({
         normalize() {
@@ -432,7 +440,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
   test(`Calling pushPayload without a type uses application serializer's pushPayload method`, function(assert) {
     assert.expect(1);
 
-    env.owner.register(
+    this.owner.register(
       'serializer:application',
       DS.RESTSerializer.extend({
         pushPayload() {
@@ -452,7 +460,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
   test(`Calling pushPayload without a type should use a model's serializer when normalizing`, function(assert) {
     assert.expect(4);
 
-    env.owner.register(
+    this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
         normalize() {
@@ -462,7 +470,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'serializer:application',
       DS.RESTSerializer.extend({
         normalize() {
@@ -499,7 +507,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
   });
 
   test('Calling pushPayload allows partial updates with raw JSON', function(assert) {
-    env.owner.register('serializer:person', DS.RESTSerializer);
+    this.owner.register('serializer:person', DS.RESTSerializer);
 
     run(() => {
       store.pushPayload('person', {
@@ -904,6 +912,8 @@ module('unit/store/push - DS.Store#push', function(hooks) {
 });
 
 module('unit/store/push - DS.Store#push with JSON-API', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     const Person = DS.Model.extend({
       name: DS.attr('string'),
@@ -916,17 +926,13 @@ module('unit/store/push - DS.Store#push with JSON-API', function(hooks) {
       person: DS.belongsTo('person', { async: false }),
     });
 
-    env = setupStore({
-      adapter: DS.Adapter,
-      car: Car,
-      person: Person,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('model:car', Car);
 
-    store = env.store;
-  });
+    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
 
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    store = this.owner.lookup('service:store');
   });
 
   test('Should support pushing multiple models into the store', function(assert) {

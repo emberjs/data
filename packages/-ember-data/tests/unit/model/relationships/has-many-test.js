@@ -1,18 +1,19 @@
 import { hash, Promise as EmberPromise } from 'rsvp';
 import { get, observer } from '@ember/object';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import todo from '../../../helpers/todo';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
-let env;
-
 module('unit/model/relationships - DS.hasMany', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    env = setupStore();
+    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
   });
 
   test('hasMany handles pre-loaded relationships', function(assert) {
@@ -34,20 +35,21 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       pets: DS.hasMany('pet', { async: false }),
     });
 
-    env.owner.register('model:tag', Tag);
-    env.owner.register('model:pet', Pet);
-    env.owner.register('model:person', Person);
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:pet', Pet);
+    this.owner.register('model:person', Person);
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id, snapshot) {
       if (type === Tag && id === '12') {
         return { id: 12, name: 'oohlala' };
       } else {
         assert.ok(false, 'findRecord() should not be called with these values');
       }
     };
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-
-    let { store } = env;
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       store.push({
@@ -240,10 +242,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     });
     Person.toString = () => 'Person';
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       store.push({
@@ -302,10 +307,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tag: DS.belongsTo('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       store.push({
@@ -344,10 +352,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tag: DS.belongsTo('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       // first we push in data with the relationship
@@ -439,8 +450,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       },
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
 
     run(() => {
       // first we push in data with the relationship
@@ -517,8 +530,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       },
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
 
     run(() => {
       // first we push in data with the relationship
@@ -639,10 +654,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tag: DS.belongsTo('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       // first we push in data with the relationship
@@ -726,11 +744,15 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       trueFriends: DS.hasMany('person', { async: false }),
     });
 
-    let env = setupStore({ person: Person });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: {
           id: '1',
           type: 'person',
@@ -751,7 +773,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       });
     });
 
-    let eddy = env.store.peekRecord('person', 1);
+    let eddy = store.peekRecord('person', 1);
     assert.deepEqual(
       eddy.get('trueFriends').mapBy('name'),
       ['Edward II'],
@@ -778,20 +800,21 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       pets: DS.hasMany('pet', { async: false }),
     });
 
-    env.owner.register('model:tag', Tag);
-    env.owner.register('model:pet', Pet);
-    env.owner.register('model:person', Person);
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:pet', Pet);
+    this.owner.register('model:person', Person);
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id, snapshot) {
       if (type === Tag && id === '12') {
         return { data: { id: 12, type: 'tag', attributes: { name: 'oohlala' } } };
       } else {
         assert.ok(false, 'findRecord() should not be called with these values');
       }
     };
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-
-    let { store } = env;
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       store.push({
@@ -904,16 +927,12 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: false }),
     });
 
-    let env = setupStore({
-      tag: Tag,
-      person: Person,
-    });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    assert.equal(
-      env.store.modelFor('person').typeForRelationship('tags', env.store),
-      Tag,
-      'returns the relationship type'
-    );
+    let store = this.owner.lookup('service:store');
+
+    assert.equal(store.modelFor('person').typeForRelationship('tags', store), Tag, 'returns the relationship type');
   });
 
   test('should be able to retrieve the type for a hasMany relationship specified using a string from its metadata', function(assert) {
@@ -923,16 +942,12 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: false }),
     });
 
-    let env = setupStore({
-      tag: Tag,
-      person: Person,
-    });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    assert.equal(
-      env.store.modelFor('person').typeForRelationship('tags', env.store),
-      Tag,
-      'returns the relationship type'
-    );
+    let store = this.owner.lookup('service:store');
+
+    assert.equal(store.modelFor('person').typeForRelationship('tags', store), Tag, 'returns the relationship type');
   });
 
   test('should be able to retrieve the type for a belongsTo relationship without specifying a type from its metadata', function(assert) {
@@ -942,16 +957,12 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tag: DS.belongsTo('tag', { async: false }),
     });
 
-    let env = setupStore({
-      tag: Tag,
-      person: Person,
-    });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    assert.equal(
-      env.store.modelFor('person').typeForRelationship('tag', env.store),
-      Tag,
-      'returns the relationship type'
-    );
+    let store = this.owner.lookup('service:store');
+
+    assert.equal(store.modelFor('person').typeForRelationship('tag', store), Tag, 'returns the relationship type');
   });
 
   test('should be able to retrieve the type for a belongsTo relationship specified using a string from its metadata', function(assert) {
@@ -963,16 +974,12 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.belongsTo('tag', { async: false }),
     });
 
-    let env = setupStore({
-      tag: Tag,
-      person: Person,
-    });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    assert.equal(
-      env.store.modelFor('person').typeForRelationship('tags', env.store),
-      Tag,
-      'returns the relationship type'
-    );
+    let store = this.owner.lookup('service:store');
+
+    assert.equal(store.modelFor('person').typeForRelationship('tags', store), Tag, 'returns the relationship type');
   });
 
   test('relationships work when declared with a string path', function(assert) {
@@ -987,14 +994,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       name: DS.attr('string'),
     });
 
-    let env = setupStore({
-      person: Person,
-      tag: Tag,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    this.owner.register('model:person', Person);
+    this.owner.register('model:tag', Tag);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'tag',
@@ -1034,7 +1043,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     });
 
     return run(() => {
-      return env.store.findRecord('person', 1).then(person => {
+      return store.findRecord('person', 1).then(person => {
         assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
         assert.equal(get(person, 'tags.length'), 2, 'the list of tags should have the correct length');
       });
@@ -1054,11 +1063,14 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: true }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.coalesceFindRequests = true;
-    env.adapter.findMany = function(store, type, ids, snapshots) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.coalesceFindRequests = true;
+    adapter.findMany = function(store, type, ids, snapshots) {
       assert.equal(type, Tag, 'type should be Tag');
       assert.deepEqual(ids, ['5', '2'], 'ids should be 5 and 2');
 
@@ -1070,7 +1082,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       };
     };
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       assert.equal(type, Person, 'type should be Person');
       assert.equal(id, 1, 'id should be 1');
 
@@ -1117,13 +1129,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: false }),
     });
 
-    let env = setupStore({
-      tag: Tag,
-      person: Person,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    let { store } = env;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       store.push({
@@ -1178,16 +1190,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       person: DS.belongsTo('person', { async: false, inverse: null }),
     });
 
-    let env = setupStore({
-      person: Person,
-      pet: Pet,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.deleteRecord = () => {
+    this.owner.register('model:person', Person);
+    this.owner.register('model:pet', Pet);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
       return EmberPromise.resolve({ data: null });
     };
-
-    let { store } = env;
 
     run(() => {
       store.push({
@@ -1271,16 +1283,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       person: DS.belongsTo('person', { async: false, inverse: null }),
     });
 
-    let env = setupStore({
-      person: Person,
-      pet: Pet,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.deleteRecord = () => {
+    this.owner.register('model:person', Person);
+    this.owner.register('model:pet', Pet);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
       return EmberPromise.resolve({ data: null });
     };
-
-    let { store } = env;
 
     run(() => {
       store.push({
@@ -1370,16 +1382,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       person: DS.belongsTo('person', { async: false, inverse: null }),
     });
 
-    let env = setupStore({
-      person: Person,
-      pet: Pet,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.deleteRecord = () => {
+    this.owner.register('model:person', Person);
+    this.owner.register('model:pet', Pet);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
       return EmberPromise.resolve({ data: null });
     };
-
-    let { store } = env;
 
     run(() => {
       store.push({
@@ -1473,16 +1485,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       person: DS.belongsTo('person', { async: false, inverse: null }),
     });
 
-    let env = setupStore({
-      person: Person,
-      pet: Pet,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.deleteRecord = () => {
+    this.owner.register('model:person', Person);
+    this.owner.register('model:pet', Pet);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
       return EmberPromise.resolve({ data: null });
     };
-
-    let { store } = env;
 
     run(() => {
       store.push({
@@ -1568,16 +1580,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       name: DS.attr('string'),
     });
 
-    let env = setupStore({
-      person: Person,
-      dog: Dog,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.deleteRecord = () => {
+    this.owner.register('model:person', Person);
+    this.owner.register('model:dog', Dog);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
       return EmberPromise.resolve({ data: null });
     };
-
-    let { store } = env;
 
     run(() => {
       store.push({
@@ -1649,16 +1661,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       name: DS.attr('string'),
     });
 
-    let env = setupStore({
-      person: Person,
-      dog: Dog,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.deleteRecord = () => {
+    this.owner.register('model:person', Person);
+    this.owner.register('model:dog', Dog);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
       return EmberPromise.resolve({ data: null });
     };
-
-    let { store } = env;
 
     run(() => {
       store.push({
@@ -1730,16 +1742,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       name: DS.attr('string'),
     });
 
-    let env = setupStore({
-      person: Person,
-      dog: Dog,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.deleteRecord = () => {
+    this.owner.register('model:person', Person);
+    this.owner.register('model:dog', Dog);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
       return EmberPromise.resolve({ data: null });
     };
-
-    let { store } = env;
 
     run(() => {
       store.push({
@@ -1821,13 +1833,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       },
     });
 
-    let env = setupStore({
-      person: Person,
-      car: Car,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('model:car', Car);
+
+    let store = this.owner.lookup('service:store');
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'person',
@@ -1847,7 +1859,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       });
     });
 
-    let person = env.store.peekRecord('person', 1);
+    let person = store.peekRecord('person', 1);
     let cars = person.get('cars');
 
     assert.equal(cars.get('length'), 2);
@@ -1884,12 +1896,14 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       person: DS.belongsTo('person', { async: false, inverse: null }),
     });
 
-    let env = setupStore({
-      person: Person,
-      pet: Pet,
-    });
-    env.adapter.shouldBackgroundReloadRecord = () => false;
-    env.adapter.deleteRecord = () => {
+    this.owner.register('model:person', Person);
+    this.owner.register('model:pet', Pet);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
       return EmberPromise.resolve({
         data: null,
         included: [
@@ -1908,8 +1922,6 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         ],
       });
     };
-
-    let { store } = env;
 
     run(() => {
       store.push({
@@ -1997,8 +2009,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
 
     run(() => {
       store.push({
@@ -2072,8 +2086,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
 
     run(() => {
       store.push({
@@ -2131,10 +2147,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.shouldBackgroundReloadRecord = () => false;
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
       store.push({
@@ -2186,8 +2205,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
+
     let person = store.createRecord('person');
     let tag1 = store.createRecord('tag');
     let tag2 = store.createRecord('tag');
@@ -2224,7 +2246,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tag: DS.belongsTo('tag', { async: false }),
     });
 
-    let { store } = setupStore({ tag: Tag, person: Person });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
     let tag = store.createRecord('tag');
 
     assert.ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
@@ -2241,8 +2266,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tag: DS.belongsTo('tag', { async: false }),
     });
 
-    let { store } = setupStore({ tag: Tag, person: Person });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
+    let store = this.owner.lookup('service:store');
     let tag = store.createRecord('tag');
     let people = tag.get('people');
     let peopleCached = tag.get('people');
@@ -2268,8 +2295,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tag: DS.belongsTo('tag', { async: false }),
     });
 
-    let { store } = setupStore({ tag: Tag, person: Person });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
+    let store = this.owner.lookup('service:store');
     let tag = store.createRecord('tag');
     let peopleProxy = tag.get('people');
 
@@ -2314,8 +2343,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tag: DS.belongsTo('tag', { async: false }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let tag = env.store.createRecord('tag');
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
+    let tag = store.createRecord('tag');
     // TODO replace with a test that checks for wherever the new ManyArray location is
     //let hasManyRelationship = tag.hasMany('people').hasManyRelationship;
 
@@ -2334,7 +2366,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     );
     //assert.ok(hasManyRelationship._manyArray instanceof DS.ManyArray);
 
-    let person = env.store.createRecord('person');
+    let person = store.createRecord('person');
 
     run(() => {
       assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
@@ -2356,10 +2388,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       tags: DS.hasMany('tag', { async: true, inverse: 'person' }),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
-    let { store } = env;
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findHasMany = function(store, snapshot, url, relationship) {
       assert.equal(relationship.key, 'tags', 'relationship should be tags');
 
       return {
@@ -2371,7 +2406,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       };
     };
 
-    env.adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function(store, type, id, snapshot) {
       if (type === Person) {
         return {
           data: {
@@ -2425,7 +2460,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       people: DS.hasMany('person'),
     });
 
-    let { store } = setupStore({ tag: Tag, person: Person });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
+
+    let store = this.owner.lookup('service:store');
     let tag = store.createRecord('tag');
     let person = store.createRecord('person');
 
@@ -2442,9 +2480,13 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       people: DS.hasMany('person'),
     });
 
-    let env = setupStore({ tag: Tag, person: Person });
+    this.owner.register('model:tag', Tag);
+    this.owner.register('model:person', Person);
 
-    env.adapter.findRecord = function() {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function() {
       return {
         data: {
           type: 'person',
@@ -2453,8 +2495,8 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       };
     };
 
-    let tag = env.store.createRecord('tag');
-    let person = run(() => env.store.findRecord('person', 1));
+    let tag = store.createRecord('tag');
+    let person = run(() => store.findRecord('person', 1));
 
     run(() => {
       assert.expectAssertion(() => {

@@ -1,23 +1,26 @@
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import { resolve } from 'rsvp';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-const { JSONAPIAdapter, Model, attr, belongsTo, hasMany } = DS;
-
-function setupModels(testState) {
+function setupModels(owner, testState) {
   let types;
+
   const Comment = Model.extend({
     text: attr(),
     post: belongsTo('post', { async: false, inverse: 'comments' }),
   });
+
   const Author = Model.extend({
     name: attr(),
     post: belongsTo('post', { async: false, inverse: 'author' }),
   });
+
   const Post = Model.extend({
     title: attr(),
     author: belongsTo('author', { async: false, inverse: 'post' }),
@@ -27,22 +30,29 @@ function setupModels(testState) {
       testState(types, this);
     },
   });
+
   types = {
     Author,
     Comment,
     Post,
   };
 
-  return setupStore({
-    adapter: JSONAPIAdapter.extend(),
-    serializer: JSONAPISerializer.extend(),
-    post: Post,
-    comment: Comment,
-    author: Author,
-  });
+  owner.register('model:post', Post);
+  owner.register('model:comment', Comment);
+  owner.register('model:author', Author);
+
+  owner.register('adapter:application', JSONAPIAdapter.extend());
+  owner.register('serializer:application', JSONAPISerializer.extend());
+
+  let store = owner.lookup('service:store');
+  let adapter = store.adapterFor('application');
+
+  return { adapter, store };
 }
 
-module('unit/model - init properties', function() {
+module('unit/model - init properties', function(hooks) {
+  setupTest(hooks);
+
   test('createRecord(properties) makes properties available during record init', function(assert) {
     assert.expect(4);
     let comment;
@@ -58,7 +68,7 @@ module('unit/model - init properties', function() {
       );
     }
 
-    let { store } = setupModels(testState);
+    let { store } = setupModels(this.owner, testState);
 
     run(() => {
       comment = store.push({
@@ -103,7 +113,7 @@ module('unit/model - init properties', function() {
       );
     }
 
-    let { store } = setupModels(testState);
+    let { store } = setupModels(this.owner, testState);
 
     run(() =>
       store.push({
@@ -154,7 +164,7 @@ module('unit/model - init properties', function() {
       );
     }
 
-    let { adapter, store } = setupModels(testState);
+    let { adapter, store } = setupModels(this.owner, testState);
 
     adapter.findRecord = () => {
       return resolve({
@@ -207,7 +217,7 @@ module('unit/model - init properties', function() {
       );
     }
 
-    let { adapter, store } = setupModels(testState);
+    let { adapter, store } = setupModels(this.owner, testState);
 
     adapter.queryRecord = () => {
       return resolve({
@@ -252,17 +262,21 @@ module('unit/model - init properties', function() {
     assert.expect(2);
     // If we end up passing additional properties to init in modelClasses, we will need to come up with a strategy for
     // how to get setUnknownProperty to continue working
-    let { store } = setupStore({
-      adapter: JSONAPIAdapter.extend(),
-      serializer: JSONAPISerializer.extend(),
-      post: Model.extend({
-        title: attr(),
-        setUnknownProperty: function(key, value) {
-          assert.equal(key, 'randomProp', 'Passed the correct key to setUknownProperty');
-          assert.equal(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
-        },
-      }),
+
+    const Post = Model.extend({
+      title: attr(),
+      setUnknownProperty: function(key, value) {
+        assert.equal(key, 'randomProp', 'Passed the correct key to setUknownProperty');
+        assert.equal(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
+      },
     });
+
+    this.owner.register('model:post', Post);
+    this.owner.register('adapter:application', JSONAPIAdapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
+
     run(() => {
       store.createRecord('post', {
         title: 'My Post',

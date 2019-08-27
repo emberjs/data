@@ -1,6 +1,6 @@
 import { run } from '@ember/runloop';
 import Mixin from '@ember/object/mixin';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
@@ -11,43 +11,38 @@ import Model from '@ember-data/model';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import { modelHasAttributeOrRelationshipNamedType } from '@ember-data/serializer/-private';
 
-let env, User, Message, Post, Person, Video, Medium;
-
 module('unit/utils', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = Model.extend();
-    User = Model.extend({
+    const Person = Model.extend();
+    const User = Model.extend({
       messages: DS.hasMany('message', { async: false }),
     });
 
-    Message = Model.extend();
-    Post = Message.extend({
+    const Message = Model.extend();
+    const Post = Message.extend({
       medias: DS.hasMany('medium', { async: false }),
     });
 
-    Medium = Mixin.create();
-    Video = Model.extend(Medium);
+    const Medium = Mixin.create();
+    const Video = Model.extend(Medium);
 
-    env = setupStore({
-      user: User,
-      person: Person,
-      message: Message,
-      post: Post,
-      video: Video,
-    });
+    this.owner.register('model:person', Person);
+    this.owner.register('model:user', User);
+    this.owner.register('model:message', Message);
+    this.owner.register('model:post', Post);
+    this.owner.register('model:video', Video);
 
-    env.owner.register('mixin:medium', Medium);
-  });
-
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('mixin:medium', Medium);
   });
 
   testInDebug('assertPolymorphicType works for subclasses', function(assert) {
     let user, post, person;
+    let store = this.owner.lookup('service:store');
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'user',
@@ -69,9 +64,9 @@ module('unit/utils', function(hooks) {
         ],
       });
 
-      user = env.store.peekRecord('user', 1);
-      post = env.store.peekRecord('post', 1);
-      person = env.store.peekRecord('person', 1);
+      user = store.peekRecord('user', 1);
+      post = store.peekRecord('post', 1);
+      person = store.peekRecord('person', 1);
     });
 
     let relationship = user.relationshipFor('messages');
@@ -80,13 +75,13 @@ module('unit/utils', function(hooks) {
     person = person._internalModel;
 
     try {
-      assertPolymorphicType(user, relationship, post, env.store);
+      assertPolymorphicType(user, relationship, post, store);
     } catch (e) {
       assert.ok(false, 'should not throw an error');
     }
 
     assert.expectAssertion(() => {
-      assertPolymorphicType(user, relationship, person, env.store);
+      assertPolymorphicType(user, relationship, person, store);
     }, "The 'person' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name.");
   });
 
@@ -110,9 +105,10 @@ module('unit/utils', function(hooks) {
 
   testInDebug('assertPolymorphicType works for mixins', function(assert) {
     let post, video, person;
+    let store = this.owner.lookup('service:store');
 
     run(() => {
-      env.store.push({
+      store.push({
         data: [
           {
             type: 'post',
@@ -128,9 +124,9 @@ module('unit/utils', function(hooks) {
           },
         ],
       });
-      post = env.store.peekRecord('post', 1);
-      video = env.store.peekRecord('video', 1);
-      person = env.store.peekRecord('person', 1);
+      post = store.peekRecord('post', 1);
+      video = store.peekRecord('video', 1);
+      person = store.peekRecord('person', 1);
     });
 
     let relationship = post.relationshipFor('medias');
@@ -139,13 +135,13 @@ module('unit/utils', function(hooks) {
     person = person._internalModel;
 
     try {
-      assertPolymorphicType(post, relationship, video, env.store);
+      assertPolymorphicType(post, relationship, video, store);
     } catch (e) {
       assert.ok(false, 'should not throw an error');
     }
 
     assert.expectAssertion(() => {
-      assertPolymorphicType(post, relationship, person, env.store);
+      assertPolymorphicType(post, relationship, person, store);
     }, "The 'person' type does not implement 'medium' and thus cannot be assigned to the 'medias' relationship in 'post'. Make it a descendant of 'medium' or use a mixin of the same name.");
   });
 });

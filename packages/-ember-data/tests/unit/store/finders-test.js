@@ -1,12 +1,15 @@
 import { defer } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('unit/store/finders', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     this.Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
@@ -19,13 +22,12 @@ module('unit/store/finders', function(hooks) {
       name: DS.attr('string'),
     });
 
-    this.env = setupStore({ person: this.Person, dog: this.Dog });
-    this.store = this.env.store;
-    this.adapter = this.env.adapter;
-  });
+    this.owner.register('model:person', this.Person);
+    this.owner.register('model:dog', this.Dog);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-  hooks.afterEach(function() {
-    run(this.env.container, 'destroy');
+    this.store = this.owner.lookup('service:store');
+    this.adapter = this.store.adapterFor('application');
   });
 
   test('findRecord does not load a serializer until the adapter promise resolves', function(assert) {
@@ -33,7 +35,7 @@ module('unit/store/finders', function(hooks) {
 
     let deferedFind = defer();
 
-    this.env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findRecord: () => deferedFind.promise,
@@ -67,7 +69,7 @@ module('unit/store/finders', function(hooks) {
 
     let deferedFind = defer();
 
-    this.env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findMany: () => deferedFind.promise,
@@ -107,7 +109,7 @@ module('unit/store/finders', function(hooks) {
 
     let deferedFind = defer();
 
-    this.env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findHasMany: () => deferedFind.promise,
@@ -128,7 +130,7 @@ module('unit/store/finders', function(hooks) {
     };
 
     let storePromise = run(() => {
-      this.env.store.push({
+      this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -167,7 +169,7 @@ module('unit/store/finders', function(hooks) {
 
     let deferedFind = defer();
 
-    this.env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findBelongsTo: () => deferedFind.promise,
@@ -188,7 +190,7 @@ module('unit/store/finders', function(hooks) {
     };
 
     let storePromise = run(() => {
-      this.env.store.push({
+      this.store.push({
         data: {
           type: 'person',
           id: '1',
@@ -222,7 +224,7 @@ module('unit/store/finders', function(hooks) {
 
     let deferedFind = defer();
 
-    this.env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findAll: () => deferedFind.promise,
@@ -256,7 +258,7 @@ module('unit/store/finders', function(hooks) {
 
     let deferedFind = defer();
 
-    this.env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         query: () => deferedFind.promise,
@@ -290,7 +292,7 @@ module('unit/store/finders', function(hooks) {
 
     let deferedFind = defer();
 
-    this.env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         queryRecord: () => deferedFind.promise,
