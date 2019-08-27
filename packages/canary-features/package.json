@@ -17,7 +17,7 @@
     "ember-cli-babel": "^7.10.0"
   },
   "devDependencies": {
-    "babel-plugin-debug-macros": "^0.3.2",
+    "babel-plugin-debug-macros": "^0.3.3",
     "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^3.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
