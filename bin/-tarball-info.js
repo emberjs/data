@@ -9,7 +9,7 @@
   that can be used to insert the locations of our tarballs
   into any package.json
 
-  Example Package Meta: 
+  Example Package Meta:
 
   Given a project named `data` located in the folder `projects`
    containing a package named `@ember-data/-example`
@@ -29,19 +29,19 @@
   {
     // the path to the directory for the package
     location: "/path/to/projects/data/packages/-example",
-    
+
     // the location of the package.json file for the package
     fileLocation: "/path/to/projects/data/packages/some-package-directory/package.json",
-    
+
     // the directory name of the package
     localName: "-example",
-    
+
     // the file location a generated tarball for this package would be placed
     tarballLocation: "/path/to/projects/__tarball-cache/ember-data--example-3.0.0.tgz",
-    
+
     // useful for making edits to add tarball paths to the contents
     packageInfo: <package.json contents as a json object>,
-    
+
     // useful for restoring original state of a package.json after edits
     originalPackageInfo: <package.json contents as a string>,
   }
@@ -52,7 +52,7 @@
 
   This util will discover any dependencies or devDependencies of the given
   package.json that match the package names of the packges in PackageInfos
-  and rewrite the file replacing their version with the file path of the 
+  and rewrite the file replacing their version with the file path of the
   tarball we would generate.
 
   E.g.
@@ -71,7 +71,6 @@
   }
 */
 
-/* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
 const fs = require('fs');
 const path = require('path');
 const url = require('url');

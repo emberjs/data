@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * Ensures that the version of a devDependency in root
  * is reflected in individual packages. Hoists any
@@ -10,7 +11,7 @@
  * yarn run sync-dev
  * ```
  */
-/* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
+
 const { shellSync } = require('execa');
 const path = require('path');
 const fs = require('fs');

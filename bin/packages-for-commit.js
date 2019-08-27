@@ -14,7 +14,7 @@
 */
 
 'use strict';
-/* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
+
 const fs = require('fs');
 const { shellSync } = require('execa');
 // apparently violates no-extraneous require? /shrug
