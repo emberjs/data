@@ -3,6 +3,8 @@ import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { module, test } from 'qunit';
 
 var env, Person;
@@ -14,6 +16,8 @@ module('integration/references/record', function(hooks) {
     });
 
     env = setupStore({
+      adapter: JSONAPIAdapter.extend(),
+      serializer: JSONAPISerializer.extend(),
       person: Person,
     });
   });

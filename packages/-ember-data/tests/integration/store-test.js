@@ -158,6 +158,7 @@ module('integration/store - destroy', function(hooks) {
 
   test('destroying the store correctly cleans everything up', function(assert) {
     let car, person;
+    env.owner.register('serializer:application', JSONAPISerializer.extend());
     env.adapter.shouldBackgroundReloadRecord = () => false;
     run(() => {
       store.push({
@@ -981,10 +982,10 @@ module('integration/store - deleteRecord', function(hooks) {
 
 module('integration/store - queryRecord', function(hooks) {
   hooks.beforeEach(function() {
-    initializeStore(DS.Adapter.extend());
+    initializeStore(DS.Adapter.extend(), JSONAPISerializer.extend());
   });
 
-  testInDebug('store#queryRecord should assert when normalized payload of adapter has an array an data', function(
+  testInDebug('store#queryRecord should assert when normalized payload of adapter has an array of data', function(
     assert
   ) {
     env.adapter.queryRecord = function() {

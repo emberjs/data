@@ -231,6 +231,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     });
 
     env = setupStore({
+      adapter: JSONAPIAdapter.extend(),
+      serializer: JSONAPISerializer.extend(),
       user: User,
       post: Post,
       comment: Comment,
@@ -241,15 +243,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       author: Author,
       section: Section,
     });
-
-    env.owner.register(
-      'serializer:user',
-      DS.JSONAPISerializer.extend({
-        attrs: {
-          favouriteMessage: { embedded: 'always' },
-        },
-      })
-    );
 
     store = env.store;
 
@@ -867,6 +860,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
   test('relationship changes shouldn’t cause async fetches', function(assert) {
     assert.expect(2);
+    env.owner.register('serializer:comment', JSONAPISerializer.extend());
 
     /*  Scenario:
      *  ---------
@@ -937,7 +931,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     env.adapter.deleteRecord = function(store, type, snapshot) {
       assert.ok(snapshot.record instanceof type);
       assert.equal(snapshot.id, 1, 'should first comment');
-      return snapshot.record.toJSON({ includeId: true });
+      return {
+        data: {
+          id: snapshot.record.id,
+          type: 'comment',
+        },
+      };
     };
 
     env.adapter.findMany = function(store, type, ids, snapshots) {
