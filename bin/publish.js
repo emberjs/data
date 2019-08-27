@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 'use strict';
-/* eslint-disable node/no-unsupported-features/es-syntax, no-console, no-process-exit, node/no-extraneous-require, node/no-unpublished-require */
+/* eslint-disable node/no-unsupported-features/es-syntax */
 
 /*
 Usage
@@ -15,7 +15,7 @@ Flags
 --bumpMinor
 --skipVersion
 --skipPack
---skipPublish 
+--skipPublish
 --skipSmokeTest
 
 Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3200f183bffb7d520a3c71249#diff-19fef6f3236e72e3b5af7c884eef67a0
@@ -177,10 +177,10 @@ function assertGitIsClean() {
 }
 
 function retrieveNextVersion() {
-  /* 
+  /*
 
   A brief rundown of how version updates flow through the branches.
-  
+
   - We only ever bump the major or minor version on master
   - All other branches pick it up as those changes flow through the release cycle.
 

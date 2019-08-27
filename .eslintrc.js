@@ -48,7 +48,7 @@ module.exports = {
         '.mocharc.js',
         '.eslintrc.js',
         '.prettierrc.js',
-        'bin/*.js',
+        'bin/*',
         'packages/-build-infra/src/**/*.js',
         'packages/-test-infra/src/**/*.js',
         'packages/*/ember-cli-build.js',
@@ -86,6 +86,19 @@ module.exports = {
       env: {
         mocha: true,
       },
+    },
+
+    // bin files
+    {
+      files: ['bin/*'],
+      // eslint-disable-next-line node/no-unpublished-require
+      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
+        'no-console': 'off',
+        'no-process-exit': 'off',
+        'node/no-extraneous-require': 'off',
+        'node/no-unpublished-require': 'off',
+        'node/shebang': 'off',
+      }),
     },
   ],
 };

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 'use strict';
-/* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
+
 const fs = require('fs');
 const path = require('path');
 const { shellSync } = require('execa');
