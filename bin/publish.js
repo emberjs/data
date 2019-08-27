@@ -15,7 +15,7 @@ Flags
 --bumpMinor
 --skipVersion
 --skipPack
---skipPublish 
+--skipPublish
 --skipSmokeTest
 
 Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3200f183bffb7d520a3c71249#diff-19fef6f3236e72e3b5af7c884eef67a0
@@ -189,10 +189,10 @@ function assertGitIsClean() {
 }
 
 function retrieveNextVersion() {
-  /* 
+  /*
 
   A brief rundown of how version updates flow through the branches.
-  
+
   - We only ever bump the major or minor version on master
   - All other branches pick it up as those changes flow through the release cycle.
 
@@ -210,24 +210,25 @@ function retrieveNextVersion() {
   let v;
   if (options.channel === 'release' || options.channel === 'lts') {
     // a new patch, or our first release of a new minor/major
-    // for new minor/major the version will have drifted up
+    // usually for new minor/major the version will have drifted up
     // from prior beta/canary incrementing
-    v = semver.inc(options.currentVersion, 'patch');
+    // bumpMajor means we are doing a re-release that makes us a new major release
+    // bumpMinor means we are doing a re-release that makes us a new minor release
+    // else this is a new patch release or the first release but cut from a previous beta.
+    let bumpType = options.bumpMajor ? 'major' : options.bumpMinor ? 'minor' : 'patch';
+    v = semver.inc(options.currentVersion, bumpType);
   } else if (options.channel === 'beta') {
-    v = semver.inc(options.currentVersion, 'prerelease', 'beta');
+    // bumpMajor means we are doing a re-release that makes us the first beta of an upcoming major release
+    // bumpMinor means we are doing a re-release that makes us the first beta of an upcoming minor release
+    // else this is a new weekly beta or the first beta but cut from a previous canary.
+    let bumpType = options.bumpMajor ? 'premajor' : options.bumpMinor ? 'preminor' : 'prerelease';
+    v = semver.inc(options.currentVersion, bumpType, 'beta');
   } else if (options.channel === 'canary') {
-    if (options.bumpMajor === true) {
-      // our first canary for an upcoming major
-      v = semver.inc(options.currentVersion, 'major');
-      v = semver.inc(v, 'prerelease', 'canary');
-    } else if (options.bumpMinor === true) {
-      // our first canary for an upcoming minor
-      v = semver.inc(options.currentVersion, 'minor');
-      v = semver.inc(v, 'prerelease', 'canary');
-    } else {
-      // a new nightly canary
-      v = semver.inc(options.currentVersion, 'prerelease', 'canary');
-    }
+    // bumpMajor is our first canary for an upcoming major
+    // bumpMinor is our first canary for an upcoming minor
+    // else this is a new nightly canary
+    let bumpType = options.bumpMajor ? 'premajor' : options.bumpMinor ? 'preminor' : 'prerelease';
+    v = semver.inc(options.currentVersion, bumpType, 'alpha');
   }
 
   return v;
@@ -332,11 +333,11 @@ async function main() {
   }
   let nextVersion = options.currentVersion;
   if (!options.skipVersion) {
+    // https://github.com/lerna/lerna/tree/master/commands/version#--exact
+    // We use exact to ensure that our consumers always use the appropriate
+    // versions published with each other
     nextVersion = retrieveNextVersion();
-    // we use --force-publish=* here to ensure that regardless of changes
-    // all packages are incremented and published, otherwise only packages
-    // with changes will be published.
-    execWithLog(`lerna version ${nextVersion} --force-publish=*`, true);
+    execWithLog(`lerna version ${nextVersion} --exact`, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
