@@ -1,3 +1,5 @@
+import { symbol } from './symbol';
+
 /**
   @module @ember-data/store
 */
@@ -14,4 +16,5 @@
  *
  * @internal
  */
-export const BRAND_SYMBOL = Symbol(`DEBUG-ts-brand`);
+
+export const BRAND_SYMBOL: unique symbol = symbol('DEBUG-ts-brand');
