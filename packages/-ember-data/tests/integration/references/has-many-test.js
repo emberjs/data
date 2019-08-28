@@ -3,6 +3,7 @@ import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
@@ -18,6 +19,7 @@ module('integration/references/has-many', function(hooks) {
       family: DS.belongsTo(),
     });
     env = setupStore({
+      serializer: JSONAPISerializer.extend(),
       person: Person,
       family: Family,
     });

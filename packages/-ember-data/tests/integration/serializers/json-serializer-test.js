@@ -1,6 +1,8 @@
 import { underscore } from '@ember/string';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import JSONSerializer from '@ember-data/serializer/json';
@@ -24,6 +26,8 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       post: DS.belongsTo('post', { inverse: null, async: true, polymorphic: true }),
     });
     env = setupStore({
+      adapter: JSONAPIAdapter.extend(),
+      serializer: JSONAPISerializer.extend(),
       post: Post,
       comment: Comment,
       favorite: Favorite,

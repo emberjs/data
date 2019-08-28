@@ -1,6 +1,7 @@
 import { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
@@ -19,6 +20,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
     });
 
     env = setupStore({
+      serializer: JSONAPISerializer.extend(),
       person: Person,
     });
     store = env.store;

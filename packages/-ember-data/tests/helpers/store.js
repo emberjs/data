@@ -4,7 +4,6 @@ import EmberObject from '@ember/object';
 import Ember from 'ember';
 import Store from 'ember-data/store';
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import config from '../../config/environment';
 import Resolver from '../../resolver';
 import { StringTransform, DateTransform, NumberTransform, BooleanTransform } from '@ember-data/serializer/-private';
@@ -90,12 +89,6 @@ export default function setupStore(options) {
   if (serializer) {
     env.registry.register('serializer:application', serializer);
     env.serializer = store.serializerFor('application');
-  } else {
-    // Many tests rely on falling back to this serializer
-    // they should refactor to register this as the application serializer
-    owner.register('serializer:-default', JSONAPISerializer);
-
-    env.serializer = store.serializerFor('-default');
   }
 
   // lazily create the adapter method because some tests depend on

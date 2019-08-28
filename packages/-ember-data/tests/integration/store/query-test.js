@@ -1,5 +1,6 @@
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RSVP from 'rsvp';
 
 import { module, test } from 'qunit';
@@ -13,6 +14,7 @@ module('integration/store/query', function(hooks) {
     Person = DS.Model.extend();
 
     env = setupStore({
+      serializer: JSONAPISerializer.extend(),
       person: Person,
     });
 

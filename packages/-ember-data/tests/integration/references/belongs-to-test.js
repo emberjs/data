@@ -5,6 +5,8 @@ import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 var env, Family;
 
@@ -19,6 +21,8 @@ module('integration/references/belongs-to', function(hooks) {
     });
 
     env = setupStore({
+      adapter: JSONAPIAdapter.extend(),
+      serializer: JSONAPISerializer.extend(),
       person: Person,
       family: Family,
     });
