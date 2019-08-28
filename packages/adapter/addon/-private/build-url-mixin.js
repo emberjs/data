@@ -125,9 +125,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/user.js
-   import JSONAPIAdapter from '@ember-data/adapter/json-api';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default JSONAPIAdapter.extend({
+   export default RESTAdapter.extend({
      urlForFindRecord(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id, snapshot);
        return `${baseUrl}/users/${snapshot.adapterOptions.user_id}/playlists/${id}`;
@@ -152,9 +152,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/comment.js
-   import JSONAPIAdapter from '@ember-data/adapter/json-api';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default JSONAPIAdapter.extend({
+   export default RESTAdapter.extend({
      urlForFindAll(modelName, snapshot) {
        return 'data/comments.json';
      }
@@ -260,9 +260,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import JSONAPIAdapter from '@ember-data/adapter/json-api';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default JSONAPIAdapter.extend({
+   export default RESTAdapter.extend({
      urlForFindHasMany(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
@@ -287,9 +287,9 @@ export default Mixin.create({
    Example:
 
    ```app/adapters/application.js
-   import JSONAPIAdapter from '@ember-data/adapter/json-api';
+   import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default JSONAPIAdapter.extend({
+   export default RESTAdapter.extend({
      urlForFindBelongsTo(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
