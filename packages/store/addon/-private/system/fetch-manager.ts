@@ -15,6 +15,7 @@ import RequestCache from './request-cache';
 import { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import { RecordIdentifier } from '../ts-interfaces/identifier';
 import { FindRecordQuery, SaveRecordMutation, Request } from '../ts-interfaces/fetch-manager';
+import { symbol } from '../ts-interfaces/utils/symbol';
 import Store from './ds-model-store';
 import recordDataFor from './record-data-for';
 import CoreStore from './core-store';
@@ -28,7 +29,7 @@ function payloadIsNotBlank(adapterPayload): boolean {
 }
 
 const emberRun = emberRunLoop.backburner;
-export const SaveOp = Symbol('SaveOp');
+export const SaveOp: unique symbol = symbol('SaveOp');
 
 interface PendingFetchItem {
   identifier: RecordIdentifier;
