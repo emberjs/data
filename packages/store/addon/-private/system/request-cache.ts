@@ -7,11 +7,12 @@ import {
   Operation,
   RequestStateEnum,
 } from '../ts-interfaces/fetch-manager';
+import { symbol } from '../ts-interfaces/utils/symbol';
 
 import { _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
 
-const Touching = Symbol('touching');
-export const RequestPromise = Symbol('promise');
+export const Touching: unique symbol = symbol('touching');
+export const RequestPromise: unique symbol = symbol('promise');
 
 interface InternalRequest extends RequestState {
   [Touching]: RecordIdentifier[];
