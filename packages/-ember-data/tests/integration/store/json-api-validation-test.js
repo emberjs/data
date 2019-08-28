@@ -1,14 +1,12 @@
 import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import QUnit, { module } from 'qunit';
 import DS from 'ember-data';
 
-var Person, store, env;
-
-function payloadError(payload, expectedError, assert) {
-  env.owner.register(
+function payloadError(owner, payload, expectedError, assert) {
+  owner.register(
     'serializer:person',
     DS.Serializer.extend({
       normalizeResponse(store, type, pld) {
@@ -16,7 +14,7 @@ function payloadError(payload, expectedError, assert) {
       },
     })
   );
-  env.owner.register(
+  owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord() {
@@ -27,47 +25,45 @@ function payloadError(payload, expectedError, assert) {
   this.expectAssertion(
     function() {
       run(function() {
-        store.findRecord('person', 1);
+        owner.lookup('service:store').findRecord('person', 1);
       });
     },
     expectedError,
     `Payload ${JSON.stringify(payload)} should throw error ${expectedError}`
   );
-  env.owner.unregister('serializer:person');
-  env.owner.unregister('adapter:person');
+  owner.unregister('serializer:person');
+  owner.unregister('adapter:person');
 }
 
 module('integration/store/json-validation', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     QUnit.assert.payloadError = payloadError.bind(QUnit.assert);
 
-    Person = DS.Model.extend({
+    const Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
     });
 
-    env = setupStore({
-      person: Person,
-    });
-    store = env.store;
+    this.owner.register('model:person', Person);
   });
 
   hooks.afterEach(function() {
     QUnit.assert.payloadError = null;
-    run(store, 'destroy');
   });
 
   testInDebug("when normalizeResponse returns undefined (or doesn't return), throws an error", function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:person',
       DS.Serializer.extend({
         normalizeResponse() {},
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findRecord() {
@@ -75,6 +71,8 @@ module('integration/store/json-validation', function(hooks) {
         },
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     assert.expectAssertion(function() {
       run(function() {
@@ -84,7 +82,7 @@ module('integration/store/json-validation', function(hooks) {
   });
 
   testInDebug('when normalizeResponse returns null, throws an error', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:person',
       DS.Serializer.extend({
         normalizeResponse() {
@@ -93,7 +91,7 @@ module('integration/store/json-validation', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findRecord() {
@@ -101,6 +99,8 @@ module('integration/store/json-validation', function(hooks) {
         },
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     assert.expectAssertion(function() {
       run(function() {
@@ -110,7 +110,7 @@ module('integration/store/json-validation', function(hooks) {
   });
 
   testInDebug('when normalizeResponse returns an empty object, throws an error', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:person',
       DS.Serializer.extend({
         normalizeResponse() {
@@ -119,7 +119,7 @@ module('integration/store/json-validation', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findRecord() {
@@ -127,6 +127,8 @@ module('integration/store/json-validation', function(hooks) {
         },
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     assert.expectAssertion(function() {
       run(function() {
@@ -136,7 +138,7 @@ module('integration/store/json-validation', function(hooks) {
   });
 
   testInDebug('when normalizeResponse returns a document with both data and errors, throws an error', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'serializer:person',
       DS.Serializer.extend({
         normalizeResponse() {
@@ -148,7 +150,7 @@ module('integration/store/json-validation', function(hooks) {
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findRecord() {
@@ -156,6 +158,8 @@ module('integration/store/json-validation', function(hooks) {
         },
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     assert.expectAssertion(function() {
       run(function() {
@@ -165,59 +169,59 @@ module('integration/store/json-validation', function(hooks) {
   });
 
   testInDebug("normalizeResponse 'data' cannot be undefined, a number, a string or a boolean", function(assert) {
-    assert.payloadError({ data: undefined }, /data must be/);
-    assert.payloadError({ data: 1 }, /data must be/);
-    assert.payloadError({ data: 'lollerskates' }, /data must be/);
-    assert.payloadError({ data: true }, /data must be/);
+    assert.payloadError(this.owner, { data: undefined }, /data must be/);
+    assert.payloadError(this.owner, { data: 1 }, /data must be/);
+    assert.payloadError(this.owner, { data: 'lollerskates' }, /data must be/);
+    assert.payloadError(this.owner, { data: true }, /data must be/);
   });
 
   testInDebug("normalizeResponse 'meta' cannot be an array, undefined, a number, a string or a boolean", function(
     assert
   ) {
-    assert.payloadError({ meta: undefined }, /meta must be an object/);
-    assert.payloadError({ meta: [] }, /meta must be an object/);
-    assert.payloadError({ meta: 1 }, /meta must be an object/);
-    assert.payloadError({ meta: 'lollerskates' }, /meta must be an object/);
-    assert.payloadError({ meta: true }, /meta must be an object/);
+    assert.payloadError(this.owner, { meta: undefined }, /meta must be an object/);
+    assert.payloadError(this.owner, { meta: [] }, /meta must be an object/);
+    assert.payloadError(this.owner, { meta: 1 }, /meta must be an object/);
+    assert.payloadError(this.owner, { meta: 'lollerskates' }, /meta must be an object/);
+    assert.payloadError(this.owner, { meta: true }, /meta must be an object/);
   });
 
   testInDebug("normalizeResponse 'links' cannot be an array, undefined, a number, a string or a boolean", function(
     assert
   ) {
-    assert.payloadError({ data: [], links: undefined }, /links must be an object/);
-    assert.payloadError({ data: [], links: [] }, /links must be an object/);
-    assert.payloadError({ data: [], links: 1 }, /links must be an object/);
-    assert.payloadError({ data: [], links: 'lollerskates' }, /links must be an object/);
-    assert.payloadError({ data: [], links: true }, /links must be an object/);
+    assert.payloadError(this.owner, { data: [], links: undefined }, /links must be an object/);
+    assert.payloadError(this.owner, { data: [], links: [] }, /links must be an object/);
+    assert.payloadError(this.owner, { data: [], links: 1 }, /links must be an object/);
+    assert.payloadError(this.owner, { data: [], links: 'lollerskates' }, /links must be an object/);
+    assert.payloadError(this.owner, { data: [], links: true }, /links must be an object/);
   });
 
   testInDebug("normalizeResponse 'jsonapi' cannot be an array, undefined, a number, a string or a boolean", function(
     assert
   ) {
-    assert.payloadError({ data: [], jsonapi: undefined }, /jsonapi must be an object/);
-    assert.payloadError({ data: [], jsonapi: [] }, /jsonapi must be an object/);
-    assert.payloadError({ data: [], jsonapi: 1 }, /jsonapi must be an object/);
-    assert.payloadError({ data: [], jsonapi: 'lollerskates' }, /jsonapi must be an object/);
-    assert.payloadError({ data: [], jsonapi: true }, /jsonapi must be an object/);
+    assert.payloadError(this.owner, { data: [], jsonapi: undefined }, /jsonapi must be an object/);
+    assert.payloadError(this.owner, { data: [], jsonapi: [] }, /jsonapi must be an object/);
+    assert.payloadError(this.owner, { data: [], jsonapi: 1 }, /jsonapi must be an object/);
+    assert.payloadError(this.owner, { data: [], jsonapi: 'lollerskates' }, /jsonapi must be an object/);
+    assert.payloadError(this.owner, { data: [], jsonapi: true }, /jsonapi must be an object/);
   });
 
   testInDebug("normalizeResponse 'included' cannot be an object, undefined, a number, a string or a boolean", function(
     assert
   ) {
-    assert.payloadError({ included: undefined }, /included must be an array/);
-    assert.payloadError({ included: {} }, /included must be an array/);
-    assert.payloadError({ included: 1 }, /included must be an array/);
-    assert.payloadError({ included: 'lollerskates' }, /included must be an array/);
-    assert.payloadError({ included: true }, /included must be an array/);
+    assert.payloadError(this.owner, { included: undefined }, /included must be an array/);
+    assert.payloadError(this.owner, { included: {} }, /included must be an array/);
+    assert.payloadError(this.owner, { included: 1 }, /included must be an array/);
+    assert.payloadError(this.owner, { included: 'lollerskates' }, /included must be an array/);
+    assert.payloadError(this.owner, { included: true }, /included must be an array/);
   });
 
   testInDebug("normalizeResponse 'errors' cannot be an object, undefined, a number, a string or a boolean", function(
     assert
   ) {
-    assert.payloadError({ errors: undefined }, /errors must be an array/);
-    assert.payloadError({ errors: {} }, /errors must be an array/);
-    assert.payloadError({ errors: 1 }, /errors must be an array/);
-    assert.payloadError({ errors: 'lollerskates' }, /errors must be an array/);
-    assert.payloadError({ errors: true }, /errors must be an array/);
+    assert.payloadError(this.owner, { errors: undefined }, /errors must be an array/);
+    assert.payloadError(this.owner, { errors: {} }, /errors must be an array/);
+    assert.payloadError(this.owner, { errors: 1 }, /errors must be an array/);
+    assert.payloadError(this.owner, { errors: 'lollerskates' }, /errors must be an array/);
+    assert.payloadError(this.owner, { errors: true }, /errors must be an array/);
   });
 });

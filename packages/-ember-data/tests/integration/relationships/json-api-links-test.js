@@ -1,7 +1,7 @@
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import { resolve } from 'rsvp';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
@@ -10,36 +10,26 @@ import deepCopy from 'dummy/tests/helpers/deep-copy';
 
 const { Model, attr, hasMany, belongsTo } = DS;
 
-let env, User, Organisation;
-
 module('integration/relationship/json-api-links | Relationship state updates', function(hooks) {
-  hooks.beforeEach(function() {});
-
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
-  });
+  setupTest(hooks);
 
   test('Loading link with inverse:null on other model caches the two ends separately', function(assert) {
-    User = DS.Model.extend({
+    const User = DS.Model.extend({
       organisation: belongsTo('organisation', { inverse: null }),
     });
 
-    Organisation = DS.Model.extend({
+    const Organisation = DS.Model.extend({
       adminUsers: hasMany('user', { inverse: null }),
     });
 
-    env = setupStore({
-      user: User,
-      organisation: Organisation,
-      serializer: JSONAPISerializer.extend(),
-    });
+    this.owner.register('model:user', User);
+    this.owner.register('model:organisation', Organisation);
+    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    const store = env.store;
+    let store = this.owner.lookup('service:store');
 
-    User = store.modelFor('user');
-    Organisation = store.modelFor('organisation');
-
-    env.owner.register(
+    this.owner.register(
       'adapter:user',
       DS.JSONAPISerializer.extend({
         findRecord(store, type, id) {
@@ -58,7 +48,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'adapter:organisation',
       DS.JSONAPISerializer.extend({
         findRecord(store, type, id) {
@@ -111,13 +101,12 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       children: hasMany('child', { inverse: 'parent' }),
     });
 
-    env = setupStore({
-      parent: Parent,
-      child: Child,
-      serializer: JSONAPISerializer.extend(),
-    });
+    this.owner.register('model:child', Child);
+    this.owner.register('model:parent', Parent);
+    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    const store = env.store;
+    let store = this.owner.lookup('service:store');
 
     Parent = store.modelFor('parent');
     Child = store.modelFor('child');
@@ -190,14 +179,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
     });
 
-    env = setupStore({
-      adapter: Adapter,
-      serializer: JSONAPISerializer.extend(),
-      user: User,
-      pet: Pet,
-    });
+    this.owner.register('model:user', User);
+    this.owner.register('model:pet', Pet);
 
-    let { store } = env;
+    this.owner.register('adapter:application', Adapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     // push data, no links
     run(() =>
@@ -274,14 +262,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
     });
 
-    env = setupStore({
-      adapter: Adapter,
-      serializer: JSONAPISerializer.extend(),
-      user: User,
-      pet: Pet,
-    });
+    this.owner.register('model:user', User);
+    this.owner.register('model:pet', Pet);
 
-    let { store } = env;
+    this.owner.register('adapter:application', Adapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     // push data, no links
     run(() =>
@@ -360,14 +347,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
     });
 
-    env = setupStore({
-      adapter: Adapter,
-      serializer: JSONAPISerializer.extend(),
-      user: User,
-      pet: Pet,
-    });
+    this.owner.register('model:user', User);
+    this.owner.register('model:pet', Pet);
 
-    let { store } = env;
+    this.owner.register('adapter:application', Adapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     // push links, no data
     run(() =>
@@ -448,14 +434,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
     });
 
-    env = setupStore({
-      adapter: Adapter,
-      serializer: JSONAPISerializer.extend(),
-      user: User,
-      pet: Pet,
-    });
+    this.owner.register('model:user', User);
+    this.owner.register('model:pet', Pet);
 
-    let { store } = env;
+    this.owner.register('adapter:application', Adapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     // push links, no data
     run(() =>
@@ -538,14 +523,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
     });
 
-    env = setupStore({
-      adapter: Adapter,
-      serializer: JSONAPISerializer.extend(),
-      user: User,
-      pet: Pet,
-    });
+    this.owner.register('model:user', User);
+    this.owner.register('model:pet', Pet);
 
-    let { store } = env;
+    this.owner.register('adapter:application', Adapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     // push data and links
     run(() =>
@@ -610,14 +594,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
     });
 
-    env = setupStore({
-      adapter: Adapter,
-      serializer: JSONAPISerializer.extend(),
-      user: User,
-      pet: Pet,
-    });
+    this.owner.register('model:user', User);
+    this.owner.register('model:pet', Pet);
 
-    let { store } = env;
+    this.owner.register('adapter:application', Adapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
+    let store = this.owner.lookup('service:store');
 
     // push data, no links
     run(() =>
@@ -658,6 +641,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 });
 
 module('integration/relationship/json-api-links | Relationship fetching', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     const User = Model.extend({
       name: attr(),
@@ -673,20 +658,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       owner: belongsTo('user', { async: false, inverse: 'pets' }),
       friends: hasMany('pet', { async: false, inverse: 'friends' }),
     });
-    const Adapter = JSONAPIAdapter.extend();
 
-    env = setupStore({
-      adapter: Adapter,
-      serializer: JSONAPISerializer.extend(),
-      user: User,
-      pet: Pet,
-      home: Home,
-    });
-  });
+    this.owner.register('model:user', User);
+    this.owner.register('model:pet', Pet);
+    this.owner.register('model:home', Home);
 
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
-    env = null;
+    this.owner.register('adapter:application', JSONAPIAdapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   /*
@@ -711,7 +689,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   function shouldFetchLinkTests(description, payloads) {
     test(`get+reload hasMany with ${description}`, function(assert) {
       assert.expect(3);
-      let { store, adapter } = env;
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -733,9 +713,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
       run(() => pets.reload());
     });
+
     test(`get+unload+get hasMany with ${description}`, function(assert) {
       assert.expect(3);
-      let { store, adapter } = env;
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       let petRelationshipData = payloads.user.data.relationships.pets.data;
       let petRelDataWasEmpty = petRelationshipData && petRelationshipData.length === 0;
@@ -772,9 +755,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(true, `We cant dirty a relationship we have no knowledge of`);
       }
     });
+
     test(`get+reload belongsTo with ${description}`, function(assert) {
       assert.expect(3);
-      let { store, adapter } = env;
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       let homeRelationshipData = payloads.user.data.relationships.home.data;
       let homeRelWasEmpty = homeRelationshipData === null;
@@ -811,9 +797,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
       run(() => home.reload());
     });
+
     test(`get+unload+get belongsTo with ${description}`, function(assert) {
       assert.expect(3);
-      let { store, adapter } = env;
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       let homeRelationshipData = payloads.user.data.relationships.home.data;
       let homeRelWasEmpty = homeRelationshipData === null;
@@ -984,7 +973,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   function shouldReloadWithLinkTests(description, payloads) {
     test(`get+reload hasMany with ${description}`, function(assert) {
       assert.expect(2);
-      let { store, adapter } = env;
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -1007,9 +998,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
       run(() => pets.reload());
     });
+
     test(`get+unload+get hasMany with ${description}`, function(assert) {
       assert.expect(2);
-      let { store, adapter } = env;
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -1033,9 +1027,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       run(() => pets.objectAt(0).unloadRecord());
       run(() => user.get('pets'));
     });
+
     test(`get+reload belongsTo with ${description}`, function(assert) {
       assert.expect(2);
-      let { store, adapter } = env;
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -1058,9 +1055,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
       run(() => home.reload());
     });
+
     test(`get+unload+get belongsTo with ${description}`, function(assert) {
       assert.expect(2);
-      let { store, adapter } = env;
+
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -1286,7 +1286,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   // data, no links
   test(`get+reload hasMany with data, no links`, function(assert) {
     assert.expect(3);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1342,9 +1344,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     run(() => pets.reload());
   });
+
   test(`get+unload+get hasMany with data, no links`, function(assert) {
     assert.expect(3);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1401,9 +1406,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     run(() => pets.objectAt(0).unloadRecord());
     run(() => user.get('pets'));
   });
+
   test(`get+reload belongsTo with data, no links`, function(assert) {
     assert.expect(3);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1459,9 +1467,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     run(() => home.reload());
   });
+
   test(`get+unload+get belongsTo with data, no links`, function(assert) {
     assert.expect(3);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1522,7 +1533,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   // missing data setup from the other side, no links
   test(`get+reload hasMany with missing data setup from the other side, no links`, function(assert) {
     assert.expect(2);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1590,7 +1603,10 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   });
   test(`get+unload+get hasMany with missing data setup from the other side, no links`, function(assert) {
     assert.expect(2);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
@@ -1660,9 +1676,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     // should trigger a findRecord for the unloaded pet
     run(() => user.get('pets'));
   });
+
   test(`get+reload belongsTo with missing data setup from the other side, no links`, function(assert) {
     assert.expect(2);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1730,7 +1749,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   });
   test(`get+unload+get belongsTo with missing data setup from the other side, no links`, function(assert) {
     assert.expect(2);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1801,7 +1822,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   // empty data, no links
   test(`get+reload hasMany with empty data, no links`, function(assert) {
     assert.expect(1);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1846,7 +1869,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
    */
   test('We should not fetch a hasMany relationship with links that we know is empty', function(assert) {
     assert.expect(1);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     let user1Payload = {
       data: {
@@ -1930,7 +1955,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
   test('We should not fetch a sync hasMany relationship with a link that is missing the data member', function(assert) {
     assert.expect(1);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     let petPayload = {
       data: {
@@ -1974,7 +2001,9 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
   test('We should not fetch a sync belongsTo relationship with a link that is missing the data member', function(assert) {
     assert.expect(1);
-    let { store, adapter } = env;
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
 
     let petPayload = {
       data: {

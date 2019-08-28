@@ -2,37 +2,37 @@ import { defer, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import DS from 'ember-data';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-var env, Person;
-
 module('integration/references/has-many', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    var Family = DS.Model.extend({
+    const Family = DS.Model.extend({
       persons: DS.hasMany({ async: true }),
     });
-    Person = DS.Model.extend({
+
+    const Person = DS.Model.extend({
       name: DS.attr(),
       family: DS.belongsTo(),
     });
-    env = setupStore({
-      serializer: JSONAPISerializer.extend(),
-      person: Person,
-      family: Family,
-    });
-  });
 
-  hooks.afterEach(function() {
-    run(env.container, 'destroy');
+    this.owner.register('model:family', Family);
+    this.owner.register('model:person', Person);
+
+    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   testInDebug("record#hasMany asserts when specified relationship doesn't exist", function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -50,9 +50,11 @@ module('integration/references/has-many', function(hooks) {
   testInDebug("record#hasMany asserts when the type of the specified relationship isn't the requested one", function(
     assert
   ) {
+    let store = this.owner.lookup('service:store');
+
     var person;
     run(function() {
-      person = env.store.push({
+      person = store.push({
         data: {
           type: 'person',
           id: 1,
@@ -68,9 +70,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('record#hasMany', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -91,9 +95,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('record#hasMany for linked references', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -114,9 +120,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('HasManyReference#parent is a reference to the parent where the relationship is defined', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -129,7 +137,7 @@ module('integration/references/has-many', function(hooks) {
       });
     });
 
-    var familyReference = env.store.getReference('family', 1);
+    var familyReference = store.getReference('family', 1);
     var personsReference = family.hasMany('persons');
 
     assert.ok(familyReference);
@@ -137,9 +145,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('HasManyReference#meta() returns the most recent meta for the relationship', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -162,9 +172,11 @@ module('integration/references/has-many', function(hooks) {
   testInDebug('push(array)', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -199,11 +211,14 @@ module('integration/references/has-many', function(hooks) {
   testInDebug('push(array) works with polymorphic type', function(assert) {
     var done = assert.async();
 
-    env.owner.register('model:mafia-boss', Person.extend());
+    let store = this.owner.lookup('service:store');
+    let Person = store.modelFor('person');
+
+    this.owner.register('model:mafia-boss', Person.extend());
 
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -227,9 +242,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   testInDebug('push(array) asserts polymorphic type', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -251,9 +268,11 @@ module('integration/references/has-many', function(hooks) {
   testInDebug('push(object) supports legacy, non-JSON-API-conform payload', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -290,11 +309,13 @@ module('integration/references/has-many', function(hooks) {
   test('push(promise)', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+
     var push;
     var deferred = defer();
 
     run(function() {
-      var family = env.store.push({
+      var family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -335,9 +356,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('value() returns null when reference is not yet loaded', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -355,9 +378,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('value() returns the referenced records when all records are loaded', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -368,8 +393,8 @@ module('integration/references/has-many', function(hooks) {
           },
         },
       });
-      env.store.push({ data: { type: 'person', id: 1, attributes: { name: 'Vito' } } });
-      env.store.push({ data: { type: 'person', id: 2, attributes: { name: 'Michael' } } });
+      store.push({ data: { type: 'person', id: 1, attributes: { name: 'Vito' } } });
+      store.push({ data: { type: 'person', id: 2, attributes: { name: 'Michael' } } });
     });
 
     run(function() {
@@ -381,9 +406,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('value() returns an empty array when the reference is loaded and empty', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -404,9 +431,11 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('_isLoaded() returns an true array when the reference is loaded and empty', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -429,9 +458,12 @@ module('integration/references/has-many', function(hooks) {
   test('load() fetches the referenced records', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     const adapterOptions = { thing: 'one' };
 
-    env.adapter.findMany = function(store, type, id, snapshots) {
+    adapter.findMany = function(store, type, id, snapshots) {
       assert.equal(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
       return resolve({
         data: [
@@ -443,7 +475,7 @@ module('integration/references/has-many', function(hooks) {
 
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -473,9 +505,12 @@ module('integration/references/has-many', function(hooks) {
   test('load() fetches link when remoteType is link', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     const adapterOptions = { thing: 'one' };
 
-    env.adapter.findHasMany = function(store, snapshot, link) {
+    adapter.findHasMany = function(store, snapshot, link) {
       assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       assert.equal(link, '/families/1/persons');
 
@@ -489,7 +524,7 @@ module('integration/references/has-many', function(hooks) {
 
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -518,9 +553,12 @@ module('integration/references/has-many', function(hooks) {
   });
 
   test('load() fetches link when remoteType is link but an empty set of records is returned', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     const adapterOptions = { thing: 'one' };
 
-    env.adapter.findHasMany = function(store, snapshot, link) {
+    adapter.findHasMany = function(store, snapshot, link) {
       assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       assert.equal(link, '/families/1/persons');
 
@@ -529,7 +567,7 @@ module('integration/references/has-many', function(hooks) {
 
     let family;
     run(() => {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -557,10 +595,13 @@ module('integration/references/has-many', function(hooks) {
   test('load() - only a single find is triggered', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     var deferred = defer();
     var count = 0;
 
-    env.adapter.findMany = function(store, type, id) {
+    adapter.findMany = function(store, type, id) {
       count++;
       assert.equal(count, 1);
 
@@ -569,7 +610,7 @@ module('integration/references/has-many', function(hooks) {
 
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -612,9 +653,12 @@ module('integration/references/has-many', function(hooks) {
   test('reload()', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     const adapterOptions = { thing: 'one' };
 
-    env.adapter.findMany = function(store, type, id, snapshots) {
+    adapter.findMany = function(store, type, id, snapshots) {
       assert.equal(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
       return resolve({
         data: [
@@ -626,7 +670,7 @@ module('integration/references/has-many', function(hooks) {
 
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,
@@ -637,8 +681,8 @@ module('integration/references/has-many', function(hooks) {
           },
         },
       });
-      env.store.push({ data: { type: 'person', id: 1, attributes: { name: 'Vito' } } });
-      env.store.push({ data: { type: 'person', id: 2, attributes: { name: 'Michael' } } });
+      store.push({ data: { type: 'person', id: 1, attributes: { name: 'Vito' } } });
+      store.push({ data: { type: 'person', id: 2, attributes: { name: 'Michael' } } });
     });
 
     var personsReference = family.hasMany('persons');
@@ -657,10 +701,14 @@ module('integration/references/has-many', function(hooks) {
 
   test('reload() fetches link when remoteType is link', function(assert) {
     var done = assert.async();
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     const adapterOptions = { thing: 'one' };
 
     var count = 0;
-    env.adapter.findHasMany = function(store, snapshot, link) {
+    adapter.findHasMany = function(store, snapshot, link) {
       assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       count++;
       assert.equal(link, '/families/1/persons');
@@ -684,7 +732,7 @@ module('integration/references/has-many', function(hooks) {
 
     var family;
     run(function() {
-      family = env.store.push({
+      family = store.push({
         data: {
           type: 'family',
           id: 1,

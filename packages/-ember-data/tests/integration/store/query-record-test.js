@@ -1,6 +1,6 @@
 import { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
@@ -8,35 +8,29 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-var Person, store, env;
-
 module('integration/store/query-record - Query one record with a query hash', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
-      updatedAt: DS.attr('string'),
+    const Person = DS.Model.extend({
       name: DS.attr('string'),
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
     });
 
-    env = setupStore({
-      serializer: JSONAPISerializer.extend(),
-      person: Person,
-    });
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   testInDebug('It raises an assertion when no type is passed', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     assert.expectAssertion(function() {
       store.queryRecord();
     }, "You need to pass a model name to the store's queryRecord method");
   });
 
   testInDebug('It raises an assertion when no query hash is passed', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     assert.expectAssertion(function() {
       store.queryRecord('person');
     }, "You need to pass a query hash to the store's queryRecord method");
@@ -45,7 +39,10 @@ module('integration/store/query-record - Query one record with a query hash', fu
   test("When a record is requested, the adapter's queryRecord method should be called.", function(assert) {
     assert.expect(1);
 
-    env.owner.register(
+    let store = this.owner.lookup('service:store');
+    let Person = store.modelFor('person');
+
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         queryRecord(store, type, query) {
@@ -57,13 +54,15 @@ module('integration/store/query-record - Query one record with a query hash', fu
       })
     );
 
+    this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
+
     run(function() {
       store.queryRecord('person', { related: 'posts' });
     });
   });
 
   test('When a record is requested, and the promise is rejected, .queryRecord() is rejected.', function(assert) {
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         queryRecord(store, type, query) {
@@ -71,6 +70,8 @@ module('integration/store/query-record - Query one record with a query hash', fu
         },
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     run(function() {
       store.queryRecord('person', {}).catch(function(reason) {
@@ -82,7 +83,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
   test("When a record is requested, the serializer's normalizeQueryRecordResponse method should be called.", function(assert) {
     assert.expect(1);
 
-    env.owner.register(
+    this.owner.register(
       'serializer:person',
       DS.JSONAPISerializer.extend({
         normalizeQueryRecordResponse(store, primaryModelClass, payload, id, requestType) {
@@ -96,7 +97,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
       })
     );
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         queryRecord(store, type, query) {
@@ -112,6 +113,8 @@ module('integration/store/query-record - Query one record with a query hash', fu
         },
       })
     );
+
+    let store = this.owner.lookup('service:store');
 
     run(function() {
       store.queryRecord('person', { related: 'posts' });

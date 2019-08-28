@@ -1,19 +1,18 @@
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
-import DS from 'ember-data';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-
-const { JSONAPIAdapter, Model, attr, belongsTo, hasMany } = DS;
-
-let store;
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module(
   'integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code finders',
   function(hooks) {
+    setupTest(hooks);
+
     hooks.beforeEach(function() {
       const PostNote = Model.extend({
         name: attr('string'),
@@ -25,21 +24,15 @@ module(
         },
       });
 
-      const env = setupStore({
-        postNote: PostNote,
-        adapter: ApplicationAdapter,
-        serializer: JSONAPISerializer.extend(),
-      });
-
-      store = env.store;
-    });
-
-    hooks.afterEach(function() {
-      run(store, 'destroy');
+      this.owner.register('model:post-note', PostNote);
+      this.owner.register('adapter:application', ApplicationAdapter);
+      this.owner.register('serializer:application', JSONAPISerializer.extend());
     });
 
     test('can lookup records using camelCase strings', function(assert) {
       assert.expect(1);
+
+      let store = this.owner.lookup('service:store');
 
       run(() => {
         store.pushPayload('post-note', {
@@ -62,6 +55,8 @@ module(
 
     test('can lookup records using under_scored strings', function(assert) {
       assert.expect(1);
+
+      let store = this.owner.lookup('service:store');
 
       run(() => {
         store.pushPayload('post-note', {
@@ -87,6 +82,8 @@ module(
 module(
   'integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code relationship macros',
   function(hooks) {
+    setupTest(hooks);
+
     hooks.beforeEach(function() {
       const PostNote = Model.extend({
         notePost: belongsTo('note-post', { async: false }),
@@ -108,23 +105,17 @@ module(
         },
       });
 
-      const env = setupStore({
-        longModelName: LongModelName,
-        notePost: NotePost,
-        postNote: PostNote,
-        adapter: ApplicationAdapter,
-        serializer: JSONAPISerializer.extend(),
-      });
-
-      store = env.store;
-    });
-
-    hooks.afterEach(function() {
-      run(store, 'destroy');
+      this.owner.register('model:long-model-name', LongModelName);
+      this.owner.register('model:note-post', NotePost);
+      this.owner.register('model:post-note', PostNote);
+      this.owner.register('adapter:application', ApplicationAdapter);
+      this.owner.register('serializer:application', JSONAPISerializer.extend());
     });
 
     test('looks up belongsTo using camelCase strings', function(assert) {
       assert.expect(1);
+
+      let store = this.owner.lookup('service:store');
 
       run(() => {
         store.pushPayload('post-note', {
@@ -161,6 +152,8 @@ module(
 
     test('looks up belongsTo using under_scored strings', function(assert) {
       assert.expect(1);
+
+      let store = this.owner.lookup('service:store');
 
       run(() => {
         store.pushPayload('long_model_name', {
