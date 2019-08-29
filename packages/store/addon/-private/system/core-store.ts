@@ -29,7 +29,6 @@ import { promiseArray, promiseObject } from './promise-proxies';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 
 import { normalizeResponseHelper } from './store/serializer-response';
-import { serializerForAdapter } from './store/serializers';
 import recordDataFor from './record-data-for';
 import FetchManager, { SaveOp } from './fetch-manager';
 
@@ -3342,14 +3341,14 @@ abstract class CoreStore extends Service {
 
     // no model specific serializer or application serializer, check for the `defaultSerializer`
     // property defined on the adapter
-    if (DEBUG) {
-      deprecate('deprecate adapter.serializer and adapter.defaultSerializer fallbacks', false, {
-        id: 'ember-data:default-serializers',
-        until: '4.0',
-      });
-    }
     let adapter = this.adapterFor(modelName);
     let serializerName = get(adapter, 'defaultSerializer');
+
+    deprecate('deprecate adapter.serializer and adapter.defaultSerializer fallbacks', !serializerName, {
+      id: 'ember-data:default-serializers',
+      until: '4.0',
+    });
+
     serializer = serializerName
       ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
       : undefined;
@@ -3383,12 +3382,6 @@ abstract class CoreStore extends Service {
 
     // final fallback, no model specific serializer, no application serializer, no
     // `serializer` property on store: use json-api serializer
-    if (DEBUG) {
-      deprecate('deprecate -default serializer fallback in store.serializerFor', false, {
-        id: 'ember-data:default-serializers',
-        until: '4.0',
-      });
-    }
     serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
     if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       const JSONSerializer = require('@ember-data/serializer/json').default;
@@ -3397,6 +3390,11 @@ abstract class CoreStore extends Service {
 
       serializer && deprecateTestRegistration('serializer', '-default');
     }
+
+    deprecate('deprecate -default serializer fallback in store.serializerFor', !serializer, {
+      id: 'ember-data:default-serializers',
+      until: '4.0',
+    });
 
     assert(
       `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
@@ -3491,12 +3489,14 @@ defineProperty(
   CoreStore.prototype,
   'defaultAdapter',
   computed('adapter', function() {
-    if (DEBUG) {
-      deprecate('deprecate store.defaultAdapter (-json-api) and the -json-api adapter fallback behavior', false, {
+    deprecate(
+      'deprecate store.adapter, store.defaultAdapter (-json-api) and the -json-api adapter fallback behavior',
+      false,
+      {
         id: 'ember-data:default-adapter',
         until: '4.0',
-      });
-    }
+      }
+    );
     let adapter = this.adapter || '-json-api';
 
     assert(
@@ -3521,7 +3521,7 @@ function _commit(adapter, store, operation, snapshot) {
   );
 
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-  let serializer = serializerForAdapter(store, adapter, modelName);
+  let serializer = store.serializerFor(modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
   assert(

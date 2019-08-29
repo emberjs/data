@@ -623,12 +623,10 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   toJSON(options) {
     // container is for lazy transform lookups
-    if (DEBUG) {
-      deprecate('deprecate toJSON', false, {
-        id: 'ember-data:model.toJSON',
-        until: '4.0',
-      });
-    }
+    deprecate('deprecate toJSON', false, {
+      id: 'ember-data:model.toJSON',
+      until: '4.0',
+    });
     let serializer = this._internalModel.store.serializerFor('-default');
     let snapshot = this._internalModel.createSnapshot();
 

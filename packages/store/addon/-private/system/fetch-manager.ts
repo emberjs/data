@@ -5,7 +5,6 @@ import { assert, warn, inspect } from '@ember/debug';
 import Snapshot from './snapshot';
 import { guardDestroyedStore, _guard, _bind, _objectIsAlive } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
-import { serializerForAdapter } from './store/serializers';
 import { InvalidError } from '@ember-data/adapter/error';
 import coerceId from './coerce-id';
 import { A } from '@ember/array';
@@ -115,7 +114,7 @@ export default class FetchManager {
     );
 
     let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-    let serializer = serializerForAdapter(store, adapter, modelName);
+    let serializer = store.serializerFor(modelName);
     let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
     assert(
@@ -262,7 +261,7 @@ export default class FetchManager {
           `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
           !!payloadIsNotBlank(adapterPayload)
         );
-        let serializer = serializerForAdapter(this._store, adapter, modelName);
+        let serializer = this._store.serializerFor(modelName);
         let payload = normalizeResponseHelper(serializer, this._store, klass, adapterPayload, id, 'findRecord');
         assert(
           `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
@@ -379,7 +378,7 @@ export default class FetchManager {
           `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
           !!payloadIsNotBlank(adapterPayload)
         );
-        let serializer = serializerForAdapter(store, adapter, modelName);
+        let serializer = store.serializerFor(modelName);
         let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findMany');
         return payload;
       },
