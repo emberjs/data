@@ -58,24 +58,6 @@ interface BelongsToMetaWrapper {
   modelName: string;
 }
 
-let INSTANCE_DEPRECATIONS;
-let lookupDeprecations;
-
-if (DEBUG) {
-  INSTANCE_DEPRECATIONS = new WeakMap();
-
-  lookupDeprecations = function lookupInstanceDrecations(instance) {
-    let deprecations = INSTANCE_DEPRECATIONS.get(instance);
-
-    if (!deprecations) {
-      deprecations = {};
-      INSTANCE_DEPRECATIONS.set(instance, deprecations);
-    }
-
-    return deprecations;
-  };
-}
-
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
   when transitioning from one state to another, so that future transitions can replay the
@@ -430,31 +412,6 @@ export default class InternalModel {
 
           this._record = store._modelFactoryFor(this.modelName).create(createOptions);
           setRecordIdentifier(this._record, this.identifier);
-          if (DEBUG) {
-            let klass = this._record.constructor;
-            let deprecations = lookupDeprecations(klass);
-            [
-              'becameError',
-              'becameInvalid',
-              'didCreate',
-              'didDelete',
-              'didLoad',
-              'didUpdate',
-              'ready',
-              'rolledBack',
-            ].forEach(methodName => {
-              if (this instanceof Model && typeof this._record[methodName] === 'function') {
-                deprecate(
-                  `Attempted to define ${methodName} on ${this._record.modelName}#${this._record.id}`,
-                  deprecations[methodName],
-                  {
-                    id: 'ember-data:record-lifecycle-event-methods',
-                    until: '4.0',
-                  }
-                );
-              }
-            });
-          }
         }
       }
       this._triggerDeferredTriggers();

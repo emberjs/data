@@ -665,6 +665,34 @@ module('unit/model - Model', function(hooks) {
         assert.equal(eventMethodArgs[1], 2);
       }
     );
+
+    testInDebug('defining record lifecycle event methods on a model class is deprecated', async function(assert) {
+      class EngineerModel extends Model {
+        becameError() {}
+        becameInvalid() {}
+        didCreate() {}
+        didDelete() {}
+        didLoad() {}
+        didUpdate() {}
+        ready() {}
+        rolledBack() {}
+      }
+
+      this.owner.register('model:engineer', EngineerModel);
+
+      let store = this.owner.lookup('service:store');
+
+      store.createRecord('engineer');
+
+      assert.expectDeprecation(/You defined a `becameError` method for model:engineer but lifecycle events/);
+      assert.expectDeprecation(/You defined a `becameInvalid` method for model:engineer but lifecycle events/);
+      assert.expectDeprecation(/You defined a `didCreate` method for model:engineer but lifecycle events/);
+      assert.expectDeprecation(/You defined a `didDelete` method for model:engineer but lifecycle events/);
+      assert.expectDeprecation(/You defined a `didLoad` method for model:engineer but lifecycle events/);
+      assert.expectDeprecation(/You defined a `didUpdate` method for model:engineer but lifecycle events/);
+      assert.expectDeprecation(/You defined a `ready` method for model:engineer but lifecycle events/);
+      assert.expectDeprecation(/You defined a `rolledBack` method for model:engineer but lifecycle events/);
+    });
   });
 
   module('Reserved Props', function() {
