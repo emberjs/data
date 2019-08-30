@@ -36,6 +36,7 @@ module.exports = {
     heimdall: true,
     Map: false,
     WeakMap: true,
+    Set: true,
   },
   env: {
     browser: true,
