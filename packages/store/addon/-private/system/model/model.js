@@ -1363,13 +1363,34 @@ if (DEBUG) {
     return isBasicDesc(instanceDesc) && lookupDescriptor(obj.constructor, keyName) === null;
   };
 
+  const INSTANCE_DEPRECATIONS = new WeakMap();
+  const DEPRECATED_LIFECYCLE_EVENT_METHODS = [
+    'becameError',
+    'becameInvalid',
+    'didCreate',
+    'didDelete',
+    'didLoad',
+    'didUpdate',
+    'ready',
+    'rolledBack',
+  ];
+
+  let lookupDeprecations = function lookupInstanceDeprecations(instance) {
+    let deprecations = INSTANCE_DEPRECATIONS.get(instance);
+
+    if (!deprecations) {
+      deprecations = new Set();
+      INSTANCE_DEPRECATIONS.set(instance, deprecations);
+    }
+
+    return deprecations;
+  };
+
   Model.reopen({
     init() {
       this._super(...arguments);
 
-      if (DEBUG) {
-        this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
-      }
+      this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
 
       if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
         throw new Error(
@@ -1393,6 +1414,24 @@ if (DEBUG) {
           `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: DS.attr('<type>')\` from ${this.constructor.toString()}`
         );
       }
+
+      let lifecycleDeprecations = lookupDeprecations(this.constructor);
+
+      DEPRECATED_LIFECYCLE_EVENT_METHODS.forEach(methodName => {
+        if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
+          deprecate(
+            `You defined a \`${methodName}\` method for ${this.constructor.toString()} but lifecycle events for models have been deprecated.`,
+            false,
+            {
+              id: 'ember-data:record-lifecycle-event-methods',
+              until: '4.0',
+              url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-lifecycle-event-methods',
+            }
+          );
+
+          lifecycleDeprecations.add(methodName);
+        }
+      });
     },
   });
 }
