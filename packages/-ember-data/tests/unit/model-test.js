@@ -607,11 +607,15 @@ module('unit/model - Model', function(hooks) {
         let record = store.createRecord('person');
 
         record.on('event!', F);
+
+        assert.expectDeprecation(/Called event! on person/);
+
         record.trigger('event!');
 
         await settled();
 
         assert.equal(count, 1, 'the event was triggered');
+
         record.trigger('event!');
 
         await settled();
