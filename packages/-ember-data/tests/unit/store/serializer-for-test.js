@@ -1,6 +1,7 @@
 import { setupTest } from 'ember-qunit';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
@@ -29,23 +30,37 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
     );
   });
 
-  test('Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer', function(assert) {
-    const ApplicationSerializer = DS.JSONSerializer.extend();
+  deprecatedTest(
+    'Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer',
+    {
+      id: 'ember-data:default-serializers',
+      until: '4.0',
+    },
+    function(assert) {
+      const ApplicationSerializer = DS.JSONSerializer.extend();
 
-    this.owner.register('serializer:application', ApplicationSerializer);
+      this.owner.register('serializer:application', ApplicationSerializer);
 
-    assert.ok(
-      store.serializerFor('person') instanceof ApplicationSerializer,
-      'serializer returned from serializerFor is an instance of ApplicationSerializer'
-    );
-  });
+      assert.ok(
+        store.serializerFor('person') instanceof ApplicationSerializer,
+        'serializer returned from serializerFor is an instance of ApplicationSerializer'
+      );
+    }
+  );
 
-  test('Calling serializerFor with a type that has not been registered and in an application that does not have an ApplicationSerializer looks up the default Ember Data serializer', function(assert) {
-    assert.ok(
-      store.serializerFor('person') instanceof DS.JSONSerializer,
-      'serializer returned from serializerFor is an instance of DS.JSONSerializer'
-    );
-  });
+  deprecatedTest(
+    'Calling serializerFor with a type that has not been registered and in an application that does not have an ApplicationSerializer looks up the default Ember Data serializer',
+    {
+      id: 'ember-data:default-serializers',
+      until: '4.0',
+    },
+    function(assert) {
+      assert.ok(
+        store.serializerFor('person') instanceof DS.JSONSerializer,
+        'serializer returned from serializerFor is an instance of DS.JSONSerializer'
+      );
+    }
+  );
 
   testInDebug('Calling serializerFor with a model class should assert', function(assert) {
     assert.expectAssertion(() => {
