@@ -2,33 +2,27 @@ import { defer, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import DS from 'ember-data';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { module, test } from 'qunit';
 
-var env, Person;
-
 module('integration/references/record', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend({
+    const Person = DS.Model.extend({
       name: DS.attr(),
     });
 
-    env = setupStore({
-      adapter: JSONAPIAdapter.extend(),
-      serializer: JSONAPISerializer.extend(),
-      person: Person,
-    });
-  });
-
-  hooks.afterEach(function() {
-    run(env.store, 'unloadAll');
-    run(env.container, 'destroy');
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', JSONAPIAdapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('a RecordReference can be retrieved via store.getReference(type, id)', function(assert) {
-    var recordReference = env.store.getReference('person', 1);
+    let store = this.owner.lookup('service:store');
+    let recordReference = store.getReference('person', 1);
 
     assert.equal(recordReference.remoteType(), 'identity');
     assert.equal(recordReference.type, 'person');
@@ -38,8 +32,11 @@ module('integration/references/record', function(hooks) {
   test('push(object)', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+    let Person = store.modelFor('person');
+
     var push;
-    var recordReference = env.store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
     run(function() {
       push = recordReference.push({
@@ -68,9 +65,12 @@ module('integration/references/record', function(hooks) {
   test('push(promise)', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+    let Person = store.modelFor('person');
+
     var push;
     var deferred = defer();
-    var recordReference = env.store.getReference('person', 1);
+    var recordReference = store.getReference('person', 1);
 
     run(function() {
       push = recordReference.push(deferred.promise);
@@ -101,14 +101,17 @@ module('integration/references/record', function(hooks) {
   });
 
   test('value() returns null when not yet loaded', function(assert) {
-    var recordReference = env.store.getReference('person', 1);
+    let store = this.owner.lookup('service:store');
+    let recordReference = store.getReference('person', 1);
     assert.strictEqual(recordReference.value(), null);
   });
 
   test('value() returns the record when loaded', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     var person;
     run(function() {
-      person = env.store.push({
+      person = store.push({
         data: {
           type: 'person',
           id: 1,
@@ -116,14 +119,17 @@ module('integration/references/record', function(hooks) {
       });
     });
 
-    var recordReference = env.store.getReference('person', 1);
+    var recordReference = store.getReference('person', 1);
     assert.equal(recordReference.value(), person);
   });
 
   test('load() fetches the record', function(assert) {
     var done = assert.async();
 
-    env.adapter.findRecord = function(store, type, id) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id) {
       return resolve({
         data: {
           id: 1,
@@ -135,7 +141,7 @@ module('integration/references/record', function(hooks) {
       });
     };
 
-    var recordReference = env.store.getReference('person', 1);
+    var recordReference = store.getReference('person', 1);
 
     run(function() {
       recordReference.load().then(function(record) {
@@ -151,20 +157,23 @@ module('integration/references/record', function(hooks) {
     var deferred = defer();
     var count = 0;
 
-    env.adapter.shouldReloadRecord = function() {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.shouldReloadRecord = function() {
       return false;
     };
-    env.adapter.shouldBackgroundReloadRecord = function() {
+    adapter.shouldBackgroundReloadRecord = function() {
       return false;
     };
-    env.adapter.findRecord = function(store, type, id) {
+    adapter.findRecord = function(store, type, id) {
       count++;
       assert.equal(count, 1);
 
       return deferred.promise;
     };
 
-    var recordReference = env.store.getReference('person', 1);
+    var recordReference = store.getReference('person', 1);
 
     run(function() {
       recordReference.load();
@@ -197,8 +206,11 @@ module('integration/references/record', function(hooks) {
   test('reload() loads the record if not yet loaded', function(assert) {
     var done = assert.async();
 
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
     var count = 0;
-    env.adapter.findRecord = function(store, type, id) {
+    adapter.findRecord = function(store, type, id) {
       count++;
       assert.equal(count, 1);
 
@@ -213,7 +225,7 @@ module('integration/references/record', function(hooks) {
       });
     };
 
-    var recordReference = env.store.getReference('person', 1);
+    var recordReference = store.getReference('person', 1);
 
     run(function() {
       recordReference.reload().then(function(record) {
@@ -227,7 +239,10 @@ module('integration/references/record', function(hooks) {
   test('reload() fetches the record', function(assert) {
     var done = assert.async();
 
-    env.adapter.findRecord = function(store, type, id) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id) {
       return resolve({
         data: {
           id: 1,
@@ -240,7 +255,7 @@ module('integration/references/record', function(hooks) {
     };
 
     run(function() {
-      env.store.push({
+      store.push({
         data: {
           type: 'person',
           id: 1,
@@ -251,7 +266,7 @@ module('integration/references/record', function(hooks) {
       });
     });
 
-    var recordReference = env.store.getReference('person', 1);
+    var recordReference = store.getReference('person', 1);
 
     run(function() {
       recordReference.reload().then(function(record) {

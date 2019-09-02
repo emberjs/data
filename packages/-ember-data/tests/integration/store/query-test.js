@@ -1,5 +1,5 @@
 import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { setupTest } from 'ember-qunit';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RSVP from 'rsvp';
 
@@ -7,28 +7,23 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-var Person, store, env;
-
 module('integration/store/query', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
-    Person = DS.Model.extend();
+    const Person = DS.Model.extend();
 
-    env = setupStore({
-      serializer: JSONAPISerializer.extend(),
-      person: Person,
-    });
-
-    store = env.store;
-  });
-
-  hooks.afterEach(function() {
-    run(store, 'destroy');
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', DS.Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('meta is proxied correctly on the PromiseArray', function(assert) {
+    let store = this.owner.lookup('service:store');
+
     let defered = RSVP.defer();
 
-    env.owner.register(
+    this.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         query(store, type, query) {
