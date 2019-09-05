@@ -293,6 +293,7 @@ jobs:
       - script: |
           yarn test-external:storefront
         displayName: 'External: storefront'
+        condition: always()
 
       #  - script: |
       #      yarn test-external:factory-guy
@@ -301,19 +302,26 @@ jobs:
       - script: |
           yarn test-external:ember-resource-metadata
         displayName: 'External: ember-resource-metadata'
+        condition: always()
 
       - script: |
           yarn test-external:ember-data-relationship-tracker
         displayName: 'External: ember-data-relationship-tracker'
+        condition: always()
 
       - script: |
           yarn test-external:model-fragments
+          exit 0
         displayName: 'External: model-fragments'
+        condition: always()
 
       - script: |
           yarn test-external:ember-data-change-tracker
+          exit 0
         displayName: 'External: ember-data-change-tracker'
+        condition: always()
 
       - script: |
           yarn test-external:ember-m3
         displayName: 'External: ember-m3'
+        condition: always()
