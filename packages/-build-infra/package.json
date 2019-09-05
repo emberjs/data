@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/-build-infra",
-  "version": "3.14.0-alpha.1",
+  "version": "3.14.0-alpha.2",
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [],
   "repository": "",
@@ -14,7 +14,7 @@
     "test:node": "mocha"
   },
   "dependencies": {
-    "@ember-data/canary-features": "3.14.0-alpha.1",
+    "@ember-data/canary-features": "3.14.0-alpha.2",
     "babel-plugin-debug-macros": "^0.3.3",
     "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^3.0.0",
