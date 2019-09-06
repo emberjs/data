@@ -3,11 +3,9 @@ const SilentError = require('silent-error');
 const pathUtil = require('ember-cli-path-utils');
 const fs = require('fs');
 const path = require('path');
-const isModuleUnificationProject = require('./module-unification').isModuleUnificationProject;
 
 module.exports = function(type, baseClass, options) {
   let isAddon = options.inRepoAddon || options.project.isEmberCLIAddon();
-  let isModuleUnification = isModuleUnificationProject(options.project);
 
   let entityName = options.entity.name;
   let relativePath = pathUtil.getRelativePath(options.entity.name);
@@ -16,12 +14,7 @@ module.exports = function(type, baseClass, options) {
     relativePath = pathUtil.getRelativePath(options.podPath + options.entity.name);
   }
 
-  let applicationEntityPath;
-  if (isModuleUnification) {
-    applicationEntityPath = path.join(options.project.root, 'src', 'data', 'models', 'application', `${type}.js`);
-  } else {
-    applicationEntityPath = path.join(options.project.root, 'app', `${type}s`, 'application.js');
-  }
+  let applicationEntityPath = path.join(options.project.root, 'app', `${type}s`, 'application.js');
 
   let hasApplicationEntity = fs.existsSync(applicationEntityPath);
   if (!isAddon && !options.baseClass && entityName !== 'application' && hasApplicationEntity) {
@@ -41,11 +34,6 @@ module.exports = function(type, baseClass, options) {
     let baseClassPath = options.baseClass;
     baseClass = stringUtil.classify(baseClassPath.replace('/', '-'));
     baseClass = baseClass + stringUtil.classify(type);
-
-    if (isModuleUnification) {
-      relativePath = `../${options.baseClass}/`;
-      baseClassPath = type;
-    }
 
     importStatement = `import ${baseClass} from '${relativePath}${baseClassPath}';`;
   } else {

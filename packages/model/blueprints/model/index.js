@@ -1,9 +1,6 @@
 const inflection = require('inflection');
 const stringUtils = require('ember-cli-string-utils');
 const EOL = require('os').EOL;
-const isModuleUnificationProject = require('@ember-data/-build-infra/src/utilities/module-unification')
-  .isModuleUnificationProject;
-const path = require('path');
 const useEditionDetector = require('@ember-data/-build-infra/src/utilities/edition-detector');
 
 module.exports = useEditionDetector({
@@ -12,22 +9,6 @@ module.exports = useEditionDetector({
   anonymousOptions: ['name', 'attr:type'],
 
   root: __dirname,
-
-  fileMapTokens(options) {
-    if (isModuleUnificationProject(this.project)) {
-      return {
-        __root__() {
-          return 'src';
-        },
-        __path__(options) {
-          return path.join('data', 'models', options.dasherizedModuleName);
-        },
-        __name__() {
-          return 'model';
-        },
-      };
-    }
-  },
 
   locals(options) {
     let attrs = [];
