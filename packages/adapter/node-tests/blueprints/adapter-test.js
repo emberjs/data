@@ -136,238 +136,71 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
     });
   });
 
-  describe('module unification', function() {
-    beforeEach(function() {
-      return emberNew({ isModuleUnification: true });
-    });
-
-    it('adapter', function() {
-      let args = ['adapter', 'foo'];
-
-      return emberGenerateDestroy(
-        args,
-        _file => {
-          expect(_file('src/data/models/foo/adapter.js'))
-            .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
-            .to.contain('export default JSONAPIAdapter.extend({');
-
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-        },
-        { isModuleUnification: true }
-      );
-    });
-
-    it('adapter extends application adapter if it exists', function() {
-      let args = ['adapter', 'foo'];
-
-      return emberGenerate(['adapter', 'application'], { isModuleUnification: true }).then(() =>
-        emberGenerateDestroy(
-          args,
-          _file => {
-            expect(_file('src/data/models/foo/adapter.js'))
-              .to.contain("import ApplicationAdapter from '../application/adapter';")
-              .to.contain('export default ApplicationAdapter.extend({');
-
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-          },
-          { isModuleUnification: true }
-        )
-      );
-    });
-
-    it('adapter with --base-class', function() {
-      let args = ['adapter', 'foo', '--base-class=bar'];
-
-      return emberGenerateDestroy(
-        args,
-        _file => {
-          expect(_file('src/data/models/foo/adapter.js'))
-            .to.contain("import BarAdapter from '../bar/adapter';")
-            .to.contain('export default BarAdapter.extend({');
-
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-        },
-        { isModuleUnification: true }
-      );
-    });
-
-    it('adapter when is named "application"', function() {
-      let args = ['adapter', 'application'];
-
-      return emberGenerateDestroy(
-        args,
-        _file => {
-          expect(_file('src/data/models/application/adapter.js'))
-            .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
-            .to.contain('export default JSONAPIAdapter.extend({');
-
-          expect(_file('src/data/models/application/adapter-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/application-default.js')
-          );
-        },
-        { isModuleUnification: true }
-      );
-    });
-
-    it('adapter-test', function() {
-      let args = ['adapter-test', 'foo'];
-
-      return emberGenerateDestroy(
-        args,
-        _file => {
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-        },
-        { isModuleUnification: true }
-      );
-    });
-
-    describe('adapter-test with ember-cli-qunit@4.1.0', function() {
-      beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
-        generateFakePackageManifest('ember-cli-qunit', '4.1.0');
-      });
-
-      it('adapter-test-test foo', function() {
-        return emberGenerateDestroy(
-          ['adapter-test', 'foo'],
-          _file => {
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-              fixture(__dirname, 'adapter-test/foo-default.js')
-            );
-          },
-          { isModuleUnification: true }
-        );
-      });
-    });
-
-    describe('with ember-cli-mocha v0.12+', function() {
-      beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
-        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
-      });
-
-      it('adapter-test for mocha v0.12+', function() {
-        let args = ['adapter-test', 'foo'];
-
-        return emberGenerateDestroy(
-          args,
-          _file => {
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-              fixture(__dirname, 'adapter-test/foo-mocha-0.12.js')
-            );
-          },
-          { isModuleUnification: true }
-        );
-      });
-    });
-
-    describe('with ember-mocha v0.14+', function() {
-      beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-mocha', dev: true }]);
-        generateFakePackageManifest('ember-mocha', '0.14.0');
-      });
-
-      it('adapter-test for mocha v0.14+', function() {
-        let args = ['adapter-test', 'foo'];
-
-        return emberGenerateDestroy(
-          args,
-          _file => {
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-              fixture(__dirname, 'adapter-test/mocha-rfc232.js')
-            );
-          },
-          { isModuleUnification: true }
-        );
-      });
-    });
-  });
-
   describe('octane', function() {
     enableOctane();
 
     beforeEach(function() {
-      return emberNew({ isModuleUnification: true });
+      return emberNew();
     });
 
     it('adapter', function() {
       let args = ['adapter', 'foo'];
 
-      return emberGenerateDestroy(
-        args,
-        _file => {
-          expect(_file('src/data/models/foo/adapter.js'))
-            .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
-            .to.contain('export default class FooAdapter extends JSONAPIAdapter {');
+      return emberGenerateDestroy(args, _file => {
+        expect(_file('app/adapters/foo.js'))
+          .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
+          .to.contain('export default class FooAdapter extends JSONAPIAdapter {');
 
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-        },
-        { isModuleUnification: true }
-      );
+        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
+      });
     });
 
     it('adapter extends application adapter if it exists', function() {
       let args = ['adapter', 'foo'];
 
-      return emberGenerate(['adapter', 'application'], { isModuleUnification: true }).then(() =>
-        emberGenerateDestroy(
-          args,
-          _file => {
-            expect(_file('src/data/models/foo/adapter.js'))
-              .to.contain("import ApplicationAdapter from '../application/adapter';")
-              .to.contain('export default class FooAdapter extends ApplicationAdapter {');
+      return emberGenerate(['adapter', 'application']).then(() =>
+        emberGenerateDestroy(args, _file => {
+          expect(_file('app/adapters/foo.js'))
+            .to.contain("import ApplicationAdapter from './application';")
+            .to.contain('export default class FooAdapter extends ApplicationAdapter {');
 
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-          },
-          { isModuleUnification: true }
-        )
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
+        })
       );
     });
 
     it('adapter with --base-class', function() {
       let args = ['adapter', 'foo', '--base-class=bar'];
 
-      return emberGenerateDestroy(
-        args,
-        _file => {
-          expect(_file('src/data/models/foo/adapter.js'))
-            .to.contain("import BarAdapter from '../bar/adapter';")
-            .to.contain('export default class FooAdapter extends BarAdapter {');
+      return emberGenerateDestroy(args, _file => {
+        expect(_file('app/adapters/foo.js'))
+          .to.contain("import BarAdapter from './bar';")
+          .to.contain('export default class FooAdapter extends BarAdapter {');
 
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-        },
-        { isModuleUnification: true }
-      );
+        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
+      });
     });
 
     it('adapter when is named "application"', function() {
       let args = ['adapter', 'application'];
 
-      return emberGenerateDestroy(
-        args,
-        _file => {
-          expect(_file('src/data/models/application/adapter.js'))
-            .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
-            .to.contain('export default class ApplicationAdapter extends JSONAPIAdapter {');
+      return emberGenerateDestroy(args, _file => {
+        expect(_file('app/adapters/application.js'))
+          .to.contain(`import JSONAPIAdapter from '@ember-data/adapter/json-api';`)
+          .to.contain('export default class ApplicationAdapter extends JSONAPIAdapter {');
 
-          expect(_file('src/data/models/application/adapter-test.js')).to.equal(
-            fixture(__dirname, 'adapter-test/application-default.js')
-          );
-        },
-        { isModuleUnification: true }
-      );
+        expect(_file('tests/unit/adapters/application-test.js')).to.equal(
+          fixture(__dirname, 'adapter-test/application-default.js')
+        );
+      });
     });
 
     it('adapter-test', function() {
       let args = ['adapter-test', 'foo'];
 
-      return emberGenerateDestroy(
-        args,
-        _file => {
-          expect(_file('src/data/models/foo/adapter-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
-        },
-        { isModuleUnification: true }
-      );
+      return emberGenerateDestroy(args, _file => {
+        expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
+      });
     });
 
     describe('adapter-test with ember-cli-qunit@4.1.0', function() {
@@ -377,15 +210,9 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       });
 
       it('adapter-test-test foo', function() {
-        return emberGenerateDestroy(
-          ['adapter-test', 'foo'],
-          _file => {
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-              fixture(__dirname, 'adapter-test/foo-default.js')
-            );
-          },
-          { isModuleUnification: true }
-        );
+        return emberGenerateDestroy(['adapter-test', 'foo'], _file => {
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/foo-default.js'));
+        });
       });
     });
 
@@ -398,15 +225,11 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       it('adapter-test for mocha v0.12+', function() {
         let args = ['adapter-test', 'foo'];
 
-        return emberGenerateDestroy(
-          args,
-          _file => {
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-              fixture(__dirname, 'adapter-test/foo-mocha-0.12.js')
-            );
-          },
-          { isModuleUnification: true }
-        );
+        return emberGenerateDestroy(args, _file => {
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
+            fixture(__dirname, 'adapter-test/foo-mocha-0.12.js')
+          );
+        });
       });
     });
 
@@ -419,15 +242,9 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       it('adapter-test for mocha v0.14+', function() {
         let args = ['adapter-test', 'foo'];
 
-        return emberGenerateDestroy(
-          args,
-          _file => {
-            expect(_file('src/data/models/foo/adapter-test.js')).to.equal(
-              fixture(__dirname, 'adapter-test/mocha-rfc232.js')
-            );
-          },
-          { isModuleUnification: true }
-        );
+        return emberGenerateDestroy(args, _file => {
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/mocha-rfc232.js'));
+        });
       });
     });
   });
