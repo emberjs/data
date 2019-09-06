@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "babel-plugin-feature-flags": "^0.3.1",
-    "babel-plugin-filter-imports": "^2.0.4",
+    "babel-plugin-filter-imports": "^3.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-debug": "^0.6.5",
     "broccoli-file-creator": "^2.1.1",
