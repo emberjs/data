@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "3.11.4",
+  "version": "3.11.5",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
@@ -22,8 +22,8 @@
     "prepublishOnly": "ember build --environment=production"
   },
   "dependencies": {
-    "@ember-data/-build-infra": "^3.11.4",
-    "@ember-data/store": "^3.11.4",
+    "@ember-data/-build-infra": "3.11.5",
+    "@ember-data/store": "3.11.5",
     "ember-cli-babel": "^7.7.3",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
