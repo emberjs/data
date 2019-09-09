@@ -32,6 +32,8 @@ const semver = require('semver');
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
+const PreviousReleasePattern = /^release-(\d)-(\d+)$/;
+let isBugfixRelease = false;
 
 function cleanProject() {
   execWithLog(
@@ -65,9 +67,15 @@ function getConfig() {
     throw new Error(`Incorrect usage of publish:\n\tpublish <channel>\n\nNo channel was specified`);
   }
   if (!['release', 'beta', 'canary', 'lts'].includes(mainOptions.channel)) {
-    throw new Error(
-      `Incorrect usage of publish:\n\tpublish <channel>\n\nChannel must be one of release|beta|canary|lts. Received ${mainOptions.channel}`
-    );
+    const channel = mainOptions.channel;
+    let potentialRelease = !!channel && channel.match(PreviousReleasePattern);
+    if (potentialRelease && Array.isArray(potentialRelease)) {
+      isBugfixRelease = true;
+    } else {
+      throw new Error(
+        `Incorrect usage of publish:\n\tpublish <channel>\n\nChannel must be one of release|beta|canary|lts. Received ${mainOptions.channel}`
+      );
+    }
   }
 
   const optionsDefinitions = [
@@ -87,6 +95,10 @@ function getConfig() {
   ];
   const options = cliArgs(optionsDefinitions, { argv });
   const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
+
+  if (isBugfixRelease && (options.bumpMajor || options.bumpMinor)) {
+    throw new Error(`Cannot bump major or minor version of a past release`);
+  }
 
   if (options.bumpMinor && options.bumpMajor) {
     throw new Error(`Cannot bump both major and minor versions simultaneously`);
