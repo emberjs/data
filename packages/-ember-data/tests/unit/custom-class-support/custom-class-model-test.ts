@@ -423,5 +423,138 @@ if (CUSTOM_MODEL_CLASS) {
         'serializes record correctly'
       );
     });
+
+    test('relationshipReferenceFor belongsTo', async function(assert) {
+      assert.expect(3);
+      this.owner.register('service:store', CustomStore);
+      store = this.owner.lookup('service:store');
+      let schema = {
+        attributesDefinitionFor(modelName: string) {
+          if (modelName === 'person') {
+            return {
+              name: {
+                type: 'string',
+                key: 'name',
+                name: 'name',
+              },
+            };
+          } else if (modelName === 'house') {
+            return {
+              address: {
+                type: 'string',
+              },
+            };
+          }
+        },
+        relationshipsDefinitionFor(modelName: string) {
+          if (modelName === 'person') {
+            return {
+              house: {
+                type: 'house',
+                kind: 'belongsTo',
+                inverse: null,
+                options: {},
+                key: 'house'
+              },
+            };
+          } else {
+            return {};
+          }
+        },
+        doesTypeExist() {
+          return true;
+        },
+      };
+      store.registerSchemaDefinitionService(schema);
+      store.push({
+        data: {
+          type: 'house',
+          id: '1',
+          attributes: { address: 'boat' }
+        },
+      });
+      store.push({
+        data: {
+          type: 'person',
+          id: '7',
+          attributes: { name: 'chris' },
+          relationships: { house: { data: { type: 'house', id: '1' } } },
+        },
+      });
+      let relationship = store.relationshipReferenceFor({ type: 'person', id: '7' }, 'house');
+      assert.equal(relationship.id(), '1', 'house relationship id found');
+      assert.equal(relationship.type, 'house', 'house relationship type found');
+      assert.equal(relationship.parent.id(), '7', 'house relationship parent found');
+    });
+
+    test('relationshipReferenceFor hasMany', async function(assert) {
+      assert.expect(3);
+      this.owner.register('service:store', CustomStore);
+      store = this.owner.lookup('service:store');
+      let schema = {
+        attributesDefinitionFor(modelName: string) {
+          if (modelName === 'person') {
+            return {
+              name: {
+                type: 'string',
+                key: 'name',
+                name: 'name',
+              },
+            };
+          } else if (modelName === 'house') {
+            return {
+              address: {
+                type: 'string',
+              },
+            };
+          }
+        },
+        relationshipsDefinitionFor(modelName: string) {
+          if (modelName === 'person') {
+            return {
+              house: {
+                type: 'house',
+                kind: 'hasMany',
+                inverse: null,
+                options: {},
+                key: 'house'
+              },
+            };
+          } else {
+            return {};
+          }
+        },
+        doesTypeExist() {
+          return true;
+        },
+      };
+      store.registerSchemaDefinitionService(schema);
+      store.push({
+        data: {
+          type: 'house',
+          id: '1',
+          attributes: { address: 'boat' }
+        },
+      });
+      store.push({
+        data: {
+          type: 'person',
+          id: '7',
+          attributes: { name: 'chris' },
+          relationships: {
+            house: {
+              data: [
+                { type: 'house', id: '1' },
+                { type: 'house', id: '2' }
+              ]
+            }
+          }
+        }
+      });
+      let relationship = store.relationshipReferenceFor({ type: 'person', id: '7' }, 'house');
+      assert.deepEqual(relationship.ids(), ['1', '2'], 'relationship found');
+      assert.equal(relationship.type, 'house', 'house relationship type found');
+      assert.equal(relationship.parent.id(), '7', 'house relationship parent found');
+    });
   });
 }
