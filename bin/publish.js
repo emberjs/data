@@ -154,7 +154,8 @@ function assertGitIsClean() {
           chalk.grey(' to ignore this warning and publish anyway\n') +
           chalk.yellow(
             '⚠️  Publishing from an unsynced working state may result in a broken release ⚠️'
-          )
+          ) +
+          chalk.grey(`Status:\n${status}`)
       );
       process.exit(1);
     }
