@@ -132,7 +132,7 @@ function assertGitIsClean() {
           chalk.yellow(
             '⚠️  Publishing from an unclean working state may result in a broken release ⚠️\n\n'
           ) +
-          chalk.grey(status)
+          chalk.grey(`Status:\n${status}`)
       );
       process.exit(1);
     }
