@@ -14,6 +14,7 @@ import recordDataFor from '../record-data-for';
  author to perform meta-operations on a has-many relationship.
 
  @class HasManyReference
+ @extends Reference
  */
 export default class HasManyReference extends Reference {
   constructor(store, parentInternalModel, hasManyRelationship, key) {
