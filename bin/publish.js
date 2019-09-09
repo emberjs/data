@@ -243,6 +243,9 @@ function retrieveNextVersion() {
     // else this is a new nightly canary
     let bumpType = options.bumpMajor ? 'premajor' : options.bumpMinor ? 'preminor' : 'prerelease';
     v = semver.inc(options.currentVersion, bumpType, 'alpha');
+  } else if (isBugfixRelease) {
+    let bumpType = 'patch';
+    v = semver.inc(options.currentVersion, bumpType);
   }
 
   return v;
