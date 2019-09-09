@@ -626,6 +626,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     deprecate('deprecate toJSON', false, {
       id: 'ember-data:model.toJSON',
       until: '4.0',
+      url: 'https://github.com/ember-learn/deprecation-app/tree/master/content/ember-data/v3/toJSON.md'
     });
     let serializer = this._internalModel.store.serializerFor('-default');
     let snapshot = this._internalModel.createSnapshot();

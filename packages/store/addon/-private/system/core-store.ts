@@ -3344,9 +3344,10 @@ abstract class CoreStore extends Service {
     let adapter = this.adapterFor(modelName);
     let serializerName = get(adapter, 'defaultSerializer');
 
-    deprecate('deprecate adapter.serializer and adapter.defaultSerializer fallbacks', !serializerName, {
+    deprecate('deprecate adapter.serializer and adapter.defaultSerializer fallbacks in store.serializerFor', !serializerName, {
       id: 'ember-data:default-serializers',
       until: '4.0',
+      url: 'https://github.com/ember-learn/deprecation-app/tree/master/content/ember-data/v3/default-serializer.md'
     });
 
     serializer = serializerName
@@ -3394,6 +3395,7 @@ abstract class CoreStore extends Service {
     deprecate('deprecate -default serializer fallback in store.serializerFor', !serializer, {
       id: 'ember-data:default-serializers',
       until: '4.0',
+      url: 'https://github.com/ember-learn/deprecation-app/tree/master/content/ember-data/v3/default-serializer.md'
     });
 
     assert(
@@ -3495,6 +3497,7 @@ defineProperty(
       {
         id: 'ember-data:default-adapter',
         until: '4.0',
+        url: 'https://github.com/ember-learn/deprecation-app/tree/master/content/ember-data/v3/default-adapter.md'
       }
     );
     let adapter = this.adapter || '-json-api';
