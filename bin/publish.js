@@ -130,8 +130,9 @@ function assertGitIsClean() {
           chalk.white('--force') +
           chalk.grey(' to ignore this warning and publish anyway\n') +
           chalk.yellow(
-            '⚠️  Publishing from an unclean working state may result in a broken release ⚠️'
-          )
+            '⚠️  Publishing from an unclean working state may result in a broken release ⚠️\n\n'
+          ) +
+          chalk.grey(status)
       );
       process.exit(1);
     }
