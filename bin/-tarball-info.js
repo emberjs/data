@@ -137,7 +137,7 @@ packages.forEach(localName => {
   } catch (e) {
     return;
   }
-  const version = `${pkgInfo.version}.${CurrentSha}`;
+  const version = `${pkgInfo.version}-sha.${CurrentSha}`;
   const tarballName = `${convertPackageNameToTarballName(pkgInfo.name)}-${version}.tgz`;
   OurPackages[pkgInfo.name] = {
     location: pkgDir,
@@ -167,7 +167,7 @@ function generatePackageReference(version, tarballName) {
 function insertTarballsToPackageJson(fileLocation, options = {}) {
   const pkgInfo = require(fileLocation);
   if (options.isRelativeTarball) {
-    pkgInfo.version = `${pkgInfo.version}.${CurrentSha}`;
+    pkgInfo.version = `${pkgInfo.version}-sha.${CurrentSha}`;
   }
 
   AllPackages.forEach(packageName => {
