@@ -25,7 +25,7 @@
     "@ember-data/canary-features": "3.14.0-alpha.2",
     "ember-cli-babel": "^7.11.0",
     "ember-cli-path-utils": "^1.0.0",
-    "ember-cli-typescript": "^2.0.2",
+    "ember-cli-typescript": "^3.0.0",
     "heimdalljs": "^0.3.0"
   },
   "devDependencies": {
