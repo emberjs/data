@@ -12,6 +12,7 @@ import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api'
    addon author to perform meta-operations on a record.
 
    @class RecordReference
+   @extends Reference
 */
 export default class RecordReference extends Reference {
   public type = this.internalModel.modelName;
