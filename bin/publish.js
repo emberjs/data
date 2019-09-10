@@ -33,6 +33,7 @@ const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
 const PreviousReleasePattern = /^release-(\d)-(\d+)$/;
+
 let isBugfixRelease = false;
 
 function cleanProject() {
