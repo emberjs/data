@@ -131,10 +131,6 @@ function convertPackageNameToTarballName(str) {
 packages.forEach(localName => {
   const pkgDir = path.join(packagesDir, localName);
   const pkgPath = path.join(pkgDir, 'package.json');
-<<<<<<< HEAD
-  const pkgInfo = require(pkgPath);
-  const version = `${pkgInfo.version}.${CurrentSha}`;
-=======
   let pkgInfo;
   try {
     pkgInfo = require(pkgPath);
@@ -142,7 +138,6 @@ packages.forEach(localName => {
     return;
   }
   const version = `${pkgInfo.version}-sha.${CurrentSha}`;
->>>>>>> d7955981... [BUGFIX] ensure commit based versioning passes semver
   const tarballName = `${convertPackageNameToTarballName(pkgInfo.name)}-${version}.tgz`;
   OurPackages[pkgInfo.name] = {
     location: pkgDir,
