@@ -14,6 +14,7 @@ import JSONSerializer from '@ember-data/serializer/json';
 import { attr as DSattr } from '@ember-data/model';
 import { recordDataFor } from 'ember-data/-private';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
+import { gte } from 'ember-compatibility-helpers';
 
 module('unit/model - Model', function(hooks) {
   setupTest(hooks);
@@ -1470,6 +1471,42 @@ module('unit/model - Model', function(hooks) {
 
       await cat.save();
     });
+
+    if (gte('3.10.0')) {
+      test('@attr decorator works without parens', async function(assert) {
+        assert.expect(1);
+        let cat;
+
+        class Mascot extends Model {
+          @attr name;
+        }
+
+        this.owner.register('model:mascot', Mascot);
+        adapter.updateRecord = function() {
+          assert.deepEqual(cat.changedAttributes(), {
+            name: ['Argon', 'Helia'],
+          });
+
+          return { data: { id: '1', type: 'mascot' } };
+        };
+
+        cat = store.push({
+          data: {
+            type: 'mascot',
+            id: '1',
+            attributes: {
+              name: 'Argon',
+            },
+          },
+        });
+
+        cat.setProperties({
+          name: 'Helia',
+        });
+
+        await cat.save();
+      });
+    }
   });
 
   module('Misc', function() {
