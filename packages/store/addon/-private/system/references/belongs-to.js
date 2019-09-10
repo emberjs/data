@@ -9,8 +9,8 @@ import recordDataFor from '../record-data-for';
 */
 
 /**
- A BelongsToReference is a low-level API that allows users and
- addon author to perform meta-operations on a belongs-to
+ A `BelongsToReference` is a low-level API that allows users and
+ addon authors to perform meta-operations on a belongs-to
  relationship.
 
  @class BelongsToReference
@@ -211,7 +211,7 @@ export default class BelongsToReference extends Reference {
   }
 
   /**
-   Loads a record in a belongs to relationship if it is not already
+   Loads a record in a belongs-to relationship if it is not already
    loaded. If the relationship is already loaded this method does not
    trigger a new load.
 

@@ -8,10 +8,11 @@ import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api'
 */
 
 /**
-   An RecordReference is a low-level API that allows users and
-   addon author to perform meta-operations on a record.
+   A `RecordReference` is a low-level API that allows users and
+   addon authors to perform meta-operations on a record.
 
    @class RecordReference
+   @extends Reference
 */
 export default class RecordReference extends Reference {
   public type = this.internalModel.modelName;
@@ -41,9 +42,9 @@ export default class RecordReference extends Reference {
   }
 
   /**
-     How the reference will be looked up when it is loaded: Currently
-     this always return `identity` to signifying that a record will be
-     loaded by the `type` and `id`.
+     How the reference will be looked up when it is loaded. Currently
+     this always returns `identity` to signify that a record will be
+     loaded by its `type` and `id`.
 
      Example
 
