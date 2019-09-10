@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
 */
-export const IS_IDENTIFIER = Symbol('is-identifier');
+export const IDENTIFIERS = new WeakMap();
 
 // provided for additional debuggability
 export const DEBUG_CLIENT_ORIGINATED = Symbol('record-originated-on-client');
@@ -32,7 +32,6 @@ export interface RecordIdentifier extends Identifier {
  * @internal
  */
 export interface StableIdentifier extends Identifier {
-  [IS_IDENTIFIER]: true;
   [DEBUG_IDENTIFIER_BUCKET]?: string;
 }
 
