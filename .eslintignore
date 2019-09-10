@@ -3,6 +3,7 @@ packages/*/blueprints/*/*files/
 vendor/
 
 # compiled output
+/packages/-ember-data/docs/
 dist
 tmp
 

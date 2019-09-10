@@ -72,6 +72,10 @@ jobs:
       install: yarn install
       script: yarn test:node
 
+    - name: 'Docs Tests'
+      install: yarn install
+      script: yarn test:docs
+
     # runs tests against each supported Ember version
     - stage: ember version tests
       name: 'Ember LTS 3.8'

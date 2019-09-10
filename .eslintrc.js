@@ -88,6 +88,14 @@ module.exports = {
         mocha: true,
       },
     },
+    {
+      files: ['packages/-ember-data/node-tests/docs/*.js'],
+
+      env: {
+        qunit: true,
+        es6: false,
+      },
+    },
 
     // bin files
     {

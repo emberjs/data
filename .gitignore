@@ -1,6 +1,8 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
+/docs/
+/packages/-ember-data/docs/
 dist
 tmp
 
@@ -35,7 +37,6 @@ benchmarks/results/*.json
 
 .github-upload-token
 *.swp
-docs/
 .metadata_never_index
 
 DEBUG
