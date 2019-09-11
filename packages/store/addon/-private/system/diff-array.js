@@ -2,7 +2,7 @@
   @module @ember-data/store
 */
 
-/*
+/**
   @method diffArray
   @private
   @param {Array} oldArray the old array

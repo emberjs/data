@@ -7,11 +7,12 @@
     "extension": ".js,.ts",
     "paths": [
       "addon",
-      "node_modules/ember-inflector/addon",
+      "../../node_modules/ember-inflector/addon",
       "../adapter/addon",
       "../model/addon",
       "../serializer/addon",
-      "../store/addon"
+      "../store/addon",
+      "../store/addon/-private/system"
     ],
     "exclude": "vendor",
     "outdir": "docs"

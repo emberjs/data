@@ -155,13 +155,10 @@ module.exports = {
     "recordWasInvalid",
     "recordWasError",
     "setRecordId",
-    "_internalModelsFor",
     "_load",
     "modelFor",
     "pushPayload",
     "normalize",
-    "_buildInternalModel",
-    "_removeFromIdMap",
     "adapterFor",
     "serializerFor",
     "VERSION",
@@ -251,6 +248,16 @@ module.exports = {
     "singular",
     "uncountable",
     "irregular",
-    "inflect"
+    "inflect",
+    "columnNameToDesc",
+    "columnsForType",
+    "detect",
+    "getFilters",
+    "getRecordColor",
+    "getRecordColumnValues",
+    "getRecordFilterValues",
+    "getRecordKeywords",
+    "getRecords",
+    "observerRecord"
   ]
 }
