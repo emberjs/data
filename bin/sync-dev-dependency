@@ -27,10 +27,21 @@ function execWithLog(command) {
   return shellSync(command, { stdio: [0, 1, 2] });
 }
 
+// Remove this ponyfill once fromEntries is supported in min version of node.js
+if (!Object.fromEntries) {
+  Object.fromEntries = require('fromentries');
+}
+
 // gather deps not yet in root
 let rootPackage = require(rootJson);
-const rootUpdates = {};
+let rootUpdates = {};
 const packageJsons = {};
+
+// Write a json object to file
+// Add \n to end of file in accordance with .editorconfig
+function writeJsonToFile(path, json) {
+  return fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');
+}
 
 // hoist anything needed to root
 packages.forEach(localName => {
@@ -81,9 +92,15 @@ if (Object.keys(rootUpdates).length > 0) {
   // grab latest in case we wrote in the previous step
   delete require.cache[rootJson];
   rootPackage = require(rootJson);
+
+  // Do not hoist devDependencies in @ember-data namespace
+  // This is a single pass, so should be faster than spread operator or filter/reduce,
+  // especially if fromEntries is supported natiely
+  rootUpdates = Object.fromEntries(Object.entries(rootUpdates).filter(([key]) => !key.startsWith('@ember-data/')));
+
   debug(`Adding staged devDependencies to root: ${JSON.stringify(rootUpdates, null, 2)}`);
   Object.assign(rootPackage.devDependencies, rootUpdates);
-  fs.writeFileSync(rootJson, JSON.stringify(rootPackage, null, 2));
+  writeJsonToFile(rootJson, rootPackage);
 }
 
 // assign root versions to sub-packages and write
@@ -96,7 +113,7 @@ Object.keys(packageJsons).forEach(key => {
     }
   });
 
-  fs.writeFileSync(key, JSON.stringify(pkg, null, 2));
+  writeJsonToFile(key, pkg);
 });
 
 execWithLog(`yarn install`);
