@@ -342,8 +342,11 @@ async function main() {
     // https://github.com/lerna/lerna/tree/master/commands/version#--exact
     // We use exact to ensure that our consumers always use the appropriate
     // versions published with each other
+    // --force-publish ensures that all packages release a new version regardless
+    // of whether changes have occurred in them
+    // --yes skips the prompt for confirming the version
     nextVersion = retrieveNextVersion();
-    execWithLog(`lerna version ${nextVersion} --exact`, true);
+    execWithLog(`lerna version ${nextVersion} --force-publish --exact --yes`, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
