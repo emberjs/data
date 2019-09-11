@@ -3,8 +3,6 @@
 */
 import { symbol } from '../ts-interfaces/utils/symbol';
 
-export const IDENTIFIERS = new WeakMap();
-
 // provided for additional debuggability
 export const DEBUG_CLIENT_ORIGINATED: unique symbol = symbol('record-originated-on-client');
 export const DEBUG_IDENTIFIER_BUCKET: unique symbol = symbol('identifier-bucket');

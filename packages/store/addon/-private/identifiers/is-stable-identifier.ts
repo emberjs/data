@@ -1,8 +1,10 @@
-import { StableRecordIdentifier, IDENTIFIERS } from '../ts-interfaces/identifier';
+import { StableRecordIdentifier } from '../ts-interfaces/identifier';
 
 /**
   @module @ember-data/store
 */
+
+const IDENTIFIERS = new WeakMap();
 
 export default function isStableIdentifier(identifier: Object): identifier is StableRecordIdentifier {
   return IDENTIFIERS.has(identifier);
