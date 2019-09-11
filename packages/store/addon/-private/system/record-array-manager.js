@@ -12,6 +12,10 @@ import { internalModelFactoryFor } from './store/internal-model-factory';
 
 const emberRun = emberRunloop.backburner;
 
+/**
+  @class RecordArrayManager
+  @private
+*/
 export default class RecordArrayManager {
   constructor(options) {
     this.store = options.store;
@@ -141,7 +145,7 @@ export default class RecordArrayManager {
     }
   }
 
-  /*
+  /**
     Get the `RecordArray` for a modelName, which contains all loaded records of
     given modelName.
 
@@ -183,7 +187,7 @@ export default class RecordArrayManager {
     return visible;
   }
 
-  /*
+  /**
     Create a `RecordArray` for a modelName.
 
     @method createRecordArray
@@ -212,7 +216,7 @@ export default class RecordArrayManager {
     return array;
   }
 
-  /*
+  /**
     Create a `AdapterPopulatedRecordArray` for a modelName with given query.
 
     @method createAdapterPopulatedRecordArray
@@ -256,7 +260,7 @@ export default class RecordArrayManager {
     return array;
   }
 
-  /*
+  /**
     Unregister a RecordArray.
     So manager will not update this array.
 

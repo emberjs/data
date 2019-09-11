@@ -4,18 +4,20 @@
   "description": "A data layer for your Ember applications.",
   "repository": "git://github.com/emberjs/data.git",
   "directories": {
-    "doc": "doc",
+    "doc": "docs",
     "test": "tests"
   },
   "scripts": {
     "build": "ember build",
     "build:production": "ember build --environment=production",
     "start": "ember server",
+    "docs": "ember ember-cli-yuidoc",
     "test": "ember test",
     "test:all": "ember try:each",
     "test:production": "ember test -e production",
     "test:optional-features": "ember test",
     "test:try-one": "ember try:one",
+    "test:docs": "qunit node-tests/docs/test-coverage.js",
     "prepublishOnly": "ember build --environment=production",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false"
   },
@@ -79,6 +81,7 @@
     "github": "^1.1.1",
     "json-typescript": "^1.1.0",
     "loader.js": "^4.7.0",
+    "qunit": "^2.9.2",
     "typescript": "~3.6.3"
   },
   "engines": {
