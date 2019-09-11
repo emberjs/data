@@ -13,6 +13,7 @@ node_modules
 # misc
 /coverage/
 !.*
+/.yarn/
 
 # ember-try
 .node_modules.ember-try

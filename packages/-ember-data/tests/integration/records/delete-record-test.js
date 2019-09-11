@@ -138,8 +138,6 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
   });
 
   test('records can be deleted during record array enumeration', function(assert) {
-    var adam, dave;
-
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -166,8 +164,8 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
           },
         ],
       });
-      adam = store.peekRecord('person', 1);
-      dave = store.peekRecord('person', 2);
+      let adam = store.peekRecord('person', 1);
+      let dave = store.peekRecord('person', 2);
     });
     var all = store.peekAll('person');
 

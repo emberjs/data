@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
-import { reject, resolve, defer, Promise } from 'rsvp';
+import { reject, resolve, defer } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
@@ -195,12 +195,10 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     let persons = store.peekAll('person');
     assert.equal(persons.get('length'), 1);
 
-    let promise = new Promise(async resolve => {
-      let persons = await store.findAll('person');
-
+    let promise = store.findAll('person').then(persons => {
       assert.equal(persons.get('isUpdating'), false);
       assert.equal(persons.get('length'), 2);
-      resolve();
+      return persons;
     });
 
     assert.equal(persons.get('isUpdating'), true);
