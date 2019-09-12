@@ -25,7 +25,7 @@ import { InvalidError } from '@ember-data/adapter/error';
 const { changeProperties } = Ember;
 
 /**
-  @module @ember-data/store
+  @module @ember-data/model
 */
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
