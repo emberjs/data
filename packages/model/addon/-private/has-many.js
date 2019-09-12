@@ -137,6 +137,9 @@ import { DEBUG } from '@glimmer/env';
   `ref.reload` to fetch the resources.
 
   @method hasMany
+  @public
+  @static
+  @for @ember-data/model
   @param {String} type (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship

@@ -99,6 +99,9 @@ import { DEBUG } from '@glimmer/env';
   ```
 
   @method belongsTo
+  @public
+  @static
+  @for @ember-data/model
   @param {String} modelName (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship

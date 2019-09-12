@@ -23,7 +23,7 @@ import coerceId from '../coerce-id';
 const { changeProperties } = Ember;
 
 /**
-  @module @ember-data/store
+  @module @ember-data/model
 */
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
