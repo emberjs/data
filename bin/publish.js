@@ -25,7 +25,7 @@ const debug = require('debug')('publish-packages');
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
-const { shellSync } = require('execa');
+const execa = require('execa');
 const cliArgs = require('command-line-args');
 const readline = require('readline');
 const semver = require('semver');
@@ -51,10 +51,10 @@ function cleanProject() {
 function execWithLog(command, proxyIO = false) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
   if (proxyIO) {
-    return shellSync(command, { stdio: [0, 1, 2] });
+    return execa.sync(command, { stdio: [0, 1, 2], shell: true });
   }
 
-  return shellSync(command).stdout;
+  return execa.sync(command, { shell: true }).stdout;
 }
 
 function getConfig() {

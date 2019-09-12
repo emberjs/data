@@ -12,7 +12,7 @@
  * ```
  */
 
-const { shellSync } = require('execa');
+const execa = require('execa');
 const path = require('path');
 const fs = require('fs');
 const debug = require('debug')('sync-dev');
@@ -24,7 +24,7 @@ const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
 
 function execWithLog(command) {
-  return shellSync(command, { stdio: [0, 1, 2] });
+  return execa.sync(command, { stdio: [0, 1, 2], shell: true });
 }
 
 // Remove this ponyfill once fromEntries is supported in min version of node.js
