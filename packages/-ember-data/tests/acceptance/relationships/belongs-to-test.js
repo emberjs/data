@@ -392,6 +392,38 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
 
+    test('Setting an async belongsTo to null, then restoring it', async function(assert) {
+      let people = makePeopleWithRelationshipData();
+      let sedona = store.push({
+        data: people.dict['5:has-parent-no-children'],
+      });
+
+      adapter.setupPayloads(assert, [{ data: people.dict['3:has-2-children-and-parent'] }]);
+
+      // render
+      this.set('sedona', sedona);
+
+      await render(hbs`
+      <p>{{sedona.parent.name}}</p>
+      `);
+
+      assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
+
+      const parent = sedona.get('parent');
+
+      sedona.set('parent', null);
+
+      await settled();
+
+      assert.equal(this.element.textContent.trim(), '');
+
+      sedona.set('parent', parent);
+
+      await settled();
+
+      assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
+    });
+
     test('We can delete an async belongs-to', async function(assert) {
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
