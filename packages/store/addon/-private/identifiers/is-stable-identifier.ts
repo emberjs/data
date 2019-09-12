@@ -13,3 +13,7 @@ export default function isStableIdentifier(identifier: Object): identifier is St
 export function markStableIdentifier(identifier: Object) {
   IDENTIFIERS.set(identifier, 'is-identifier');
 }
+
+export function unmarkStableIdentifier(identifier: Object) {
+  IDENTIFIERS.delete(identifier);
+}

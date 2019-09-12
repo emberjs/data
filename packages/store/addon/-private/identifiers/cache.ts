@@ -15,7 +15,7 @@ import {
 import coerceId from '../system/coerce-id';
 import uuidv4 from './utils/uuid-v4';
 import normalizeModelName from '../system/normalize-model-name';
-import isStableIdentifier, { markStableIdentifier } from './is-stable-identifier';
+import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import Store from '../system/ds-model-store';
 import CoreStore from '../system/core-store';
@@ -384,6 +384,7 @@ export class IdentifierCache {
     let index = keyOptions._allIdentifiers.indexOf(identifier);
     keyOptions._allIdentifiers.splice(index, 1);
 
+    unmarkStableIdentifier(identifierObject);
     this._forget(identifier, 'record');
   }
 
