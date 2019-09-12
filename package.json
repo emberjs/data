@@ -118,12 +118,7 @@
     "rsvp": "^4.8.5",
     "semver": "^6.2.0",
     "silent-error": "^1.1.1",
-    "typescript": "~3.6.3",
-    "babel-plugin-debug-macros": "^0.3.3",
-    "babel-plugin-feature-flags": "^0.3.1",
-    "babel-plugin-filter-imports": "^3.0.0",
-    "babel6-plugin-strip-class-callcheck": "^6.0.0",
-    "broccoli-file-creator": "^2.1.1"
+    "typescript": "~3.6.3"
   },
   "bin": {
     "test-partner-project": "./bin/test-external-partner-project.js",
