@@ -2,6 +2,45 @@
 
 ### Master
 
+## Release 3.12.2 (September 11, 2019)
+
+- [#6435](https://github.com/emberjs/data/pull/6435) [BUGFIX BETA RELEASE] make fetch function JIT (#6430) (#6435)
+- [d3a1123e](https://github.com/emberjs/data/commit/d3a1123e61fcd0acb40a1ed01c90e4ae9e0280a1) [BUGFIX BETA RELEASE] Fix missing @babel/plugin-transform-block-scoping dependency (#6432) (#6437)
+
+## Release 3.12.1 (September 11, 2019)
+
+- [#6416](https://github.com/emberjs/data/pull/6416) [BUGFIX 3.12] Backport Symbol fix (#6416)
+- [#6422](https://github.com/emberjs/data/pull/6422) [BUGFIX] ensure commit based versioning passes semver (#6422)
+- [6fa2e23d](https://github.com/emberjs/data/commit/6fa2e23d977fc616a5531d1575f24806f5494411) [BUGFIX] ensure we publish all packages regardless of changes
+- [598993fe](https://github.com/emberjs/data/commit/598993fe26157abab7478745e683c584cc2c9ae4) [BUGFIX] ensure produced artifacts correctly lock with each other (#6309) (#6310)
+
+## Release 3.12.0
+
+- [#6062](https://github.com/emberjs/data/pull/6062) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
+- [82743675](https://github.com/emberjs/data/commit/8274367556e4f23b2b8f8ac49c91e3d410a1f7bb) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
+- [545285f1](https://github.com/emberjs/data/commit/545285f1ca519a282272ccae6dfeb1c480f2e015) [BUGFIX release] Fix rollup warning for ember-inflector. (#6242)
+- [48dd8120](https://github.com/emberjs/data/commit/48dd812035f974c56447ddc0cf81c37a83ce1e02) [BUGFIX reload] fix sync belongsTo reload w/dematerialize (#6158)
+- [#6124](https://github.com/emberjs/data/pull/6124) chore: remove co usage (#6124)
+- [#6155](https://github.com/emberjs/data/pull/6155) Two small fixes to `fetch` (#6155)
+- [#6153](https://github.com/emberjs/data/pull/6153) Fix yuidoc setup to support the split packages (#6153)
+- [#6078](https://github.com/emberjs/data/pull/6078) Use HTML comments in PR template. (#6078)
+- [#6077](https://github.com/emberjs/data/pull/6077) [BUGFIX release] Remove ember-fetch dependency. (#6077)
+- [#6112](https://github.com/emberjs/data/pull/6112) [BUGFIX relationships] fix infinite retry bug for failed relationship fetches (#6112)
+- [#6125](https://github.com/emberjs/data/pull/6125) [CHORE tests] replace `mocha-only-detector` with `mocha/no-exclusive-tests` rule (#6125)
+- [#6079](https://github.com/emberjs/data/pull/6079) docs: fix RELEASE.md refs to publish.js
+- [#6247](https://github.com/emberjs/data/pull/6247) [RFC 403] Identifiers Infra (#6247)
+- [#6274](https://github.com/emberjs/data/pull/6274) [BUGFIX RELEASE] Fix generating from blueprints (#6274)
+- [#6168](https://github.com/emberjs/data/pull/6168) [DOCS adapter] remove remaining sinceToken and update docs (#6168)
+- [#6181](https://github.com/emberjs/data/pull/6181) Docs update for unloadRecord
+- [#6241](https://github.com/emberjs/data/pull/6241) [BUGFIX release] Add blueprints to ember-data package.
+- [#6196](https://github.com/emberjs/data/pull/6196) Docs: fixing request->record typo (#6196)
+- [#6252](https://github.com/emberjs/data/pull/6252) [BUGFIX] Includes yuidoc's output data.json to published package
+- [#6281](https://github.com/emberjs/data/pull/6281) [BUGFIX release] ensure all packages in correct RFC locations (#6281)
+- [#6256](https://github.com/emberjs/data/pull/6256) [BUGFIX release] fix type overrides (#6256)
+- [#6250](https://github.com/emberjs/data/pull/6250) [BUGFIX query] Remove arity check for adapter.query (#6250)
+- [#6280](https://github.com/emberjs/data/pull/6280) [DOC release] Fix API doc issues with package split. (#6280)
+- [#6249](https://github.com/emberjs/data/pull/6249) chore: refactor store to class (#6249)
+
 ## Release 3.11.4 (July 26, 2019)
 
 - [#6286](https://github.com/emberjs/data/pull/6286) [BUGFIX RELEASE] Fix generating from blueprints (#6274) (#6286)
