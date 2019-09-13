@@ -2,18 +2,6 @@ import { DebugAdapter } from './-private';
 import Store from '@ember-data/store';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-function hasRegistration(application, registrationName) {
-  // fallback our ember-data tests necessary
-  // until we kill-off setupStore
-  // see https://github.com/emberjs/data/issues/6357
-  // or @ember/test-helpers kills off it's
-  // legacy support that calls our initializer with registry
-  // instead of application
-  if (typeof application.hasRegistration !== 'function') {
-    return application.has(registrationName);
-  }
-  return application.hasRegistration(registrationName);
-}
 /*
  Configures a registry for use with an Ember-Data
  store. Accepts an optional namespace argument.
@@ -22,17 +10,12 @@ function hasRegistration(application, registrationName) {
  @param {Ember.Registry} registry
  */
 function initializeStore(application) {
-  // we can just use registerOptionsForType when setupStore is killed
-  // see https://github.com/emberjs/data/issues/6357
-  let registerOptionsForType = application.registerOptionsForType || application.optionsForType;
-  registerOptionsForType.call(application, 'serializer', { singleton: false });
-  registerOptionsForType.call(application, 'adapter', { singleton: false });
+  application.registerOptionsForType.call(application, 'serializer', { singleton: false });
+  application.registerOptionsForType.call(application, 'adapter', { singleton: false });
 
   application.register('adapter:-json-api', JSONAPIAdapter);
 
-  if (!hasRegistration(application, 'service:store')) {
-    application.register('service:store', Store);
-  }
+  application.register('service:store', Store);
 }
 
 /*
