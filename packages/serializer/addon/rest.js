@@ -161,7 +161,7 @@ const RESTSerializer = JSONSerializer.extend({
     with primary data and, if any, included data as `{ data, included }`.
 
     @method _normalizeArray
-    @param {DS.Store} store
+    @param {Store} store
     @param {String} modelName
     @param {Object} arrayHash
     @param {String} prop
@@ -209,7 +209,7 @@ const RESTSerializer = JSONSerializer.extend({
 
   /*
     @method _normalizeResponse
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
@@ -383,7 +383,7 @@ const RESTSerializer = JSONSerializer.extend({
     that fetches and saves are structured.
 
     @method pushPayload
-    @param {DS.Store} store
+    @param {Store} store
     @param {Object} payload
   */
   pushPayload(store, payload) {

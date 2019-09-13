@@ -42,7 +42,7 @@ export default EmberObject.extend({
     ```
 
     @property store
-    @type {DS.Store}
+    @type {Store}
     @public
   */
 
@@ -73,7 +73,7 @@ export default EmberObject.extend({
 
     @since 1.13.0
     @method normalizeResponse
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id

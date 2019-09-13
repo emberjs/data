@@ -110,7 +110,7 @@ export default EmberObject.extend({
     ```
 
     @method findRecord
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} type
     @param {String} id
     @param {DS.Snapshot} snapshot
@@ -142,7 +142,7 @@ export default EmberObject.extend({
     ```
 
     @method findAll
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} type
     @param {undefined} neverSet a value is never provided to this argument
     @param {DS.SnapshotRecordArray} snapshotRecordArray
@@ -174,7 +174,7 @@ export default EmberObject.extend({
     ```
 
     @method query
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} type
     @param {Object} query
     @param {DS.AdapterPopulatedRecordArray} recordArray
@@ -213,7 +213,7 @@ export default EmberObject.extend({
     ```
 
     @method queryRecord
-    @param {DS.Store} store
+    @param {Store} store
     @param {subclass of DS.Model} type
     @param {Object} query
     @return {Promise} promise
@@ -246,7 +246,7 @@ export default EmberObject.extend({
     ```
 
     @method generateIdForRecord
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} type   the Model class of the record
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
@@ -317,7 +317,7 @@ export default EmberObject.extend({
     ```
 
     @method createRecord
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} type   the Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
@@ -369,7 +369,7 @@ export default EmberObject.extend({
     ```
 
     @method updateRecord
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} type   the Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
@@ -413,7 +413,7 @@ export default EmberObject.extend({
     ```
 
     @method deleteRecord
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} type   the Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
@@ -462,7 +462,7 @@ export default EmberObject.extend({
     ```
 
     @method findMany
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} type   the Model class of the records
     @param {Array}    ids
     @param {Array} snapshots
@@ -480,7 +480,7 @@ export default EmberObject.extend({
     The default implementation returns the records as a single group.
 
     @method groupRecordsForFindMany
-    @param {DS.Store} store
+    @param {Store} store
     @param {Array} snapshots
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
@@ -531,7 +531,7 @@ export default EmberObject.extend({
 
     @since 1.13.0
     @method shouldReloadRecord
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Snapshot} snapshot
     @return {Boolean}
   */
@@ -586,7 +586,7 @@ export default EmberObject.extend({
 
     @since 1.13.0
     @method shouldReloadAll
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
@@ -622,7 +622,7 @@ export default EmberObject.extend({
 
     @since 1.13.0
     @method shouldBackgroundReloadRecord
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Snapshot} snapshot
     @return {Boolean}
   */
@@ -658,7 +658,7 @@ export default EmberObject.extend({
 
     @since 1.13.0
     @method shouldBackgroundReloadAll
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */

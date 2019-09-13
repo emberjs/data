@@ -209,7 +209,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   /**
     @method pushPayload
-    @param {DS.Store} store
+    @param {Store} store
     @param {Object} payload
   */
   pushPayload(store, payload) {
@@ -219,7 +219,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   /**
     @method _normalizeResponse
-    @param {DS.Store} store
+    @param {Store} store
     @param {DS.Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id

@@ -46,17 +46,16 @@ import notifyChanges from './model/notify-changes';
   Define your application's store like this:
 
   ```app/services/store.js
-  import DS from 'ember-data';
+  import Store from '@ember-data/store';
 
-  export default DS.Store.extend({
-  });
+  export default class MyStore extends Store {}
   ```
 
-  Most Ember.js applications will only have a single `DS.Store` that is
-  automatically created by their `Ember.Application`.
+  Most Ember.js applications will only have a single `Store` that is
+  automatically created by their `Application`.
 
   You can retrieve models from the store in several ways. To retrieve a record
-  for a specific id, use `DS.Store`'s `findRecord()` method:
+  for a specific id, use the `Store`'s `findRecord()` method:
 
   ```javascript
   store.findRecord('person', 123).then(function (person) {
