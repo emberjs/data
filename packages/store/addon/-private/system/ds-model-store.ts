@@ -22,37 +22,22 @@ import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-serv
 import { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import notifyChanges from './model/notify-changes';
 
-// Implementors Note:
-//
-//   The variables in this file are consistently named according to the following
-//   scheme:
-//
-//   * +id+ means an identifier managed by an external source, provided inside
-//     the data provided by that source. These are always coerced to be strings
-//     before being used internally.
-//   * +clientId+ means a transient numerical identifier generated at runtime by
-//     the data store. It is important primarily because newly created objects may
-//     not yet have an externally generated id.
-//   * +internalModel+ means a record internalModel object, which holds metadata about a
-//     record, even if it has not yet been fully materialized.
-//   * +type+ means a DS.Model.
-
 /**
-  The store contains all of the data for records loaded from the server.
+  The store service contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `DS.Model` that wrap
   the individual data for a record, so that they can be bound to in your
   Handlebars templates.
 
-  Define your application's store like this:
+  By default, applications will have a single `Store` service that is
+  automatically created.
+
+  The store can be customized by extending the service in the following manner:
 
   ```app/services/store.js
   import Store from '@ember-data/store';
 
   export default class MyStore extends Store {}
   ```
-
-  Most Ember.js applications will only have a single `Store` that is
-  automatically created by their `Application`.
 
   You can retrieve models from the store in several ways. To retrieve a record
   for a specific id, use the `Store`'s `findRecord()` method:
