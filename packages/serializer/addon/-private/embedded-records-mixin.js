@@ -94,9 +94,9 @@ import { warn } from '@ember/debug';
   to modify it to fit your specific needs.**
 
   For example, review the docs for each method of this mixin:
-  * [normalize](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_normalize)
-  * [serializeBelongsTo](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeBelongsTo)
-  * [serializeHasMany](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeHasMany)
+  * [normalize](/api/data/classes/EmbeddedRecordsMixin.html#method_normalize)
+  * [serializeBelongsTo](/api/data/classes/EmbeddedRecordsMixin.html#method_serializeBelongsTo)
+  * [serializeHasMany](/api/data/classes/EmbeddedRecordsMixin.html#method_serializeHasMany)
 
   @class EmbeddedRecordsMixin
 */
@@ -123,7 +123,7 @@ export default Mixin.create({
     }
     ```
    @method normalize
-   @param {DS.Model} typeClass
+   @param {Model} typeClass
    @param {Object} hash to be normalized
    @param {String} prop the hash has been referenced by
    @return {Object} the normalized hash
@@ -193,7 +193,7 @@ export default Mixin.create({
     ```
 
     @method serializeBelongsTo
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
@@ -336,13 +336,13 @@ export default Mixin.create({
     For example having a user that has many pets:
 
     ```js
-    User = DS.Model.extend({
-      name:    DS.attr('string'),
-      pets: DS.hasMany('pet', { polymorphic: true })
+    User = Model.extend({
+      name: attr('string'),
+      pets: hasMany('pet', { polymorphic: true })
     });
 
-    Pet = DS.Model.extend({
-      name: DS.attr('string'),
+    Pet = Model.extend({
+      name: attr('string'),
     });
 
     Cat = Pet.extend({
@@ -378,7 +378,7 @@ export default Mixin.create({
     ```
 
     @method serializeHasMany
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
@@ -470,8 +470,8 @@ export default Mixin.create({
     the parent record.
 
     @method removeEmbeddedForeignKey
-    @param {DS.Snapshot} snapshot
-    @param {DS.Snapshot} embeddedSnapshot
+    @param {Snapshot} snapshot
+    @param {Snapshot} embeddedSnapshot
     @param {Object} relationship
     @param {Object} json
   */

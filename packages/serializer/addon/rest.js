@@ -150,7 +150,7 @@ const RESTSerializer = JSONSerializer.extend({
     normalization as `normalizeResponse`.
 
     @method normalize
-    @param {DS.Model} modelClass
+    @param {Model} modelClass
     @param {Object} resourceHash
     @param {String} prop
     @return {Object}
@@ -210,7 +210,7 @@ const RESTSerializer = JSONSerializer.extend({
   /*
     @method _normalizeResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -627,7 +627,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} options
     @return {Object} json
   */
@@ -657,8 +657,8 @@ const RESTSerializer = JSONSerializer.extend({
 
     @method serializeIntoHash
     @param {Object} hash
-    @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {Model} typeClass
+    @param {Snapshot} snapshot
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
@@ -722,7 +722,7 @@ const RESTSerializer = JSONSerializer.extend({
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */

@@ -184,7 +184,7 @@ const JSONSerializer = Serializer.extend({
 
    @method applyTransforms
    @private
-   @param {DS.Model} typeClass
+   @param {Model} typeClass
    @param {Object} data The data to transform
    @return {Object} data The transformed data object
   */
@@ -233,7 +233,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -268,7 +268,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeFindRecordResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -282,7 +282,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeQueryRecordResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -296,7 +296,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeFindAllResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -310,7 +310,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeFindBelongsToResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -324,7 +324,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeFindHasManyResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -338,7 +338,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeFindManyResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -352,7 +352,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeQueryResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -366,7 +366,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeCreateRecordResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -380,7 +380,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeDeleteRecordResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -394,7 +394,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeUpdateRecordResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -408,7 +408,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeSaveResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -422,7 +422,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeSingleResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -436,7 +436,7 @@ const JSONSerializer = Serializer.extend({
     @since 1.13.0
     @method normalizeArrayResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -449,7 +449,7 @@ const JSONSerializer = Serializer.extend({
   /**
     @method _normalizeResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -532,7 +532,7 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @method normalize
-    @param {DS.Model} typeClass
+    @param {Model} typeClass
     @param {Object} hash
     @return {Object}
   */
@@ -867,7 +867,7 @@ const JSONSerializer = Serializer.extend({
     This could be configured per relationship by Serializer's `attrs` object.
 
     @method shouldSerializeHasMany
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {String} key
     @param {String} relationshipType
     @return {boolean} true if the hasMany relationship should be serialized
@@ -1029,7 +1029,7 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} options
     @return {Object} json
   */
@@ -1082,8 +1082,8 @@ const JSONSerializer = Serializer.extend({
 
     @method serializeIntoHash
     @param {Object} hash
-    @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {Model} typeClass
+    @param {Snapshot} snapshot
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
@@ -1110,7 +1110,7 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @method serializeAttribute
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {String} key
     @param {Object} attribute
@@ -1159,7 +1159,7 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @method serializeBelongsTo
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
@@ -1212,7 +1212,7 @@ const JSONSerializer = Serializer.extend({
    ```
 
    @method serializeHasMany
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @param {Object} json
    @param {Object} relationship
   */
@@ -1264,7 +1264,7 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @method serializePolymorphicType
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
@@ -1293,7 +1293,7 @@ const JSONSerializer = Serializer.extend({
 
     @method extractMeta
     @param {Store} store
-    @param {DS.Model} modelClass
+    @param {Model} modelClass
     @param {Object} payload
   */
   extractMeta(store, modelClass, payload) {
@@ -1384,7 +1384,7 @@ const JSONSerializer = Serializer.extend({
 
     @method extractErrors
     @param {Store} store
-    @param {DS.Model} typeClass
+    @param {Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @return {Object} json The deserialized errors
@@ -1489,7 +1489,7 @@ const JSONSerializer = Serializer.extend({
    @private
    @param {String} attributeType
    @param {Boolean} skipAssertion
-   @return {DS.Transform} transform
+   @return {Transform} transform
   */
   transformFor(attributeType, skipAssertion) {
     let transform = getOwner(this).lookup('transform:' + attributeType);

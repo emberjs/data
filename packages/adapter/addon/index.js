@@ -111,9 +111,9 @@ export default EmberObject.extend({
 
     @method findRecord
     @param {Store} store
-    @param {DS.Model} type
+    @param {Model} type
     @param {String} id
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   findRecord: null,
@@ -143,9 +143,9 @@ export default EmberObject.extend({
 
     @method findAll
     @param {Store} store
-    @param {DS.Model} type
+    @param {Model} type
     @param {undefined} neverSet a value is never provided to this argument
-    @param {DS.SnapshotRecordArray} snapshotRecordArray
+    @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
   findAll: null,
@@ -175,9 +175,9 @@ export default EmberObject.extend({
 
     @method query
     @param {Store} store
-    @param {DS.Model} type
+    @param {Model} type
     @param {Object} query
-    @param {DS.AdapterPopulatedRecordArray} recordArray
+    @param {AdapterPopulatedRecordArray} recordArray
     @return {Promise} promise
   */
   query: null,
@@ -214,7 +214,7 @@ export default EmberObject.extend({
 
     @method queryRecord
     @param {Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of Model} type
     @param {Object} query
     @return {Promise} promise
   */
@@ -247,7 +247,7 @@ export default EmberObject.extend({
 
     @method generateIdForRecord
     @param {Store} store
-    @param {DS.Model} type   the Model class of the record
+    @param {Model} type   the Model class of the record
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
     @return {(String|Number)} id
@@ -273,7 +273,7 @@ export default EmberObject.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object}   options
     @return {Object} serialized snapshot
   */
@@ -318,8 +318,8 @@ export default EmberObject.extend({
 
     @method createRecord
     @param {Store} store
-    @param {DS.Model} type   the Model class of the record
-    @param {DS.Snapshot} snapshot
+    @param {Model} type   the Model class of the record
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   createRecord: null,
@@ -370,8 +370,8 @@ export default EmberObject.extend({
 
     @method updateRecord
     @param {Store} store
-    @param {DS.Model} type   the Model class of the record
-    @param {DS.Snapshot} snapshot
+    @param {Model} type   the Model class of the record
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   updateRecord: null,
@@ -414,8 +414,8 @@ export default EmberObject.extend({
 
     @method deleteRecord
     @param {Store} store
-    @param {DS.Model} type   the Model class of the record
-    @param {DS.Snapshot} snapshot
+    @param {Model} type   the Model class of the record
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   deleteRecord: null,
@@ -463,7 +463,7 @@ export default EmberObject.extend({
 
     @method findMany
     @param {Store} store
-    @param {DS.Model} type   the Model class of the records
+    @param {Model} type   the Model class of the records
     @param {Array}    ids
     @param {Array} snapshots
     @return {Promise} promise
@@ -532,7 +532,7 @@ export default EmberObject.extend({
     @since 1.13.0
     @method shouldReloadRecord
     @param {Store} store
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @return {Boolean}
   */
   shouldReloadRecord(store, snapshot) {
@@ -587,7 +587,7 @@ export default EmberObject.extend({
     @since 1.13.0
     @method shouldReloadAll
     @param {Store} store
-    @param {DS.SnapshotRecordArray} snapshotRecordArray
+    @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
   shouldReloadAll(store, snapshotRecordArray) {
@@ -623,7 +623,7 @@ export default EmberObject.extend({
     @since 1.13.0
     @method shouldBackgroundReloadRecord
     @param {Store} store
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @return {Boolean}
   */
   shouldBackgroundReloadRecord(store, snapshot) {
@@ -659,7 +659,7 @@ export default EmberObject.extend({
     @since 1.13.0
     @method shouldBackgroundReloadAll
     @param {Store} store
-    @param {DS.SnapshotRecordArray} snapshotRecordArray
+    @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
   shouldBackgroundReloadAll(store, snapshotRecordArray) {

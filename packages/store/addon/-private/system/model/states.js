@@ -159,14 +159,14 @@ import { REQUEST_SERVICE } from '@ember-data/canary-features';
   `Model` class.
 
 
-   * [isEmpty](DS.Model.html#property_isEmpty)
-   * [isLoading](DS.Model.html#property_isLoading)
-   * [isLoaded](DS.Model.html#property_isLoaded)
-   * [hasDirtyAttributes](DS.Model.html#property_hasDirtyAttributes)
-   * [isSaving](DS.Model.html#property_isSaving)
-   * [isDeleted](DS.Model.html#property_isDeleted)
-   * [isNew](DS.Model.html#property_isNew)
-   * [isValid](DS.Model.html#property_isValid)
+   * [isEmpty](Model.html#property_isEmpty)
+   * [isLoading](Model.html#property_isLoading)
+   * [isLoaded](Model.html#property_isLoaded)
+   * [hasDirtyAttributes](Model.html#property_hasDirtyAttributes)
+   * [isSaving](Model.html#property_isSaving)
+   * [isDeleted](Model.html#property_isDeleted)
+   * [isNew](Model.html#property_isNew)
+   * [isValid](Model.html#property_isValid)
 
   @class RootState
 */

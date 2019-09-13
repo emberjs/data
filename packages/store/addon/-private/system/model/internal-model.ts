@@ -696,7 +696,7 @@ export default class InternalModel {
             parentInternalModel.modelName +
             "' with id " +
             parentInternalModel.id +
-            ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)',
+            ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`belongsTo({ async: true })`)',
           toReturn === null || !toReturn.get('isEmpty')
         );
         return toReturn;
@@ -783,7 +783,7 @@ export default class InternalModel {
       return this._updatePromiseProxyFor('hasMany', key, { promise, content: manyArray });
     } else {
       assert(
-        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
+        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany({ async: true })')`,
         !manyArray.anyUnloaded()
       );
 

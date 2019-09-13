@@ -18,7 +18,7 @@ import EmberObject from '@ember/object';
     * `normalize()`
 
   For an example implementation, see
-  [DS.JSONSerializer](DS.JSONSerializer), the included JSON serializer.
+  [JSONSerializer](JSONSerializer), the included JSON serializer.
 
   @class Serializer
   @extends EmberObject
@@ -75,7 +75,7 @@ export default EmberObject.extend({
     @since 1.13.0
     @method normalizeResponse
     @param {Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -119,7 +119,7 @@ export default EmberObject.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} [options]
     @return {Object}
   */
@@ -147,7 +147,7 @@ export default EmberObject.extend({
     ```
 
     @method normalize
-    @param {DS.Model} typeClass
+    @param {Model} typeClass
     @param {Object} hash
     @return {Object}
   */

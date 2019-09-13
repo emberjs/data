@@ -24,7 +24,7 @@ import notifyChanges from './model/notify-changes';
 
 /**
   The store service contains all of the data for records loaded from the server.
-  It is also responsible for creating instances of `DS.Model` that wrap
+  It is also responsible for creating instances of `Model` that wrap
   the individual data for a record, so that they can be bound to in your
   Handlebars templates.
 
@@ -54,11 +54,11 @@ import notifyChanges from './model/notify-changes';
   ```app/adapters/application.js
   import DS from 'ember-data';
 
-  export default DS.Adapter.extend({
+  export default Adapter.extend({
   });
   ```
 
-  You can learn more about writing a custom adapter by reading the `DS.Adapter`
+  You can learn more about writing a custom adapter by reading the `Adapter`
   documentation.
 
   ### Store createRecord() vs. push() vs. pushPayload()
@@ -84,7 +84,7 @@ import notifyChanges from './model/notify-changes';
   Serializer implements a `pushPayload` method.
 
   Note: When creating a new record using any of the above methods
-  Ember Data will update `DS.RecordArray`s such as those returned by
+  Ember Data will update `RecordArray`s such as those returned by
   `store#peekAll()` or `store#findAll()`. This means any
   data bindings or computed properties that depend on the RecordArray
   will automatically be synced to include the new or updated record
@@ -136,12 +136,12 @@ class Store extends CoreStore {
 
   The class of a model might be useful if you want to get a list of all the
   relationship names of the model, see
-  [`relationshipNames`](https://emberjs.com/api/data/classes/DS.Model.html#property_relationshipNames)
+  [`relationshipNames`](https://emberjs.com/api/data/classes/Model.html#property_relationshipNames)
   for example.
 
   @method modelFor
   @param {String} modelName
-  @return {DS.Model}
+  @return {Model}
     */
   modelFor(modelName) {
     if (DEBUG) {
