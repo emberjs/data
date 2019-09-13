@@ -6,7 +6,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['prettier', 'qunit', 'mocha'],
-  extends: ['eslint:recommended', 'prettier'],
+  extends: ['eslint:recommended', 'prettier', 'plugin:qunit/recommended'],
   rules: {
     'mocha/no-exclusive-tests': 'error',
     'prettier/prettier': 'error',
@@ -37,6 +37,14 @@ module.exports = {
     // Tracked in issue https://github.com/emberjs/data/issues/6405
     'no-prototype-builtins': 'off',
     'require-atomic-updates': 'off',
+
+    // eslint-plugin-qunit
+    'qunit/assert-args': 'off',
+    'qunit/literal-compare-order': 'off',
+    'qunit/no-identical-names': 'off',
+    'qunit/no-ok-equality': 'off',
+    'qunit/require-expect': 'off',
+    'qunit/resolve-async': 'off',
   },
   globals: {
     heimdall: true,
