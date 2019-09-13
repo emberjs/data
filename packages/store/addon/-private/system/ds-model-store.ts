@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/store
 */
 import CoreStore from './core-store';
 import { assert } from '@ember/debug';
@@ -107,7 +107,6 @@ import notifyChanges from './model/notify-changes';
   values.
 
   @class Store
-  @namespace DS
   @extends Ember.Service
 */
 

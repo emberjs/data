@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/debug
 */
 import { addObserver, removeObserver } from '@ember/object/observers';
 
@@ -10,11 +10,12 @@ import { assert } from '@ember/debug';
 import { get } from '@ember/object';
 import Model from '@ember-data/model';
 
-/*
-  Extend `Ember.DataAdapter` with ED specific code.
+/**
+  Implements `@ember/debug/data-adapter` with for EmberData
+  integration with the ember-inspector.
 
   @class DebugAdapter
-  @extends Ember.DataAdapter
+  @extends DataAdapter
   @private
 */
 export default DataAdapter.extend({
