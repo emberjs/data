@@ -1,0 +1,188 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - beta
+      - release
+      - 'release-*'
+      - 'lts-*'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Yarn install
+        run: yarn
+      - name: Lint features
+        run: yarn lint:features
+      - name: Lint prettier
+        run: yarn lint:prettier
+      - name: Check for TypeScript problems
+        run: yarn problems
+
+  basic-tests:
+    strategy:
+      matrix:
+        os: [macOS-10.14, windows-2016, ubuntu-18.04]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests
+        run: yarn test
+      - name: Encapsulation tests
+        run: yarn test:encapsulation
+      - name: Production build
+        run: yarn test:production
+      - name: Docs tests
+        run: yarn test:docs
+      - name: Node tests
+        run: yarn test:node
+      - if: |
+          github.event_name == 'pull_request' && (
+            github.base_ref == 'master' || github.base_ref == 'beta'
+          ) || github.event_name == 'push' && (
+            endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+          )
+        name: In progress features
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
+        run: yarn test:enabled-in-progress-features
+
+  floating-dependencies:
+    needs: [lint, basic-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install dependencies w/o lockfile
+        run: yarn install --no-lockfile --non-interactive
+      - name: Basic Tests
+        run: yarn test
+
+  lts:
+    needs: [lint, basic-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic Tests with ember-lts-3.8
+        run: yarn test:try-one ember-lts-3.8
+
+  releases:
+    needs: [lint, basic-tests]
+    if: |
+      github.event_name == 'pull_request' && (
+        github.base_ref == 'master' || github.base_ref == 'beta'
+      ) || github.event_name == 'push' && (
+        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+      )
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [
+          ember-release,
+          ember-beta,
+          ember-canary,
+          ember-release-with-jquery
+        ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests with ${{ matrix.scenario }}
+        run: yarn test:try-one ${{ matrix.scenario }}
+
+  additional-scenarios:
+    needs: [lint, basic-tests]
+    strategy:
+      matrix:
+        scenario: [
+          default-with-jquery,
+          with-ember-fetch,
+          with-max-transpilation
+        ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests with ${{ matrix.scenario }}
+        run: yarn test:try-one ${{ matrix.scenario }}
+
+  external-partners:
+    needs: [
+      additional-scenarios,
+      basic-tests,
+      floating-dependencies,
+      lint,
+      lts,
+      releases
+    ]
+    if: |
+      github.event_name == 'pull_request' && (
+        github.base_ref == 'master' || github.base_ref == 'beta'
+      ) || github.event_name == 'push' && (
+        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+      )
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        partner: [
+          ember-data-change-tracker,
+          ember-data-relationship-tracker,
+          ember-m3,
+          ember-observer,
+          ember-resource-metadata,
+          factory-guy,
+          ilios-frontend,
+          model-fragments,
+          storefront,
+          travis-web
+        ]
+        include:
+          - partner: ember-data-change-tracker
+            continue-on-error: true
+          - partner: factory-guy
+            continue-on-error: true
+          - partner: model-fragments
+            continue-on-error: true
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Generate package tarballs
+        run: node ./bin/packages-for-commit.js
+      - name: Run Tests
+        env:
+          CI: true
+        run: yarn test-external:${{ matrix.partner }}
+        continue-on-error: ${{ matrix['continue-on-error'] == true }}
