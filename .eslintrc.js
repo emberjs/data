@@ -34,7 +34,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['prettier', 'qunit', 'mocha', 'simple-import-sort', 'import'],
-  extends: ['eslint:recommended', 'prettier'],
+  extends: ['eslint:recommended', 'prettier', 'plugin:qunit/recommended'],
   rules: {
     'no-restricted-globals': ['error', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
     'mocha/no-exclusive-tests': 'error',
@@ -59,6 +59,14 @@ module.exports = {
     // Too many false positives
     // See https://github.com/eslint/eslint/issues/11899 and similar
     'require-atomic-updates': 'off',
+
+    // eslint-plugin-qunit
+    'qunit/assert-args': 'off',
+    'qunit/literal-compare-order': 'off',
+    'qunit/no-identical-names': 'off',
+    'qunit/no-ok-equality': 'off',
+    'qunit/require-expect': 'off',
+    'qunit/resolve-async': 'off',
   },
   globals: {
     heimdall: true,
