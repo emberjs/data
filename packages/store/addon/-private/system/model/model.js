@@ -24,10 +24,6 @@ import { InvalidError } from '@ember-data/adapter/error';
 
 const { changeProperties } = Ember;
 
-/**
-  @module @ember-data/model
-*/
-
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
 
@@ -137,12 +133,8 @@ if (REQUEST_SERVICE) {
 }
 
 /**
-
-  The model class that all Ember Data records descend from.
-  This is the public API of Ember Data models. If you are using Ember Data
-  in your application, this is the class you should use.
-
   @class Model
+  @module @ember-data/model
   @extends EmberObject
   @uses EmberData.DeprecatedEvented
 */

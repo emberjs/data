@@ -106,7 +106,7 @@ function hasValue(internalModel, key) {
   @method attr
   @public
   @static
-  @for @ember-data/model
+  @for model_package_named_exports
   @param {String|Object} type the attribute type
   @param {Object} options a hash of options
   @return {Attribute}
