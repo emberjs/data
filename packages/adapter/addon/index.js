@@ -1,5 +1,6 @@
 /**
   @module @ember-data/adapter
+  @main @ember-data/adapter
 */
 
 import EmberObject from '@ember/object';
@@ -58,7 +59,6 @@ import EmberObject from '@ember/object';
   @class Adapter
   @extends EmberObject
 */
-
 export default EmberObject.extend({
   /**
     If you would like your adapter to use a custom serializer you can
@@ -666,3 +666,5 @@ export default EmberObject.extend({
     return true;
   },
 });
+
+export { BuildURLMixin } from './-private';
