@@ -12,7 +12,7 @@
  * ```
  */
 
-const { shellSync } = require('execa');
+const execa = require('execa');
 const cliArgs = require('command-line-args');
 const path = require('path');
 const fs = require('fs');
@@ -29,7 +29,7 @@ let [packageName] = cliOptions.package.substr(1).split('@');
 packageName = cliOptions.package.charAt(0) + packageName;
 
 function execWithLog(command) {
-  return shellSync(command, { stdio: [0, 1, 2] });
+  return execa.sync(command, { stdio: [0, 1, 2], shell: true });
 }
 
 const updatedFiles = [`package.json`];

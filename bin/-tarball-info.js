@@ -74,7 +74,7 @@
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-const { shellSync } = require('execa');
+const execa = require('execa');
 const debug = require('debug')('tarball-info');
 const chalk = require('chalk');
 const cliArgs = require('command-line-args');
@@ -115,10 +115,10 @@ if (options.hostPath.charAt(0) === '/') {
 function execWithLog(command, force) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
   if (debug.enabled || force) {
-    return shellSync(command, { stdio: [0, 1, 2] });
+    return execa.sync(command, { stdio: [0, 1, 2], shell: true });
   }
 
-  return shellSync(command).stdout;
+  return execa.sync(command, { shell: true }).stdout;
 }
 
 function convertPackageNameToTarballName(str) {

@@ -2,7 +2,7 @@
 const ESLINT = '.eslintrc.js';
 const fs = require('fs');
 const path = require('path');
-const { shellSync } = require('execa');
+const execa = require('execa');
 const projectRoot = path.resolve(__dirname, '../');
 const eslintPath = path.join(projectRoot, ESLINT);
 const eslintInfo = require(eslintPath);
@@ -16,7 +16,7 @@ function unlinkTemp() {
 }
 
 // grab only the staged files
-let LIST = shellSync('git diff-index --cached --diff-filter=d --name-only HEAD').stdout;
+let LIST = execa.sync('git diff-index --cached --diff-filter=d --name-only HEAD', { shell: true }).stdout;
 
 if (LIST) {
   LIST = LIST.split(/\r?\n/);
@@ -31,7 +31,7 @@ if (LIST) {
       eslintInfo.extends.push('plugin:qunit/recommended');
       fs.writeFileSync(tmpEslint, `module.exports = ${JSON.stringify(eslintInfo)}`);
       // execut the linter with additional qunit rules
-      shellSync(`yarn eslint --config ${tmpEslint} ${LIST}`, { stdio: 'inherit' });
+      execa.sync(`yarn eslint --config ${tmpEslint} ${LIST}`, { stdio: 'inherit', shell: true });
     } catch (e) {
       unlinkTemp();
       console.log(e);

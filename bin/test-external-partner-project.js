@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { shellSync } = require('execa');
+const execa = require('execa');
 // apparently violates no-extraneous require? /shrug
 const debug = require('debug')('test-external');
 const rimraf = require('rimraf');
@@ -42,10 +42,10 @@ function execExternal(command, force) {
 function execWithLog(command, force) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
   if (debug.enabled || force) {
-    return shellSync(command, { stdio: [0, 1, 2] });
+    return execa.sync(command, { stdio: [0, 1, 2], shell: true });
   }
 
-  return shellSync(command);
+  return execa.sync(command, { shell: true }).stdout;
 }
 
 if (!fs.existsSync(tempDir)) {
