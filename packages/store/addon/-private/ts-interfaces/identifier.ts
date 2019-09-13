@@ -1,11 +1,11 @@
 /**
   @module @ember-data/store
 */
-export const IS_IDENTIFIER = Symbol('is-identifier');
+import { symbol } from '../ts-interfaces/utils/symbol';
 
 // provided for additional debuggability
-export const DEBUG_CLIENT_ORIGINATED = Symbol('record-originated-on-client');
-export const DEBUG_IDENTIFIER_BUCKET = Symbol('identifier-bucket');
+export const DEBUG_CLIENT_ORIGINATED: unique symbol = symbol('record-originated-on-client');
+export const DEBUG_IDENTIFIER_BUCKET: unique symbol = symbol('identifier-bucket');
 
 export interface Identifier {
   lid: string;
@@ -32,7 +32,6 @@ export interface RecordIdentifier extends Identifier {
  * @internal
  */
 export interface StableIdentifier extends Identifier {
-  [IS_IDENTIFIER]: true;
   [DEBUG_IDENTIFIER_BUCKET]?: string;
 }
 
