@@ -286,7 +286,7 @@ const RESTSerializer = JSONSerializer.extend({
           'The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.';
 
         deprecate(message, !isQueryRecordAnArray, {
-          id: 'ember-data:store-queryrecord-array-response-with-restserializer',
+          id: 'ds.serializer.rest.queryRecord-array-response',
           until: '3.0',
           url:
             'https://deprecations.emberjs.com/ember-data/v2.x/#toc_store-queryrecord-array-response-with-restserializer',
