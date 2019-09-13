@@ -91,6 +91,7 @@ import notifyChanges from './model/notify-changes';
   values.
 
   @class Store
+  @main @ember-data/store
   @extends Ember.Service
 */
 
