@@ -23,6 +23,7 @@ import AdapterError, {
 } from '@ember-data/adapter/error';
 import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
+import { serializeIntoHash } from './-private';
 
 const Promise = EmberPromise;
 const hasJQuery = typeof jQuery !== 'undefined';
@@ -725,13 +726,11 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   createRecord(store, type, snapshot) {
-    let data = {};
-    let serializer = store.serializerFor(type.modelName);
     let url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
-    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+    const data = serializeIntoHash(store, type, snapshot);
 
-    return this.ajax(url, 'POST', { data: data });
+    return this.ajax(url, 'POST', { data });
   },
 
   /**
@@ -751,15 +750,12 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   updateRecord(store, type, snapshot) {
-    let data = {};
-    let serializer = store.serializerFor(type.modelName);
-
-    serializer.serializeIntoHash(data, type, snapshot);
+    const data = serializeIntoHash(store, type, snapshot, {});
 
     let id = snapshot.id;
     let url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
 
-    return this.ajax(url, 'PUT', { data: data });
+    return this.ajax(url, 'PUT', { data });
   },
 
   /**

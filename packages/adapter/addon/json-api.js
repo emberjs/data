@@ -4,6 +4,7 @@
 import { dasherize } from '@ember/string';
 import RESTAdapter from './rest';
 import { pluralize } from 'ember-inflector';
+import { serializeIntoHash } from './-private';
 
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It
@@ -228,12 +229,8 @@ const JSONAPIAdapter = RESTAdapter.extend({
     return pluralize(dasherized);
   },
 
-  // TODO: Remove this once we have a better way to override HTTP verbs.
   updateRecord(store, type, snapshot) {
-    let data = {};
-    let serializer = store.serializerFor(type.modelName);
-
-    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+    const data = serializeIntoHash(store, type, snapshot);
 
     let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
 
