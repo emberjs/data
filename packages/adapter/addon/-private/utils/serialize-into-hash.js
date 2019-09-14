@@ -3,7 +3,7 @@ export default function serializeIntoHash(store, modelClass, snapshot, options =
 
   if (typeof serializer.serializeIntoHash === 'function') {
     const data = {};
-    serializer.serializeIntoHash(data, type, snapshot, options);
+    serializer.serializeIntoHash(data, modelClass, snapshot, options);
     return data;
   }
 
