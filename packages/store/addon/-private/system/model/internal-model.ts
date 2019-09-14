@@ -1469,9 +1469,6 @@ export default class InternalModel {
               this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
             }
           }
-        } else {
-          // TODO recordData.getErrors code branch
-          throw new Error(`Support for RecordData.getErrors is not yet present`);
         }
 
         let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);

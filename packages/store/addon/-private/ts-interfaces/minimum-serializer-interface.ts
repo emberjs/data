@@ -109,6 +109,7 @@ interface Serializer {
    *    will be `camelCase`.
    *
    * @method normalizeResponse
+   * @public
    * @param {Store} store - the store service that initiated the request being normalized
    * @param {ShimModelClass} schema - An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
@@ -153,6 +154,7 @@ interface Serializer {
    * is not implemented.
    *
    * @method serialize
+   * @public
    * @param {Snapshot} snapshot - A Snapshot for the record to serialize
    * @param {object} options
    */
@@ -193,6 +195,8 @@ interface Serializer {
    * it may lead to unexpected mixing of formats.
    *
    * @method normalize [OPTIONAL]
+   * @public
+   * @optional
    * @param {ShimModelClass} schema - An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {JSONObject} rawPayload - Some raw JSON data to be normalized into a `JSON:API` resource.
@@ -232,12 +236,15 @@ interface Serializer {
    * ```
    *
    * @method serializeIntoHash [OPTIONAL]
+   * @public
+   * @optional
    * @param hash - an top most object of the request payload onto
    *  which to append the serialized record
    * @param {ShimModelClass} schema - An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {Snapshot} snapshot - A Snapshot for the record to serialize
    * @param options
+   * @returns {void}
    */
   serializeIntoHash?(hash: object, schema: ShimModelClass, snapshot: Snapshot, options?: OptionsHash): void;
 
@@ -260,6 +267,8 @@ interface Serializer {
    * ```
    *
    * @method pushPayload [OPTIONAL]
+   * @public
+   * @optional
    * @param {Store} store - the store service that initiated the request being normalized
    * @param {JSONObject} rawPayload - The raw JSON response data returned from an API request.
    *  This JSON should be in the API format expected by the serializer.
