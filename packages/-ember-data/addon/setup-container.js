@@ -28,8 +28,6 @@ function initializeStore(application) {
   registerOptionsForType.call(application, 'serializer', { singleton: false });
   registerOptionsForType.call(application, 'adapter', { singleton: false });
 
-  application.register('adapter:-json-api', JSONAPIAdapter);
-
   if (!hasRegistration(application, 'service:store')) {
     application.register('service:store', Store);
   }
