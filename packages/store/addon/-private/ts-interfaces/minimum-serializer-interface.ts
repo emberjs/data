@@ -44,13 +44,42 @@
 
   #### Serializer Resolution
 
-  How to achieve per-model
-  How to achieve per-API
-  How to achieve single
+  The instances of serializers defined in `app/serializers/` can be looked up
+  via `store.serializerFor(name)`.
+
+  It is recommended that applications define only a single `application` adapter and serializer
+  where possible.
+
+  `serializerFor` first attempts to find a serializer with an exact match on `name`,
+  then falls back to checking for the presence of a serializer named `application`.
+
+  Because most requests in `ember-data` occur from the perspective of a primary `type`
+  (or `modelName`) typically `serializerFor` will be used to find a serializer with a name
+  matching that of the primary resource `type` for the request, falling back to the `application`
+  serializer for those types that do not have a defined serializer. This is often described
+  as a `per-model` or `per-type` strategy for defining serializers. However, because APIs
+  rarely format payloads per-type but rather per-API-version, this may not be a desired strategy.
+
+  If you have multiple API formats and the per-type strategy is not viable, one strategy is to
+  write an `application` adapter and serializer that make use of `options` to specify the desired
+  format when making a request.
 
   ### Using a Serializer
 
+  Any serializer in `app/serializers` can be looked up by `name` using `store.serializerFor(name)`.
+
   ### Default Serializers
+
+  It is recommended that apps write their own serializer to best suit the needs of their API and
+  application.
+
+  However, for applications whose APIs are *very close to* or *exactly* the `REST` or `JSON:API`
+  format the `@ember-data/serializer` package contains implementations these applications can
+  extend. It also contains a simly `JSONSerializer` for serializing to/from very simple JSON objects.
+
+  Many applications will find writing their own serializer to be more performant and less
+  complex than extending these classes even when their API format is very close to that expected
+  by these serializers.
 
   @module @ember-data/serializer
   @main @ember-data/serializer
