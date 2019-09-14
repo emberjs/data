@@ -29,14 +29,6 @@
       "*": ["types/*"]
     }
   },
-  "include": [
-    "app/**/*",
-    "addon/**/*",
-    "tests/**/*",
-    "types/**/*",
-    "test-support/**/*",
-    "addon-test-support/**/*",
-    "../store/addon/minimum-serializer-interface.ts"
-  ],
+  "include": ["app/**/*", "addon/**/*", "tests/**/*", "types/**/*", "test-support/**/*", "addon-test-support/**/*"],
   "exclude": ["node_modules"]
 }
