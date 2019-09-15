@@ -731,6 +731,11 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@ember/edition-utils@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.npmjs.org/@ember/edition-utils/-/edition-utils-1.1.1.tgz#d5732c3da593f202e6e1ac6dbee56a758242403f"
+  integrity sha512-GEhri78jdQp/xxPpM6z08KlB0wrHfnfrJ9dmQk7JeQ4XCiMzXsJci7yooQgg/IcTKCM/PxE/IkGCQAo80adMkw==
+
 "@ember/optional-features@^0.7.0":
   version "0.7.0"
   resolved "https://registry.npmjs.org/@ember/optional-features/-/optional-features-0.7.0.tgz#f65a858007020ddfb8342f586112750c32abd2d9"
