@@ -2,6 +2,7 @@ const inflection = require('inflection');
 const stringUtils = require('ember-cli-string-utils');
 const EOL = require('os').EOL;
 const useEditionDetector = require('@ember-data/-build-infra/src/utilities/edition-detector');
+const { has } = require('@ember/edition-utils');
 
 module.exports = useEditionDetector({
   description: 'Generates an ember-data model.',
@@ -65,7 +66,7 @@ module.exports = useEditionDetector({
     if (attrs.length) {
       let attrTransformer, attrSeparator;
 
-      let isOctane = process.env.EMBER_VERSION === 'OCTANE';
+      let isOctane = has('octane');
       if (isOctane) {
         attrTransformer = nativeAttr;
         attrSeparator = ';';
