@@ -3292,7 +3292,7 @@ abstract class CoreStore extends Service {
     // `adapter` property on store: use json-api adapter
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
     assert(
-      `No adapter was found for '${modelName}' and no 'application' adapter were found as a fallback.`,
+      `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
       adapter !== undefined
     );
     set(adapter, 'store', this);
