@@ -140,7 +140,7 @@ import { computedMacroWithOptionalParams } from './util';
   @method hasMany
   @public
   @static
-  @for model_package_named_exports
+  @for @ember-data/model
   @param {String} type (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
