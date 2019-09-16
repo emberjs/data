@@ -918,7 +918,7 @@ abstract class CoreStore extends Service {
     ### Retrieving Related Model Records
 
     If you use an adapter such as Ember's default
-    [`JSONAPIAdapter`](https://emberjs.com/api/data/classes/JSONAPIAdapter.html)
+    [`JSONAPIAdapter`](https://emberjs.com/ember-data/release/classes/JSONAPIAdapter)
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
@@ -1844,7 +1844,7 @@ abstract class CoreStore extends Service {
     ```
 
     This method returns a promise, which is resolved with an
-    [`AdapterPopulatedRecordArray`](https://emberjs.com/api/data/classes/AdapterPopulatedRecordArray.html)
+    [`AdapterPopulatedRecordArray`](https://emberjs.com/ember-data/release/classes/AdapterPopulatedRecordArray)
     once the server returns.
 
     @since 1.13.0
@@ -2172,7 +2172,7 @@ abstract class CoreStore extends Service {
     ### Retrieving Related Model Records
 
     If you use an adapter such as Ember's default
-    [`JSONAPIAdapter`](https://emberjs.com/api/data/classes/JSONAPIAdapter.html)
+    [`JSONAPIAdapter`](https://emberjs.com/ember-data/release/classes/JSONAPIAdapter)
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
