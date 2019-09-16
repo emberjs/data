@@ -75,7 +75,7 @@
 
   However, for applications whose APIs are *very close to* or *exactly* the `REST` or `JSON:API`
   format the `@ember-data/serializer` package contains implementations these applications can
-  extend. It also contains a simly `JSONSerializer` for serializing to/from very simple JSON objects.
+  extend. It also contains a simple `JSONSerializer` for serializing to/from very basic JSON objects.
 
   Many applications will find writing their own serializer to be more performant and less
   complex than extending these classes even when their API format is very close to that expected
