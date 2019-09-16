@@ -1858,7 +1858,7 @@ post.constructor.typeKey => postSnapshot.typeKey
 If you need to access the underlying record of a snapshot you can do so by
 accessing `snapshot.record`.
 
-The full API reference of `DS.Snapshot` can be found [here](https://emberjs.com/ember-data/release/classes/DS.Snapshot).
+The full API reference of `DS.Snapshot` can be found [here](https://emberjs.com/ember-data/release/classes/Snapshot).
 
 #### Changes
 
