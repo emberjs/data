@@ -136,7 +136,7 @@ class Store extends CoreStore {
 
   The class of a model might be useful if you want to get a list of all the
   relationship names of the model, see
-  [`relationshipNames`](https://emberjs.com/api/data/classes/Model.html#property_relationshipNames)
+  [`relationshipNames`](https://emberjs.com/ember-data/release/classes/Model#property_relationshipNames)
   for example.
 
   @method modelFor

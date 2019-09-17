@@ -20,9 +20,9 @@
 
   export default Model.extend({
     name: attr(),
-    
+
     dog: belongsTo('pet', { inverse: 'owners', async: false }),
-    
+
     friends: hasMany('person', { inverse: 'friends', async: true }),
   });
   ```
@@ -35,7 +35,7 @@
 
   @module @ember-data/model
   @main @ember-data/model
-  @class model_package_named_exports
+  @class Model
   @public
  */
 

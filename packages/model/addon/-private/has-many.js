@@ -9,7 +9,7 @@ import { computedMacroWithOptionalParams } from './util';
 
 /**
   `hasMany` is used to define One-To-Many and Many-To-Many
-  relationships on a [Model](/api/data/classes/Model.html).
+  relationships on a [Model](/ember-data/release/classes/Model).
 
   `hasMany` takes an optional hash as a second parameter, currently
   supported options are:
@@ -123,7 +123,7 @@ import { computedMacroWithOptionalParams } from './util';
   ```
 
   In contrast to async relationship, accessing a sync relationship
-  will always return a [ManyArray](/api/data/classes/ManyArray.html) instance
+  will always return a [ManyArray](/ember-data/release/classes/ManyArray) instance
   containing the existing local resources. But it will error on access
   when any of the known related resources have not been loaded.
 
@@ -140,7 +140,7 @@ import { computedMacroWithOptionalParams } from './util';
   @method hasMany
   @public
   @static
-  @for model_package_named_exports
+  @for @ember-data/model
   @param {String} type (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship

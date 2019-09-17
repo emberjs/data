@@ -12,7 +12,7 @@ function isNumber(value) {
   The `NumberTransform` class is used to serialize and deserialize
   numeric attributes on Ember Data record objects. This transform is
   used when `number` is passed as the type parameter to the
-  [attr](./model_package_named_exports?anchor=attr) function.
+  [attr](/ember-data/release/modules/@ember-data%2Fmodel?anchor=attr) function.
 
   Usage
 

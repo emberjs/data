@@ -10,7 +10,7 @@ import { computedMacroWithOptionalParams } from './util';
 
 /**
   `belongsTo` is used to define One-To-One and One-To-Many
-  relationships on a [Model](/api/data/classes/Model.html).
+  relationships on a [Model](/ember-data/release/classes/Model).
 
 
   `belongsTo` takes an optional hash as a second parameter, currently
@@ -102,7 +102,7 @@ import { computedMacroWithOptionalParams } from './util';
   @method belongsTo
   @public
   @static
-  @for model_package_named_exports
+  @for @ember-data/model
   @param {String} modelName (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
@@ -149,7 +149,7 @@ function belongsTo(modelName, options) {
         }
         if (opts.hasOwnProperty('serialize')) {
           warn(
-            `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://emberjs.com/api/data/classes/Serializer.html`,
+            `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://emberjs.com/ember-data/release/classes/Serializer`,
             false,
             {
               id: 'ds.model.serialize-option-in-belongs-to',
@@ -159,7 +159,7 @@ function belongsTo(modelName, options) {
 
         if (opts.hasOwnProperty('embedded')) {
           warn(
-            `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://emberjs.com/api/data/classes/EmbeddedRecordsMixin.html`,
+            `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://emberjs.com/ember-data/release/classes/EmbeddedRecordsMixin`,
             false,
             {
               id: 'ds.model.embedded-option-in-belongs-to',

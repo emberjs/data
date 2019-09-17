@@ -457,7 +457,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     key. Arbitrary headers can be set as key/value pairs on the
     `RESTAdapter`'s `headers` object and Ember Data will send them
     along with each ajax request. For dynamic headers see [headers
-    customization](/api/data/classes/RESTAdapter.html).
+    customization](/ember-data/release/classes/RESTAdapter).
 
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
