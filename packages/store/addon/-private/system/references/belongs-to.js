@@ -1,5 +1,5 @@
 import { resolve } from 'rsvp';
-import { assertPolymorphicType } from 'ember-data/-debug';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
 import Model from '../model/model';
 import Reference from './reference';
 import recordDataFor from '../record-data-for';

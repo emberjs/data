@@ -88,7 +88,7 @@ module.exports = function(environment, isLocalBuild) {
 
   if (isProduction(environment) || isInstrumentedBuild()) {
     postTransformPlugins.push([StripClassCallCheck]);
-    uniqueAdd(filteredImports, 'ember-data/-debug', ['assertPolymorphicType']);
+    uniqueAdd(filteredImports, '@ember-data/store/-debug', ['assertPolymorphicType']);
   }
 
   plugins.push(

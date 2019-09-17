@@ -12,7 +12,7 @@ module.exports = Object.assign(addonBaseConfig, {
       '@ember-data/canary-features',
       'ember-inflector',
       '@ember/ordered-set',
-      'ember-data/-debug',
+      '@ember-data/store/-debug',
       'require',
     ];
   },
