@@ -55,6 +55,10 @@ jobs:
           yarn test
         displayName: 'Basic Tests'
 
+      - script: |
+          yarn test:encapsulation
+        displayName: 'Encapsulation Tests'
+
   - job: Ember_Data_builds_tests
     dependsOn: Basic_Ember_Data_tests
 
