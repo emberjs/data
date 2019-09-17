@@ -4,8 +4,8 @@
   In order to properly manage and present your data, `EmberData`
   needs to understand the structure of data it receives.
 
-  `Serializers` convert data between the format used by an API
-  and the format `EmberData` understands.
+  `Serializers` convert data between the server's API format and
+  the format `EmberData` understands.
 
   Data received from an API response is `"normalized"` into 
   [JSON:API](https://jsonapi.org/) (the format used internally
@@ -15,8 +15,9 @@
   ### Implementing a Serializer
 
   There are only two required serializer methods, one for
-  normalizing data in `JSON:API`, and another for serializing
-  records via `Snapshot`s into the expected API.
+  normalizing data from the server API format into `JSON:API`, and
+  another for serializing records via `Snapshot`s into the expected
+  server API format.
 
   To implement a serializer, export a class implementing the
   [MinimumSerializerInterface](MinimumSerializerInterface) from
@@ -26,9 +27,10 @@
   import EmberObject from '@ember/object';
 
   export default class ApplicationSerializer extends EmberObject {
-    normalizeResponse(_, __, rawPayload) {
+    normalizeResponse(store, schema, rawPayload) {
       return rawPayload;
     }
+
     serialize(snapshot, options) {
       const serializedResource = {
         id: snapshot.id(),
@@ -52,6 +54,14 @@
 
   `serializerFor` first attempts to find a serializer with an exact match on `name`,
   then falls back to checking for the presence of a serializer named `application`.
+
+  ```ts
+  store.serializerFor('author');
+
+  // lookup paths (in order) =>
+  //   app/serializers/author.js
+  //   app/serializers/application.js
+  ```
 
   Because most requests in `ember-data` occur from the perspective of a primary `type`
   (or `modelName`) typically `serializerFor` will be used to find a serializer with a name
@@ -100,13 +110,16 @@ interface Serializer {
    * This method is responsible for normalizing the value resolved from the promise returned
    * by an Adapter request into the format expected by the `Store`.
    *
-   * The output should be a [JSON:API](https://jsonapi.org/) document with the following
-   * additional restrictions:
+   * The output should be a [JSON:API Document](https://jsonapi.org/format/#document-structure)
+   * with the following additional restrictions:
    *
    * - `type` should be formatted in the `singular` `dasherized` `lowercase` form
    * - `members` (the property names of attributes and relationships) should be formatted
    *    to match their definition in the corresponding `Model` definition. Typically this
    *    will be `camelCase`.
+   * - [`lid`](https://github.com/emberjs/rfcs/blob/master/text/0403-ember-data-identifiers.md) is
+   *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
+   *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
    * @method normalizeResponse
    * @public
@@ -121,7 +134,7 @@ interface Serializer {
    * @param {'findRecord' | 'queryRecord' | 'findAll' | 'findBelongsTo' | 'findHasMany' | 'findMany' | 'query' | 'createRecord' | 'deleteRecord' | 'updateRecord'} requestType - The
    *  type of request the Adapter had been asked to perform.
    *
-   * @returns {JsonApiDocument} - a document following the structure of a `JSON:API` Document.
+   * @returns {JsonApiDocument} - a document following the structure of a [JSON:API Document](https://jsonapi.org/format/#document-structure).
    */
   normalizeResponse(
     store: Store,
@@ -161,8 +174,16 @@ interface Serializer {
   serialize(snapshot: Snapshot, options?: OptionsHash): JSONObject;
 
   /**
-   * This method is intended to normalize data into a `JsonApiDocument` representing
-   * with a data member containing a single `resource`.
+   * This method is intended to normalize data into a [JSON:API Document](https://jsonapi.org/format/#document-structure)
+   * with a data member containing a single [Resource](https://jsonapi.org/format/#document-resource-objects).
+   *
+   * - `type` should be formatted in the `singular` `dasherized` `lowercase` form
+   * - `members` (the property names of attributes and relationships) should be formatted
+   *    to match their definition in the corresponding `Model` definition. Typically this
+   *    will be `camelCase`.
+   * - [`lid`](https://github.com/emberjs/rfcs/blob/master/text/0403-ember-data-identifiers.md) is
+   *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
+   *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
    * This method is called by the `Store` when `store.normalize(modelName, payload)` is
    * called. It is recommended to use `store.serializerFor(modelName).normalizeResponse`
@@ -199,11 +220,12 @@ interface Serializer {
    * @optional
    * @param {ShimModelClass} schema - An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
-   * @param {JSONObject} rawPayload - Some raw JSON data to be normalized into a `JSON:API` resource.
+   * @param {JSONObject} rawPayload - Some raw JSON data to be normalized into a [JSON:API Resource](https://jsonapi.org/format/#document-resource-objects).
    * @param {string} [prop] - When called by the `EmbeddedRecordsMixin` this param will be the
    *  property at which the object provided as rawPayload was found.
-   * @returns {SingleResourceDocument} - A `JSON:API` document containing a single `resource` as
-   * its primary data.
+   * @returns {SingleResourceDocument} - A [JSON:API Document](https://jsonapi.org/format/#document-structure)
+   *  containing a single [JSON:API Resource](https://jsonapi.org/format/#document-resource-objects)
+   *  as its primary data.
    */
   normalize?(schema: ShimModelClass, rawPayload: JSONObject, prop?: string): SingleResourceDocument;
 
@@ -249,11 +271,22 @@ interface Serializer {
   serializeIntoHash?(hash: object, schema: ShimModelClass, snapshot: Snapshot, options?: OptionsHash): void;
 
   /**
-   * This method is called by `store.pushPayload` and should be implemented if
-   * you want to use that method.
+   * This method allows for normalization of data when `store.pushPayload` is called
+   * and should be implemented if you want to use that method.
    *
    * It is recommended to use `store.push` over `store.pushPayload` after normalizing
    * the payload directly.
+   *
+   * The output should be a [JSON:API Document](https://jsonapi.org/format/#document-structure)
+   * with the following additional restrictions:
+   *
+   * - `type` should be formatted in the `singular` `dasherized` `lowercase` form
+   * - `members` (the property names of attributes and relationships) should be formatted
+   *    to match their definition in the corresponding `Model` definition. Typically this
+   *    will be `camelCase`.
+   * - [`lid`](https://github.com/emberjs/rfcs/blob/master/text/0403-ember-data-identifiers.md) is
+   *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
+   *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
    * Example:
    * ```js
@@ -272,7 +305,7 @@ interface Serializer {
    * @param {Store} store - the store service that initiated the request being normalized
    * @param {JSONObject} rawPayload - The raw JSON response data returned from an API request.
    *  This JSON should be in the API format expected by the serializer.
-   * @returns {JsonApiDocument} - a document following the structure of a `JSON:API` Document.
+   * @returns {JsonApiDocument} - a document following the structure of a [JSON:API Document](https://jsonapi.org/format/#document-structure)
    */
   pushPayload?(store: Store, rawPayload: JSONObject): JsonApiDocument;
 }
