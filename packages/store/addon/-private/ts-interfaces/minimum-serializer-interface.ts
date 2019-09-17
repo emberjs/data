@@ -238,7 +238,7 @@ interface Serializer {
    * @method serializeIntoHash [OPTIONAL]
    * @public
    * @optional
-   * @param hash - an top most object of the request payload onto
+   * @param hash - a top most object of the request payload onto
    *  which to append the serialized record
    * @param {ShimModelClass} schema - An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
