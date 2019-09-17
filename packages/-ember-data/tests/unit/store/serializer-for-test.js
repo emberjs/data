@@ -30,23 +30,16 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
     );
   });
 
-  deprecatedTest(
-    'Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer',
-    {
-      id: 'ember-data:default-serializers',
-      until: '4.0',
-    },
-    function(assert) {
-      const ApplicationSerializer = DS.JSONSerializer.extend();
+  test('Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer', function(assert) {
+    const ApplicationSerializer = DS.JSONSerializer.extend();
 
-      this.owner.register('serializer:application', ApplicationSerializer);
+    this.owner.register('serializer:application', ApplicationSerializer);
 
-      assert.ok(
-        store.serializerFor('person') instanceof ApplicationSerializer,
-        'serializer returned from serializerFor is an instance of ApplicationSerializer'
-      );
-    }
-  );
+    assert.ok(
+      store.serializerFor('person') instanceof ApplicationSerializer,
+      'serializer returned from serializerFor is an instance of ApplicationSerializer'
+    );
+  });
 
   deprecatedTest(
     'Calling serializerFor with a type that has not been registered and in an application that does not have an ApplicationSerializer looks up the default Ember Data serializer',
