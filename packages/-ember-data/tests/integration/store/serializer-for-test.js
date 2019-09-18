@@ -307,7 +307,7 @@ module('integration/store - serializerFor', function(hooks) {
     );
 
     deprecatedTest(
-      'specifying defaultSerializer on a fallback serializer when there is no per-type serializer does work',
+      'specifying defaultSerializer on a fallback adapter when there is no per-type serializer does work',
       {
         id: 'ember-data:default-serializers',
         until: '4.0',
