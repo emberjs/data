@@ -16,7 +16,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
   });
 
-  test('scott hasMany handles pre-loaded relationships', function(assert) {
+  test('hasMany handles pre-loaded relationships', function(assert) {
     assert.expect(13);
 
     const Tag = DS.Model.extend({
