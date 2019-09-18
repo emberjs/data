@@ -1,6 +1,4 @@
 import { setupTest } from 'ember-qunit';
-
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import { module, test } from 'qunit';
 
@@ -54,10 +52,4 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
       );
     }
   );
-
-  testInDebug('Calling serializerFor with a model class should assert', function(assert) {
-    assert.expectAssertion(() => {
-      store.serializerFor(Person);
-    }, /Passing classes to store.serializerFor has been removed/);
-  });
 });

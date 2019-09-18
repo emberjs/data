@@ -623,7 +623,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   toJSON(options) {
     // container is for lazy transform lookups
-    deprecate('deprecate toJSON', false, {
+    deprecate('Deprecates the built in `record.toJSON` since this method used the now deprecated `-json` serializer to create this JSON representation of the record.', false, {
       id: 'ember-data:model.toJSON',
       until: '4.0',
       url: 'https://github.com/ember-learn/deprecation-app/tree/master/content/ember-data/v3/toJSON.md',
