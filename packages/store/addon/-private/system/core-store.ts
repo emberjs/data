@@ -3382,7 +3382,7 @@ abstract class CoreStore extends Service {
     }
 
     // final fallback, no model specific serializer, no application serializer, no
-    // `serializer` property on store: use json-api serializer
+    // `serializer` property on store: use the convenience JSONSerializer
     serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
     if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       const JSONSerializer = require('@ember-data/serializer/json').default;
