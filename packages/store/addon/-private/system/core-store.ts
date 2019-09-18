@@ -102,7 +102,8 @@ let globalClientIdCounter = 1;
 const HAS_SERIALIZER_PACKAGE = has('@ember-data/serializer');
 const HAS_ADAPTER_PACKAGE = has('@ember-data/adapter');
 
-function deprecateTestRegistration(factoryType: 'serializer' | 'adapter', factoryName: '-json-api' | '-rest' | '-default'): void;
+function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
+function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
 function deprecateTestRegistration(factoryType: 'serializer' | 'adapter', factoryName: '-json-api' | '-rest' | '-default'): void {
   deprecate(
     `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
@@ -3228,16 +3229,6 @@ abstract class CoreStore extends Service {
         owner.register(`adapter:-json-api`, Adapter);
         adapter = owner.lookup(`adapter:-json-api`);
         deprecateTestRegistration('adapter', '-json-api');
-      } else if (normalizedModelName === '-rest') {
-        const Adapter = require('@ember-data/adapter/rest').default;
-        owner.register(`adapter:-rest`, Adapter);
-        adapter = owner.lookup(`adapter:-rest`);
-        deprecateTestRegistration('adapter', '-rest');
-      } else if (normalizedModelName === '-default') {
-        const Adapter = require('@ember-data/adapter/json-api').default;
-        owner.register(`adapter:-default`, Adapter);
-        adapter = owner.lookup(`adapter:-default`);
-        adapter && deprecateTestRegistration('adapter', '-default');
       }
     }
 
@@ -3268,16 +3259,6 @@ abstract class CoreStore extends Service {
         owner.register(`adapter:-json-api`, Adapter);
         adapter = owner.lookup(`adapter:-json-api`);
         deprecateTestRegistration('adapter', '-json-api');
-      } else if (adapterName === '-rest') {
-        const Adapter = require('@ember-data/adapter/rest').default;
-        owner.register(`adapter:-rest`, Adapter);
-        adapter = owner.lookup(`adapter:-rest`);
-        deprecateTestRegistration('adapter', '-rest');
-      } else if (adapterName === '-default') {
-        const Adapter = require('@ember-data/adapter/json-api').default;
-        owner.register(`adapter:-default`, Adapter);
-        adapter = owner.lookup(`adapter:-default`);
-        adapter && deprecateTestRegistration('adapter', '-default');
       }
     }
 

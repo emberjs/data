@@ -1,6 +1,5 @@
 import { DebugAdapter } from './-private';
 import Store from '@ember-data/store';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 function hasRegistration(application, registrationName) {
   // fallback our ember-data tests necessary
