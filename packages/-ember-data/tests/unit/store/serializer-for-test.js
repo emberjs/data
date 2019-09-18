@@ -52,4 +52,10 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
       );
     }
   );
+
+  testInDebug('Calling serializerFor with a model class should assert', function(assert) {
+    assert.expectAssertion(() => {
+      store.serializerFor(Person);
+    }, /Passing classes to store.serializerFor has been removed/);
+  });
 });
