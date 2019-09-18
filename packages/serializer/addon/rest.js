@@ -288,6 +288,8 @@ const RESTSerializer = JSONSerializer.extend({
         deprecate(message, !isQueryRecordAnArray, {
           id: 'ds.serializer.rest.queryRecord-array-response',
           until: '3.0',
+          url:
+            'https://deprecations.emberjs.com/ember-data/v2.x/#toc_store-queryrecord-array-response-with-restserializer',
         });
       }
 
