@@ -231,7 +231,7 @@ module('integration/store - serializerFor', function(hooks) {
     );
 
     deprecatedTest(
-      'specifying defaultSerializer on application serializer when there is a per-type serializer does not work',
+      'specifying defaultSerializer on the application adapter when there is a per-type serializer does not work',
       {
         id: 'ember-data:default-serializers',
         until: '4.0',
