@@ -100,10 +100,11 @@ type PendingSaveItem = {
 let globalClientIdCounter = 1;
 
 const HAS_SERIALIZER_PACKAGE = has('@ember-data/serializer');
+const HAS_ADAPTER_PACKAGE = has('@ember-data/adapter');
 
+function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
 function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
-// TODO add adapter here and deprecate those registrations as well after refactoring them to re-exports
-function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void {
+function deprecateTestRegistration(factoryType: 'serializer' | 'adapter', factoryName: '-json-api' | '-rest' | '-default'): void {
   deprecate(
     `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
     false,
@@ -3220,6 +3221,17 @@ abstract class CoreStore extends Service {
     let owner = getOwner(this);
 
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
+
+    // in production this is handled by the re-export
+    if (DEBUG && HAS_ADAPTER_PACKAGE && adapter === undefined) {
+      if (normalizedModelName === '-json-api') {
+        const Adapter = require('@ember-data/adapter/json-api').default;
+        owner.register(`adapter:-json-api`, Adapter);
+        adapter = owner.lookup(`adapter:-json-api`);
+        deprecateTestRegistration('adapter', '-json-api');
+      }
+    }
+
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
@@ -3239,6 +3251,17 @@ abstract class CoreStore extends Service {
     // property defined on the store
     let adapterName = this.adapter || '-json-api';
     adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
+
+    // in production this is handled by the re-export
+    if (DEBUG && HAS_ADAPTER_PACKAGE && adapter === undefined) {
+      if (adapterName === '-json-api') {
+        const Adapter = require('@ember-data/adapter/json-api').default;
+        owner.register(`adapter:-json-api`, Adapter);
+        adapter = owner.lookup(`adapter:-json-api`);
+        deprecateTestRegistration('adapter', '-json-api');
+      }
+    }
+
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
@@ -3250,7 +3273,7 @@ abstract class CoreStore extends Service {
     // `adapter` property on store: use json-api adapter
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
     assert(
-      `No adapter was found for '${modelName}' and no 'application', store.adapter = 'adapter-fallback-name', or '-json-api' adapter were found as fallbacks.`,
+      `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
       adapter !== undefined
     );
     set(adapter, 'store', this);
