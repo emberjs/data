@@ -1,4 +1,4 @@
-import { assertPolymorphicType } from 'ember-data/-debug';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';

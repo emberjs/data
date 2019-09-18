@@ -8,7 +8,7 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import Model from '@ember-data/model';
 
-import { assertPolymorphicType } from 'ember-data/-debug';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { modelHasAttributeOrRelationshipNamedType } from '@ember-data/serializer/-private';
 
 module('unit/utils', function(hooks) {
