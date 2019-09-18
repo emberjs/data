@@ -1,6 +1,5 @@
 import { DebugAdapter } from './-private';
 import Store from '@ember-data/store';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 function hasRegistration(application, registrationName) {
   // fallback our ember-data tests necessary
@@ -27,8 +26,6 @@ function initializeStore(application) {
   let registerOptionsForType = application.registerOptionsForType || application.optionsForType;
   registerOptionsForType.call(application, 'serializer', { singleton: false });
   registerOptionsForType.call(application, 'adapter', { singleton: false });
-
-  application.register('adapter:-json-api', JSONAPIAdapter);
 
   if (!hasRegistration(application, 'service:store')) {
     application.register('service:store', Store);

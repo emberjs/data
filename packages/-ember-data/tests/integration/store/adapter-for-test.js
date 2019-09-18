@@ -27,22 +27,21 @@ module('integration/store - adapterFor', function(hooks) {
   test('when no adapter is available we throw an error', async function(assert) {
     let { owner } = this;
     /*
-      ensure our store instance does not specify a fallback
-      we use an empty string as that would cause `owner.lookup` to blow up if not guarded properly
-      whereas `null` `undefined` `false` would not.
-     */
-    store.adapter = '';
-    /*
       adapter:-json-api is the "last chance" fallback and is
-      registered automatically.
-      unregistering it will cause adapterFor to return `undefined`.
+      the json-api adapter which is re-exported as app/adapters/-json-api.
+      here we override to ensure adapterFor will return `undefined`.
      */
-    owner.unregister('adapter:-json-api');
+    const lookup = owner.lookup;
+    owner.lookup = registrationName => {
+      if (registrationName === 'adapter:-json-api') {
+        return undefined;
+      }
+      return lookup.call(owner, registrationName);
+    };
 
     assert.expectAssertion(() => {
-      let p = store.adapterFor('person');
-      debugger;
-    }, /No adapter was found for 'person' and no 'application', store\.adapter = 'adapter-fallback-name', or '-json-api' adapter were found as fallbacks\./);
+      store.adapterFor('person');
+    }, /Assertion Failed: No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
   });
 
   test('we find and instantiate the application adapter', async function(assert) {

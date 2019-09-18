@@ -5554,12 +5554,7 @@ ember-resolver@^5.0.1, ember-resolver@^5.2.1:
     ember-cli-version-checker "^3.1.3"
     resolve "^1.12.0"
 
-ember-rfc176-data@^0.3.1:
-  version "0.3.9"
-  resolved "https://registry.npmjs.org/ember-rfc176-data/-/ember-rfc176-data-0.3.9.tgz#44b6e051ead6c044ea87bd551f402e2cf89a7e3d"
-  integrity sha512-EiTo5YQS0Duy0xp9gCP8ekzv9vxirNi7MnIB4zWs+thtWp/mEKgf5mkiiLU2+oo8C5DuavVHhoPQDmyxh8Io1Q==
-
-ember-rfc176-data@^0.3.11, ember-rfc176-data@^0.3.12:
+ember-rfc176-data@^0.3.1, ember-rfc176-data@^0.3.11, ember-rfc176-data@^0.3.12:
   version "0.3.12"
   resolved "https://registry.npmjs.org/ember-rfc176-data/-/ember-rfc176-data-0.3.12.tgz#90d82878e69e2ac9a5438e8ce14d12c6031c5bd2"
   integrity sha512-g9HeZj/gU5bfIIrGXkP7MhS2b3Vu5DfNUrYr14hy99TgIvtZETO+96QF4WOEUXGjIJdfTRjerVnQlqngPQSv1g==
@@ -5838,10 +5833,10 @@ eslint-config-prettier@^6.3.0:
   dependencies:
     get-stdin "^6.0.0"
 
-eslint-plugin-ember@^6.2.0:
-  version "6.10.1"
-  resolved "https://registry.npmjs.org/eslint-plugin-ember/-/eslint-plugin-ember-6.10.1.tgz#ca7a5cc28b91a247c31b1686421a66281467f238"
-  integrity sha512-RZI0+UoR4xeD6UE3KQCUwbN2nZOIIPaFCCXqBIRXDr0rFuwvknAHqYtDPJVZicvTzNHa4TEZvAKqfbE8t7SztQ==
+eslint-plugin-ember@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.npmjs.org/eslint-plugin-ember/-/eslint-plugin-ember-7.0.0.tgz#75412b62501a8489b5b6345ccb6adfb877ceb38a"
+  integrity sha512-cMdYuKs46hpF5DEPQ2cccNjgC5xy0C1GcFfP47qiHTKAAAkHUttD/6DdEH3OwlreK/uFbF4fFaHxuq84xkaOgA==
   dependencies:
     "@ember-data/rfc395-data" "^0.0.4"
     ember-rfc176-data "^0.3.11"
@@ -9999,10 +9994,10 @@ quick-temp@^0.1.2, quick-temp@^0.1.3, quick-temp@^0.1.5, quick-temp@^0.1.8:
     rimraf "^2.5.4"
     underscore.string "~3.3.4"
 
-qunit-dom@^0.8.4:
-  version "0.8.5"
-  resolved "https://registry.npmjs.org/qunit-dom/-/qunit-dom-0.8.5.tgz#34b7cffb338e631c39955b21bdbe4d774090124e"
-  integrity sha512-I4GSy22ESUkoZYDSYsqFJoMvqhpmgd2iCYlrN7aWLEOdmumUkao3qz24/qVNZd1PAnoOQA78FefzNPRHePFx1A==
+qunit-dom@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.npmjs.org/qunit-dom/-/qunit-dom-0.9.0.tgz#99d15fffbf06059e543bb93dae8fe0a3f42a27b9"
+  integrity sha512-MvVEoCcf8BHVPD3gXg5GBfNy3JMZ3U3yOha4MB1rFs698EpvxMprOfC+NMEGvOF9Epm6GrsA0BFOdCKHd8Orrw==
   dependencies:
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.1"
