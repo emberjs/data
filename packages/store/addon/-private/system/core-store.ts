@@ -3497,7 +3497,7 @@ defineProperty(
       {
         id: 'ember-data:default-adapter',
         until: '4.0',
-        url: 'https://github.com/ember-learn/deprecation-app/tree/master/content/ember-data/v3/default-adapter.md'
+        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-adapter'
       }
     );
     let adapter = this.adapter || '-json-api';
