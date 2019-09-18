@@ -1,4 +1,5 @@
 import { setupTest } from 'ember-qunit';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import { module, test } from 'qunit';
 
