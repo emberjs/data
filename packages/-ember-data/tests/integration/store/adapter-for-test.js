@@ -28,7 +28,7 @@ module('integration/store - adapterFor', function(hooks) {
     let { owner } = this;
     /*
       adapter:-json-api is the "last chance" fallback and is
-      the json-api adapter which is re-exported as app/serializers/-default.
+      the json-api adapter which is re-exported as app/adapters/-json-api.
       here we override to ensure adapterFor will return `undefined`.
      */
     const lookup = owner.lookup;
