@@ -10,8 +10,9 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
  @param {Ember.Registry} registry
  */
 function initializeStore(application) {
-  application.registerOptionsForType.call(application, 'serializer', { singleton: false });
-  application.registerOptionsForType.call(application, 'adapter', { singleton: false });
+  let registerOptionsForType = application.registerOptionsForType || application.optionsForType;
+  registerOptionsForType.call(application, 'serializer', { singleton: false });
+  registerOptionsForType.call(application, 'adapter', { singleton: false });
 
   application.register('adapter:-json-api', JSONAPIAdapter);
 
