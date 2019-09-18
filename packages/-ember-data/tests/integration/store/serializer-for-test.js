@@ -50,9 +50,6 @@ module('integration/store - serializerFor', function(hooks) {
       if (registrationName === 'serializer:-default') {
         return undefined;
       }
-      if (registrationName === 'serializer:-json-api') {
-        return undefined;
-      }
       return lookup.call(owner, registrationName);
     };
     /*
