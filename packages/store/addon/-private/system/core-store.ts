@@ -3347,7 +3347,7 @@ abstract class CoreStore extends Service {
     deprecate(`store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`, !serializerName, {
       id: 'ember-data:default-serializer',
       until: '4.0',
-      url: 'https://github.com/ember-learn/deprecation-app/tree/master/content/ember-data/v3/default-serializer.md'
+      url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers'
     });
 
     serializer = serializerName
