@@ -16,7 +16,9 @@ function initializeStore(application) {
 
   application.register('adapter:-json-api', JSONAPIAdapter);
 
-  application.register('service:store', Store);
+  if (!application.hasRegistration('service:store')) {
+    application.register('service:store', Store);
+  }
 }
 
 /*
