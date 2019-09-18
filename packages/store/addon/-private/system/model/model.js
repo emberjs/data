@@ -623,6 +623,15 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   toJSON(options) {
     // container is for lazy transform lookups
+    deprecate(
+      `Called the built-in \`toJSON\` on the record "${this.constructor.modelName}:${this.id}". The built-in \`toJSON\` method on instances of classes extending \`Model\` is deprecated. For more information see the link below.`,
+      false,
+      {
+        id: 'ember-data:model.toJSON',
+        until: '4.0',
+        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-toJSON',
+      }
+    );
     let serializer = this._internalModel.store.serializerFor('-default');
     let snapshot = this._internalModel.createSnapshot();
 

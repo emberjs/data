@@ -139,6 +139,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
     assert.equal(callCount, 0, 'precond - didCreate callback was not called yet');
 

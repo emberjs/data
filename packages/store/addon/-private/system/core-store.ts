@@ -29,7 +29,6 @@ import { promiseArray, promiseObject } from './promise-proxies';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 
 import { normalizeResponseHelper } from './store/serializer-response';
-import { serializerForAdapter } from './store/serializers';
 import recordDataFor from './record-data-for';
 import FetchManager, { SaveOp } from './fetch-manager';
 
@@ -1277,8 +1276,8 @@ abstract class CoreStore extends Service {
       if (missingInternalModels.length) {
         warn(
           'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-            missingInternalModels.map(r => r.id).join('", "') +
-            '" ]',
+          missingInternalModels.map(r => r.id).join('", "') +
+          '" ]',
           false,
           {
             id: 'ds.store.missing-records-from-adapter',
@@ -1299,9 +1298,9 @@ abstract class CoreStore extends Service {
         if (pair) {
           pair.resolver.reject(
             error ||
-              new Error(
-                `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
-              )
+            new Error(
+              `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
+            )
           );
         }
       }
@@ -1339,12 +1338,12 @@ abstract class CoreStore extends Service {
         }
 
         if (totalInGroup > 1) {
-          (function(groupedInternalModels) {
+          (function (groupedInternalModels) {
             _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
-              .then(function(foundInternalModels) {
+              .then(function (foundInternalModels) {
                 handleFoundRecords(foundInternalModels, groupedInternalModels);
               })
-              .catch(function(error) {
+              .catch(function (error) {
                 rejectInternalModels(groupedInternalModels, error);
               });
           })(groupedInternalModels);
@@ -3367,6 +3366,13 @@ abstract class CoreStore extends Service {
     // property defined on the adapter
     let adapter = this.adapterFor(modelName);
     let serializerName = get(adapter, 'defaultSerializer');
+
+    deprecate(`store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`, !serializerName, {
+      id: 'ember-data:default-serializer',
+      until: '4.0',
+      url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers'
+    });
+
     serializer = serializerName
       ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
       : undefined;
@@ -3399,7 +3405,7 @@ abstract class CoreStore extends Service {
     }
 
     // final fallback, no model specific serializer, no application serializer, no
-    // `serializer` property on store: use JSON serializer
+    // `serializer` property on store: use the convenience JSONSerializer
     serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
     if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       const JSONSerializer = require('@ember-data/serializer/json').default;
@@ -3408,6 +3414,12 @@ abstract class CoreStore extends Service {
 
       serializer && deprecateTestRegistration('serializer', '-default');
     }
+
+    deprecate(`store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`, !serializer, {
+      id: 'ember-data:default-serializer',
+      until: '4.0',
+      url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers'
+    });
 
     assert(
       `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
@@ -3443,12 +3455,12 @@ abstract class CoreStore extends Service {
         if (shouldTrack) {
           throw new Error(
             'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-              tracked.map(o => o.label).join('\n\t - ')
+            tracked.map(o => o.label).join('\n\t - ')
           );
         } else {
           warn(
             'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-              tracked.map(o => o.label).join('\n\t - '),
+            tracked.map(o => o.label).join('\n\t - '),
             false,
             {
               id: 'ds.async.leak.detected',
@@ -3501,7 +3513,16 @@ abstract class CoreStore extends Service {
 defineProperty(
   CoreStore.prototype,
   'defaultAdapter',
-  computed('adapter', function() {
+  computed('adapter', function () {
+    deprecate(
+      `store.adapterFor(modelName) resolved the ("${this.adapter || '-json-api'}") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
+      false,
+      {
+        id: 'ember-data:default-adapter',
+        until: '4.0',
+        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-adapter'
+      }
+    );
     let adapter = this.adapter || '-json-api';
 
     assert(
@@ -3526,7 +3547,7 @@ function _commit(adapter, store, operation, snapshot) {
   );
 
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-  let serializer = serializerForAdapter(store, adapter, modelName);
+  let serializer = store.serializerFor(modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
   assert(
@@ -3566,7 +3587,7 @@ function _commit(adapter, store, operation, snapshot) {
 
       return internalModel;
     },
-    function(error) {
+    function (error) {
       if (error instanceof InvalidError) {
         let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
         store.recordWasInvalid(internalModel, parsedErrors, error);

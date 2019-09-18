@@ -1,5 +1,6 @@
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import Store from 'ember-data/store';
 
 class TestAdapter {
@@ -183,75 +184,212 @@ module('integration/store - serializerFor', function(hooks) {
   });
 
   module('Adapter Fallback', function() {
-    test('we can specify a fallback serializer on the adapter when there is no application serializer', async function(assert) {
-      let { owner } = this;
-      let personAdapterDidInit = false;
-      let fallbackSerializerDidInit = false;
+    deprecatedTest(
+      'we can specify a fallback serializer on the adapter when there is no application serializer',
+      {
+        id: 'ember-data:default-serializers',
+        until: '4.0',
+      },
+      async function(assert) {
+        let { owner } = this;
+        let personAdapterDidInit = false;
+        let fallbackSerializerDidInit = false;
 
-      class PersonAdapter extends TestAdapter {
-        constructor() {
-          super(...arguments);
-          this.defaultSerializer = '-fallback';
+        class PersonAdapter extends TestAdapter {
+          constructor() {
+            super(...arguments);
+            this.defaultSerializer = '-fallback';
+          }
+
+          didInit() {
+            personAdapterDidInit = true;
+          }
+        }
+        class FallbackSerializer extends TestSerializer {
+          didInit() {
+            fallbackSerializerDidInit = true;
+          }
         }
 
-        didInit() {
-          personAdapterDidInit = true;
-        }
+        owner.register('adapter:person', PersonAdapter);
+        owner.register('serializer:-fallback', FallbackSerializer);
+
+        let serializer = store.serializerFor('person');
+
+        assert.ok(serializer instanceof FallbackSerializer, 'We found the serializer');
+        assert.ok(personAdapterDidInit, 'We instantiated the adapter');
+        assert.ok(fallbackSerializerDidInit, 'We instantiated the serializer');
+        personAdapterDidInit = false;
+        fallbackSerializerDidInit = false;
+
+        let fallbackSerializer = store.serializerFor('-fallback');
+        assert.ok(fallbackSerializer instanceof FallbackSerializer, 'We found the correct serializer');
+        assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the serializer again');
+        assert.ok(!personAdapterDidInit, 'We did not instantiate the adapter again');
+        assert.ok(fallbackSerializer === serializer, 'We fell back to the fallback-serializer instance');
       }
-      class FallbackSerializer extends TestSerializer {
-        didInit() {
-          fallbackSerializerDidInit = true;
+    );
+
+    deprecatedTest(
+      'specifying defaultSerializer on the application adapter when there is a per-type serializer does not work',
+      {
+        id: 'ember-data:default-serializers',
+        until: '4.0',
+      },
+      async function(assert) {
+        let { owner } = this;
+        let appAdapterDidInit = false;
+        let personAdapterDidInit = false;
+        let fallbackSerializerDidInit = false;
+        let defaultSerializerDidInit = false;
+
+        class AppAdapter extends TestAdapter {
+          constructor() {
+            super(...arguments);
+            this.defaultSerializer = '-fallback';
+          }
+
+          didInit() {
+            appAdapterDidInit = true;
+          }
         }
+        class PersonAdapter extends TestAdapter {
+          constructor() {
+            super(...arguments);
+            this.defaultSerializer = null;
+          }
+
+          didInit() {
+            personAdapterDidInit = true;
+          }
+        }
+        class FallbackSerializer extends TestSerializer {
+          didInit() {
+            fallbackSerializerDidInit = true;
+          }
+        }
+        class DefaultSerializer extends TestSerializer {
+          didInit() {
+            defaultSerializerDidInit = true;
+          }
+        }
+
+        owner.register('adapter:application', AppAdapter);
+        owner.register('adapter:person', PersonAdapter);
+        owner.register('serializer:-fallback', FallbackSerializer);
+        /*
+        serializer:-default is the "last chance" fallback and is
+        registered automatically as the json-api serializer.
+       */
+        owner.unregister('serializer:-default');
+        owner.register('serializer:-default', DefaultSerializer);
+
+        let serializer = store.serializerFor('person');
+
+        assert.ok(serializer instanceof DefaultSerializer, 'We found the serializer');
+        assert.ok(personAdapterDidInit, 'We instantiated the person adapter');
+        assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter');
+        assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the application adapter fallback serializer');
+        assert.ok(defaultSerializerDidInit, 'We instantiated the `-default` fallback serializer');
+        personAdapterDidInit = false;
+        appAdapterDidInit = false;
+        fallbackSerializerDidInit = false;
+        defaultSerializerDidInit = false;
+
+        let defaultSerializer = store.serializerFor('-default');
+        assert.ok(defaultSerializer instanceof DefaultSerializer, 'We found the correct serializer');
+        assert.ok(!defaultSerializerDidInit, 'We did not instantiate the serializer again');
+        assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter');
+        assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the application adapter fallback serializer');
+        assert.ok(!personAdapterDidInit, 'We did not instantiate the adapter again');
+        assert.ok(defaultSerializer === serializer, 'We fell back to the fallback-serializer instance');
       }
+    );
 
-      owner.register('adapter:person', PersonAdapter);
-      owner.register('serializer:-fallback', FallbackSerializer);
+    deprecatedTest(
+      'specifying defaultSerializer on a fallback adapter when there is no per-type serializer does work',
+      {
+        id: 'ember-data:default-serializers',
+        until: '4.0',
+      },
+      async function(assert) {
+        let { owner } = this;
+        let appAdapterDidInit = false;
+        let fallbackSerializerDidInit = false;
+        let defaultSerializerDidInit = false;
 
-      let serializer = store.serializerFor('person');
+        class AppAdapter extends TestAdapter {
+          constructor() {
+            super(...arguments);
+            this.defaultSerializer = '-fallback';
+          }
 
-      assert.ok(serializer instanceof FallbackSerializer, 'We found the serializer');
-      assert.ok(personAdapterDidInit, 'We instantiated the adapter');
-      assert.ok(fallbackSerializerDidInit, 'We instantiated the serializer');
-      personAdapterDidInit = false;
-      fallbackSerializerDidInit = false;
+          didInit() {
+            appAdapterDidInit = true;
+          }
+        }
+        class FallbackSerializer extends TestSerializer {
+          didInit() {
+            fallbackSerializerDidInit = true;
+          }
+        }
+        class DefaultSerializer extends TestSerializer {
+          didInit() {
+            defaultSerializerDidInit = true;
+          }
+        }
 
-      let fallbackSerializer = store.serializerFor('-fallback');
-      assert.ok(fallbackSerializer instanceof FallbackSerializer, 'We found the correct serializer');
-      assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the serializer again');
-      assert.ok(!personAdapterDidInit, 'We did not instantiate the adapter again');
-      assert.ok(fallbackSerializer === serializer, 'We fell back to the fallback-serializer instance');
-    });
+        owner.register('adapter:application', AppAdapter);
+        owner.register('serializer:-fallback', FallbackSerializer);
+        /*
+        serializer:-default is the "last chance" fallback and is
+        registered automatically as the json-api serializer.
+       */
+        owner.unregister('serializer:-default');
+        owner.register('serializer:-default', DefaultSerializer);
 
-    test('specifying defaultSerializer on application serializer when there is a per-type serializer does not work', async function(assert) {
+        let serializer = store.serializerFor('person');
+
+        assert.ok(serializer instanceof FallbackSerializer, 'We found the serializer');
+        assert.ok(appAdapterDidInit, 'We instantiated the fallback application adapter');
+        assert.ok(fallbackSerializerDidInit, 'We instantiated the application adapter fallback defaultSerializer');
+        assert.ok(!defaultSerializerDidInit, 'We did not instantiate the `-default` fallback serializer');
+        appAdapterDidInit = false;
+        fallbackSerializerDidInit = false;
+        defaultSerializerDidInit = false;
+
+        let fallbackSerializer = store.serializerFor('-fallback');
+        assert.ok(fallbackSerializer instanceof FallbackSerializer, 'We found the correct serializer');
+        assert.ok(!defaultSerializerDidInit, 'We did not instantiate the default serializer');
+        assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
+        assert.ok(
+          !fallbackSerializerDidInit,
+          'We did not instantiate the application adapter fallback serializer again'
+        );
+        assert.ok(fallbackSerializer === serializer, 'We fell back to the fallback-serializer instance');
+      }
+    );
+  });
+
+  deprecatedTest(
+    'When the per-type, application and adapter specified fallback serializer do not exist, we fallback to the -default serializer',
+    {
+      id: 'ember-data:default-serializers',
+      until: '4.0',
+    },
+    async function(assert) {
       let { owner } = this;
       let appAdapterDidInit = false;
-      let personAdapterDidInit = false;
-      let fallbackSerializerDidInit = false;
       let defaultSerializerDidInit = false;
 
       class AppAdapter extends TestAdapter {
         constructor() {
           super(...arguments);
-          this.defaultSerializer = '-fallback';
+          this.defaultSerializer = '-not-a-real-fallback';
         }
 
         didInit() {
           appAdapterDidInit = true;
-        }
-      }
-      class PersonAdapter extends TestAdapter {
-        constructor() {
-          super(...arguments);
-          this.defaultSerializer = null;
-        }
-
-        didInit() {
-          personAdapterDidInit = true;
-        }
-      }
-      class FallbackSerializer extends TestSerializer {
-        didInit() {
-          fallbackSerializerDidInit = true;
         }
       }
       class DefaultSerializer extends TestSerializer {
@@ -261,159 +399,53 @@ module('integration/store - serializerFor', function(hooks) {
       }
 
       owner.register('adapter:application', AppAdapter);
-      owner.register('adapter:person', PersonAdapter);
-      owner.register('serializer:-fallback', FallbackSerializer);
       /*
-        serializer:-default is the "last chance" fallback and is
-        registered automatically as the json-api serializer.
-       */
+      serializer:-default is the "last chance" fallback and is
+      registered automatically as the json-api serializer.
+     */
       owner.unregister('serializer:-default');
       owner.register('serializer:-default', DefaultSerializer);
 
       let serializer = store.serializerFor('person');
 
       assert.ok(serializer instanceof DefaultSerializer, 'We found the serializer');
-      assert.ok(personAdapterDidInit, 'We instantiated the person adapter');
-      assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter');
-      assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the application adapter fallback serializer');
+      assert.ok(appAdapterDidInit, 'We instantiated the fallback application adapter');
       assert.ok(defaultSerializerDidInit, 'We instantiated the `-default` fallback serializer');
-      personAdapterDidInit = false;
       appAdapterDidInit = false;
-      fallbackSerializerDidInit = false;
+      defaultSerializerDidInit = false;
+
+      let appSerializer = store.serializerFor('application');
+
+      assert.ok(appSerializer instanceof DefaultSerializer, 'We found the serializer');
+      assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
+      assert.ok(!defaultSerializerDidInit, 'We did not instantiate the `-default` fallback serializer again');
+      appAdapterDidInit = false;
+      defaultSerializerDidInit = false;
+
+      let fallbackSerializer = store.serializerFor('-not-a-real-fallback');
+
+      assert.ok(fallbackSerializer instanceof DefaultSerializer, 'We found the serializer');
+      assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
+      assert.ok(!defaultSerializerDidInit, 'We did not instantiate the `-default` fallback serializer again');
+      appAdapterDidInit = false;
       defaultSerializerDidInit = false;
 
       let defaultSerializer = store.serializerFor('-default');
       assert.ok(defaultSerializer instanceof DefaultSerializer, 'We found the correct serializer');
-      assert.ok(!defaultSerializerDidInit, 'We did not instantiate the serializer again');
-      assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter');
-      assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the application adapter fallback serializer');
-      assert.ok(!personAdapterDidInit, 'We did not instantiate the adapter again');
-      assert.ok(defaultSerializer === serializer, 'We fell back to the fallback-serializer instance');
-    });
-
-    test('specifying defaultSerializer on a fallback serializer when there is no per-type serializer does work', async function(assert) {
-      let { owner } = this;
-      let appAdapterDidInit = false;
-      let fallbackSerializerDidInit = false;
-      let defaultSerializerDidInit = false;
-
-      class AppAdapter extends TestAdapter {
-        constructor() {
-          super(...arguments);
-          this.defaultSerializer = '-fallback';
-        }
-
-        didInit() {
-          appAdapterDidInit = true;
-        }
-      }
-      class FallbackSerializer extends TestSerializer {
-        didInit() {
-          fallbackSerializerDidInit = true;
-        }
-      }
-      class DefaultSerializer extends TestSerializer {
-        didInit() {
-          defaultSerializerDidInit = true;
-        }
-      }
-
-      owner.register('adapter:application', AppAdapter);
-      owner.register('serializer:-fallback', FallbackSerializer);
-      /*
-        serializer:-default is the "last chance" fallback and is
-        registered automatically as the json-api serializer.
-       */
-      owner.unregister('serializer:-default');
-      owner.register('serializer:-default', DefaultSerializer);
-
-      let serializer = store.serializerFor('person');
-
-      assert.ok(serializer instanceof FallbackSerializer, 'We found the serializer');
-      assert.ok(appAdapterDidInit, 'We instantiated the fallback application adapter');
-      assert.ok(fallbackSerializerDidInit, 'We instantiated the application adapter fallback defaultSerializer');
-      assert.ok(!defaultSerializerDidInit, 'We did not instantiate the `-default` fallback serializer');
-      appAdapterDidInit = false;
-      fallbackSerializerDidInit = false;
-      defaultSerializerDidInit = false;
-
-      let fallbackSerializer = store.serializerFor('-fallback');
-      assert.ok(fallbackSerializer instanceof FallbackSerializer, 'We found the correct serializer');
-      assert.ok(!defaultSerializerDidInit, 'We did not instantiate the default serializer');
+      assert.ok(!defaultSerializerDidInit, 'We did not instantiate the default serializer again');
       assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
-      assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the application adapter fallback serializer again');
-      assert.ok(fallbackSerializer === serializer, 'We fell back to the fallback-serializer instance');
-    });
-  });
-
-  test('When the per-type, application and adapter specified fallback serializer do not exist, we fallback to the -default serializer', async function(assert) {
-    let { owner } = this;
-    let appAdapterDidInit = false;
-    let defaultSerializerDidInit = false;
-
-    class AppAdapter extends TestAdapter {
-      constructor() {
-        super(...arguments);
-        this.defaultSerializer = '-not-a-real-fallback';
-      }
-
-      didInit() {
-        appAdapterDidInit = true;
-      }
+      assert.ok(
+        defaultSerializer === serializer,
+        'We fell back to the -default serializer instance for the per-type serializer'
+      );
+      assert.ok(
+        defaultSerializer === appSerializer,
+        'We fell back to the -default serializer instance for the application serializer'
+      );
+      assert.ok(
+        defaultSerializer === fallbackSerializer,
+        'We fell back to the -default serializer instance for the adapter defaultSerializer'
+      );
     }
-    class DefaultSerializer extends TestSerializer {
-      didInit() {
-        defaultSerializerDidInit = true;
-      }
-    }
-
-    owner.register('adapter:application', AppAdapter);
-    /*
-      serializer:-default is the "last chance" fallback and is
-      registered automatically as the json-api serializer.
-     */
-    owner.unregister('serializer:-default');
-    owner.register('serializer:-default', DefaultSerializer);
-
-    let serializer = store.serializerFor('person');
-
-    assert.ok(serializer instanceof DefaultSerializer, 'We found the serializer');
-    assert.ok(appAdapterDidInit, 'We instantiated the fallback application adapter');
-    assert.ok(defaultSerializerDidInit, 'We instantiated the `-default` fallback serializer');
-    appAdapterDidInit = false;
-    defaultSerializerDidInit = false;
-
-    let appSerializer = store.serializerFor('application');
-
-    assert.ok(appSerializer instanceof DefaultSerializer, 'We found the serializer');
-    assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
-    assert.ok(!defaultSerializerDidInit, 'We did not instantiate the `-default` fallback serializer again');
-    appAdapterDidInit = false;
-    defaultSerializerDidInit = false;
-
-    let fallbackSerializer = store.serializerFor('-not-a-real-fallback');
-
-    assert.ok(fallbackSerializer instanceof DefaultSerializer, 'We found the serializer');
-    assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
-    assert.ok(!defaultSerializerDidInit, 'We did not instantiate the `-default` fallback serializer again');
-    appAdapterDidInit = false;
-    defaultSerializerDidInit = false;
-
-    let defaultSerializer = store.serializerFor('-default');
-    assert.ok(defaultSerializer instanceof DefaultSerializer, 'We found the correct serializer');
-    assert.ok(!defaultSerializerDidInit, 'We did not instantiate the default serializer again');
-    assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
-    assert.ok(
-      defaultSerializer === serializer,
-      'We fell back to the -default serializer instance for the per-type serializer'
-    );
-    assert.ok(
-      defaultSerializer === appSerializer,
-      'We fell back to the -default serializer instance for the application serializer'
-    );
-    assert.ok(
-      defaultSerializer === fallbackSerializer,
-      'We fell back to the -default serializer instance for the adapter defaultSerializer'
-    );
-  });
+  );
 });
