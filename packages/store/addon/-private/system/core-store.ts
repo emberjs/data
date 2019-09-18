@@ -3492,7 +3492,7 @@ defineProperty(
   'defaultAdapter',
   computed('adapter', function () {
     deprecate(
-      'Previously, applications could define the store.adapter property which would be used by defaultAdapter and adapterFor as a fallback for when an adapter was not found by an exact name match. The behavior is deprecated in favor of explicitly defining an application or type-specific adapter.',
+      `store.adapterFor("${modelName}") resolved the ("${this.adapter || '-json-api'}") adapter via the deprecated `store.defaultAdapter` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
       false,
       {
         id: 'ember-data:default-adapter',
