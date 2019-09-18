@@ -109,6 +109,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
     let { owner } = this;
 
     owner.register('model:person', Person);
+    owner.unregister('service:store');
     owner.register('service:store', CustomStore);
   });
 

@@ -63,6 +63,7 @@ if (CUSTOM_MODEL_CLASS) {
         })
       );
       owner.register('serializer:-default', JSONAPISerializer);
+      owner.unregister('service:store');
     });
 
     test('notification manager', function(assert) {
@@ -454,7 +455,7 @@ if (CUSTOM_MODEL_CLASS) {
                 kind: 'belongsTo',
                 inverse: null,
                 options: {},
-                key: 'house'
+                key: 'house',
               },
             };
           } else {
@@ -470,7 +471,7 @@ if (CUSTOM_MODEL_CLASS) {
         data: {
           type: 'house',
           id: '1',
-          attributes: { address: 'boat' }
+          attributes: { address: 'boat' },
         },
       });
       store.push({
@@ -517,7 +518,7 @@ if (CUSTOM_MODEL_CLASS) {
                 kind: 'hasMany',
                 inverse: null,
                 options: {},
-                key: 'house'
+                key: 'house',
               },
             };
           } else {
@@ -533,7 +534,7 @@ if (CUSTOM_MODEL_CLASS) {
         data: {
           type: 'house',
           id: '1',
-          attributes: { address: 'boat' }
+          attributes: { address: 'boat' },
         },
       });
       store.push({
@@ -543,13 +544,10 @@ if (CUSTOM_MODEL_CLASS) {
           attributes: { name: 'chris' },
           relationships: {
             house: {
-              data: [
-                { type: 'house', id: '1' },
-                { type: 'house', id: '2' }
-              ]
-            }
-          }
-        }
+              data: [{ type: 'house', id: '1' }, { type: 'house', id: '2' }],
+            },
+          },
+        },
       });
       let relationship = store.relationshipReferenceFor({ type: 'person', id: '7' }, 'house');
       assert.deepEqual(relationship.ids(), ['1', '2'], 'relationship found');

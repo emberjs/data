@@ -105,6 +105,7 @@ module('integration/record-data - Record Data State', function(hooks) {
     let { owner } = this;
 
     owner.register('model:person', Person);
+    owner.unregister('service:store');
     owner.register('service:store', CustomStore);
   });
 
