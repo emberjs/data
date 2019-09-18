@@ -15,6 +15,7 @@ module('integration/application - Injecting a Custom Store', function(hooks) {
   hooks.beforeEach(function() {
     let { owner } = this;
 
+    owner.unregister('service:store');
     owner.register('service:store', Store.extend({ isCustom: true }));
     owner.register('controller:foo', Controller.extend());
     owner.register('controller:baz', {});

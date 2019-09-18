@@ -40,7 +40,8 @@ module('integration/store - adapterFor', function(hooks) {
     owner.unregister('adapter:-json-api');
 
     assert.expectAssertion(() => {
-      store.adapterFor('person');
+      let p = store.adapterFor('person');
+      debugger;
     }, /No adapter was found for 'person' and no 'application', store\.adapter = 'adapter-fallback-name', or '-json-api' adapter were found as fallbacks\./);
   });
 
