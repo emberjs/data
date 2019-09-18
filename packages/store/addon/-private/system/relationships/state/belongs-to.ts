@@ -1,5 +1,5 @@
 import { assert, inspect } from '@ember/debug';
-import { assertPolymorphicType } from 'ember-data/-debug';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
 import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
