@@ -1,49 +1,79 @@
 module.exports = {
+  parser: 'babel-eslint',
   root: true,
   parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module'
+    ecmaVersion: 2017,
+    sourceType: 'module',
   },
-  plugins: [
-    'ember'
-  ],
-  extends: [
-    'eslint:recommended',
-    'plugin:ember/recommended'
-  ],
-  env: {
-    browser: true
-  },
+  plugins: ['prettier', 'qunit', 'mocha'],
+  extends: ['eslint:recommended', 'prettier'],
   rules: {
+    'mocha/no-exclusive-tests': 'error',
+    'prettier/prettier': 'error',
+
+    'no-unused-vars': [
+      'error',
+      {
+        args: 'none',
+      },
+    ],
+
+    'no-cond-assign': ['error', 'except-parens'],
+    eqeqeq: 'error',
+    'no-eval': 'error',
+    'new-cap': [
+      'error',
+      {
+        capIsNew: false,
+      },
+    ],
+    'no-caller': 'error',
+    'no-irregular-whitespace': 'error',
+    'no-undef': 'error',
+    'no-eq-null': 'error',
+    'no-console': 'error', // no longer recommended in eslint v6, this restores it
+
+    // probably want to fix these new rules later in separate PR
+    // Tracked in issue https://github.com/emberjs/data/issues/6405
+    'no-prototype-builtins': 'off',
+    'require-atomic-updates': 'off',
+  },
+  globals: {
+    heimdall: true,
+    Map: false,
+    WeakMap: true,
+    Set: true,
+  },
+  env: {
+    browser: true,
+    node: false,
   },
   overrides: [
     // node files
     {
       files: [
+        '.mocharc.js',
         '.eslintrc.js',
+        '.prettierrc.js',
         '.template-lintrc.js',
         'ember-cli-build.js',
         'testem.js',
         'blueprints/*/index.js',
         'config/**/*.js',
         'lib/*/index.js',
-        'server/**/*.js'
+        'server/**/*.js',
       ],
       parserOptions: {
-        sourceType: 'script'
+        sourceType: 'script',
+        ecmaVersion: 2015,
       },
       env: {
         browser: false,
-        node: true
+        node: true,
+        es6: true,
       },
       plugins: ['node'],
-      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
-        // add your custom rules and overrides for node files here
-
-        // this can be removed once the following is fixed
-        // https://github.com/mysticatea/eslint-plugin-node/issues/77
-        'node/no-unpublished-require': 'off'
-      })
-    }
-  ]
+      extends: 'plugin:node/recommended',
+    },
+  ],
 };
