@@ -118,6 +118,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     owner.register('model:person', Person);
     owner.register('model:house', House);
     owner.register('model:car', Car);
+    owner.unregister('service:store');
     owner.register('service:store', CustomStore);
   });
 

@@ -1,15 +1,14 @@
+import Application from '../app';
+import config from '../config/environment';
 import RSVP from 'rsvp';
-import resolver from './helpers/resolver';
-import { setResolver } from '@ember/test-helpers';
+import { setApplication } from '@ember/test-helpers';
 import { start } from 'ember-qunit';
 
 import QUnit from 'qunit';
 import DS from 'ember-data';
 import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
 
-// TODO get us to a setApplication world instead
-//   seems to require killing off createStore
-setResolver(resolver);
+setApplication(Application.create(config.APP));
 
 const { assert } = QUnit;
 const transforms = {

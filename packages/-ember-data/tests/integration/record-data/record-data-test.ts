@@ -137,6 +137,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
     owner.register('model:person', Person);
     owner.register('model:house', House);
+    owner.unregister('service:store');
     owner.register('service:store', CustomStore);
     owner.register('adapter:application', JSONAPIAdapter.extend());
     owner.register('serializer:application', JSONAPISerializer.extend());
