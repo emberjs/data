@@ -20,6 +20,7 @@
     "test:all": "ember try:each"
   },
   "dependencies": {
+    "@ember/ordered-set": "^2.0.3",
     "@ember-data/-build-infra": "3.14.0-alpha.3",
     "@ember-data/adapter": "3.14.0-alpha.3",
     "@ember-data/canary-features": "3.14.0-alpha.3",
