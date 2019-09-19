@@ -398,6 +398,33 @@ module('async has-many rendering tests', function(hooks) {
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
+    test('Re-rendering an async hasMany with a link and a new record does not cause a new fetch', async function(assert) {
+      let people = makePeopleWithRelationshipLinks(true);
+      let parent = store.push({
+        data: people.dict['3:has-2-children-and-parent'],
+      });
+
+      adapter.setupPayloads(assert, [people.links['./person/3:has-2-children-and-parent/children']]);
+
+      // render
+      this.set('parent', parent);
+
+      await render(hbs`
+      <ul>
+      {{#each parent.children as |child|}}
+        <li>{{child.name}}</li>
+      {{/each}}
+      </ul>
+    `);
+
+      let items = this.element.querySelectorAll('li');
+      let names = domListToArray(items).map(e => e.textContent);
+
+      assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
+
+      store.createRecord('person', { parent: parent });
+    });
+
     test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(12);
       let people = makePeopleWithRelationshipLinks(true);
