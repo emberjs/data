@@ -266,7 +266,7 @@ export default class ManyRelationship extends Relationship {
   get allInverseRecordsAreLoaded(): boolean {
     // check currentState for unloaded records
     let hasEmptyRecords = this.currentState.reduce((hasEmptyModel, i) => {
-      return hasEmptyModel || i.isEmpty();
+      return hasEmptyModel || (!i.isNew && i.isEmpty());
     }, false);
     // check un-synced state for unloaded records
     if (!hasEmptyRecords && this.willSync) {
