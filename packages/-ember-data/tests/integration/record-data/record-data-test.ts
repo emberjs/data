@@ -2,6 +2,8 @@ import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
 import EmberObject from '@ember/object';
@@ -137,6 +139,8 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     owner.register('model:house', House);
     owner.unregister('service:store');
     owner.register('service:store', CustomStore);
+    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('A RecordData implementation that has the required spec methods should not error out', async function(assert) {

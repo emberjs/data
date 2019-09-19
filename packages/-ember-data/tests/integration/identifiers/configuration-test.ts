@@ -8,6 +8,8 @@ import Store, {
   setIdentifierResetMethod,
   setIdentifierForgetMethod,
 } from '@ember-data/store';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import Adapter from '@ember-data/adapter';
 import Serializer from '@ember-data/serializer';
@@ -26,6 +28,9 @@ if (IDENTIFIERS) {
 
     hooks.beforeEach(function() {
       const { owner } = this;
+
+      owner.register('adapter:application', JSONAPIAdapter.extend());
+      owner.register('serializer:application', JSONAPISerializer.extend());
 
       class User extends Model {
         @attr() firstName: string;
