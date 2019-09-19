@@ -46,20 +46,6 @@ function initializeDataAdapter(application) {
 }
 
 function initializeStoreInjections(application) {
-  if (DEBUG && !application.inject) {
-    deprecate(
-      `Deprecated test syntax usage detected!\n\n\t` +
-        `This test relies on a deprecated test setup that is no longer supported by EmberData.` +
-        ` To resolve this you will need to be on a recent version of @ember/test-helpers` +
-        ` AND your tests must use \`setApplication()\` instead of \`setResolver()\` and` +
-        ` \`module()\` with \`setup*Test()\`instead of \`moduleFor*()\`.`,
-      false,
-      {
-        id: 'ember-data:legacy-test-helper-support',
-        until: '3.17',
-      }
-    );
-  }
   let inject = application.inject || application.injection;
   inject.call(application, 'controller', 'store', 'service:store');
   inject.call(application, 'route', 'store', 'service:store');
