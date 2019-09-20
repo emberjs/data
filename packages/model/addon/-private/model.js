@@ -12,7 +12,6 @@ import {
   Errors,
   InternalModel,
   PromiseObject,
-  recordIdentifierFor,
   recordDataFor,
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
@@ -25,9 +24,7 @@ import InternalModel from './internal-model';
 import RootState from './states';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import coerceId from '../coerce-id';
-import { recordIdentifierFor } from '../store/internal-model-factory';
-  RootState,
-} from '@ember-data/store/-private';
+import { RootState, recordIdentifierFor } from '@ember-data/store/-private';
 
 const { changeProperties } = Ember;
 
