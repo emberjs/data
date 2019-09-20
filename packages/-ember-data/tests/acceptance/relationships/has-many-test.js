@@ -265,7 +265,7 @@ module('async has-many rendering tests', function(hooks) {
       this.set('parent', null);
 
       items = this.element.querySelectorAll('li');
-      assert.ok(items.length === 0, 'We have no items');
+      assert.strictEqual(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 
@@ -388,7 +388,7 @@ module('async has-many rendering tests', function(hooks) {
       this.set('parent', null);
 
       items = this.element.querySelectorAll('li');
-      assert.ok(items.length === 0, 'We have no items');
+      assert.strictEqual(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 
@@ -543,7 +543,7 @@ module('async has-many rendering tests', function(hooks) {
       this.set('parent', null);
 
       items = this.element.querySelectorAll('li');
-      assert.ok(items.length === 0, 'We have no items');
+      assert.strictEqual(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 

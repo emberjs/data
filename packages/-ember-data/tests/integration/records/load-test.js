@@ -147,8 +147,8 @@ module('integration/load - Loading Records', function(hooks) {
     //  discard the internalModel
     let shen = store.peekRecord('person', '2');
 
-    assert.ok(bestFriend === shen, 'Precond: bestFriend is correct');
-    assert.ok(trueBestFriend === record, 'Precond: bestFriend of bestFriend is correct');
+    assert.strictEqual(bestFriend, shen, 'Precond: bestFriend is correct');
+    assert.strictEqual(trueBestFriend, record, 'Precond: bestFriend of bestFriend is correct');
 
     recordPromise = record.reload();
 

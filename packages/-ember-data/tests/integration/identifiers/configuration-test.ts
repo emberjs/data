@@ -155,7 +155,7 @@ if (IDENTIFIERS) {
         'Precond: We receive the expected identifier for a new record'
       );
       assert.strictEqual(identifier.id, null, 'Precond: We have no id yet');
-      assert.ok(updateMethodCalls === 0, 'Precond: We have not updated the identifier yet');
+      assert.strictEqual(updateMethodCalls, 0, 'Precond: We have not updated the identifier yet');
       updateCallback = (updatedIdentifier, resource) => {
         assert.strictEqual(identifier, updatedIdentifier, 'We updated the expected identifier');
         assert.strictEqual(resource.attributes!.firstName, 'James', 'We received the expected resource to update with');
@@ -163,7 +163,7 @@ if (IDENTIFIERS) {
 
       await record.save();
 
-      assert.ok(updateMethodCalls === 1, 'We made a single call to our update method');
+      assert.strictEqual(updateMethodCalls, 1, 'We made a single call to our update method');
     });
 
     test(`The configured update method is called when newly created records with an id are committed`, async function(assert) {
@@ -208,7 +208,7 @@ if (IDENTIFIERS) {
         'Precond: We receive the expected identifier for the new record'
       );
       assert.strictEqual(identifier.id, '1', 'Precond: We have an id already');
-      assert.ok(updateMethodCalls === 0, 'Precond: We have not updated the identifier yet');
+      assert.strictEqual(updateMethodCalls, 0, 'Precond: We have not updated the identifier yet');
       updateCallback = (updatedIdentifier, resource) => {
         assert.strictEqual(identifier, updatedIdentifier, 'We updated the expected identifier');
         assert.strictEqual(resource.attributes!.firstName, 'James', 'We received the expected resource to update with');
@@ -216,7 +216,7 @@ if (IDENTIFIERS) {
 
       await record.save();
 
-      assert.ok(updateMethodCalls === 1, 'We made a single call to our update method after save');
+      assert.strictEqual(updateMethodCalls, 1, 'We made a single call to our update method after save');
     });
 
     test(`The configured update method is called when existing records are saved successfully`, async function(assert) {
@@ -271,7 +271,7 @@ if (IDENTIFIERS) {
         'Precond: We receive the expected identifier for the new record'
       );
       assert.strictEqual(identifier.id, '1', 'Precond: We have an id already');
-      assert.ok(updateMethodCalls === 0, 'Precond: We have not updated the identifier yet');
+      assert.strictEqual(updateMethodCalls, 0, 'Precond: We have not updated the identifier yet');
       updateCallback = (updatedIdentifier, resource) => {
         assert.strictEqual(identifier, updatedIdentifier, 'We updated the expected identifier');
         assert.strictEqual(resource.attributes!.firstName, 'Chris', 'We received the expected resource to update with');
@@ -281,7 +281,7 @@ if (IDENTIFIERS) {
 
       await record.save();
 
-      assert.ok(updateMethodCalls === 1, 'We made a single call to our update method after save');
+      assert.strictEqual(updateMethodCalls, 1, 'We made a single call to our update method after save');
     });
 
     test(`The reset method is called when the application is destroyed`, async function(assert) {
@@ -292,7 +292,7 @@ if (IDENTIFIERS) {
       });
 
       run(() => store.destroy());
-      assert.ok(resetMethodCalled, 'We called the reset method when the application was torn down');
+      assert.strictEqual(resetMethodCalled, true, 'called the reset method when the application was torn down');
     });
 
     test(`The forget method called when an identifier is "merged" with another`, async function(assert) {
@@ -329,7 +329,7 @@ if (IDENTIFIERS) {
 
       let testMethod = identifier => {
         forgetMethodCalls++;
-        assert.ok(expectedIdentifier === identifier, `We forgot the expected identifier ${expectedIdentifier}`);
+        assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
       };
 
       setIdentifierForgetMethod(identifier => {
@@ -364,8 +364,9 @@ if (IDENTIFIERS) {
       assert.strictEqual(generateLidCalls, 0, 'We generated no new lids when we looked up the final by record');
       assert.strictEqual(forgetMethodCalls, 1, 'We abandoned an identifier');
 
-      assert.ok(
-        finalUserByUsernameIdentifier !== originalUserByUsernameIdentifier,
+      assert.notStrictEqual(
+        finalUserByUsernameIdentifier,
+        originalUserByUsernameIdentifier,
         'We are not using the original identifier by username for the result of findRecord with username'
       );
       assert.strictEqual(
@@ -397,7 +398,7 @@ if (IDENTIFIERS) {
 
       setIdentifierForgetMethod(identifier => {
         forgetMethodCalls++;
-        assert.ok(expectedIdentifier === identifier, `We forgot the expected identifier ${expectedIdentifier}`);
+        assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
       });
 
       const user: any = store.push({
@@ -461,7 +462,7 @@ if (IDENTIFIERS) {
       setIdentifierForgetMethod(identifier => {
         forgetMethodCalls++;
         let expectedIdentifier = expectedIdentifiers.shift();
-        assert.ok(expectedIdentifier === identifier, `We forgot the expected identifier ${expectedIdentifier}`);
+        assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
       });
 
       // no retainers

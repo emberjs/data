@@ -95,7 +95,7 @@ module('integration/store - serializerFor', function(hooks) {
 
     assert.ok(serializerAgain instanceof AppSerializer, 'We found the correct serializer');
     assert.ok(!didInstantiate, 'We did not instantiate the serializer again');
-    assert.ok(serializer === serializerAgain, 'Repeated calls to serializerFor return the same instance');
+    assert.strictEqual(serializer, serializerAgain, 'Repeated calls to serializerFor return the same instance');
   });
 
   test('multiple stores do not share serializers', async function(assert) {
@@ -121,7 +121,7 @@ module('integration/store - serializerFor', function(hooks) {
     let otherSerializer = otherStore.serializerFor('application');
     assert.ok(otherSerializer instanceof AppSerializer, 'We found the correct serializer again');
     assert.ok(didInstantiate, 'We instantiated the other serializer');
-    assert.ok(otherSerializer !== serializer, 'We have a different serializer instance');
+    assert.notStrictEqual(otherSerializer, serializer, 'We have a different serializer instance');
 
     otherStore.destroy();
   });
@@ -155,7 +155,7 @@ module('integration/store - serializerFor', function(hooks) {
     let appSerializer = store.serializerFor('application');
     assert.ok(appSerializer instanceof AppSerializer, 'We found the correct serializer');
     assert.ok(didInstantiateAppSerializer, 'We instantiated the application serializer');
-    assert.ok(appSerializer !== serializer, 'We have separate serializers');
+    assert.notStrictEqual(appSerializer, serializer, 'We have separate serializers');
   });
 
   test('we fallback to the application serializer when a per-type serializer is not found', async function(assert) {
@@ -179,7 +179,7 @@ module('integration/store - serializerFor', function(hooks) {
     let appSerializer = store.serializerFor('application');
     assert.ok(appSerializer instanceof AppSerializer, 'We found the correct serializer');
     assert.ok(!didInstantiateAppSerializer, 'We did not instantiate the serializer again');
-    assert.ok(appSerializer === serializer, 'We fell back to the application serializer instance');
+    assert.strictEqual(appSerializer, serializer, 'We fell back to the application serializer instance');
   });
 
   module('Adapter Fallback', function() {
@@ -219,7 +219,7 @@ module('integration/store - serializerFor', function(hooks) {
       assert.ok(fallbackSerializer instanceof FallbackSerializer, 'We found the correct serializer');
       assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the serializer again');
       assert.ok(!personAdapterDidInit, 'We did not instantiate the adapter again');
-      assert.ok(fallbackSerializer === serializer, 'We fell back to the fallback-serializer instance');
+      assert.strictEqual(fallbackSerializer, serializer, 'We fell back to the fallback-serializer instance');
     });
 
     test('specifying defaultSerializer on application serializer when there is a per-type serializer does not work', async function(assert) {
@@ -288,7 +288,7 @@ module('integration/store - serializerFor', function(hooks) {
       assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter');
       assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the application adapter fallback serializer');
       assert.ok(!personAdapterDidInit, 'We did not instantiate the adapter again');
-      assert.ok(defaultSerializer === serializer, 'We fell back to the fallback-serializer instance');
+      assert.strictEqual(defaultSerializer, serializer, 'We fell back to the fallback-serializer instance');
     });
 
     test('specifying defaultSerializer on a fallback serializer when there is no per-type serializer does work', async function(assert) {
@@ -342,7 +342,7 @@ module('integration/store - serializerFor', function(hooks) {
       assert.ok(!defaultSerializerDidInit, 'We did not instantiate the default serializer');
       assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
       assert.ok(!fallbackSerializerDidInit, 'We did not instantiate the application adapter fallback serializer again');
-      assert.ok(fallbackSerializer === serializer, 'We fell back to the fallback-serializer instance');
+      assert.strictEqual(fallbackSerializer, serializer, 'We fell back to the fallback-serializer instance');
     });
   });
 
@@ -403,16 +403,19 @@ module('integration/store - serializerFor', function(hooks) {
     assert.ok(defaultSerializer instanceof DefaultSerializer, 'We found the correct serializer');
     assert.ok(!defaultSerializerDidInit, 'We did not instantiate the default serializer again');
     assert.ok(!appAdapterDidInit, 'We did not instantiate the application adapter again');
-    assert.ok(
-      defaultSerializer === serializer,
+    assert.strictEqual(
+      defaultSerializer,
+      serializer,
       'We fell back to the -default serializer instance for the per-type serializer'
     );
-    assert.ok(
-      defaultSerializer === appSerializer,
+    assert.strictEqual(
+      defaultSerializer,
+      appSerializer,
       'We fell back to the -default serializer instance for the application serializer'
     );
-    assert.ok(
-      defaultSerializer === fallbackSerializer,
+    assert.strictEqual(
+      defaultSerializer,
+      fallbackSerializer,
       'We fell back to the -default serializer instance for the adapter defaultSerializer'
     );
   });

@@ -31,7 +31,8 @@ if (IDENTIFIERS) {
 
       assert.strictEqual(identifier.type, 'user', 'We have an identifier with the right type');
       assert.strictEqual(identifier.id, null, 'We have an identifier without an id');
-      assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
+      assert.ok(identifier.lid.length > 0, 'We have an identifier with an lid');
+      assert.strictEqual(typeof identifier.lid, 'string', 'lid is a string');
     });
 
     test(`Saving newly created records updates the associated id on the identifier`, async function(assert) {
@@ -61,7 +62,8 @@ if (IDENTIFIERS) {
 
       assert.strictEqual(identifier.type, 'user', 'We have an identifier with the right type');
       assert.strictEqual(identifier.id, null, 'We have an identifier without an id');
-      assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
+      assert.ok(identifier.lid.length > 0, 'We have an identifier with an lid');
+      assert.strictEqual(typeof identifier.lid, 'string', 'lid is a string');
 
       await record.save();
 
@@ -69,7 +71,8 @@ if (IDENTIFIERS) {
 
       assert.strictEqual(identifier.type, 'user', 'We have an identifier with the right type');
       assert.strictEqual(identifier.id, '1', 'We updated the identifier with the correct id');
-      assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
+      assert.ok(identifier.lid.length > 0, 'We have an identifier with an lid');
+      assert.strictEqual(typeof identifier.lid, 'string', 'lid is a string');
     });
 
     test(`It works for existing records`, async function(assert) {
@@ -87,7 +90,8 @@ if (IDENTIFIERS) {
 
       assert.strictEqual(identifier.type, 'user', 'We have an identifier with the right type');
       assert.strictEqual(identifier.id, '1', 'We have an identifier with the correct id');
-      assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
+      assert.ok(identifier.lid.length > 0, 'We have an identifier with an lid');
+      assert.strictEqual(typeof identifier.lid, 'string', 'lid is a string');
     });
 
     // TODO should it also work for promiseRecord and promiseBelongsTo ?

@@ -42,7 +42,6 @@ module.exports = {
     'qunit/assert-args': 'off',
     'qunit/literal-compare-order': 'off',
     'qunit/no-identical-names': 'off',
-    'qunit/no-ok-equality': 'off',
     'qunit/require-expect': 'off',
     'qunit/resolve-async': 'off',
   },

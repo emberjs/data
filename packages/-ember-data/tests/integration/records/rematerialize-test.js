@@ -253,7 +253,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     assert.equal(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
     assert.equal(rematerializedBoaty.get('id'), '1', 'Rematerialized boat has the right id');
     assert.equal(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
-    assert.ok(rematerializedBoaty !== boaty, 'the boat is rematerialized, not recycled');
+    assert.notStrictEqual(rematerializedBoaty, boaty, 'the boat is rematerialized, not recycled');
 
     assert.equal(store.hasRecordForId('boat', '1'), true, 'The boat is loaded');
     assert.equal(

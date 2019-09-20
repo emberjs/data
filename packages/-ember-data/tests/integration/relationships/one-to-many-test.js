@@ -588,8 +588,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
 
     run(function() {
-      assert.ok(account1.get('user') === null, 'User was removed correctly');
-      assert.ok(account2.get('user') === user, 'User was added correctly');
+      assert.strictEqual(account1.get('user'), null, 'User was removed correctly');
+      assert.strictEqual(account2.get('user'), user, 'User was added correctly');
     });
   });
 
@@ -1596,7 +1596,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       assert.equal(user.get('messages.length'), 1, 'The message is added to the record array');
 
       let messageFromArray = user.get('messages.firstObject');
-      assert.ok(message === messageFromArray, 'Only one message record instance should be created');
+      assert.strictEqual(message, messageFromArray, 'Only one message record instance should be created');
     });
   });
 });

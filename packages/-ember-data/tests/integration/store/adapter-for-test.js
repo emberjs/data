@@ -66,7 +66,7 @@ module('integration/store - adapterFor', function(hooks) {
 
     assert.ok(adapterAgain instanceof AppAdapter, 'We found the correct adapter');
     assert.ok(!didInstantiate, 'We did not instantiate the adapter again');
-    assert.ok(adapter === adapterAgain, 'Repeated calls to adapterFor return the same instance');
+    assert.strictEqual(adapter, adapterAgain, 'Repeated calls to adapterFor return the same instance');
   });
 
   test('multiple stores do not share adapters', async function(assert) {
@@ -92,7 +92,7 @@ module('integration/store - adapterFor', function(hooks) {
     let otherAdapter = otherStore.adapterFor('application');
     assert.ok(otherAdapter instanceof AppAdapter, 'We found the correct adapter again');
     assert.ok(didInstantiate, 'We instantiated the other adapter');
-    assert.ok(otherAdapter !== adapter, 'We have a different adapter instance');
+    assert.notStrictEqual(otherAdapter, adapter, 'We have a different adapter instance');
 
     otherStore.destroy();
   });
@@ -126,7 +126,7 @@ module('integration/store - adapterFor', function(hooks) {
     let appAdapter = store.adapterFor('application');
     assert.ok(appAdapter instanceof AppAdapter, 'We found the correct adapter');
     assert.ok(didInstantiateAppAdapter, 'We instantiated the application adapter');
-    assert.ok(appAdapter !== adapter, 'We have separate adapters');
+    assert.notStrictEqual(appAdapter, adapter, 'We have separate adapters');
   });
 
   test('we fallback to the application adapter when a per-type adapter is not found', async function(assert) {
@@ -150,7 +150,7 @@ module('integration/store - adapterFor', function(hooks) {
     let appAdapter = store.adapterFor('application');
     assert.ok(appAdapter instanceof AppAdapter, 'We found the correct adapter');
     assert.ok(!didInstantiateAppAdapter, 'We did not instantiate the adapter again');
-    assert.ok(appAdapter === adapter, 'We fell back to the application adapter instance');
+    assert.strictEqual(appAdapter, adapter, 'We fell back to the application adapter instance');
   });
 
   test('we can specify a fallback adapter by name in place of the application adapter', async function(assert) {
@@ -181,8 +181,12 @@ module('integration/store - adapterFor', function(hooks) {
     let restAdapter = store.adapterFor('-fallback');
     assert.ok(restAdapter instanceof RestAdapter, 'We found the correct adapter');
     assert.ok(!didInstantiateRestAdapter, 'We did not instantiate the adapter again');
-    assert.ok(restAdapter === adapter, 'We fell back to the -fallback adapter instance for the person adapters');
-    assert.ok(restAdapter === appAdapter, 'We fell back to the -fallback adapter instance for the application adapter');
+    assert.strictEqual(restAdapter, adapter, 'We fell back to the -fallback adapter instance for the person adapters');
+    assert.strictEqual(
+      restAdapter,
+      appAdapter,
+      'We fell back to the -fallback adapter instance for the application adapter'
+    );
   });
 
   test('the application adapter has higher precedence than a fallback adapter defined via store.adapter', async function(assert) {
@@ -219,7 +223,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(appAdapter instanceof AppAdapter, 'We found the correct adapter for application');
     assert.ok(!didInstantiateRestAdapter, 'We did not instantiate the store fallback adapter');
     assert.ok(!didInstantiateAppAdapter, 'We did not instantiate the application adapter again');
-    assert.ok(appAdapter === adapter, 'We used the application adapter as the person adapter');
+    assert.strictEqual(appAdapter, adapter, 'We used the application adapter as the person adapter');
     didInstantiateRestAdapter = false;
     didInstantiateAppAdapter = false;
 
@@ -227,7 +231,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(restAdapter instanceof RestAdapter, 'We found the correct adapter for -fallback');
     assert.ok(!didInstantiateAppAdapter, 'We did not instantiate the application adapter again');
     assert.ok(didInstantiateRestAdapter, 'We instantiated the fallback adapter');
-    assert.ok(restAdapter !== appAdapter, `We did not use the application adapter instance`);
+    assert.notStrictEqual(restAdapter, appAdapter, `We did not use the application adapter instance`);
   });
 
   test('When the per-type, application and specified fallback adapters do not exist, we fallback to the -json-api adapter', async function(assert) {
@@ -265,11 +269,16 @@ module('integration/store - adapterFor', function(hooks) {
     let jsonApiAdapter = store.adapterFor('-json-api');
     assert.ok(jsonApiAdapter instanceof JsonApiAdapter, 'We found the correct adapter');
     assert.ok(!didInstantiateAdapter, 'We did not instantiate the adapter again');
-    assert.ok(jsonApiAdapter === appAdapter, 'We fell back to the -json-api adapter instance for application');
-    assert.ok(
-      jsonApiAdapter === fallbackAdapter,
+    assert.strictEqual(jsonApiAdapter, appAdapter, 'We fell back to the -json-api adapter instance for application');
+    assert.strictEqual(
+      jsonApiAdapter,
+      fallbackAdapter,
       'We fell back to the -json-api adapter instance for the fallback -not-a-real-adapter'
     );
-    assert.ok(jsonApiAdapter === adapter, 'We fell back to the -json-api adapter instance for the per-type adapter');
+    assert.strictEqual(
+      jsonApiAdapter,
+      adapter,
+      'We fell back to the -json-api adapter instance for the per-type adapter'
+    );
   });
 });

@@ -578,7 +578,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
         assert.equal(dog.get('isError'), false, 'must not be error after `rollbackAttributes`');
         assert.equal(dog.get('isDeleted'), false, 'must not be deleted after `rollbackAttributes`');
         assert.equal(dog.get('isValid'), true, 'must be valid after `rollbackAttributes`');
-        assert.ok(dog.get('errors.length') === 0, 'must not have errors');
+        assert.strictEqual(dog.get('errors.length'), 0, 'must not have errors');
       });
     });
   });

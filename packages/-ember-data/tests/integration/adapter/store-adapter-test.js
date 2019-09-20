@@ -1117,7 +1117,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     let count = 0;
     adapter.findHasMany = function(store, snapshot, link, relationship) {
-      assert.ok(count++ === 0, 'findHasMany is only called once');
+      assert.strictEqual(count++, 0, 'findHasMany is only called once');
 
       return resolve({ data: [{ id: 1, type: 'dog', attributes: { name: 'Scruffy' } }] });
     };

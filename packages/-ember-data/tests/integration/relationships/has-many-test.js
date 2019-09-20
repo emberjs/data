@@ -1045,7 +1045,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     let reloadedManyArray = await manyArray.reload();
 
     assert.equal(reloadedManyArray.get('isLoaded'), true, 'the third reload worked, comments are loaded again');
-    assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
+    assert.strictEqual(reloadedManyArray, manyArray, 'the many array stays the same');
     assert.equal(loadingCount, 4, 'We only fired 4 requests');
   });
 

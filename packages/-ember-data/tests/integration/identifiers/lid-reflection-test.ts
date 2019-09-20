@@ -67,7 +67,7 @@ if (IDENTIFIERS) {
         },
       });
 
-      assert.ok(pushedRecord === record, 'We have the same record instance');
+      assert.strictEqual(pushedRecord , record, 'We have the same record instance');
       assert.strictEqual(record.name, 'Chris', 'We use the dirty name');
       assert.strictEqual(record.isNew, false, 'We are no longer in the new state');
 
@@ -125,7 +125,7 @@ if (IDENTIFIERS) {
         },
       });
 
-      assert.ok(pushedRecord === record, 'We have the same record instance');
+      assert.strictEqual(pushedRecord , record, 'We have the same record instance');
       assert.strictEqual(record.name, 'Chris', 'We use the in-flight name');
       assert.strictEqual(record.age, 31, 'We received the pushed data');
       if (RECORD_DATA_STATE) {

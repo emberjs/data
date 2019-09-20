@@ -398,7 +398,7 @@ module('integration/store - findRecord', function(hooks) {
     run(() => {
       let promiseCar = store.findRecord('car', 1, { reload: true });
 
-      assert.ok(promiseCar.get('model') === undefined, `We don't have early access to local data`);
+      assert.strictEqual(promiseCar.get('model'), undefined, `We don't have early access to local data`);
     });
 
     assert.equal(calls, 2, 'We made a second call to findRecord');

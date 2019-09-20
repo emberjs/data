@@ -51,11 +51,11 @@ assert.assertClean = function(promise) {
 };
 
 assert.contains = function(array, item) {
-  this.ok(array.indexOf(item) !== -1, `array contains ${item}`);
+  this.notStrictEqual(array.indexOf(item), -1, `array contains ${item}`);
 };
 
 assert.without = function(array, item) {
-  this.ok(array.indexOf(item) === -1, `array doesn't contain ${item}`);
+  this.strictEqual(array.indexOf(item), -1, `array doesn't contain ${item}`);
 };
 
 QUnit.config.testTimeout = 2000;

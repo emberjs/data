@@ -55,7 +55,7 @@ module('integration/injection eager injections', function(hooks) {
     let appleService = this.owner.lookup('service:apple');
 
     assert.ok(apple, `'model:foo' instance should have an 'apple' property`);
-    assert.ok(apple === appleService, `'model:foo.apple' should be the apple service`);
+    assert.strictEqual(apple, appleService, `'model:foo.apple' should be the apple service`);
     assert.ok(apple instanceof Apple, `'model:foo'.apple should be an instance of 'service:apple'`);
   });
 });
