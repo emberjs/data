@@ -114,21 +114,6 @@ function deprecateTestRegistration(factoryType: 'serializer' | 'adapter', factor
   );
 }
 
-// Implementors Note:
-//
-//   The variables in this file are consistently named according to the following
-//   scheme:
-//
-//   * +id+ means an identifier managed by an external source, provided inside
-//     the data provided by that source. These are always coerced to be strings
-//     before being used internally.
-//   * +clientId+ means a transient numerical identifier generated at runtime by
-//     the data store. It is important primarily because newly created objects may
-//     not yet have an externally generated id.
-//   * +internalModel+ means a record internalModel object, which holds metadata about a
-//     record, even if it has not yet been fully materialized.
-//   * +type+ means a Model.
-
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `Model` that wrap

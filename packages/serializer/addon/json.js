@@ -1,4 +1,4 @@
-import { assign, merge } from '@ember/polyfills';
+import { assign } from '@ember/polyfills';
 import { isNone, typeOf } from '@ember/utils';
 import { get } from '@ember/object';
 import { assert, warn } from '@ember/debug';
@@ -14,8 +14,6 @@ import { coerceId } from '@ember-data/store/-private';
 /**
   @module @ember-data/serializer
 */
-
-const emberAssign = assign || merge;
 
 /**
   Ember Data 2.0 Serializer:
@@ -1087,7 +1085,7 @@ const JSONSerializer = Serializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    emberAssign(hash, this.serialize(snapshot, options));
+    assign(hash, this.serialize(snapshot, options));
   },
 
   /**

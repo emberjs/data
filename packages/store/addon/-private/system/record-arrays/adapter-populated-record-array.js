@@ -1,8 +1,8 @@
 import { once } from '@ember/runloop';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
+import { assign } from '@ember/polyfills';
 import RecordArray from './record-array';
-import cloneNull from '../clone-null';
 import { DEBUG } from '@glimmer/env';
 
 /**
@@ -87,8 +87,8 @@ export default RecordArray.extend({
     this.setProperties({
       isLoaded: true,
       isUpdating: false,
-      meta: cloneNull(payload.meta),
-      links: cloneNull(payload.links),
+      meta: assign({}, payload.meta),
+      links: assign({}, payload.links),
     });
 
     this.manager._associateWithRecordArray(internalModels, this);
