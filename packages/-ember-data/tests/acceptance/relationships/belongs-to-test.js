@@ -520,7 +520,7 @@ module('async belongs-to rendering tests', function(hooks) {
       }
 
       try {
-        let result = await sedona.get('parent');
+        await sedona.get('parent');
         assert.ok(false, 're-access should throw original rejection');
       } catch (e) {
         assert.ok(true, `Accessing resulted in rejected promise error: ${e.message}`);
@@ -553,7 +553,7 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(this.element.textContent.trim(), '', 'we have no parent');
 
       try {
-        let result = await sedona.get('parent');
+        await sedona.get('parent');
         assert.ok(false, `should have rejected`);
       } catch (e) {
         assert.equal(e.message, error, `should have rejected with '${error}'`);
