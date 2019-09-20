@@ -608,7 +608,9 @@ module('unit/model - Model', function(hooks) {
 
         record.on('event!', F);
 
-        assert.expectDeprecation(/Called event! on person/);
+        if (DEBUG) {
+          assert.expectDeprecation(/Called event! on person/);
+        }
 
         record.trigger('event!');
 
