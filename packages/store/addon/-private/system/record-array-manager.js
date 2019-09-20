@@ -4,9 +4,9 @@
 
 import { A } from '@ember/array';
 import { set, get } from '@ember/object';
+import { assign } from '@ember/polyfills';
 import { run as emberRunloop } from '@ember/runloop';
 import { assert } from '@ember/debug';
-import cloneNull from './clone-null';
 import { RecordArray, AdapterPopulatedRecordArray } from './record-arrays';
 import { internalModelFactoryFor } from './store/internal-model-factory';
 
@@ -240,8 +240,8 @@ export default class RecordArrayManager {
         manager: this,
         isLoaded: true,
         isUpdating: false,
-        meta: cloneNull(payload.meta),
-        links: cloneNull(payload.links),
+        meta: assign({}, payload.meta),
+        links: assign({}, payload.links),
       });
 
       associateWithRecordArray(internalModels, array);
