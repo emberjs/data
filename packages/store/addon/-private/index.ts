@@ -47,7 +47,7 @@ export { default as OrderedSet } from './system/ordered-set';
 export { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './system/store/common';
 
 // for Model
-export { default as DeprectedEvented } from './system/deprecated-evented';
+export { default as DeprecatedEvented } from './system/deprecated-evented';
 export {
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
