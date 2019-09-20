@@ -3,7 +3,6 @@
 */
 
 // // public
-export { default as Model } from './system/model/model';
 export { default as Errors } from './system/model/errors';
 export { default as Store } from './system/ds-model-store';
 
@@ -46,3 +45,11 @@ export { default as SnapshotRecordArray } from './system/snapshot-record-array';
 // New
 export { default as OrderedSet } from './system/ordered-set';
 export { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './system/store/common';
+
+// for Model
+export { default as DeprectedEvented } from './system/deprecated-evented';
+export {
+  relationshipsByNameDescriptor,
+  relationshipsObjectDescriptor,
+  relatedTypesDescriptor,
+  relationshipsDescriptor } from './system/relationships/ext';

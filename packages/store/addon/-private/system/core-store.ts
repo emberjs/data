@@ -19,7 +19,7 @@ import Ember from 'ember';
 import { assert, warn, inspect } from '@ember/debug';
 import { deprecate } from '@ember/application/deprecations';
 import { DEBUG } from '@glimmer/env';
-import Model from './model/model';
+import Model from '@ember-data/model';
 import normalizeModelName from './normalize-model-name';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 

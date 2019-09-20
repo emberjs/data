@@ -3,7 +3,7 @@ import { RecordIdentifier } from '../ts-interfaces/identifier';
 import { get } from '@ember/object';
 import { getOwner } from '@ember/application';
 import normalizeModelName from './normalize-model-name';
-import Model from './model/model';
+import Model from '@ember-data/model';
 import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
 
 export class DSModelSchemaDefinitionService {
