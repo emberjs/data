@@ -70,6 +70,10 @@ export default class Snapshot {
     if (internalModel.hasRecord) {
       this._changedAttributes = recordDataFor(internalModel).changedAttributes();
     }
+
+    if (CUSTOM_MODEL_CLASS) {
+      this.identifier = identifier;
+    }
   }
 
   /**
@@ -95,7 +99,13 @@ export default class Snapshot {
     if (attributes === null) {
       let record = this.record;
       attributes = this.__attributes = Object.create(null);
-      let attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, record.id));
+      let attrs;
+
+      if (CUSTOM_MODEL_CLASS) {
+        attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, this.identifier));
+      } else {
+        attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, record.id));
+      }
       if (CUSTOM_MODEL_CLASS) {
         attrs.forEach(keyName => {
           if (this.type.isModel) {
@@ -378,7 +388,7 @@ export default class Snapshot {
   */
   eachAttribute(callback, binding) {
     if (CUSTOM_MODEL_CLASS) {
-      let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.id);
+      let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.identifier);
       Object.keys(attrDefs).forEach(key => {
         callback.call(binding, key, attrDefs[key]);
       });

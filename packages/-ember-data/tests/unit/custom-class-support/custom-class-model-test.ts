@@ -354,7 +354,8 @@ if (CUSTOM_MODEL_CLASS) {
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
       let schema = {
-        attributesDefinitionFor(modelName: string) {
+        attributesDefinitionFor(identifier: string | StableRecordIdentifier) {
+          let modelName = (identifier as StableRecordIdentifier).type || identifier;
           if (modelName === 'person') {
             return {
               name: {
