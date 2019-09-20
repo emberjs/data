@@ -2,6 +2,23 @@
 
 ### Master
 
+## Release 3.13.0 (September 20, 2019)
+
+- [b29baa17](https://github.com/emberjs/data/commit/b29baa176f91b87ffc28a0c11c2fdd1c079e5ad9) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444) (#6445)
+- [8320ff4c](https://github.com/emberjs/data/commit/8320ff4c51012631af3af2ff50aa0ca679402b3f) [BUGFIX BETA RELEASE] Fix missing @babel/plugin-transform-block-scoping dependency (#6432)
+- [d7454364](https://github.com/emberjs/data/commit/d7454364e262743206d86a9b88607d03fe4ae46f) [BUGFIX BETA] ensure produced artifacts correctly lock with each other (#6309)
+- [a029725f](https://github.com/emberjs/data/commit/a029725f7372bae73b8cfbda307c3d2569b45b07) [BUGFIX beta] Fix Rollup warning about unresolved dependency
+- [69749b86](https://github.com/emberjs/data/commit/69749b86fe7d3effea974edf0b12fc4316e02ebf) [BUGFIX release beta canary] Fix Model lifecycle event deprecations
+- [#6312](https://github.com/emberjs/data/pull/6312) [BETA] Add environment variable to opt-out of rolling up `-private` (#6312)
+- [#6292](https://github.com/emberjs/data/pull/6292) chore: ensure * deps are hoisted (#6292)
+- [#6337](https://github.com/emberjs/data/pull/6337) [CHORE] fix test observers to match ember canary changes (#6337)
+- [#6411](https://github.com/emberjs/data/pull/6411) [BUGFIX beta] Adds support for parenless attr, belongsTo, and hasMany (#6339)
+- [#6434](https://github.com/emberjs/data/pull/6434) [BUGFIX BETA RELEASE] make fetch function JIT (#6430) (#6434)
+- [#6436](https://github.com/emberjs/data/pull/6436) fix: Strip Symbol from production builds (#6389) (#6436)
+- [#6452](https://github.com/emberjs/data/pull/6452) [BUGFIX beta] Update edition detection logic.
+- [#6334](https://github.com/emberjs/data/pull/6334) [BUGFIX BETA CANARY] usage of recordDataFor for client side create needs to be in correct cache
+- [#6430](https://github.com/emberjs/data/pull/6430) [BUGFIX BETA RELEASE] make fetch function JIT
+
 ## Release 3.12.3 (LTS) (September 20, 2019)
 
 - [#6441](https://github.com/emberjs/data/pull/6441) [BUGFIX] Await potentially async operations (#6441)
