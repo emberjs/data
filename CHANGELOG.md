@@ -2,6 +2,11 @@
 
 ### Master
 
+## Release 3.12.3 (LTS) (September 20, 2019)
+
+- [#6441](https://github.com/emberjs/data/pull/6441) [BUGFIX] Await potentially async operations (#6441)
+- [0cef1775](https://github.com/emberjs/data/commit/0cef177588351f25eeb20ca1eb4235ca6bfd0c03) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444) (#6446)
+
 ## Release 3.12.2 (September 11, 2019)
 
 - [#6435](https://github.com/emberjs/data/pull/6435) [BUGFIX BETA RELEASE] make fetch function JIT (#6430) (#6435)
