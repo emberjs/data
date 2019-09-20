@@ -75,7 +75,7 @@ class TestAdapter extends JSONAPIAdapter {
   }
 
   // find by link
-  findHasMany() {
+  findBelongsTo() {
     return this._nextPayload();
   }
 
@@ -171,6 +171,19 @@ function makePeopleWithRelationshipData() {
           data: {
             type: 'person',
             id: '3:has-2-children-and-parent',
+          },
+        },
+      },
+    },
+    {
+      type: 'person',
+      id: '6:has-linked-parent',
+      attributes: { name: 'Has a linked Parent' },
+      relationships: {
+        children: { data: [] },
+        parent: {
+          links: {
+            related: '/person/7',
           },
         },
       },
@@ -447,7 +460,6 @@ module('async belongs-to rendering tests', function(hooks) {
     });
 
     test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
-      assert.expect(14);
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
@@ -501,13 +513,51 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
 
       try {
-        let result = await sedona.get('parent');
+        let result = await sedona.get('parent.content');
         assert.ok(result === null, 're-access is safe');
       } catch (e) {
         assert.ok(false, `Accessing resulted in rejected promise error: ${e.message}`);
       }
 
+      try {
+        await sedona.get('parent');
+        assert.ok(false, 're-access should throw original rejection');
+      } catch (e) {
+        assert.ok(true, `Accessing resulted in rejected promise error: ${e.message}`);
+      }
+
       Ember.onerror = originalOnError;
+    });
+
+    test('accessing a linked async belongs-to whose fetch fails does not error for null proxy content', async function(assert) {
+      assert.expect(3);
+      let people = makePeopleWithRelationshipData();
+      let sedona = store.push({
+        data: people.dict['6:has-linked-parent'],
+      });
+
+      const error = 'hard error while finding <person>7:does-not-exist';
+      adapter.setupPayloads(assert, [new ServerError([], error)]);
+
+      try {
+        await sedona.get('parent');
+        assert.ok(false, `should have rejected`);
+      } catch (e) {
+        assert.equal(e.message, error, `should have rejected with '${error}'`);
+      }
+
+      await render(hbs`
+      <p>{{sedona.parent.name}}</p>
+      `);
+
+      assert.equal(this.element.textContent.trim(), '', 'we have no parent');
+
+      try {
+        await sedona.get('parent');
+        assert.ok(false, `should have rejected`);
+      } catch (e) {
+        assert.equal(e.message, error, `should have rejected with '${error}'`);
+      }
     });
   });
 });
