@@ -8,6 +8,8 @@ import RSVP, { Promise, resolve } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
+import { deprecate } from '@ember/application/deprecations';
+import Model from '@ember-data/model';
 import RootState from './states';
 import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
