@@ -9,6 +9,8 @@ on:
       - release
       - 'release-*'
       - 'lts-*'
+    tags:
+      - '*'
 
 jobs:
   lint:
