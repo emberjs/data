@@ -12,12 +12,6 @@ on:
 
 jobs:
   lint:
-    if: |
-      github.event_name == 'pull_request' && (
-        github.base_ref == 'master' || github.base_ref == 'beta'
-      ) || github.event_name == 'push' && (
-        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
-      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -67,6 +61,7 @@ jobs:
         run: yarn test:enabled-in-progress-features
 
   floating-dependencies:
+    needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -79,6 +74,7 @@ jobs:
         run: yarn test
 
   lts:
+    needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -91,6 +87,7 @@ jobs:
         run: yarn test:try-one ember-lts-3.8
 
   releases:
+    needs: [lint, basic-tests]
     if: |
       github.event_name == 'pull_request' && (
         github.base_ref == 'master' || github.base_ref == 'beta'
@@ -118,6 +115,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   additional-scenarios:
+    needs: [lint, basic-tests]
     strategy:
       matrix:
         scenario: [
@@ -125,7 +123,6 @@ jobs:
           with-ember-fetch,
           with-max-transpilation
         ]
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -138,6 +135,14 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   external-partners:
+    needs: [
+      additional-scenarios,
+      basic-tests,
+      floating-dependencies,
+      lint,
+      lts,
+      releases
+    ]
     if: |
       github.event_name == 'pull_request' && (
         github.base_ref == 'master' || github.base_ref == 'beta'
