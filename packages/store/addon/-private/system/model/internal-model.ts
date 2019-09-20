@@ -1582,12 +1582,6 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
       if (proxy.content && proxy.content.isDestroying) {
         proxy.set('content', null);
       }
-
-      // clear the promise to make re-access safe
-      // e.g. after initial rejection, don't replay
-      // rejection on subsequent access, otherwise
-      // templates cause lots of rejected promise blow-ups
-      proxy.set('promise', resolve(null));
     }
 
     throw error;
