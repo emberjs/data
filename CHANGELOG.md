@@ -2,30 +2,22 @@
 
 ### Master
 
-## Release 3.13.0-beta.2 (September 11, 2019)
+## Release 3.13.0 (September 20, 2019)
 
-- [#6353](https://github.com/emberjs/data/pull/6353) [CHORE tests] simplify setupStore registrations (#6353)
-- [#6411](https://github.com/emberjs/data/pull/6411) [BUGFIX beta] Adds support for parenless attr, belongsTo, and hasMany (#6339)
-- [c89a6d67](https://github.com/emberjs/data/commit/c89a6d67bc12915e871a9805c1b9af0a9b92c375) [BUGFIX] ensure commit based versioning passes semver (#6423)
-- [#6433](https://github.com/emberjs/data/pull/6433) Keeping beta up to date
-- [#6435](https://github.com/emberjs/data/pull/6435) 3.12.0 -> 3.12.2 changelogs
+- [b29baa17](https://github.com/emberjs/data/commit/b29baa176f91b87ffc28a0c11c2fdd1c079e5ad9) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444) (#6445)
 - [8320ff4c](https://github.com/emberjs/data/commit/8320ff4c51012631af3af2ff50aa0ca679402b3f) [BUGFIX BETA RELEASE] Fix missing @babel/plugin-transform-block-scoping dependency (#6432)
+- [d7454364](https://github.com/emberjs/data/commit/d7454364e262743206d86a9b88607d03fe4ae46f) [BUGFIX BETA] ensure produced artifacts correctly lock with each other (#6309)
+- [a029725f](https://github.com/emberjs/data/commit/a029725f7372bae73b8cfbda307c3d2569b45b07) [BUGFIX beta] Fix Rollup warning about unresolved dependency
+- [69749b86](https://github.com/emberjs/data/commit/69749b86fe7d3effea974edf0b12fc4316e02ebf) [BUGFIX release beta canary] Fix Model lifecycle event deprecations
+- [#6312](https://github.com/emberjs/data/pull/6312) [BETA] Add environment variable to opt-out of rolling up `-private` (#6312)
+- [#6292](https://github.com/emberjs/data/pull/6292) chore: ensure * deps are hoisted (#6292)
+- [#6337](https://github.com/emberjs/data/pull/6337) [CHORE] fix test observers to match ember canary changes (#6337)
+- [#6411](https://github.com/emberjs/data/pull/6411) [BUGFIX beta] Adds support for parenless attr, belongsTo, and hasMany (#6339)
 - [#6434](https://github.com/emberjs/data/pull/6434) [BUGFIX BETA RELEASE] make fetch function JIT (#6430) (#6434)
 - [#6436](https://github.com/emberjs/data/pull/6436) fix: Strip Symbol from production builds (#6389) (#6436)
-
-## Release 3.13.0-beta.1
-
-- [#6337](https://github.com/emberjs/data/pull/6337) [CHORE] fix test observers to match ember canary changes (#6337)
-- [a029725f](https://github.com/emberjs/data/commit/a029725f7372bae73b8cfbda307c3d2569b45b07) [BUGFIX beta] Fix Rollup warning about unresolved dependency
-- [#6312](https://github.com/emberjs/data/pull/6312) [BETA] Add environment variable to opt-out of rolling up `-private` (#6312)
-- [69749b86](https://github.com/emberjs/data/commit/69749b86fe7d3effea974edf0b12fc4316e02ebf) [BUGFIX release beta canary] Fix Model lifecycle event deprecations
-- [f2e24e24](https://github.com/emberjs/data/commit/f2e24e247849c0405d087ef534ce8b792c73ba7d) [BUGFIX] Await potentially async operations
-- [#6336](https://github.com/emberjs/data/pull/6336) Keeping beta up to date
-
-## Release 3.13.0-beta.0
-
-- [#6272](https://github.com/emberjs/data/pull/6272) [FEAT identifiers] adds flagged public API and integration tests  (#6272)
-- [d7454364](https://github.com/emberjs/data/commit/d7454364e262743206d86a9b88607d03fe4ae46f) [BUGFIX BETA] ensure produced artifacts correctly lock with each other (#6309)
+- [#6452](https://github.com/emberjs/data/pull/6452) [BUGFIX beta] Update edition detection logic.
+- [#6334](https://github.com/emberjs/data/pull/6334) [BUGFIX BETA CANARY] usage of recordDataFor for client side create needs to be in correct cache
+- [#6430](https://github.com/emberjs/data/pull/6430) [BUGFIX BETA RELEASE] make fetch function JIT
 
 ## Release 3.12.2 (September 11, 2019)
 
