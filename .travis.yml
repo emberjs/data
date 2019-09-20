@@ -73,6 +73,8 @@ jobs:
     - stage: ember version tests
       name: 'Ember LTS 3.8'
       env: EMBER_TRY_SCENARIO=ember-lts-3.8
+    - name: 'Ember LTS 3.12'
+      env: EMBER_TRY_SCENARIO=ember-lts-3.12
     - name: 'Ember Release'
       if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-release

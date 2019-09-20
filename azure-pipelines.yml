@@ -190,6 +190,11 @@ jobs:
 
       - script: |
           yarn install
+          yarn test:try-one ember-lts-3.12
+        displayName: 'Ember LTS test 3.12'
+
+      - script: |
+          yarn install
           yarn test:try-one ember-release
         displayName: 'Ember Release'
 
