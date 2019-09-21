@@ -45,6 +45,7 @@ if (DEBUG) {
       deprecate(deprecationMessage, deprecations[eventName], {
         id: 'ember-data:evented-api-usage',
         until: '4.0',
+        url: 'https://deprecations.emberjs.com/ember-data/v3.x/#deprecatingrecordlifecycleeventmethods',
       });
       deprecations[eventName] = true;
     },
