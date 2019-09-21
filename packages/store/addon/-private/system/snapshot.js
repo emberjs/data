@@ -25,6 +25,9 @@ export default class Snapshot {
     this._store = store;
     this.modelName = identifier.type;
 
+    if (CUSTOM_MODEL_CLASS) {
+      this.identifier = identifier;
+    }
     /*
       If the internalModel does not yet have a record, then we are
       likely a snapshot being provided to a find request, so we
@@ -69,10 +72,6 @@ export default class Snapshot {
 
     if (internalModel.hasRecord) {
       this._changedAttributes = recordDataFor(internalModel).changedAttributes();
-    }
-
-    if (CUSTOM_MODEL_CLASS) {
-      this.identifier = identifier;
     }
   }
 

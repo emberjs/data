@@ -7,7 +7,7 @@ import { Snapshot } from 'ember-data/-private';
 import Store from 'ember-data/store';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import CoreStore from '@ember-data/store/-private/system/core-store';
-import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { StableRecordIdentifier, RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
 import RecordDataRecordWrapper from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
 
@@ -165,7 +165,7 @@ if (CUSTOM_MODEL_CLASS) {
       let person = store.createRecord('person', { name: 'chris' });
     });
 
-    test('attribute and relationship with custom schema definition', async function(assert) {
+    test('attribute and relationship with custom schema definition igor', async function(assert) {
       assert.expect(18);
       this.owner.register(
         'adapter:application',
@@ -215,8 +215,12 @@ if (CUSTOM_MODEL_CLASS) {
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
       let schema = {
-        attributesDefinitionFor(modelName: string) {
-          assert.equal(modelName, 'person', 'type passed in to the schema hooks');
+        attributesDefinitionFor(identifier: string | RecordIdentifier) {
+          if (typeof identifier === 'string') {
+            assert.equal(identifier, 'person', 'type passed in to the schema hooks');
+          } else {
+            assert.equal(identifier.type, 'person', 'type passed in to the schema hooks');
+          }
           return {
             name: {
               type: 'string',
