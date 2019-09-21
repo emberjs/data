@@ -165,7 +165,7 @@ if (CUSTOM_MODEL_CLASS) {
       let person = store.createRecord('person', { name: 'chris' });
     });
 
-    test('attribute and relationship with custom schema definition igor', async function(assert) {
+    test('attribute and relationship with custom schema definition', async function(assert) {
       assert.expect(18);
       this.owner.register(
         'adapter:application',
@@ -234,8 +234,12 @@ if (CUSTOM_MODEL_CLASS) {
             },
           };
         },
-        relationshipsDefinitionFor(modelName: string) {
-          assert.equal(modelName, 'person', 'type passed in to the schema hooks');
+        relationshipsDefinitionFor(identifier: string | RecordIdentifier) {
+          if (typeof identifier === 'string') {
+            assert.equal(identifier, 'person', 'type passed in to the schema hooks');
+          } else {
+            assert.equal(identifier.type, 'person', 'type passed in to the schema hooks');
+          }
           return {
             boats: {
               type: 'ship',
@@ -358,8 +362,8 @@ if (CUSTOM_MODEL_CLASS) {
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
       let schema = {
-        attributesDefinitionFor(identifier: string | StableRecordIdentifier) {
-          let modelName = (identifier as StableRecordIdentifier).type || identifier;
+        attributesDefinitionFor(identifier: string | RecordIdentifier) {
+          let modelName = (identifier as RecordIdentifier).type || identifier;
           if (modelName === 'person') {
             return {
               name: {
@@ -376,7 +380,8 @@ if (CUSTOM_MODEL_CLASS) {
             };
           }
         },
-        relationshipsDefinitionFor(modelName: string) {
+        relationshipsDefinitionFor(identifier: string | RecordIdentifier) {
+          let modelName = (identifier as RecordIdentifier).type || identifier;
           if (modelName === 'person') {
             return {
               house: {

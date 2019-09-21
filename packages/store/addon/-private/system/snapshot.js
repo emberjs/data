@@ -414,7 +414,7 @@ export default class Snapshot {
   */
   eachRelationship(callback, binding) {
     if (CUSTOM_MODEL_CLASS) {
-      let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.id);
+      let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.identifier);
       Object.keys(relationshipDefs).forEach(key => {
         callback.call(binding, key, relationshipDefs[key]);
       });

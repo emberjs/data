@@ -488,8 +488,12 @@ abstract class CoreStore extends Service {
     }
   }
 
-  _relationshipsDefinitionFor(modelName: string, id?: string | null) {
-    return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName, id);
+  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
+    if (identifier) {
+      return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+    } else {
+      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+    }
   }
 
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {

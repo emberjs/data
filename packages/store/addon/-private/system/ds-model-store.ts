@@ -268,9 +268,13 @@ class Store extends CoreStore {
     }
   }
 
-  _relationshipsDefinitionFor(modelName: string): RelationshipsSchema {
+  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): RelationshipsSchema {
     if (CUSTOM_MODEL_CLASS) {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+      if (identifier) {
+        return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+      } else {
+        return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+      }
     } else {
       let relationships = this._relationshipsDefCache[modelName];
 
