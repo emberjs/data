@@ -8,7 +8,7 @@ export default class ShimModelClass {
 
   get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
     let attrs = this.__store._attributesDefinitionFor(this.modelName);
-    let relationships = this.__store._relationshipsDefinitionFor(this.modelName, this.__id);
+    let relationships = this.__store._relationshipsDefinitionFor(this.modelName);
     let fields = new Map<string, 'attribute' | 'belongsTo' | 'hasMany'>();
     Object.keys(attrs).forEach(key => fields.set(key, 'attribute'));
     Object.keys(relationships).forEach(key => fields.set(key, relationships[key]!.kind));
