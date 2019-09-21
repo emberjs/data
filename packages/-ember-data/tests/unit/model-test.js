@@ -1,3 +1,4 @@
+import { DEBUG } from '@glimmer/env';
 import { guidFor } from '@ember/object/internals';
 import { resolve, reject } from 'rsvp';
 import { set, get, observer, computed } from '@ember/object';
