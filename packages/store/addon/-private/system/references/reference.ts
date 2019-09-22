@@ -151,10 +151,10 @@ export default abstract class Reference {
           user: {
             links: {
               related: {
-                href: '/articles/1/author',
-                meta: {
-                  lastUpdated: 1458014400000
-                }
+                href: '/articles/1/author'
+              },
+              meta: {
+                lastUpdated: 1458014400000
               }
             }
           }
