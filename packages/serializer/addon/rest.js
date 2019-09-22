@@ -387,6 +387,7 @@ const RESTSerializer = JSONSerializer.extend({
     @method pushPayload
     @param {DS.Store} store
     @param {Object} payload
+    @return the record(s) that was created or updated.
   */
   pushPayload(store, payload) {
     let documentHash = {
@@ -414,7 +415,7 @@ const RESTSerializer = JSONSerializer.extend({
       });
     }
 
-    store.push(documentHash);
+    return store.push(documentHash);
   },
 
   /**

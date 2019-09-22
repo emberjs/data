@@ -2959,6 +2959,7 @@ abstract class CoreStore extends Service {
     @method pushPayload
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
     @param {Object} inputPayload
+    @return the record(s) that was created or updated
   */
   pushPayload(modelName, inputPayload) {
     if (DEBUG) {
@@ -2982,7 +2983,7 @@ abstract class CoreStore extends Service {
       let normalizedModelName = normalizeModelName(modelName);
       serializer = this.serializerFor(normalizedModelName);
     }
-    serializer.pushPayload(this, payload);
+    return serializer.pushPayload(this, payload);
   }
 
   reloadManyArray(manyArray, internalModel, key, options) {

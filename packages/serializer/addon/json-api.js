@@ -211,10 +211,11 @@ const JSONAPISerializer = JSONSerializer.extend({
     @method pushPayload
     @param {DS.Store} store
     @param {Object} payload
+    @return the record(s) that was created or updated.
   */
   pushPayload(store, payload) {
     let normalizedPayload = this._normalizeDocumentHelper(payload);
-    store.push(normalizedPayload);
+    return store.push(normalizedPayload);
   },
 
   /**
