@@ -147,7 +147,7 @@ function belongsTo(modelName, options) {
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );
         }
-        if (opts.hasOwnProperty('serialize')) {
+        if (Object.prototype.hasOwnProperty.call(opts, 'serialize')) {
           warn(
             `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://emberjs.com/api/data/classes/DS.Serializer.html`,
             false,
@@ -157,7 +157,7 @@ function belongsTo(modelName, options) {
           );
         }
 
-        if (opts.hasOwnProperty('embedded')) {
+        if (Object.prototype.hasOwnProperty.call(opts, 'embedded')) {
           warn(
             `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html`,
             false,

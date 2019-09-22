@@ -33,9 +33,8 @@ module.exports = {
     'no-eq-null': 'error',
     'no-console': 'error', // no longer recommended in eslint v6, this restores it
 
-    // probably want to fix these new rules later in separate PR
-    // Tracked in issue https://github.com/emberjs/data/issues/6405
-    'no-prototype-builtins': 'off',
+    // Too many false positives
+    // See https://github.com/eslint/eslint/issues/11899 and similar
     'require-atomic-updates': 'off',
   },
   globals: {

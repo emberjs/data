@@ -752,7 +752,7 @@ function wireState(object, parent, name) {
   object.stateName = name;
 
   for (let prop in object) {
-    if (!object.hasOwnProperty(prop) || prop === 'parentState' || prop === 'stateName') {
+    if (!Object.prototype.hasOwnProperty.call(object, prop) || prop === 'parentState' || prop === 'stateName') {
       continue;
     }
     if (typeof object[prop] === 'object') {

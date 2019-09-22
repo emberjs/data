@@ -1,3 +1,6 @@
+/* eslint no-prototype-builtins: 'off' */
+// prototype hasOwnProperty has no security issues here because it is not production code
+
 import { underscore } from '@ember/string';
 import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
