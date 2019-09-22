@@ -1,4 +1,3 @@
-import { DebugAdapter } from './-private';
 import { deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Store from '@ember-data/store';
@@ -41,19 +40,13 @@ function initializeStore(application) {
   }
 }
 
-function initializeDataAdapter(application) {
-  application.register('data-adapter:main', DebugAdapter);
-}
-
 function initializeStoreInjections(application) {
   let inject = application.inject || application.injection;
   inject.call(application, 'controller', 'store', 'service:store');
   inject.call(application, 'route', 'store', 'service:store');
-  inject.call(application, 'data-adapter', 'store', 'service:store');
 }
 
 export default function setupContainer(application) {
-  initializeDataAdapter(application);
   initializeStoreInjections(application);
   initializeStore(application);
 }
