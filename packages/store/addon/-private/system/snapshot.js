@@ -25,6 +25,9 @@ export default class Snapshot {
     this._store = store;
     this.modelName = identifier.type;
 
+    if (CUSTOM_MODEL_CLASS) {
+      this.identifier = identifier;
+    }
     /*
       If the internalModel does not yet have a record, then we are
       likely a snapshot being provided to a find request, so we
@@ -95,7 +98,13 @@ export default class Snapshot {
     if (attributes === null) {
       let record = this.record;
       attributes = this.__attributes = Object.create(null);
-      let attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, record.id));
+      let attrs;
+
+      if (CUSTOM_MODEL_CLASS) {
+        attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, this.identifier));
+      } else {
+        attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, record.id));
+      }
       if (CUSTOM_MODEL_CLASS) {
         attrs.forEach(keyName => {
           if (this.type.isModel) {
@@ -378,7 +387,7 @@ export default class Snapshot {
   */
   eachAttribute(callback, binding) {
     if (CUSTOM_MODEL_CLASS) {
-      let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.id);
+      let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.identifier);
       Object.keys(attrDefs).forEach(key => {
         callback.call(binding, key, attrDefs[key]);
       });
@@ -405,7 +414,7 @@ export default class Snapshot {
   */
   eachRelationship(callback, binding) {
     if (CUSTOM_MODEL_CLASS) {
-      let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.id);
+      let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.identifier);
       Object.keys(relationshipDefs).forEach(key => {
         callback.call(binding, key, relationshipDefs[key]);
       });

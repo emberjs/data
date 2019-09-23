@@ -465,12 +465,20 @@ abstract class CoreStore extends Service {
   }
 
   // FeatureFlagged in the DSModelStore claas
-  _attributesDefinitionFor(modelName: string, id?: string | null): AttributesSchema {
-    return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+  _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): AttributesSchema {
+    if (identifier) {
+      return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+    } else {
+      return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+    }
   }
 
-  _relationshipsDefinitionFor(modelName: string, id?: string | null) {
-    return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
+    if (identifier) {
+      return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+    } else {
+      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+    }
   }
 
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {
