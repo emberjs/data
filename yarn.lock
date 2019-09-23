@@ -5402,7 +5402,7 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@~3.13.0, ember-source@~~3.13.0:
+ember-source@~3.13.0:
   version "3.13.0"
   resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.13.0.tgz#2304a61116a241b696720913cb798cdcc9aadc2f"
   integrity sha512-gHtDIC/Zsk6nd4WutMFhfV8DJtpkSdFs4c+PY49gU4BZ4L5DQqrae4jwj+nNzo1cE0CclXzS4Bgmf19XBbZKpw==
