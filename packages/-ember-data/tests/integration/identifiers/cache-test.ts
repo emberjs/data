@@ -44,7 +44,7 @@ if (IDENTIFIERS) {
         const cache = identifierCacheFor(store);
         const identifier = cache.getOrCreateRecordIdentifier(houseHash);
 
-        assert.equal(
+        assert.strictEqual(
           identifier,
           cache.getOrCreateRecordIdentifier(identifier),
           'getOrCreateRecordIdentifier() return identifier'
