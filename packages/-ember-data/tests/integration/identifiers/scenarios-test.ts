@@ -30,8 +30,8 @@ if (IDENTIFIERS) {
       let store;
       let calls;
       let secondaryCache: {
-        id: Dict<string, string>;
-        username: Dict<string, string>;
+        id: Dict<string>;
+        username: Dict<string>;
       };
       class TestSerializer extends Serializer {
         normalizeResponse(_, __, payload) {
@@ -232,7 +232,7 @@ if (IDENTIFIERS) {
     module('Secondary Cache using an attribute as an alternate id', function(hooks) {
       let store;
       let calls;
-      let secondaryCache: Dict<string, string>;
+      let secondaryCache: Dict<string>;
       class TestSerializer extends Serializer {
         normalizeResponse(_, __, payload) {
           return payload;

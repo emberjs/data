@@ -17,9 +17,9 @@ import { Dict } from '../ts-interfaces/utils';
  @private
  */
 export default class InternalModelMap {
-  private _idToModel: Dict<string, InternalModel> = Object.create(null);
+  private _idToModel: Dict<InternalModel> = Object.create(null);
   private _models: InternalModel[] = [];
-  private _metadata: Dict<string, any> | null = null;
+  private _metadata: Dict<any> | null = null;
 
   constructor(public modelName: string) {}
 
@@ -104,7 +104,7 @@ export default class InternalModelMap {
    * @property metadata
    * @type Object
    */
-  get metadata(): Dict<string, any> {
+  get metadata(): Dict<any> {
     return this._metadata || (this._metadata = Object.create(null));
   }
 

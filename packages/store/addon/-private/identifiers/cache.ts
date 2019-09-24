@@ -30,8 +30,8 @@ interface KeyOptions {
   _allIdentifiers: StableRecordIdentifier[];
 }
 
-type IdentifierMap = Dict<string, StableRecordIdentifier>;
-type TypeMap = Dict<string, KeyOptions>;
+type IdentifierMap = Dict<StableRecordIdentifier>;
+type TypeMap = Dict<KeyOptions>;
 export type MergeMethod = (
   targetIdentifier: StableRecordIdentifier,
   matchedIdentifier: StableRecordIdentifier,

@@ -3016,7 +3016,7 @@ abstract class CoreStore extends Service {
     return internalModelFactoryFor(this).lookup(resource);
   }
 
-  serializeRecord(record: Record, options?: Dict<string, unknown>): unknown {
+  serializeRecord(record: Record, options?: Dict<unknown>): unknown {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);
@@ -3027,7 +3027,7 @@ abstract class CoreStore extends Service {
     }
   }
 
-  saveRecord(record: Record, options?: Dict<string, unknown>): RSVP.Promise<Record> {
+  saveRecord(record: Record, options?: Dict<unknown>): RSVP.Promise<Record> {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);

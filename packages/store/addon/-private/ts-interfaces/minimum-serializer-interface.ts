@@ -102,8 +102,9 @@ import Store from '../system/core-store';
 import { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
 import Snapshot from '../system/snapshot';
 import ShimModelClass from '../system/model/shim-model-class';
+import { Dict } from './utils';
 
-type OptionsHash = Record<string, any>;
+type OptionsHash = Dict<any>;
 
 interface Serializer {
   /**

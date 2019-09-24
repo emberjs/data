@@ -119,14 +119,14 @@ export default class InternalModel {
   __recordArrays: any;
   _references: any;
   _recordReference: any;
-  _manyArrayCache: Dict<string, ManyArray> = Object.create(null);
+  _manyArrayCache: Dict<ManyArray> = Object.create(null);
 
   // The previous ManyArrays for this relationship which will be destroyed when
   // we create a new ManyArray, but in the interim the retained version will be
   // updated if inverse internal models are unloaded.
-  _retainedManyArrayCache: Dict<string, ManyArray> = Object.create(null);
-  _relationshipPromisesCache: Dict<string, RSVP.Promise<any>> = Object.create(null);
-  _relationshipProxyCache: Dict<string, PromiseManyArray | PromiseBelongsTo> = Object.create(null);
+  _retainedManyArrayCache: Dict<ManyArray> = Object.create(null);
+  _relationshipPromisesCache: Dict<RSVP.Promise<any>> = Object.create(null);
+  _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo> = Object.create(null);
   currentState: any;
   error: any;
 

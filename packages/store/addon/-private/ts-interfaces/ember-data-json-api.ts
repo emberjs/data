@@ -5,7 +5,7 @@ import { Dict } from './utils';
   @module @ember-data/store
 */
 
-export type Meta = Dict<string, JSONValue>;
+export type Meta = Dict<JSONValue>;
 
 /**
  * Serves as a reference to a `Resource` but does not contain
@@ -74,15 +74,15 @@ export type ResourceIdentifierObject = ExistingResourceIdentifierObject | NewRes
  * Contains the data for an existing resource in JSON:API format
  */
 export interface ExistingResourceObject extends ExistingResourceIdentifierObject {
-  meta?: Dict<string, JSONValue>;
-  attributes?: Dict<string, JSONValue>;
+  meta?: Dict<JSONValue>;
+  attributes?: Dict<JSONValue>;
   // these are lossy, need improved typing
-  relationships?: Dict<string, JSONValue>;
-  links?: Dict<string, JSONValue>;
+  relationships?: Dict<JSONValue>;
+  links?: Dict<JSONValue>;
 }
 
 interface Document {
-  meta?: Dict<string, JSONValue>;
+  meta?: Dict<JSONValue>;
   included?: ExistingResourceObject[];
 }
 
