@@ -40,7 +40,7 @@
     "silent-error": "^1.1.1"
   },
   "devDependencies": {
-    "broccoli-babel-transpiler": "^7.2.0",
+    "broccoli-babel-transpiler": "^7.3.0",
     "broccoli-test-helper": "^2.0.0",
     "co": "^4.6.0",
     "common-tags": "^1.8.0",

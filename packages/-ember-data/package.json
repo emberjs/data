@@ -46,7 +46,7 @@
     "@types/ember__test-helpers": "~0.7.8",
     "@types/qunit": "^2.5.3",
     "@types/rsvp": "^4.0.3",
-    "broccoli-babel-transpiler": "^7.2.0",
+    "broccoli-babel-transpiler": "^7.3.0",
     "broccoli-concat": "^3.7.3",
     "broccoli-stew": "^3.0.0",
     "broccoli-string-replace": "^0.1.2",
