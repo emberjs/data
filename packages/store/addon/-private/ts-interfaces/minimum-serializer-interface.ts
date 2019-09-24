@@ -270,7 +270,7 @@ interface Serializer {
    * @param {ShimModelClass} schema - An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {Snapshot} snapshot - A Snapshot for the record to serialize
-   * @param options
+   * @param [options]
    * @returns {void}
    */
   serializeIntoHash?(hash: object, schema: ShimModelClass, snapshot: Snapshot, options?: OptionsHash): void;
