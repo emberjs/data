@@ -1,5 +1,5 @@
 {
-  "name": "serializer-encapsulation-test-app",
+  "name": "adapter-encapsulation-test-app",
   "version": "3.14.0-alpha.4",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
@@ -15,12 +15,12 @@
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint .",
     "start": "ember serve",
-    "test": "ember test --test-port=0"
+    "test": "ember test  --test-port=0"
   },
   "dependencies": {
-    "@ember-data/adapter": "3.14.0-alpha.4",
     "@ember-data/model": "3.14.0-alpha.4",
     "@ember-data/store": "3.14.0-alpha.4",
+    "@ember-data/serializer": "3.14.0-alpha.4",
     "ember-inflector": "^3.0.1"
   },
   "devDependencies": {

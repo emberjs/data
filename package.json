@@ -23,7 +23,7 @@
     "test:production": "yarn workspace ember-data test:production",
     "test:try-one": "yarn workspace ember-data test:try-one",
     "test:docs": "yarn workspace ember-data test:docs",
-    "test:encapsulation": "yarn workspace serializer-encapsulation-test-app test",
+    "test:encapsulation": "lerna run --scope='*-encapsulation-test-app' test",
     "test:enabled-in-progress-features": "yarn workspace ember-data test:optional-features",
     "test-external:ember-m3": "./bin/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "./bin/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
