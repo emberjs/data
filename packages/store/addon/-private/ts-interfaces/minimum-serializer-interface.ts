@@ -174,7 +174,7 @@ interface Serializer {
    * @method serialize
    * @public
    * @param {Snapshot} snapshot - A Snapshot for the record to serialize
-   * @param {object} options
+   * @param {object} [options]
    */
   serialize(snapshot: Snapshot, options?: OptionsHash): JSONObject;
 
