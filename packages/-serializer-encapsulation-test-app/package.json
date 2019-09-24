@@ -15,7 +15,7 @@
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint .",
     "start": "ember serve",
-    "test": "ember test"
+    "test": "ember test --test-port=0"
   },
   "dependencies": {
     "@ember-data/adapter": "3.14.0-alpha.4",
