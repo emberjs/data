@@ -80,16 +80,16 @@
 
   ### Default Serializers
 
-  It is recommended that apps write their own serializer to best suit the needs of their API and
-  application.
-
-  However, for applications whose APIs are *very close to* or *exactly* the `REST` or `JSON:API`
+  For applications whose APIs are *very close to* or *exactly* the `REST` or `JSON:API`
   format the `@ember-data/serializer` package contains implementations these applications can
   extend. It also contains a simple `JSONSerializer` for serializing to/from very basic JSON objects.
 
   Many applications will find writing their own serializer to be more performant and less
   complex than extending these classes even when their API format is very close to that expected
   by these serializers.
+
+  It is recommended that apps write their own serializer to best suit the needs of their API and
+  application.
 
   @module @ember-data/serializer
   @main @ember-data/serializer
