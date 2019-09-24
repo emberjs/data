@@ -279,9 +279,6 @@ interface Serializer {
    * This method allows for normalization of data when `store.pushPayload` is called
    * and should be implemented if you want to use that method.
    *
-   * It is recommended to use `store.push` over `store.pushPayload` after normalizing
-   * the payload directly.
-   *
    * The output should be a [JSON:API Document](https://jsonapi.org/format/#document-structure)
    * with the following additional restrictions:
    *
@@ -293,7 +290,11 @@ interface Serializer {
    *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
    *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
-   * Example:
+   * If you need better control over normalization or want access to the records being added or updated
+   * in the store, we recommended using `store.push` over `store.pushPayload` after normalizing
+   * the payload directly. This can even take advantage of an existing serializer for the format
+   * the data is in, for example:
+   *
    * ```js
    * function pushPayload(store, modelName, rawPayload) {
    *   const ModelClass = store.modelFor(modelName);
