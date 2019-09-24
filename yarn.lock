@@ -5415,10 +5415,10 @@ ember-qunit@^4.4.1, ember-qunit@^4.5.1:
     ember-cli-test-loader "^2.2.0"
     qunit "^2.9.2"
 
-ember-resolver@^5.0.1, ember-resolver@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.npmjs.org/ember-resolver/-/ember-resolver-5.2.1.tgz#538d7a29351316d9550864ff06fcbe55bdd92774"
-  integrity sha512-Ciz5qsrtILr7AGXO9mTSFs3/XKXpMYJqISNCfvIY0C8PlMgq+9RYbmUoBpAlvBUc/mUi3ORZKJ4csd9qchvxZw==
+ember-resolver@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.npmjs.org/ember-resolver/-/ember-resolver-5.3.0.tgz#9fbeedfa63c094b588ac7647ba62f1305374f1d8"
+  integrity sha512-NWin+WzmsRnZxFvDlx9B3rb3kxwK0MNblJemoRvNbbxLK6z5lGxVoBfpU4/nqItWfwmpVb9ZK8bqXYs5q8HT4A==
   dependencies:
     "@glimmer/resolver" "^0.4.1"
     babel-plugin-debug-macros "^0.1.10"
