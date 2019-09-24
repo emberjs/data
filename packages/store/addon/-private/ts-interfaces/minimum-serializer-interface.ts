@@ -19,9 +19,9 @@
   another for serializing records via `Snapshot`s into the expected
   server API format.
 
-  To implement a serializer, export a class implementing the
-  [MinimumSerializerInterface](MinimumSerializerInterface) from
-  the `app/serializers/` directory. An example is below.
+  To implement a serializer, export a class that conforms to the structure
+  described by the [MinimumSerializerInterface](MinimumSerializerInterface)
+  from the `app/serializers/` directory. An example is below.
 
   ```ts
   import EmberObject from '@ember/object';
@@ -46,8 +46,9 @@
 
   #### Serializer Resolution
 
-  The instances of serializers defined in `app/serializers/` can be looked up
-  via `store.serializerFor(name)`.
+  `store.serializerFor(name)` will lookup serializers defined in
+  `app/serializers` and return an instance. If no serializer is found, an
+  error will be thrown.
 
   `serializerFor` first attempts to find a serializer with an exact match on `name`,
   then falls back to checking for the presence of a serializer named `application`.
