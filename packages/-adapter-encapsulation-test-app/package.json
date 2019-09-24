@@ -1,0 +1,53 @@
+{
+  "name": "adapter-encapsulation-test-app",
+  "version": "3.14.0-alpha.4",
+  "private": true,
+  "description": "Small description for encapsulation-test-app goes here",
+  "repository": "",
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "ember build",
+    "lint:hbs": "ember-template-lint .",
+    "lint:js": "eslint .",
+    "start": "ember serve",
+    "test": "ember test"
+  },
+  "dependencies": {
+    "@ember-data/adapter": "3.14.0-alpha.4",
+    "@ember-data/model": "3.14.0-alpha.4",
+    "@ember-data/store": "3.14.0-alpha.4",
+    "@ember-data/serializer": "3.14.0-alpha.4",
+    "ember-inflector": "^3.0.1"
+  },
+  "devDependencies": {
+    "@ember/optional-features": "^0.7.0",
+    "broccoli-asset-rev": "^3.0.0",
+    "ember-cli": "~3.12.0",
+    "ember-cli-app-version": "^3.2.0",
+    "ember-cli-babel": "^7.11.1",
+    "ember-cli-dependency-checker": "^3.1.0",
+    "ember-cli-htmlbars": "^3.0.1",
+    "ember-cli-htmlbars-inline-precompile": "^2.1.0",
+    "ember-cli-inject-live-reload": "^1.8.2",
+    "ember-cli-template-lint": "^1.0.0-beta.1",
+    "ember-export-application-global": "^2.0.0",
+    "ember-load-initializers": "^2.0.0",
+    "ember-maybe-import-regenerator": "^0.1.6",
+    "ember-qunit": "^4.4.1",
+    "ember-resolver": "^5.3.0",
+    "ember-source": "~3.11.1",
+    "eslint": "^6.3.0",
+    "eslint-plugin-ember": "^7.1.0",
+    "eslint-plugin-node": "^9.0.1",
+    "loader.js": "^4.7.0",
+    "qunit-dom": "^0.9.0"
+  },
+  "engines": {
+    "node": "8.* || >= 10.*"
+  }
+}
