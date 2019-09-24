@@ -2,7 +2,7 @@
 
 module.exports = function(environment) {
   let ENV = {
-    modulePrefix: 'serializer-encapsulation-test-app',
+    modulePrefix: 'adapter-encapsulation-test-app',
     environment,
     rootURL: '/',
     locationType: 'auto',
