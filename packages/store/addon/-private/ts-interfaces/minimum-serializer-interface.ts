@@ -49,9 +49,6 @@
   The instances of serializers defined in `app/serializers/` can be looked up
   via `store.serializerFor(name)`.
 
-  It is recommended that applications define only a single `application` adapter and serializer
-  where possible.
-
   `serializerFor` first attempts to find a serializer with an exact match on `name`,
   then falls back to checking for the presence of a serializer named `application`.
 
@@ -63,13 +60,18 @@
   //   app/serializers/application.js
   ```
 
-  Because most requests in `ember-data` are made with respect to a particular `type` (or `modelName`)
-  (e.g., "get me the full collection of **books**" or "get me the **employee** whose id is 37") typically
-  `serializerFor` will be used to find a serializer with a name matching that of the primary resource
-  `type` for the request, falling back to the `application` serializer for those types that do not have
-  a defined serializer. This is often described as a `per-model` or `per-type` strategy for defining
-  serializers. However, because APIs rarely format payloads per-type but rather per-API-version, this
-  may not be a desired strategy.
+  Most requests in `ember-data` are made with respect to a particular `type` (or `modelName`)
+  (e.g., "get me the full collection of **books**" or "get me the **employee** whose id is 37"). We
+  refer to this as the *"primary"* resource `type`.
+  
+  Typically `serializerFor` will be used to find a serializer with a name matching that of the primary
+  resource `type` for the request, falling back to the `application` serializer for those types that
+  do not have a defined serializer. This is often described as a `per-model` or `per-type` strategy
+  for defining serializers. However, because APIs rarely format payloads per-type but rather
+  per-API-version, this may not be a desired strategy.
+
+  It is recommended that applications define only a single `application` adapter and serializer
+  where possible.
 
   If you have multiple API formats and the per-type strategy is not viable, one strategy is to
   write an `application` adapter and serializer that make use of `options` to specify the desired
