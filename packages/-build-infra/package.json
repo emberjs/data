@@ -14,7 +14,7 @@
     "test:node": "mocha"
   },
   "dependencies": {
-    "@babel/plugin-transform-block-scoping": "^7.6.0",
+    "@babel/plugin-transform-block-scoping": "^7.6.2",
     "@ember-data/canary-features": "3.14.0-alpha.4",
     "@ember/edition-utils": "^1.1.1",
     "babel-plugin-debug-macros": "^0.3.3",
