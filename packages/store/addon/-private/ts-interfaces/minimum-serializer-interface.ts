@@ -63,12 +63,13 @@
   //   app/serializers/application.js
   ```
 
-  Because most requests in `ember-data` occur from the perspective of a primary `type`
-  (or `modelName`) typically `serializerFor` will be used to find a serializer with a name
-  matching that of the primary resource `type` for the request, falling back to the `application`
-  serializer for those types that do not have a defined serializer. This is often described
-  as a `per-model` or `per-type` strategy for defining serializers. However, because APIs
-  rarely format payloads per-type but rather per-API-version, this may not be a desired strategy.
+  Because most requests in `ember-data` are made with respect to a particular `type` (or `modelName`)
+  (e.g., "get me the full collection of **books**" or "get me the **employee** whose id is 37") typically
+  `serializerFor` will be used to find a serializer with a name matching that of the primary resource
+  `type` for the request, falling back to the `application` serializer for those types that do not have
+  a defined serializer. This is often described as a `per-model` or `per-type` strategy for defining
+  serializers. However, because APIs rarely format payloads per-type but rather per-API-version, this
+  may not be a desired strategy.
 
   If you have multiple API formats and the per-type strategy is not viable, one strategy is to
   write an `application` adapter and serializer that make use of `options` to specify the desired
