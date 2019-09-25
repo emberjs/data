@@ -2,6 +2,10 @@
 
 ### Master
 
+## Release 3.13.1 (September 24, 2019)
+
+- [0ff38fb1](https://github.com/emberjs/data/commit/0ff38fb1c0a8d75c7ad03f5dc8eaf8193d7f6e80) [DOC serializer] implements MinimumSerializerInterface (#6451) (#6499)
+
 ## Release 3.13.0 (September 20, 2019)
 
 - [b29baa17](https://github.com/emberjs/data/commit/b29baa176f91b87ffc28a0c11c2fdd1c079e5ad9) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444) (#6445)
