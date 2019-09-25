@@ -80,6 +80,7 @@ import Reference from './references/reference';
 import { Dict } from '../ts-interfaces/utils';
 
 import constructResource from '../utils/construct-resource';
+import { errorsArrayToHash } from './errors-utils';
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
@@ -103,7 +104,10 @@ const HAS_ADAPTER_PACKAGE = has('@ember-data/adapter');
 
 function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
 function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
-function deprecateTestRegistration(factoryType: 'serializer' | 'adapter', factoryName: '-json-api' | '-rest' | '-default'): void {
+function deprecateTestRegistration(
+  factoryType: 'serializer' | 'adapter',
+  factoryName: '-json-api' | '-rest' | '-default'
+): void {
   deprecate(
     `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
     false,
@@ -1269,8 +1273,8 @@ abstract class CoreStore extends Service {
       if (missingInternalModels.length) {
         warn(
           'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-          missingInternalModels.map(r => r.id).join('", "') +
-          '" ]',
+            missingInternalModels.map(r => r.id).join('", "') +
+            '" ]',
           false,
           {
             id: 'ds.store.missing-records-from-adapter',
@@ -1291,9 +1295,9 @@ abstract class CoreStore extends Service {
         if (pair) {
           pair.resolver.reject(
             error ||
-            new Error(
-              `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
-            )
+              new Error(
+                `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
+              )
           );
         }
       }
@@ -1331,12 +1335,12 @@ abstract class CoreStore extends Service {
         }
 
         if (totalInGroup > 1) {
-          (function (groupedInternalModels) {
+          (function(groupedInternalModels) {
             _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
-              .then(function (foundInternalModels) {
+              .then(function(foundInternalModels) {
                 handleFoundRecords(foundInternalModels, groupedInternalModels);
               })
-              .catch(function (error) {
+              .catch(function(error) {
                 rejectInternalModels(groupedInternalModels, error);
               });
           })(groupedInternalModels);
@@ -3015,7 +3019,7 @@ abstract class CoreStore extends Service {
     return internalModelFactoryFor(this).lookup(resource);
   }
 
-  serializeRecord(record: Record, options?: Dict<string, unknown>): unknown {
+  serializeRecord(record: Record, options?: Dict<unknown>): unknown {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);
@@ -3026,7 +3030,7 @@ abstract class CoreStore extends Service {
     }
   }
 
-  saveRecord(record: Record, options?: Dict<string, unknown>): RSVP.Promise<Record> {
+  saveRecord(record: Record, options?: Dict<unknown>): RSVP.Promise<Record> {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);
@@ -3360,11 +3364,15 @@ abstract class CoreStore extends Service {
     let adapter = this.adapterFor(modelName);
     let serializerName = get(adapter, 'defaultSerializer');
 
-    deprecate(`store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`, !serializerName, {
-      id: 'ember-data:default-serializer',
-      until: '4.0',
-      url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers'
-    });
+    deprecate(
+      `store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
+      !serializerName,
+      {
+        id: 'ember-data:default-serializer',
+        until: '4.0',
+        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+      }
+    );
 
     serializer = serializerName
       ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
@@ -3408,11 +3416,15 @@ abstract class CoreStore extends Service {
       serializer && deprecateTestRegistration('serializer', '-default');
     }
 
-    deprecate(`store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`, !serializer, {
-      id: 'ember-data:default-serializer',
-      until: '4.0',
-      url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers'
-    });
+    deprecate(
+      `store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`,
+      !serializer,
+      {
+        id: 'ember-data:default-serializer',
+        until: '4.0',
+        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+      }
+    );
 
     assert(
       `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
@@ -3448,12 +3460,12 @@ abstract class CoreStore extends Service {
         if (shouldTrack) {
           throw new Error(
             'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-            tracked.map(o => o.label).join('\n\t - ')
+              tracked.map(o => o.label).join('\n\t - ')
           );
         } else {
           warn(
             'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-            tracked.map(o => o.label).join('\n\t - '),
+              tracked.map(o => o.label).join('\n\t - '),
             false,
             {
               id: 'ds.async.leak.detected',
@@ -3506,14 +3518,15 @@ abstract class CoreStore extends Service {
 defineProperty(
   CoreStore.prototype,
   'defaultAdapter',
-  computed('adapter', function () {
+  computed('adapter', function() {
     deprecate(
-      `store.adapterFor(modelName) resolved the ("${this.adapter || '-json-api'}") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
+      `store.adapterFor(modelName) resolved the ("${this.adapter ||
+        '-json-api'}") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
       false,
       {
         id: 'ember-data:default-adapter',
         until: '4.0',
-        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-adapter'
+        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-adapter',
       }
     );
     let adapter = this.adapter || '-json-api';
@@ -3580,9 +3593,16 @@ function _commit(adapter, store, operation, snapshot) {
 
       return internalModel;
     },
-    function (error) {
+    function(error) {
       if (error instanceof InvalidError) {
-        let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        let parsedErrors;
+
+        if (typeof serializer.extractErrors === 'function') {
+          parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        } else {
+          parsedErrors = errorsArrayToHash(error.errors);
+        }
+
         store.recordWasInvalid(internalModel, parsedErrors, error);
       } else {
         store.recordWasError(internalModel, error);

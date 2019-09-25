@@ -13,7 +13,7 @@ import Adapter from '@ember-data/adapter';
 import Serializer from '@ember-data/serializer';
 import { resolve, all } from 'rsvp';
 import { ExistingResourceObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { ConfidentDict } from '@ember-data/store/-private/ts-interfaces/utils';
 import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { identifierCacheFor } from '@ember-data/store/-private';
 import { set } from '@ember/object';
@@ -30,8 +30,8 @@ if (IDENTIFIERS) {
       let store;
       let calls;
       let secondaryCache: {
-        id: Dict<string, string>;
-        username: Dict<string, string>;
+        id: ConfidentDict<string>;
+        username: ConfidentDict<string>;
       };
       class TestSerializer extends Serializer {
         normalizeResponse(_, __, payload) {
@@ -232,7 +232,7 @@ if (IDENTIFIERS) {
     module('Secondary Cache using an attribute as an alternate id', function(hooks) {
       let store;
       let calls;
-      let secondaryCache: Dict<string, string>;
+      let secondaryCache: ConfidentDict<string>;
       class TestSerializer extends Serializer {
         normalizeResponse(_, __, payload) {
           return payload;
