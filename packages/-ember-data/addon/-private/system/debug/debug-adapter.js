@@ -1,7 +1,6 @@
 /**
   @module ember-data
 */
-import { getOwner } from '@ember/application';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
@@ -20,14 +19,6 @@ import Model from '@ember-data/model';
 */
 export default DataAdapter.extend({
   store: service('store'),
-
-  init() {
-    this._super(...arguments);
-    let owner = getOwner(this.get('store'));
-    if (!owner.hasRegistration('data-adapter:main')) {
-      owner.register('data-adapter:main', this);
-    }
-  },
 
   /**
     Specifies how records can be filtered based on the state of the record
