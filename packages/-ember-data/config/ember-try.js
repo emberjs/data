@@ -33,8 +33,16 @@ module.exports = function() {
           },
           npm: {
             devDependencies: {
-              '@ember/jquery': '^0.6.0',
+              '@ember/jquery': '^0.6.1',
               'ember-source': '~3.8.0',
+            },
+          },
+        },
+        {
+          name: 'ember-lts-3.12',
+          npm: {
+            devDependencies: {
+              'ember-source': '~3.12.0',
             },
           },
         },
@@ -53,7 +61,7 @@ module.exports = function() {
           },
           npm: {
             devDependencies: {
-              '@ember/jquery': '^0.6.0',
+              '@ember/jquery': '^0.6.1',
               'ember-source': urls[0],
             },
           },
