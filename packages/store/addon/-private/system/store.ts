@@ -3047,7 +3047,14 @@ function _commit(adapter, store, operation, snapshot) {
     },
     function(error) {
       if (error instanceof InvalidError) {
-        let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        let parsedErrors;
+
+        if (typeof serializer.extractErrors === 'function') {
+          parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        } else {
+          parsedErrors = errorsArrayToHash(error.errors);
+        }
+
         store.recordWasInvalid(internalModel, parsedErrors, error);
       } else {
         store.recordWasError(internalModel, error);
