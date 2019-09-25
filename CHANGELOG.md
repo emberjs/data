@@ -1858,7 +1858,7 @@ post.constructor.typeKey => postSnapshot.typeKey
 If you need to access the underlying record of a snapshot you can do so by
 accessing `snapshot.record`.
 
-The full API reference of `DS.Snapshot` can be found [here](https://emberjs.com/ember-data/release/classes/Snapshot).
+The full API reference of `DS.Snapshot` can be found [here](https://api.emberjs.com/ember-data/release/classes/Snapshot).
 
 #### Changes
 
@@ -2092,7 +2092,7 @@ to set metadata.
 
 ##### `ManyArray`s are no longer `RecordArray`s
 
-[ManyArray](https://emberjs.com/ember-data/release/classes/ManyArray),
+[ManyArray](https://api.emberjs.com/ember-data/release/classes/ManyArray),
 the object Ember Data uses to represent `DS.hasMany` relationships has
 been changed so it no longer extends from `RecordArray`. This means if
 you were relying on the RecordArray's `content` property to access the
