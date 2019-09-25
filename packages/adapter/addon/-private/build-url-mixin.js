@@ -38,7 +38,7 @@ export default Mixin.create({
 
     By default, it pluralizes the type's name (for example, 'post'
     becomes 'posts' and 'person' becomes 'people'). To override the
-    pluralization see [pathForType](#method_pathForType).
+    pluralization see [pathForType](BuildUrlMixin/methods/pathForType?anchor=pathForType).
 
     If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.

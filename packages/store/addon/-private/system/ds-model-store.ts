@@ -66,12 +66,12 @@ import notifyChanges from './model/notify-changes';
   The store provides multiple ways to create new record objects. They have
   some subtle differences in their use which are detailed below:
 
-  [createRecord](#method_createRecord) is used for creating new
+  [createRecord](Store/methods/createRecord?anchor=createRecord) is used for creating new
   records on the client side. This will return a new record in the
   `created.uncommitted` state. In order to persist this record to the
   backend, you will need to call `record.save()`.
 
-  [push](#method_push) is used to notify Ember Data's store of new or
+  [push](Store/methods/push?anchor=push) is used to notify Ember Data's store of new or
   updated records that exist in the backend. This will return a record
   in the `loaded.saved` state. The primary use-case for `store#push` is
   to notify Ember Data about record updates (full or partial) that happen
@@ -79,7 +79,7 @@ import notifyChanges from './model/notify-changes';
   [SSE](http://dev.w3.org/html5/eventsource/) or [Web
   Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
 
-  [pushPayload](#method_pushPayload) is a convenience wrapper for
+  [pushPayload](Store/methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
   `store#push` that will deserialize payloads if the
   Serializer implements a `pushPayload` method.
 
@@ -136,7 +136,7 @@ class Store extends CoreStore {
 
   The class of a model might be useful if you want to get a list of all the
   relationship names of the model, see
-  [`relationshipNames`](https://emberjs.com/api/data/classes/Model.html#property_relationshipNames)
+  [`relationshipNames`](/ember-data/release/classes/Model?anchor=relationshipNames)
   for example.
 
   @method modelFor

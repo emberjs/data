@@ -94,9 +94,9 @@ import { warn } from '@ember/debug';
   to modify it to fit your specific needs.**
 
   For example, review the docs for each method of this mixin:
-  * [normalize](/api/data/classes/EmbeddedRecordsMixin.html#method_normalize)
-  * [serializeBelongsTo](/api/data/classes/EmbeddedRecordsMixin.html#method_serializeBelongsTo)
-  * [serializeHasMany](/api/data/classes/EmbeddedRecordsMixin.html#method_serializeHasMany)
+  * [normalize](/ember-data/release/classes/EmbeddedRecordsMixin/methods/normalize?anchor=normalize)
+  * [serializeBelongsTo](/ember-data/release/classes/EmbeddedRecordsMixin/methods/serializeBelongsTo?anchor=serializeBelongsTo)
+  * [serializeHasMany](/ember-data/release/classes/EmbeddedRecordsMixin/methods/serializeHasMany?anchor=serializeHasMany)
 
   @class EmbeddedRecordsMixin
 */
