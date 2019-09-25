@@ -2,6 +2,10 @@
 
 ### Master
 
+## Release 3.12.4 (LTS) (September 24, 2019)
+
+- [e10c8cf8](https://github.com/emberjs/data/commit/e10c8cf848f28bf6ce3ff9a654138b04e4b4a2d2) [DOC serializer] implements MinimumSerializerInterface (#6451) (#6500)
+
 ## Release 3.12.3 (LTS) (September 20, 2019)
 
 - [#6441](https://github.com/emberjs/data/pull/6441) [BUGFIX] Await potentially async operations (#6441)
