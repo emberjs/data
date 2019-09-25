@@ -1,6 +1,6 @@
 {
   "name": "serializer-encapsulation-test-app",
-  "version": "3.14.0-alpha.4",
+  "version": "3.15.0-alpha.0",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": "",
@@ -18,9 +18,9 @@
     "test": "ember test --test-port=0"
   },
   "dependencies": {
-    "@ember-data/adapter": "3.14.0-alpha.4",
-    "@ember-data/model": "3.14.0-alpha.4",
-    "@ember-data/store": "3.14.0-alpha.4",
+    "@ember-data/adapter": "3.15.0-alpha.0",
+    "@ember-data/model": "3.15.0-alpha.0",
+    "@ember-data/store": "3.15.0-alpha.0",
     "ember-inflector": "^3.0.1"
   },
   "devDependencies": {
