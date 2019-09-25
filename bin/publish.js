@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 'use strict';
-/* eslint-disable node/no-unsupported-features/es-syntax, no-console, no-process-exit, node/no-extraneous-require, node/no-unpublished-require */
+/* eslint-disable node/no-unsupported-features/es-syntax */
 
 /*
 Usage
@@ -15,7 +15,7 @@ Flags
 --bumpMinor
 --skipVersion
 --skipPack
---skipPublish 
+--skipPublish
 --skipSmokeTest
 
 Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3200f183bffb7d520a3c71249#diff-19fef6f3236e72e3b5af7c884eef67a0
@@ -25,13 +25,16 @@ const debug = require('debug')('publish-packages');
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
-const { shellSync } = require('execa');
+const execa = require('execa');
 const cliArgs = require('command-line-args');
 const readline = require('readline');
 const semver = require('semver');
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
+const PreviousReleasePattern = /^release-(\d)-(\d+)$/;
+
+let isBugfixRelease = false;
 
 function cleanProject() {
   execWithLog(`cd ${projectRoot} && rm -rf packages/*/dist packages/*/tmp packages/*/node_modules node_modules`);
@@ -48,10 +51,10 @@ function cleanProject() {
 function execWithLog(command, proxyIO = false) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
   if (proxyIO) {
-    return shellSync(command, { stdio: [0, 1, 2] });
+    return execa.sync(command, { stdio: [0, 1, 2], shell: true });
   }
 
-  return shellSync(command).stdout;
+  return execa.sync(command, { shell: true }).stdout;
 }
 
 function getConfig() {
@@ -63,9 +66,15 @@ function getConfig() {
     throw new Error(`Incorrect usage of publish:\n\tpublish <channel>\n\nNo channel was specified`);
   }
   if (!['release', 'beta', 'canary', 'lts'].includes(mainOptions.channel)) {
-    throw new Error(
-      `Incorrect usage of publish:\n\tpublish <channel>\n\nChannel must be one of release|beta|canary|lts. Received ${mainOptions.channel}`
-    );
+    const channel = mainOptions.channel;
+    let potentialRelease = !!channel && channel.match(PreviousReleasePattern);
+    if (potentialRelease && Array.isArray(potentialRelease)) {
+      isBugfixRelease = true;
+    } else {
+      throw new Error(
+        `Incorrect usage of publish:\n\tpublish <channel>\n\nChannel must be one of release|beta|canary|lts. Received ${mainOptions.channel}`
+      );
+    }
   }
 
   const optionsDefinitions = [
@@ -85,6 +94,10 @@ function getConfig() {
   ];
   const options = cliArgs(optionsDefinitions, { argv });
   const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
+
+  if (isBugfixRelease && (options.bumpMajor || options.bumpMinor)) {
+    throw new Error(`Cannot bump major or minor version of a past release`);
+  }
 
   if (options.bumpMinor && options.bumpMajor) {
     throw new Error(`Cannot bump both major and minor versions simultaneously`);
@@ -115,7 +128,8 @@ function assertGitIsClean() {
           chalk.grey('Use ') +
           chalk.white('--force') +
           chalk.grey(' to ignore this warning and publish anyway\n') +
-          chalk.yellow('⚠️  Publishing from an unclean working state may result in a broken release ⚠️')
+          chalk.yellow('⚠️  Publishing from an unclean working state may result in a broken release ⚠️\n\n') +
+          chalk.grey(`Status:\n${status}`)
       );
       process.exit(1);
     }
@@ -135,7 +149,8 @@ function assertGitIsClean() {
           chalk.grey('Use ') +
           chalk.white('--force') +
           chalk.grey(' to ignore this warning and publish anyway\n') +
-          chalk.yellow('⚠️  Publishing from an unsynced working state may result in a broken release ⚠️')
+          chalk.yellow('⚠️  Publishing from an unsynced working state may result in a broken release ⚠️') +
+          chalk.grey(`Status:\n${status}`)
       );
       process.exit(1);
     }
@@ -177,10 +192,10 @@ function assertGitIsClean() {
 }
 
 function retrieveNextVersion() {
-  /* 
+  /*
 
   A brief rundown of how version updates flow through the branches.
-  
+
   - We only ever bump the major or minor version on master
   - All other branches pick it up as those changes flow through the release cycle.
 
@@ -217,6 +232,9 @@ function retrieveNextVersion() {
     // else this is a new nightly canary
     let bumpType = options.bumpMajor ? 'premajor' : options.bumpMinor ? 'preminor' : 'prerelease';
     v = semver.inc(options.currentVersion, bumpType, 'alpha');
+  } else if (isBugfixRelease) {
+    let bumpType = 'patch';
+    v = semver.inc(options.currentVersion, bumpType);
   }
 
   return v;
@@ -324,8 +342,11 @@ async function main() {
     // https://github.com/lerna/lerna/tree/master/commands/version#--exact
     // We use exact to ensure that our consumers always use the appropriate
     // versions published with each other
+    // --force-publish ensures that all packages release a new version regardless
+    // of whether changes have occurred in them
+    // --yes skips the prompt for confirming the version
     nextVersion = retrieveNextVersion();
-    execWithLog(`lerna version ${nextVersion} --exact`, true);
+    execWithLog(`lerna version ${nextVersion} --force-publish --exact --yes`, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
