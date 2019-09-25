@@ -2,6 +2,44 @@
 
 ### Master
 
+## Release 3.14.0-beta.0 (September 24, 2019)
+
+- [f4d3866e](https://github.com/emberjs/data/commit/f4d3866e60d4cc81c00e6121d23d019518d5ab8d) [FEATURE] attributesDefintionFor and relationshipsDefinitionFor accept identifiers (#6480)
+- [#6234](https://github.com/emberjs/data/pull/6234) [BUGFIX relationships] fix proxy isDestroying error (#6234)
+- [#6312](https://github.com/emberjs/data/pull/6312) [BETA] Add environment variable to opt-out of rolling up `-private` (#6312)
+- [396ae0aa](https://github.com/emberjs/data/commit/396ae0aabe707247e4da05756d17873d727adbc2) [BUGFIX beta] Update edition detection logic.
+- [bb23403b](https://github.com/emberjs/data/commit/bb23403b97107c3579b593c1c8f6272f9f29a253) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444)
+- [e61ab503](https://github.com/emberjs/data/commit/e61ab5038bdeebebfa7bbe44ea8242d553327b08) [BUGFIX] ensure we publish all packages regardless of changes (#6429)
+- [#6313](https://github.com/emberjs/data/pull/6313) Custom Model Class impl (#6313)
+- [bc7a0eca](https://github.com/emberjs/data/commit/bc7a0eca2eb0f244476aad724482819dc7d8b0f9) [DOC debug-adapter]: Add comments for each method in debug-adapter (#6352)
+- [d4c48d52](https://github.com/emberjs/data/commit/d4c48d52dac9af60d7e1f89af7e29885656a0d9e) [BUGFIX release beta canary] Fix Model lifecycle event deprecations
+- [aa05d928](https://github.com/emberjs/data/commit/aa05d928737a2832051c8ffd1882d44db399794c) [FEAT] Adds support for parenless attr, belongsTo, and hasMany (#6339)
+- [5c6a30c9](https://github.com/emberjs/data/commit/5c6a30c9e25377d253858f459eb73853e4d0867e) [BUGFIX beta] Fix Rollup warning about unresolved dependency
+- [4a2e5b93](https://github.com/emberjs/data/commit/4a2e5b93ab32b18573ebd74552c89d1ee51795e3) [FEAT identifiers] turn on IDENTIFIERS feature (#6366)
+- [#6316](https://github.com/emberjs/data/pull/6316) [BUGFIX beta] Fix Rollup warning about unresolved dependency (#6316)
+- [#6341](https://github.com/emberjs/data/pull/6341) [BUGFIX]: set Content-Type for non GET requests only (#6341)
+- [#6334](https://github.com/emberjs/data/pull/6334) [BUGFIX BETA CANARY] usage of recordDataFor for client side create needs to be in correct cache (#6334)
+- [#6358](https://github.com/emberjs/data/pull/6358) [CHORE blueprints] Update blueprints to use package imports (#6358)
+- [#6346](https://github.com/emberjs/data/pull/6346) [BUGFIX release] Add @ember-data/canary-features dependency where used. (#6346)
+- [#6349](https://github.com/emberjs/data/pull/6349) [BUGFIX inspector] Set group name to relationship.kind (#6349)
+- [#6452](https://github.com/emberjs/data/pull/6452) [BUGFIX beta] Update edition detection logic.
+- [#6395](https://github.com/emberjs/data/pull/6395) [BUGFIX release beta canary] Fix Model lifecycle event deprecations
+- [#6364](https://github.com/emberjs/data/pull/6364) [CHORE tests] Replace setupStore for records integration tests (#6364)
+- [#6390](https://github.com/emberjs/data/pull/6390) [DEPRECATION] RFC-522 implementation to add deprecations (#6390)
+- [#6371](https://github.com/emberjs/data/pull/6371) [BUGFIX canary] Don't use Typescript in /app (#6371)
+- [#6418](https://github.com/emberjs/data/pull/6418) [TEST] [DOC] Test to ensure no docs are missing. (#6418)
+- [#6420](https://github.com/emberjs/data/pull/6420) Improve RecordReference, BelongsToReference and HasManyReference docs (#6420)
+- [#6397](https://github.com/emberjs/data/pull/6397) [DOC] Added URL to `queryRecord` deprecation warning (#6397)
+- [#6396](https://github.com/emberjs/data/pull/6396) [DOC] Added documentation URL to evented deprecation warnings (#6396)
+- [#6410](https://github.com/emberjs/data/pull/6410) Remove module-unification blueprints
+- [#6430](https://github.com/emberjs/data/pull/6430) [BUGFIX BETA RELEASE] make fetch function JIT (#6430)
+- [#6450](https://github.com/emberjs/data/pull/6450) [CHORE]: Eliminate default injections in favor of re-export (#6450)
+- [#6459](https://github.com/emberjs/data/pull/6459)  [TEST] ensure @ember-data/serializer package encapsulation (#6459)
+- [#6486](https://github.com/emberjs/data/pull/6486) [DOC] Fix meta example in reference.ts (#6486)
+- [#6488](https://github.com/emberjs/data/pull/6488) [TEST] Use strictEqual for identifiers/cache test (#6488)
+- [#6497](https://github.com/emberjs/data/pull/6497) [TEST] Add an adapter-encapsulation-test-app package (#6497)
+- [1e7c5738](https://github.com/emberjs/data/commit/1e7c5738b2866da41c00de31711f07e156193afd) [DOC serializer] implements MinimumSerializerInterface (#6451)
+
 ## Release 3.12.3 (LTS) (September 20, 2019)
 
 - [#6441](https://github.com/emberjs/data/pull/6441) [BUGFIX] Await potentially async operations (#6441)
