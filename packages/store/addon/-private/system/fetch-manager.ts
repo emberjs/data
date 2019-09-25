@@ -9,7 +9,6 @@ import { serializerForAdapter } from './store/serializers';
 import { InvalidError } from '@ember-data/adapter/error';
 import coerceId from './coerce-id';
 import { A } from '@ember/array';
-
 import { _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
 import RequestCache from './request-cache';
 import { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
@@ -135,7 +134,14 @@ export default class FetchManager {
       },
       function(error) {
         if (error instanceof InvalidError) {
-          let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+          let parsedErrors = error.errors;
+
+          if (typeof serializer.extractErrors === 'function') {
+            parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+          } else {
+            parsedErrors = errorsArrayToHash(error.errors);
+          }
+
           throw { error, parsedErrors };
         } else {
           throw { error };

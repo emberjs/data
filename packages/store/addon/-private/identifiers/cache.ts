@@ -1,6 +1,6 @@
 import { DEBUG } from '@glimmer/env';
 import { warn } from '@ember/debug';
-import { Dict } from '../ts-interfaces/utils';
+import { ConfidentDict } from '../ts-interfaces/utils';
 import { ResourceIdentifierObject, ExistingResourceObject } from '../ts-interfaces/ember-data-json-api';
 import {
   StableRecordIdentifier,
@@ -30,8 +30,8 @@ interface KeyOptions {
   _allIdentifiers: StableRecordIdentifier[];
 }
 
-type IdentifierMap = Dict<string, StableRecordIdentifier>;
-type TypeMap = Dict<string, KeyOptions>;
+type IdentifierMap = ConfidentDict<StableRecordIdentifier>;
+type TypeMap = ConfidentDict<KeyOptions>;
 export type MergeMethod = (
   targetIdentifier: StableRecordIdentifier,
   matchedIdentifier: StableRecordIdentifier,

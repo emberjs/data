@@ -61,7 +61,6 @@ import hasValidId from '../utils/has-valid-id';
 import { RequestPromise } from './request-cache';
 import { PromiseProxy } from '../ts-interfaces/promise-proxies';
 import { DSModel } from '../ts-interfaces/ds-model';
-
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
@@ -3298,7 +3297,14 @@ function _commit(adapter, store, operation, snapshot) {
     },
     function(error) {
       if (error instanceof InvalidError) {
-        let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        let parsedErrors;
+
+        if (typeof serializer.extractErrors === 'function') {
+          parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        } else {
+          parsedErrors = errorsArrayToHash(error.errors);
+        }
+
         store.recordWasInvalid(internalModel, parsedErrors, error);
       } else {
         store.recordWasError(internalModel, error);
