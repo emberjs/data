@@ -4958,7 +4958,7 @@ ember-cli-broccoli-sane-watcher@^3.0.0:
     rsvp "^3.0.18"
     sane "^4.0.0"
 
-ember-cli-dependency-checker@^3.1.0, ember-cli-dependency-checker@^3.2.0:
+ember-cli-dependency-checker@^3.2.0:
   version "3.2.0"
   resolved "https://registry.npmjs.org/ember-cli-dependency-checker/-/ember-cli-dependency-checker-3.2.0.tgz#9202ad9e14d6fda33cffc22a11c343c2a8885330"
   integrity sha512-dkSmcJ/jY/2ms/S6ph2jXSfOW5VfOpLfg5DFEbra0SaMNgYkNDFF1o0U4OdTsG37L5h/AXWNuVtnOa4TMabz9Q==
@@ -4996,16 +4996,6 @@ ember-cli-htmlbars-inline-precompile@^3.0.0:
     heimdalljs-logger "^0.1.9"
     silent-error "^1.1.0"
 
-ember-cli-htmlbars@^3.0.1:
-  version "3.1.0"
-  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-3.1.0.tgz#87806c2a0bca2ab52d4fb8af8e2215c1ca718a99"
-  integrity sha512-cgvRJM73IT0aePUG7oQ/afB7vSRBV3N0wu9BrWhHX2zkR7A7cUBI7KC9VPk6tbctCXoM7BRGsCC4aIjF7yrfXA==
-  dependencies:
-    broccoli-persistent-filter "^2.3.1"
-    hash-for-dep "^1.5.1"
-    json-stable-stringify "^1.0.1"
-    strip-bom "^3.0.0"
-
 ember-cli-htmlbars@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.0.0.tgz#856b8e2335dc69fd9ecfc74aa0a04959e82a95de"
@@ -5026,14 +5016,6 @@ ember-cli-htmlbars@^4.0.0:
     semver "^6.3.0"
     strip-bom "^3.0.0"
     walk-sync "^1.1.3"
-
-ember-cli-inject-live-reload@^1.8.2:
-  version "1.10.2"
-  resolved "https://registry.npmjs.org/ember-cli-inject-live-reload/-/ember-cli-inject-live-reload-1.10.2.tgz#43c59f7f1d1e717772da32e5e81d948fb9fe7c94"
-  integrity sha512-yFvZE4WFyWjzMJ6MTYIyjCXpcJNFMTaZP61JXITMkXhSkhuDkzMD/XfwR5+fr004TYcwrbNWpg1oGX5DbOgcaQ==
-  dependencies:
-    clean-base-url "^1.0.0"
-    ember-cli-version-checker "^2.1.2"
 
 ember-cli-inject-live-reload@^2.0.1:
   version "2.0.1"
@@ -5259,7 +5241,7 @@ ember-cli-yuidoc@^0.8.8:
     rsvp "3.0.14"
     yuidocjs "^0.10.0"
 
-ember-cli@^3.12.0, ember-cli@~3.12.0:
+ember-cli@~3.12.0:
   version "3.12.0"
   resolved "https://registry.npmjs.org/ember-cli/-/ember-cli-3.12.0.tgz#e6d27e4c57fc44eb7963fe4611b3b0cfb9d9558d"
   integrity sha512-hON3/thKAIcwzHX9SWIvf+UR2sQTWyXzyECYw20NDvUSydZMVtggK4GQncu7LSiUs+5zIxT8ZPzanpUZMINuCg==
@@ -5394,7 +5376,7 @@ ember-inflector@^3.0.1:
   dependencies:
     ember-cli-babel "^6.6.0"
 
-ember-load-initializers@^2.0.0, ember-load-initializers@^2.1.0:
+ember-load-initializers@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/ember-load-initializers/-/ember-load-initializers-2.1.0.tgz#b402815ab9c823ff48a1369b52633721987e72d4"
   integrity sha512-zvcq35U2EPyjonCPdDBISZbeuxP3OXf+asmj2bNucFwo1ej7gYJCJacy6N8oABEG2EmrU/8jMDoZndWIAGn0cQ==
@@ -5420,7 +5402,7 @@ ember-qunit-assert-helpers@^0.2.2:
     broccoli-filter "^1.0.1"
     ember-cli-babel "^6.9.0"
 
-ember-qunit@^4.4.1, ember-qunit@^4.5.1:
+ember-qunit@^4.5.1:
   version "4.5.1"
   resolved "https://registry.npmjs.org/ember-qunit/-/ember-qunit-4.5.1.tgz#dc4b0a794fbeb6702a02f28bf19091de0f90fd5a"
   integrity sha512-fOxXQLFdellP0yiMd9f3n7pIGggiDo8kBuswdGvsCrqTKq5aB1Cb49eeoNyBDQYGlhcxY0pOGUe+xElppChDBA==
@@ -5715,14 +5697,6 @@ eslint-plugin-ember@^7.1.0:
     ember-rfc176-data "^0.3.12"
     snake-case "^2.1.0"
 
-eslint-plugin-es@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.npmjs.org/eslint-plugin-es/-/eslint-plugin-es-1.4.1.tgz#12acae0f4953e76ba444bfd1b2271081ac620998"
-  integrity sha512-5fa/gR2yR3NxQf+UXkeLeP8FBBl6tSgdrAz1+cF84v1FMM4twGwQoqTnn+QxFLcPOrF4pdKEJKDB/q9GoyJrCA==
-  dependencies:
-    eslint-utils "^1.4.2"
-    regexpp "^2.0.1"
-
 eslint-plugin-es@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/eslint-plugin-es/-/eslint-plugin-es-2.0.0.tgz#0f5f5da5f18aa21989feebe8a73eadefb3432976"
@@ -5744,18 +5718,6 @@ eslint-plugin-node@^10.0.0:
   integrity sha512-1CSyM/QCjs6PXaT18+zuAXsjXGIGo5Rw630rSKwokSs2jrYURQc4R5JZpoanNCqwNmepg+0eZ9L7YiRUJb8jiQ==
   dependencies:
     eslint-plugin-es "^2.0.0"
-    eslint-utils "^1.4.2"
-    ignore "^5.1.1"
-    minimatch "^3.0.4"
-    resolve "^1.10.1"
-    semver "^6.1.0"
-
-eslint-plugin-node@^9.0.1:
-  version "9.2.0"
-  resolved "https://registry.npmjs.org/eslint-plugin-node/-/eslint-plugin-node-9.2.0.tgz#b1911f111002d366c5954a6d96d3cd5bf2a3036a"
-  integrity sha512-2abNmzAH/JpxI4gEOwd6K8wZIodK3BmHbTxz4s79OIYwwIt2gkpEXlAouJXu4H1c9ySTnRso0tsuthSOZbUMlA==
-  dependencies:
-    eslint-plugin-es "^1.4.1"
     eslint-utils "^1.4.2"
     ignore "^5.1.1"
     minimatch "^3.0.4"
@@ -5794,7 +5756,7 @@ eslint-visitor-keys@^1.0.0, eslint-visitor-keys@^1.1.0:
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-1.1.0.tgz#e2a82cea84ff246ad6fb57f9bde5b46621459ec2"
   integrity sha512-8y9YjtM1JBJU/A9Kc+SbaOV4y29sSWckBwMHa+FGtVj5gN/sbnKDf6xJUl+8g7FAij9LVaP8C24DUiH/f/2Z9A==
 
-eslint@^6.3.0, eslint@^6.4.0:
+eslint@^6.4.0:
   version "6.4.0"
   resolved "https://registry.npmjs.org/eslint/-/eslint-6.4.0.tgz#5aa9227c3fbe921982b2eda94ba0d7fae858611a"
   integrity sha512-WTVEzK3lSFoXUovDHEbkJqCVPEPwbhCq4trDktNI6ygs7aO41d4cDT0JFAT5MivzZeVLWlg7vHL+bgrQv/t3vA==
