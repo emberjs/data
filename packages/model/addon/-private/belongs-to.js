@@ -149,7 +149,7 @@ function belongsTo(modelName, options) {
         }
         if (opts.hasOwnProperty('serialize')) {
           warn(
-            `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://emberjs.com/ember-data/release/classes/Serializer`,
+            `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://api.emberjs.com/ember-data/release/classes/Serializer`,
             false,
             {
               id: 'ds.model.serialize-option-in-belongs-to',
@@ -159,7 +159,7 @@ function belongsTo(modelName, options) {
 
         if (opts.hasOwnProperty('embedded')) {
           warn(
-            `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://emberjs.com/ember-data/release/classes/EmbeddedRecordsMixin`,
+            `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://api.emberjs.com/ember-data/release/classes/EmbeddedRecordsMixin`,
             false,
             {
               id: 'ds.model.embedded-option-in-belongs-to',
