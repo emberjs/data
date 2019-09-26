@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/store
-*/
-
 /*
  * Returns the RecordData instance associated with a given
  * Model or InternalModel.
@@ -19,24 +15,4 @@ export default function recordDataFor(instance) {
   let internalModel = instance._internalModel || instance.internalModel || instance;
 
   return internalModel._recordData || null;
-}
-
-export function relationshipsFor(instance) {
-  let recordData = recordDataFor(instance) || instance;
-
-  return recordData._relationships;
-}
-
-export function relationshipStateFor(instance, propertyName) {
-  return relationshipsFor(instance).get(propertyName);
-}
-
-export function implicitRelationshipsFor(instance) {
-  let recordData = recordDataFor(instance) || instance;
-
-  return recordData.__implicitRelationships;
-}
-
-export function implicitRelationshipStateFor(instance, propertyName) {
-  return implicitRelationshipsFor(instance)[propertyName];
 }

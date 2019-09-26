@@ -11,17 +11,13 @@ export {
   InternalModel,
   ManyArray,
   PromiseArray,
-  Relationship,
   PromiseManyArray,
   PromiseObject,
-  RecordData,
   RecordArray,
   RecordArrayManager,
   RootState,
   SnapshotRecordArray,
-  recordDataFor,
-  relationshipStateFor,
-  relationshipsFor,
   normalizeModelName,
   coerceId,
 } from '@ember-data/store/-private';
+export { RecordData, Relationship } from '@ember-data/record-data/-private';

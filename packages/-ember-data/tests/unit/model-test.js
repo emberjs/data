@@ -13,7 +13,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import JSONSerializer from '@ember-data/serializer/json';
 import { attr as DSattr } from '@ember-data/model';
-import { recordDataFor } from 'ember-data/-private';
+import { recordDataFor } from '@ember-data/store/-private';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 import { gte } from 'ember-compatibility-helpers';
 

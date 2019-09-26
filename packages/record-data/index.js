@@ -5,8 +5,14 @@ const addonBuildConfigForDataPackage = require('@ember-data/-build-infra/src/add
 const addonBaseConfig = addonBuildConfigForDataPackage(name);
 
 module.exports = Object.assign({}, addonBaseConfig, {
-  shouldRollupPrivate: false,
+  shouldRollupPrivate: true,
   externalDependenciesForPrivateModule() {
-    return [];
+    return [
+      '@ember-data/store/-debug',
+      '@ember-data/store/-private',
+      '@ember/ordered-set',
+      '@ember-data/store',
+      '@ember-data/canary-features',
+    ];
   },
 });

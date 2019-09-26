@@ -1,5 +1,6 @@
 import { VERSION } from '@ember/version';
 import EmberError from '@ember/error';
+import Store from './store';
 
 if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
   throw new EmberError(
@@ -9,7 +10,7 @@ if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
   );
 }
 
-import Store, { normalizeModelName } from '@ember-data/store';
+import { normalizeModelName } from '@ember-data/store';
 import DebugAdapter from '@ember-data/debug';
 
 import {

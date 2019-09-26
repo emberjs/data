@@ -10,14 +10,12 @@ import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
 import RootState from './states';
 import Snapshot from '../snapshot';
-import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
-import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
@@ -34,6 +32,19 @@ import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
 import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
+import recordDataFor from '../record-data-for';
+
+type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
+
+function relationshipsFor(instance) {
+  let recordData = recordDataFor(instance) || instance;
+
+  return recordData._relationships;
+}
+
+function relationshipStateFor(instance, propertyName) {
+  return relationshipsFor(instance).get(propertyName);
+}
 
 const { hasOwnProperty } = Object.prototype;
 
@@ -215,7 +226,7 @@ export default class InternalModel {
 
   get _recordArrays() {
     if (this.__recordArrays === null) {
-      this.__recordArrays = new OrderedSet();
+      this.__recordArrays = new Set();
     }
     return this.__recordArrays;
   }
@@ -652,7 +663,7 @@ export default class InternalModel {
   }
 
   getBelongsTo(key, options) {
-    let resource = this._recordData.getBelongsTo(key);
+    let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     let identifier =
       resource && resource.data ? identifierCacheFor(this.store).getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
@@ -705,7 +716,7 @@ export default class InternalModel {
   // TODO Igor consider getting rid of initial state
   getManyArray(key, isAsync = false) {
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
     let manyArray = this._manyArrayCache[key];
 
     assert(
@@ -765,7 +776,7 @@ export default class InternalModel {
   }
 
   getHasMany(key, options) {
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
@@ -820,7 +831,7 @@ export default class InternalModel {
       return loadingPromise;
     }
 
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
     // TODO move this to a public api
     if (jsonApi._relationship) {
       jsonApi._relationship.setHasFailedLoadAttempt(false);
@@ -843,7 +854,7 @@ export default class InternalModel {
       return loadingPromise;
     }
 
-    let resource = this._recordData.getBelongsTo(key);
+    let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     // TODO move this to a public api
     if (resource._relationship) {
       resource._relationship.setHasFailedLoadAttempt(false);

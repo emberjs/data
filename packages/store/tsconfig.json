@@ -19,8 +19,11 @@
       "dummy/*": ["tests/dummy/app/*", "app/*"],
       "@ember-data/store": ["addon"],
       "@ember-data/store/*": ["addon/*"],
+      "@ember-data/canary-features": ["../canary-features/addon"],
+      "@ember-data/canary-features/*": ["../canary-features/addon/*"],
       "@ember-data/adapter": ["../adapter/addon"],
       "@ember-data/adapter/*": ["../adapter/addon/*"],
+      "@ember-data/record-data/*": ["../record-data/addon/*"],
       "@ember-data/store/test-support": ["addon-test-support"],
       "@ember-data/store/test-support/*": ["addon-test-support/*"],
       "ember-data": ["../-ember-data/addon"],
@@ -28,6 +31,14 @@
       "*": ["types/*"]
     }
   },
-  "include": ["app/**/*", "addon/**/*", "tests/**/*", "types/**/*", "test-support/**/*", "addon-test-support/**/*"],
+  "include": [
+    "app/**/*",
+    "addon/**/*",
+    "tests/**/*",
+    "types/**/*",
+    "test-support/**/*",
+    "addon-test-support/**/*",
+    "../record-data/addon/-private/ts-interfaces/relationship-record-data.ts"
+  ],
   "exclude": ["node_modules"]
 }

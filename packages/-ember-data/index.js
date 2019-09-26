@@ -8,7 +8,13 @@ const merge = require('broccoli-merge-trees');
 module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: true,
   externalDependenciesForPrivateModule() {
-    return ['ember-data/version', '@ember-data/store/-private', '@ember-data/store', '@ember-data/model'];
+    return [
+      '@ember-data/record-data/-private',
+      'ember-data/version',
+      '@ember-data/store/-private',
+      '@ember-data/store',
+      '@ember-data/model',
+    ];
   },
   treeForAddon(tree) {
     tree = merge([tree, version()]);

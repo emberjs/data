@@ -38,7 +38,6 @@ import InternalModel, {
   extractRecordDataFromRecord,
   extractRecordDatasFromRecords,
 } from './model/internal-model';
-import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
 import {
   IDENTIFIERS,
@@ -53,11 +52,9 @@ import promiseRecord from '../utils/promise-record';
 import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
 import { internalModelFactoryFor, setRecordIdentifier, recordIdentifierFor } from './store/internal-model-factory';
 import { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
-import RecordData from '../ts-interfaces/record-data';
 import { RecordReference, HasManyReference, BelongsToReference } from './references';
 import { Backburner } from '@ember/runloop/-private/backburner';
 import Snapshot from './snapshot';
-import Relationship from './relationships/state/relationship';
 import {
   EmptyResourceDocument,
   SingleResourceDocument,
@@ -73,10 +70,14 @@ import { AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import ShimModelClass from './model/shim-model-class';
 import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
+import RecordData from '../ts-interfaces/record-data';
 import { Dict } from '../ts-interfaces/utils';
 
 import constructResource from '../utils/construct-resource';
 import { errorsArrayToHash } from './errors-utils';
+
+type Relationship = import('@ember-data/record-data/-private').Relationship;
+
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
@@ -3080,16 +3081,7 @@ abstract class CoreStore extends Service {
     clientId: string,
     storeWrapper: RecordDataStoreWrapper
   ): RecordData {
-    if (IDENTIFIERS) {
-      let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
-        type: modelName,
-        id,
-        lid: clientId,
-      });
-      return new RecordDataDefault(identifier, storeWrapper);
-    } else {
-      return new RecordDataDefault(modelName, id, clientId, storeWrapper);
-    }
+    throw new Error(`Expected store.createRecordDataFor to be implemented but it wasn't`);
   }
 
   /**

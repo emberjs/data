@@ -5,8 +5,18 @@ import { inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import recordDataFor, { relationshipStateFor } from './record-data-for';
+import recordDataFor from './record-data-for';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
+function relationshipsFor(instance) {
+  let recordData = recordDataFor(instance) || instance;
+
+  return recordData._relationships;
+}
+
+function relationshipStateFor(instance, propertyName) {
+  return relationshipsFor(instance).get(propertyName);
+}
 
 /**
   @class Snapshot
