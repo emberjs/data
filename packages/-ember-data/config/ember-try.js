@@ -20,6 +20,13 @@ module.exports = function() {
           },
         },
         {
+          name: 'with-max-transpilation',
+          env: {
+            TARGET_IE11: true,
+          },
+          npm: {},
+        },
+        {
           name: 'default-with-jquery',
           env: {
             EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
