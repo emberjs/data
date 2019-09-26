@@ -16,8 +16,7 @@
     "build": "ember build",
     "start": "ember serve",
     "test": "ember test",
-    "test:all": "ember try:each",
-    "test:node": "mocha"
+    "test:all": "ember try:each"
   },
   "dependencies": {
     "@ember-data/-build-infra": "3.14.0-alpha.4",
