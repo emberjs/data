@@ -1265,7 +1265,7 @@ export default class InternalModel {
     let record = this._record;
     let trigger = record.trigger;
     // TODO Igor make nicer check
-    if (trigger) {
+    if (trigger && typeof trigger === 'function') {
       for (let i = 0, l = triggers.length; i < l; i++) {
         let eventName = triggers[i];
         trigger.apply(record, eventName);
