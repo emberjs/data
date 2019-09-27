@@ -95,12 +95,15 @@ let globalClientIdCounter = 1;
 //   * +type+ means a Model.
 
 /**
-  The store contains all of the data for records loaded from the server.
+  The store service contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `Model` that wrap
   the individual data for a record, so that they can be bound to in your
   Handlebars templates.
 
-  Define your application's store like this:
+  By default, applications will have a single `Store` service that is
+  automatically created.
+
+  The store can be customized by extending the service in the following manner:
 
   ```app/services/store.js
   import Store from '@ember-data/store';
@@ -109,11 +112,8 @@ let globalClientIdCounter = 1;
   });
   ```
 
-  Most Ember.js applications will only have a single `Store` that is
-  automatically created by their `Ember.Application`.
-
   You can retrieve models from the store in several ways. To retrieve a record
-  for a specific id, use `Store`'s `findRecord()` method:
+  for a specific id, use the `Store`'s `findRecord()` method:
 
   ```javascript
   store.findRecord('person', 123).then(function (person) {
@@ -139,12 +139,12 @@ let globalClientIdCounter = 1;
   The store provides multiple ways to create new record objects. They have
   some subtle differences in their use which are detailed below:
 
-  [createRecord](#method_createRecord) is used for creating new
+  [createRecord](Store/methods/createRecord?anchor=createRecord) is used for creating new
   records on the client side. This will return a new record in the
   `created.uncommitted` state. In order to persist this record to the
   backend, you will need to call `record.save()`.
 
-  [push](#method_push) is used to notify Ember Data's store of new or
+  [push](Store/methods/push?anchor=push) is used to notify Ember Data's store of new or
   updated records that exist in the backend. This will return a record
   in the `loaded.saved` state. The primary use-case for `store#push` is
   to notify Ember Data about record updates (full or partial) that happen
@@ -152,7 +152,7 @@ let globalClientIdCounter = 1;
   [SSE](http://dev.w3.org/html5/eventsource/) or [Web
   Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
 
-  [pushPayload](#method_pushPayload) is a convenience wrapper for
+  [pushPayload](Store/methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
   `store#push` that will deserialize payloads if the
   Serializer implements a `pushPayload` method.
 
@@ -164,6 +164,7 @@ let globalClientIdCounter = 1;
   values.
 
   @class Store
+  @main @ember-data/store
   @extends Ember.Service
 */
 interface Store {
@@ -687,12 +688,12 @@ class Store extends Service {
     });
     ```
 
-    See [peekRecord](#method_peekRecord) to get the cached version of a record.
+    See [peekRecord](Store/methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
 
     ### Retrieving Related Model Records
 
     If you use an adapter such as Ember's default
-    [`JSONAPIAdapter`](https://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html)
+    [`JSONAPIAdapter`](/ember-data/release/classes/JSONAPIAdapter)
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
@@ -1190,7 +1191,7 @@ class Store extends Service {
     otherwise it will return `null`. A record is available if it has been fetched earlier, or
     pushed manually into the store.
 
-    See [findRecord](#method_findRecord) if you would like to request this record from the backend.
+    See [findRecord](Store/methods/findRecord?anchor=findRecord) if you would like to request this record from the backend.
 
     _Note: This is a synchronous method and does not return a promise._
 
@@ -1615,7 +1616,7 @@ class Store extends Service {
     ```
 
     This method returns a promise, which is resolved with an
-    [`AdapterPopulatedRecordArray`](https://emberjs.com/api/data/classes/DS.AdapterPopulatedRecordArray.html)
+    [`AdapterPopulatedRecordArray`](/ember-data/release/classes/AdapterPopulatedRecordArray)
     once the server returns.
 
     @since 1.13.0
@@ -1667,7 +1668,7 @@ class Store extends Service {
 
   /**
     This method makes a request for one record, where the `id` is not known
-    beforehand (if the `id` is known, use [`findRecord`](#method_findRecord)
+    beforehand (if the `id` is known, use [`findRecord`](Store/methods/findRecord?anchor=findRecord)
     instead).
 
     This method can be used when it is certain that the server will return a
@@ -1790,7 +1791,7 @@ class Store extends Service {
     return promiseObject(
       _queryRecord(adapter, this, normalizedModelName, query, adapterOptionsWrapper).then(internalModel => {
         // the promise returned by store.queryRecord is expected to resolve with
-        // an instance of DS.Model
+        // an instance of Model
         if (internalModel) {
           return internalModel.getRecord();
         }
@@ -1937,13 +1938,13 @@ class Store extends Service {
     });
     ```
 
-    See [peekAll](#method_peekAll) to get an array of current records in the
+    See [peekAll](Store/methods/peekAll?anchor=peekAll) to get an array of current records in the
     store, without waiting until a reload is finished.
 
     ### Retrieving Related Model Records
 
     If you use an adapter such as Ember's default
-    [`JSONAPIAdapter`](https://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html)
+    [`JSONAPIAdapter`](/ember-data/release/classes/JSONAPIAdapter)
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
@@ -1980,7 +1981,7 @@ class Store extends Service {
 
     ```
 
-    See [query](#method_query) to only get a subset of records from the server.
+    See [query](Store/methods/query?anchor=query) to only get a subset of records from the server.
 
     @since 1.13.0
     @method findAll
@@ -2061,7 +2062,7 @@ class Store extends Service {
     locally created records of the type, however, it will not make a
     request to the backend to retrieve additional records. If you
     would like to request all the records from the backend please use
-    [store.findAll](#method_findAll).
+    [store.findAll](Store/methods/findAll?anchor=findAll).
 
     Also note that multiple calls to `peekAll` for a given type will always
     return the same `RecordArray`.
@@ -2180,7 +2181,7 @@ class Store extends Service {
         Note to future spelunkers hoping to optimize.
         We rely on this `run` to create a run loop if needed
         that `store._push` and `store.didSaveRecord` will both share.
-   
+
         We use `join` because it is often the case that we
         have an outer run loop available still from the first
         call to `store._push`;
@@ -2542,7 +2543,7 @@ class Store extends Service {
     There are some typical properties for `JSONAPI` payload:
     * `id` - mandatory, unique record's key
     * `type` - mandatory string which matches `model`'s dasherized name in singular form
-    * `attributes` - object which holds data for record attributes - `DS.attr`'s declared in model
+    * `attributes` - object which holds data for record attributes - `attr`'s declared in model
     * `relationships` - object which must contain any of the following properties under each relationships' respective key (example path is `relationships.achievements.data`):
       - [`links`](http://jsonapi.org/format/#document-links)
       - [`data`](http://jsonapi.org/format/#document-resource-object-linkage) - place for primary data
@@ -2620,7 +2621,7 @@ class Store extends Service {
 
     If you're streaming data or implementing an adapter, make sure
     that you have converted the incoming data into this form. The
-    store's [normalize](#method_normalize) method is a convenience
+    store's [normalize](Store/methods/normalize?anchor=normalize) method is a convenience
     helper for converting a json payload into the form Ember Data
     expects.
 
@@ -2923,7 +2924,7 @@ class Store extends Service {
 
   /**
     `normalize` converts a json payload into the normalized form that
-    [push](#method_push) expects.
+    [push](Store/methods/push?anchor=push) expects.
 
     Example
 

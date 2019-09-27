@@ -27,12 +27,12 @@ function hasValue(internalModel, key) {
 }
 
 /**
-  `attr` defines an attribute on a [Model](/api/data/classes/DS.Model.html).
+  `attr` defines an attribute on a [Model](/ember-data/release/classes/Model).
   By default, attributes are passed through as-is, however you can specify an
   optional type to have the value automatically transformed.
   Ember Data ships with four basic transform types: `string`, `number`,
   `boolean` and `date`. You can define your own transforms by subclassing
-  [Transform](/api/data/classes/DS.Transform.html).
+  [Transform](/ember-data/release/classes/Transform).
 
   Note that you cannot use `attr` to define an attribute of `id`.
 
