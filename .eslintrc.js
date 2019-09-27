@@ -54,6 +54,7 @@ module.exports = {
         '.mocharc.js',
         '.eslintrc.js',
         '.prettierrc.js',
+        '.template-lintrc.js',
         'bin/*',
         'packages/-build-infra/src/**/*.js',
         'packages/-test-infra/src/**/*.js',
