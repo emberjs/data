@@ -125,9 +125,9 @@ export default class SnapshotRecordArray {
     return this._type || (this._type = this._recordArray.get('type'));
   }
   /**
-    The modelName of the underlying records for the snapshots in the array, as a DS.Model
+    The modelName of the underlying records for the snapshots in the array, as a Model
     @property type
-    @type {DS.Model}
+    @type {Model}
   */
   get modelName() {
     return this._recordArray.modelName;

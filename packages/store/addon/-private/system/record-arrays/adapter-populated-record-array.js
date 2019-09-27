@@ -18,7 +18,7 @@ import { DEBUG } from '@glimmer/env';
   ---
 
   If you want to update the array and get the latest records from the
-  adapter, you can invoke [`update()`](#method_update):
+  adapter, you can invoke [`update()`](AdapterPopulatedRecordArray/methods/update?anchor=update):
 
   Example
 
