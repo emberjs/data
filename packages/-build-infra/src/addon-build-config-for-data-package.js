@@ -111,7 +111,7 @@ function addonBuildConfigForDataPackage(PackageName) {
 
     treeForAddon(tree) {
       if (typeof this._additionalAddonFiles === 'function') {
-        tree = merge(tree, this._additionalAddonFiles(tree));
+        tree = merge([tree, this._additionalAddonFiles(tree)]);
       }
       if (process.env.EMBER_DATA_ROLLUP_PRIVATE !== 'false' && this.shouldRollupPrivate !== true) {
         return this._super.treeForAddon.call(this, tree);
