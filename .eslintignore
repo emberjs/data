@@ -3,6 +3,7 @@ packages/*/blueprints/*/*files/
 vendor/
 
 # compiled output
+/packages/-ember-data/docs/
 dist
 tmp
 
@@ -13,6 +14,7 @@ node_modules
 # misc
 /coverage/
 !.*
+/.yarn/
 
 # ember-try
 .node_modules.ember-try

@@ -271,7 +271,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
     ```
 
     @method save
-    @return {DS.PromiseArray} promise
+    @return {PromiseArray} promise
   */
   save() {
     let manyArray = this;
@@ -291,7 +291,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
     @method createRecord
     @private
     @param {Object} hash
-    @return {DS.Model} record
+    @return {Model} record
   */
   createRecord(hash) {
     const store = get(this, 'store');
