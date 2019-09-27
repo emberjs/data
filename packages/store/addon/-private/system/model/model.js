@@ -24,10 +24,6 @@ import { InvalidError } from '@ember-data/adapter/error';
 
 const { changeProperties } = Ember;
 
-/**
-  @module @ember-data/model
-*/
-
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
 
@@ -137,12 +133,8 @@ if (REQUEST_SERVICE) {
 }
 
 /**
-
-  The model class that all Ember Data records descend from.
-  This is the public API of Ember Data models. If you are using Ember Data
-  in your application, this is the class you should use.
-
   @class Model
+  @module @ember-data/model
   @extends EmberObject
   @uses EmberData.DeprecatedEvented
 */
@@ -608,7 +600,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   },
 
   /**
-    Use [JSONSerializer](DS.JSONSerializer.html) to
+    Use [JSONSerializer](JSONSerializer.html) to
     get the JSON representation of a record.
 
     `toJSON` takes an optional hash as a parameter, currently
@@ -1420,7 +1412,7 @@ if (DEBUG) {
 
       if (idDesc.get !== ID_DESCRIPTOR.get) {
         throw new EmberError(
-          `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: DS.attr('<type>')\` from ${this.constructor.toString()}`
+          `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: attr('<type>')\` from ${this.constructor.toString()}`
         );
       }
 

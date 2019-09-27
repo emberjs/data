@@ -1092,7 +1092,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
     assert.expectAssertion(() => {
       message.get('user');
-    }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.belongsTo\({ async: true }\)`\)/);
+    }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`belongsTo\({ async: true }\)`\)/);
   });
 
   test('Rollbacking attributes for a deleted record restores implicit relationship - async', function(assert) {

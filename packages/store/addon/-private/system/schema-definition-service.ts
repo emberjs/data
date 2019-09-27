@@ -113,7 +113,7 @@ export function _lookupModelFactory(store, normalizedModelName) {
 /*
     In case someone defined a relationship to a mixin, for example:
     ```
-      let Comment = DS.Model.extend({
+      let Comment = Model.extend({
         owner: belongsTo('commentable'. { polymorphic: true })
       });
       let Commentable = Ember.Mixin.create({
@@ -122,7 +122,7 @@ export function _lookupModelFactory(store, normalizedModelName) {
     ```
     we want to look up a Commentable class which has all the necessary
     relationship metadata. Thus, we look up the mixin and create a mock
-    DS.Model, so we can access the relationship CPs of the mixin (`comments`)
+    Model, so we can access the relationship CPs of the mixin (`comments`)
     in this case
   */
 export function _modelForMixin(store, normalizedModelName) {

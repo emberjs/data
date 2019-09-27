@@ -1,5 +1,5 @@
 /**
-  @module ember-data
+  @module @ember-data/store
 */
 import CoreStore from './core-store';
 import { assert } from '@ember/debug';
@@ -22,41 +22,25 @@ import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-serv
 import { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import notifyChanges from './model/notify-changes';
 
-// Implementors Note:
-//
-//   The variables in this file are consistently named according to the following
-//   scheme:
-//
-//   * +id+ means an identifier managed by an external source, provided inside
-//     the data provided by that source. These are always coerced to be strings
-//     before being used internally.
-//   * +clientId+ means a transient numerical identifier generated at runtime by
-//     the data store. It is important primarily because newly created objects may
-//     not yet have an externally generated id.
-//   * +internalModel+ means a record internalModel object, which holds metadata about a
-//     record, even if it has not yet been fully materialized.
-//   * +type+ means a DS.Model.
-
 /**
-  The store contains all of the data for records loaded from the server.
-  It is also responsible for creating instances of `DS.Model` that wrap
+  The store service contains all of the data for records loaded from the server.
+  It is also responsible for creating instances of `Model` that wrap
   the individual data for a record, so that they can be bound to in your
   Handlebars templates.
 
-  Define your application's store like this:
+  By default, applications will have a single `Store` service that is
+  automatically created.
+
+  The store can be customized by extending the service in the following manner:
 
   ```app/services/store.js
-  import DS from 'ember-data';
+  import Store from '@ember-data/store';
 
-  export default DS.Store.extend({
-  });
+  export default class MyStore extends Store {}
   ```
 
-  Most Ember.js applications will only have a single `DS.Store` that is
-  automatically created by their `Ember.Application`.
-
   You can retrieve models from the store in several ways. To retrieve a record
-  for a specific id, use `DS.Store`'s `findRecord()` method:
+  for a specific id, use the `Store`'s `findRecord()` method:
 
   ```javascript
   store.findRecord('person', 123).then(function (person) {
@@ -70,11 +54,11 @@ import notifyChanges from './model/notify-changes';
   ```app/adapters/application.js
   import DS from 'ember-data';
 
-  export default DS.Adapter.extend({
+  export default Adapter.extend({
   });
   ```
 
-  You can learn more about writing a custom adapter by reading the `DS.Adapter`
+  You can learn more about writing a custom adapter by reading the `Adapter`
   documentation.
 
   ### Store createRecord() vs. push() vs. pushPayload()
@@ -82,12 +66,12 @@ import notifyChanges from './model/notify-changes';
   The store provides multiple ways to create new record objects. They have
   some subtle differences in their use which are detailed below:
 
-  [createRecord](#method_createRecord) is used for creating new
+  [createRecord](Store/methods/createRecord?anchor=createRecord) is used for creating new
   records on the client side. This will return a new record in the
   `created.uncommitted` state. In order to persist this record to the
   backend, you will need to call `record.save()`.
 
-  [push](#method_push) is used to notify Ember Data's store of new or
+  [push](Store/methods/push?anchor=push) is used to notify Ember Data's store of new or
   updated records that exist in the backend. This will return a record
   in the `loaded.saved` state. The primary use-case for `store#push` is
   to notify Ember Data about record updates (full or partial) that happen
@@ -95,19 +79,19 @@ import notifyChanges from './model/notify-changes';
   [SSE](http://dev.w3.org/html5/eventsource/) or [Web
   Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
 
-  [pushPayload](#method_pushPayload) is a convenience wrapper for
+  [pushPayload](Store/methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
   `store#push` that will deserialize payloads if the
   Serializer implements a `pushPayload` method.
 
   Note: When creating a new record using any of the above methods
-  Ember Data will update `DS.RecordArray`s such as those returned by
+  Ember Data will update `RecordArray`s such as those returned by
   `store#peekAll()` or `store#findAll()`. This means any
   data bindings or computed properties that depend on the RecordArray
   will automatically be synced to include the new or updated record
   values.
 
   @class Store
-  @namespace DS
+  @main @ember-data/store
   @extends Ember.Service
 */
 
@@ -152,12 +136,12 @@ class Store extends CoreStore {
 
   The class of a model might be useful if you want to get a list of all the
   relationship names of the model, see
-  [`relationshipNames`](https://emberjs.com/api/data/classes/DS.Model.html#property_relationshipNames)
+  [`relationshipNames`](/ember-data/release/classes/Model?anchor=relationshipNames)
   for example.
 
   @method modelFor
   @param {String} modelName
-  @return {DS.Model}
+  @return {Model}
     */
   modelFor(modelName) {
     if (DEBUG) {

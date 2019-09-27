@@ -9,7 +9,7 @@ import Transform from './transform';
   The `BooleanTransform` class is used to serialize and deserialize
   boolean attributes on Ember Data record objects. This transform is
   used when `boolean` is passed as the type parameter to the
-  [DS.attr](../../data#method_attr) function.
+  [attr](/ember-data/release/functions/@ember-data%2Fmodel/attr) function.
 
   Usage
 
