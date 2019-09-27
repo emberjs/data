@@ -2,7 +2,7 @@
   @module @ember-data/debug
 */
 import { addObserver, removeObserver } from '@ember/object/observers';
-
+import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
 import DataAdapter from '@ember/debug/data-adapter';
 import { capitalize, underscore } from '@ember/string';
@@ -19,6 +19,8 @@ import Model from '@ember-data/model';
   @private
 */
 export default DataAdapter.extend({
+  store: service('store'),
+
   /**
     Specifies how records can be filtered based on the state of the record
     Records returned will need to have a `filterValues`
