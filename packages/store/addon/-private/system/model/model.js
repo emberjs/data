@@ -24,7 +24,7 @@ import { recordIdentifierFor } from '../store/internal-model-factory';
 const { changeProperties } = Ember;
 
 function isInvalidError(error) {
-  return error instanceof Error && error.isAdapterError === true && error.code === 'InvalidError';
+  return error && error.isAdapterError === true && error.code === 'InvalidError';
 }
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
