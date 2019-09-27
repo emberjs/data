@@ -3593,7 +3593,7 @@ function _commit(adapter, store, operation, snapshot) {
       return internalModel;
     },
     function(error) {
-      if (error.isAdapterError === true && error.code === 'InvalidError') {
+      if (error && error.isAdapterError === true && error.code === 'InvalidError') {
         let parsedErrors;
 
         if (typeof serializer.extractErrors === 'function') {

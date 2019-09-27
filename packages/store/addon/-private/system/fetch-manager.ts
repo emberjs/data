@@ -133,7 +133,7 @@ export default class FetchManager {
         }
       },
       function(error) {
-        if (error.isAdapterError === true && error.code === 'InvalidError') {
+        if (error && error.isAdapterError === true && error.code === 'InvalidError') {
           let parsedErrors = error.errors;
 
           if (typeof serializer.extractErrors === 'function') {
