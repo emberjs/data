@@ -5108,20 +5108,10 @@ ember-cli-htmlbars-inline-precompile@^3.0.0:
     heimdalljs-logger "^0.1.9"
     silent-error "^1.1.0"
 
-ember-cli-htmlbars@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-3.1.0.tgz#87806c2a0bca2ab52d4fb8af8e2215c1ca718a99"
-  integrity sha512-cgvRJM73IT0aePUG7oQ/afB7vSRBV3N0wu9BrWhHX2zkR7A7cUBI7KC9VPk6tbctCXoM7BRGsCC4aIjF7yrfXA==
-  dependencies:
-    broccoli-persistent-filter "^2.3.1"
-    hash-for-dep "^1.5.1"
-    json-stable-stringify "^1.0.1"
-    strip-bom "^3.0.0"
-
-ember-cli-htmlbars@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.0.0.tgz#856b8e2335dc69fd9ecfc74aa0a04959e82a95de"
-  integrity sha512-BQpKjFYDpu6ozEoyAjn7DHljHxt5KUPUwFYOqF2NNMSJJjpky2DgoJgsaP4xG8wvSoZXwGLPUcbdtQLoOH2bIw==
+ember-cli-htmlbars@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.0.1.tgz#c6b32def2a70c64c6494d32b75982c4bd6be330a"
+  integrity sha512-jQNw+rMUlFp4muxM6mjIM9GBhC5a4rtShEoeLW6ey1zv/Iaz/t0ZUnOEXozaGu/Z9DBOw0Edb+qGe6TZlR3epw==
   dependencies:
     "@ember/edition-utils" "^1.1.1"
     babel-plugin-htmlbars-inline-precompile "^2.1.0"
