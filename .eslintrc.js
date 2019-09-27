@@ -31,6 +31,11 @@ module.exports = {
     'no-irregular-whitespace': 'error',
     'no-undef': 'error',
     'no-eq-null': 'error',
+    'no-console': 'error', // no longer recommended in eslint v6, this restores it
+
+    // Too many false positives
+    // See https://github.com/eslint/eslint/issues/11899 and similar
+    'require-atomic-updates': 'off',
   },
   globals: {
     heimdall: true,
@@ -49,7 +54,7 @@ module.exports = {
         '.mocharc.js',
         '.eslintrc.js',
         '.prettierrc.js',
-        'bin/*.js',
+        'bin/*',
         'packages/-build-infra/src/**/*.js',
         'packages/-test-infra/src/**/*.js',
         'packages/*/ember-cli-build.js',
@@ -87,6 +92,27 @@ module.exports = {
       env: {
         mocha: true,
       },
+    },
+    {
+      files: ['packages/-ember-data/node-tests/docs/*.js'],
+
+      env: {
+        qunit: true,
+        es6: false,
+      },
+    },
+
+    // bin files
+    {
+      files: ['bin/*'],
+      // eslint-disable-next-line node/no-unpublished-require
+      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
+        'no-console': 'off',
+        'no-process-exit': 'off',
+        'node/no-extraneous-require': 'off',
+        'node/no-unpublished-require': 'off',
+        'node/shebang': 'off',
+      }),
     },
   ],
 };
