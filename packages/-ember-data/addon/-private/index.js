@@ -25,6 +25,3 @@ export {
   normalizeModelName,
   coerceId,
 } from '@ember-data/store/-private';
-
-// Should be a different Repo ?
-export { default as DebugAdapter } from './system/debug/debug-adapter';
