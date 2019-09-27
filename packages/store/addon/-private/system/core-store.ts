@@ -16,7 +16,6 @@ import { typeOf, isPresent, isNone } from '@ember/utils';
 
 import require, { has } from 'require';
 import Ember from 'ember';
-import { InvalidError } from '@ember-data/adapter/error';
 import { assert, warn, inspect } from '@ember/debug';
 import { deprecate } from '@ember/application/deprecations';
 import { DEBUG } from '@glimmer/env';
@@ -3594,7 +3593,7 @@ function _commit(adapter, store, operation, snapshot) {
       return internalModel;
     },
     function(error) {
-      if (error instanceof InvalidError) {
+      if (error.isAdapterError === true && error.code === 'InvalidError') {
         let parsedErrors;
 
         if (typeof serializer.extractErrors === 'function') {

@@ -429,19 +429,19 @@ export default class Snapshot {
     Example
 
     ```app/adapters/application.js
-    import Adapter from '@ember-data/adapter';
+    import EmberObject from '@ember/object';
 
-    export default Adapter.extend({
+    export default class Adapter extends EmberObject {
       createRecord(store, type, snapshot) {
-        var data = snapshot.serialize({ includeId: true });
-        var url = `/${type.modelName}`;
+        const data = snapshot.serialize({ includeId: true });
+        const url = `/${type.modelName}`;
 
         return fetch(url, {
           method: 'POST',
           body: data,
         }).then((response) => response.json())
       }
-    });
+    }
     ```
 
     @method serialize

@@ -30,18 +30,6 @@ export default class SnapshotRecordArray {
     /**
       Number of records in the array
 
-      Example
-
-      ```app/adapters/post.js
-      import JSONAPIAdapter from '@ember-data/adapter/json-api';
-
-      export default JSONAPIAdapter.extend({
-        shouldReloadAll(store, snapshotRecordArray) {
-          return !snapshotRecordArray.length;
-        },
-      });
-      ```
-
       @property length
       @type {Number}
     */
@@ -139,22 +127,20 @@ export default class SnapshotRecordArray {
     Example
 
     ```app/adapters/post.js
-    import JSONAPIAdapter from '@ember-data/adapter/json-api';
+    import EmberObject from '@ember/object';
 
-    export default JSONAPIAdapter.extend({
+    export default class PostAdapter extends EmberObject {
       shouldReloadAll(store, snapshotArray) {
-        var snapshots = snapshotArray.snapshots();
+        const snapshots = snapshotArray.snapshots();
 
         return snapshots.any(function(ticketSnapshot) {
-          var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
-          if (timeDiff > 20) {
-            return true;
-          } else {
-            return false;
-          }
+          const lastAccess = ticketSnapshot.attr('lastAccessedAt');
+          const timeDiff = moment().diff(lastAccess, 'minutes');
+
+          return timeDiff > 20;
         });
       }
-    });
+    }
     ```
 
     @method snapshots

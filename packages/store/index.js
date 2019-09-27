@@ -8,7 +8,6 @@ module.exports = Object.assign(addonBaseConfig, {
   shouldRollupPrivate: true,
   externalDependenciesForPrivateModule() {
     return [
-      '@ember-data/adapter/error',
       '@ember-data/canary-features',
       'ember-inflector',
       '@ember/ordered-set',

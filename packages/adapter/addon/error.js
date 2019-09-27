@@ -85,7 +85,6 @@ function AdapterError(errors, message = 'Adapter operation failed') {
     this.message = error.message;
     this.name = error.name;
     this.number = error.number;
-    this.code = error.code;
   }
 
   this.errors = errors || [
@@ -116,7 +115,7 @@ function extend(ParentErrorClass, defaultMessage) {
 }
 
 AdapterError.prototype = Object.create(EmberError.prototype);
-
+AdapterError.prototype.code = 'AdapterError';
 AdapterError.extend = extendFn(AdapterError);
 
 /**
@@ -179,6 +178,7 @@ AdapterError.extend = extendFn(AdapterError);
   @extends AdapterError
 */
 export const InvalidError = extend(AdapterError, 'The adapter rejected the commit because it was invalid');
+InvalidError.prototype.code = 'InvalidError';
 
 /**
   A `TimeoutError` is used by an adapter to signal that a request
@@ -211,6 +211,7 @@ export const InvalidError = extend(AdapterError, 'The adapter rejected the commi
   @extends AdapterError
 */
 export const TimeoutError = extend(AdapterError, 'The adapter operation timed out');
+TimeoutError.prototype.code = 'TimeoutError';
 
 /**
   A `AbortError` is used by an adapter to signal that a request to
@@ -222,6 +223,7 @@ export const TimeoutError = extend(AdapterError, 'The adapter operation timed ou
   @extends AdapterError
 */
 export const AbortError = extend(AdapterError, 'The adapter operation was aborted');
+AbortError.prototype.code = 'AbortError';
 
 /**
   A `UnauthorizedError` equates to a HTTP `401 Unauthorized` response
@@ -255,6 +257,7 @@ export const AbortError = extend(AdapterError, 'The adapter operation was aborte
   @extends AdapterError
 */
 export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
+UnauthorizedError.prototype.code = 'UnauthorizedError';
 
 /**
   A `ForbiddenError` equates to a HTTP `403 Forbidden` response status.
@@ -267,6 +270,7 @@ export const UnauthorizedError = extend(AdapterError, 'The adapter operation is 
   @extends AdapterError
 */
 export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
+ForbiddenError.prototype.code = 'ForbiddenError';
 
 /**
   A `NotFoundError` equates to a HTTP `404 Not Found` response status.
@@ -303,6 +307,7 @@ export const ForbiddenError = extend(AdapterError, 'The adapter operation is for
   @extends AdapterError
 */
 export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
+NotFoundError.prototype.code = 'NotFoundError';
 
 /**
   A `ConflictError` equates to a HTTP `409 Conflict` response status.
@@ -315,6 +320,7 @@ export const NotFoundError = extend(AdapterError, 'The adapter could not find th
   @extends AdapterError
 */
 export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
+ConflictError.prototype.code = 'ConflictError';
 
 /**
   A `ServerError` equates to a HTTP `500 Internal Server Error` response
@@ -325,5 +331,6 @@ export const ConflictError = extend(AdapterError, 'The adapter operation failed 
   @extends AdapterError
 */
 export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');
+ServerError.prototype.code = 'ServerError';
 
 export { errorsHashToArray, errorsArrayToHash } from '@ember-data/store/-private';

@@ -5,7 +5,6 @@ import { assert, warn, inspect } from '@ember/debug';
 import Snapshot from './snapshot';
 import { guardDestroyedStore, _guard, _bind, _objectIsAlive } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
-import { InvalidError } from '@ember-data/adapter/error';
 import coerceId from './coerce-id';
 import { A } from '@ember/array';
 import { _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
@@ -134,7 +133,7 @@ export default class FetchManager {
         }
       },
       function(error) {
-        if (error instanceof InvalidError) {
+        if (error.isAdapterError === true && error.code === 'InvalidError') {
           let parsedErrors = error.errors;
 
           if (typeof serializer.extractErrors === 'function') {

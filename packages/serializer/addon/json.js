@@ -5,7 +5,7 @@ import { assert, warn } from '@ember/debug';
 import { getOwner } from '@ember/application';
 import Serializer from '@ember-data/serializer';
 
-import { errorsArrayToHash } from '@ember-data/adapter/error';
+import { errorsArrayToHash } from '@ember-data/store/-private';
 import { modelHasAttributeOrRelationshipNamedType } from './-private';
 
 import { normalizeModelName } from '@ember-data/store';
