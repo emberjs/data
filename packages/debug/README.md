@@ -1,6 +1,6 @@
 # @ember-data/debug
 
-Provides developer ergonomics and dev-mode enhancements for apps built with EmberData
+Provides developer ergonomics and dev-mode enhancements for apps built with EmberData including a DataAdapter for ember-inspector support
 
 ## Compatibility
 
