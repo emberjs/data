@@ -1,5 +1,5 @@
 /* global require */
-import { module, test, skip } from 'qunit';
+import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 function assertPackageNotPresent(packageName, assert) {
@@ -34,7 +34,7 @@ function assertPackageNotPresent(packageName, assert) {
 module('Adapter Encapsulation - Smoke Tests', function(hooks) {
   setupTest(hooks);
 
-  skip('No @ember-data/adapter modules are present', function(assert) {
+  test('No @ember-data/adapter modules are present', function(assert) {
     assertPackageNotPresent('@ember-data/adapter', assert);
   });
 

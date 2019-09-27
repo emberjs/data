@@ -20,9 +20,12 @@ import RootState from './states';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import coerceId from '../coerce-id';
 import { recordIdentifierFor } from '../store/internal-model-factory';
-import { InvalidError } from '@ember-data/adapter/error';
 
 const { changeProperties } = Ember;
+
+function isInvalidError(error) {
+  return error && error.isAdapterError === true && error.code === 'InvalidError';
+}
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
@@ -159,7 +162,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
         if (request.state === 'rejected') {
           // TODO filter out queries
           this._lastError = request;
-          if (!(request.response && request.response.data instanceof InvalidError)) {
+          if (!(request.response && isInvalidError(request.response.data))) {
             this._errorRequests.push(request);
           } else {
             this._invalidRequests.push(request);

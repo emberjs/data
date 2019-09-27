@@ -18,6 +18,8 @@
     "test": "ember test  --test-port=0"
   },
   "dependencies": {
+    "@ember-data/debug": "3.15.0-alpha.0",
+    "@ember-data/record-data": "3.15.0-alpha.0",
     "@ember-data/model": "3.15.0-alpha.0",
     "@ember-data/serializer": "3.15.0-alpha.0",
     "@ember-data/store": "3.15.0-alpha.0",
