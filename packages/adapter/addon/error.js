@@ -21,7 +21,7 @@ import { assert } from '@ember/debug';
   - `ServerError`
 
   To create a custom error to signal a specific error state in communicating
-  with an external API, extend the `DS.AdapterError`. For example, if the
+  with an external API, extend the `AdapterError`. For example, if the
   external API exclusively used HTTP `503 Service Unavailable` to indicate
   it was closed for maintenance:
 
