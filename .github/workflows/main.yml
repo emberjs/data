@@ -24,8 +24,8 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Lint features
         run: yarn lint:features
-      - name: Lint prettier
-        run: yarn lint:prettier
+      - name: Lint js
+        run: yarn lint:js
       - name: Check for TypeScript problems
         run: yarn problems
 

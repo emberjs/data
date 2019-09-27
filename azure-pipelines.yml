@@ -28,7 +28,7 @@ jobs:
           yarn --frozen-lockfile
           yarn lint:features
       - script: |
-          yarn lint:prettier
+          yarn lint:js
       - script: |
           yarn problems
         displayName: 'Lint'

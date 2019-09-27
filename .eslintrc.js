@@ -48,6 +48,27 @@ module.exports = {
     node: false,
   },
   overrides: [
+    // TypeScript files
+    {
+      files: ['**/*.ts'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        sourceType: 'module',
+      },
+      plugins: ['@typescript-eslint'],
+      extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
+      rules: {
+        'no-console': 'off',
+        'no-empty': 'off',
+        'no-empty-pattern': 'off',
+        'no-extra-semi': 'off',
+        'no-prototype-builtins': 'off',
+        'no-unused-vars': 'off',
+        'prettier/prettier': 'off',
+        'require-atomic-updates': 'off',
+      },
+    },
+
     // node files
     {
       files: [
