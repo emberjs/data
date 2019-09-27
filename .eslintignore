@@ -15,6 +15,7 @@ node_modules
 /coverage/
 !.*
 /.yarn/
+.git
 
 # ember-try
 .node_modules.ember-try
