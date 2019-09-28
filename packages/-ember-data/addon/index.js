@@ -10,10 +10,10 @@ if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
 }
 
 import Store, { normalizeModelName } from '@ember-data/store';
+import DebugAdapter from '@ember-data/debug';
 
 import {
   Snapshot,
-  DebugAdapter,
   InternalModel,
   DS,
   Errors,

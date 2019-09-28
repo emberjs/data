@@ -14,7 +14,7 @@ import Model from '@ember-data/model';
   Implements `@ember/debug/data-adapter` with for EmberData
   integration with the ember-inspector.
 
-  @class DebugAdapter
+  @class InspectorDebugAdapter
   @extends DataAdapter
   @private
 */
@@ -25,7 +25,7 @@ export default DataAdapter.extend({
     Specifies how records can be filtered based on the state of the record
     Records returned will need to have a `filterValues`
     property with a key for every name in the returned array
-    @public
+    @private
     @method getFilters
     @return {Array} List of objects defining filters
      The object should have a `name` and `desc` property
@@ -40,7 +40,7 @@ export default DataAdapter.extend({
 
   /**
     Detect whether a class is a Model
-    @public
+    @private
     @method detect
     @param {Model} typeClass
     @return {Boolean} Whether the typeClass is a Model class or not
@@ -51,7 +51,7 @@ export default DataAdapter.extend({
 
   /**
     Creates a human readable string used for column headers
-    @public
+    @private
     @method columnNameToDesc
     @param {String} name The attribute name
     @return {String} Human readable string based on the attribute name
@@ -66,7 +66,7 @@ export default DataAdapter.extend({
 
   /**
     Get the columns for a given model type
-    @public
+    @private
     @method columnsForType
     @param {Model} typeClass
     @return {Array} An array of columns of the following format:
@@ -94,7 +94,7 @@ export default DataAdapter.extend({
 
   /**
     Fetches all loaded records for a given type
-    @public
+    @private
     @method getRecords
     @param {Model} modelClass of the record
     @param {String} modelName of the record
@@ -120,7 +120,7 @@ export default DataAdapter.extend({
   /**
     Gets the values for each column
     This is the attribute values for a given record
-    @public
+    @private
     @method getRecordColumnValues
     @param {Model} record to get values from
     @return {Object} Keys should match column names defined by the model type
@@ -140,7 +140,7 @@ export default DataAdapter.extend({
 
   /**
     Returns keywords to match when searching records
-    @public
+    @private
     @method getRecordKeywords
     @param {Model} record
     @return {Array} Relevant keywords for search based on the record's attribute values
@@ -156,7 +156,7 @@ export default DataAdapter.extend({
   /**
     Returns the values of filters defined by `getFilters`
     These reflect the state of the record
-    @public
+    @private
     @method getRecordFilterValues
     @param {Model} record
     @return {Object} The record state filter values
@@ -171,7 +171,7 @@ export default DataAdapter.extend({
 
   /**
     Returns a color that represents the record's state
-    @public
+    @private
     @method getRecordColor
     @param {Model} record
     @return {String} The record color
@@ -190,7 +190,7 @@ export default DataAdapter.extend({
   /**
     Observes all relevant properties and re-sends the wrapped record
     when a change occurs
-    @public
+    @private
     @method observerRecord
     @param {Model} record
     @param {Function} recordUpdated Callback used to notify changes

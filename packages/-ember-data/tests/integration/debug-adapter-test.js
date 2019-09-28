@@ -3,7 +3,7 @@ import { A } from '@ember/array';
 import { get } from '@ember/object';
 import Model from '@ember-data/model';
 import Adapter from '@ember-data/adapter';
-import { DebugAdapter } from 'ember-data/-private';
+import DebugAdapter from '@ember-data/debug';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
 import { attr } from '@ember-data/model';
