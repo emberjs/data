@@ -659,7 +659,7 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'deleteRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (HAS_MODEL_PACKAGE && record instanceof Model) {
+      if (HAS_MODEL_PACKAGE && record instanceof getModel()) {
         return record.deleteRecord();
       } else {
         let identifier = recordIdentifierFor(record);
@@ -691,7 +691,7 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'unloadRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (HAS_MODEL_PACKAGE && record instanceof Model) {
+      if (HAS_MODEL_PACKAGE && record instanceof getModel()) {
         return record.unloadRecord();
       } else {
         let identifier = recordIdentifierFor(record);
