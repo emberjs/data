@@ -2,7 +2,6 @@ const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 const Funnel = require('broccoli-funnel');
 const merge = require('broccoli-merge-trees');
 const BroccoliDebug = require('broccoli-debug');
-const version = require('./create-version-module');
 const { isInstrumentedBuild } = require('./cli-flags');
 const rollupPrivateModule = require('./utilities/rollup-private-module');
 
@@ -120,11 +119,6 @@ function addonBuildConfigForDataPackage(PackageName) {
 
       let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
 
-      let treeWithVersion = merge([
-        tree,
-        version(), // compile the VERSION into the build
-      ]);
-
       let privateTree = rollupPrivateModule(tree, {
         packageName: PackageName,
         babelCompiler: babel,
@@ -134,7 +128,7 @@ function addonBuildConfigForDataPackage(PackageName) {
         destDir: this.getOutputDirForVersion(),
       });
 
-      let withoutPrivate = new Funnel(treeWithVersion, {
+      let withoutPrivate = new Funnel(tree, {
         exclude: ['-private', isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false].filter(Boolean),
 
         destDir: PackageName,
