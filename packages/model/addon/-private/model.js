@@ -1,25 +1,25 @@
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
-import DeprecatedEvented from '../deprecated-evented';
 import EmberObject, { computed, get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn, deprecate } from '@ember/debug';
-import { PromiseObject } from '../promise-proxies';
-import { errorsArrayToHash } from '../errors-utils';
-import Errors from '../model/errors';
+import Ember from 'ember';
+import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import {
+  coerceId,
+  DeprecatedEvented,
+  errorsArrayToHash,
+  Errors,
+  InternalModel,
+  PromiseObject,
+  recordDataFor,
+  recordIdentifierFor,
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
   relatedTypesDescriptor,
   relationshipsDescriptor,
-} from '../relationships/ext';
-import recordDataFor from '../record-data-for';
-import Ember from 'ember';
-import InternalModel from './internal-model';
-import RootState from './states';
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
-import coerceId from '../coerce-id';
-import { recordIdentifierFor } from '../store/internal-model-factory';
+  RootState,
+} from '@ember-data/store/-private';
 
 const { changeProperties } = Ember;
 

@@ -27,6 +27,10 @@ type NewResourceInfo = { type: string; id: string | null };
 
 const RecordCache = new WeakMap<Record, StableRecordIdentifier>();
 
+export function peekRecordIdentifier(record: any): StableRecordIdentifier | undefined {
+  return RecordCache.get(record);
+}
+
 export function recordIdentifierFor(record: Record): StableRecordIdentifier {
   let identifier = RecordCache.get(record);
 
