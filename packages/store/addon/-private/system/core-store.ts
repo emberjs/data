@@ -19,7 +19,6 @@ import Ember from 'ember';
 import { assert, warn, inspect } from '@ember/debug';
 import { deprecate } from '@ember/application/deprecations';
 import { DEBUG } from '@glimmer/env';
-import Model from '@ember-data/model';
 import normalizeModelName from './normalize-model-name';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 
@@ -100,6 +99,8 @@ let globalClientIdCounter = 1;
 
 const HAS_SERIALIZER_PACKAGE = has('@ember-data/serializer');
 const HAS_ADAPTER_PACKAGE = has('@ember-data/adapter');
+const HAS_MODEL_PACKAGE = has('@ember-data/model');
+const Model = HAS_MODEL_PACKAGE ? require('@ember-data/model').default : null;
 
 function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
 function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
@@ -652,7 +653,7 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'deleteRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (record instanceof Model) {
+      if (HAS_MODEL_PACKAGE && record instanceof Model) {
         return record.deleteRecord();
       } else {
         let identifier = recordIdentifierFor(record);
@@ -684,7 +685,7 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'unloadRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (record instanceof Model) {
+      if (HAS_MODEL_PACKAGE && record instanceof Model) {
         return record.unloadRecord();
       } else {
         let identifier = recordIdentifierFor(record);
@@ -3675,22 +3676,24 @@ function _lookupModelFactory(store, normalizedModelName) {
   in this case
 */
 function _modelForMixin(store, normalizedModelName) {
-  let owner = getOwner(store);
-  let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-  let mixin = MaybeMixin && MaybeMixin.class;
+  if (HAS_MODEL_PACKAGE) {
+    let owner = getOwner(store);
+    let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
+    let mixin = MaybeMixin && MaybeMixin.class;
 
-  if (mixin) {
-    let ModelForMixin = Model.extend(mixin);
-    ModelForMixin.reopenClass({
-      __isMixin: true,
-      __mixin: mixin,
-    });
+    if (mixin) {
+      let ModelForMixin = Model.extend(mixin);
+      ModelForMixin.reopenClass({
+        __isMixin: true,
+        __mixin: mixin,
+      });
 
-    //Cache the class as a model
-    owner.register('model:' + normalizedModelName, ModelForMixin);
+      //Cache the class as a model
+      owner.register('model:' + normalizedModelName, ModelForMixin);
+    }
+
+    return _lookupModelFactory(store, normalizedModelName);
   }
-
-  return _lookupModelFactory(store, normalizedModelName);
 }
 
 let assertDestroyingStore: Function;

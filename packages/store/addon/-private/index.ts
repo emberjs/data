@@ -52,4 +52,5 @@ export {
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
   relatedTypesDescriptor,
-  relationshipsDescriptor } from './system/relationships/ext';
+  relationshipsDescriptor,
+} from './system/relationships/ext';

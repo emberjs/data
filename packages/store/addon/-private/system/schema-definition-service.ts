@@ -3,8 +3,11 @@ import { RecordIdentifier } from '../ts-interfaces/identifier';
 import { get } from '@ember/object';
 import { getOwner } from '@ember/application';
 import normalizeModelName from './normalize-model-name';
-import Model from '@ember-data/model';
 import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
+import require, { has } from 'require';
+
+const HAS_MODEL_PACKAGE = has('@ember-data/model');
+const Model = HAS_MODEL_PACKAGE ? require('@ember-data/model').default : null;
 
 export class DSModelSchemaDefinitionService {
   private _modelFactoryCache = Object.create(null);
@@ -58,7 +61,7 @@ export class DSModelSchemaDefinitionService {
 
   doesTypeExist(modelName: string): boolean {
     let normalizedModelName = normalizeModelName(modelName);
-    let factory = getModelFactory(this.store, this.store._modelFactoryCache, normalizedModelName);
+    let factory = getModelFactory(this.store, this._modelFactoryCache, normalizedModelName);
 
     return factory !== null;
   }
@@ -126,20 +129,22 @@ export function _lookupModelFactory(store, normalizedModelName) {
     in this case
   */
 export function _modelForMixin(store, normalizedModelName) {
-  let owner = getOwner(store);
-  let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-  let mixin = MaybeMixin && MaybeMixin.class;
+  if (HAS_MODEL_PACKAGE) {
+    let owner = getOwner(store);
+    let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
+    let mixin = MaybeMixin && MaybeMixin.class;
 
-  if (mixin) {
-    let ModelForMixin = Model.extend(mixin);
-    ModelForMixin.reopenClass({
-      __isMixin: true,
-      __mixin: mixin,
-    });
+    if (mixin) {
+      let ModelForMixin = Model.extend(mixin);
+      ModelForMixin.reopenClass({
+        __isMixin: true,
+        __mixin: mixin,
+      });
 
-    //Cache the class as a model
-    owner.register('model:' + normalizedModelName, ModelForMixin);
+      //Cache the class as a model
+      owner.register('model:' + normalizedModelName, ModelForMixin);
+    }
+
+    return _lookupModelFactory(store, normalizedModelName);
   }
-
-  return _lookupModelFactory(store, normalizedModelName);
 }

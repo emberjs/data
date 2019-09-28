@@ -13,18 +13,13 @@ import {
   InternalModel,
   PromiseObject,
   recordDataFor,
+  recordIdentifierFor,
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
   relatedTypesDescriptor,
   relationshipsDescriptor,
-} from '../relationships/ext';
-import recordDataFor from '../record-data-for';
-import Ember from 'ember';
-import InternalModel from './internal-model';
-import RootState from './states';
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
-import coerceId from '../coerce-id';
-import { RootState, recordIdentifierFor } from '@ember-data/store/-private';
+  RootState,
+} from '@ember-data/store/-private';
 
 const { changeProperties } = Ember;
 

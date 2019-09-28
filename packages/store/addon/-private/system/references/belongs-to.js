@@ -1,8 +1,8 @@
 import { resolve } from 'rsvp';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
-import Model from '@ember-data/model';
 import Reference from './reference';
 import recordDataFor from '../record-data-for';
+import { peekRecordIdentifier } from '../store/internal-model-factory';
 
 /**
   @module @ember-data/store
@@ -124,11 +124,12 @@ export default class BelongsToReference extends Reference {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
   push(objectOrPromise) {
+    // TODO deprecate thenable support
     return resolve(objectOrPromise).then(data => {
       let record;
 
       // TODO deprecate data as Model
-      if (data instanceof Model) {
+      if (peekRecordIdentifier(data)) {
         record = data;
       } else {
         record = this.store.push(data);
