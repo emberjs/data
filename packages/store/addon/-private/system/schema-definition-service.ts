@@ -7,7 +7,13 @@ import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-d
 import require, { has } from 'require';
 
 const HAS_MODEL_PACKAGE = has('@ember-data/model');
-const Model = HAS_MODEL_PACKAGE ? require('@ember-data/model').default : null;
+let _Model;
+function getModel() {
+  if (HAS_MODEL_PACKAGE) {
+    _Model = _Model || require('@ember-data/model').default;
+  }
+  return _Model;
+}
 
 export class DSModelSchemaDefinitionService {
   private _modelFactoryCache = Object.create(null);
@@ -135,7 +141,7 @@ export function _modelForMixin(store, normalizedModelName) {
     let mixin = MaybeMixin && MaybeMixin.class;
 
     if (mixin) {
-      let ModelForMixin = Model.extend(mixin);
+      let ModelForMixin = getModel().extend(mixin);
       ModelForMixin.reopenClass({
         __isMixin: true,
         __mixin: mixin,
