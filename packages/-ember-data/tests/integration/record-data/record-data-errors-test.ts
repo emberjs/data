@@ -1,12 +1,10 @@
-import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
 import { module, test } from 'qunit';
-import { settled } from '@ember/test-helpers';
 import EmberObject from '@ember/object';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
-import { InvalidError, ServerError } from '@ember-data/adapter/error';
+import { attr } from '@ember-data/model';
+import { InvalidError } from '@ember-data/adapter/error';
 import { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
 import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
 import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
@@ -115,8 +113,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
 
   test('Record Data invalid errors', async function(assert) {
     assert.expect(2);
-    let called = 0;
-    let createCalled = 0;
+
     const personHash = {
       type: 'person',
       id: '1',
@@ -289,8 +286,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
 
   test('Record data which does not implement getErrors still works correctly with the default DS.Model', async function(assert) {
     assert.expect(4);
-    let called = 0;
-    let createCalled = 0;
+
     const personHash = {
       type: 'person',
       id: '1',

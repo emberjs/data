@@ -189,7 +189,6 @@ module('integration/record-data - Custom RecordData Implementations', function(h
   test('Record Data push, create and save lifecycle', async function(assert) {
     assert.expect(17);
     let called = 0;
-    let createCalled = 0;
     const personHash = {
       type: 'person',
       id: '1',
@@ -408,8 +407,6 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
   test('Record Data controls belongsTo notifications', async function(assert) {
     assert.expect(6);
-    let called = 0;
-    let createCalled = 0;
 
     let { owner } = this;
     let belongsToReturnValue = { data: { id: '1', type: 'person' } };
@@ -519,8 +516,6 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
   test('Record Data controls hasMany notifications', async function(assert) {
     assert.expect(10);
-    let called = 0;
-    let createCalled = 0;
 
     let { owner } = this;
 
@@ -612,7 +607,6 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
     let calledAddToHasMany = 0;
     let calledRemoveFromHasMany = 0;
-    let calledSetDirtyHasMany = 0;
     let hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
 
     class RelationshipRecordData extends TestRecordData {

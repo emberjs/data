@@ -1,6 +1,5 @@
 import InternalModel from '../system/model/internal-model';
 import { promiseObject } from '../system/promise-proxies';
-import { Record } from '../ts-interfaces/record';
 import { PromiseProxy } from '../ts-interfaces/promise-proxies';
 import { DSModel } from '../ts-interfaces/ds-model';
 /**

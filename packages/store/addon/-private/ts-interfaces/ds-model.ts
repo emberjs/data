@@ -2,8 +2,6 @@ import { Record } from './record';
 import RSVP from 'rsvp';
 import EmberObject from '@ember/object';
 import { JsonApiValidationError } from './record-data-json-api';
-import { Relationship } from '..';
-import { RelationshipRecordData } from './relationship-record-data';
 import { RelationshipSchema } from './record-data-schemas';
 
 // Placeholder until model.js is typed

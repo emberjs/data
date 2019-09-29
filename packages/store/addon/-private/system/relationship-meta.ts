@@ -3,7 +3,6 @@ import { DEBUG } from '@glimmer/env';
 import normalizeModelName from './normalize-model-name';
 import { RelationshipSchema } from '../ts-interfaces/record-data-schemas';
 import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
-import Store from './ds-model-store';
 import CoreStore from './core-store';
 
 /**

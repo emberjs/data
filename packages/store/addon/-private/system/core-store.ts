@@ -4,8 +4,7 @@
 
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 
-import { default as EmberArray, A } from '@ember/array';
-import EmberError from '@ember/error';
+import { A } from '@ember/array';
 import { getOwner } from '@ember/application';
 import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed, defineProperty } from '@ember/object';
@@ -70,11 +69,10 @@ import { RequestPromise } from './request-cache';
 import { PromiseProxy } from '../ts-interfaces/promise-proxies';
 import { DSModel } from '../ts-interfaces/ds-model';
 import NotificationManager from './record-notification-manager';
-import { RelationshipsSchema, AttributeSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
+import { AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import ShimModelClass from './model/shim-model-class';
 import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
-import Reference from './references/reference';
 import { Dict } from '../ts-interfaces/utils';
 
 import constructResource from '../utils/construct-resource';
@@ -3618,88 +3616,6 @@ function _commit(adapter, store, operation, snapshot) {
     },
     label
   );
-}
-
-/**
- *
- * @param store
- * @param cache modelFactoryCache
- * @param normalizedModelName already normalized modelName
- * @return {*}
- */
-function getModelFactory(store, cache, normalizedModelName) {
-  let factory = cache[normalizedModelName];
-
-  if (!factory) {
-    factory = _lookupModelFactory(store, normalizedModelName);
-
-    if (!factory) {
-      //Support looking up mixins as base types for polymorphic relationships
-      factory = _modelForMixin(store, normalizedModelName);
-    }
-
-    if (!factory) {
-      // we don't cache misses in case someone wants to register a missing model
-      return null;
-    }
-
-    let klass = factory.class;
-    assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
-
-    // TODO: deprecate this
-    let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
-    if (!hasOwnModelNameSet) {
-      klass.modelName = normalizedModelName;
-    }
-
-    cache[normalizedModelName] = factory;
-  }
-
-  return factory;
-}
-
-function _lookupModelFactory(store, normalizedModelName) {
-  let owner = getOwner(store);
-
-  return owner.factoryFor(`model:${normalizedModelName}`);
-}
-
-/*
-  In case someone defined a relationship to a mixin, for example:
-  ```
-    import Model, { belongsTo, hasMany } from '@ember-data/model';
-
-    let Comment = Model.extend({
-      owner: belongsTo('commentable'. { polymorphic: true })
-    });
-    let Commentable = Ember.Mixin.create({
-      comments: hasMany('comment')
-    });
-  ```
-  we want to look up a Commentable class which has all the necessary
-  relationship metadata. Thus, we look up the mixin and create a mock
-  Model, so we can access the relationship CPs of the mixin (`comments`)
-  in this case
-*/
-function _modelForMixin(store, normalizedModelName) {
-  if (HAS_MODEL_PACKAGE) {
-    let owner = getOwner(store);
-    let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-    let mixin = MaybeMixin && MaybeMixin.class;
-
-    if (mixin) {
-      let ModelForMixin = getModel().extend(mixin);
-      ModelForMixin.reopenClass({
-        __isMixin: true,
-        __mixin: mixin,
-      });
-
-      //Cache the class as a model
-      owner.register('model:' + normalizedModelName, ModelForMixin);
-    }
-
-    return _lookupModelFactory(store, normalizedModelName);
-  }
 }
 
 let assertDestroyingStore: Function;

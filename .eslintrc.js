@@ -58,6 +58,7 @@ module.exports = {
       plugins: ['@typescript-eslint'],
       extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
       rules: {
+        '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'no-unused-vars': 'off',
         'require-atomic-updates': 'off',
       },

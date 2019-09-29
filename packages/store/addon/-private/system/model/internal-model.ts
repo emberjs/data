@@ -4,7 +4,7 @@ import { default as EmberArray, A } from '@ember/array';
 import { setOwner, getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
-import RSVP, { Promise, resolve } from 'rsvp';
+import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
@@ -522,7 +522,6 @@ export default class InternalModel {
       }
       this.startedReloading();
       let internalModel = this;
-      let promiseLabel = 'DS: Model#reload of ' + this;
 
       return internalModel.store
         ._reloadRecord(internalModel, options)
@@ -1177,7 +1176,6 @@ export default class InternalModel {
 
     let pivotName = extractPivotName(name);
     let state = this.currentState;
-    let oldState = state;
     let transitionMapId = `${state.stateName}->${name}`;
 
     do {

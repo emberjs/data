@@ -1,5 +1,4 @@
 import {
-  JsonApiResource,
   JsonApiHasManyRelationship,
   JsonApiBelongsToRelationship,
   JsonApiValidationError,
