@@ -3647,7 +3647,7 @@ function getModelFactory(store, cache, normalizedModelName) {
     assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
     // TODO: deprecate this
-    let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
+    let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
     if (!hasOwnModelNameSet) {
       klass.modelName = normalizedModelName;
     }

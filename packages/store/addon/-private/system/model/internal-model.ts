@@ -35,6 +35,8 @@ import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-
 import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
 
+const { hasOwnProperty } = Object.prototype;
+
 /**
   @module @ember-data/store
 */
@@ -1463,7 +1465,7 @@ export default class InternalModel {
       if (error && parsedErrors) {
         if (!this._recordData.getErrors) {
           for (attribute in parsedErrors) {
-            if (parsedErrors.hasOwnProperty(attribute)) {
+            if (hasOwnProperty.call(parsedErrors, attribute)) {
               this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
             }
           }
@@ -1483,7 +1485,7 @@ export default class InternalModel {
       let attribute;
 
       for (attribute in parsedErrors) {
-        if (parsedErrors.hasOwnProperty(attribute)) {
+        if (hasOwnProperty.call(parsedErrors, attribute)) {
           this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
         }
       }
@@ -1601,7 +1603,7 @@ export function assertRecordsPassedToHasMany(records) {
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(records)}`,
     (function() {
-      return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
+      return A(records).every(record => hasOwnProperty.call(record, '_internalModel') === true);
     })()
   );
 }

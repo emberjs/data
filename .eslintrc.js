@@ -62,7 +62,6 @@ module.exports = {
         'no-empty': 'off',
         'no-empty-pattern': 'off',
         'no-extra-semi': 'off',
-        'no-prototype-builtins': 'off',
         'no-unused-vars': 'off',
         'prettier/prettier': 'off',
         'require-atomic-updates': 'off',
