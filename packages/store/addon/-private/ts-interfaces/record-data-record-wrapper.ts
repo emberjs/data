@@ -39,7 +39,7 @@ export default interface RecordDataRecordWrapper {
   /**
    * @deprecated
    */
-  getErrors?({}): JsonApiValidationError[];
+  getErrors?({}): JsonApiValidationError[]; // eslint-disable-line no-empty-pattern
 
   isNew?(): boolean;
   isDeleted?(): boolean;

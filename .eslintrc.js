@@ -60,7 +60,6 @@ module.exports = {
       rules: {
         'no-console': 'off',
         'no-empty': 'off',
-        'no-empty-pattern': 'off',
         'no-extra-semi': 'off',
         'no-unused-vars': 'off',
         'prettier/prettier': 'off',
