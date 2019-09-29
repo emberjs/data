@@ -58,9 +58,7 @@ module.exports = {
       plugins: ['@typescript-eslint'],
       extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
       rules: {
-        'no-extra-semi': 'off',
         'no-unused-vars': 'off',
-        'prettier/prettier': 'off',
         'require-atomic-updates': 'off',
       },
     },

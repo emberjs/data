@@ -19,10 +19,7 @@ export function determineBodyPromise(
         throw error;
       }
       const status = response.status;
-      if (
-        response.ok &&
-        (status === 204 || status === 205 || requestData.method === 'HEAD')
-      ) {
+      if (response.ok && (status === 204 || status === 205 || requestData.method === 'HEAD')) {
         ret = undefined;
       } else {
         if (DEBUG) {

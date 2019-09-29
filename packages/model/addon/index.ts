@@ -39,9 +39,4 @@
   @public
  */
 
-export {
-  Model as default,
-  attr,
-  belongsTo,
-  hasMany
-} from './-private';
+export { Model as default, attr, belongsTo, hasMany } from './-private';
