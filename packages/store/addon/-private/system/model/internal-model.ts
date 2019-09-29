@@ -332,8 +332,7 @@ export default class InternalModel {
   }
 
   isValid() {
-    if (RECORD_DATA_ERRORS) {
-    } else {
+    if (!RECORD_DATA_ERRORS) {
       return this.currentState.isValid;
     }
   }
