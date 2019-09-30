@@ -37,7 +37,6 @@
 /bin
 /docs
 /node-tests
-/server
 .appveyor.yml
 lib/scripts
 
