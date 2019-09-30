@@ -126,7 +126,7 @@ before_install:
   - export PATH=$HOME/.yarn/bin:$PATH
 
 install:
-  - yarn install
+  - yarn install --frozen-lockfile
   - node ./bin/packages-for-commit.js
 
 script:
