@@ -2000,7 +2000,7 @@
   resolved "https://registry.npmjs.org/@types/ember__string/-/ember__string-3.0.6.tgz#79b10b0fc0136a9c86536bc55cbd18cae9a9bd3b"
   integrity sha512-VBKH8nR/uK2tlr9eob8Nl+0cKP62GNtFWqq4PVGusnBMPFktGley1gsUhqNYJ9G3y2mvVfikicxM2/bE5AMYLA==
 
-"@types/ember__test-helpers@^0.7.8", "@types/ember__test-helpers@~0.7.8":
+"@types/ember__test-helpers@~0.7.8":
   version "0.7.8"
   resolved "https://registry.npmjs.org/@types/ember__test-helpers/-/ember__test-helpers-0.7.8.tgz#16d6e060ec88e5510756d00e8f191fa48d9e0362"
   integrity sha512-23YMSoKqiqJHeg6uWusAqLdYb4He2U9gZZYy9JUslzHrQV9eSWmQDFHVRXfy9zWj0Rbh+ssKEWlMGwckZyKgRA==
@@ -2068,7 +2068,7 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-9.6.52.tgz#ddba1f1fdaf1487a0a992ee238c43f5318ba5625"
   integrity sha512-d6UdHtc8HKe3NTruj9mHk2B8EiHZyuG/00aYbUedHvy9sBhtLAX1gaxSNgvcheOvIZavvmpJYlwfHjjxlU/Few==
 
-"@types/qunit@^2.5.3", "@types/qunit@^2.9.0":
+"@types/qunit@^2.5.3":
   version "2.9.0"
   resolved "https://registry.npmjs.org/@types/qunit/-/qunit-2.9.0.tgz#0b3fcbe2b92f067856adac82ba3afbc66d8835ac"
   integrity sha512-Hx34HZmTJKRay+x3sFdEK62I8Z8YSWYg+rAlNr4M+AbwvNUJYxTTmWEH4a8B9ZN+Fl61awFrw+oRicWLFVugvQ==
@@ -5867,7 +5867,7 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.10.0, ember-cli-babel@^7.11.0, ember-cli-babel@^7.11.1, ember-cli-babel@^7.12.0, ember-cli-babel@^7.7.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.10.0, ember-cli-babel@^7.11.0, ember-cli-babel@^7.12.0, ember-cli-babel@^7.7.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
   version "7.12.0"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.12.0.tgz#064997d199384be8c88d251f30ef67953d3bddc5"
   integrity sha512-+EGQsbPvh19nNXHCm6rVBx2CdlxQlzxMyhey5hsGViDPriDI4PFYXYaFWdGizDrmZoDcG/Ywpeph3hl0NxGQTg==
@@ -6005,27 +6005,6 @@ ember-cli-htmlbars@^3.0.1:
     hash-for-dep "^1.5.1"
     json-stable-stringify "^1.0.1"
     strip-bom "^3.0.0"
-
-ember-cli-htmlbars@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.0.1.tgz#c6b32def2a70c64c6494d32b75982c4bd6be330a"
-  integrity sha512-jQNw+rMUlFp4muxM6mjIM9GBhC5a4rtShEoeLW6ey1zv/Iaz/t0ZUnOEXozaGu/Z9DBOw0Edb+qGe6TZlR3epw==
-  dependencies:
-    "@ember/edition-utils" "^1.1.1"
-    babel-plugin-htmlbars-inline-precompile "^2.1.0"
-    broccoli-debug "^0.6.5"
-    broccoli-persistent-filter "^2.3.1"
-    broccoli-plugin "^2.0.0"
-    common-tags "^1.8.0"
-    ember-cli-babel-plugin-helpers "^1.1.0"
-    fs-copy-file-sync "^1.1.1"
-    hash-for-dep "^1.5.1"
-    heimdalljs-logger "^0.1.10"
-    json-stable-stringify "^1.0.1"
-    mkdirp "^0.5.1"
-    semver "^6.3.0"
-    strip-bom "^3.0.0"
-    walk-sync "^1.1.3"
 
 ember-cli-htmlbars@^4.0.2:
   version "4.0.2"
@@ -6272,108 +6251,10 @@ ember-cli-yuidoc@^0.8.8:
     rsvp "3.0.14"
     yuidocjs "^0.10.0"
 
-ember-cli@^3.13.1, ember-cli@~3.13.1:
+ember-cli@~3.13.1:
   version "3.13.1"
   resolved "https://registry.npmjs.org/ember-cli/-/ember-cli-3.13.1.tgz#8daefb108130740cd79ad7e4e1c9138fb1f7313d"
   integrity sha512-CMVLpJYseyCNmN2Tp3vTmTFTXPSZlMQB7q2uoZ+ZTKMgdQ4ekeceW9mVAC4XwXm2FW+v8liowP+co/Bu1xUbPg==
-  dependencies:
-    "@babel/core" "^7.5.5"
-    "@babel/plugin-transform-modules-amd" "^7.5.0"
-    amd-name-resolver "^1.3.1"
-    babel-plugin-module-resolver "^3.2.0"
-    bower-config "^1.4.1"
-    bower-endpoint-parser "0.2.2"
-    broccoli "^3.2.0"
-    broccoli-amd-funnel "^2.0.1"
-    broccoli-babel-transpiler "^7.3.0"
-    broccoli-builder "^0.18.14"
-    broccoli-concat "^3.7.4"
-    broccoli-config-loader "^1.0.1"
-    broccoli-config-replace "^1.1.2"
-    broccoli-debug "^0.6.5"
-    broccoli-funnel "^2.0.2"
-    broccoli-funnel-reducer "^1.0.0"
-    broccoli-merge-trees "^3.0.2"
-    broccoli-middleware "^2.1.0"
-    broccoli-module-normalizer "^1.3.0"
-    broccoli-module-unification-reexporter "^1.0.0"
-    broccoli-slow-trees "^3.0.1"
-    broccoli-source "^3.0.0"
-    broccoli-stew "^3.0.0"
-    calculate-cache-key-for-tree "^2.0.0"
-    capture-exit "^2.0.0"
-    chalk "^2.4.2"
-    ci-info "^2.0.0"
-    clean-base-url "^1.0.0"
-    compression "^1.7.4"
-    configstore "^5.0.0"
-    console-ui "^3.1.1"
-    core-object "^3.1.5"
-    dag-map "^2.0.2"
-    diff "^4.0.1"
-    ember-cli-broccoli-sane-watcher "^3.0.0"
-    ember-cli-is-package-missing "^1.0.0"
-    ember-cli-lodash-subset "^2.0.1"
-    ember-cli-normalize-entity-name "^1.0.0"
-    ember-cli-preprocess-registry "^3.3.0"
-    ember-cli-string-utils "^1.1.0"
-    ember-source-channel-url "^2.0.1"
-    ensure-posix-path "^1.0.2"
-    execa "^1.0.0"
-    exit "^0.1.2"
-    express "^4.16.4"
-    filesize "^4.1.2"
-    find-up "^4.1.0"
-    find-yarn-workspace-root "^1.2.1"
-    fs-extra "^8.1.0"
-    fs-tree-diff "^2.0.1"
-    get-caller-file "^2.0.5"
-    git-repo-info "^2.1.0"
-    glob "^7.1.4"
-    heimdalljs "^0.2.6"
-    heimdalljs-fs-monitor "^0.2.3"
-    heimdalljs-graph "^1.0.0"
-    heimdalljs-logger "^0.1.10"
-    http-proxy "^1.17.0"
-    inflection "^1.12.0"
-    is-git-url "^1.0.0"
-    isbinaryfile "^3.0.3"
-    js-yaml "^3.13.1"
-    json-stable-stringify "^1.0.1"
-    leek "0.0.24"
-    lodash.template "^4.5.0"
-    markdown-it "^9.0.1"
-    markdown-it-terminal "0.1.0"
-    minimatch "^3.0.4"
-    morgan "^1.9.1"
-    nopt "^3.0.6"
-    npm-package-arg "^6.1.0"
-    p-defer "^3.0.0"
-    portfinder "^1.0.21"
-    promise-map-series "^0.2.3"
-    promise.prototype.finally "^3.1.0"
-    quick-temp "^0.1.8"
-    resolve "^1.12.0"
-    resolve-package-path "^1.2.7"
-    rsvp "^4.8.5"
-    sane "^4.1.0"
-    semver "^6.3.0"
-    silent-error "^1.1.1"
-    sort-package-json "^1.22.1"
-    symlink-or-copy "^1.2.0"
-    temp "0.9.0"
-    testem "^2.17.0"
-    tiny-lr "^1.1.1"
-    tree-sync "^2.0.0"
-    uuid "^3.3.2"
-    walk-sync "^2.0.2"
-    watch-detector "^1.0.0"
-    yam "^1.0.0"
-
-ember-cli@~3.13.0:
-  version "3.13.0"
-  resolved "https://registry.npmjs.org/ember-cli/-/ember-cli-3.13.0.tgz#98807a5e1e086380364728a8a476f4c007181496"
-  integrity sha512-2B/bmlwf8390X9JYEMxMcPfgp1wnNsqIJ9aaneZ71XuNaSbjHQuEnG3zD1CI81SWlXW+nEydry9pJKy29dsQow==
   dependencies:
     "@babel/core" "^7.5.5"
     "@babel/plugin-transform-modules-amd" "^7.5.0"
@@ -6957,7 +6838,7 @@ eslint-visitor-keys@^1.0.0, eslint-visitor-keys@^1.1.0:
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-1.1.0.tgz#e2a82cea84ff246ad6fb57f9bde5b46621459ec2"
   integrity sha512-8y9YjtM1JBJU/A9Kc+SbaOV4y29sSWckBwMHa+FGtVj5gN/sbnKDf6xJUl+8g7FAij9LVaP8C24DUiH/f/2Z9A==
 
-eslint@^6.4.0, eslint@^6.5.0:
+eslint@^6.5.0:
   version "6.5.0"
   resolved "https://registry.npmjs.org/eslint/-/eslint-6.5.0.tgz#304623eec903969dd5c9f2d61c6ce3d6ecec8750"
   integrity sha512-IIbSW+vKOqMatPmS9ayyku4tvWxHY2iricSRtOz6+ZA5IPRlgXzEL0u/j6dr4eha0ugmhMwDTqxtmNu3kj9O4w==
@@ -13472,7 +13353,7 @@ typescript-memoize@^1.0.0-alpha.3:
   dependencies:
     core-js "2.4.1"
 
-typescript@^3.6.3, typescript@~3.6.3:
+typescript@~3.6.3:
   version "3.6.3"
   resolved "https://registry.npmjs.org/typescript/-/typescript-3.6.3.tgz#fea942fabb20f7e1ca7164ff626f1a9f3f70b4da"
   integrity sha512-N7bceJL1CtRQ2RiG0AQME13ksR7DiuQh/QehubYcghzv20tnh+MQnQIuJddTmsbqYj+dztchykemz0zFzlvdQw==
