@@ -25,7 +25,7 @@ jobs:
         inputs:
           versionSpec: '10.x' # The version we're installing
       - script: |
-          yarn
+          yarn --frozen-lockfile
           yarn lint:features
       - script: |
           yarn lint:prettier

@@ -45,7 +45,7 @@
     "co": "^4.6.0",
     "common-tags": "^1.8.0",
     "ember-cli-blueprint-test-helpers": "^0.19.1",
-    "mocha": "^6.1.2"
+    "mocha": "^6.2.1"
   },
   "engines": {
     "node": ">= 8.0.0"
