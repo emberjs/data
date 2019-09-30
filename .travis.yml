@@ -76,6 +76,10 @@ jobs:
       install: yarn install
       script: yarn test:docs
 
+    - name: 'Fastboot Tests'
+      install: yarn install
+      script: yarn test:fastboot
+
     # runs tests against each supported Ember version
     - stage: ember version tests
       name: 'Ember LTS 3.8'

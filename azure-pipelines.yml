@@ -59,6 +59,10 @@ jobs:
           yarn test:encapsulation
         displayName: 'Encapsulation Tests'
 
+      - script: |
+          yarn test:fastboot
+        displayName: 'Fastboot Tests'
+
   - job: Ember_Data_builds_tests
     dependsOn: Basic_Ember_Data_tests
 
@@ -97,6 +101,10 @@ jobs:
       - script: |
           yarn test:docs
         displayName: 'Docs Tests'
+
+      - script: |
+          yarn test:fastboot
+        displayName: 'Fastboot Tests'
 
       - script: |
           yarn test:try-one with-ember-fetch
