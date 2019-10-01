@@ -1,5 +1,4 @@
 import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import Store from '../ds-model-store';
 import { AttributesSchema, RelationshipsSchema } from '../../ts-interfaces/record-data-schemas';
 import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import { upgradeForInternal } from '../ts-upgrade-map';

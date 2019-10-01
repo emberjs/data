@@ -17,7 +17,6 @@ import uuidv4 from './utils/uuid-v4';
 import normalizeModelName from '../system/normalize-model-name';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
-import Store from '../system/ds-model-store';
 import CoreStore from '../system/core-store';
 
 /**

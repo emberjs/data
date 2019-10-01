@@ -9,8 +9,6 @@ import {
 } from '../ts-interfaces/fetch-manager';
 import { symbol } from '../ts-interfaces/utils/symbol';
 
-import { _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
-
 export const Touching: unique symbol = symbol('touching');
 export const RequestPromise: unique symbol = symbol('promise');
 

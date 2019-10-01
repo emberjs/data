@@ -5,15 +5,15 @@
     "packages/*"
   ],
   "pre-commit": [
-    "lint:js"
+    "lint:js:changed"
   ],
   "scripts": {
     "add-dev": "./bin/add-dev-dependency",
     "sync-dev": "./bin/sync-dev-dependency",
     "build": "yarn workspace ember-data build",
     "build:production": "yarn workspace ember-data build:production",
-    "lint:prettier": "eslint --plugin prettier .",
     "lint:features": "./bin/lint-features",
+    "lint:prettier": "eslint --plugin prettier .",
     "lint:js": "eslint --cache --ext=js,ts .",
     "lint:js:changed": "./bin/lint-changed-js",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
@@ -49,6 +49,8 @@
     "@types/ember__test-helpers": "~0.7.8",
     "@types/qunit": "^2.5.3",
     "@types/rsvp": "^4.0.3",
+    "@typescript-eslint/eslint-plugin": "^2.3.1",
+    "@typescript-eslint/parser": "^2.3.1",
     "babel-eslint": "^10.0.3",
     "babel-plugin-debug-macros": "^0.3.3",
     "babel-plugin-feature-flags": "^0.3.1",
@@ -70,6 +72,7 @@
     "debug": "^4.1.1",
     "ember-cli": "^3.12.0",
     "ember-cli-app-version": "^3.2.0",
+    "ember-cli-babel": "^7.12.0",
     "ember-cli-blueprint-test-helpers": "^0.19.1",
     "ember-cli-dependency-checker": "^3.2.0",
     "ember-cli-fastboot": "^2.2.1",
@@ -83,6 +86,7 @@
     "ember-cli-shims": "^1.2.0",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-string-utils": "^1.1.0",
+    "ember-cli-template-lint": "^1.0.0-beta.1",
     "ember-cli-test-loader": "^2.2.0",
     "ember-cli-typescript": "^3.0.0",
     "ember-cli-typescript-blueprints": "^3.0.0",
@@ -105,6 +109,7 @@
     "ember-try": "^1.2.1",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.3.0",
+    "eslint-plugin-ember": "^7.1.0",
     "eslint-plugin-mocha": "^6.1.1",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-prettier": "^3.1.1",
@@ -122,6 +127,7 @@
     "pre-commit": "^1.2.2",
     "prettier": "~1.18.2",
     "qunit": "^2.9.2",
+    "qunit-dom": "^0.9.0",
     "rimraf": "^3.0.0",
     "rsvp": "^4.8.5",
     "semver": "^6.2.0",

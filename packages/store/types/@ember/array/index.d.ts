@@ -1,6 +1,8 @@
 import EmberArray, { A } from '@ember/array';
+
 namespace EmberArray {
-    function detect(arr: any): boolean;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function detect(arr: any): boolean;
 }
 
 export default EmberArray;

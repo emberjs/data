@@ -4,7 +4,7 @@ import { default as EmberArray, A } from '@ember/array';
 import { setOwner, getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
-import RSVP, { Promise, resolve } from 'rsvp';
+import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
@@ -36,6 +36,8 @@ import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
 import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
+
+const { hasOwnProperty } = Object.prototype;
 
 /**
   @module @ember-data/store
@@ -332,8 +334,7 @@ export default class InternalModel {
   }
 
   isValid() {
-    if (RECORD_DATA_ERRORS) {
-    } else {
+    if (!RECORD_DATA_ERRORS) {
       return this.currentState.isValid;
     }
   }
@@ -513,7 +514,6 @@ export default class InternalModel {
       }
       this.startedReloading();
       let internalModel = this;
-      let promiseLabel = 'DS: Model#reload of ' + this;
 
       return internalModel.store
         ._reloadRecord(internalModel, options)
@@ -1168,7 +1168,6 @@ export default class InternalModel {
 
     let pivotName = extractPivotName(name);
     let state = this.currentState;
-    let oldState = state;
     let transitionMapId = `${state.stateName}->${name}`;
 
     do {
@@ -1455,7 +1454,7 @@ export default class InternalModel {
       if (error && parsedErrors) {
         if (!this._recordData.getErrors) {
           for (attribute in parsedErrors) {
-            if (parsedErrors.hasOwnProperty(attribute)) {
+            if (hasOwnProperty.call(parsedErrors, attribute)) {
               this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
             }
           }
@@ -1475,7 +1474,7 @@ export default class InternalModel {
       let attribute;
 
       for (attribute in parsedErrors) {
-        if (parsedErrors.hasOwnProperty(attribute)) {
+        if (hasOwnProperty.call(parsedErrors, attribute)) {
           this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
         }
       }
@@ -1593,7 +1592,7 @@ export function assertRecordsPassedToHasMany(records) {
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(records)}`,
     (function() {
-      return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
+      return A(records).every(record => hasOwnProperty.call(record, '_internalModel') === true);
     })()
   );
 }

@@ -4,8 +4,7 @@
 
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 
-import { default as EmberArray, A } from '@ember/array';
-import EmberError from '@ember/error';
+import { A } from '@ember/array';
 import { getOwner } from '@ember/application';
 import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed, defineProperty } from '@ember/object';
@@ -72,11 +71,10 @@ import { RequestPromise } from './request-cache';
 import { PromiseProxy } from '../ts-interfaces/promise-proxies';
 import { DSModel } from '../ts-interfaces/ds-model';
 import NotificationManager from './record-notification-manager';
-import { RelationshipsSchema, AttributeSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
+import { AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import ShimModelClass from './model/shim-model-class';
 import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
-import Reference from './references/reference';
 import { Dict } from '../ts-interfaces/utils';
 
 import constructResource from '../utils/construct-resource';

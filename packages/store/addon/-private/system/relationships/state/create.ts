@@ -2,7 +2,6 @@ import ManyRelationship from './has-many';
 import BelongsToRelationship from './belongs-to';
 import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
 import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
-import Store from '../../ds-model-store';
 import RecordDataStoreWrapper from '../../store/record-data-store-wrapper';
 import { upgradeForInternal } from '../../ts-upgrade-map';
 import CoreStore from '../../core-store';

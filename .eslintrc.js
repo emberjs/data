@@ -34,6 +34,22 @@ module.exports = {
     node: false,
   },
   overrides: [
+    // TypeScript files
+    {
+      files: ['**/*.ts'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        sourceType: 'module',
+      },
+      plugins: ['@typescript-eslint'],
+      extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+        'no-unused-vars': 'off',
+        'require-atomic-updates': 'off',
+      },
+    },
+
     // node files
     {
       files: [
