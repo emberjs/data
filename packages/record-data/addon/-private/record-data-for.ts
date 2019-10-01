@@ -19,7 +19,7 @@ export function relationshipStateFor(instance: any, propertyName: string): Belon
 export function implicitRelationshipsFor(instance: any): ConfidentDict<Relationship> {
   let recordData = (recordDataFor(instance) || instance) as RelationshipRecordData;
 
-  return recordData.__implicitRelationships;
+  return recordData._implicitRelationships;
 }
 
 export function implicitRelationshipStateFor(instance: any, propertyName: string): Relationship {

@@ -9,6 +9,7 @@ import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/ident
 import { RecordDataStoreWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-store-wrapper';
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import HasManyRelationship from '../relationships/state/has-many';
+import { ConfidentDict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 export interface DefaultSingleResourceRelationship extends SingleResourceRelationship {
   _relationship: BelongsToRelationship;
@@ -27,12 +28,8 @@ export interface RelationshipRecordData extends RecordData {
   isEmpty(): boolean;
   getResourceIdentifier(): RecordIdentifier;
   _relationships: Relationships;
-  _implicitRelationships: {
-    [key: string]: Relationship;
-  };
-  __implicitRelationships: {
-    [key: string]: Relationship;
-  };
+  _implicitRelationships: ConfidentDict<Relationship>;
+  __implicitRelationships: ConfidentDict<Relationship> | null;
   getBelongsTo(key: string): DefaultSingleResourceRelationship;
   getHasMany(key: string): DefaultCollectionResourceRelationship;
 }
