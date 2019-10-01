@@ -19,11 +19,11 @@ interface InternalModel {
 type DSModelOrSnapshot = { _internalModel: InternalModel };
 type Reference = { internalModel: InternalModel };
 
-type Legit = InternalModel | RecordData | DSModelOrSnapshot | Reference;
+type Instance = InternalModel | RecordData | DSModelOrSnapshot | Reference;
 
-export default function recordDataFor(instance: Legit): RecordData;
+export default function recordDataFor(instance: Instance): RecordData;
 export default function recordDataFor(instance: object): null;
-export default function recordDataFor(instance: Legit | object): RecordData | null {
+export default function recordDataFor(instance: Instance | object): RecordData | null {
   let internalModel =
     (instance as DSModelOrSnapshot)._internalModel || (instance as Reference).internalModel || instance;
 
