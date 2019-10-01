@@ -11,7 +11,7 @@ import { StableRecordIdentifier, RecordIdentifier } from '@ember-data/store/-pri
 import NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
 import RecordDataRecordWrapper from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
 
-let CustomStore, store, adapter, schemaDefinition;
+let CustomStore, store, schemaDefinition;
 if (CUSTOM_MODEL_CLASS) {
   module('unit/model - Custom Class Model', function(hooks) {
     setupTest(hooks);
@@ -102,7 +102,7 @@ if (CUSTOM_MODEL_CLASS) {
       });
       this.owner.register('service:store', CreationStore);
       store = this.owner.lookup('service:store');
-      let person = store.push({ data: { id: '1', type: 'person', name: 'chris' } });
+      store.push({ data: { id: '1', type: 'person', name: 'chris' } });
       recordData.storeWrapper.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, 'key');
       recordData.storeWrapper.notifyBelongsToChange(identifier.type, identifier.id, identifier.lid, 'key');
       recordData.storeWrapper.notifyStateChange(identifier.type, identifier.id, identifier.lid, 'key');
@@ -163,7 +163,7 @@ if (CUSTOM_MODEL_CLASS) {
       };
       store.registerSchemaDefinitionService(schema);
 
-      let person = store.createRecord('person', { name: 'chris' });
+      store.createRecord('person', { name: 'chris' });
     });
 
     test('attribute and relationship with custom schema definition', async function(assert) {
@@ -345,7 +345,7 @@ if (CUSTOM_MODEL_CLASS) {
       let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
       store.deleteRecord(person);
       assert.equal(rd!.isDeleted!(), true, 'record has been marked as deleted');
-      let promisePerson = await store.saveRecord(person);
+      await store.saveRecord(person);
       assert.equal(rd!.isDeletionCommitted!(), true, 'deletion has been commited');
     });
 

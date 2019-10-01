@@ -10,9 +10,7 @@ declare global {
 }
 
 const CRYPTO =
-  typeof window !== 'undefined' &&
-  window.msCrypto &&
-  typeof window.msCrypto.getRandomValues === 'function'
+  typeof window !== 'undefined' && window.msCrypto && typeof window.msCrypto.getRandomValues === 'function'
     ? window.msCrypto
     : window.crypto;
 

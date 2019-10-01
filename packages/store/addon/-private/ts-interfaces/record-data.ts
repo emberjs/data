@@ -57,7 +57,7 @@ export default interface RecordData {
   /**
    * @deprecated
    */
-  getErrors?({}): JsonApiValidationError[];
+  getErrors?({}): JsonApiValidationError[]; // eslint-disable-line no-empty-pattern
 
   isNew?(): boolean;
   isDeleted?(): boolean;
