@@ -1,13 +1,10 @@
-import ManyRelationship from "./has-many";
-import BelongsToRelationship from "./belongs-to";
+import ManyRelationship from './has-many';
+import BelongsToRelationship from './belongs-to';
 
-import { RelationshipRecordData } from "../../ts-interfaces/relationship-record-data";
-import { RelationshipSchema } from "@ember-data/store/-private/ts-interfaces/record-data-schemas";
-import {
-  RecordDataStoreWrapper,
-  upgradeForInternal
-} from "@ember-data/store/-private";
-import CoreStore from "@ember-data/store/-private/system/core-store";
+import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
+import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
+import { RecordDataStoreWrapper, upgradeForInternal } from '@ember-data/store/-private';
+import CoreStore from '@ember-data/store/-private/system/core-store';
 
 function createRelationshipFor(
   relationshipMeta: RelationshipSchema,
@@ -15,31 +12,13 @@ function createRelationshipFor(
   recordData: RelationshipRecordData,
   key: string
 ) {
-  let inverseKey = recordData.storeWrapper.inverseForRelationship(
-    recordData.modelName,
-    key
-  );
-  let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(
-    recordData.modelName,
-    key
-  );
+  let inverseKey = recordData.storeWrapper.inverseForRelationship(recordData.modelName, key);
+  let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(recordData.modelName, key);
 
-  if (relationshipMeta.kind === "hasMany") {
-    return new ManyRelationship(
-      store,
-      inverseKey,
-      relationshipMeta,
-      recordData,
-      inverseIsAsync
-    );
+  if (relationshipMeta.kind === 'hasMany') {
+    return new ManyRelationship(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
   } else {
-    return new BelongsToRelationship(
-      store,
-      inverseKey,
-      relationshipMeta,
-      recordData,
-      inverseIsAsync
-    );
+    return new BelongsToRelationship(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
   }
 }
 
@@ -72,17 +51,10 @@ export default class Relationships {
 
     if (!relationship) {
       let recordData = this.recordData;
-      let rel = this.recordData.storeWrapper.relationshipsDefinitionFor(
-        this.recordData.modelName
-      )[key];
+      let rel = this.recordData.storeWrapper.relationshipsDefinitionFor(this.recordData.modelName)[key];
 
       if (rel) {
-        relationship = relationships[key] = createRelationshipFor(
-          rel,
-          this._store,
-          recordData,
-          key
-        );
+        relationship = relationships[key] = createRelationshipFor(rel, this._store, recordData, key);
       }
     }
 

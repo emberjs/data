@@ -1,10 +1,7 @@
-import { JsonApiValidationError } from "./record-data-json-api";
-import {
-  SingleResourceRelationship,
-  CollectionResourceRelationship
-} from "./ember-data-json-api";
-import { RecordIdentifier } from "./identifier";
-import { ChangedAttributesHash } from "./record-data";
+import { JsonApiValidationError } from './record-data-json-api';
+import { SingleResourceRelationship, CollectionResourceRelationship } from './ember-data-json-api';
+import { RecordIdentifier } from './identifier';
+import { ChangedAttributesHash } from './record-data';
 
 /**
   @module @ember-data/store
@@ -19,20 +16,13 @@ export default interface RecordDataRecordWrapper {
   getAttr(key: string): any;
   getHasMany(key: string): CollectionResourceRelationship;
 
-  addToHasMany(
-    key: string,
-    recordDatas: RecordDataRecordWrapper[],
-    idx?: number
-  ): void;
+  addToHasMany(key: string, recordDatas: RecordDataRecordWrapper[], idx?: number): void;
   removeFromHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
   setDirtyHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
 
   getBelongsTo(key: string): SingleResourceRelationship;
 
-  setDirtyBelongsTo(
-    name: string,
-    recordData: RecordDataRecordWrapper | null
-  ): void;
+  setDirtyBelongsTo(name: string, recordData: RecordDataRecordWrapper | null): void;
 
   // ----- unspecced
   isAttrDirty(key: string): boolean;
