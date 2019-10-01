@@ -37,11 +37,12 @@ import recordDataFor from '../record-data-for';
 
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 type RecordArray = InstanceType<typeof RecordArray>;
+type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
 
 // once the presentation logic is moved into the Model package we can make
 // eliminate these lossy and redundant helpers
 function relationshipsFor(instance: any) {
-  let recordData = recordDataFor(instance) || instance;
+  let recordData = (recordDataFor(instance) || instance) as RelationshipRecordData;
 
   return recordData._relationships;
 }

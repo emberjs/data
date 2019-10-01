@@ -77,6 +77,7 @@ import constructResource from '../utils/construct-resource';
 import { errorsArrayToHash } from './errors-utils';
 
 type Relationship = import('@ember-data/record-data/-private').Relationship;
+type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
 
 const emberRun = emberRunLoop.backburner;
 
@@ -1634,7 +1635,7 @@ abstract class CoreStore extends Service {
       return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options).then(
         internalModels => {
           let payload: { data: any[]; meta?: any } = {
-            data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()),
+            data: internalModels.map(im => (recordDataFor(im) as RelationshipRecordData).getResourceIdentifier()),
           };
           if (internalModels.meta !== undefined) {
             payload.meta = internalModels.meta;
@@ -1712,7 +1713,8 @@ abstract class CoreStore extends Service {
     }
     return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
       internalModel => {
-        let response = internalModel && recordDataFor(internalModel).getResourceIdentifier();
+        let response =
+          internalModel && (recordDataFor(internalModel) as RelationshipRecordData).getResourceIdentifier();
         parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
         if (internalModel === null) {
           return null;

@@ -4,9 +4,10 @@ import Relationship from './relationships/state/relationship';
 import BelongsToRelationship from './relationships/state/belongs-to';
 import ManyRelationship from './relationships/state/has-many';
 import { ConfidentDict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { RelationshipRecordData } from './ts-interfaces/relationship-record-data';
 
 export function relationshipsFor(instance: any): Relationships {
-  let recordData = recordDataFor(instance) || instance;
+  let recordData = (recordDataFor(instance) || instance) as RelationshipRecordData;
 
   return recordData._relationships;
 }
@@ -16,7 +17,7 @@ export function relationshipStateFor(instance: any, propertyName: string): Belon
 }
 
 export function implicitRelationshipsFor(instance: any): ConfidentDict<Relationship> {
-  let recordData = recordDataFor(instance) || instance;
+  let recordData = (recordDataFor(instance) || instance) as RelationshipRecordData;
 
   return recordData.__implicitRelationships;
 }

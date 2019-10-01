@@ -30,6 +30,9 @@ export interface RelationshipRecordData extends RecordData {
   _implicitRelationships: {
     [key: string]: Relationship;
   };
+  __implicitRelationships: {
+    [key: string]: Relationship;
+  };
   getBelongsTo(key: string): DefaultSingleResourceRelationship;
   getHasMany(key: string): DefaultCollectionResourceRelationship;
 }
