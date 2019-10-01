@@ -5,7 +5,6 @@ import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
 import { RelationshipRecordData } from '../../..//ts-interfaces/relationship-record-data';
-import RecordData from '../../../ts-interfaces/record-data';
 import { JsonApiRelationship } from '../../../ts-interfaces/record-data-json-api';
 import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
@@ -509,11 +508,11 @@ export default class Relationship {
         const id = guidFor(inverseRecordData);
 
         if (this._hasSupportForImplicitRelationships(inverseRecordData) && seen[id] === undefined) {
-          const relationship = implicitRelationshipStateFor(inverseRecordData, this.inverseKeyForImplicit)
+          const relationship = implicitRelationshipStateFor(inverseRecordData, this.inverseKeyForImplicit);
           relationship.removeCompletelyFromOwn(recordData);
           seen[id] = true;
         }
-      }
+      };
     }
 
     this.members.forEach(unload);

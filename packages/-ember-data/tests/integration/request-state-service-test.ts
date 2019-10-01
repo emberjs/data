@@ -193,7 +193,7 @@ if (REQUEST_SERVICE) {
         options: {},
       };
 
-      let unsubToken = requestService.subscribeForRecord(identifier, request => {
+      requestService.subscribeForRecord(identifier, request => {
         if (count === 0) {
           assert.equal(request.state, 'pending', 'request is pending');
           assert.equal(request.type, 'query', 'request is a query');

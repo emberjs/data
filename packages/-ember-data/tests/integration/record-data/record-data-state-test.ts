@@ -1,11 +1,9 @@
-import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
 import { module, test } from 'qunit';
-import { settled } from '@ember/test-helpers';
 import EmberObject from '@ember/object';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+import { attr } from '@ember-data/model';
 import Ember from 'ember';
 import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
 import { RECORD_DATA_STATE } from '@ember-data/canary-features';
@@ -111,11 +109,11 @@ module('integration/record-data - Record Data State', function(hooks) {
 
   test('Record Data state saving', async function(assert) {
     assert.expect(3);
+
     let isDeleted, isNew, isDeletionCommitted;
     let calledDelete = false;
     let calledUpdate = false;
     let calledCreate = false;
-    let storeWrapper;
 
     const personHash = {
       type: 'person',
@@ -127,11 +125,6 @@ module('integration/record-data - Record Data State', function(hooks) {
     let { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
-      constructor(sw) {
-        super();
-        storeWrapper = sw;
-      }
-
       isNew(): boolean {
         return isNew;
       }
@@ -149,7 +142,7 @@ module('integration/record-data - Record Data State', function(hooks) {
 
     let TestStore = Store.extend({
       createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        return new LifecycleRecordData(storeWrapper);
+        return new LifecycleRecordData();
       },
     });
 
