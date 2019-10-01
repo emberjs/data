@@ -8,7 +8,6 @@ import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-
 import { JsonApiRelationship } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
 import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import RecordData from '../../record-data';
 
 /**
   @module @ember-data/store
@@ -202,7 +201,7 @@ export default class Relationship {
     return recordData._implicitRelationships !== undefined && recordData._implicitRelationships !== null;
   }
 
-  _hasSupportForRelationships(recordData: RelationshipRecordData): recordData is RecordData {
+  _hasSupportForRelationships(recordData: RelationshipRecordData): recordData is RelationshipRecordData {
     return recordData._relationships !== undefined && recordData._relationships !== null;
   }
 

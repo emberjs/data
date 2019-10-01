@@ -14,6 +14,7 @@ import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
+import RecordArray from '../record-arrays/record-array';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import RecordData from '../../ts-interfaces/record-data';
@@ -35,14 +36,17 @@ import coerceId from '../coerce-id';
 import recordDataFor from '../record-data-for';
 
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
+type RecordArray = InstanceType<typeof RecordArray>;
 
-function relationshipsFor(instance) {
+// once the presentation logic is moved into the Model package we can make
+// eliminate these lossy and redundant helpers
+function relationshipsFor(instance: any) {
   let recordData = recordDataFor(instance) || instance;
 
   return recordData._relationships;
 }
 
-function relationshipStateFor(instance, propertyName) {
+function relationshipStateFor(instance: any, propertyName: string) {
   return relationshipsFor(instance).get(propertyName);
 }
 
@@ -224,7 +228,7 @@ export default class InternalModel {
     this.__recordData = newValue;
   }
 
-  get _recordArrays() {
+  get _recordArrays(): Set<RecordArray> {
     if (this.__recordArrays === null) {
       this.__recordArrays = new Set();
     }
@@ -681,7 +685,7 @@ export default class InternalModel {
     if (isAsync) {
       let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
 
-      if (resource!._relationship!.hasFailedLoadAttempt) {
+      if (resource._relationship.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key];
       }
 

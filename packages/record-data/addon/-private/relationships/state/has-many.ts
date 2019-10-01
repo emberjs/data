@@ -72,7 +72,7 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
-  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx) {
+  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
     let i = idx;
     if (!this.canonicalMembers.has(recordData)) {
       return;
