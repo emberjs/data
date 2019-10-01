@@ -10,26 +10,12 @@ module.exports = {
   rules: {
     'mocha/no-exclusive-tests': 'error',
     'prettier/prettier': 'error',
-
-    'no-unused-vars': [
-      'error',
-      {
-        args: 'none',
-      },
-    ],
-
+    'no-unused-vars': ['error', { args: 'none' }],
     'no-cond-assign': ['error', 'except-parens'],
     eqeqeq: 'error',
     'no-eval': 'error',
-    'new-cap': [
-      'error',
-      {
-        capIsNew: false,
-      },
-    ],
+    'new-cap': ['error', { capIsNew: false }],
     'no-caller': 'error',
-    'no-irregular-whitespace': 'error',
-    'no-undef': 'error',
     'no-eq-null': 'error',
     'no-console': 'error', // no longer recommended in eslint v6, this restores it
 
@@ -57,20 +43,25 @@ module.exports = {
         'bin/*',
         'packages/-build-infra/src/**/*.js',
         'packages/-test-infra/src/**/*.js',
+        'packages/*/.ember-cli.js',
+        'packages/*/.eslintrc.js',
+        'packages/*/.template-lintrc.js',
         'packages/*/ember-cli-build.js',
         'packages/*/.eslintrc.js',
         'packages/*/.template-lintrc.js',
         'packages/*/index.js',
         'packages/*/testem.js',
-        'packages/*/bin/**',
         'packages/*/blueprints/*/index.js',
-        'packages/*/blueprints/*.js',
         'packages/*/config/**/*.js',
-        'packages/*/lib/**/*.js',
-        'packages/*/node-tests/**',
         'packages/*/tests/dummy/config/**/*.js',
+        'packages/*/node-tests/**/*.js',
       ],
-      excludedFiles: ['packages/*/addon/**/index.js'],
+      excludedFiles: [
+        'packages/*/addon/**',
+        'packages/*/addon-test-support/**',
+        'packages/*/app/**',
+        'packages/*/tests/dummy/app/**',
+      ],
       parserOptions: {
         sourceType: 'script',
         ecmaVersion: 2015,
@@ -86,15 +77,15 @@ module.exports = {
 
     // node tests
     {
-      files: ['packages/*/node-tests/**', 'node-tests/**', 'packages/-test-infra/src/node-test-helpers/**/*'],
-
+      files: ['packages/*/node-tests/**', 'packages/-test-infra/src/node-test-helpers/**/*'],
       env: {
         mocha: true,
       },
     },
+
+    // docs
     {
       files: ['packages/-ember-data/node-tests/docs/*.js'],
-
       env: {
         qunit: true,
         es6: false,
@@ -108,9 +99,7 @@ module.exports = {
       rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
         'no-console': 'off',
         'no-process-exit': 'off',
-        'node/no-extraneous-require': 'off',
         'node/no-unpublished-require': 'off',
-        'node/shebang': 'off',
       }),
     },
   ],
