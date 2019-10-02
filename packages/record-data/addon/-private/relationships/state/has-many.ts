@@ -2,9 +2,11 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
-import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
-import { JsonApiHasManyRelationship } from '../../../ts-interfaces/record-data-json-api';
-import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
+import {
+  RelationshipRecordData,
+  DefaultCollectionResourceRelationship,
+} from '../../ts-interfaces/relationship-record-data';
+import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 /**
@@ -70,7 +72,7 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
-  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx) {
+  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
     let i = idx;
     if (!this.canonicalMembers.has(recordData)) {
       return;
@@ -216,7 +218,7 @@ export default class ManyRelationship extends Relationship {
     storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
   }
 
-  getData(): JsonApiHasManyRelationship {
+  getData(): DefaultCollectionResourceRelationship {
     let payload: any = {};
     if (this.hasAnyRelationshipData) {
       payload.data = this.currentState.map(recordData => recordData.getResourceIdentifier());

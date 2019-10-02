@@ -8,7 +8,7 @@ import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import { module, test } from 'qunit';
-import { relationshipStateFor, relationshipsFor } from 'ember-data/-private';
+import { relationshipStateFor, relationshipsFor } from '@ember-data/record-data/-private';
 
 import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';

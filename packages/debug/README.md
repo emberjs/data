@@ -10,7 +10,7 @@ Provides developer ergonomics and dev-mode enhancements for apps built with Embe
 ## Installation
 
 ```
-ember install @ember-data/record-data
+ember install @ember-data/debug
 ```
 
 ## Usage

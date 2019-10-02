@@ -1,14 +1,10 @@
 import ManyRelationship from './has-many';
 import BelongsToRelationship from './belongs-to';
-import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
-import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
-import RecordDataStoreWrapper from '../../store/record-data-store-wrapper';
-import { upgradeForInternal } from '../../ts-upgrade-map';
-import CoreStore from '../../core-store';
 
-/**
-  @module @ember-data/store
-*/
+import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
+import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
+import { RecordDataStoreWrapper, upgradeForInternal } from '@ember-data/store/-private';
+import CoreStore from '@ember-data/store/-private/system/core-store';
 
 function createRelationshipFor(
   relationshipMeta: RelationshipSchema,
@@ -29,7 +25,9 @@ function createRelationshipFor(
 export default class Relationships {
   _store: CoreStore;
   _storeWrapper: RecordDataStoreWrapper;
-  initializedRelationships: { [key: string]: BelongsToRelationship | ManyRelationship };
+  initializedRelationships: {
+    [key: string]: BelongsToRelationship | ManyRelationship;
+  };
   constructor(public recordData: RelationshipRecordData) {
     this.initializedRelationships = Object.create(null);
     this._storeWrapper = upgradeForInternal(recordData.storeWrapper);

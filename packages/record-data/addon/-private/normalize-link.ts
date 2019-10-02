@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/store
-*/
-
 /*
   This method normalizes a link to an "links object". If the passed link is
   already an object it's returned without any modifications.
@@ -9,11 +5,14 @@
   See http://jsonapi.org/format/#document-links for more information.
 
   @method _normalizeLink
-  @private
+  @internal
   @param {String} link
   @return {Object|null}
 */
-export default function _normalizeLink(link) {
+type Link = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Link;
+type LinkObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').LinkObject;
+
+export default function _normalizeLink(link: Link): LinkObject | null {
   switch (typeof link) {
     case 'object':
       return link;

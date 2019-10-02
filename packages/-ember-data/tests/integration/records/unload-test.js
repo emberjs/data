@@ -6,7 +6,7 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
-import { recordDataFor } from 'ember-data/-private';
+import { recordDataFor } from '@ember-data/store/-private';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 

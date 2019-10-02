@@ -1,29 +1,30 @@
+/**
+  @module @ember-data/record-data
+*/
 import { DEBUG } from '@glimmer/env';
 import { assign } from '@ember/polyfills';
 import { isEqual } from '@ember/utils';
 import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
-import Relationships from '../relationships/state/create';
-import coerceId from '../coerce-id';
-import BelongsToRelationship from '../relationships/state/belongs-to';
-import ManyRelationship from '../relationships/state/has-many';
-import Relationship from '../relationships/state/relationship';
-import RecordData, { ChangedAttributesHash } from '../../ts-interfaces/record-data';
+import Relationships from './relationships/state/create';
+import coerceId from './coerce-id';
+import BelongsToRelationship from './relationships/state/belongs-to';
+import ManyRelationship from './relationships/state/has-many';
+import Relationship from './relationships/state/relationship';
+import RecordData, { ChangedAttributesHash } from '@ember-data/store/-private/ts-interfaces/record-data';
 import {
   JsonApiResource,
-  JsonApiBelongsToRelationship,
-  JsonApiHasManyRelationship,
   JsonApiValidationError,
   AttributesHash,
-} from '../../ts-interfaces/record-data-json-api';
-import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
-import { RecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
+} from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
+import {
+  DefaultSingleResourceRelationship,
+  DefaultCollectionResourceRelationship,
+} from './ts-interfaces/relationship-record-data';
+import { RelationshipRecordData } from './ts-interfaces/relationship-record-data';
+import { RecordDataStoreWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-store-wrapper';
 import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
-import { RecordIdentifier } from '../../ts-interfaces/identifier';
-
-/**
-  @module @ember-data/store
-*/
+import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
 let nextBfsId = 1;
 
@@ -365,7 +366,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   // get ResourceIdentifiers for "current state"
-  getHasMany(key): JsonApiHasManyRelationship {
+  getHasMany(key): DefaultCollectionResourceRelationship {
     return (this._relationships.get(key) as ManyRelationship).getData();
   }
 
@@ -405,7 +406,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
   }
 
-  getBelongsTo(key: string): JsonApiBelongsToRelationship {
+  getBelongsTo(key: string): DefaultSingleResourceRelationship {
     return (this._relationships.get(key) as BelongsToRelationship).getData();
   }
 

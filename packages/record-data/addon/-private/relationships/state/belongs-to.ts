@@ -2,14 +2,12 @@ import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
-import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
-import { JsonApiBelongsToRelationship } from '../../../ts-interfaces/record-data-json-api';
-import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
-import { ExistingResourceIdentifierObject } from '../../../ts-interfaces/ember-data-json-api';
-
-/**
-  @module @ember-data/store
-*/
+import {
+  RelationshipRecordData,
+  DefaultSingleResourceRelationship,
+} from '../../ts-interfaces/relationship-record-data';
+import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
+import { ExistingResourceIdentifierObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 
 export default class BelongsToRelationship extends Relationship {
   inverseRecordData: RelationshipRecordData | null;
@@ -171,7 +169,7 @@ export default class BelongsToRelationship extends Relationship {
     this.canonicalState = null;
   }
 
-  getData(): JsonApiBelongsToRelationship {
+  getData(): DefaultSingleResourceRelationship {
     let data;
     let payload: any = {};
     if (this.inverseRecordData) {

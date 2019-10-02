@@ -1,10 +1,6 @@
 import EmberOrderedSet from '@ember/ordered-set';
 import { guidFor } from '@ember/object/internals';
 
-/**
-  @module @ember-data/store
-*/
-
 export default class EmberDataOrderedSet<T> extends EmberOrderedSet<T> {
   static create() {
     return new this();

@@ -4,9 +4,9 @@ import { relationshipStateFor, implicitRelationshipStateFor } from '../../record
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
-import { RelationshipRecordData } from '../../..//ts-interfaces/relationship-record-data';
-import { JsonApiRelationship } from '../../../ts-interfaces/record-data-json-api';
-import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
+import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
+import { JsonApiRelationship } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
+import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 /**
@@ -201,7 +201,7 @@ export default class Relationship {
     return recordData._implicitRelationships !== undefined && recordData._implicitRelationships !== null;
   }
 
-  _hasSupportForRelationships(recordData: RelationshipRecordData): boolean {
+  _hasSupportForRelationships(recordData: RelationshipRecordData): recordData is RelationshipRecordData {
     return recordData._relationships !== undefined && recordData._relationships !== null;
   }
 
@@ -447,10 +447,12 @@ export default class Relationship {
     if (!this._hasSupportForRelationships(recordData)) {
       return;
     }
-    let inverseRelationship = relationshipStateFor(recordData, this.inverseKey);
-    //Need to check for existence, as the record might unloading at the moment
-    if (inverseRelationship) {
-      inverseRelationship.removeRecordDataFromOwn(this.recordData);
+    if (this.inverseKey) {
+      let inverseRelationship = relationshipStateFor(recordData, this.inverseKey);
+      //Need to check for existence, as the record might unloading at the moment
+      if (inverseRelationship) {
+        inverseRelationship.removeRecordDataFromOwn(this.recordData);
+      }
     }
   }
 
@@ -462,10 +464,12 @@ export default class Relationship {
     if (!this._hasSupportForRelationships(recordData)) {
       return;
     }
-    let inverseRelationship = relationshipStateFor(recordData, this.inverseKey);
-    //Need to check for existence, as the record might unloading at the moment
-    if (inverseRelationship) {
-      inverseRelationship.removeCanonicalRecordDataFromOwn(this.recordData);
+    if (this.inverseKey) {
+      let inverseRelationship = relationshipStateFor(recordData, this.inverseKey);
+      //Need to check for existence, as the record might unloading at the moment
+      if (inverseRelationship) {
+        inverseRelationship.removeCanonicalRecordDataFromOwn(this.recordData);
+      }
     }
   }
 
@@ -498,8 +502,10 @@ export default class Relationship {
         const id = guidFor(inverseRecordData);
 
         if (this._hasSupportForRelationships(inverseRecordData) && seen[id] === undefined) {
-          const relationship = relationshipStateFor(inverseRecordData, this.inverseKey);
-          relationship.removeCompletelyFromOwn(recordData);
+          if (this.inverseKey) {
+            const relationship = relationshipStateFor(inverseRecordData, this.inverseKey);
+            relationship.removeCompletelyFromOwn(recordData);
+          }
           seen[id] = true;
         }
       };

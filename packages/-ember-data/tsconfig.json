@@ -25,13 +25,14 @@
       "@ember-data/model/*": ["../model/addon/*"],
       "@ember-data/adapter": ["../adapter/addon"],
       "@ember-data/adapter/*": ["../adapter/addon/*"],
+      "@ember-data/adapter/error": ["../adapter/addon/error"],
       "@ember-data/serializer": ["../serializer/addon"],
       "@ember-data/serializer/*": ["../serializer/addon/*"],
       "ember-data/test-support": ["addon-test-support"],
       "ember-data/test-support/*": ["addon-test-support/*"],
-      "@ember-data/adapter/error": ["../adapter/addon/error"],
+      "@ember-data/record-data/*": ["../record-data/addon/*"],
       "@ember-data/canary-features": ["../canary-features/addon"],
-      "*": ["../store/types/*"]
+      "*": ["../store/types/*", "../record-data/types/*"]
     }
   },
   "include": ["app/**/*", "addon/**/*", "tests/**/*", "types/**/*", "test-support/**/*", "addon-test-support/**/*"],

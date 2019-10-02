@@ -1,9 +1,5 @@
-import {
-  JsonApiHasManyRelationship,
-  JsonApiBelongsToRelationship,
-  JsonApiValidationError,
-} from './record-data-json-api';
-
+import { JsonApiValidationError } from './record-data-json-api';
+import { SingleResourceRelationship, CollectionResourceRelationship } from './ember-data-json-api';
 import { RecordIdentifier } from './identifier';
 import { ChangedAttributesHash } from './record-data';
 
@@ -18,13 +14,13 @@ export default interface RecordDataRecordWrapper {
   setDirtyAttribute(key: string, value: any): void;
 
   getAttr(key: string): any;
-  getHasMany(key: string): JsonApiHasManyRelationship;
+  getHasMany(key: string): CollectionResourceRelationship;
 
   addToHasMany(key: string, recordDatas: RecordDataRecordWrapper[], idx?: number): void;
   removeFromHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
   setDirtyHasMany(key: string, recordDatas: RecordDataRecordWrapper[]): void;
 
-  getBelongsTo(key: string): JsonApiBelongsToRelationship;
+  getBelongsTo(key: string): SingleResourceRelationship;
 
   setDirtyBelongsTo(name: string, recordData: RecordDataRecordWrapper | null): void;
 

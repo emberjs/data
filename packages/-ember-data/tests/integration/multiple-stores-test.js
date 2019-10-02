@@ -2,7 +2,9 @@ import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import { get } from '@ember/object';
-import Store from '@ember-data/store';
+// we intentionally test against the ember-data version here
+// because the ember-data/store uses DefaultRecordData while @ember-data/store does not
+import Store from 'ember-data/store';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 import RESTAdapter from '@ember-data/adapter/rest';

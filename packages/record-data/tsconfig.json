@@ -17,9 +17,21 @@
     "paths": {
       "dummy/tests/*": ["tests/*"],
       "dummy/*": ["tests/dummy/app/*", "app/*"],
+      "@ember-data/canary-features": ["../canary-features/addon"],
+      "@ember-data/canary-features/*": ["../canary-features/addon/*"],
+      "@ember-data/store": ["../store/addon"],
+      "@ember-data/store/*": ["../store/addon/*"],
       "*": ["types/*"]
     }
   },
-  "include": ["app/**/*", "addon/**/*", "tests/**/*", "types/**/*", "test-support/**/*", "addon-test-support/**/*"],
+  "include": [
+    "app/**/*",
+    "addon/**/*",
+    "tests/**/*",
+    "types/**/*",
+    "test-support/**/*",
+    "addon-test-support/**/*",
+    "../-ember-data/app/initializers/default-record-data.js"
+  ],
   "exclude": ["node_modules"]
 }
