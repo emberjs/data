@@ -6,6 +6,18 @@ import { Dict } from './utils';
 */
 
 export type Meta = Dict<JSONValue>;
+export type LinkObject = { href: string; meta?: Dict<JSONValue> };
+export type Link = string | LinkObject;
+export interface Links {
+  related?: Link;
+  self?: Link;
+}
+export interface PaginationLinks extends Links {
+  first?: Link | null;
+  last?: Link | null;
+  prev?: Link | null;
+  next?: Link | null;
+}
 
 /**
  * Serves as a reference to a `Resource` but does not contain
@@ -70,15 +82,27 @@ export interface NewResourceIdentifierObject {
 
 export type ResourceIdentifierObject = ExistingResourceIdentifierObject | NewResourceIdentifierObject;
 
+// TODO disallow NewResource, make narrowable
+export interface SingleResourceRelationship {
+  data?: ResourceIdentifierObject | null;
+  meta?: Dict<JSONValue>;
+  links?: Links;
+}
+
+export interface CollectionResourceRelationship {
+  data?: ResourceIdentifierObject[];
+  meta?: Dict<JSONValue>;
+  links?: PaginationLinks;
+}
+
 /**
  * Contains the data for an existing resource in JSON:API format
  */
 export interface ExistingResourceObject extends ExistingResourceIdentifierObject {
   meta?: Dict<JSONValue>;
   attributes?: Dict<JSONValue>;
-  // these are lossy, need improved typing
-  relationships?: Dict<JSONValue>;
-  links?: Dict<JSONValue>;
+  relationships?: Dict<SingleResourceRelationship | CollectionResourceRelationship>;
+  links?: Links;
 }
 
 interface Document {

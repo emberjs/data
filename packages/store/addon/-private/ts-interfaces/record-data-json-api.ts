@@ -1,6 +1,4 @@
-import { ResourceIdentifierObject } from './ember-data-json-api';
-import BelongsToRelationship from '../system/relationships/state/belongs-to';
-import ManyRelationship from '../system/relationships/state/has-many';
+import { SingleResourceRelationship, CollectionResourceRelationship } from './ember-data-json-api';
 
 /**
   @module @ember-data/store
@@ -17,28 +15,9 @@ export interface JsonApiResource {
   type?: string;
   attributes?: AttributesHash;
   relationships?: {
-    [key: string]: JsonApiRelationship;
+    [key: string]: SingleResourceRelationship | CollectionResourceRelationship;
   };
   meta?: any;
-}
-
-export interface JsonApiBelongsToRelationship {
-  data?: ResourceIdentifierObject;
-  meta?: any;
-  links?: {
-    [key: string]: string;
-  };
-  // Private
-  _relationship?: BelongsToRelationship;
-}
-export interface JsonApiHasManyRelationship {
-  data?: ResourceIdentifierObject[];
-  meta?: any;
-  links?: {
-    [key: string]: string;
-  };
-  // Private
-  _relationship?: ManyRelationship;
 }
 
 export interface JsonApiValidationError {
@@ -49,4 +28,4 @@ export interface JsonApiValidationError {
   };
 }
 
-export type JsonApiRelationship = JsonApiBelongsToRelationship | JsonApiHasManyRelationship;
+export type JsonApiRelationship = SingleResourceRelationship | CollectionResourceRelationship;

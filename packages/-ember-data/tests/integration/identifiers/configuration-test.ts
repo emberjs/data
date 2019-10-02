@@ -533,7 +533,7 @@ if (IDENTIFIERS) {
             name: 'callback-hell',
           },
           relationships: {
-            retainer: { type: 'retainer', id: '1' },
+            retainer: { data: { type: 'retainer', id: '1' } },
           },
         },
       });

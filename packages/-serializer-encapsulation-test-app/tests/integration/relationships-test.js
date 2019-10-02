@@ -2,7 +2,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import { resolve } from 'rsvp';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import Store from '@ember-data/store';
+import Store from 'serializer-encapsulation-test-app/services/store';
 import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
 import EmberObject from '@ember/object';
 

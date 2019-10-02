@@ -1,6 +1,5 @@
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
-import { IDENTIFIERS } from '@ember-data/canary-features';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 import Model, { attr } from '@ember-data/model';
 

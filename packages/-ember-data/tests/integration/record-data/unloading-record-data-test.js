@@ -3,7 +3,8 @@ import { setupTest } from 'ember-qunit';
 import Model from '@ember-data/model';
 import { run } from '@ember/runloop';
 import { assign } from '@ember/polyfills';
-import { RecordData, recordDataFor } from 'ember-data/-private';
+import { recordDataFor } from '@ember-data/store/-private';
+import { RecordData } from '@ember-data/record-data/-private';
 import { resolve } from 'rsvp';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 

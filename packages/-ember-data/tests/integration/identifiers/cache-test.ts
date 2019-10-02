@@ -30,7 +30,11 @@ if (IDENTIFIERS) {
 
         const regeneratedIdentifier = cache.getOrCreateRecordIdentifier(runspiredHash);
 
-        assert.notStrictEqual(identifier, regeneratedIdentifier, 'a record get a new identifier if identifier get forgotten');
+        assert.notStrictEqual(
+          identifier,
+          regeneratedIdentifier,
+          'a record get a new identifier if identifier get forgotten'
+        );
       });
 
       test('returns the existing identifier when called with an identifier', async function(assert) {

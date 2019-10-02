@@ -4,20 +4,19 @@ import { default as EmberArray, A } from '@ember/array';
 import { setOwner, getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
-import RSVP, { Promise, resolve } from 'rsvp';
+import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
 import RootState from './states';
 import Snapshot from '../snapshot';
-import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
+import RecordArray from '../record-arrays/record-array';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
-import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
@@ -34,6 +33,26 @@ import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
 import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
+import recordDataFor from '../record-data-for';
+
+type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
+type RecordArray = InstanceType<typeof RecordArray>;
+type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
+type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
+
+// once the presentation logic is moved into the Model package we can make
+// eliminate these lossy and redundant helpers
+function relationshipsFor(instance: InternalModel): Relationships {
+  let recordData = recordDataFor(instance) as RelationshipRecordData;
+
+  return recordData._relationships;
+}
+
+function relationshipStateFor(instance: InternalModel, propertyName: string) {
+  return relationshipsFor(instance).get(propertyName);
+}
+
+const { hasOwnProperty } = Object.prototype;
 
 /**
   @module @ember-data/store
@@ -211,9 +230,9 @@ export default class InternalModel {
     this.__recordData = newValue;
   }
 
-  get _recordArrays() {
+  get _recordArrays(): Set<RecordArray> {
     if (this.__recordArrays === null) {
-      this.__recordArrays = new OrderedSet();
+      this.__recordArrays = new Set();
     }
     return this.__recordArrays;
   }
@@ -330,8 +349,7 @@ export default class InternalModel {
   }
 
   isValid() {
-    if (RECORD_DATA_ERRORS) {
-    } else {
+    if (!RECORD_DATA_ERRORS) {
       return this.currentState.isValid;
     }
   }
@@ -521,7 +539,6 @@ export default class InternalModel {
       }
       this.startedReloading();
       let internalModel = this;
-      let promiseLabel = 'DS: Model#reload of ' + this;
 
       return internalModel.store
         ._reloadRecord(internalModel, options)
@@ -652,7 +669,7 @@ export default class InternalModel {
   }
 
   getBelongsTo(key, options) {
-    let resource = this._recordData.getBelongsTo(key);
+    let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     let identifier =
       resource && resource.data ? identifierCacheFor(this.store).getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
@@ -670,7 +687,7 @@ export default class InternalModel {
     if (isAsync) {
       let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
 
-      if (resource!._relationship!.hasFailedLoadAttempt) {
+      if (resource._relationship.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key];
       }
 
@@ -705,7 +722,7 @@ export default class InternalModel {
   // TODO Igor consider getting rid of initial state
   getManyArray(key, isAsync = false) {
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
     let manyArray = this._manyArrayCache[key];
 
     assert(
@@ -765,7 +782,7 @@ export default class InternalModel {
   }
 
   getHasMany(key, options) {
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
@@ -820,7 +837,7 @@ export default class InternalModel {
       return loadingPromise;
     }
 
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
     // TODO move this to a public api
     if (jsonApi._relationship) {
       jsonApi._relationship.setHasFailedLoadAttempt(false);
@@ -843,7 +860,7 @@ export default class InternalModel {
       return loadingPromise;
     }
 
-    let resource = this._recordData.getBelongsTo(key);
+    let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     // TODO move this to a public api
     if (resource._relationship) {
       resource._relationship.setHasFailedLoadAttempt(false);
@@ -1176,7 +1193,6 @@ export default class InternalModel {
 
     let pivotName = extractPivotName(name);
     let state = this.currentState;
-    let oldState = state;
     let transitionMapId = `${state.stateName}->${name}`;
 
     do {
@@ -1463,7 +1479,7 @@ export default class InternalModel {
       if (error && parsedErrors) {
         if (!this._recordData.getErrors) {
           for (attribute in parsedErrors) {
-            if (parsedErrors.hasOwnProperty(attribute)) {
+            if (hasOwnProperty.call(parsedErrors, attribute)) {
               this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
             }
           }
@@ -1483,7 +1499,7 @@ export default class InternalModel {
       let attribute;
 
       for (attribute in parsedErrors) {
-        if (parsedErrors.hasOwnProperty(attribute)) {
+        if (hasOwnProperty.call(parsedErrors, attribute)) {
           this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
         }
       }
@@ -1601,7 +1617,7 @@ export function assertRecordsPassedToHasMany(records) {
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(records)}`,
     (function() {
-      return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
+      return A(records).every(record => hasOwnProperty.call(record, '_internalModel') === true);
     })()
   );
 }

@@ -1,9 +1,7 @@
-import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
 import { module, test } from 'qunit';
-import { settled } from '@ember/test-helpers';
 import publicProps from '../../helpers/public-props';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 
@@ -339,7 +337,6 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     assert.expect(1);
     let { owner } = this;
 
-    let count = 0;
     class RecordDataForTest extends TestRecordData {
       id: string;
 
@@ -377,7 +374,6 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     assert.expect(2);
     let { owner } = this;
 
-    let count = 0;
     class RecordDataForTest extends TestRecordData {
       constructor(storeWrapper, id, clientId) {
         super();
@@ -405,7 +401,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     store.push({
       data: [houseHash, houseHash2],
     });
-    let house1 = store.peekRecord('house', 1);
+    store.peekRecord('house', 1);
 
     // TODO isRecordInUse returns true if record has never been instantiated, think through whether thats correct
     let house2 = store.peekRecord('house', 2);
@@ -419,7 +415,6 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     let { owner } = this;
     let wrapper;
 
-    let count = 0;
     class RecordDataForTest extends TestRecordData {
       constructor(storeWrapper, id, clientId) {
         super();

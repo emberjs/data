@@ -1,8 +1,6 @@
-import coerceId from '../coerce-id';
 import { assert, warn } from '@ember/debug';
 import { IdentifierCache, identifierCacheFor } from '../../identifiers/cache';
 import InternalModel from '../model/internal-model';
-import Store from '../ds-model-store';
 import IdentityMap from '../identity-map';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import InternalModelMap from '../internal-model-map';

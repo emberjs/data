@@ -1,20 +1,17 @@
 import { default as RSVP, Promise } from 'rsvp';
 import { DEBUG } from '@glimmer/env';
 import { run as emberRunLoop } from '@ember/runloop';
-import { assert, warn, inspect } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import Snapshot from './snapshot';
 import { guardDestroyedStore, _guard, _bind, _objectIsAlive } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
 import coerceId from './coerce-id';
 import { A } from '@ember/array';
-import { _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
 import RequestCache from './request-cache';
 import { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import { RecordIdentifier } from '../ts-interfaces/identifier';
 import { FindRecordQuery, SaveRecordMutation, Request } from '../ts-interfaces/fetch-manager';
 import { symbol } from '../ts-interfaces/utils/symbol';
-import Store from './ds-model-store';
-import recordDataFor from './record-data-for';
 import CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
 
@@ -99,7 +96,6 @@ export default class FetchManager {
     let { snapshot, resolver, identifier, options } = pending;
     let adapter = this._store.adapterFor(identifier.type);
     let operation = options[SaveOp];
-    let recordData = recordDataFor(this._store._internalModelForResource(identifier));
 
     let internalModel = snapshot._internalModel;
     let modelName = snapshot.modelName;
@@ -126,10 +122,8 @@ export default class FetchManager {
 
     promise = promise.then(
       adapterPayload => {
-        let payload, data, sideloaded;
         if (adapterPayload) {
-          payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
-          return payload;
+          return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         }
       },
       function(error) {

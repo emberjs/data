@@ -101,7 +101,7 @@ export function getModelFactory(store, cache, normalizedModelName) {
 
     // TODO: deprecate this
     if (klass.isModel) {
-      let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
+      let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
       if (!hasOwnModelNameSet) {
         klass.modelName = normalizedModelName;
       }

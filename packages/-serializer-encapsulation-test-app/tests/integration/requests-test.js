@@ -1,5 +1,5 @@
 import Model, { attr } from '@ember-data/model';
-import Store from '@ember-data/store';
+import Store from 'serializer-encapsulation-test-app/services/store';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import EmberObject from '@ember/object';
 import { setupTest } from 'ember-qunit';

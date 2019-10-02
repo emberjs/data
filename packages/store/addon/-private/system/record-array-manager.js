@@ -351,16 +351,18 @@ function updateLiveRecordArray(array, internalModels) {
 
 function removeFromAdapterPopulatedRecordArrays(internalModels) {
   for (let i = 0; i < internalModels.length; i++) {
-    let internalModel = internalModels[i];
-    let list = internalModel._recordArrays.list;
-
-    for (let j = 0; j < list.length; j++) {
-      // TODO: group by arrays, so we can batch remove
-      list[j]._removeInternalModels([internalModel]);
-    }
-
-    internalModel._recordArrays.clear();
+    removeFromAll(internalModels[i]);
   }
+}
+
+function removeFromAll(internalModel) {
+  const recordArrays = internalModel._recordArrays;
+
+  recordArrays.forEach(function(recordArray) {
+    recordArray._removeInternalModels([internalModel]);
+  });
+
+  recordArrays.clear();
 }
 
 export function associateWithRecordArray(internalModels, array) {

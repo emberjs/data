@@ -22,7 +22,6 @@
   "dependencies": {
     "@ember-data/-build-infra": "3.15.0-alpha.0",
     "@ember-data/canary-features": "3.15.0-alpha.0",
-    "@ember/ordered-set": "^2.0.3",
     "ember-cli-babel": "^7.12.0",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-typescript": "^3.0.0",
@@ -36,8 +35,8 @@
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~3.13.1",
     "ember-cli-dependency-checker": "^3.2.0",
-    "ember-cli-htmlbars": "^4.0.2",
-    "ember-cli-htmlbars-inline-precompile": "^3.0.0",
+    "ember-cli-htmlbars": "^4.0.3",
+    "ember-cli-htmlbars-inline-precompile": "^3.0.1",
     "ember-cli-inject-live-reload": "^2.0.1",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-uglify": "3.0.0",
