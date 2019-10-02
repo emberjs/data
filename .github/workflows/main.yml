@@ -45,6 +45,8 @@ jobs:
         run: yarn test
       - name: Encapsulation tests
         run: yarn test:encapsulation
+      - name: Fastboot tests
+        run: yarn test:fastboot
       - name: Production build
         run: yarn test:production
       - name: Docs tests
