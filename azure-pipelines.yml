@@ -99,6 +99,10 @@ jobs:
         displayName: 'Docs Tests'
 
       - script: |
+          yarn test:fastboot
+        displayName: 'Fastboot Tests'
+
+      - script: |
           yarn test:try-one with-ember-fetch
         displayName: 'Basic Tests with ember-fetch'
 
