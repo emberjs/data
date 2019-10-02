@@ -1,6 +1,7 @@
 /* global require */
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
+import Store from '@ember-data/store';
 
 function assertPackageNotPresent(packageName, assert) {
   const entries = Object.keys(require.entries);
@@ -33,6 +34,10 @@ function assertPackageNotPresent(packageName, assert) {
 
 module('Record-data Encapsulation - Smoke Tests', function(hooks) {
   setupTest(hooks);
+
+  hooks.beforeEach(function() {
+    this.owner.register('service:store', Store);
+  });
 
   test('No @ember-data/record-data modules are present', function(assert) {
     assertPackageNotPresent('@ember-data/record-data', assert);
