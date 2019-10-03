@@ -86,7 +86,13 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Basic Tests with ember-lts-3.8
+        env:
+          CI: true
         run: yarn test:try-one ember-lts-3.8
+      - name: Basic Tests with ember-lts-3.12
+        env:
+          CI: true
+        run: yarn test:try-one ember-lts-3.12
 
   releases:
     needs: [lint, basic-tests]
@@ -114,6 +120,8 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
+        env:
+          CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
 
   additional-scenarios:
@@ -134,6 +142,8 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
+        env:
+          CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
 
   external-partners:
