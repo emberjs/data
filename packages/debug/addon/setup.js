@@ -9,9 +9,9 @@ Store.prototype._createRecordData = function(identifier) {
   }
   const typesMap = StoreTypesMap.get(this);
   if (!typesMap.has(identifier.type)) {
-      typesMap.set(identifier.type, false);
-    }
-    return __createRecordData.call(this, identifier);
+    typesMap.set(identifier.type, false);
+  }
+  return __createRecordData.call(this, identifier);
 };
 
 export default {
