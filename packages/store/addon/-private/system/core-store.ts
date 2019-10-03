@@ -3143,7 +3143,10 @@ abstract class CoreStore extends Service {
     let normalizedModelName = normalizeModelName(modelName);
     let serializer = this.serializerFor(normalizedModelName);
     let model = this.modelFor(normalizedModelName);
-    assert(`You must define a normalize method in your serializer in order to call store.normalize`, serializer.normalize);
+    assert(
+      `You must define a normalize method in your serializer in order to call store.normalize`,
+      serializer.normalize
+    );
     return serializer.normalize(model, payload);
   }
 
