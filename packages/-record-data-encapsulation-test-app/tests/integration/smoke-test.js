@@ -34,7 +34,6 @@ function assertPackageNotPresent(packageName, assert) {
 
 module('Record-data Encapsulation - Smoke Tests', function(hooks) {
   setupTest(hooks);
-
   hooks.beforeEach(function() {
     this.owner.register('service:store', Store);
   });

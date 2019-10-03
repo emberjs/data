@@ -1,22 +1,20 @@
+import Store from '@ember-data/store';
 export const StoreTypesMap = new WeakMap();
 
-function setupDataAdapter(application) {
-  const store = application.lookup('service:store');
-  const typesMap = new Map();
-  // its possible the app has more than one store, so this works on the 'main' store
-  StoreTypesMap.set(store, typesMap);
-
-  const __createRecordData = store._createRecordData;
-  // override _createRecordData to add the known models to the typesMap
-  store._createRecordData = function(identifier) {
-    if (!typesMap.has(identifier.type)) {
+// override _createRecordData to add the known models to the typesMap
+const __createRecordData = Store.prototype._createRecordData;
+Store.prototype._createRecordData = function(identifier) {
+  if (!StoreTypesMap.has(this)) {
+    StoreTypesMap.set(this, new Map());
+  }
+  const typesMap = StoreTypesMap.get(this);
+  if (!typesMap.has(identifier.type)) {
       typesMap.set(identifier.type, false);
     }
-    return __createRecordData.call(store, identifier);
-  };
-}
+    return __createRecordData.call(this, identifier);
+};
 
 export default {
   name: '@ember-data/data-adapter',
-  initialize: setupDataAdapter,
+  initialize() {},
 };
