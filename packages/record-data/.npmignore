@@ -1,0 +1,40 @@
+# compiled output
+/dist/
+/dist/**/*
+/tmp/
+/types/
+**/*.d.ts
+
+# dependencies
+/bower_components/
+
+# misc
+/.bowerrc
+/.editorconfig
+/.ember-cli
+/.env*
+/.eslintignore
+/.eslintrc.js
+/.gitignore
+/.template-lintrc.js
+/.travis.yml
+/.watchmanconfig
+/bower.json
+/config/ember-try.js
+/CONTRIBUTING.md
+/ember-cli-build.js
+/testem.js
+/tests/
+/yarn.lock
+.gitkeep
+
+# ember-try
+/.node_modules.ember-try/
+/bower.json.ember-try
+/package.json.ember-try
+
+# ember-data
+/node-tests
+
+# whitelist yuidoc's data.json for api docs generation
+!/dist/docs/data.json

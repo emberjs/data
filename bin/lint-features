@@ -1,15 +1,28 @@
 #!/usr/bin/env node
+const fs = require('fs');
+const path = require('path');
 
-var features = require('../config/features');
+const configPath = path.join(
+  __dirname,
+  '../packages/-build-infra/config/in-progress-features.json'
+);
+const beginsWithDS = /^ds-/;
+const violations = [];
 
-var beginsWithDS = /^ds-/;
-
-var violations = Object.keys(features).filter(function(feature){
-  return !beginsWithDS.exec(feature);
-});
+if (fs.existsSync(configPath)) {
+  const features = require(configPath);
+  Object.keys(features).forEach(function(feature) {
+    if (!beginsWithDS.exec(feature)) {
+      violations.push(feature);
+    }
+  });
+}
 
 if (violations.length) {
-  console.log('Features in features.json MUST begin with `ds-`! These features do not:', violations.join(' '));
+  console.log(
+    'Features in in-progress-features.json MUST begin with `ds-`! These features do not:\n\t',
+    violations.join('\n\t')
+  );
   process.exit(1);
 } else {
   console.log('Features passed linting!');

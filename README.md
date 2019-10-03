@@ -1,179 +1,53 @@
-## Ember Data [![Build Status](https://secure.travis-ci.org/emberjs/data.svg?branch=master)](http://travis-ci.org/emberjs/data) [![Code Climate](https://codeclimate.com/github/emberjs/data/badges/gpa.svg)](https://codeclimate.com/github/emberjs/data)
+ember-data
+==============================================================================
 
-Ember Data is a library for robustly managing model data in your
-Ember.js applications.
+[![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
+[![Code Climate](https://codeclimate.com/github/emberjs/data/badges/gpa.svg)](https://codeclimate.com/github/emberjs/data)
+[![Discord Community Server](https://img.shields.io/discord/480462759797063690.svg?logo=discord)](https://discord.gg/zT3asNS)
 
-Ember Data is designed to be agnostic to the underlying persistence
-mechanism, so it works just as well with JSON APIs over HTTP as it does
-with streaming WebSockets or local IndexedDB storage.
+`ember-data` is a library for robustly managing data in applications built with
+[Ember.js](https://github.com/emberjs/ember.js/).
 
-It provides many of the facilities you'd find in server-side ORMs like
-ActiveRecord, but is designed specifically for the unique environment of
-JavaScript in the browser.
+`ember-data` is designed to be agnostic to the underlying persistence
+mechanism, so it works just as well with `JSON API` over `HTTP` as it does
+with streaming `WebSockets` or local `IndexedDB` storage.
 
-In particular, Ember Data uses Promises/A+-compatible promises from the
-ground up to manage loading and saving records, so integrating with
-other JavaScript APIs is easy.
+It provides many of the facilities you'd find in server-side `ORM`s like
+`ActiveRecord`, but is designed specifically for the unique environment of
+`JavaScript` in the browser.
 
-Igor Terzic is currently the lead maintainer of Ember Data, while the rest
-of the core team include Yehuda Katz, Tom Dale, Brendan McLoughlin,
-Christoffer Persson and Stanley Stuart.
+- [Usage Guide](https://guides.emberjs.com/release/models/)
+- [API Documentation](https://emberjs.com/api/ember-data/release/modules/ember-data)
+- [Contributing Guide](./CONTRIBUTING.md)
+- [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data)
+- [Community](https://emberjs.com/community)
+- [Team](https://emberjs.com/team)
+- [Blog](https://emberjs.com/blog)
 
-## Using Ember Data
 
-### Getting Ember Data
+Installation
+------------------------------------------------------------------------------
 
-Since version `2.3` ember-data is a proper Ember-CLI addon which can be added
-to your app via:
+`ember-data` is installed by default for new applications generated with `ember-cli`.
+
+If you wish to add `ember-data` to an `addon` or `application`, you can do so by running
+the following command, which will use `yarn` or `npm` to install `ember-data` as a `devDependency`.
 
 ```no-highlight
 ember install ember-data
 ```
 
-If you need to use a version of ember-data package `< 2.3`, you need to add the
-npm package and add the dependency via bower:
+Similarly, if you have generated a new `Ember` application using `ember-cli` but do 
+not wish to use `ember-data`, remove `ember-data` from your `package.json`.
 
-```no-highlight
-npm install ember-data@v2.2.1 --save-dev
-bower install ember-data --save
-```
 
-The latest passing build from the "master" branch is available on
-[https://emberjs.com/builds/#/canary](https://emberjs.com/builds/#/canary).
+Contributing
+------------------------------------------------------------------------------
 
-Similarly, the latest passing build from the "beta" branch can be found
-on [https://emberjs.com/builds/#/beta](https://emberjs.com/builds/#/beta)
+See the [Contributing](CONTRIBUTING.md) guide for details.
 
-Or build ember-data.js yourself. Clone the repository and run `npm run production`
-after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
-#### Internet Explorer 8
+License
+------------------------------------------------------------------------------
 
-**Internet Explorer 8 is no longer supported by Ember Data on versions
-2.0 and later.**
-
-If you require IE8 support, you can use the `1.13` series of releases.
-The source code is available on the `release-1-13` branch.
-
-Internet Explorer 8 support requires Ember 1.8.1 (which provides a polyfill for `Object.create`).
-
-### Instantiating the Store
-
-In Ember Data, the _store_ is responsible for managing the lifecycle of
-your models. Every time you need a model or a collection of models,
-you'll ask the store for it.
-
-To create a store, you don't need to do anything. Just by loading the
-Ember Data library, all of the routes and controllers in your
-application will get a new `store` property. This property is an
-instance of `DS.Store` that will be shared across all of the routes and
-controllers in your app.
-
-### Defining Your Models
-
-First things first: tell Ember Data about the models in your
-application. For example, imagine we're writing a blog reader app.
-
-Here's what your model definition would look like if you're using
-ES6 modules (via ember-cli):
-
-```js
-// app/models/blog-post.js
-import DS from 'ember-data';
-
-const { attr, hasMany } = DS;
-
-export default DS.Model.extend({
-  title: attr('string'),
-  createdAt: attr('date'),
-
-  comments: hasMany('comment')
-});
-
-// app/models/comment.js
-import DS from 'ember-data';
-
-const { attr, belongsTo } = DS;
-
-export default DS.Model.extend({
-  body: attr('string'),
-  username: attr('string'),
-
-  post: belongsTo('blog-post')
-});
-```
-
-### A Brief Note on Adapters
-
-Without immediately diving in to the depths of the architecture, one
-thing you _should_ know is that Ember Data uses an object called an
-_adapter_ to know how to talk to your server.
-
-An adapter is just an object that knows how to translate requests from
-Ember Data into requests on your server. For example, if I ask the Ember
-Data store for a record of type `person` with an ID of `123`, the
-adapter translates that into an XHR request to (for example)
-`api.example.com/v3/person/123.json`.
-
-By default, Ember Data will use the `JSONAPIAdapter`, which adheres to the [JSON-API spec](http://jsonapi.org/).
-
-To learn more about adapters, including what conventions the
-various adapters follow and how to build your own, see the Ember.js
-Guides: [Customizing Adapters](https://emberjs.com/guides/models/customizing-adapters).
-
-### Fetching a Collection of Models
-
-From your route or controller:
-
-```js
-this.store.findAll('blog-post');
-```
-
-This returns a promise that resolves to the collection of records.
-
-### Fetching a Single Model
-
-```js
-this.store.findRecord('blog-post', 123);
-```
-
-This returns a promise that resolves to the requested record. If the
-record can't be found or there was an error during the request, the
-promise will be rejected.
-
-### Even More Documentation
-
-For much more detail on how to use Ember Data, see the [Ember.js Guides
-on models](https://emberjs.com/guides/models/).
-
-# Building Ember Data
-
-1. Ensure that [Node.js](http://nodejs.org/) and [yarn](https://yarnpkg.com/en/docs/install) are installed.
-2. Run `yarn install` to ensure the required dependencies are installed.
-3. Run `npm run production` to build Ember Data. The builds will be placed in the `dist/` directory.
-
-# Contribution
-
-See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.md)
-
-## How to Run Unit Tests
-
-### Setup
-
-1. Install Node.js from http://nodejs.org or your favorite package manager.
-
-2. Install Ember CLI. `npm install -g ember-cli`
-
-3. Run `yarn install` inside the project root to install the JS dependencies.
-
-### In Your Browser
-
-1. To start the development server, run `npm start`.
-
-2. Visit `http://localhost:4200/tests`
-
-### From the CLI
-
-1. Install phantomjs from http://phantomjs.org
-
-2. Run `npm test`
+This project is licensed under the [MIT License](LICENSE.md).

@@ -1,63 +1,120 @@
-/* global module */
 module.exports = {
+  parser: 'babel-eslint',
   root: true,
   parserOptions: {
-    ecmaVersion: 6,
+    ecmaVersion: 2017,
     sourceType: 'module',
   },
-  extends: 'eslint:recommended',
-  env: {
-    'browser': true,
+  plugins: ['prettier', 'qunit', 'mocha'],
+  extends: ['eslint:recommended', 'prettier'],
+  rules: {
+    'mocha/no-exclusive-tests': 'error',
+    'prettier/prettier': 'error',
+    'no-unused-vars': ['error', { args: 'none' }],
+    'no-cond-assign': ['error', 'except-parens'],
+    eqeqeq: 'error',
+    'no-eval': 'error',
+    'new-cap': ['error', { capIsNew: false }],
+    'no-caller': 'error',
+    'no-eq-null': 'error',
+    'no-console': 'error', // no longer recommended in eslint v6, this restores it
+
+    // Too many false positives
+    // See https://github.com/eslint/eslint/issues/11899 and similar
+    'require-atomic-updates': 'off',
   },
   globals: {
-    'heimdall': true,
-    'Map': false,
+    heimdall: true,
+    Map: false,
+    WeakMap: true,
+    Set: true,
   },
-  rules: {
-    'no-unused-vars': ['error', {
-      'args': 'none',
-    }],
-
-    // from JSHint
-    'no-cond-assign': ['error', 'except-parens'],
-    'eqeqeq': 'error',
-    'no-eval': 'error',
-    'new-cap': ['error', {
-      'capIsNew': false,
-    }],
-    'no-caller': 'error',
-    'no-irregular-whitespace': 'error',
-    'no-undef': 'error',
-    'no-eq-null': 'error',
-
-    // from JSCS
-    'array-bracket-spacing': ['error', 'never'],
-    'comma-style': ['error', 'last'],
-    'brace-style': ['error', '1tbs', {
-      'allowSingleLine': true,
-    }],
-    'no-spaced-func': 'error',
-    'no-empty': 'error',
-    'curly': ['error', 'all'],
-    'eol-last': 'error',
-    'no-trailing-spaces': 'error',
-    'comma-dangle': ['error', 'never'],
-    'space-before-blocks': ['error', 'always'],
-    'indent': ['error', 2, {
-      'SwitchCase': 1,
-    }],
-    'keyword-spacing': ['error', {
-      'overrides': {
-        'else': {
-          'before': true,
-        },
-        'while': {
-          'before': true,
-        },
-        'catch': {
-          'before': true,
-        },
+  env: {
+    browser: true,
+    node: false,
+  },
+  overrides: [
+    // TypeScript files
+    {
+      files: ['**/*.ts'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        sourceType: 'module',
       },
-    }],
-  },
+      plugins: ['@typescript-eslint'],
+      extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+        'no-unused-vars': 'off',
+        'require-atomic-updates': 'off',
+      },
+    },
+
+    // node files
+    {
+      files: [
+        '.mocharc.js',
+        '.eslintrc.js',
+        '.prettierrc.js',
+        'bin/*',
+        'packages/-build-infra/src/**/*.js',
+        'packages/-test-infra/src/**/*.js',
+        'packages/*/.ember-cli.js',
+        'packages/*/.eslintrc.js',
+        'packages/*/.template-lintrc.js',
+        'packages/*/ember-cli-build.js',
+        'packages/*/index.js',
+        'packages/*/testem.js',
+        'packages/*/blueprints/*/index.js',
+        'packages/*/config/**/*.js',
+        'packages/*/tests/dummy/config/**/*.js',
+        'packages/*/node-tests/**/*.js',
+      ],
+      excludedFiles: [
+        'packages/*/addon/**',
+        'packages/*/addon-test-support/**',
+        'packages/*/app/**',
+        'packages/*/tests/dummy/app/**',
+      ],
+      parserOptions: {
+        sourceType: 'script',
+        ecmaVersion: 2015,
+      },
+      env: {
+        browser: false,
+        node: true,
+        es6: true,
+      },
+      plugins: ['node'],
+      extends: 'plugin:node/recommended',
+    },
+
+    // node tests
+    {
+      files: ['packages/*/node-tests/**', 'packages/-test-infra/src/node-test-helpers/**/*'],
+      env: {
+        mocha: true,
+      },
+    },
+
+    // docs
+    {
+      files: ['packages/-ember-data/node-tests/docs/*.js'],
+      env: {
+        qunit: true,
+        es6: false,
+      },
+    },
+
+    // bin files
+    {
+      files: ['bin/*'],
+      // eslint-disable-next-line node/no-unpublished-require
+      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
+        'no-console': 'off',
+        'no-process-exit': 'off',
+        'node/no-unpublished-require': 'off',
+      }),
+    },
+  ],
 };

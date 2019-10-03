@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "allowJs": false,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "baseUrl": ".",
+    "module": "esnext",
+    "paths": {
+      "dummy/tests/*": ["tests/*"],
+      "dummy/*": ["tests/dummy/app/*", "app/*"],
+      "ember-data": ["addon"],
+      "ember-data/*": ["addon/*"],
+      "@ember-data/store": ["../store/addon"],
+      "@ember-data/store/*": ["../store/addon/*"],
+      "@ember-data/model": ["../model/addon"],
+      "@ember-data/model/*": ["../model/addon/*"],
+      "@ember-data/adapter": ["../adapter/addon"],
+      "@ember-data/adapter/*": ["../adapter/addon/*"],
+      "@ember-data/adapter/error": ["../adapter/addon/error"],
+      "@ember-data/serializer": ["../serializer/addon"],
+      "@ember-data/serializer/*": ["../serializer/addon/*"],
+      "ember-data/test-support": ["addon-test-support"],
+      "ember-data/test-support/*": ["addon-test-support/*"],
+      "@ember-data/record-data/*": ["../record-data/addon/*"],
+      "@ember-data/canary-features": ["../canary-features/addon"],
+      "*": ["../store/types/*", "../record-data/types/*"]
+    }
+  },
+  "include": ["app/**/*", "addon/**/*", "tests/**/*", "types/**/*", "test-support/**/*", "addon-test-support/**/*"],
+  "exclude": ["node_modules"]
+}

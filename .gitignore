@@ -1,27 +1,46 @@
-.bundle
-bundle
-tmp/
-tests/source/
-dist/
-*.iml
+# See https://help.github.com/ignore-files/ for more about ignoring files.
 
+# compiled output
+/docs/
+/packages/-ember-data/docs/
+dist
+tmp
+
+# dependencies
+bower_components
+node_modules
+
+# misc
+.env*
+.pnp*
+.sass-cache
+/.eslintcache
+/onnect.lock
+coverage/*
+libpeerconnection.log
+lerna-debug.log*
+npm-debug.log*
+testem.log
+yarn-error.log
+
+# Ignore artifacts of publishing
+*.tgz
+
+# ember-try
+.node_modules.ember-try/
+bower.json.ember-try
+package.json.ember-try
+
+# ember-data specific
 benchmarks/results/*.json
 
 .DS_Store
-.project
 
 .github-upload-token
 *.swp
-
-tests/ember-data-tests.js
-*gem
-
-docs/build/
-docs/node_modules/
-
-node_modules/
-bower_components/
 .metadata_never_index
-npm-debug.log
 
-DEBUG-*
+/DEBUG
+/packages/*/DEBUG
+
+.vscode/

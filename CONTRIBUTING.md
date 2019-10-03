@@ -1,238 +1,206 @@
-# Questions
+# How To Contribute
 
-This is the issue tracker for Ember Data. The Ember.js community uses this site
-to collect and track bugs and discussions of new features. If you are having
-difficulties using Ember Data or have a question about usage please ask a
-question on StackOverflow:
-[http://stackoverflow.com/questions/ask](http://stackoverflow.com/questions/ask?tags=ember.js&tags=ember-data)
-and tag your question with `ember.js` and `ember-data`.
+## Welcome!
 
-The Ember.js community is very active on StackOverflow and most questions
-receive attention the same day they're posted:
-http://stackoverflow.com/questions/tagged/ember.js
-http://stackoverflow.com/questions/tagged/ember-data
+We are so glad you are considering contributing to `ember-data`. Below you'll find sections
+detailing how to become involved to best ensure your contributions are successful!
 
-# Issues
+### Reporting Bugs
 
-Think you've found a bug or have a new feature to suggest? Let us know!
+Report issues you've discovered via the [issue tracker](https://github.com/emberjs/data/issues).
+We have provided an [issue template](.github/bug.md) what will help guide you through the process.
+If you are unsure if something is a bug, the `#ember-data` channel on [Discord](https://discord.gg/zT3asNS) is
+a great place to ask for help!
 
-## Reporting a Bug
-1. Update to the most recent master release if possible. We may have already
-fixed your bug.
+### Discussion
 
-2. Search for similar issues. It's possible somebody has encountered
-this bug already.
+Before embarking on a fix, a new feature, or a refactor it is usually best to discuss the
+intended work with other contributors. In addition to holding discussions on individual [issues](https://github.com/emberjs/data/issues)
+or [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data), you will find most contributors
+and [core team members](https://emberjs.com/team/) hangout in the `#dev-ember-data` channel on [Discord](https://discord.gg/zT3asNS)
 
-3. Provide JSFiddle or JSBin demo that specifically shows the problem. This
-demo should be fully operational with the exception of the bug you want to
-demonstrate. The more pared down, the better. A preconfigured [EmberTwiddle (RESTAdapter)][rest] | [EmberTwiddle (JSONAPIAdapter)][json-api] |
-[EmberTwiddle][2] with mocked requests is available.
+### Weekly Meeting (video conference)
 
+Members of the `ember-data` core team meet weekly to discuss pull-requests, issues, and road-map items. These
+meetings are open to all contributors and interested parties, but only team members may vote when a vote
+is necessary.
 
-[rest]: https://ember-twiddle.com/abbc9e9e9165e5ae05804f165fa5388c/copy
-[json-api]: https://ember-twiddle.com/aa59b876f393e4d1573f7cad911ec5ad/copy
-[2]: https://ember-twiddle.com/0e1a24aabb8fa7c1fdd8/copy?fileTreeShown=false&numColumns=2&openFiles=routes.application.js%2Ctemplates.application.hbs
+Currently meetings are Wednesdays at 2pm Pacific Time. A video conference link is posted in the
+`#dev-ember-data` channel on [Discord](https://discord.gg/zT3asNS) a few minutes prior to each meeting.
 
-4. If possible, submit a Pull Request with a failing test. Better yet, take
-a stab at fixing the bug yourself if you can!
+### Requesting Features or Deprecations
 
-The more information you provide, the easier it is for us to validate that
-there is a bug and the faster we'll be able to take action.
+`ember-data` participates in the [RFC process (GitHub emberjs/rfcs)](https://github.com/emberjs/rfcs/).
+Most changes to the public API including new features, changes in behavior, or deprecations require
+community discussion and must go through this process.
 
-## Requesting a Feature
-1. Ember and Ember Data have an RFC process for feature requests. To begin the discussion either
-[gather feedback](https://github.com/emberjs/rfcs/blob/master/README.md#gathering-feedback-before-submitting)
-on the emberjs/rfcs repository. Or, draft an [Ember Data RFC](https://github.com/emberjs/rfcs/pulls?q=is%3Apr+is%3Aopen+label%3Aember-data)
-   - Use RFC pull request for well formed ideas.
-   - Use the `ember-data` label on it.
-   - Use RFC issues to propose a rough idea, basically a great place to test
-     the waters.
+While there is no guarantee that an RFC will be accepted, successful RFCs typically follow a pattern
+of iteration while gathering requirements, addressing feedback, and consensus building. The best RFCs
+are narrowly scoped with clear understanding of alternatives, drawbacks, and their effect on the community.
 
-2. Provide a clear and detailed explanation of the feature you want and why
-it's important to add. Keep in mind that we want features that will be useful
-to the majority of our users and not just a small subset. If you're just
-targeting a minority of users, consider writing an add-on library for Ember.
+    Here are a few suggestions of **steps to take before drafting your RFC** to best make your RFC successful.
+    Often this process will complete quickly, but when it does not, don't despair! Often the best ideas
+    take the longest to bake.
 
-3. If the feature is complex, consider writing an Ember RFC document. If we do
-end up accepting the feature, the RFC provides the needed documentation for
-contributors to develop the feature according the specification accepted by the core team.
+1. Bring up your idea in the `#dev-ember-data` channel on [Discord](https://discord.gg/zT3asNS) or
+   with individual [team members](https://emberjs.com/team/)
+2. Reflect on any concerns, alternatives, or questions that arise from these discussions.
+3. Continue to discuss the idea, giving time for everyone to digest and think about it.
+4. Attend the weekly team meeting to discuss your idea
+5. Open an [RFC issue](https://github.com/emberjs/rfcs/issues?q=is%3Aissue+is%3Aopen+label%3AT-ember-data)
+   to broaden and record the discussion if the idea needs more time for discussion and iteration.
+   - label your issue with `T-ember-data` (or ask someone in `#dev-ember-data` to add the label if you lack the permission)
+   - announce your issue in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `twitter`.
+6. [Draft an RFC](https://github.com/emberjs/rfcs#what-the-process-is) and share it with those you have
+   been discussing the ideas with.
+7. Publish your RFC by opening a PR to [emberjs/rfcs/](https://github.com/emberjs/rfcs/pulls?q=is%3Apr+is%3Aopen+label%3AT-ember-data)
+   - label your PR with `T-ember-data` (or ask someone in `#dev-ember-data` to add the label if you lack the permission)
+   - announce your PR in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `twitter`.
+8. Attend weekly team meetings to discuss the RFC, continue iterating on the RFC, and help shepherd it to completion.
+9. Build a proof-of-concept. Sometimes this is best if it occurs alongside drafting the RFC, as it often informs
+   the RFC design, known drawbacks, and alternatives. Often it will become incorporated in the final implementation.
+10. If you are able, help land the work in a release! It is not required that you implement your own RFC but often
+    this is the best way to ensure that accepted RFCs are implemented in a timely manner.
 
-4. After discussing the feature you may choose to attempt a Pull Request. If
-you're at all able, start writing some code. We always have more work to do
-than time to do it. If you can write some code then that will speed the process
-along.
+### Submitting Work
 
-In short, if you have an idea that would be nice to have, create an issue on the
-emberjs/rfcs repo and label it as `ember-data`. If you have a question about
-requesting a feature, start a discussion at [discuss.emberjs.com](http://discuss.emberjs.com)
+Before implementing a feature or a fix, it is usually best to discuss the proposed changes with
+[team members](https://emberjs.com/team/). Some fixes might require new public API or changes to
+existing public APIs. If this is the case, it is even more important to discuss the issue's problem
+space and the proposed changes before diving too deep into the implementation.
 
-## Using Feature Flags
+- Submissions should be made as PRs against the `master` branch.
 
-Feature flags allow new features to be tested easily and strips them out of
-production builds automatically.
+#### Writing Tests
 
-1. Add your new feature flag to the [config/features.json](https://github.com/emberjs/data/blob/master/config/features.json) file.
+All PRs should have accompanying tests. For bug-fixes, this should include tests that demonstrate
+the issue being fixed and test that the solution works.
 
-  ```js
-  {
-    "ds-boolean-transform-allow-null": null,
-    "ds-mynew-feature": null
-  }
-  ```
+- We do write tests for our warns and assertion messages, using the `assert.expectAssertion()` and `assert.expectWarning()` helpers.
+- Because Travis runs tests in the `production` environment, assertions and warnings are stripped out. To avoid tests on
+  warning/assertion messages failing for your PR, use the `testInDebug` function instead of `qunit` `test` to skip them in production.
+- Include tests that fail without your code, and pass with it
+- Update the documentation, examples, and guides when affected by your contribution
 
-  Give it a default of `null` so it will not be used in production builds.
+#### Running Tests
 
-2. Import `isEnabled` from `ember-data/-private`, wrapping any new
-  code with your feature:
+- PRs will automatically run an extensive set of test scenarios for your work
+- `ember-data` is an `ember-addon` and uses `ember-cli`. To run tests locally
+  use `yarn test` or `yarn test --serve`. For additional test commands see the list
+  of commands in [./package.json](./package.json)
 
-  ```js
-  import { isEnabled } from 'ember-data/-private';
-
-  if (isEnabled('ds-mynew-feature')) {
-    // ... any additional code
-  } else {
-    // ... any previous code that may have been overwritten
-  }
-  ```
-
-3. Similarly, you will want to wrap any new or edited tests with the same
-  feature flag.
-
-  ```js
-  import { isEnabled } from 'ember-data/-private';
-
-  if (isEnabled('ds-mynew-feature')) {
-    test('test for new feature', function(assert) {
-      // ...
-    })
-  }
-  ```
-
-  This will allow the test suite to run as normal.
-
-4. Running tests with all feature flags enabled is possible via
-  `ember test --environment=test-optional-features` This is also possible while
-  running tests in the browser via the `Enable Opt Feature` checkbox.
-
-5. Add your feature to the [Features](https://github.com/emberjs/data/blob/master/FEATURES.md) file.
-  Be sure to leave a description of the feature and possible example of how to
-  use it (if necessary).
-
-## Benchmarking
-
-Ember Data is instrumented with [heimdalljs](https://github.com/heimdalljs/heimdalljs-lib)
- Top level scenarios for benchmarking are available via the `query` route in
- the dummy app, and desired scenarios to be run can be configured via `benchmarks/config.js`.
-
- The scenarios are configured to interop with [heimdall-query](https://github.com/heimdalljs/heimdall-query)
- for analysis. To run scenarios:
-
-  1. Start the dummy app with instrumentation on: `ember s --instrument`
-
-  2. Configure `benchmarks/config.js` with desired scenarios
-
-  3. To run both the benchmarks and the analysis: `node ./benchmarks`
-
-      a.) To just collect data (no analysis): `node ./benchmarks/bash-run.js`
-      b.) To just run analysis (w/cached data): `node ./benchmarks/bash-analyze.js`
-      c.) To cache a data set or use a cached data set, all commands accept `-c ./path/to/cache/dir`
-
-  4. Do not commit cached data results, these should be git ignored already.
-
-# Pull Requests
-
-We love pull requests. Here's a quick guide:
-
-1. Fork the repo.
-
-2. Run the tests. We only take pull requests with passing tests, and it's great
-to know that you have a clean slate, see notes on how to run unit tests [here](https://github.com/emberjs/data#how-to-run-unit-tests). (To see tests in the browser,
-run `npm start` and open `http://localhost:4200/tests`.)
-
-3. Add a test for your change. Only refactoring and documentation changes
-require no new tests. If you are adding functionality or fixing a bug, we need
-a test!
-
-4. Make the test pass.
-
-5. Commit your changes. Please use an appropriate commit prefix.
-If your pull request fixes an issue specify it in the commit message. Some examples:
-
-  ```
-  [DOC beta] Update CONTRIBUTING.md for commit prefixes
-  [FEATURE ds-pushpayload-return] Change `pushPayload` to return a value. #4110
-  [BUGFIX beta] Allow optional spaces when parsing response headers
-  ```
-
-  For more information about commit prefixes see [Commit Tagging](#commit-tagging).
-
-6. Push to your fork and submit a pull request. Please provide us with some
-explanation of why you made the changes you made. For new features make sure to
-explain a standard use case to us.
-
-We try to be quick about responding to tickets but sometimes we get a bit
-backlogged. If the response is slow, try to find someone on IRC (#emberjs) to
-give the ticket a review.
-
-Some things that will increase the chance that your pull request is accepted,
-taken straight from the Ruby on Rails guide:
-
-* Use Ember idioms and helpers
-* Include tests that fail without your code, and pass with it
-* Update the documentation, the surrounding one, examples elsewhere, guides,
-  whatever is affected by your contribution
-
-## Syntax:
-
-* Two spaces, no tabs.
-* No trailing whitespace. Blank lines should not have any space.
-* a = b and not a=b.
-* Follow the conventions you see used in the source already.
-
-And in case we didn't emphasize it enough: we love tests!
-
-
-## Writing Tests
-
-* We do write tests for our warns and assertion messages, using the `assert.expectAssertion()` and `assert.expectWarning()` helpers.
-* Because Travis runs tests in the `production` environment, assertions and warnings are stripped out. To avoid tests on warning/assertion messages failing for your PR, use the `testInDebug` helper to skip them in production. See [this](https://github.com/emberjs/data/blob/b3eb9c098ef8c2cf9ff3378ed079769782c02bb5/tests/integration/adapter/queries-test.js#L32) example.
-
-## Commit Tagging
+#### Commit Tagging
 
 All commits should be tagged. Tags are denoted by square brackets (`[]`) and come at the start of the commit message.
 
-### Bug Fixes
+- `[CLEANUP]`: commits that remove deprecated functionality
+- `[CHORE]`: commits that refactor code or update dependencies
+- `[TEST <feature-name>]`: commits that add tests for a feature
+- `[FEAT <feature-name>]`: commits that add features
+- `[DOC <feature-name>]` | `[DOC]`: commits that add or fix documentation for a feature
+- `[SECURITY <cve>]`: commits that address security vulnerabilities. Please do not submit security related PRs without
+  coordinating with the security team. See the [Security Policy](https://emberjs.com/security/) for more information.
+- `[BUGFIX <feature-name>]`: commits that fix an issue. The PR should also specify the github issue # of the
+  issue being resolved.
 
-In general bug fixes are pulled into the beta branch. As such, the prefix is: `[BUGFIX beta]`. If a bug fix is a serious regression that requires a new patch release, `[BUGFIX release]` can be used instead.
+In general almost all commits should fall into one of the above categories. In the cases where they don't please submit
+your PR untagged.
 
-For bugs related to canary features, follow the prefixing rules for features.
+#### Developing a New Feature with in-progress-feature Flags
 
-The vast majority of bug fixes apply to the current stable or beta releases, so submit your PR against the `master` branch with one of the above mentioned BUGFIX tags.
-(In the unusual case of a bug fix specifically for a past release, tag for that release `[BUGFIX release-1-13]` and submit the PR against the stable branch for that release: `stable-1-13`.)
+Sometimes a new feature can't be completed all at once, but portions
+of it can be landed to help parallelize the effort and make the review
+process simpler.
 
-### Cleanup
+`in-progress-feature` flags allow for code to be present on the `master`
+branch but stripped from any build that isn't.
 
-Cleanup commits are for removing deprecated functionality and should be tagged
-as `[CLEANUP beta]`.
+These flags have three states. Locally here means that a developer is
+working within the `addon` itself. Locally linking `ember-data` to
+another project or using a `master` build will not make code behind
+the flags available unless `isDevelopingAddon` in `index.js` is modified
+to return `true`.
 
-### Features
+- `false`: the feature is only available locally and the code behind the
+  flag is stripped at all times and never included in test runs. To develop
+  on this feature use `--enable-in-progress-flag="desired-flag-name,another-flag-name"`
+  when running a command. This flag will never be active in `CI` jobs
+  meaning that both tests and code wrapped in a check for this flag will
+  not run.
 
-All additions and fixes for features in canary should be tagged as `[FEATURE name]` where name is the same as the flag for that feature.
+- `null`: The same as `false` except the `Enabled In-Progress Features`
+  job in `CI` will activate the flag to ensure it passes tests.
+  Use this for features that are nearing delivery and need protection
+  against regressions but are not quite polished off yet.
 
-### Documentation
+  Other test runs and `CI` will still default the flag to `false` to ensure
+  that what we would release (were we to release master) works as
+  expected.
 
-Documentation commits are tagged as `[DOC channel]` where channel is `canary`,
-`beta`, or `release`. If no release is provided `canary` is assumed. The channel should be the most stable release that this documentation change applies to.
+  The `--enable-in-progress` flag and the Travis Job `Enabled In-Progress Features`
+  will run the tests with any flags set to `null` enabled to prevent
+  regressions.
 
-### Security
+- `true`: Indicates that this feature is "complete". Features set to
+  `true` will be included in any `release` published while the flag
+  is in that state, any build from `master` and all `CI` jobs.
 
-Security commits will be tagged as `[SECURITY cve]`. Please do not submit security related PRs without coordinating with the security team. See the [Security Policy](https://emberjs.com/security/) for more information.
+  This is a sign that the feature has entered a final testing phase
+  and the in-progress flags for the feature should be removed
+  before a stable release is published.
 
-### Other
+  Sometimes a nearly releasable feature may encounter problems late
+  in the release cycle. For such problems, the flag should be moved
+  back to the `null` state prior to doing a release.
 
-In general almost all commits should fall into one of these categories. In the cases where they don't please submit your PR untagged. An ember-data contributor will let you know if tagging is required.
+  Versions published with a flag set to `true` will include that
+  feature.
 
+1. Add your new feature flag to the [config/in-progress-features.json](https://github.com/emberjs/data/blob/master/config/in-progress-features.json) file with the `ds-` prefix.
 
-NOTE:
-* Partially copied from https://raw.github.com/thoughtbot/factory_girl_rails/master/CONTRIBUTING.md
-* Commit tagging section taken from [ember.js](https://github.com/emberjs/ember.js/blob/5641c3089180bdd1d4fa54e9dd2d3ac285f088e4/CONTRIBUTING.md#commit-tagging)
+```js
+{
+  "ds-mynew-feature": false
+}
+```
+
+Give it a default of `false` so it will not be used in production builds.
+
+2. Import `isEnabled` from `ember-data/-private`, wrapping any new
+   code with your feature:
+
+```js
+import { isEnabled } from 'ember-data/-private';
+
+if (isEnabled('ds-mynew-feature')) {
+  // ... any additional code
+} else {
+  // ... any previous code that may have been overwritten
+}
+```
+
+3. Similarly, you will want to wrap any new or edited tests with the same
+   feature flag.
+
+```js
+import { isEnabled } from 'ember-data/-private';
+
+if (isEnabled('ds-mynew-feature')) {
+  test('test for new feature', function(assert) {
+    // ...
+  });
+}
+```
+
+This will ensure these feature tests are only run when then feature is included in the build for `ember-data`.
+
+4. Commit your work. For more information about commit prefixes see [Commit Tagging](#commit-tagging).
+
+5. Push to your fork and submit a pull request. Please provide us with some
+   explanation of why you made the changes you made. For new features make sure to
+   explain a standard use case to us. Use the commit tagging guidelines for the PR
+   title.
+
+## Notes
+
+- Commit tagging section taken from [ember.js](https://github.com/emberjs/ember.js/blob/5641c3089180bdd1d4fa54e9dd2d3ac285f088e4/CONTRIBUTING.md#commit-tagging)
