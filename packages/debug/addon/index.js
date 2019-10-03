@@ -8,7 +8,7 @@ import DataAdapter from '@ember/debug/data-adapter';
 import { capitalize, underscore } from '@ember/string';
 import { assert } from '@ember/debug';
 import { get } from '@ember/object';
-import Model from '@ember-data/model';
+import { typesMapFor } from './setup';
 
 /**
   Implements `@ember/debug/data-adapter` with for EmberData
@@ -38,15 +38,72 @@ export default DataAdapter.extend({
     ];
   },
 
+  _nameToClass(type) {
+    return get(this, 'store').modelFor(type);
+  },
+
   /**
-    Detect whether a class is a Model
-    @private
-    @method detect
-    @param {Model} typeClass
-    @return {Boolean} Whether the typeClass is a Model class or not
+    Fetch the model types and observe them for changes.
+    Maintains the list of model types without needing the Model package for detection.
+    @public
+    @method watchModelTypes
+    @param {Function} typesAdded Callback to call to add types.
+    Takes an array of objects containing wrapped types (returned from `wrapModelType`).
+    @param {Function} typesUpdated Callback to call when a type has changed.
+    Takes an array of objects containing wrapped types.
+    @return {Function} Method to call to remove all observers
   */
-  detect(typeClass) {
-    return typeClass !== Model && Model.detect(typeClass);
+  watchModelTypes(typesAdded, typesUpdated) {
+    const store = get(this, 'store');
+    const __createRecordData = store._createRecordData;
+    const _releaseMethods = [];
+    const discoveredTypes = typesMapFor(store);
+
+    // Add any models that were added during initialization of the app, before the inspector was opened
+    discoveredTypes.forEach((_, type) => {
+      this.watchTypeIfUnseen(store, discoveredTypes, type, typesAdded, typesUpdated, _releaseMethods);
+    });
+
+    // Overwrite _createRecordData so newly added models will get added to the list
+    store._createRecordData = identifier => {
+      this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods);
+      return __createRecordData.call(store, identifier);
+    };
+
+    let release = () => {
+      _releaseMethods.forEach(fn => fn());
+      store._createRecordData = __createRecordData;
+      // reset the list so the models can be added if the inspector is re-opened
+      // the entries are set to false instead of removed, since the models still exist in the app
+      // we just need the inspector to become aware of them
+      discoveredTypes.forEach((value, key) => {
+        discoveredTypes.set(key, false);
+      });
+      this.releaseMethods.removeObject(release);
+    };
+    this.releaseMethods.pushObject(release);
+    return release;
+  },
+
+  /**
+   * Loop over the discovered types and use the callbacks from watchModelTypes to notify
+   * the consumer of this adapter about the mdoels.
+   *
+   * @param {store} store
+   * @param {Map} discoveredTypes
+   * @param {String} type
+   * @param {Function} typesAdded
+   * @param {Function} typesUpdated
+   * @param {Array} releaseMethods
+   */
+  watchTypeIfUnseen(store, discoveredTypes, type, typesAdded, typesUpdated, releaseMethods) {
+    if (discoveredTypes.get(type) !== true) {
+      let klass = store.modelFor(type);
+      let wrapped = this.wrapModelType(klass, type);
+      releaseMethods.push(this.observeModelType(type, typesUpdated));
+      typesAdded([wrapped]);
+      discoveredTypes.set(type, true);
+    }
   },
 
   /**
