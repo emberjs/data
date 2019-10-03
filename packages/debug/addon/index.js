@@ -8,7 +8,7 @@ import DataAdapter from '@ember/debug/data-adapter';
 import { capitalize, underscore } from '@ember/string';
 import { assert } from '@ember/debug';
 import { get } from '@ember/object';
-import { StoreTypesMap } from './setup';
+import { typesMapFor } from './setup';
 
 /**
   Implements `@ember/debug/data-adapter` with for EmberData
@@ -57,7 +57,7 @@ export default DataAdapter.extend({
     const store = get(this, 'store');
     const __createRecordData = store._createRecordData;
     const _releaseMethods = [];
-    const discoveredTypes = StoreTypesMap.get(store);
+    const discoveredTypes = typesMapFor(store);
 
     // Add any models that were added during initialization of the app, before the inspector was opened
     discoveredTypes.forEach((_, type) => {

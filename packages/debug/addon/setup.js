@@ -1,13 +1,21 @@
 import Store from '@ember-data/store';
-export const StoreTypesMap = new WeakMap();
+const StoreTypesMap = new WeakMap();
+
+export function typesMapFor(store) {
+  let typesMap = StoreTypesMap.get(store);
+
+  if (typesMap === undefined) {
+    typesMap = new Map();
+    StoreTypesMap.set(store, typesMap);
+  }
+
+  return typesMap;
+}
 
 // override _createRecordData to add the known models to the typesMap
 const __createRecordData = Store.prototype._createRecordData;
 Store.prototype._createRecordData = function(identifier) {
-  if (!StoreTypesMap.has(this)) {
-    StoreTypesMap.set(this, new Map());
-  }
-  const typesMap = StoreTypesMap.get(this);
+  const typesMap = typesMapFor(this);
   if (!typesMap.has(identifier.type)) {
     typesMap.set(identifier.type, false);
   }
