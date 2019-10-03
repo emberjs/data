@@ -89,10 +89,6 @@ jobs:
         env:
           CI: true
         run: yarn test:try-one ember-lts-3.8
-      - name: Basic Tests with ember-lts-3.12
-        env:
-          CI: true
-        run: yarn test:try-one ember-lts-3.12
 
   releases:
     needs: [lint, basic-tests]
