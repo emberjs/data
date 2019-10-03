@@ -34,6 +34,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@babel/plugin-transform-block-scoping": "^7.5.5",
     "@ember/ordered-set": "^2.0.3",
     "@ember/string": "^1.0.0",
     "@glimmer/env": "^0.1.7",
@@ -126,6 +127,9 @@
     "rimraf": "^2.6.2",
     "rsvp": "^4.8.4",
     "typescript": "~3.3.3"
+  },
+  "resolutions": {
+    "broccoli-persistent-filter": "~2.2.3"
   },
   "engines": {
     "node": ">= 6.0.0"
