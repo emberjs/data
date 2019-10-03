@@ -79,6 +79,13 @@ jobs:
 
   lts:
     needs: [lint, basic-tests]
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [
+          ember-lts-3.8,
+          ember-lts-3.12
+        ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -87,10 +94,10 @@ jobs:
           node-version: 10.x
       - name: Install dependencies
         run: yarn install
-      - name: Basic Tests with ember-lts-3.8
+      - name: Basic tests with ${{ matrix.scenario }}
         env:
           CI: true
-        run: yarn test:try-one ember-lts-3.8
+        run: yarn test:try-one ${{ matrix.scenario }}
 
   releases:
     needs: [lint, basic-tests]
