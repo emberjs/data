@@ -27,7 +27,7 @@ class Person extends Model {
   }
 }
 
-module('inteegration/delete-record - running deleteRecord with minimum serializer', function(hooks) {
+module('integration/delete-record - running deleteRecord with minimum serializer', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function(assert) {
