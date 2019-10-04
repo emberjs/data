@@ -1891,10 +1891,10 @@
   dependencies:
     "@types/ember__object" "*"
 
-"@types/ember__debug@*", "@types/ember__debug@3.0.4":
-  version "3.0.4"
-  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.0.4.tgz#cdf87a580688a0e3053820eff6f390fbb7ba0e80"
-  integrity sha512-jTdLdNGvDn3MhktfskhdxOaDHO09QtQqeh+krI7EDePl2+Xom+KnNeveFeCkzxDkYOa+/R7UNSxW4yN/3YTw3w==
+"@types/ember__debug@*", "@types/ember__debug@3.0.5":
+  version "3.0.5"
+  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.0.5.tgz#ed7636dec3380a363c02f074d8e0a50cd6d563ab"
+  integrity sha512-1zXDboNm06c0S12bg7G75eFF21aW1C8QFKZGuQTQ66Xur5nwYHii6R2+t0lylgZTxqeRwjmeEZdROpYUNWexJQ==
   dependencies:
     "@types/ember__debug" "*"
     "@types/ember__engine" "*"
