@@ -3006,10 +3006,10 @@ babel-plugin-htmlbars-inline-precompile@^1.0.0:
   resolved "https://registry.npmjs.org/babel-plugin-htmlbars-inline-precompile/-/babel-plugin-htmlbars-inline-precompile-1.0.0.tgz#a9d2f6eaad8a3f3d361602de593a8cbef8179c22"
   integrity sha512-4jvKEHR1bAX03hBDZ94IXsYCj3bwk9vYsn6ux6JZNL2U5pvzCWjqyrGahfsGNrhERyxw8IqcirOi9Q6WCo3dkQ==
 
-babel-plugin-htmlbars-inline-precompile@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.npmjs.org/babel-plugin-htmlbars-inline-precompile/-/babel-plugin-htmlbars-inline-precompile-2.1.1.tgz#59edd4eab28d27fbafa26d51bc19795278d103a9"
-  integrity sha512-obo5//IFrEZNAQovcXxOXLn5nwkQ0Y+xhR7AMg1sYR6W7KxQLZI9/XzbIytVhjwwY+Bd2e0+qyHEplJbHyZ1Og==
+babel-plugin-htmlbars-inline-precompile@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/babel-plugin-htmlbars-inline-precompile/-/babel-plugin-htmlbars-inline-precompile-3.0.0.tgz#95aa0d2379347cda9a7127c028fe35cb39179fa2"
+  integrity sha512-dR12lOqIcBLOTwgnI5iG+bSrZhR8JIZ7zAHW43YhcD5q8G8iipvSuRo8Fah6NPPh6C8cATd827bgPikphbF09w==
 
 babel-plugin-module-resolver@^3.1.1, babel-plugin-module-resolver@^3.2.0:
   version "3.2.0"
@@ -6044,13 +6044,13 @@ ember-cli-htmlbars@^3.0.1:
     json-stable-stringify "^1.0.1"
     strip-bom "^3.0.0"
 
-ember-cli-htmlbars@^4.0.3:
-  version "4.0.3"
-  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.0.3.tgz#171a23aa12d0af5289fb5c298bc235404aed289e"
-  integrity sha512-GgBrXpPDBF+XlgxMf3bCo9wetOHOLO6yPoQEHAJT8qQmdvO6rkMUTLA+DcrdM5ODPr8H0PfrKmDnwimsOvxx6w==
+ember-cli-htmlbars@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.0.4.tgz#a4516143319b587922d52c89bf3ae1350992055a"
+  integrity sha512-hBcD3buJ3I8kxzT6bQVArnFZLXwV5Lo63Xv+2aoDVDKbYwpcL1wv+idmefFT00W/6nKKpFZTFrUjo1F1v+iwjg==
   dependencies:
     "@ember/edition-utils" "^1.1.1"
-    babel-plugin-htmlbars-inline-precompile "^2.1.1"
+    babel-plugin-htmlbars-inline-precompile "^3.0.0"
     broccoli-debug "^0.6.5"
     broccoli-persistent-filter "^2.3.1"
     broccoli-plugin "^3.0.0"
