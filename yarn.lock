@@ -3000,7 +3000,7 @@ babel-plugin-htmlbars-inline-precompile@^1.0.0:
   resolved "https://registry.npmjs.org/babel-plugin-htmlbars-inline-precompile/-/babel-plugin-htmlbars-inline-precompile-1.0.0.tgz#a9d2f6eaad8a3f3d361602de593a8cbef8179c22"
   integrity sha512-4jvKEHR1bAX03hBDZ94IXsYCj3bwk9vYsn6ux6JZNL2U5pvzCWjqyrGahfsGNrhERyxw8IqcirOi9Q6WCo3dkQ==
 
-babel-plugin-htmlbars-inline-precompile@^2.1.0, babel-plugin-htmlbars-inline-precompile@^2.1.1:
+babel-plugin-htmlbars-inline-precompile@^2.1.1:
   version "2.1.1"
   resolved "https://registry.npmjs.org/babel-plugin-htmlbars-inline-precompile/-/babel-plugin-htmlbars-inline-precompile-2.1.1.tgz#59edd4eab28d27fbafa26d51bc19795278d103a9"
   integrity sha512-obo5//IFrEZNAQovcXxOXLn5nwkQ0Y+xhR7AMg1sYR6W7KxQLZI9/XzbIytVhjwwY+Bd2e0+qyHEplJbHyZ1Og==
@@ -6026,18 +6026,6 @@ ember-cli-htmlbars-inline-precompile@^2.1.0:
     ember-cli-version-checker "^2.1.2"
     hash-for-dep "^1.2.3"
     heimdalljs-logger "^0.1.9"
-    silent-error "^1.1.0"
-
-ember-cli-htmlbars-inline-precompile@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/ember-cli-htmlbars-inline-precompile/-/ember-cli-htmlbars-inline-precompile-3.0.1.tgz#dc1f6fbc3bb5e51d01ca334e692c7f0b5e298d57"
-  integrity sha512-mLGJjxEPiOFty9HVM7LHg+5cfM1M9lwbEBmlanZMM333cnwvgZulKjTYU0/e0tpWDvNvPdX8rM+/Leh0TIrqqA==
-  dependencies:
-    babel-plugin-htmlbars-inline-precompile "^2.1.0"
-    ember-cli-version-checker "^3.1.3"
-    hash-for-dep "^1.5.1"
-    heimdalljs-logger "^0.1.9"
-    semver "^6.3.0"
     silent-error "^1.1.0"
 
 ember-cli-htmlbars@^3.0.1:
