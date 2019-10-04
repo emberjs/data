@@ -41,7 +41,7 @@
   "devDependencies": {
     "@babel/plugin-transform-typescript": "^7.6.0",
     "@ember/optional-features": "^1.0.0",
-    "@types/ember": "^3.1.0",
+    "@types/ember": "^3.1.1",
     "@types/ember-qunit": "^3.4.6",
     "@types/ember-test-helpers": "~1.0.6",
     "@types/ember-testing-helpers": "~0.0.3",
