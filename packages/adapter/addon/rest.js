@@ -1363,7 +1363,19 @@ export function fetchOptions(options, adapter) {
     } else {
       // NOTE: a request's body cannot be an object, so we stringify it if it is.
       // JSON.stringify removes keys with values of `undefined` (mimics jQuery.ajax).
-      options.body = JSON.stringify(options.data);
+      // If the data is not a POJO (it's a String, FormData, etc), we just set it.
+      // If the data is a string, we assume it's a stringified object.
+
+      /* We check for Objects this way because we want the logic inside the consequent to run
+       * if `options.data` is a POJO, not if it is a data structure whose `typeof` returns "object"
+       * when it's not (Array, FormData, etc). The reason we don't use `options.data.constructor`
+       * to check is in case `data` is an object with no prototype (e.g. created with null).
+       */
+      if (Object.prototype.toString.call(options.data) === '[object Object]') {
+        options.body = JSON.stringify(options.data);
+      } else {
+        options.body = options.data;
+      }
     }
   }
 
