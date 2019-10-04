@@ -77,7 +77,6 @@
     "ember-cli-fastboot": "^2.2.1",
     "ember-cli-fastboot-testing": "^0.2.2",
     "ember-cli-htmlbars": "^4.0.3",
-    "ember-cli-htmlbars-inline-precompile": "^3.0.1",
     "ember-cli-inject-live-reload": "^2.0.1",
     "ember-cli-internal-test-helpers": "^0.9.1",
     "ember-cli-path-utils": "^1.0.0",
