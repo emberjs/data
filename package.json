@@ -112,7 +112,7 @@
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-qunit": "^4.0.0",
-    "execa": "^2.0.4",
+    "execa": "^2.0.5",
     "fromentries": "^1.2.0",
     "git-repo-info": "^2.0.0",
     "github": "^1.1.1",
