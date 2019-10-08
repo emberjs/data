@@ -118,7 +118,7 @@
     "github": "^1.1.1",
     "glob": "^7.1.4",
     "json-typescript": "^1.1.0",
-    "lerna": "^3.15.0",
+    "lerna": "^3.16.5",
     "loader.js": "^4.7.0",
     "mocha": "^6.2.1",
     "npm-git-info": "^1.0.3",
