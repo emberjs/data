@@ -1461,7 +1461,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     });
   });
 
-  test('Related link should take precedence over relationship data if no local record data is available', function(assert) {
+  test('Related link should take precedence over relationship data if no local record data is available', async function(assert) {
     assert.expect(2);
 
     Book.reopen({
@@ -1486,26 +1486,24 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    return run(() => {
-      let book = store.push({
-        data: {
-          type: 'book',
-          id: '1',
-          relationships: {
-            author: {
-              links: {
-                related: 'author',
-              },
-              data: { type: 'author', id: '1' },
+    let book = store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author',
             },
+            data: { type: 'author', id: '1' },
           },
         },
-      });
-
-      return book.get('author').then(author => {
-        assert.equal(author.get('name'), 'This is author', 'author name is correct');
-      });
+      },
     });
+
+    const author = await book.get('author');
+
+    assert.equal(author.get('name'), 'This is author', 'author name is correct');
   });
 
   test('Relationship data should take precedence over related link when local record data is available', function(assert) {

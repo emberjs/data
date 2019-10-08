@@ -47,6 +47,8 @@ import {
   CUSTOM_MODEL_CLASS,
 } from '@ember-data/canary-features';
 import { Record } from '../ts-interfaces/record';
+import { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
+import { ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 
 import promiseRecord from '../utils/promise-record';
 import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
@@ -1615,12 +1617,12 @@ abstract class CoreStore extends Service {
 
     let {
       relationshipIsStale,
-      allInverseRecordsAreLoaded,
       hasDematerializedInverse,
       hasAnyRelationshipData,
       relationshipIsEmpty,
       shouldForceReload,
     } = resource._relationship;
+    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
 
     let shouldFindViaLink =
       resource.links &&
@@ -1733,12 +1735,12 @@ abstract class CoreStore extends Service {
     const internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
     let {
       relationshipIsStale,
-      allInverseRecordsAreLoaded,
       hasDematerializedInverse,
       hasAnyRelationshipData,
       relationshipIsEmpty,
       shouldForceReload,
     } = resource._relationship;
+    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
 
     let shouldFindViaLink =
       resource.links &&
@@ -3654,4 +3656,44 @@ if (DEBUG) {
       );
     }
   };
+}
+
+/**
+ * Flag indicating whether all inverse records are available
+ *
+ * true if the inverse exists and is loaded (not empty)
+ * true if there is no inverse
+ * false if the inverse exists and is not loaded (empty)
+ *
+ * @return {boolean}
+ */
+function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelationship): boolean {
+  const cache = identifierCacheFor(store);
+
+  if (Array.isArray(resource.data)) {
+    // treat as collection
+    // check for unloaded records
+    let hasEmptyRecords = resource.data.reduce((hasEmptyModel, i) => {
+      return hasEmptyModel || internalModelForRelatedResource(store, cache, i).isEmpty();
+    }, false);
+
+    return !hasEmptyRecords;
+  } else {
+    // treat as single resource
+    if (!resource.data) {
+      return true;
+    } else {
+      const internalModel = internalModelForRelatedResource(store, cache, resource.data);
+      return !internalModel.isEmpty();
+    }
+  }
+}
+
+function internalModelForRelatedResource(
+  store: CoreStore,
+  cache: IdentifierCache,
+  resource: ResourceIdentifierObject
+): InternalModel {
+  const identifier = cache.getOrCreateRecordIdentifier(resource);
+  return store._internalModelForResource(identifier);
 }
