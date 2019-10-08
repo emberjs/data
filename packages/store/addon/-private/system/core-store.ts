@@ -3001,6 +3001,10 @@ abstract class CoreStore extends Service {
       let normalizedModelName = normalizeModelName(modelName);
       serializer = this.serializerFor(normalizedModelName);
     }
+    assert(
+      `You must define a pushPayload method in your serializer in order to call store.pushPayload`,
+      serializer.pushPayload
+    );
     serializer.pushPayload(this, payload);
   }
 

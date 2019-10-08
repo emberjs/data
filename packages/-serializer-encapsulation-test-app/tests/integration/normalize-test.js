@@ -2,17 +2,8 @@ import Model, { attr } from '@ember-data/model';
 import Store from 'serializer-encapsulation-test-app/services/store';
 import EmberObject from '@ember/object';
 import { setupTest } from 'ember-qunit';
-import { module, test, skip } from 'qunit';
-import { DEBUG } from '@glimmer/env';
-
-// we fail smoke test if we import this
-function testInDebug() {
-  if (DEBUG) {
-    test(...arguments);
-  } else {
-    skip(...arguments);
-  }
-}
+import { module, test } from 'qunit';
+import testInDebug from 'serializer-encapsulation-test-app/tests/helpers/test-in-debug';
 
 class Person extends Model {
   @attr
