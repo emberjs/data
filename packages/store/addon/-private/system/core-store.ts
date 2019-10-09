@@ -3673,8 +3673,8 @@ function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelations
   if (Array.isArray(resource.data)) {
     // treat as collection
     // check for unloaded records
-    let hasEmptyRecords = resource.data.reduce((hasEmptyModel, i) => {
-      return hasEmptyModel || internalModelForRelatedResource(store, cache, i).isEmpty();
+    let hasEmptyRecords = resource.data.reduce((hasEmptyModel, resourceIdentifier) => {
+      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).isEmpty();
     }, false);
 
     return !hasEmptyRecords;
