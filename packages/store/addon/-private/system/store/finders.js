@@ -130,12 +130,14 @@ function syncRelationshipDataFromLink(store, payload, parentInternalModel, relat
 
   // now, push the left hand side (the parent record) to ensure things are in sync, since
   // the payload will be pushed with store._push
-  store.push({
+  store._push({
     data: {
       id: parentInternalModel.id,
       type: parentInternalModel.modelName,
       relationships: {
         [relationship.key]: {
+          meta: payload.meta,
+          links: payload.links,
           data: relationshipData,
         },
       },
@@ -285,7 +287,6 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
       syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       let internalModelArray = store._push(payload);
-      internalModelArray.meta = payload.meta;
       return internalModelArray;
     },
     null,
