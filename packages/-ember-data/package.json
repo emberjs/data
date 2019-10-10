@@ -83,7 +83,7 @@
     "github": "^1.1.1",
     "json-typescript": "^1.1.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.9.2",
+    "qunit": "^2.9.3",
     "typescript": "~3.6.4"
   },
   "engines": {
