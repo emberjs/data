@@ -1716,15 +1716,15 @@ abstract class CoreStore extends Service {
     return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
       internalModel => {
         return this._backburner.join(() => {
-          let response = internalModel && (recordDataFor(internalModel) as RelationshipRecordData).getResourceIdentifier();
+          let response =
+            internalModel && (recordDataFor(internalModel) as RelationshipRecordData).getResourceIdentifier();
           parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
           if (internalModel === null) {
             return null;
           }
           // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
           return internalModel.getRecord();
-          }
-        );
+        });
       }
     );
   }
