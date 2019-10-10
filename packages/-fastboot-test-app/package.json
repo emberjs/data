@@ -54,7 +54,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.9.2",
     "qunit-dom": "^0.9.0",
-    "typescript": "~3.6.3"
+    "typescript": "~3.6.4"
   },
   "engines": {
     "node": "8.* || >= 10.*"
