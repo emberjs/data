@@ -5876,34 +5876,7 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.10.0, ember-cli-babel@^7.7.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
-  version "7.11.1"
-  resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.11.1.tgz#77bc8f4001d47b91d80e3d36a4754412616fc0d8"
-  integrity sha512-Qgd7y9NVbRLEtwjBW/vPHXdTQrIgfgoCSFHfvBpEmLuWSWNpE/J6qwXrSbB9nEIlfzyjH0Almv4m0jwuJsB3ow==
-  dependencies:
-    "@babel/core" "^7.0.0"
-    "@babel/plugin-proposal-class-properties" "^7.3.4"
-    "@babel/plugin-proposal-decorators" "^7.3.0"
-    "@babel/plugin-transform-modules-amd" "^7.0.0"
-    "@babel/plugin-transform-runtime" "^7.2.0"
-    "@babel/polyfill" "^7.0.0"
-    "@babel/preset-env" "^7.0.0"
-    "@babel/runtime" "^7.2.0"
-    amd-name-resolver "^1.2.1"
-    babel-plugin-debug-macros "^0.3.0"
-    babel-plugin-ember-modules-api-polyfill "^2.12.0"
-    babel-plugin-module-resolver "^3.1.1"
-    broccoli-babel-transpiler "^7.3.0"
-    broccoli-debug "^0.6.4"
-    broccoli-funnel "^2.0.1"
-    broccoli-source "^1.1.0"
-    clone "^2.1.2"
-    ember-cli-babel-plugin-helpers "^1.1.0"
-    ember-cli-version-checker "^2.1.2"
-    ensure-posix-path "^1.0.2"
-    semver "^5.5.0"
-
-ember-cli-babel@^7.1.0, ember-cli-babel@^7.12.0:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.10.0, ember-cli-babel@^7.12.0, ember-cli-babel@^7.7.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
   version "7.12.0"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.12.0.tgz#064997d199384be8c88d251f30ef67953d3bddc5"
   integrity sha512-+EGQsbPvh19nNXHCm6rVBx2CdlxQlzxMyhey5hsGViDPriDI4PFYXYaFWdGizDrmZoDcG/Ywpeph3hl0NxGQTg==
@@ -6517,10 +6490,10 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.13.2:
-  version "3.13.2"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.13.2.tgz#872a583935ce5827518d8b9c23f81475a8f5dbda"
-  integrity sha512-VBzLziCCdRW4K9YljxL+bGxAG1aaozENaaIDrqmg79OidM6SeTNDEY+y9m2V2YFUGyFkwtqOK1IzcM4GYnnL+w==
+ember-source@^3.13.3:
+  version "3.13.3"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.13.3.tgz#65794f79dec0512d833332575f13c77f9ccae2a1"
+  integrity sha512-aDmzAwpCa4H6ozd+RbsQs9/Pfo4wbnDVe9eb2D05PH9W6zRpiUa+pTluJsUFDfbi+jYGPQnjty2U/UQYBayFvg==
   dependencies:
     "@babel/helper-module-imports" "^7.0.0"
     "@babel/plugin-transform-block-scoping" "^7.4.4"
