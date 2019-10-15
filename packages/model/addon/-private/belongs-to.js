@@ -19,6 +19,7 @@ import { computedMacroWithOptionalParams } from './util';
   - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
   - `inverse`: A string used to identify the inverse property on a
     related model in a One-To-Many relationship. See [Explicit Inverses](#explicit-inverses)
+  - `polymorphic` A boolean value to mark the relationship as polymorphic
 
   #### One-To-One
   To declare a one-to-one relationship between two models, use
