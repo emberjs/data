@@ -9,9 +9,14 @@ import { all, Promise as EmberPromise } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
+<<<<<<< HEAD
+=======
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
+>>>>>>> Add failing test for: Records with an async hasMany can be pushed again after they were destroyed on client side
 import { InvalidError } from '@ember-data/adapter/error';
+import Model, { attr, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/deletedRecord - Deleting Records', function(hooks) {
   setupTest(hooks);
@@ -182,7 +187,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     });
 
     assert.equal(all.get('length'), 0, 'expected 0 records');
-    assert.equal(all.objectAt(0), null, "can't get any records");
+    assert.equal(all.objectAt(0), null, 'can\'t get any records');
   });
 
   test('Deleting an invalid newly created record should remove it from the store', function(assert) {
@@ -201,21 +206,22 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
               pointer: '/data/attributes/name',
             },
           },
-        ])
+        ]),
       );
     };
 
     run(function() {
       record = store.createRecord('person', { name: 'pablobm' });
       // Invalidate the record to put it in the `root.loaded.created.invalid` state
-      record.save().catch(() => {});
+      record.save().catch(() => {
+      });
     });
 
     // Preconditions
     assert.equal(
       get(record, 'currentState.stateName'),
       'root.loaded.created.invalid',
-      'records should start in the created.invalid state'
+      'records should start in the created.invalid state',
     );
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
@@ -234,7 +240,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function() {
-      assert.fail("The adapter's deletedRecord method should not be called when the record was created locally.");
+      assert.fail('The adapter\'s deletedRecord method should not be called when the record was created locally.');
     };
 
     adapter.createRecord = function() {
@@ -247,21 +253,22 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
               pointer: '/data/attributes/name',
             },
           },
-        ])
+        ]),
       );
     };
 
     run(function() {
       record = store.createRecord('person', { name: 'pablobm' });
       // Invalidate the record to put it in the `root.loaded.created.invalid` state
-      record.save().catch(() => {});
+      record.save().catch(() => {
+      });
     });
 
     // Preconditions
     assert.equal(
       get(record, 'currentState.stateName'),
       'root.loaded.created.invalid',
-      'records should start in the created.invalid state'
+      'records should start in the created.invalid state',
     );
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
