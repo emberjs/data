@@ -10,7 +10,7 @@ import { module, test } from 'qunit';
 
 import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Model, { attr, hasMany } from '@ember-data/model';
+import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
 import { InvalidError } from '@ember-data/adapter/error';
 
 module('integration/deletedRecord - Deleting Records', function(hooks) {
@@ -179,7 +179,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     });
 
     assert.equal(all.get('length'), 0, 'expected 0 records');
-    assert.equal(all.objectAt(0), null, "can't get any records");
+    assert.equal(all.objectAt(0), null, 'can\'t get any records');
   });
 
   test('Deleting an invalid newly created record should remove it from the store', function(assert) {
@@ -198,21 +198,22 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
               pointer: '/data/attributes/name',
             },
           },
-        ])
+        ]),
       );
     };
 
     run(function() {
       record = store.createRecord('person', { name: 'pablobm' });
       // Invalidate the record to put it in the `root.loaded.created.invalid` state
-      record.save().catch(() => {});
+      record.save().catch(() => {
+      });
     });
 
     // Preconditions
     assert.equal(
       get(record, 'currentState.stateName'),
       'root.loaded.created.invalid',
-      'records should start in the created.invalid state'
+      'records should start in the created.invalid state',
     );
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
@@ -231,7 +232,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function() {
-      assert.fail("The adapter's deletedRecord method should not be called when the record was created locally.");
+      assert.fail('The adapter\'s deletedRecord method should not be called when the record was created locally.');
     };
 
     adapter.createRecord = function() {
@@ -244,21 +245,22 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
               pointer: '/data/attributes/name',
             },
           },
-        ])
+        ]),
       );
     };
 
     run(function() {
       record = store.createRecord('person', { name: 'pablobm' });
       // Invalidate the record to put it in the `root.loaded.created.invalid` state
-      record.save().catch(() => {});
+      record.save().catch(() => {
+      });
     });
 
     // Preconditions
     assert.equal(
       get(record, 'currentState.stateName'),
       'root.loaded.created.invalid',
-      'records should start in the created.invalid state'
+      'records should start in the created.invalid state',
     );
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
@@ -297,5 +299,120 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     });
 
     return all(promises);
+  });
+
+  test('Records with an async hasMany can be pushed again after they were destroyed on client side', async function(assert) {
+    let company;
+    let group;
+    let employee;
+
+    const Company = Model.extend({
+      name: attr('string'),
+      toString: () => 'Company',
+    });
+    const Group = Model.extend({
+      company: belongsTo('company', { async: true }),
+      employees: hasMany('employee', { inverse: 'groups', async: true }),
+      toString: () => 'Group',
+    });
+    const Employee = Model.extend({
+      groups: hasMany('group', { inverse: 'employees', async: true }),
+      name: attr('string'),
+    });
+
+    this.owner.register('model:company', Company);
+    this.owner.register('model:group', Group);
+    this.owner.register('model:employee', Employee);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.deleteRecord = function() {
+      return EmberPromise.resolve();
+    };
+
+    // Push the company as a long-lived record that will be referenced by the group
+    run(() => {
+      store.push({
+        data: {
+          type: 'company',
+          id: '1',
+          attributes: {
+            name: 'Inc.',
+          },
+        },
+      });
+    });
+
+    const jsonEmployee = {
+      data: {
+        type: 'employee',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
+        },
+        relationships: {
+          groups: {
+            data: [{ type: 'group', id: '1' }],
+          },
+        },
+      }
+    };
+
+    const jsonGroup = {
+      data: {
+        type: 'group',
+        id: '1',
+        relationships: {
+          company: {
+            data: {
+              id: '1',
+              type: 'company',
+            },
+          }
+        },
+      }
+    };
+
+    // Server push with the group and employee
+    run(() => {
+      store.push(jsonEmployee);
+      store.push(jsonGroup);
+
+      company = store.peekRecord('company', '1');
+      group = store.peekRecord('group', '1');
+    });
+
+    // Sanity Check
+    assert.ok(group, 'expected one group to be found');
+    assert.equal(group.get('company.name'), 'Inc.', 'group belongs to our company');
+    assert.equal(group.get('employees.length'), 1, 'expected 1 related record before delete');
+    employee = group.get('employees').objectAt(0);
+    assert.equal(employee.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
+
+    // Destroy group and employee on client side. The order of deletion seems to be important for the test to fail.
+    await group.destroyRecord().then(record => {
+      return store.unloadRecord(record);
+    });
+    await employee.destroyRecord().then(record => {
+      return store.unloadRecord(record);
+    });
+
+    // This new run loop is required to ensure that the group and employee are fully unloaded
+    run(() => {
+      assert.equal(store.peekAll('employee').get('length'), 0, 'no employee record loaded');
+      assert.equal(store.peekAll('group').get('length'), 0, 'no group record loaded');
+    });
+
+    // Server pushes the same group and employee once more after they have been destroyed client-side. (The company is a long-lived record)
+    run(() => {
+      store.push(jsonEmployee);
+      store.push(jsonGroup);
+
+      group = store.peekRecord('group', '1');
+    });
+
+    // This test fails, the group has two employees with identical id's
+    assert.equal(group.get('employees.length'), 1, 'expected 1 related record after delete and restore');
   });
 });
