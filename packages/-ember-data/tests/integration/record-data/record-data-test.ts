@@ -296,6 +296,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     await settled();
     assert.equal(calledClientDidCreate, 0, 'Did not called clientDidCreate');
 
+    /* eslint-disable require-atomic-updates */
     calledPush = 0;
     calledClientDidCreate = 0;
     calledWillCommit = 0;
@@ -303,6 +304,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     calledUnloadRecord = 0;
     calledRollbackAttributes = 0;
     calledDidCommit = 0;
+    /* eslint-enable require-atomic-updates */
 
     let clientPerson = store.createRecord('person', { id: 2 });
     assert.equal(calledClientDidCreate, 1, 'Called clientDidCreate');

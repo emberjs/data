@@ -425,7 +425,9 @@ if (IDENTIFIERS) {
       await user.save();
 
       assert.strictEqual(forgetMethodCalls, 0, 'We still have not called the forget method');
+      /* eslint-disable require-atomic-updates */
       forgetMethodCalls = 0;
+      /* eslint-enable require-atomic-updates */
       expectedIdentifier = userIdentifier;
 
       user.unloadRecord();
@@ -546,14 +548,18 @@ if (IDENTIFIERS) {
       await settled();
 
       assert.strictEqual(forgetMethodCalls, 0, 'We have not yet called the forget method');
+      /* eslint-disable require-atomic-updates */
       forgetMethodCalls = 0;
+      /* eslint-enable require-atomic-updates */
       expectedIdentifiers.push(gatekeeperIdentifier, jailBirdIdentifier);
 
       gatekeeper.unloadRecord();
       await settled();
 
       assert.strictEqual(forgetMethodCalls, 2, 'We cleaned up both identifiers');
+      /* eslint-disable require-atomic-updates */
       forgetMethodCalls = 0;
+      /* eslint-enable require-atomic-updates */
       expectedIdentifiers.push(jailhouseIdentifier);
 
       jailhouse.unloadRecord();

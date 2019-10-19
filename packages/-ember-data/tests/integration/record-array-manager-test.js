@@ -172,7 +172,9 @@ module('integration/record_array_manager', function(hooks) {
       assert.equal(addedCount, 1, 'expected ONE add');
     };
 
+    /* eslint-disable require-atomic-updates */
     arrayContentWillChangeCount = 0;
+    /* eslint-enable require-atomic-updates */
 
     store.push({
       data: [

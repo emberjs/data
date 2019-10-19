@@ -331,7 +331,9 @@ module('async has-many rendering tests', function(hooks) {
       assert.equal(!!RelationshipProxyCache['children'], true, 'The relationship has a promise proxy');
       assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
 
+      /* eslint-disable require-atomic-updates */
       Ember.onerror = originalOnError;
+      /* eslint-enable require-atomic-updates */
     });
   });
 
@@ -459,7 +461,9 @@ module('async has-many rendering tests', function(hooks) {
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
       assert.equal(!!relationshipState.link, true, 'The relationship has a link');
 
+      /* eslint-disable require-atomic-updates */
       Ember.onerror = originalOnError;
+      /* eslint-enable require-atomic-updates */
     });
   });
 

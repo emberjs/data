@@ -526,7 +526,9 @@ module('async belongs-to rendering tests', function(hooks) {
         assert.ok(true, `Accessing resulted in rejected promise error: ${e.message}`);
       }
 
+      /* eslint-disable require-atomic-updates */
       Ember.onerror = originalOnError;
+      /* eslint-enable require-atomic-updates */
     });
 
     test('accessing a linked async belongs-to whose fetch fails does not error for null proxy content', async function(assert) {

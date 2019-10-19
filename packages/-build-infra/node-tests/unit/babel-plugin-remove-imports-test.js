@@ -49,7 +49,9 @@ describe('Unit: babel-plugin-remove-filtered-imports', function() {
       await output.dispose();
     }
 
+    /* eslint-disable require-atomic-updates */
     input = output = undefined;
+    /* eslint-enable require-atomic-updates */
   });
 
   it('Returns a plugin', function() {

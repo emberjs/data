@@ -128,7 +128,9 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     assert.deepEqual(record.color, 'blue', 'we have a color to represent we were modified');
 
     // reset
+    /* eslint-disable require-atomic-updates */
     addedRecords = updatedRecords = [];
+    /* eslint-enable require-atomic-updates */
     removedCount = removedIndex = null;
 
     post = store.createRecord('post', { id: '2', title: 'New Post' });
@@ -156,7 +158,9 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       'The newly created post has meaningful color to represent new-ness';
 
     // reset
+    /* eslint-disable require-atomic-updates */
     addedRecords = updatedRecords = [];
+    /* eslint-enable require-atomic-updates */
     removedCount = removedIndex = null;
 
     post.unloadRecord();

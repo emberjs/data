@@ -323,7 +323,9 @@ module('unit/store async-waiter and leak detection', function(hooks) {
 
     assert.equal(waiter(), true, 'We return true to end waiting when no requests are pending');
 
+    /* eslint-disable require-atomic-updates */
     store.generateStackTracesForTrackedRequests = true;
+    /* eslint-enable require-atomic-updates */
     request = store.findRecord('person', '2');
 
     assert.equal(

@@ -18,10 +18,6 @@ module.exports = {
     'no-caller': 'error',
     'no-eq-null': 'error',
     'no-console': 'error', // no longer recommended in eslint v6, this restores it
-
-    // Too many false positives
-    // See https://github.com/eslint/eslint/issues/11899 and similar
-    'require-atomic-updates': 'off',
   },
   globals: {
     heimdall: true,
@@ -46,7 +42,6 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'no-unused-vars': 'off',
-        'require-atomic-updates': 'off',
       },
     },
 
