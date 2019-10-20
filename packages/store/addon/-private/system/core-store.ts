@@ -1626,18 +1626,7 @@ abstract class CoreStore extends Service {
 
     // fetch via link
     if (shouldFindViaLink) {
-      return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options).then(
-        internalModels => {
-          let payload: { data: any[]; meta?: any } = {
-            data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()),
-          };
-          if (internalModels.meta !== undefined) {
-            payload.meta = internalModels.meta;
-          }
-          parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, payload);
-          return internalModels;
-        }
-      );
+      return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options);
     }
 
     let preferLocalCache = hasAnyRelationshipData && !relationshipIsEmpty;
@@ -1707,13 +1696,7 @@ abstract class CoreStore extends Service {
     }
     return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
       internalModel => {
-        let response = internalModel && recordDataFor(internalModel).getResourceIdentifier();
-        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
-        if (internalModel === null) {
-          return null;
-        }
-        // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
-        return internalModel.getRecord();
+        return internalModel ? internalModel.getRecord() : null;
       }
     );
   }
