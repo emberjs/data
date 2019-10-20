@@ -131,17 +131,24 @@ function syncRelationshipDataFromLink(store, payload, parentInternalModel, relat
 
   // now, push the left hand side (the parent record) to ensure things are in sync, since
   // the payload will be pushed with store._push
-  store.push({
-    data: {
-      id: parentInternalModel.id,
-      type: parentInternalModel.modelName,
-      relationships: {
-        [relationship.key]: {
-          data: relationshipData,
-        },
+  const parentPayload = {
+    id: parentInternalModel.id,
+    type: parentInternalModel.modelName,
+    relationships: {
+      [relationship.key]: {
+        meta: payload.meta,
+        links: payload.links,
+        data: relationshipData,
       },
     },
-  });
+  };
+
+  if (!Array.isArray(payload.included)) {
+    payload.included = [];
+  }
+  payload.included.push(parentPayload);
+
+  return payload;
 }
 
 function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, parentRelationship, index) {
@@ -283,10 +290,9 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
       let serializer = serializerForAdapter(store, adapter, relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findHasMany');
 
-      syncRelationshipDataFromLink(store, payload, internalModel, relationship);
+      payload = syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       let internalModelArray = store._push(payload);
-      internalModelArray.meta = payload.meta;
       return internalModelArray;
     },
     null,
@@ -312,7 +318,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
         return null;
       }
 
-      syncRelationshipDataFromLink(store, payload, internalModel, relationship);
+      payload = syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       return store._push(payload);
     },
