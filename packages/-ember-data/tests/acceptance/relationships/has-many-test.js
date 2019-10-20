@@ -457,7 +457,7 @@ module('async has-many rendering tests', function(hooks) {
       assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
       assert.equal(!!RelationshipProxyCache['children'], true, 'The relationship has a promise proxy');
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
-      assert.equal(!!relationshipState.link, true, 'The relationship has a link');
+      assert.equal(!!(relationshipState.links && relationshipState.links.related), true, 'The relationship has a link');
 
       Ember.onerror = originalOnError;
     });

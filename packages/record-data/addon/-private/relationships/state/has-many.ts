@@ -1,6 +1,7 @@
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
+import { assign } from '@ember/polyfills';
 import { isNone } from '@ember/utils';
 import {
   RelationshipRecordData,
@@ -223,10 +224,8 @@ export default class ManyRelationship extends Relationship {
     if (this.hasAnyRelationshipData) {
       payload.data = this.currentState.map(recordData => recordData.getResourceIdentifier());
     }
-    if (this.link) {
-      payload.links = {
-        related: this.link,
-      };
+    if (this.links) {
+      payload.links = this.links;
     }
     if (this.meta) {
       payload.meta = this.meta;

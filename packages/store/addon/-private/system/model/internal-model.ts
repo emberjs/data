@@ -729,6 +729,7 @@ export default class InternalModel {
         type: this.store.modelFor(relationshipMeta.type),
         recordData: this._recordData,
         meta: jsonApi.meta,
+        links: jsonApi.links,
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),

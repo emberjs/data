@@ -128,6 +128,8 @@ export function proxyToContent(method) {
   @extends Ember.ArrayProxy
 */
 export const PromiseManyArray = PromiseArray.extend({
+  links: reads('content.links'),
+
   reload(options) {
     assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
     this.set('promise', this.get('content').reload(options));

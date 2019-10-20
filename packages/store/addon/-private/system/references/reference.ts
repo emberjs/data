@@ -2,6 +2,8 @@ import InternalModel from '../model/internal-model';
 import recordDataFor from '../record-data-for';
 import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import CoreStore from '../core-store';
+import { PaginationLinks, LinkObject } from '../../ts-interfaces/ember-data-json-api';
+import { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
 
 /**
   @module @ember-data/store
@@ -14,7 +16,9 @@ interface ResourceIdentifier {
   meta?: JSONObject;
 }
 
-function isResourceIdentiferWithRelatedLinks(value: any): value is ResourceIdentifier & { links: { related: string } } {
+function isResourceIdentiferWithRelatedLinks(
+  value: any
+): value is ResourceIdentifier & { links: { related: string | LinkObject | null } } {
   return value && value.links && value.links.related;
 }
 
@@ -30,7 +34,7 @@ export default abstract class Reference {
     this.recordData = recordDataFor(this);
   }
 
-  public _resource(): ResourceIdentifier | (JSONObject & { meta?: { [k: string]: JSONValue } }) | void {}
+  public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
 
   /**
    This returns a string that represents how the reference will be
@@ -118,16 +122,22 @@ export default abstract class Reference {
    @method link
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
-  link() {
-    let link: string | null = null;
+  link(): string | null {
+    let link;
     let resource = this._resource();
 
     if (isResourceIdentiferWithRelatedLinks(resource)) {
       if (resource.links) {
         link = resource.links.related;
+        link = !link || typeof link === 'string' ? link : link.href;
       }
     }
-    return link;
+    return link || null;
+  }
+  links(): PaginationLinks | null {
+    let resource = this._resource();
+
+    return resource && resource.links ? resource.links : null;
   }
 
   /**

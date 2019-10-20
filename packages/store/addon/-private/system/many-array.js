@@ -229,6 +229,9 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
     if (jsonApi.meta) {
       this.set('meta', jsonApi.meta);
     }
+    if (jsonApi.links) {
+      this.set('links', jsonApi.links);
+    }
     this.flushCanonical(internalModels, true);
   },
 

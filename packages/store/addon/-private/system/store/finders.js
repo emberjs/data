@@ -274,7 +274,8 @@ function validateRelationshipEntry({ id }, { id: parentModelID }) {
 export function _findHasMany(adapter, store, internalModel, link, relationship, options) {
   let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
-  let promise = adapter.findHasMany(store, snapshot, link, relationship);
+  let relatedLink = !link || typeof link === 'string' ? link : link.href;
+  let promise = adapter.findHasMany(store, snapshot, relatedLink, relationship);
   let label = `DS: Handle Adapter#findHasMany of '${internalModel.modelName}' : '${relationship.type}'`;
 
   promise = guardDestroyedStore(promise, store, label);
@@ -302,7 +303,8 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship, options) {
   let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
-  let promise = adapter.findBelongsTo(store, snapshot, link, relationship);
+  let relatedLink = !link || typeof link === 'string' ? link : link.href;
+  let promise = adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
   let label = `DS: Handle Adapter#findBelongsTo of ${internalModel.modelName} : ${relationship.type}`;
 
   promise = guardDestroyedStore(promise, store, label);

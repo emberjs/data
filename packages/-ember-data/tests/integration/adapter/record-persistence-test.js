@@ -28,7 +28,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test("When a store is committed, the adapter's `commit` method should be called with records that have been changed.", function(assert) {
+  test("When a store is committed, the adapter's `updateRecord` method should be called with records that have been changed.", async function(assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -42,27 +42,18 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
       return run(RSVP, 'resolve');
     };
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Braaaahm Dale',
-          },
+    const tom = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Braaaahm Dale',
         },
-      });
+      },
     });
 
-    let tom;
-
-    return run(() => {
-      return store.findRecord('person', 1).then(person => {
-        tom = person;
-        set(tom, 'name', 'Tom Dale');
-        return tom.save();
-      });
-    });
+    set(tom, 'name', 'Tom Dale');
+    await tom.save();
   });
 
   test("When a store is committed, the adapter's `commit` method should be called with records that have been created.", function(assert) {
