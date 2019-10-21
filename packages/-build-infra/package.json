@@ -32,7 +32,7 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-version-checker": "^3.1.2",
     "esm": "^3.2.25",
-    "git-repo-info": "^2.0.0",
+    "git-repo-info": "^2.1.1",
     "glob": "^7.1.4",
     "npm-git-info": "^1.0.3",
     "rimraf": "^3.0.0",
