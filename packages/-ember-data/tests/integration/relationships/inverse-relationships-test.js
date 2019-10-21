@@ -627,7 +627,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
       assert.expectAssertion(() => {
         store.createRecord('user', { post: null });
-      }, /No model was found for/);
+      }, /No model was found for 'post' and no schema handles the type/);
 
       // but don't error if the relationship is not used
       store.createRecord('user', {});

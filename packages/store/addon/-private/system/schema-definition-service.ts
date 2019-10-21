@@ -5,6 +5,8 @@ import { getOwner } from '@ember/application';
 import normalizeModelName from './normalize-model-name';
 import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import require, { has } from 'require';
+import CoreStore from './core-store';
+type Model = import('@ember-data/model').default;
 
 const HAS_MODEL_PACKAGE = has('@ember-data/model');
 let _Model;
@@ -80,7 +82,7 @@ export class DSModelSchemaDefinitionService {
  * @param normalizedModelName already normalized modelName
  * @return {*}
  */
-export function getModelFactory(store, cache, normalizedModelName) {
+export function getModelFactory(store: CoreStore, cache, normalizedModelName: string): Model | null {
   let factory = cache[normalizedModelName];
 
   if (!factory) {
@@ -97,9 +99,7 @@ export function getModelFactory(store, cache, normalizedModelName) {
     }
 
     let klass = factory.class;
-    // assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
-    // TODO: deprecate this
     if (klass.isModel) {
       let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
       if (!hasOwnModelNameSet) {

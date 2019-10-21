@@ -10,7 +10,7 @@ import { isPresent } from '@ember/utils';
 import { deprecate } from '@ember/application/deprecations';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
-import ShimModelClass from './model/shim-model-class';
+import ShimModelClass, { getShimClass } from './model/shim-model-class';
 import { setOwner, getOwner } from '@ember/application';
 import { DSModel } from '../ts-interfaces/ds-model';
 import NotificationManager from './record-notification-manager';
@@ -21,6 +21,7 @@ import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper
 import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import notifyChanges from './model/notify-changes';
+type DSModelClass = import('@ember-data/model').default;
 
 /**
   The store service contains all of the data for records loaded from the server.
@@ -143,7 +144,7 @@ class Store extends CoreStore {
   @param {String} modelName
   @return {Model}
     */
-  modelFor(modelName) {
+  modelFor(modelName: string): ShimModelClass | DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
@@ -156,15 +157,18 @@ class Store extends CoreStore {
     let maybeFactory = this._modelFactoryFor(modelName);
 
     // for factorFor factory/class split
-    let klass = maybeFactory.class ? maybeFactory.class : maybeFactory;
-    if (!klass.isModel) {
-      return new ShimModelClass(this, modelName);
+    let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
+    if (!klass || !klass.isModel) {
+      if (!CUSTOM_MODEL_CLASS || !this.getSchemaDefinitionService().doesTypeExist(modelName)) {
+        throw new EmberError(`No model was found for '${modelName}' and no schema handles the type`);
+      }
+      return getShimClass(this, modelName);
     } else {
       return klass;
     }
   }
 
-  _modelFactoryFor(modelName) {
+  _modelFactoryFor(modelName: string): DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, '_modelFactoryFor');
     }
@@ -175,10 +179,6 @@ class Store extends CoreStore {
     );
     let normalizedModelName = normalizeModelName(modelName);
     let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
-
-    if (factory === null) {
-      throw new EmberError(`No model was found for '${normalizedModelName}'`);
-    }
 
     return factory;
   }

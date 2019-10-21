@@ -54,7 +54,6 @@ if (CUSTOM_MODEL_CLASS) {
         teardownRecord(record) {},
       });
 
-      owner.register('model:person', Person);
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({

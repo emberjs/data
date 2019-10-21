@@ -68,7 +68,7 @@ import { DSModel } from '../ts-interfaces/ds-model';
 import NotificationManager from './record-notification-manager';
 import { AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
-import ShimModelClass from './model/shim-model-class';
+import ShimModelClass, { getShimClass } from './model/shim-model-class';
 import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
 import RecordData from '../ts-interfaces/record-data';
 import { Dict } from '../ts-interfaces/utils';
@@ -513,7 +513,7 @@ abstract class CoreStore extends Service {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
 
-    return new ShimModelClass(this, modelName);
+    return getShimClass(this, modelName);
   }
 
   // Feature Flagged in DSModelStore
