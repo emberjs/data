@@ -114,7 +114,7 @@
     "eslint-plugin-qunit": "^4.0.0",
     "execa": "^2.1.0",
     "fromentries": "^1.2.0",
-    "git-repo-info": "^2.0.0",
+    "git-repo-info": "^2.1.1",
     "github": "^1.1.1",
     "glob": "^7.1.4",
     "json-typescript": "^1.1.0",
