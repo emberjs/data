@@ -914,56 +914,70 @@ module('unit/model - Model', function(hooks) {
   });
 
   module('toJSON()', function(hooks) {
-    test('A Model can be JSONified', async function(assert) {
-      let record = store.createRecord('person', { name: 'TomHuda' });
+    deprecatedTest(
+      'A Model can be JSONified',
+      {
+        id: 'ember-data:model.toJSON',
+        until: '4.0',
+      },
+      async function(assert) {
+        let record = store.createRecord('person', { name: 'TomHuda' });
 
-      assert.deepEqual(record.toJSON(), {
-        data: {
-          type: 'people',
-          attributes: {
-            name: 'TomHuda',
-            'is-archived': undefined,
-            'is-drug-addict': false,
+        assert.deepEqual(record.toJSON(), {
+          data: {
+            type: 'people',
+            attributes: {
+              name: 'TomHuda',
+              'is-archived': undefined,
+              'is-drug-addict': false,
+            },
           },
-        },
-      });
-    });
-
-    test('toJSON looks up the JSONSerializer using the store instead of using JSONSerializer.create', async function(assert) {
-      class Author extends Model {
-        @hasMany('post', { async: false, inverse: 'author' })
-        posts;
+        });
       }
-      class Post extends Model {
-        @belongsTo('author', { async: false, inverse: 'posts' })
-        author;
+    );
+
+    deprecatedTest(
+      'toJSON looks up the JSONSerializer using the store instead of using JSONSerializer.create',
+      {
+        id: 'ember-data:model.toJSON',
+        until: '4.0',
+      },
+      async function(assert) {
+        class Author extends Model {
+          @hasMany('post', { async: false, inverse: 'author' })
+          posts;
+        }
+        class Post extends Model {
+          @belongsTo('author', { async: false, inverse: 'posts' })
+          author;
+        }
+        this.owner.register('model:author', Author);
+        this.owner.register('model:post', Post);
+
+        // Loading the person without explicitly
+        // loading its relationships seems to trigger the
+        // original bug where `this.store` was not
+        // present on the serializer due to using .create
+        // instead of `store.serializerFor`.
+        let person = store.push({
+          data: {
+            type: 'author',
+            id: '1',
+          },
+        });
+
+        let errorThrown = false;
+        let json;
+        try {
+          json = person.toJSON();
+        } catch (e) {
+          errorThrown = true;
+        }
+
+        assert.ok(!errorThrown, 'error not thrown due to missing store');
+        assert.deepEqual(json, { data: { type: 'authors' } });
       }
-      this.owner.register('model:author', Author);
-      this.owner.register('model:post', Post);
-
-      // Loading the person without explicitly
-      // loading its relationships seems to trigger the
-      // original bug where `this.store` was not
-      // present on the serializer due to using .create
-      // instead of `store.serializerFor`.
-      let person = store.push({
-        data: {
-          type: 'author',
-          id: '1',
-        },
-      });
-
-      let errorThrown = false;
-      let json;
-      try {
-        json = person.toJSON();
-      } catch (e) {
-        errorThrown = true;
-      }
-
-      assert.ok(!errorThrown, 'error not thrown due to missing store');
-      assert.deepEqual(json, { data: { type: 'authors' } });
-    });
+    );
   });
 
   module('Updating', function() {

@@ -155,10 +155,13 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       assert.equal(recordArray.get('meta').bar, 2);
     });
     assert.equal(didLoad, 1, 'didLoad event should have fired once');
+    assert.expectDeprecation({
+      id: 'ember-data:evented-api-usage',
+    });
   });
 
   test('change events when receiving a new query payload', function(assert) {
-    assert.expect(37);
+    assert.expect(38);
 
     let arrayDidChange = 0;
     let contentDidChange = 0;
@@ -276,5 +279,9 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
     assert.deepEqual(recordArray.map(x => x.name), ['Scumbag Penner']);
+    assert.expectDeprecation({
+      id: 'ember-data:evented-api-usage',
+      count: 1,
+    });
   });
 });

@@ -147,8 +147,8 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     });
   });
 
-  test(`Calling push triggers 'didLoad' even if the record hasn't been requested from the adapter`, function(assert) {
-    assert.expect(1);
+  test(`Calling push triggers 'didLoad' even if the record hasn't been requested from the adapter`, async function(assert) {
+    assert.expect(2);
 
     let didLoad = new EmberPromise((resolve, reject) => {
       Person.reopen({
@@ -176,7 +176,10 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       });
     });
 
-    return didLoad;
+    await didLoad;
+    assert.expectDeprecation({
+      id: 'ember-data:record-lifecycle-event-methods',
+    });
   });
 
   test('Calling push with partial records updates just those attributes', function(assert) {
