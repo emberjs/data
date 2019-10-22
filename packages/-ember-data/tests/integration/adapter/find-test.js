@@ -192,7 +192,8 @@ module('integration/adapter/find - Finding Records', function(hooks) {
       await store.findRecord('person', 'the-id');
       assert.ok(false, 'We expected to throw but did not');
     } catch (e) {
-      const expectedMessageRegex = "Assertion Failed: You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data";
+      const expectedMessageRegex =
+        "Assertion Failed: You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data";
 
       assert.strictEqual(expectedMessageRegex, e.message, 'error has the correct error message');
     }
@@ -220,7 +221,8 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     try {
       await all(promises);
     } catch (e) {
-      const expectedMessageRegex = "Assertion Failed: You made a 'findMany' request for 'person' records with ids '\[1,2\]', but the adapter's response did not have any data";
+      const expectedMessageRegex =
+        "Assertion Failed: You made a 'findMany' request for 'person' records with ids '[1,2]', but the adapter's response did not have any data";
 
       assert.strictEqual(expectedMessageRegex, e.message, 'error has the correct error message');
     }
@@ -243,7 +245,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
               id: '1',
               type: 'person',
               attributes: {
-                name: 'Braaaahm Dale',
+                name: 'Camilo Zuniga - Atletico Nacional',
               },
             },
           };
@@ -285,10 +287,10 @@ module('integration/adapter/find - Finding Records', function(hooks) {
         findRecord() {
           return {
             data: {
-              id: '1',
+              id: 1,
               type: 'person',
               attributes: {
-                name: 'Braaaahm Dale',
+                name: 'camilo-zuniga',
               },
             },
           };
