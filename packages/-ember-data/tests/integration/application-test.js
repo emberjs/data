@@ -147,6 +147,9 @@ module('integration/application - Attaching initializer', function(hooks) {
     this.owner = this.application.buildInstance();
 
     let store = this.owner.lookup('service:store');
+    assert.expectDeprecation({
+      id: 'ember-data:-legacy-test-registrations',
+    });
     assert.ok(
       store && store.get('isCustomStore'),
       'ember-data initializer does not overwrite the previous registered service store'

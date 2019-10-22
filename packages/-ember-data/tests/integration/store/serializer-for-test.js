@@ -187,7 +187,8 @@ module('integration/store - serializerFor', function(hooks) {
     deprecatedTest(
       'we can specify a fallback serializer on the adapter when there is no application serializer',
       {
-        id: 'ember-data:default-serializers',
+        id: 'ember-data:default-serializer',
+        count: 1,
         until: '4.0',
       },
       async function(assert) {
@@ -233,7 +234,7 @@ module('integration/store - serializerFor', function(hooks) {
     deprecatedTest(
       'specifying defaultSerializer on the application adapter when there is a per-type serializer does not work',
       {
-        id: 'ember-data:default-serializers',
+        id: 'ember-data:default-serializer',
         until: '4.0',
       },
       async function(assert) {
@@ -309,7 +310,7 @@ module('integration/store - serializerFor', function(hooks) {
     deprecatedTest(
       'specifying defaultSerializer on a fallback adapter when there is no per-type serializer does work',
       {
-        id: 'ember-data:default-serializers',
+        id: 'ember-data:default-serializer',
         until: '4.0',
       },
       async function(assert) {
@@ -374,7 +375,8 @@ module('integration/store - serializerFor', function(hooks) {
   deprecatedTest(
     'When the per-type, application and adapter specified fallback serializer do not exist, we fallback to the -default serializer',
     {
-      id: 'ember-data:default-serializers',
+      id: 'ember-data:default-serializer',
+      count: 4,
       until: '4.0',
     },
     async function(assert) {

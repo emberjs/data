@@ -41,9 +41,7 @@ QUnit.begin(() => {
       const hooks = (mod.hooks.afterEach = mod.hooks.afterEach || []);
 
       if (mod.tests.length !== 0) {
-        if (SHOULD_ASSERT_ALL) {
-          hooks.unshift(assertAllDeprecations);
-        }
+        hooks.unshift(assertAllDeprecations);
       }
     });
   }

@@ -4,6 +4,7 @@ import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import { DEBUG } from '@glimmer/env';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
@@ -13,32 +14,49 @@ import JSONSerializer from '@ember-data/serializer/json';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Store from '@ember-data/store';
+import { deprecatedTest } from '../../helpers/deprecated-test';
 
 module('unit/store/adapter-interop - Store working with a Adapter', function(hooks) {
   setupTest(hooks);
 
-  test('Adapter can be set as a name', function(assert) {
-    this.owner.register('service:store', Store.extend({ adapter: 'application' }));
+  deprecatedTest(
+    'Adapter can be set as a name',
+    {
+      id: 'ember-data:default-adapter',
+      until: '4.0',
+    },
+    function(assert) {
+      this.owner.register('service:store', Store.extend({ adapter: 'application' }));
 
-    let store = this.owner.lookup('service:store');
+      let store = this.owner.lookup('service:store');
 
-    assert.ok(store.get('defaultAdapter') instanceof RESTAdapter);
-  });
+      assert.ok(store.get('defaultAdapter') instanceof RESTAdapter);
+    }
+  );
 
-  testInDebug('Adapter can not be set as an instance', function(assert) {
-    assert.expect(1);
+  deprecatedTest(
+    'Adapter can not be set as an instance',
+    {
+      id: 'ember-data:default-adapter',
+      until: '4.0',
+    },
+    function(assert) {
+      assert.expect(1);
 
-    const BadStore = Store.extend({
-      adapter: Adapter.create(),
-    });
+      const BadStore = Store.extend({
+        adapter: Adapter.create(),
+      });
 
-    const { owner } = this;
+      const { owner } = this;
 
-    owner.unregister('service:store');
-    owner.register('service:store', BadStore);
-    const store = owner.lookup('service:store');
-    assert.expectAssertion(() => store.get('defaultAdapter'));
-  });
+      owner.unregister('service:store');
+      owner.register('service:store', BadStore);
+      const store = owner.lookup('service:store');
+      if (DEBUG) {
+        assert.expectAssertion(() => store.get('defaultAdapter'));
+      }
+    }
+  );
 
   test('Calling Store#find invokes its adapter#find', function(assert) {
     assert.expect(5);
