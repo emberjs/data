@@ -3,6 +3,7 @@ import config from '../config/environment';
 import RSVP from 'rsvp';
 import { setApplication } from '@ember/test-helpers';
 import { start } from 'ember-qunit';
+import { DEBUG } from '@glimmer/env';
 
 import QUnit from 'qunit';
 import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
@@ -33,13 +34,15 @@ QUnit.begin(() => {
   }
   // ensure we don't regress quietly
   // this plays nicely with `expectDeprecation`
-  QUnit.config.modules.forEach(mod => {
-    const hooks = (mod.hooks.afterEach = mod.hooks.afterEach || []);
-    // prevent nested modules from asserting multiple times
-    if (mod.parentModule === null) {
-      hooks.push(assertAllDeprecations);
-    }
-  });
+  if (DEBUG) {
+    QUnit.config.modules.forEach(mod => {
+      const hooks = (mod.hooks.afterEach = mod.hooks.afterEach || []);
+
+      if (mod.tests.length !== 0) {
+        hooks.unshift(assertAllDeprecations);
+      }
+    });
+  }
 
   RSVP.configure('onerror', reason => {
     // only print error messages if they're exceptions;

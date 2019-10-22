@@ -57,6 +57,7 @@ module('integration/lifecycle_hooks - Lifecycle Hooks', function(hooks) {
     'When the adapter acknowledges that a record has been created without a new data payload, a `didCreate` event is triggered.',
     {
       id: 'ember-data:evented-api-usage',
+      count: 1,
       until: '4.0',
     },
     async function(assert) {

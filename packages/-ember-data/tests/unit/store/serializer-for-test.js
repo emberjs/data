@@ -43,7 +43,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
   deprecatedTest(
     'Calling serializerFor with a type that has not been registered and in an application that does not have an ApplicationSerializer looks up the default Ember Data serializer',
     {
-      id: 'ember-data:default-serializers',
+      id: 'ember-data:default-serializer',
       until: '4.0',
     },
     function(assert) {

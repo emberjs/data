@@ -63,7 +63,7 @@ function expectDeprecation(config: DeprecationConfig): AssertSomeResult {
   });
   HANDLED_DEPRECATIONS_FOR_TEST.push(...matchedDeprecations);
 
-  let expectedCount = typeof config.count === 'number' && config.count !== 0 ? config.count : 1;
+  let expectedCount = typeof config.count === 'number' ? config.count : 1;
   let passed = matchedDeprecations.length === expectedCount;
 
   return {

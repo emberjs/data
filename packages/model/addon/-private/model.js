@@ -1420,7 +1420,6 @@ if (DEBUG) {
       }
 
       let lifecycleDeprecations = lookupDeprecations(this.constructor);
-
       DEPRECATED_LIFECYCLE_EVENT_METHODS.forEach(methodName => {
         if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
           deprecate(

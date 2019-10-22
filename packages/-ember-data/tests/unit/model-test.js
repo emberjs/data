@@ -597,6 +597,7 @@ module('unit/model - Model', function(hooks) {
       'an event listener can be added to a record',
       {
         id: 'ember-data:evented-api-usage',
+        count: 1,
         until: '4.0',
       },
       async function(assert) {
@@ -608,10 +609,6 @@ module('unit/model - Model', function(hooks) {
         let record = store.createRecord('person');
 
         record.on('event!', F);
-
-        if (DEBUG) {
-          assert.expectDeprecation(/Called event! on person/);
-        }
 
         record.trigger('event!');
 
@@ -631,6 +628,7 @@ module('unit/model - Model', function(hooks) {
       'when an event is triggered on a record the method with the same name is invoked with arguments',
       {
         id: 'ember-data:evented-api-usage',
+        count: 0,
         until: '4.0',
       },
       async function(assert) {
@@ -654,6 +652,7 @@ module('unit/model - Model', function(hooks) {
       'when a method is invoked from an event with the same name the arguments are passed through',
       {
         id: 'ember-data:evented-api-usage',
+        count: 0,
         until: '4.0',
       },
       async function(assert) {
