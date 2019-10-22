@@ -61,7 +61,6 @@ function expectDeprecation(config: DeprecationConfig): AssertSomeResult {
   DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter(deprecation => {
     return matchedDeprecations.indexOf(deprecation) === -1;
   });
-  debugger;
   HANDLED_DEPRECATIONS_FOR_TEST.push(...matchedDeprecations);
 
   let expectedCount = typeof config.count === 'number' && config.count !== 0 ? config.count : 1;
@@ -162,7 +161,10 @@ export function configureDeprecationHandler() {
     }
   };
 
-  QUnit.assert.expectNoDeprecation = async function(cb) {
+  QUnit.assert.expectNoDeprecation = async function(
+    cb?: () => unknown,
+    filter?: (deprecation: FoundDeprecation) => boolean
+  ) {
     let origDeprecations = DEPRECATIONS_FOR_TEST;
 
     if (cb) {
@@ -173,7 +175,7 @@ export function configureDeprecationHandler() {
       }
     }
 
-    let result = expectNoDeprecation();
+    let result = expectNoDeprecation(filter);
     this.pushResult(result);
     DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
   };

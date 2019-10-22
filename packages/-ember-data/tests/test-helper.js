@@ -15,10 +15,37 @@ setApplication(Application.create(config.APP));
 const { assert } = QUnit;
 
 QUnit.begin(() => {
+  function assertAllDeprecations(assert) {
+    if (typeof assert.test.expected === 'number') {
+      assert.test.expected += 1;
+    }
+    assert.expectNoDeprecation(undefined, deprecation => {
+      // only assert EmberData deprecations
+      const id = deprecation.options.id;
+      const isEmberDataDeprecation = id.includes('DS') || id.includes('EmberData') || id.includes('ember-data');
+
+      if (!isEmberDataDeprecation) {
+        console.log('Detected Non-Ember-Data Deprecation', deprecation);
+      }
+
+      return isEmberDataDeprecation;
+    });
+  }
+  // ensure we don't regress quietly
+  // this plays nicely with `expectDeprecation`
+  QUnit.config.modules.forEach(mod => {
+    const hooks = (mod.hooks.afterEach = mod.hooks.afterEach || []);
+    // prevent nested modules from asserting multiple times
+    if (mod.parentModule === null) {
+      hooks.push(assertAllDeprecations);
+    }
+  });
+
   RSVP.configure('onerror', reason => {
     // only print error messages if they're exceptions;
     // otherwise, let a future turn of the event loop
     // handle the error.
+    // TODO kill this off
     if (reason && reason instanceof Error) {
       throw reason;
     }
