@@ -5,7 +5,6 @@ import { setApplication } from '@ember/test-helpers';
 import { start } from 'ember-qunit';
 
 import QUnit from 'qunit';
-import DS from 'ember-data';
 import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
 import configureAsserts from 'dummy/tests/helpers/qunit-asserts';
 
@@ -14,12 +13,6 @@ configureAsserts();
 setApplication(Application.create(config.APP));
 
 const { assert } = QUnit;
-const transforms = {
-  boolean: DS.BooleanTransform.create(),
-  date: DS.DateTransform.create(),
-  number: DS.NumberTransform.create(),
-  string: DS.StringTransform.create(),
-};
 
 QUnit.begin(() => {
   RSVP.configure('onerror', reason => {
@@ -29,14 +22,6 @@ QUnit.begin(() => {
     if (reason && reason instanceof Error) {
       throw reason;
     }
-  });
-
-  // Prevent all tests involving serialization to require a container
-  // TODO kill the need for this
-  DS.JSONSerializer.reopen({
-    transformFor(attributeType) {
-      return this._super(attributeType, true) || transforms[attributeType];
-    },
   });
 });
 

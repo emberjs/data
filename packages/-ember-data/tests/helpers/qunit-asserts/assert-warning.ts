@@ -147,7 +147,9 @@ export function configureWarningHandler() {
 
     let result = expectWarning(config);
     this.pushResult(result);
-    WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
+    if (callback) {
+      WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
+    }
   };
 
   QUnit.assert.expectNoWarning = async function(cb) {
