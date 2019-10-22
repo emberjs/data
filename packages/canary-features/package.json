@@ -32,7 +32,7 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-version-checker": "^3.1.2",
     "git-repo-info": "^2.1.1",
-    "glob": "^7.1.4",
+    "glob": "^7.1.5",
     "mocha": "^6.2.2",
     "npm-git-info": "^1.0.3",
     "rimraf": "^3.0.0",

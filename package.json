@@ -116,7 +116,7 @@
     "fromentries": "^1.2.0",
     "git-repo-info": "^2.1.1",
     "github": "^1.1.1",
-    "glob": "^7.1.4",
+    "glob": "^7.1.5",
     "json-typescript": "^1.1.0",
     "lerna": "^3.18.1",
     "loader.js": "^4.7.0",
