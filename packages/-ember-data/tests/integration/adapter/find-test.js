@@ -154,7 +154,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     });
   });
 
-  testInDebug('When a single record is requested, and the payload is blank', function(assert) {
+  testInDebug('When a single record is requested, and the payload is blank', async function(assert) {
     this.owner.register(
       'adapter:person',
       Adapter.extend({
@@ -164,8 +164,8 @@ module('integration/adapter/find - Finding Records', function(hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(() => {
-      run(() => store.findRecord('person', 'the-id'));
+    await assert.expectAssertion(async () => {
+      await store.findRecord('person', 'the-id');
     }, /You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data/);
   });
 
