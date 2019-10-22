@@ -26,6 +26,7 @@ QUnit.begin(() => {
       const isEmberDataDeprecation = id.includes('DS') || id.includes('EmberData') || id.includes('ember-data');
 
       if (!isEmberDataDeprecation) {
+        // eslint-disable-next-line no-console
         console.log('Detected Non-Ember-Data Deprecation', deprecation);
       }
 
