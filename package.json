@@ -15,7 +15,7 @@
     "lint:features": "./bin/lint-features",
     "lint:js": "eslint --cache --ext=js,ts .",
     "lint:js:changed": "./bin/lint-changed-js",
-    "problems": "yarn workspace ember-data problems",
+    "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "start": "yarn workspace ember-data start",
     "test": "yarn workspace ember-data test",
     "test:all": "yarn workspace ember-data test:all",
