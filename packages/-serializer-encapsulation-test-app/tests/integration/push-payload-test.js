@@ -90,7 +90,7 @@ module('integration/push-payload - pushPayload method forwards to Serializer#pus
 
     const store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(() => {
+    assert.throws(() => {
       store.pushPayload('person', {
         data: {
           id: '1',

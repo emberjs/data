@@ -1523,7 +1523,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let dogs = await person.get('dogs');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
       assert.equal(dogs.get('length'), 2);
 
@@ -1629,7 +1632,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let dogs = await person.get('dogs');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
       assert.equal(dogs.get('length'), 2);
 
@@ -1729,7 +1735,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let dogs = await person.get('dogs');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
       assert.equal(dogs.get('length'), 2);
 
@@ -1829,7 +1838,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let dogs = await person.get('dogs');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
       assert.equal(dogs.get('length'), 2);
 
@@ -1918,7 +1930,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let dog = await person.get('dog');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 1,
+      });
 
       let dogFromStore = await store.peekRecord('dog', '1');
 
@@ -2010,7 +2025,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let dog = await person.get('dog');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 1,
+      });
 
       let dogFromStore = store.peekRecord('dog', '1');
 
@@ -2100,7 +2118,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let dog = await person.get('dog');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 1,
+      });
 
       let dogFromStore = await store.peekRecord('dog', '1');
 
@@ -2190,7 +2211,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let dog = await person.get('dog');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 1,
+      });
 
       let dogFromStore = await store.peekRecord('dog', '1');
 
@@ -2285,7 +2309,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let person = await dog.get('person');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 1,
+      });
       let dogFromStore = await store.peekRecord('dog', '1');
 
       assert.equal(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
@@ -2370,7 +2397,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let person = await dog.get('person');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 1,
+      });
       let dogFromStore = await store.peekRecord('dog', '1');
 
       assert.equal(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
@@ -2450,7 +2480,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let person = await dog.get('person');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 1,
+      });
       let dogFromStore = await store.peekRecord('dog', '1');
 
       assert.equal(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
@@ -2530,7 +2563,10 @@ module('inverse relationship load test', function(hooks) {
       });
 
       let person = await dog.get('person');
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 1,
+      });
       let dogFromStore = await store.peekRecord('dog', '1');
 
       assert.equal(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
@@ -2644,7 +2680,10 @@ module('inverse relationship load test', function(hooks) {
 
       let person1Dogs = await person1.get('dogs');
 
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person1.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
@@ -2817,7 +2856,10 @@ module('inverse relationship load test', function(hooks) {
 
       let person1Dogs = await person1.get('dogs');
 
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person1.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
@@ -2971,7 +3013,10 @@ module('inverse relationship load test', function(hooks) {
 
       await person.get('dogs');
 
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
@@ -3090,7 +3135,10 @@ module('inverse relationship load test', function(hooks) {
 
       await person.get('dogs');
 
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
@@ -3209,7 +3257,10 @@ module('inverse relationship load test', function(hooks) {
 
       let dogs = await person.get('dogs');
 
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
@@ -3327,7 +3378,10 @@ module('inverse relationship load test', function(hooks) {
 
       let dogs = await person.get('dogs');
 
-      assert.expectDeprecation(/Encountered mismatched relationship/);
+      assert.expectDeprecation({
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        count: 2,
+      });
       assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');

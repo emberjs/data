@@ -83,7 +83,7 @@ module('integration/serializer - normalize method forwards to Serializer#normali
 
     const store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(() => {
+    assert.throws(() => {
       store.normalize('person', {
         id: '1',
         type: 'person',

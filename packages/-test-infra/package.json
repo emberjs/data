@@ -1,6 +1,7 @@
 {
   "name": "@ember-data/-test-infra",
   "version": "3.15.0-alpha.1",
+  "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [],
   "repository": "",
