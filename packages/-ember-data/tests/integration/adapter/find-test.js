@@ -53,7 +53,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
           count++;
           return {
             data: {
-              id: 1,
+              id: '1',
               type: 'person',
               attributes: {
                 name: 'Braaaahm Dale',
@@ -67,8 +67,8 @@ module('integration/adapter/find - Finding Records', function(hooks) {
 
     const store = this.owner.lookup('service:store');
 
-    store.findRecord('person', 1);
-    store.findRecord('person', 1);
+    store.findRecord('person', '1');
+    store.findRecord('person', '1');
   });
 
   test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', function(assert) {
@@ -94,18 +94,18 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     this.owner.register('serializer:application', JSONAPISerializer.extend());
 
     const store = this.owner.lookup('service:store');
-    const requestOne = store.findRecord('person', 1).then(person => {
+    const requestOne = store.findRecord('person', '1').then(person => {
       assert.equal(person.get('id'), '1');
       assert.equal(person.get('name'), 'Braaaahm Dale');
     });
-    const requestTwo = store.findRecord('person', 1).then(post => {
+    const requestTwo = store.findRecord('person', '1').then(post => {
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('name'), 'Braaaahm Dale');
     });
 
     deferred.resolve({
       data: {
-        id: 1,
+        id: '1',
         type: 'person',
         attributes: {
           name: 'Braaaahm Dale',
@@ -167,7 +167,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
       assert.ok(false, 'We expected to throw but did not');
     } catch (e) {
       assert.ok(true, 'The rejection handler was called');
-      assert.ok(!store.hasRecordForId('person', 1), 'The record has been unloaded');
+      assert.ok(!store.hasRecordForId('person', '1'), 'The record has been unloaded');
     }
   });
 
@@ -192,9 +192,9 @@ module('integration/adapter/find - Finding Records', function(hooks) {
       await store.findRecord('person', 'the-id');
       assert.ok(false, 'We expected to throw but did not');
     } catch (e) {
-      const expectedMessageRegex = /You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data/;
+      const expectedMessageRegex = "Assertion Failed: You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data";
 
-      assert.ok(expectedMessageRegex.test(e.message));
+      assert.strictEqual(expectedMessageRegex, e.message, 'error has the correct error message');
     }
   });
 
@@ -219,10 +219,10 @@ module('integration/adapter/find - Finding Records', function(hooks) {
 
     try {
       await all(promises);
-    } catch (error) {
-      const expectedMessageRegex = /You made a 'findMany' request for 'person' records with ids '\[1,2\]', but the adapter's response did not have any data/;
+    } catch (e) {
+      const expectedMessageRegex = "Assertion Failed: You made a 'findMany' request for 'person' records with ids '\[1,2\]', but the adapter's response did not have any data";
 
-      assert.ok(expectedMessageRegex.test(error.message));
+      assert.strictEqual(expectedMessageRegex, e.message, 'error has the correct error message');
     }
   });
 
@@ -240,7 +240,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
         findRecord() {
           return {
             data: {
-              id: 1,
+              id: '1',
               type: 'person',
               attributes: {
                 name: 'Braaaahm Dale',
@@ -285,7 +285,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
         findRecord() {
           return {
             data: {
-              id: 1,
+              id: '1',
               type: 'person',
               attributes: {
                 name: 'Braaaahm Dale',
@@ -299,7 +299,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     const store = this.owner.lookup('service:store');
 
     assert.expectNoWarning(
-      () => run(() => store.findRecord('person', 1)),
+      () => run(() => store.findRecord('person', '1')),
       /You requested a record of type 'person' with id '1' but the adapter returned a payload with primary data having an id of '1'/
     );
     assert.expectNoWarning(
