@@ -56,7 +56,7 @@ function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSom
     return isMatched;
   });
   DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter(deprecation => {
-    matchedDeprecations.indexOf(deprecation) === -1;
+    return matchedDeprecations.indexOf(deprecation) === -1;
   });
   HANDLED_DEPRECATIONS_FOR_TEST.push(...matchedDeprecations);
 
@@ -75,9 +75,18 @@ function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSom
   };
 }
 
-function verifyNoDeprecation(label?: string): AssertNoneResult {
-  const UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST;
-  DEPRECATIONS_FOR_TEST = [];
+function verifyNoDeprecation(filter?: (deprecation: FoundDeprecation) => boolean, label?: string): AssertNoneResult {
+  let UNHANDLED_DEPRECATIONS;
+
+  if (filter) {
+    UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST.filter(filter);
+    DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter(deprecation => {
+      return UNHANDLED_DEPRECATIONS.indexOf(deprecation) === -1;
+    });
+  } else {
+    UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST;
+    DEPRECATIONS_FOR_TEST = [];
+  }
 
   let deprecationStr = UNHANDLED_DEPRECATIONS.reduce((a, b) => {
     return `${a}${b.message}\n`;
@@ -149,10 +158,15 @@ export function configureDeprecationHandler() {
 
     let result = verifyDeprecation(config, label);
     this.pushResult(result);
-    DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
+    if (callback) {
+      DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
+    }
   };
-
-  QUnit.assert.expectNoDeprecation = async function(cb, label?: string) {
+  QUnit.assert.expectNoDeprecation = async function(
+    cb?: () => unknown,
+    label?: string,
+    filter?: (deprecation: FoundDeprecation) => boolean
+  ) {
     let origDeprecations = DEPRECATIONS_FOR_TEST;
 
     if (cb) {
@@ -163,7 +177,7 @@ export function configureDeprecationHandler() {
       }
     }
 
-    let result = verifyNoDeprecation(label);
+    let result = verifyNoDeprecation(filter, label);
     this.pushResult(result);
     DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
   };

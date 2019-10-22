@@ -1,10 +1,10 @@
 import { DEBUG } from '@glimmer/env';
 import { test, skip } from 'qunit';
 
-export default function testInDebug() {
+export default function testInDebug(label, callback) {
   if (DEBUG) {
-    test(...arguments);
+    test(`[DEBUG-ONLY] ${label}`, callback);
   } else {
-    skip(...arguments);
+    skip(`[DEBUG-ONLY] ${label}`, callback);
   }
 }
