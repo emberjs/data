@@ -59,7 +59,7 @@ function expectDeprecation(config: DeprecationConfig): AssertSomeResult {
     return isMatched;
   });
   DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter(deprecation => {
-    matchedDeprecations.indexOf(deprecation) === -1;
+    return matchedDeprecations.indexOf(deprecation) === -1;
   });
   HANDLED_DEPRECATIONS_FOR_TEST.push(...matchedDeprecations);
 
@@ -76,9 +76,18 @@ function expectDeprecation(config: DeprecationConfig): AssertSomeResult {
   };
 }
 
-function expectNoDeprecation(): AssertNoneResult {
-  const UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST;
-  DEPRECATIONS_FOR_TEST = [];
+function expectNoDeprecation(filter?: (deprecation: FoundDeprecation) => boolean): AssertNoneResult {
+  let UNHANDLED_DEPRECATIONS;
+
+  if (filter) {
+    UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST.filter(filter);
+    DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter(deprecation => {
+      return UNHANDLED_DEPRECATIONS.indexOf(deprecation) === -1;
+    });
+  } else {
+    UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST;
+    DEPRECATIONS_FOR_TEST = [];
+  }
 
   let deprecationStr = UNHANDLED_DEPRECATIONS.reduce((a, b) => {
     return `${a}${b.message}\n`;

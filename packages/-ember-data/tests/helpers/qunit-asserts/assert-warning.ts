@@ -59,7 +59,7 @@ function expectWarning(config: WarningConfig): AssertSomeResult {
     return isMatched;
   });
   WARNINGS_FOR_TEST = WARNINGS_FOR_TEST.filter(warning => {
-    matchedWarnings.indexOf(warning) === -1;
+    return matchedWarnings.indexOf(warning) === -1;
   });
   HANDLED_WARNINGS_FOR_TEST.push(...matchedWarnings);
 
