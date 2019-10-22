@@ -58,7 +58,7 @@
     "ember-cli": "~3.13.1",
     "ember-cli-app-version": "^3.2.0",
     "ember-cli-dependency-checker": "^3.2.0",
-    "ember-cli-htmlbars": "^4.0.6",
+    "ember-cli-htmlbars": "^4.0.8",
     "ember-cli-inject-live-reload": "^2.0.2",
     "ember-cli-internal-test-helpers": "^0.9.1",
     "ember-cli-pretender": "^3.1.1",
