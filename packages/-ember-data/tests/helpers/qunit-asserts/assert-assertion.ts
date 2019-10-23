@@ -1,5 +1,6 @@
 import QUnit from 'qunit';
 import { checkMatcher } from './check-matcher';
+import { DEBUG } from '@glimmer/env';
 import RSVP from 'rsvp';
 
 let HAS_REGISTERED = false;
@@ -46,14 +47,23 @@ export function configureAssertionHandler() {
 
   QUnit.assert.expectAssertion = async function(cb: () => unknown, matcher: string | RegExp): Promise<void> {
     let outcome;
-    try {
-      let result = cb();
-      if (result instanceof Promise || result instanceof RSVP.Promise) {
-        await result;
+    if (DEBUG) {
+      try {
+        let result = cb();
+        if (result instanceof Promise || result instanceof RSVP.Promise) {
+          await result;
+        }
+        outcome = expectAssertion('', matcher);
+      } catch (e) {
+        outcome = expectAssertion(e.message, matcher);
       }
-      outcome = expectAssertion('', matcher);
-    } catch (e) {
-      outcome = expectAssertion(e.message, matcher);
+    } else {
+      outcome = {
+        result: true,
+        actual: '',
+        expected: '',
+        message: `Assertions do not run in production environments`,
+      };
     }
 
     this.pushResult(outcome);
