@@ -1,25 +1,3 @@
 {
-  "compilerOptions": {
-    "target": "es2017",
-    "allowJs": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false,
-    "noEmitOnError": false,
-    "strictNullChecks": true,
-    "experimentalDecorators": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "baseUrl": ".",
-    "module": "esnext",
-    "paths": {
-      "dummy/tests/*": ["tests/*"],
-      "dummy/*": ["tests/dummy/app/*", "app/*"],
-      "*": ["types/*"]
-    }
-  },
-  "include": ["app/**/*", "addon/**/*", "tests/**/*", "types/**/*", "test-support/**/*", "addon-test-support/**/*"],
-  "exclude": ["node_modules"]
+  "extends": "../../tsconfig.json"
 }

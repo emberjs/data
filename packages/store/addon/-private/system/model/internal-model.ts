@@ -1544,7 +1544,7 @@ export default class InternalModel {
         let modelName = this.modelName;
         assert(
           `There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`,
-          relationship
+          !!relationship
         );
 
         let actualRelationshipKind = relationship.relationshipMeta.kind;
