@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
       - name: Yarn install
         run: yarn --frozen-lockfile
       - name: Lint features
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
       - name: Install dependencies
         run: yarn install
       - name: Basic tests
@@ -71,7 +71,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
       - name: Install dependencies w/o lockfile
         run: yarn install --no-lockfile --non-interactive
       - name: Basic Tests
@@ -82,16 +82,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [
-          ember-lts-3.8,
-          ember-lts-3.12
-        ]
+        scenario: [ember-lts-3.8, ember-lts-3.12]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
@@ -110,18 +107,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [
-          ember-release,
-          ember-beta,
-          ember-canary,
-          ember-release-with-jquery
-        ]
+        scenario: [ember-release, ember-beta, ember-canary, ember-release-with-jquery]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
@@ -133,17 +125,13 @@ jobs:
     needs: [lint, basic-tests]
     strategy:
       matrix:
-        scenario: [
-          default-with-jquery,
-          with-ember-fetch,
-          with-max-transpilation
-        ]
+        scenario: [default-with-jquery, with-ember-fetch, with-max-transpilation]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
@@ -152,14 +140,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   external-partners:
-    needs: [
-      additional-scenarios,
-      basic-tests,
-      floating-dependencies,
-      lint,
-      lts,
-      releases
-    ]
+    needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
     if: |
       github.event_name == 'pull_request' && (
         github.base_ref == 'master' || github.base_ref == 'beta'
@@ -170,18 +151,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partner: [
-          ember-data-change-tracker,
-          ember-data-relationship-tracker,
-          ember-m3,
-          ember-observer,
-          ember-resource-metadata,
-          factory-guy,
-          ilios-frontend,
-          model-fragments,
-          storefront,
-          travis-web
-        ]
+        partner:
+          [
+            ember-data-change-tracker,
+            ember-data-relationship-tracker,
+            ember-m3,
+            ember-observer,
+            ember-resource-metadata,
+            factory-guy,
+            ilios-frontend,
+            model-fragments,
+            storefront,
+            travis-web,
+          ]
         include:
           - partner: ember-data-change-tracker
             continue-on-error: true
@@ -193,7 +175,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
       - name: Install dependencies
         run: yarn install
       - name: Generate package tarballs
