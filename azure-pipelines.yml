@@ -23,7 +23,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
       - script: |
           yarn --frozen-lockfile
           yarn lint:features
@@ -44,7 +44,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           yarn
@@ -69,7 +69,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -116,7 +116,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           yarn
@@ -144,7 +144,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -169,7 +169,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -190,7 +190,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -232,7 +232,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -254,7 +254,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -277,7 +277,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -300,7 +300,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
