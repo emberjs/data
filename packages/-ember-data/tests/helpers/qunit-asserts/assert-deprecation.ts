@@ -45,7 +45,7 @@ interface AssertNoneResult {
  * Fails if `until` not specified
  * Optionally fails if `until` has been passed.
  */
-function verifyDeprecation(config: DeprecationConfig): AssertSomeResult {
+function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSomeResult {
   // TODO optionally throw if `until` is the current version or older than current version
   let matchedDeprecations = DEPRECATIONS_FOR_TEST.filter(deprecation => {
     if (!deprecation.options || !deprecation.options.id) {
@@ -70,13 +70,15 @@ function verifyDeprecation(config: DeprecationConfig): AssertSomeResult {
     result: passed,
     actual: { id: config.id, count: matchedDeprecations.length },
     expected: { id: config.id, count: expectedCount },
-    message: `Expected ${expectedCount} deprecation${expectedCount === 1 ? '' : 's'} for ${config.id} during test, ${
-      passed ? expectedCount : 'but ' + matchedDeprecations.length
-    } deprecations were found.`,
+    message:
+      label ||
+      `Expected ${expectedCount} deprecation${expectedCount === 1 ? '' : 's'} for ${config.id} during test, ${
+        passed ? expectedCount : 'but ' + matchedDeprecations.length
+      } deprecations were found.`,
   };
 }
 
-function verifyNoDeprecation(): AssertNoneResult {
+function verifyNoDeprecation(label?: string): AssertNoneResult {
   const UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST;
   DEPRECATIONS_FOR_TEST = [];
 
@@ -90,9 +92,11 @@ function verifyNoDeprecation(): AssertNoneResult {
     result: passed,
     actual: UNHANDLED_DEPRECATIONS,
     expected: [],
-    message: `Expected 0 deprecations during test, ${
-      passed ? '0' : 'but ' + UNHANDLED_DEPRECATIONS.length
-    } deprecations were found.\n${deprecationStr}`,
+    message:
+      label ||
+      `Expected 0 deprecations during test, ${
+        passed ? '0' : 'but ' + UNHANDLED_DEPRECATIONS.length
+      } deprecations were found.\n${deprecationStr}`,
   };
 }
 
@@ -116,7 +120,8 @@ export function configureDeprecationHandler() {
 
   QUnit.assert.expectDeprecation = async function(
     cb: () => unknown,
-    config: string | RegExp | DeprecationConfig
+    config: string | RegExp | DeprecationConfig,
+    label?: string
   ): Promise<void> {
     let origDeprecations = DEPRECATIONS_FOR_TEST;
     let callback: (() => unknown) | null = null;
@@ -145,12 +150,12 @@ export function configureDeprecationHandler() {
       }
     }
 
-    let result = verifyDeprecation(config);
+    let result = verifyDeprecation(config, label);
     this.pushResult(result);
     DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
   };
 
-  QUnit.assert.expectNoDeprecation = async function(cb) {
+  QUnit.assert.expectNoDeprecation = async function(cb, label?: string) {
     let origDeprecations = DEPRECATIONS_FOR_TEST;
 
     if (cb) {
@@ -161,7 +166,7 @@ export function configureDeprecationHandler() {
       }
     }
 
-    let result = verifyNoDeprecation();
+    let result = verifyNoDeprecation(label);
     this.pushResult(result);
     DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
   };

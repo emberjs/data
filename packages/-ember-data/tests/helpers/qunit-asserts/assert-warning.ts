@@ -45,7 +45,7 @@ interface AssertNoneResult {
  * Fails if `until` not specified
  * Optionally fails if `until` has been passed.
  */
-function verifyWarning(config: WarningConfig): AssertSomeResult {
+function verifyWarning(config: WarningConfig, label?: string): AssertSomeResult {
   // TODO optionally throw if `until` is the current version or older than current version
   let matchedWarnings = WARNINGS_FOR_TEST.filter(warning => {
     if (!warning.options || !warning.options.id) {
@@ -70,13 +70,15 @@ function verifyWarning(config: WarningConfig): AssertSomeResult {
     result: passed,
     actual: { id: config.id, count: matchedWarnings.length },
     expected: { id: config.id, count: expectedCount },
-    message: `Expected ${expectedCount} warning${expectedCount === 1 ? '' : 's'} for ${config.id} during test, ${
-      passed ? expectedCount : 'but ' + matchedWarnings.length
-    } warnings were found.`,
+    message:
+      label ||
+      `Expected ${expectedCount} warning${expectedCount === 1 ? '' : 's'} for ${config.id} during test, ${
+        passed ? expectedCount : 'but ' + matchedWarnings.length
+      } warnings were found.`,
   };
 }
 
-function verifyNoWarning(): AssertNoneResult {
+function verifyNoWarning(label?: string): AssertNoneResult {
   const UNHANDLED_WARNINGS = WARNINGS_FOR_TEST;
   WARNINGS_FOR_TEST = [];
 
@@ -90,9 +92,11 @@ function verifyNoWarning(): AssertNoneResult {
     result: passed,
     actual: UNHANDLED_WARNINGS,
     expected: [],
-    message: `Expected 0 warnings during test, ${
-      passed ? '0' : 'but ' + UNHANDLED_WARNINGS.length
-    } warnings were found.\n${warningStr}`,
+    message:
+      label ||
+      `Expected 0 warnings during test, ${
+        passed ? '0' : 'but ' + UNHANDLED_WARNINGS.length
+      } warnings were found.\n${warningStr}`,
   };
 }
 
@@ -116,7 +120,8 @@ export function configureWarningHandler() {
 
   QUnit.assert.expectWarning = async function(
     cb: () => unknown,
-    config: string | RegExp | WarningConfig
+    config: string | RegExp | WarningConfig,
+    label?: string
   ): Promise<void> {
     let origWarnings = WARNINGS_FOR_TEST;
     let callback: (() => unknown) | null = null;
@@ -145,12 +150,12 @@ export function configureWarningHandler() {
       }
     }
 
-    let result = verifyWarning(config);
+    let result = verifyWarning(config, label);
     this.pushResult(result);
     WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
   };
 
-  QUnit.assert.expectNoWarning = async function(cb) {
+  QUnit.assert.expectNoWarning = async function(cb, label?: string) {
     let origWarnings = WARNINGS_FOR_TEST;
 
     if (cb) {
@@ -161,7 +166,7 @@ export function configureWarningHandler() {
       }
     }
 
-    let result = verifyNoWarning();
+    let result = verifyNoWarning(label);
     this.pushResult(result);
     WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
   };

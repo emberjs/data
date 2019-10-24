@@ -18,24 +18,24 @@ interface AssertNoneResult {
   message: string;
 }
 
-function verifyAssertion(message: string, matcher: string | RegExp): AssertSomeResult {
+function verifyAssertion(message: string, matcher: string | RegExp, label?: string): AssertSomeResult {
   let passed = checkMatcher(message, matcher);
 
   return {
     result: passed,
     actual: message,
     expected: String(matcher),
-    message: `Expected an assertion during the test`,
+    message: label || `Expected an assertion during the test`,
   };
 }
 
-function verifyNoAssertion(message: string | undefined): AssertNoneResult {
+function verifyNoAssertion(message: string | undefined, label?: string): AssertNoneResult {
   let passed = !message;
   return {
     result: passed,
     actual: message || '',
     expected: '',
-    message: `Expected no assertions during test`,
+    message: label || `Expected no assertions during test`,
   };
 }
 
@@ -45,7 +45,11 @@ export function configureAssertionHandler() {
   }
   HAS_REGISTERED = true;
 
-  QUnit.assert.expectAssertion = async function(cb: () => unknown, matcher: string | RegExp): Promise<void> {
+  QUnit.assert.expectAssertion = async function(
+    cb: () => unknown,
+    matcher: string | RegExp,
+    label?: string
+  ): Promise<void> {
     let outcome;
     if (DEBUG) {
       try {
@@ -53,9 +57,9 @@ export function configureAssertionHandler() {
         if (isThenable(result)) {
           await result;
         }
-        outcome = verifyAssertion('', matcher);
+        outcome = verifyAssertion('', matcher, label);
       } catch (e) {
-        outcome = verifyAssertion(e.message, matcher);
+        outcome = verifyAssertion(e.message, matcher, label);
       }
     } else {
       outcome = {
@@ -69,16 +73,16 @@ export function configureAssertionHandler() {
     this.pushResult(outcome);
   };
 
-  QUnit.assert.expectNoAssertion = async function(cb: () => unknown) {
+  QUnit.assert.expectNoAssertion = async function(cb: () => unknown, label?: string) {
     let outcome;
     try {
       let result = cb();
       if (isThenable(result)) {
         await result;
       }
-      outcome = verifyNoAssertion('');
+      outcome = verifyNoAssertion('', label);
     } catch (e) {
-      outcome = verifyNoAssertion(e.message);
+      outcome = verifyNoAssertion(e.message, label);
     }
 
     this.pushResult(outcome);
