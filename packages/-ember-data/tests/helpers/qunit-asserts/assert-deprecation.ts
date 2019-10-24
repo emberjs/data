@@ -48,9 +48,6 @@ interface AssertNoneResult {
 function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSomeResult {
   // TODO optionally throw if `until` is the current version or older than current version
   let matchedDeprecations = DEPRECATIONS_FOR_TEST.filter(deprecation => {
-    if (!deprecation.options || !deprecation.options.id) {
-      throw new Error(`Expected deprecation to have an id, found: ${deprecation}`);
-    }
     let isMatched = deprecation.options.id === config.id;
     if (!isMatched && config.message) {
       // TODO when we hit this we should throw an error in the near future

@@ -48,9 +48,6 @@ interface AssertNoneResult {
 function verifyWarning(config: WarningConfig, label?: string): AssertSomeResult {
   // TODO optionally throw if `until` is the current version or older than current version
   let matchedWarnings = WARNINGS_FOR_TEST.filter(warning => {
-    if (!warning.options || !warning.options.id) {
-      throw new Error(`Expected warning to have an id, found: ${warning}`);
-    }
     let isMatched = warning.options.id === config.id;
     if (!isMatched && config.message) {
       // TODO when we hit this we should throw an error in the near future
