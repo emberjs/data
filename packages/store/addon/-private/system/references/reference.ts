@@ -4,6 +4,8 @@ import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import CoreStore from '../core-store';
 import { PaginationLinks, LinkObject } from '../../ts-interfaces/ember-data-json-api';
 import { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
+import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { Dict } from '../../ts-interfaces/utils';
 
 /**
   @module @ember-data/store
@@ -28,7 +30,10 @@ function isResourceIdentiferWithRelatedLinks(
 
  @class Reference
  */
-export default abstract class Reference {
+interface Reference {
+  links(): PaginationLinks | null;
+}
+abstract class Reference {
   public recordData: InternalModel['_recordData'];
   constructor(public store: CoreStore, public internalModel: InternalModel) {
     this.recordData = recordDataFor(this);
@@ -134,11 +139,6 @@ export default abstract class Reference {
     }
     return link || null;
   }
-  links(): PaginationLinks | null {
-    let resource = this._resource();
-
-    return resource && resource.links ? resource.links : null;
-  }
 
   /**
    The meta data for the belongs-to relationship.
@@ -180,7 +180,7 @@ export default abstract class Reference {
    @return {Object} The meta information for the belongs-to relationship.
    */
   meta() {
-    let meta: { [k: string]: JSONValue } | null = null;
+    let meta: Dict<JSONValue> | null = null;
     let resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
@@ -188,3 +188,13 @@ export default abstract class Reference {
     return meta;
   }
 }
+
+if (FULL_LINKS_ON_RELATIONSHIPS) {
+  Reference.prototype.links = function links(): PaginationLinks | null {
+    let resource = this._resource();
+
+    return resource && resource.links ? resource.links : null;
+  };
+}
+
+export default Reference;

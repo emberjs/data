@@ -5,6 +5,7 @@ import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { Promise } from 'rsvp';
 import { assert } from '@ember/debug';
+import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
 
 /**
   @module @ember-data/store
@@ -128,7 +129,7 @@ export function proxyToContent(method) {
   @extends Ember.ArrayProxy
 */
 export const PromiseManyArray = PromiseArray.extend({
-  links: reads('content.links'),
+  links: FULL_LINKS_ON_RELATIONSHIPS ? reads('content.links') : undefined,
 
   reload(options) {
     assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
