@@ -90,7 +90,7 @@ QUnit.assert.watchedPropertyCounts = function assertWatchedPropertyCount(watched
       expectedCount = expectedCount[0];
     }
 
-    assertionText += ` | Expected ${expectedCount} change notifications for ${propertyName} but recieved ${counter.count}`;
+    assertionText += ` | Expected ${expectedCount} change notifications for ${propertyName} but received ${counter.count}`;
 
     if (counter === undefined) {
       throw new Error(`Cannot assert expected count for ${propertyName} as there is no watcher for that property`);

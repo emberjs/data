@@ -50,7 +50,7 @@ module('unit/store/peekRecord - Store peekRecord', function(hooks) {
     run(() => {
       assert.expectAssertion(() => {
         store.peekRecord('my-id');
-      }, /Expected id to be a string or number, recieved undefined/);
+      }, /Expected id to be a string or number, received undefined/);
     });
   });
 

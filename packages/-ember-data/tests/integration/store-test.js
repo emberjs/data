@@ -228,7 +228,7 @@ module('integration/store - destroy', function(hooks) {
 
     run(store, 'destroy');
 
-    assert.equal(personWillDestroy.called.length, 1, 'expected person to have recieved willDestroy once');
+    assert.equal(personWillDestroy.called.length, 1, 'expected person to have received willDestroy once');
     assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');
     assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to recieve willDestroy once');
     assert.equal(
@@ -561,7 +561,7 @@ module('integration/store - findRecord', function(hooks) {
         badValues.map(item => {
           assert.expectAssertion(() => {
             store.findRecord('car', item);
-          }, `Expected id to be a string or number, recieved ${String(item)}`);
+          }, `Expected id to be a string or number, received ${String(item)}`);
         });
       });
     }
