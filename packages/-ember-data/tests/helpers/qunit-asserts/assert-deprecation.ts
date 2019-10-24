@@ -1,7 +1,7 @@
 import QUnit from 'qunit';
 import { registerDeprecationHandler } from '@ember/debug';
 import { checkMatcher } from './check-matcher';
-import RSVP from 'rsvp';
+import isThenable from './utils/is-thenable';
 
 let HAS_REGISTERED = false;
 let DEPRECATIONS_FOR_TEST: FoundDeprecation[];
@@ -45,7 +45,7 @@ interface AssertNoneResult {
  * Fails if `until` not specified
  * Optionally fails if `until` has been passed.
  */
-function expectDeprecation(config: DeprecationConfig): AssertSomeResult {
+function verifyDeprecation(config: DeprecationConfig): AssertSomeResult {
   // TODO optionally throw if `until` is the current version or older than current version
   let matchedDeprecations = DEPRECATIONS_FOR_TEST.filter(deprecation => {
     if (!deprecation.options || !deprecation.options.id) {
@@ -63,7 +63,7 @@ function expectDeprecation(config: DeprecationConfig): AssertSomeResult {
   });
   HANDLED_DEPRECATIONS_FOR_TEST.push(...matchedDeprecations);
 
-  let expectedCount = typeof config.count === 'number' && config.count !== 0 ? config.count : 1;
+  let expectedCount = typeof config.count === 'number' ? config.count : 1;
   let passed = matchedDeprecations.length === expectedCount;
 
   return {
@@ -76,7 +76,7 @@ function expectDeprecation(config: DeprecationConfig): AssertSomeResult {
   };
 }
 
-function expectNoDeprecation(): AssertNoneResult {
+function verifyNoDeprecation(): AssertNoneResult {
   const UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST;
   DEPRECATIONS_FOR_TEST = [];
 
@@ -140,12 +140,12 @@ export function configureDeprecationHandler() {
     if (callback) {
       DEPRECATIONS_FOR_TEST = [];
       let result = callback();
-      if (result instanceof Promise || result instanceof RSVP.Promise) {
+      if (isThenable(result)) {
         await result;
       }
     }
 
-    let result = expectDeprecation(config);
+    let result = verifyDeprecation(config);
     this.pushResult(result);
     DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
   };
@@ -156,12 +156,12 @@ export function configureDeprecationHandler() {
     if (cb) {
       DEPRECATIONS_FOR_TEST = [];
       let result = cb();
-      if (result instanceof Promise || result instanceof RSVP.Promise) {
+      if (isThenable(result)) {
         await result;
       }
     }
 
-    let result = expectNoDeprecation();
+    let result = verifyNoDeprecation();
     this.pushResult(result);
     DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
   };

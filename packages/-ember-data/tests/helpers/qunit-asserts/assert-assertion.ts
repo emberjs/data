@@ -1,7 +1,7 @@
 import QUnit from 'qunit';
 import { checkMatcher } from './check-matcher';
 import { DEBUG } from '@glimmer/env';
-import RSVP from 'rsvp';
+import isThenable from './utils/is-thenable';
 
 let HAS_REGISTERED = false;
 
@@ -18,7 +18,7 @@ interface AssertNoneResult {
   message: string;
 }
 
-function expectAssertion(message: string, matcher: string | RegExp): AssertSomeResult {
+function verifyAssertion(message: string, matcher: string | RegExp): AssertSomeResult {
   let passed = checkMatcher(message, matcher);
 
   return {
@@ -29,7 +29,7 @@ function expectAssertion(message: string, matcher: string | RegExp): AssertSomeR
   };
 }
 
-function expectNoAssertion(message: string | undefined): AssertNoneResult {
+function verifyNoAssertion(message: string | undefined): AssertNoneResult {
   let passed = !message;
   return {
     result: passed,
@@ -50,12 +50,12 @@ export function configureAssertionHandler() {
     if (DEBUG) {
       try {
         let result = cb();
-        if (result instanceof Promise || result instanceof RSVP.Promise) {
+        if (isThenable(result)) {
           await result;
         }
-        outcome = expectAssertion('', matcher);
+        outcome = verifyAssertion('', matcher);
       } catch (e) {
-        outcome = expectAssertion(e.message, matcher);
+        outcome = verifyAssertion(e.message, matcher);
       }
     } else {
       outcome = {
@@ -73,12 +73,12 @@ export function configureAssertionHandler() {
     let outcome;
     try {
       let result = cb();
-      if (result instanceof Promise || result instanceof RSVP.Promise) {
+      if (isThenable(result)) {
         await result;
       }
-      outcome = expectNoAssertion('');
+      outcome = verifyNoAssertion('');
     } catch (e) {
-      outcome = expectNoAssertion(e.message);
+      outcome = verifyNoAssertion(e.message);
     }
 
     this.pushResult(outcome);

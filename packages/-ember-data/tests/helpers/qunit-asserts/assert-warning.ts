@@ -1,7 +1,7 @@
 import QUnit from 'qunit';
 import { registerWarnHandler } from '@ember/debug';
 import { checkMatcher } from './check-matcher';
-import RSVP from 'rsvp';
+import isThenable from './utils/is-thenable';
 
 let HAS_REGISTERED = false;
 let WARNINGS_FOR_TEST: FoundWarning[];
@@ -45,7 +45,7 @@ interface AssertNoneResult {
  * Fails if `until` not specified
  * Optionally fails if `until` has been passed.
  */
-function expectWarning(config: WarningConfig): AssertSomeResult {
+function verifyWarning(config: WarningConfig): AssertSomeResult {
   // TODO optionally throw if `until` is the current version or older than current version
   let matchedWarnings = WARNINGS_FOR_TEST.filter(warning => {
     if (!warning.options || !warning.options.id) {
@@ -63,7 +63,7 @@ function expectWarning(config: WarningConfig): AssertSomeResult {
   });
   HANDLED_WARNINGS_FOR_TEST.push(...matchedWarnings);
 
-  let expectedCount = typeof config.count === 'number' && config.count !== 0 ? config.count : 1;
+  let expectedCount = typeof config.count === 'number' ? config.count : 1;
   let passed = matchedWarnings.length === expectedCount;
 
   return {
@@ -76,7 +76,7 @@ function expectWarning(config: WarningConfig): AssertSomeResult {
   };
 }
 
-function expectNoWarning(): AssertNoneResult {
+function verifyNoWarning(): AssertNoneResult {
   const UNHANDLED_WARNINGS = WARNINGS_FOR_TEST;
   WARNINGS_FOR_TEST = [];
 
@@ -140,12 +140,12 @@ export function configureWarningHandler() {
     if (callback) {
       WARNINGS_FOR_TEST = [];
       let result = callback();
-      if (result instanceof Promise || result instanceof RSVP.Promise) {
+      if (isThenable(result)) {
         await result;
       }
     }
 
-    let result = expectWarning(config);
+    let result = verifyWarning(config);
     this.pushResult(result);
     WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
   };
@@ -156,12 +156,12 @@ export function configureWarningHandler() {
     if (cb) {
       WARNINGS_FOR_TEST = [];
       let result = cb();
-      if (result instanceof Promise || result instanceof RSVP.Promise) {
+      if (isThenable(result)) {
         await result;
       }
     }
 
-    let result = expectNoWarning();
+    let result = verifyNoWarning();
     this.pushResult(result);
     WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
   };
