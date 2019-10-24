@@ -1,0 +1,90 @@
+import QUnit from 'qunit';
+import { checkMatcher } from './check-matcher';
+import { DEBUG } from '@glimmer/env';
+import isThenable from './utils/is-thenable';
+
+let HAS_REGISTERED = false;
+
+interface AssertSomeResult {
+  result: boolean;
+  actual: string;
+  expected: string;
+  message: string;
+}
+interface AssertNoneResult {
+  result: boolean;
+  actual: string;
+  expected: '';
+  message: string;
+}
+
+function verifyAssertion(message: string, matcher: string | RegExp, label?: string): AssertSomeResult {
+  let passed = checkMatcher(message, matcher);
+
+  return {
+    result: passed,
+    actual: message,
+    expected: String(matcher),
+    message: label || `Expected an assertion during the test`,
+  };
+}
+
+function verifyNoAssertion(message: string | undefined, label?: string): AssertNoneResult {
+  let passed = !message;
+  return {
+    result: passed,
+    actual: message || '',
+    expected: '',
+    message: label || `Expected no assertions during test`,
+  };
+}
+
+export function configureAssertionHandler() {
+  if (HAS_REGISTERED === true) {
+    throw new Error(`Attempting to re-register the assert-assertion handler`);
+  }
+  HAS_REGISTERED = true;
+
+  QUnit.assert.expectAssertion = async function(
+    cb: () => unknown,
+    matcher: string | RegExp,
+    label?: string
+  ): Promise<void> {
+    let outcome;
+    if (DEBUG) {
+      try {
+        let result = cb();
+        if (isThenable(result)) {
+          await result;
+        }
+        outcome = verifyAssertion('', matcher, label);
+      } catch (e) {
+        outcome = verifyAssertion(e.message, matcher, label);
+      }
+    } else {
+      outcome = {
+        result: true,
+        actual: '',
+        expected: '',
+        message: `Assertions do not run in production environments`,
+      };
+    }
+
+    this.pushResult(outcome);
+  };
+
+  QUnit.assert.expectNoAssertion = async function(cb: () => unknown, label?: string) {
+    let outcome;
+    try {
+      let result = cb();
+      if (isThenable(result)) {
+        await result;
+      }
+      outcome = verifyNoAssertion('', label);
+    } catch (e) {
+      outcome = verifyNoAssertion(e.message, label);
+    }
+
+    this.pushResult(outcome);
+  };
+}

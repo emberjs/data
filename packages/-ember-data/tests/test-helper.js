@@ -7,6 +7,9 @@ import { start } from 'ember-qunit';
 import QUnit from 'qunit';
 import DS from 'ember-data';
 import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
+import configureAsserts from 'dummy/tests/helpers/qunit-asserts';
+
+configureAsserts();
 
 setApplication(Application.create(config.APP));
 

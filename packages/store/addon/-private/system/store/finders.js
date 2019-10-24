@@ -178,7 +178,7 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
       let expectedModel = Ember.inspect(parentInternalModel);
       let got = Ember.inspect(relationshipData);
       let prefix = typeof index === 'number' ? `data[${index}]` : `data`;
-      let path = `${prefix}.relationships.${inverse}.data`;
+      let path = `${prefix}.relationships.${inverseKey}.data`;
       let other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
       let relationshipFetched = `${Ember.inspect(parentInternalModel)}.${parentRelationship.kind}("${
         parentRelationship.name
