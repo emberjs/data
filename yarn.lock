@@ -756,15 +756,15 @@
   resolved "https://registry.npmjs.org/@ember/edition-utils/-/edition-utils-1.1.1.tgz#d5732c3da593f202e6e1ac6dbee56a758242403f"
   integrity sha512-GEhri78jdQp/xxPpM6z08KlB0wrHfnfrJ9dmQk7JeQ4XCiMzXsJci7yooQgg/IcTKCM/PxE/IkGCQAo80adMkw==
 
-"@ember/optional-features@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@ember/optional-features/-/optional-features-1.0.0.tgz#8e54ff37f4d9642212b45387f182cf7322aaaab9"
-  integrity sha512-nPWqiyjkbSLaNd1kA1Y0BYAx+0IzuxdBfOkQyEwNaaB6xvgGpQMiQF/Au5UBlV/S3GEpuL2kFRQj48XMiTBY+w==
+"@ember/optional-features@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@ember/optional-features/-/optional-features-1.1.0.tgz#0ff27ba6e9fc1f1e936e024f6a7cc33a96abffba"
+  integrity sha512-ST3+gIRH2WtgGcOtf42uM9WaXBY4dj4//zoTYV6GPe8cp0XdJEU63oMo9SbE6+0Efp8lvk96LsX+DVDDZy9Rmw==
   dependencies:
     chalk "^2.4.2"
     co "^4.6.0"
     ember-cli-version-checker "^3.1.3"
-    glob "^7.1.4"
+    glob "^7.1.5"
     inquirer "^6.5.1"
     mkdirp "^0.5.1"
     silent-error "^1.1.1"
