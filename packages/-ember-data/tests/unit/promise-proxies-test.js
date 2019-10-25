@@ -1,6 +1,9 @@
 import { Promise as EmberPromise } from 'rsvp';
 import { A } from '@ember/array';
-
+import Model, { belongsTo } from '@ember-data/model';
+import Adapter from '@ember-data/adapter';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
@@ -108,5 +111,71 @@ module('PromiseManyArray', function() {
         assert.equal(content, value);
       });
     });
+  });
+});
+
+module('unit/PromiseBelongsTo', function(hooks) {
+  setupTest(hooks);
+
+  class Parent extends Model {
+    @belongsTo('child', { async: true })
+    child;
+  }
+  class Child extends Model {
+    @belongsTo('parent', { async: false })
+    parent;
+  }
+  class ChildAdapter extends Adapter {
+    findRecord(store, type, id, snapshot) {
+      const ChildRecord = {
+        data: {
+          id: '1',
+          type: 'child',
+          relationships: {
+            parent: {
+              data: {
+                id: 1,
+                type: 'parent',
+              },
+            },
+          },
+        },
+      };
+      return EmberPromise.resolve(ChildRecord);
+    }
+  }
+
+  test('meta property exists', function(assert) {
+    const { owner } = this;
+    owner.register('model:parent', Parent);
+    owner.register('model:child', Child);
+    owner.register('adapter:child', ChildAdapter);
+    owner.register('serializer:application', JSONAPISerializer.extend());
+    const store = owner.lookup('service:store');
+    const meta = {
+      example: 'example meta',
+    };
+    const parent = store.push({
+      data: {
+        id: '1',
+        type: 'parent',
+        relationships: {
+          child: {
+            data: {
+              type: 'child',
+              id: '1',
+            },
+            meta,
+          },
+        },
+      },
+    });
+
+    const belongsToProxy = parent.child;
+
+    assert.expectAssertion(() => {
+      belongsToProxy.get('meta');
+    }, 'You attempted to access meta on the promise for the async belongsTo relationship ' + `child:child'.` + '\nUse `record.belongsTo(relationshipName).meta()` instead.');
+    assert.equal(parent.belongsTo('child').meta(), meta);
   });
 });
