@@ -91,7 +91,7 @@ export const PromiseBelongsTo = PromiseObject.extend({
   meta: computed(function() {
     assert(
       'You attempted to access meta on the promise for the async belongsTo relationship ' +
-        `${this.get('_belongsToState').internalModel.modelName}:${this.get('_belongsToState').key}'.` +
+        `${this.get('_belongsToState').modelName}:${this.get('_belongsToState').key}'.` +
         '\nUse `record.belongsTo(relationshipName).meta()` instead.',
       false
     );
