@@ -7,9 +7,19 @@
 import { assign } from '@ember/polyfills';
 import DEFAULT_FEATURES from './default-features';
 
-const ENV = typeof EmberDataENV === 'object' && EmberDataENV !== null ? EmberDataENV : {};
+interface ConfigEnv {
+  ENABLE_OPTIONAL_FEATURES?: boolean;
+  FEATURES?: {
+    [key in keyof typeof DEFAULT_FEATURES]: boolean | null;
+  };
+}
 
-function featureValue(value) {
+declare global {
+  export const EmberDataENV: ConfigEnv | undefined | null;
+}
+const ENV: ConfigEnv = typeof EmberDataENV === 'object' && EmberDataENV !== null ? EmberDataENV : {};
+
+function featureValue(value: boolean | null): boolean | null {
   if (ENV.ENABLE_OPTIONAL_FEATURES && value === null) {
     return true;
   }
@@ -24,3 +34,4 @@ export const RECORD_DATA_STATE = featureValue(FEATURES.RECORD_DATA_STATE);
 export const REQUEST_SERVICE = featureValue(FEATURES.REQUEST_SERVICE);
 export const IDENTIFIERS = featureValue(FEATURES.IDENTIFIERS);
 export const CUSTOM_MODEL_CLASS = featureValue(FEATURES.CUSTOM_MODEL_CLASS);
+export const FULL_LINKS_ON_RELATIONSHIPS = featureValue(FEATURES.FULL_LINKS_ON_RELATIONSHIPS);

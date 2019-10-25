@@ -2,6 +2,10 @@ import InternalModel from '../model/internal-model';
 import recordDataFor from '../record-data-for';
 import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 import CoreStore from '../core-store';
+import { PaginationLinks, LinkObject } from '../../ts-interfaces/ember-data-json-api';
+import { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
+import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { Dict } from '../../ts-interfaces/utils';
 
 /**
   @module @ember-data/store
@@ -14,7 +18,9 @@ interface ResourceIdentifier {
   meta?: JSONObject;
 }
 
-function isResourceIdentiferWithRelatedLinks(value: any): value is ResourceIdentifier & { links: { related: string } } {
+function isResourceIdentiferWithRelatedLinks(
+  value: any
+): value is ResourceIdentifier & { links: { related: string | LinkObject | null } } {
   return value && value.links && value.links.related;
 }
 
@@ -24,13 +30,16 @@ function isResourceIdentiferWithRelatedLinks(value: any): value is ResourceIdent
 
  @class Reference
  */
-export default abstract class Reference {
+interface Reference {
+  links(): PaginationLinks | null;
+}
+abstract class Reference {
   public recordData: InternalModel['_recordData'];
   constructor(public store: CoreStore, public internalModel: InternalModel) {
     this.recordData = recordDataFor(this);
   }
 
-  public _resource(): ResourceIdentifier | (JSONObject & { meta?: { [k: string]: JSONValue } }) | void {}
+  public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
 
   /**
    This returns a string that represents how the reference will be
@@ -118,16 +127,17 @@ export default abstract class Reference {
    @method link
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
-  link() {
-    let link: string | null = null;
+  link(): string | null {
+    let link;
     let resource = this._resource();
 
     if (isResourceIdentiferWithRelatedLinks(resource)) {
       if (resource.links) {
         link = resource.links.related;
+        link = !link || typeof link === 'string' ? link : link.href;
       }
     }
-    return link;
+    return link || null;
   }
 
   /**
@@ -170,7 +180,7 @@ export default abstract class Reference {
    @return {Object} The meta information for the belongs-to relationship.
    */
   meta() {
-    let meta: { [k: string]: JSONValue } | null = null;
+    let meta: Dict<JSONValue> | null = null;
     let resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
@@ -178,3 +188,13 @@ export default abstract class Reference {
     return meta;
   }
 }
+
+if (FULL_LINKS_ON_RELATIONSHIPS) {
+  Reference.prototype.links = function links(): PaginationLinks | null {
+    let resource = this._resource();
+
+    return resource && resource.links ? resource.links : null;
+  };
+}
+
+export default Reference;

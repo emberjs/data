@@ -27,6 +27,7 @@ import {
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
   CUSTOM_MODEL_CLASS,
+  FULL_LINKS_ON_RELATIONSHIPS,
 } from '@ember-data/canary-features';
 import { identifierCacheFor } from '../../identifiers/cache';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -729,6 +730,7 @@ export default class InternalModel {
         type: this.store.modelFor(relationshipMeta.type),
         recordData: this._recordData,
         meta: jsonApi.meta,
+        links: FULL_LINKS_ON_RELATIONSHIPS ? jsonApi.links : undefined,
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
@@ -1137,7 +1139,7 @@ export default class InternalModel {
   }
 
   notifyStateChange(key?) {
-    assert('Cannot notify state change if Record Data State flag is not on', RECORD_DATA_STATE);
+    assert('Cannot notify state change if Record Data State flag is not on', !!RECORD_DATA_STATE);
     if (this.hasRecord) {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'state');

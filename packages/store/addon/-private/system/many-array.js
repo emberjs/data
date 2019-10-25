@@ -13,7 +13,8 @@ import { PromiseArray } from './promise-proxies';
 import { _objectIsAlive } from './store/common';
 import diffArray from './diff-array';
 import recordDataFor from './record-data-for';
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import { CUSTOM_MODEL_CLASS, FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
   relationship.
@@ -228,6 +229,11 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
     let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
     if (jsonApi.meta) {
       this.set('meta', jsonApi.meta);
+    }
+    if (FULL_LINKS_ON_RELATIONSHIPS) {
+      if (jsonApi.links) {
+        this.set('links', jsonApi.links);
+      }
     }
     this.flushCanonical(internalModels, true);
   },

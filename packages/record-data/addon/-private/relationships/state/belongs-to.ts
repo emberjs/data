@@ -178,10 +178,8 @@ export default class BelongsToRelationship extends Relationship {
     if (this.inverseRecordData === null && this.hasAnyRelationshipData) {
       data = null;
     }
-    if (this.link) {
-      payload.links = {
-        related: this.link,
-      };
+    if (this.links) {
+      payload.links = this.links;
     }
     if (data !== undefined) {
       payload.data = data;
