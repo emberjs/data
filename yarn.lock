@@ -6243,10 +6243,10 @@ ember-compatibility-helpers@^1.1.1, ember-compatibility-helpers@^1.2.0:
     ember-cli-version-checker "^2.1.1"
     semver "^5.4.1"
 
-ember-decorators-polyfill@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/ember-decorators-polyfill/-/ember-decorators-polyfill-1.1.0.tgz#f701d513c2f4dbcd1e7c84af623a8cdaad1dd349"
-  integrity sha512-ftXzKDJ53HUJu9gq8/6mBNerERKPKGDRBP4b72YZt/CIn1qwaspi0k23YvdwddqTPcmsCWxN+hRMfrRPQBoI4w==
+ember-decorators-polyfill@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.npmjs.org/ember-decorators-polyfill/-/ember-decorators-polyfill-1.1.1.tgz#6ff8e57a516e04c583451305574020c34e6ad4bc"
+  integrity sha512-ZIB3uNcquNyRm+eWUbDeeE5BtH/D7oXIX9pdiEHx4TXaTnAY6z4wDrw6Ge0xP9wx/nlC4Qd/i8rdlwBOT5C6lw==
   dependencies:
     ember-cli-babel "^7.1.2"
     ember-cli-version-checker "^3.1.3"
