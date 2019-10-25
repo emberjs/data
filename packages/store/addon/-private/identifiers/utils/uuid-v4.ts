@@ -16,7 +16,7 @@ const CRYPTO = (() => {
   if (isFastBoot) {
     return {
       getRandomValues(buffer: Uint8Array) {
-        return FastBoot.require('crypto').randomFillSync(buffer);
+        return (FastBoot as FastBoot).require('crypto').randomFillSync(buffer);
       },
     };
   } else if (hasWindow && typeof window.crypto !== 'undefined') {
