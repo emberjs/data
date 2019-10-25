@@ -23,7 +23,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@ember-data/-build-infra": "3.15.0-alpha.1",
+    "@ember-data/private-build-infra": "3.15.0-alpha.1",
     "@ember-data/adapter": "3.15.0-alpha.1",
     "@ember-data/debug": "3.15.0-alpha.1",
     "@ember-data/model": "3.15.0-alpha.1",
