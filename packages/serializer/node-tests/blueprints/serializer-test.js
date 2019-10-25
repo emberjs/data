@@ -12,10 +12,10 @@ const expect = chai.expect;
 
 const SilentError = require('silent-error');
 
-const generateFakePackageManifest = require('@ember-data/-test-infra/src/node-test-helpers/generate-fake-package-manifest');
-const fixture = require('@ember-data/-test-infra/src/node-test-helpers/fixture');
+const generateFakePackageManifest = require('@ember-data/unpublished-test-infra/src/node-test-helpers/generate-fake-package-manifest');
+const fixture = require('@ember-data/unpublished-test-infra/src/node-test-helpers/fixture');
 
-const setupTestEnvironment = require('@ember-data/-test-infra/src/node-test-helpers/setup-test-environment');
+const setupTestEnvironment = require('@ember-data/unpublished-test-infra/src/node-test-helpers/setup-test-environment');
 const enableOctane = setupTestEnvironment.enableOctane;
 
 describe('Acceptance: generate and destroy serializer blueprints', function() {

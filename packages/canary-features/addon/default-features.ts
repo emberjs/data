@@ -3,7 +3,7 @@
 */
 
 /*
-  This list of features is used both at build time (by `@ember-data/-build-infra`)
+  This list of features is used both at build time (by `@ember-data/private-build-infra`)
   and at runtime (by `@ember-data/canary-features`).
 
   The valid values are:

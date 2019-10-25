@@ -1,4 +1,4 @@
-# @ember-data/-build-infra
+# @ember-data/private-build-infra
 
 !! This is an internal package for use by `@ember-data` only. !!
 
