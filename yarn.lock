@@ -5881,7 +5881,7 @@ ember-cli-htmlbars-inline-precompile@^2.1.0:
     heimdalljs-logger "^0.1.9"
     silent-error "^1.1.0"
 
-ember-cli-htmlbars@^3.0.1:
+ember-cli-htmlbars@^3.1.0:
   version "3.1.0"
   resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-3.1.0.tgz#87806c2a0bca2ab52d4fb8af8e2215c1ca718a99"
   integrity sha512-cgvRJM73IT0aePUG7oQ/afB7vSRBV3N0wu9BrWhHX2zkR7A7cUBI7KC9VPk6tbctCXoM7BRGsCC4aIjF7yrfXA==
@@ -6347,13 +6347,13 @@ ember-router-generator@^2.0.0:
     "@babel/traverse" "^7.4.5"
     recast "^0.18.1"
 
-ember-simple-tree@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.npmjs.org/ember-simple-tree/-/ember-simple-tree-0.7.0.tgz#054dcc4d1dc643a7dcf310e58cb9af9f2d03623e"
-  integrity sha512-hd//Y3m2U7uc+UxcRFBSunyzwtFtyyHz+SxyPTUL7Haejz314+1+z9GeFasMbsCf8J1HzoE0WSFkR+6MvDIOAQ==
+ember-simple-tree@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.npmjs.org/ember-simple-tree/-/ember-simple-tree-0.7.1.tgz#fda235a8a05f27a9b61c7c839f3d710a79e20746"
+  integrity sha512-wDqBKxcIQJz6V/p5xf/XX5fROujNR+6E5cQ1kVYNnlu3Hu9QSCsIqIqhbq5YqBG/eOtqdJtNq+bS5UWS3xi6Dw==
   dependencies:
-    ember-cli-babel "^7.7.3"
-    ember-cli-htmlbars "^3.0.1"
+    ember-cli-babel "^7.8.0"
+    ember-cli-htmlbars "^3.1.0"
 
 ember-source-channel-url@^1.0.1:
   version "1.2.0"
