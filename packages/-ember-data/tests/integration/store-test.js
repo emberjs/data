@@ -8,6 +8,7 @@ import { module, test } from 'qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { settled } from '@ember/test-helpers';
 
 import DS from 'ember-data';
 
@@ -36,7 +37,7 @@ Car.reopenClass({
 
 function ajaxResponse(value) {
   return function(url, verb, hash) {
-    return run(() => resolve(deepCopy(value)));
+    return resolve(deepCopy(value));
   };
 }
 
@@ -68,18 +69,21 @@ module('integration/store - destroy', function(hooks) {
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test("destroying record during find doesn't cause error", function(assert) {
-    assert.expect(0);
-    let done = assert.async();
+  test("destroying record during find doesn't cause unexpected error (find resolves)", async function(assert) {
+    assert.expect(1);
 
     let store = this.owner.lookup('service:store');
 
     let TestAdapter = DS.Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return new Promise((resolve, reject) => {
-          next(() => {
-            store.unloadAll(type.modelName);
-            reject();
+          store.unloadAll(type.modelName);
+          resolve({
+            data: {
+              type: 'car',
+              id: '1',
+              attributes: {},
+            },
           });
         });
       },
@@ -88,20 +92,49 @@ module('integration/store - destroy', function(hooks) {
     this.owner.register('adapter:application', TestAdapter);
 
     let type = 'car';
-    let id = 1;
+    let id = '1';
 
-    return run(() => store.findRecord(type, id).then(done, done));
+    try {
+      await store.findRecord(type, id);
+      assert.ok(true, 'we have no error');
+    } catch (e) {
+      assert.ok(false, `we should have no error, received: ${e.message}`);
+    }
+  });
+
+  test("destroying record during find doesn't cause unexpected error (find rejects)", async function(assert) {
+    assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+
+    let TestAdapter = DS.Adapter.extend({
+      findRecord(store, type, id, snapshot) {
+        return new Promise((resolve, reject) => {
+          store.unloadAll(type.modelName);
+          reject(new Error('Record Was Not Found'));
+        });
+      },
+    });
+
+    this.owner.register('adapter:application', TestAdapter);
+
+    let type = 'car';
+    let id = '1';
+
+    try {
+      await store.findRecord(type, id);
+      assert.ok(false, 'we have no error, but we should');
+    } catch (e) {
+      assert.strictEqual(e.message, 'Record Was Not Found', `we should have a NotFound error`);
+    }
   });
 
   testInDebug('find calls do not resolve when the store is destroyed', async function(assert) {
     assert.expect(2);
-    let done = assert.async();
 
     let store = this.owner.lookup('service:store');
     let next;
-    let nextPromise = new Promise(resolve => {
-      next = resolve;
-    });
+    let nextPromise = new Promise(resolve => (next = resolve));
     let TestAdapter = DS.Adapter.extend({
       findRecord() {
         next();
@@ -125,11 +158,11 @@ module('integration/store - destroy', function(hooks) {
 
     store.shouldTrackAsyncRequests = true;
     store.push = function() {
-      assert('The test should have destroyed the store by now', store.get('isDestroyed'));
+      assert('The test should have destroyed the store by now', store.isDestroyed);
 
       throw new Error("We shouldn't be pushing data into the store when it is destroyed");
     };
-    store.findRecord('car', '1');
+    let requestPromise = store.findRecord('car', '1');
 
     await nextPromise;
 
@@ -138,66 +171,66 @@ module('integration/store - destroy', function(hooks) {
     }, /Async Request leaks detected/);
 
     next();
+
     await nextPromise;
 
     // ensure we allow the internal store promises
     // to flush, potentially pushing data into the store
-    setTimeout(() => {
-      assert.ok(true, 'We made it to the end');
-      done();
-    }, 0);
+    await settled();
+    assert.ok(true, 'we made it to the end');
+    await requestPromise;
+    assert.ok(false, 'we should never make it here');
   });
 
-  test('destroying the store correctly cleans everything up', function(assert) {
+  test('destroying the store correctly cleans everything up', async function(assert) {
     let car, person;
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'car',
-            id: '1',
-            attributes: {
-              make: 'BMC',
-              model: 'Mini',
-            },
-            relationships: {
-              person: {
-                data: { type: 'person', id: '1' },
-              },
+    store.push({
+      data: [
+        {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini',
+          },
+          relationships: {
+            person: {
+              data: { type: 'person', id: '1' },
             },
           },
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              cars: {
-                data: [{ type: 'car', id: '1' }],
-              },
+        },
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            cars: {
+              data: [{ type: 'car', id: '1' }],
             },
           },
-        ],
-      });
-      car = store.peekRecord('car', 1);
-      person = store.peekRecord('person', 1);
+        },
+      ],
     });
+
+    car = store.peekRecord('car', '1');
+    person = store.peekRecord('person', '1');
 
     let personWillDestroy = tap(person, 'willDestroy');
     let carWillDestroy = tap(car, 'willDestroy');
-    let carsWillDestroy = run(() => tap(car.get('person.cars'), 'willDestroy'));
+    let carsWillDestroy = tap(car.get('person.cars'), 'willDestroy');
 
     adapter.query = function() {
       return {
         data: [
           {
-            id: 2,
+            id: '2',
             type: 'person',
             attributes: { name: 'Yehuda' },
           },
@@ -205,15 +238,13 @@ module('integration/store - destroy', function(hooks) {
       };
     };
 
-    let adapterPopulatedPeople = run(() => {
-      return store.query('person', {
-        someCrazy: 'query',
-      });
+    let adapterPopulatedPeople = await store.query('person', {
+      someCrazy: 'query',
     });
 
-    let adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.get('content'), 'willDestroy');
+    let adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople, 'willDestroy');
 
-    run(() => store.findRecord('person', 2));
+    await store.findRecord('person', '2');
 
     assert.equal(personWillDestroy.called.length, 0, 'expected person.willDestroy to not have been called');
     assert.equal(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');
@@ -226,15 +257,17 @@ module('integration/store - destroy', function(hooks) {
     assert.equal(car.get('person'), person, "expected car's person to be the correct person");
     assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
 
-    run(store, 'destroy');
+    store.destroy();
+
+    await settled();
 
     assert.equal(personWillDestroy.called.length, 1, 'expected person to have received willDestroy once');
-    assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');
-    assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to recieve willDestroy once');
+    assert.equal(carWillDestroy.called.length, 1, 'expected car to have received willDestroy once');
+    assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to have received willDestroy once');
     assert.equal(
       adapterPopulatedPeopleWillDestroy.called.length,
       1,
-      'expected adapterPopulatedPeople to recieve willDestroy once'
+      'expected adapterPopulatedPeople to receive willDestroy once'
     );
   });
 });
@@ -274,45 +307,49 @@ module('integration/store - findRecord', function(hooks) {
     });
   });
 
-  test('store#findRecord returns cached record immediately and reloads record in the background', function(assert) {
-    assert.expect(2);
+  test('store#findRecord returns cached record immediately and reloads record in the background', async function(assert) {
+    assert.expect(4);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
+    adapter.shouldReloadRecord = () => false;
+    adapter.shouldBackgroundReloadRecord = () => true;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'car',
-          id: '1',
-          attributes: {
-            make: 'BMC',
-            model: 'Mini',
-          },
-        },
-      });
-    });
-
-    adapter.ajax = ajaxResponse({
-      cars: [
-        {
-          id: 1,
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
           make: 'BMC',
-          model: 'Princess',
+          model: 'Mini',
         },
-      ],
+      },
     });
 
-    run(() => {
-      return store.findRecord('car', 1).then(car => {
-        assert.equal(car.get('model'), 'Mini', 'cached car record is returned');
+    adapter.ajax = () => {
+      return new Promise(resolve => setTimeout(resolve, 1)).then(() => {
+        return {
+          cars: [
+            {
+              id: '1',
+              make: 'BMC',
+              model: 'Princess',
+            },
+          ],
+        };
       });
-    });
+    };
 
-    run(() => {
-      let car = store.peekRecord('car', 1);
-      assert.equal(car.get('model'), 'Princess', 'car record was reloaded');
-    });
+    const promiseCar = store.findRecord('car', '1');
+    const car = await promiseCar;
+
+    assert.equal(promiseCar.get('model'), 'Mini', 'promiseCar is from cache');
+    assert.equal(car.get('model'), 'Mini', 'car record is returned from cache');
+
+    await settled();
+
+    assert.equal(promiseCar.get('model'), 'Princess', 'promiseCar is updated');
+    assert.equal(car.get('model'), 'Princess', 'Updated car record is returned');
   });
 
   test('store#findRecord { reload: true } ignores cached record and reloads record from server', function(assert) {
