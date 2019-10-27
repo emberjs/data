@@ -509,7 +509,7 @@ const RootState = {
 
     // Record is already in an empty state, triggering transition to empty here
     // produce an error.
-    notFound() {}
+    notFound() {},
   },
 
   // A record enters this state when the store asks
