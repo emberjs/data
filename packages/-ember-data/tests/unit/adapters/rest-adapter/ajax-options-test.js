@@ -177,6 +177,32 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
+  test('ajaxOptions() options headers take precedence over adapter headers', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.headers = {
+      'Other-key': 'Adapter Value',
+    };
+
+    let url = 'example.com';
+    let type = 'GET';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {
+      headers: {
+        'Other-key': 'Received Value',
+      },
+    });
+    let receivedHeaders = ajaxOptions.headers;
+
+    assert.deepEqual(
+      receivedHeaders,
+      {
+        'Other-key': 'Received Value',
+      },
+      'headers assigned'
+    );
+  });
+
   test('ajaxOptions() empty data', function(assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
