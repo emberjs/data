@@ -1828,10 +1828,10 @@
   dependencies:
     "@types/ember__object" "*"
 
-"@types/ember__debug@*", "@types/ember__debug@3.0.5":
-  version "3.0.5"
-  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.0.5.tgz#ed7636dec3380a363c02f074d8e0a50cd6d563ab"
-  integrity sha512-1zXDboNm06c0S12bg7G75eFF21aW1C8QFKZGuQTQ66Xur5nwYHii6R2+t0lylgZTxqeRwjmeEZdROpYUNWexJQ==
+"@types/ember__debug@*", "@types/ember__debug@3.0.6":
+  version "3.0.6"
+  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.0.6.tgz#fa8bbc58249d8bdeea9be5b4ab8e974b33c39b07"
+  integrity sha512-he07ArVIGzXw79NDEePawpkQSmiDc9C6Z/K6MkD2sUJdVSFaggGXBKvGh/QdenaP8hdYz36/umXGabq/Z862SA==
   dependencies:
     "@types/ember__debug" "*"
     "@types/ember__engine" "*"
