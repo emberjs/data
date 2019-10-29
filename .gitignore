@@ -9,6 +9,7 @@ tmp
 # dependencies
 bower_components
 node_modules
+bin/asset-size-tracking/current-data.json
 
 # misc
 .env*
