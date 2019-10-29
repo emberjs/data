@@ -506,6 +506,10 @@ const RootState = {
       internalModel.triggerLater('didLoad');
       internalModel.triggerLater('ready');
     },
+
+    // Record is already in an empty state, triggering transition to empty here
+    // produce an error.
+    notFound() {},
   },
 
   // A record enters this state when the store asks
