@@ -1,5 +1,11 @@
 import { test } from 'qunit';
 import VERSION from 'ember-data/version';
+import { DEBUG } from '@glimmer/env';
+
+// temporary so that we can split out test fixes
+// from landing this. If working locally turn this
+// on to have tests fail that require being fixed.
+export const SHOULD_ASSERT_ALL = false;
 
 // small comparison function for major and minor semver values
 function gte(EDVersion, DeprecationVersion) {
@@ -22,8 +28,20 @@ export function deprecatedTest(testName, deprecation, testCallback) {
     throw new Error(`deprecatedTest expects { id } to be a meaningful string`);
   }
 
+  async function interceptor(assert) {
+    await testCallback.call(this, assert);
+    if (DEBUG) {
+      if (SHOULD_ASSERT_ALL) {
+        if (typeof assert.test.expected === 'number') {
+          assert.test.expected += 1;
+        }
+        assert.expectDeprecation(deprecation);
+      }
+    }
+  }
+
   if (gte(VERSION, deprecation.until)) {
-    test(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, testCallback);
+    test(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, interceptor);
   } else {
     test(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, function(assert) {
       if (deprecation.refactor === true) {
