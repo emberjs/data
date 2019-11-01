@@ -1,10 +1,19 @@
-const gzipSize = require('gzip-size').sync;
+const zlib = require('zlib');
 const TablePads = {
   name: 45,
   bytes: 9,
-  gzipBytes: 10,
+  compressedBytes: 10,
   percentOfPackage: 13,
 };
+const BROTLI_OPTIONS = {
+  params: {
+    [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+  },
+};
+
+function getCompressedSize(code) {
+  return zlib.brotliCompressSync(code, BROTLI_OPTIONS);
+}
 
 class Library {
   constructor(name) {
@@ -29,12 +38,12 @@ class Library {
   get absoluteSize() {
     return byteCount(this.concatModule);
   }
-  get gzipSize() {
-    return gzipSize(this.concatModule);
+  get compressedSize() {
+    return getCompressedSize(this.concatModule);
   }
   sort() {
     this.packages = this.packages.sort((a, b) => {
-      return a.gzipSize > b.gzipSize ? -1 : 1;
+      return a.compressedSize > b.compressedSize ? -1 : 1;
     });
     this.packages.forEach(p => p.sort());
   }
@@ -45,7 +54,7 @@ class Library {
     console.log(`Library: ${this.name}`);
     console.table({
       bytes: formatBytes(this.absoluteSize),
-      compressed: formatBytes(this.gzipSize),
+      compressed: formatBytes(this.compressedSize),
       packages: this.packages.length,
       modules: this.packages.reduce((v, c) => v + c.modules.length, 0),
     });
@@ -98,9 +107,10 @@ class Package {
   get absoluteSize() {
     return byteCount(this.concatModule);
   }
-  get gzipSize() {
+  get compressedSize() {
     return (
-      Math.floor((this.concatModule.length / this.library.concatModule.length) * this.library.gzipSize * 100) / 100
+      Math.floor((this.concatModule.length / this.library.concatModule.length) * this.library.compressedSize * 100) /
+      100
     );
   }
   get percentOfLibrary() {
@@ -108,20 +118,20 @@ class Package {
   }
   sort() {
     this.modules = this.modules.sort((a, b) => {
-      return a.gzipSize > b.gzipSize ? -1 : 1;
+      return a.compressedSize > b.compressedSize ? -1 : 1;
     });
   }
   print() {
     console.log('\nPackage: ' + this.name);
     console.table({
       bytes: formatBytes(this.absoluteSize),
-      compressed: formatBytes(this.gzipSize),
+      compressed: formatBytes(this.compressedSize),
       '% Of Library': this.percentOfLibrary,
     });
     console.log(
       `\t${rightPad('Module', TablePads.name)} | ` +
         `${rightPad('Bytes', TablePads.bytes)} | ` +
-        `${rightPad('Compressed', TablePads.gzipBytes)} | ` +
+        `${rightPad('Compressed', TablePads.compressedBytes)} | ` +
         `${rightPad('% of Package', TablePads.percentOfPackage)} | ` +
         `% Of Library`
     );
@@ -150,16 +160,17 @@ class Module {
   get absoluteSize() {
     return byteCount(this.code);
   }
-  get gzipSize() {
+  get compressedSize() {
     return (
-      Math.floor((this.size / this.package.library.concatModule.length) * this.package.library.gzipSize * 100) / 100
+      Math.floor((this.size / this.package.library.concatModule.length) * this.package.library.compressedSize * 100) /
+      100
     );
   }
   get bytes() {
     return formatBytes(this.absoluteSize);
   }
-  get gzipBytes() {
-    return formatBytes(this.gzipSize);
+  get compressedBytes() {
+    return formatBytes(this.compressedSize);
   }
   get percentOfPackage() {
     return getRelativeSizeOf(this.package, this);
@@ -174,7 +185,7 @@ class Module {
         ' | ' +
         rightPad(this.bytes, TablePads.bytes) +
         ' | ' +
-        rightPad(this.gzipBytes, TablePads.gzipBytes) +
+        rightPad(this.compressedBytes, TablePads.compressedBytes) +
         ' | ' +
         rightPad(this.percentOfPackage, TablePads.percentOfPackage) +
         ' | ' +

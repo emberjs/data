@@ -27,8 +27,8 @@ function getDiff(oldLibrary, newLibrary) {
     name: oldLibrary.name,
     currentSize: oldLibrary.absoluteSize,
     newSize: newLibrary.absoluteSize,
-    currentSizeGzip: oldLibrary.gzipSize,
-    newSizeGzip: newLibrary.gzipSize,
+    currentSizeCompressed: oldLibrary.compressedSize,
+    newSizeCompressed: newLibrary.compressedSize,
     packages: {},
   };
   oldLibrary.packages.forEach(pkg => {
@@ -36,8 +36,8 @@ function getDiff(oldLibrary, newLibrary) {
       name: pkg.name,
       currentSize: pkg.absoluteSize,
       newSize: 0,
-      currentSizeGzip: pkg.gzipSize,
-      newSizeGzip: 0,
+      currentSizeCompressed: pkg.compressedSize,
+      newSizeCompressed: 0,
       modules: {},
     };
     let modules = diff.packages[pkg.name].modules;
@@ -46,8 +46,8 @@ function getDiff(oldLibrary, newLibrary) {
         name: m.name,
         currentSize: m.absoluteSize,
         newSize: 0,
-        currentSizeGzip: m.gzipSize,
-        newSizeGzip: 0,
+        currentSizeCompressed: m.compressedSize,
+        newSizeCompressed: 0,
       };
     });
   });
@@ -56,23 +56,23 @@ function getDiff(oldLibrary, newLibrary) {
       name: pkg.name,
       currentSize: 0,
       newSize: pkg.absoluteSize,
-      currentSizeGzip: 0,
-      newSizeGzip: pkg.gzipSize,
+      currentSizeCompressed: 0,
+      newSizeCompressed: pkg.compressedSize,
       modules: {},
     };
     diff.packages[pkg.name].newSize = pkg.absoluteSize;
-    diff.packages[pkg.name].newSizeGzip = pkg.gzipSize;
+    diff.packages[pkg.name].newSizeCompressed = pkg.compressedSize;
     let modules = diff.packages[pkg.name].modules;
     pkg.modules.forEach(m => {
       modules[m.name] = modules[m.name] || {
         name: m.name,
         currentSize: 0,
         newSize: m.absoluteSize,
-        currentSizeGzip: 0,
-        newSizeGzip: m.gzipSize,
+        currentSizeCompressed: 0,
+        newSizeCompressed: m.compressedSize,
       };
       modules[m.name].newSize = m.absoluteSize;
-      modules[m.name].newSizeGzip = m.gzipSize;
+      modules[m.name].newSizeCompressed = m.compressedSize;
     });
   });
   diff.packages = Object.values(diff.packages);
@@ -91,7 +91,7 @@ function analyzeDiff(diff) {
 
   if (diff.currentSize < diff.newSize) {
     let delta = diff.newSize - diff.currentSize;
-    let compressedDelta = diff.newSizeGzip - diff.currentSizeGzip;
+    let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
     if (delta > library_failure_threshold) {
       failures.push(
         `The size of the library ${diff.name} has increased by ${formatBytes(delta)} (${formatBytes(
@@ -128,7 +128,7 @@ function printItem(item, indent = 0) {
     const indentColor = indent >= 4 ? 'grey' : indent >= 2 ? 'yellow' : indent >= 0 ? 'magenta' : 'green';
     console.log(
       leftPad(
-        chalk[indentColor](item.name) + ' ' + chalk.white(formatBytes(item.newSizeGzip)) + formatDelta(item),
+        chalk[indentColor](item.name) + ' ' + chalk.white(formatBytes(item.newSizeCompressed)) + formatDelta(item),
         indent * 2
       )
     );
@@ -140,9 +140,9 @@ function formatDelta(item) {
     return '';
   }
   if (item.currentSize > item.newSize) {
-    return chalk.green(` (- ${formatBytes(item.currentSizeGzip - item.newSizeGzip)})`);
+    return chalk.green(` (- ${formatBytes(item.currentSizeCompressed - item.newSizeCompressed)})`);
   } else {
-    return chalk.red(` (+ ${formatBytes(item.newSizeGzip - item.currentSizeGzip)})`);
+    return chalk.red(` (+ ${formatBytes(item.newSizeCompressed - item.currentSizeCompressed)})`);
   }
 }
 
@@ -190,13 +190,13 @@ if (failures.length) {
   } else if (delta > 0) {
     console.log(
       `\n<detail>\n  <summary>${diff.name} shrank by ${formatBytes(delta)} (${formatBytes(
-        diff.currentSizeGzip - diff.newSizeGzip
+        diff.currentSizeCompressed - diff.newSizeCompressed
       )} compressed)</summary>`
     );
   } else {
     console.log(
       `\n${diff.name} increased by ${formatBytes(-1 * delta)} (${formatBytes(
-        diff.newSizeGzip - diff.currentSizeGzip
+        diff.newSizeCompressed - diff.currentSizeCompressed
       )} compressed) which is within the allowed tolerance of ${library_failure_threshold} bytes uncompressed`
     );
   }
