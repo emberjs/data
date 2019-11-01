@@ -71,5 +71,5 @@ jobs:
         run: |
           COMMENT_MARKER="Asset Size Report for "
           node ./bin/asset-size-tracking/src/create-comment-text.js $GITHUB_SHA > tmp/asset-sizes/comment.txt
-          COMMENT_TEXT=$(cat tmp/asset-sizes/comment.txt)
+          COMMENT_TEXT="@./tmp/asset-sizes/comment.txt"
           source bin/asset-size-tracking/src/post-comment.sh
