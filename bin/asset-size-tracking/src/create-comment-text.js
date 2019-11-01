@@ -7,6 +7,9 @@ const analysisPath = path.resolve(__dirname, '../../../tmp/asset-sizes/commit-an
 const diffText = fs.readFileSync(diffPath);
 const analysisText = fs.readFileSync(analysisPath);
 
-console.log(
-  `Asset Size Report for ${GITHUB_SHA}\n${diffText}\n<details>\n  <summary>Full Asset Analysis</summary>\n\n\`\`\`${analysisText}\n\`\`\`\n</details>`
-);
+const commentText = `Asset Size Report for ${GITHUB_SHA}\n${diffText}\n<details>\n  <summary>Full Asset Analysis</summary>\n\n\`\`\`${analysisText}\n\`\`\`\n</details>`;
+const commentJSON = {
+  body: commentText,
+};
+
+console.log(JSON.stringify(commentJSON, null, 2));

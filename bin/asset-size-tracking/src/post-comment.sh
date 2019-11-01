@@ -55,10 +55,7 @@ delete_comment_if_exists() {
 }
 
 post_comment() {
-  echo 'Attempting JSON creation'
-  description=$(jq -n --arg b "$COMMENT_TEXT" '{ "body": $b }')
-  echo 'Attempting Curl'
-  curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" -d "$description" -H "Content-Type: application/json" -X POST "${URI}/repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments"
+  curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" -d "$COMMENT_TEXT" -H "Content-Type: application/json" -X POST "${URI}/repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments"
 }
 
 main() {
