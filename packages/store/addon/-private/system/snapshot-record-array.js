@@ -109,6 +109,7 @@ export default class SnapshotRecordArray {
           return fetch(url).then((response) => response.json())
         }
       });
+      ```
 
       @property include
       @type {String|Array}
