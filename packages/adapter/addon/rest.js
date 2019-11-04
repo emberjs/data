@@ -1086,7 +1086,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
-      options.headers = assign({}, options.headers, headers);
+      options.headers = assign({}, headers, options.headers);
     } else if (!options.headers) {
       options.headers = {};
     }
