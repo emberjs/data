@@ -58,6 +58,8 @@ module.exports = {
         'packages/-build-infra/src/**/*.js',
         'packages/-test-infra/src/**/*.js',
         'packages/*/ember-cli-build.js',
+        'packages/*/.eslintrc.js',
+        'packages/*/.template-lintrc.js',
         'packages/*/index.js',
         'packages/*/testem.js',
         'packages/*/bin/**',
