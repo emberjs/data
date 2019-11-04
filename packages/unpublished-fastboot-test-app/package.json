@@ -49,7 +49,7 @@
     "ember-simple-tree": "^0.7.1",
     "ember-source": "^3.14.1",
     "eslint": "^6.6.0",
-    "eslint-plugin-ember": "^7.2.0",
+    "eslint-plugin-ember": "^7.3.0",
     "eslint-plugin-node": "^10.0.0",
     "loader.js": "^4.7.0",
     "qunit": "^2.9.3",
