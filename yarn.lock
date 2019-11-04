@@ -14022,3 +14022,8 @@ yuidocjs@^0.10.0:
     minimatch "^3.0.2"
     rimraf "^2.4.1"
     yui "^3.18.1"
+
+zlib@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/zlib/-/zlib-1.0.5.tgz#6e7c972fc371c645a6afb03ab14769def114fcc0"
+  integrity sha1-bnyXL8NxxkWmr7A6sUdp3vEU/MA=

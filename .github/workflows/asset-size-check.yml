@@ -1,0 +1,75 @@
+name: AssetSizeCheck
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  asset-size-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout master
+        run: git checkout master
+      - name: Install dependencies for master
+        run: yarn install
+      - name: Build Production master
+        # This will leave the assets in a dist that is maintained when
+        #  We switch back to the primary branch
+        run: yarn workspace ember-data ember build -e production
+      - name: Checkout ${{github.ref}}
+        # We checkout the PR Branch before parsing the master vendor file
+        #  So that we are always using the current analysis tooling
+        run: git checkout --progress --force $GITHUB_SHA
+      - name: Install dependencies for ${{github.ref}}
+        run: yarn install
+      - name: Parse Master Assets
+        run: |
+          node ./bin/asset-size-tracking/generate-analysis.js
+          mkdir -p tmp
+          mkdir -p tmp/asset-sizes
+          node ./bin/asset-size-tracking/print-analysis.js -show > tmp/asset-sizes/master-analysis.txt
+      - name: Upload Master Dist Artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: master-dist
+          path: packages/-ember-data/dist/assets
+      - name: Build Production ${{github.ref}}
+        run: yarn workspace ember-data ember build -e production
+      - name: Test Asset Sizes
+        run: |
+          mkdir -p tmp
+          mkdir -p tmp/asset-sizes
+          node ./bin/asset-size-tracking/generate-diff.js | tee tmp/asset-sizes/diff.txt
+      - name: Prepare Data For Report
+        if: failure() || success()
+        run: |
+          node ./bin/asset-size-tracking/generate-analysis.js
+      - name: Print Asset Size Report
+        if: failure() || success()
+        run: |
+          node ./bin/asset-size-tracking/print-analysis.js | tee tmp/asset-sizes/commit-analysis.txt
+      - name: Upload ${{github.ref}} Dist Artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: commit-dist
+          path: packages/-ember-data/dist/assets
+      - name: Upload Report Artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: reports
+          path: tmp/asset-sizes
+      - name: Report Asset Sizes
+        if: failure() || success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMENT_MARKER="Asset Size Report for "
+          node ./bin/asset-size-tracking/src/create-comment-text.js $GITHUB_SHA > tmp/asset-sizes/comment.txt
+          COMMENT_TEXT="@./tmp/asset-sizes/comment.txt"
+          source bin/asset-size-tracking/src/post-comment.sh
