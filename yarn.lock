@@ -6278,10 +6278,10 @@ ember-export-application-global@^2.0.0:
   dependencies:
     ember-cli-babel "^6.0.0-beta.7"
 
-ember-fetch@^6.7.1:
-  version "6.7.1"
-  resolved "https://registry.npmjs.org/ember-fetch/-/ember-fetch-6.7.1.tgz#778390bc9993d31cc32d429ae69a591e431e85ac"
-  integrity sha512-B/s0HZWcIrDDz3wOxvAsWM2SyT4nND274aH3Othzxzax/lOJnGHKbNa+IGLrXKSja+ANeD5P8sVwDaAUw8pzpQ==
+ember-fetch@^6.7.2:
+  version "6.7.2"
+  resolved "https://registry.npmjs.org/ember-fetch/-/ember-fetch-6.7.2.tgz#82efce4a55a64863104347b71e598208b9acf518"
+  integrity sha512-+Dd++MJVkCXoqX2DPtFDjuoDMcLk+7fphLq7D8OoXwJq9KQMTff07sH18qhxWXV5Hqknvz3Uwy214g54vOboag==
   dependencies:
     abortcontroller-polyfill "^1.3.0"
     broccoli-concat "^3.2.2"

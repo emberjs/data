@@ -41,7 +41,7 @@
     "ember-cli-typescript": "^3.0.0",
     "ember-cli-typescript-blueprints": "^3.0.0",
     "ember-export-application-global": "^2.0.0",
-    "ember-fetch": "^6.7.1",
+    "ember-fetch": "^6.7.2",
     "ember-load-initializers": "^2.1.0",
     "ember-maybe-import-regenerator": "^0.1.6",
     "ember-qunit": "^4.5.1",
