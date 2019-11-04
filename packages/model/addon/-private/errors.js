@@ -1,5 +1,5 @@
 import { mapBy, not } from '@ember/object/computed';
-import DeprecatedEvent from '../deprecated-evented';
+import { DeprecatedEvented } from '@ember-data/store/-private';
 import ArrayProxy from '@ember/array/proxy';
 import { get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
@@ -82,7 +82,7 @@ import { DEBUG } from '@glimmer/env';
   @extends Ember.ArrayProxy
   @uses Ember.Evented
  */
-export default ArrayProxy.extend(DeprecatedEvent, {
+export default ArrayProxy.extend(DeprecatedEvented, {
   /**
     Register with target handler
 
