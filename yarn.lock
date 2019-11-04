@@ -778,17 +778,17 @@
     ember-cli-babel "^6.16.0"
     ember-compatibility-helpers "^1.1.1"
 
-"@ember/test-helpers@^1.6.0":
-  version "1.6.1"
-  resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-1.6.1.tgz#5eb0b58486524c54f1b617a83e4ab327b7c62f07"
-  integrity sha512-gXLXR0XdZKfyXHFP+QLpG55TlrDtvrZI6TMQVQxdZwsz589kN8idmc01rDjyy53jx430tZTEsdhJvC2LrHXPwg==
+"@ember/test-helpers@^1.7.1":
+  version "1.7.1"
+  resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-1.7.1.tgz#cc22a954b3b46856518f034bd492a74e0482389f"
+  integrity sha512-+ioumnanSRJzZ0ZH30FIkB0r41UhVyuWQ9R9Yp1phDWJQDLumxg+25WDr40relwcH6z0Cn6LIEzeTVujO/0Rww==
   dependencies:
     broccoli-debug "^0.6.5"
     broccoli-funnel "^2.0.2"
     ember-assign-polyfill "^2.6.0"
     ember-cli-babel "^7.7.3"
     ember-cli-htmlbars-inline-precompile "^2.1.0"
-    ember-test-waiters "^1.0.0"
+    ember-test-waiters "^1.1.1"
 
 "@embroider/core@0.4.3", "@embroider/core@^0.4.3":
   version "0.4.3"
@@ -6321,18 +6321,18 @@ ember-maybe-import-regenerator@^0.1.6:
     ember-cli-babel "^6.0.0-beta.4"
     regenerator-runtime "^0.9.5"
 
-ember-qunit@^4.5.1:
-  version "4.5.1"
-  resolved "https://registry.npmjs.org/ember-qunit/-/ember-qunit-4.5.1.tgz#dc4b0a794fbeb6702a02f28bf19091de0f90fd5a"
-  integrity sha512-fOxXQLFdellP0yiMd9f3n7pIGggiDo8kBuswdGvsCrqTKq5aB1Cb49eeoNyBDQYGlhcxY0pOGUe+xElppChDBA==
+ember-qunit@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.npmjs.org/ember-qunit/-/ember-qunit-4.6.0.tgz#ad79fd3ff00073a8779400cc5a4b44829517590f"
+  integrity sha512-i5VOGn0RP8XH+5qkYDOZshbqAvO6lHgF65D0gz8vRx4DszCIvJMJO+bbftBTfYMxp6rqG85etAA6pfNxE0DqsQ==
   dependencies:
-    "@ember/test-helpers" "^1.6.0"
+    "@ember/test-helpers" "^1.7.1"
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.2"
     common-tags "^1.4.0"
-    ember-cli-babel "^7.8.0"
+    ember-cli-babel "^7.12.0"
     ember-cli-test-loader "^2.2.0"
-    qunit "^2.9.2"
+    qunit "^2.9.3"
 
 ember-resolver@^5.3.0:
   version "5.3.0"
@@ -6423,7 +6423,7 @@ ember-template-lint@^1.1.0:
     resolve "^1.1.3"
     strip-bom "^3.0.0"
 
-ember-test-waiters@^1.0.0:
+ember-test-waiters@^1.1.1:
   version "1.1.1"
   resolved "https://registry.npmjs.org/ember-test-waiters/-/ember-test-waiters-1.1.1.tgz#7df6e7a47e0fdca814aa351f7f7f9a006e15fdcd"
   integrity sha512-ra71ZWTGBGLeDPa308aeAg9+/nYxv2fk4OEzmXdhvbSa5Dtbei94sr5pbLXx2IiK3Re2gDAvDzxg9PVhLy9fig==
@@ -11291,7 +11291,7 @@ qunit-dom@^0.9.1:
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.1"
 
-qunit@^2.9.2, qunit@^2.9.3:
+qunit@^2.9.3:
   version "2.9.3"
   resolved "https://registry.npmjs.org/qunit/-/qunit-2.9.3.tgz#9522a088e76f0782f70a45db92f2fd14db311bcc"
   integrity sha512-RH4VYSaVsNRDthMFFboTJAJ8q4kJM5LvOqWponKUYPEAeOcmc/YFV1QsZ7ikknA3TjqliWFJYEV63vvVXaALmQ==
