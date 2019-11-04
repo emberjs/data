@@ -194,6 +194,33 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
+  test('ajaxOptions() headers take precedence over adapter headers', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    assert.deepEqual(ajaxOptions, {
+      credentials: 'same-origin',
+      type: 'POST',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      url: 'example.com',
+    });
+  });
+
   test('_fetchRequest() returns a promise', function(assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
