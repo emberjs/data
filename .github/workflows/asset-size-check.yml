@@ -14,6 +14,11 @@ jobs:
         with:
           node-version: 12.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: SHA Check
+        run: |
+          echo $GITHUB_SHA
+          echo git rev-parse HEAD
+          echo git rev-parse HEAD~1
       - name: Checkout master
         run: git checkout master
       - name: Install dependencies for master
