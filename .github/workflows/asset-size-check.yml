@@ -18,7 +18,7 @@ jobs:
         run: git checkout master
       - name: Check SHA
         run: |
-          sha=git rev-parse --short=8 HEAD
+          sha=$(git rev-parse --short=8 HEAD)
           echo "HEAD sha=$sha"
           echo "GITHUB_SHA sha=$GITHUB_SHA"
           mkdir -p tmp
