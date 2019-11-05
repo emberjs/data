@@ -1,5 +1,6 @@
 import QUnit from 'qunit';
 import { registerDeprecationHandler } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
 
@@ -157,6 +158,16 @@ export function configureDeprecationHandler() {
     }
 
     let result = verifyDeprecation(config, label);
+
+    if (!DEBUG) {
+      result = {
+        result: true,
+        actual: { id: config.id, count: 0 },
+        expected: { id: config.id, count: 0 },
+        message: `Deprecations do not trigger in production environments`,
+      };
+    }
+
     this.pushResult(result);
     if (callback) {
       DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
@@ -178,6 +189,16 @@ export function configureDeprecationHandler() {
     }
 
     let result = verifyNoDeprecation(filter, label);
+
+    if (!DEBUG) {
+      result = {
+        result: true,
+        actual: [],
+        expected: [],
+        message: `Deprecations do not trigger in production environments`,
+      };
+    }
+
     this.pushResult(result);
     DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
   };
