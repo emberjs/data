@@ -14,8 +14,6 @@ jobs:
         with:
           node-version: 12.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Checkout master
-        run: git checkout master
       - name: Check SHA
         run: |
           sha=$(git rev-parse --short=8 HEAD)
@@ -27,6 +25,8 @@ jobs:
           echo $originSha > tmp/sha-for-commit.txt
           git show HEAD --format=short --no-patch
           git show $GITHUB_SHA --format=short --no-patch
+      - name: Checkout master
+        run: git checkout master
       - name: Install dependencies for master
         run: yarn install
       - name: Build Production master
