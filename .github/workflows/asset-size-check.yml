@@ -16,6 +16,14 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout master
         run: git checkout master
+      - name: Check SHA
+        run: |
+          sha=git rev-parse --short=8 HEAD
+          echo "HEAD sha=$sha"
+          echo "GITHUB_SHA sha=$GITHUB_SHA"
+          mkdir -p tmp
+          echo $sha > tmp/sha-for-check.txt
+          git show HEAD --format=short --no-patch
       - name: Install dependencies for master
         run: yarn install
       - name: Build Production master
@@ -25,7 +33,9 @@ jobs:
       - name: Checkout ${{github.ref}}
         # We checkout the PR Branch before parsing the master vendor file
         #  So that we are always using the current analysis tooling
-        run: git checkout --progress --force $GITHUB_SHA
+        run: |
+          sha=$(cat tmp/sha-for-check.txt)
+          git checkout --progress --force $sha
       - name: Install dependencies for ${{github.ref}}
         run: yarn install
       - name: Parse Master Assets
@@ -70,6 +80,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           COMMENT_MARKER="Asset Size Report for "
-          node ./bin/asset-size-tracking/src/create-comment-text.js $GITHUB_SHA > tmp/asset-sizes/comment.txt
+          sha=$(cat tmp/sha-for-check.txt)
+          node ./bin/asset-size-tracking/src/create-comment-text.js $sha > tmp/asset-sizes/comment.txt
           COMMENT_TEXT="@./tmp/asset-sizes/comment.txt"
           source bin/asset-size-tracking/src/post-comment.sh
