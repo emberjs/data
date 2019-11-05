@@ -26,6 +26,7 @@ jobs:
           originSha=$sha
           echo $originSha > tmp/sha-for-commit.txt
           git show HEAD --format=short --no-patch
+          git show $GITHUB_SHA --format=short --no-patch
       - name: Install dependencies for master
         run: yarn install
       - name: Build Production master
