@@ -19,6 +19,8 @@ jobs:
           echo $GITHUB_SHA
           echo git rev-parse HEAD
           echo git rev-parse HEAD~1
+          echo $GITHUB_REF
+          echo git rev-parse $GITHUB_REF
       - name: Checkout master
         run: git checkout master
       - name: Install dependencies for master
