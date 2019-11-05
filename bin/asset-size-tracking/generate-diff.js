@@ -92,7 +92,7 @@ function analyzeDiff(diff) {
   if (diff.currentSize < diff.newSize) {
     let delta = diff.newSize - diff.currentSize;
     let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
-    if (delta > library_failure_threshold) {
+    if (delta > library_failure_threshold && compressedDelta > 0) {
       failures.push(
         `The size of the library ${diff.name} has increased by ${formatBytes(delta)} (${formatBytes(
           compressedDelta
@@ -128,7 +128,10 @@ function printItem(item, indent = 0) {
     const indentColor = indent >= 4 ? 'grey' : indent >= 2 ? 'yellow' : indent >= 0 ? 'magenta' : 'green';
     console.log(
       leftPad(
-        chalk[indentColor](item.name) + ' ' + chalk.white(formatBytes(item.newSizeCompressed)) + formatDelta(item),
+        chalk[indentColor](item.name) +
+          ' ' +
+          chalk.white(formatBytes(item.newSize) + ' / ' + formatBytes(item.newSizeCompressed) + ' (compressed)') +
+          formatDelta(item),
         indent * 2
       )
     );
@@ -136,13 +139,21 @@ function printItem(item, indent = 0) {
 }
 
 function formatDelta(item) {
-  if (item.currentSize === item.newSize) {
+  if (item.currentSizeCompressed === item.newSizeCompressed) {
     return '';
   }
-  if (item.currentSize > item.newSize) {
-    return chalk.green(` (- ${formatBytes(item.currentSizeCompressed - item.newSizeCompressed)})`);
+  if (item.currentSizeCompressed > item.newSizeCompressed) {
+    return chalk.green(
+      ` (- ${formatBytes(item.currentSize - item.newSize)} / - ${formatBytes(
+        item.currentSizeCompressed - item.newSizeCompressed
+      )} compressed)`
+    );
   } else {
-    return chalk.red(` (+ ${formatBytes(item.newSizeCompressed - item.currentSizeCompressed)})`);
+    return chalk.red(
+      ` (+ ${formatBytes(item.newSize - item.currentSize)} / - ${formatBytes(
+        item.newSizeCompressed - item.currentSizeCompressed
+      )} compressed)`
+    );
   }
 }
 
