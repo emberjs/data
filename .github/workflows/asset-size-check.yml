@@ -23,7 +23,7 @@ jobs:
           echo $sha > tmp/sha-for-check.txt
           originSha=$sha
           echo $originSha > tmp/sha-for-commit.txt
-          git show HEAD --format=short --no-patch
+          git show HEAD~1 --format=short --no-patch
           git show --format=short --no-patch $(git rev-parse ${sha}^..${sha}~)
       - name: Checkout master
         run: git checkout master
