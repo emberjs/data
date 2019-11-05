@@ -9,7 +9,6 @@ import {
   coerceId,
   DeprecatedEvented,
   errorsArrayToHash,
-  Errors,
   InternalModel,
   PromiseObject,
   recordDataFor,
@@ -20,6 +19,7 @@ import {
   relationshipsDescriptor,
   RootState,
 } from '@ember-data/store/-private';
+import Errors from './errors';
 
 const { changeProperties } = Ember;
 

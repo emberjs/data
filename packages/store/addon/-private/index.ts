@@ -2,8 +2,6 @@
   @module @ember-data/store
 */
 
-// // public
-export { default as Errors } from './system/model/errors';
 export { default as Store } from './system/ds-model-store';
 
 export { recordIdentifierFor } from './system/store/internal-model-factory';
