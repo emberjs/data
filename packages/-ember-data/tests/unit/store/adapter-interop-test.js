@@ -4,7 +4,6 @@ import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { DEBUG } from '@glimmer/env';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
