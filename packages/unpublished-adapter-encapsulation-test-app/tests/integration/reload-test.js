@@ -77,7 +77,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
     this.owner.register('model:person', Person);
   });
 
-  module('adapter.shouldReloadAll', function(hooks) {
+  module('adapter.shouldReloadAll', function() {
     test('adapter.shouldReloadAll is not called when store.findAll is called with a reload: false flag', async function(assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
