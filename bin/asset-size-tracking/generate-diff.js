@@ -209,15 +209,15 @@ if (failures.length) {
     let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
     if (-1 * delta < library_failure_threshold) {
       console.log(
-        `\n${diff.name} increased by ${formatBytes(-1 * delta)} (${formatBytes(
+        `\n<details>\n  <summary>${diff.name} increased by ${formatBytes(-1 * delta)} (${formatBytes(
           compressedDelta
-        )} compressed) which is within the allowed tolerance of ${library_failure_threshold} bytes uncompressed`
+        )} compressed) which is within the allowed tolerance of ${library_failure_threshold} bytes uncompressed</summary>`
       );
     } else {
       console.log(
-        `\n${diff.name} increased by ${formatBytes(-1 * delta)} uncompressed but decreased by (${formatBytes(
-          -1 * compressedDelta
-        )} compressed)`
+        `\n<details>\n  <summary>${diff.name} increased by ${formatBytes(
+          -1 * delta
+        )} uncompressed but decreased by (${formatBytes(-1 * compressedDelta)} compressed)</summary>`
       );
     }
   }
