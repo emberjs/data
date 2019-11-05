@@ -13,6 +13,62 @@ class Person extends Model {
   lastName;
 }
 
+function setupReloadTest(options) {
+  class TestMinimumAdapter extends EmberObject {
+    shouldReloadAllCalled = 0;
+    shouldReloadRecordCalled = 0;
+    shouldBackgroundReloadAllCalled = 0;
+    shouldBackgroundReloadRecordCalled = 0;
+
+    requestsMade = 0;
+
+    constructor() {
+      super(...arguments);
+
+      if (options.shouldReloadAll !== undefined) {
+        this.shouldReloadAll = function() {
+          this.shouldReloadAllCalled++;
+          return options.shouldReloadAll;
+        };
+      }
+
+      if (options.shouldReloadRecord !== undefined) {
+        this.shouldReloadRecord = function() {
+          this.shouldReloadRecordCalled++;
+          return options.shouldReloadRecord;
+        };
+      }
+      if (options.shouldBackgroundReloadAll !== undefined) {
+        this.shouldBackgroundReloadAll = function() {
+          this.shouldBackgroundReloadAllCalled++;
+          return options.shouldBackgroundReloadAll;
+        };
+      }
+
+      if (options.shouldBackgroundReloadRecord !== undefined) {
+        this.shouldBackgroundReloadRecord = function() {
+          this.shouldBackgroundReloadRecordCalled++;
+          return options.shouldBackgroundReloadRecord;
+        };
+      }
+    }
+
+    findAll() {
+      this.requestsMade++;
+      return resolve([]);
+    }
+
+    findRecord() {
+      this.requestsMade++;
+      return resolve({});
+    }
+  }
+  this.owner.register('adapter:application', TestMinimumAdapter);
+
+  this.store = this.owner.lookup('service:store');
+  this.adapter = this.owner.lookup('adapter:application');
+}
+
 module('integration/reload - Reloading Tests', function(hooks) {
   setupTest(hooks);
 
@@ -21,31 +77,17 @@ module('integration/reload - Reloading Tests', function(hooks) {
     this.owner.register('model:person', Person);
   });
 
-  module('adapter.shouldReloadAll', function() {
+  module('adapter.shouldReloadAll', function(hooks) {
     test('adapter.shouldReloadAll is not called when store.findAll is called with a reload: false flag', async function(assert) {
-      let shouldReloadAllCalled = 0;
-      let requestsMade = 0;
+      setupReloadTest.call(this, {
+        shouldReloadAll: false,
+        shouldBackgroundReloadAll: false,
+      });
 
-      class TestMinimumAdapter extends EmberObject {
-        shouldReloadAll() {
-          shouldReloadAllCalled++;
-          return false;
-        }
+      await this.store.findAll('person', { reload: false });
 
-        async findAll() {
-          requestsMade++;
-          return resolve([]);
-        }
-      }
-
-      this.owner.register('adapter:application', TestMinimumAdapter);
-
-      const store = this.owner.lookup('service:store');
-
-      await store.findAll('person', { reload: false });
-
-      assert.equal(shouldReloadAllCalled, 0, 'shouldReloadAll is not called');
-      assert.equal(requestsMade, 0, 'no request is made');
+      assert.equal(this.adapter.shouldReloadAllCalled, 0, 'shouldReloadAll is not called');
+      assert.equal(this.adapter.requestsMade, 0, 'no request is made');
     });
   });
 
