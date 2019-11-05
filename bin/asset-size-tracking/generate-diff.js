@@ -164,7 +164,6 @@ function leftPad(str, len, char = ' ') {
   return str;
 }
 
-printDiff(diff);
 const { failures, warnings } = analyzeDiff(diff);
 
 if (failures.length) {
@@ -181,6 +180,8 @@ if (failures.length) {
       console.log(w);
     });
   }
+  console.log('\n');
+  printDiff(diff);
   console.log('\n</details>');
   process.exit(1);
 } else {
@@ -208,6 +209,8 @@ if (failures.length) {
   } else {
     console.log('\nIf any packages had changed sizes they would be listed here.');
   }
+  console.log('\n');
+  printDiff(diff);
   console.log('\n</details>');
   process.exit(0);
 }
