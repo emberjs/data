@@ -52,9 +52,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
       owner.unregister('service:store');
       owner.register('service:store', BadStore);
       const store = owner.lookup('service:store');
-      if (DEBUG) {
-        assert.expectAssertion(() => store.get('defaultAdapter'));
-      }
+      assert.expectAssertion(() => store.get('defaultAdapter'));
     }
   );
 
