@@ -57,6 +57,7 @@ jobs:
         run: |
           mkdir -p tmp
           mkdir -p tmp/asset-sizes
+          set -o pipefail
           node ./bin/asset-size-tracking/generate-diff.js | tee tmp/asset-sizes/diff.txt
       - name: Prepare Data For Report
         if: failure() || success()
@@ -65,6 +66,7 @@ jobs:
       - name: Print Asset Size Report
         if: failure() || success()
         run: |
+          set -o pipefail
           node ./bin/asset-size-tracking/print-analysis.js | tee tmp/asset-sizes/commit-analysis.txt
       - name: Upload ${{github.ref}} Dist Artifacts
         uses: actions/upload-artifact@v1
