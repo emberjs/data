@@ -114,6 +114,7 @@ function analyzeDiff(diff) {
 }
 
 function printDiff(diff) {
+  console.log('\n```\n');
   printItem(diff);
   diff.packages.forEach(pkg => {
     printItem(pkg, 2);
@@ -121,6 +122,7 @@ function printDiff(diff) {
       printItem(m, 4);
     });
   });
+  console.log('\n```\n');
 }
 
 function printItem(item, indent = 0) {
@@ -217,7 +219,7 @@ if (failures.length) {
       console.log(
         `\n<details>\n  <summary>${diff.name} increased by ${formatBytes(
           -1 * delta
-        )} uncompressed but decreased by (${formatBytes(-1 * compressedDelta)} compressed)</summary>`
+        )} uncompressed but decreased by ${formatBytes(-1 * compressedDelta)} compressed</summary>`
       );
     }
   }
