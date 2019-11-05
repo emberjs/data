@@ -23,8 +23,7 @@ jobs:
           echo $sha > tmp/sha-for-check.txt
           originSha=$sha
           echo $originSha > tmp/sha-for-commit.txt
-          git show HEAD --format=short --no-patch
-          git show $GITHUB_SHA --format=short --no-patch
+          git log ${sha}^..${sha}
       - name: Checkout master
         run: git checkout master
       - name: Install dependencies for master
