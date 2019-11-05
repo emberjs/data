@@ -23,6 +23,8 @@ jobs:
           echo "GITHUB_SHA sha=$GITHUB_SHA"
           mkdir -p tmp
           echo $sha > tmp/sha-for-check.txt
+          originSha=
+          echo $originSha > tmp/sha-for-commit.txt
           git show HEAD --format=short --no-patch
       - name: Install dependencies for master
         run: yarn install
