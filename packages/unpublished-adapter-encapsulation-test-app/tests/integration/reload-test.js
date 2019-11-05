@@ -3,6 +3,7 @@ import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
 import Store from '@ember-data/store';
 import Model, { attr } from '@ember-data/model';
+import Transform from '@ember-data/serializer/transform';
 import { resolve } from 'rsvp';
 
 class Person extends Model {
@@ -73,6 +74,12 @@ module('integration/reload - Reloading Tests', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
+    // Needed to avoid deprecation warning even though not using any transforms.
+    this.owner.register('transform:date', class DateTransform extends Transform {});
+    this.owner.register('transform:number', class NumberTransform extends Transform {});
+    this.owner.register('transform:boolean', class BooleanTransform extends Transform {});
+    this.owner.register('transform:string', class StringTransform extends Transform {});
+
     this.owner.register('service:store', Store);
     this.owner.register('model:person', Person);
   });
