@@ -206,11 +206,20 @@ if (failures.length) {
       )} compressed)</summary>`
     );
   } else {
-    console.log(
-      `\n${diff.name} increased by ${formatBytes(-1 * delta)} (${formatBytes(
-        diff.newSizeCompressed - diff.currentSizeCompressed
-      )} compressed) which is within the allowed tolerance of ${library_failure_threshold} bytes uncompressed`
-    );
+    let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
+    if (-1 * delta < library_failure_threshold) {
+      console.log(
+        `\n${diff.name} increased by ${formatBytes(-1 * delta)} (${formatBytes(
+          compressedDelta
+        )} compressed) which is within the allowed tolerance of ${library_failure_threshold} bytes uncompressed`
+      );
+    } else {
+      console.log(
+        `\n${diff.name} increased by ${formatBytes(-1 * delta)} uncompressed but decreased by (${formatBytes(
+          -1 * compressedDelta
+        )} compressed)`
+      );
+    }
   }
   if (warnings.length) {
     console.log('\nWarnings\n-----------------------');
