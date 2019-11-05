@@ -23,7 +23,7 @@ jobs:
           echo $sha > tmp/sha-for-check.txt
           originSha=$sha
           echo $originSha > tmp/sha-for-commit.txt
-          git log ${sha}^..${sha}
+          git show $(git rev-parse ${sha}^..${sha})
       - name: Checkout master
         run: git checkout master
       - name: Install dependencies for master
