@@ -1,8 +1,9 @@
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
-import Store from '@ember-data/store';
+import Store from 'adapter-encapsulation-test-app/services/store';
 import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Transform from '@ember-data/serializer/transform';
 import { resolve } from 'rsvp';
 
@@ -56,12 +57,12 @@ function setupReloadTest(options) {
 
     findAll() {
       this.requestsMade++;
-      return resolve([]);
+      return resolve(options.resolveFindAllWith || { data: [] });
     }
 
     findRecord() {
       this.requestsMade++;
-      return resolve({});
+      return resolve(options.resolveFindRecordWith || { data: null });
     }
   }
   this.owner.register('adapter:application', TestMinimumAdapter);
@@ -81,6 +82,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
     this.owner.register('transform:string', class StringTransform extends Transform {});
 
     this.owner.register('service:store', Store);
+    this.owner.register('serializer:application', JSONAPISerializer);
     this.owner.register('model:person', Person);
   });
 
@@ -115,22 +117,29 @@ module('integration/reload - Reloading Tests', function(hooks) {
       });
 
       this.store.push({
-        data: [
-          {
-            id: '1',
-            type: 'person',
-            attributes: {
-              firstName: 'Gaurav',
-              lastName: 'Munjal',
-            },
+        data: {
+          id: 1,
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
           },
-        ],
+        },
       });
 
       await this.store.findAll('person');
 
-      assert.equal(this.adapter.shouldReloadAllCalled, 1, 'shouldReloadAll is called once');
-      assert.equal(this.adapter.requestsMade, 1, 'an ajaz request is made');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('store.findAll does not error if adapter.shouldReloadAll is not defined (records are absent)', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldBackgroundReloadAll: false,
+      });
+
+      await this.store.findAll('person');
+
+      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
   });
 
