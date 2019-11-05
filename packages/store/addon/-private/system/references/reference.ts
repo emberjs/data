@@ -1,4 +1,3 @@
-import Store from '../ds-model-store';
 import InternalModel from '../model/internal-model';
 import recordDataFor from '../record-data-for';
 import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
