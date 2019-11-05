@@ -8,7 +8,6 @@ import { DEBUG } from '@glimmer/env';
 import QUnit from 'qunit';
 import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
 import configureAsserts from 'dummy/tests/helpers/qunit-asserts';
-import { SHOULD_ASSERT_ALL } from './helpers/deprecated-test';
 
 configureAsserts();
 
