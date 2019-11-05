@@ -3,6 +3,7 @@ export { default as Store } from '@ember-data/store';
 export { default as DS } from './core';
 export { default as isEnabled } from './features';
 export { Errors } from '@ember-data/model/-private';
+export { Snapshot } from '@ember-data/store/-private';
 
 // `ember-data-model-fragments` relies on `RootState` and `InternalModel`
 // `ember-data-model-fragments' and `ember-data-change-tracker` rely on `normalizeModelName`
