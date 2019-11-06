@@ -6136,10 +6136,10 @@ ember-cli-version-checker@^3.0.0, ember-cli-version-checker@^3.0.1, ember-cli-ve
     resolve-package-path "^1.2.6"
     semver "^5.6.0"
 
-ember-cli-yuidoc@^0.8.8:
-  version "0.8.8"
-  resolved "https://registry.npmjs.org/ember-cli-yuidoc/-/ember-cli-yuidoc-0.8.8.tgz#3858baaf85388a976024f9de40f1075fea58f606"
-  integrity sha1-OFi6r4U4ipdgJPneQPEHX+pY9gY=
+ember-cli-yuidoc@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.npmjs.org/ember-cli-yuidoc/-/ember-cli-yuidoc-0.9.1.tgz#bc2171eb160b02ad5f4078e83e3648b95628ced9"
+  integrity sha512-4pb3OKXhHCeUux6a7SDKziLDWdDciJwzmUld3Fumt60RLcH/nIk5lPdI0o+UXJ9NfP+WcSvvpWWroFmWqWAWWA==
   dependencies:
     broccoli-caching-writer "~2.0.4"
     broccoli-merge-trees "^1.1.1"
