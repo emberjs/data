@@ -16,7 +16,7 @@ export default {
   SAMPLE_FEATURE_FLAG: null,
   RECORD_DATA_ERRORS: null,
   RECORD_DATA_STATE: null,
-  IDENTIFIERS: true,
+  IDENTIFIERS: null,
   REQUEST_SERVICE: null,
   CUSTOM_MODEL_CLASS: null,
 };
