@@ -8,7 +8,6 @@ import { DEBUG } from '@glimmer/env';
 import QUnit from 'qunit';
 import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
 import configureAsserts from 'dummy/tests/helpers/qunit-asserts';
-import { SHOULD_ASSERT_ALL } from './helpers/deprecated-test';
 
 configureAsserts();
 
@@ -41,9 +40,7 @@ QUnit.begin(() => {
       const hooks = (mod.hooks.afterEach = mod.hooks.afterEach || []);
 
       if (mod.tests.length !== 0) {
-        if (SHOULD_ASSERT_ALL) {
-          hooks.unshift(assertAllDeprecations);
-        }
+        hooks.unshift(assertAllDeprecations);
       }
     });
   }

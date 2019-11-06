@@ -61,7 +61,7 @@ if (CUSTOM_MODEL_CLASS) {
           createRecord: () => RSVP.reject(),
         })
       );
-      owner.register('serializer:-default', JSONAPISerializer);
+      owner.register('serializer:application', JSONAPISerializer);
       owner.unregister('service:store');
     });
 

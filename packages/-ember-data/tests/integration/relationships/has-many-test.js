@@ -1300,6 +1300,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     'PromiseArray proxies evented methods to its ManyArray',
     {
       id: 'ember-data:evented-api-usage',
+      count: 3,
       until: '4.0',
     },
     function(assert) {

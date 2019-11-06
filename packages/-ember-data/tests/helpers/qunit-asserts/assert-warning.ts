@@ -1,5 +1,6 @@
 import QUnit from 'qunit';
 import { registerWarnHandler } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
 
@@ -148,6 +149,16 @@ export function configureWarningHandler() {
     }
 
     let result = verifyWarning(config, label);
+
+    if (!DEBUG) {
+      result = {
+        result: true,
+        actual: { id: config.id, count: 0 },
+        expected: { id: config.id, count: 0 },
+        message: `Warnings do not trigger in production environments`,
+      };
+    }
+
     this.pushResult(result);
     WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
   };
@@ -164,6 +175,16 @@ export function configureWarningHandler() {
     }
 
     let result = verifyNoWarning(label);
+
+    if (!DEBUG) {
+      result = {
+        result: true,
+        actual: [],
+        expected: [],
+        message: `Warnings do not trigger in production environments`,
+      };
+    }
+
     this.pushResult(result);
     WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
   };

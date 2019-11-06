@@ -51,17 +51,18 @@ export function configureAssertionHandler() {
     label?: string
   ): Promise<void> {
     let outcome;
-    if (DEBUG) {
-      try {
-        let result = cb();
-        if (isThenable(result)) {
-          await result;
-        }
-        outcome = verifyAssertion('', matcher, label);
-      } catch (e) {
-        outcome = verifyAssertion(e.message, matcher, label);
+
+    try {
+      let result = cb();
+      if (isThenable(result)) {
+        await result;
       }
-    } else {
+      outcome = verifyAssertion('', matcher, label);
+    } catch (e) {
+      outcome = verifyAssertion(e.message, matcher, label);
+    }
+
+    if (!DEBUG) {
       outcome = {
         result: true,
         actual: '',
@@ -83,6 +84,15 @@ export function configureAssertionHandler() {
       outcome = verifyNoAssertion('', label);
     } catch (e) {
       outcome = verifyNoAssertion(e.message, label);
+    }
+
+    if (!DEBUG) {
+      outcome = {
+        result: true,
+        actual: '',
+        expected: '',
+        message: `Assertions do not run in production environments`,
+      };
     }
 
     this.pushResult(outcome);

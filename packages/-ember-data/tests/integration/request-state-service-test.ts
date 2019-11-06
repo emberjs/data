@@ -7,6 +7,7 @@ import EmberObject from '@ember/object';
 import { attr } from '@ember-data/model';
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
 import { RequestStateEnum } from '@ember-data/store/-private/ts-interfaces/fetch-manager';
+import JSONSerializer from '@ember-data/serializer/json';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -26,6 +27,7 @@ if (REQUEST_SERVICE) {
     hooks.beforeEach(function() {
       let { owner } = this;
       owner.register('model:person', Person);
+      owner.register('serializer:application', JSONSerializer);
       store = owner.lookup('service:store');
     });
 

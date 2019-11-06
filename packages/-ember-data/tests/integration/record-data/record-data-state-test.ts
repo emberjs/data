@@ -7,6 +7,7 @@ import { attr } from '@ember-data/model';
 import Ember from 'ember';
 import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
 import { RECORD_DATA_STATE } from '@ember-data/canary-features';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -105,6 +106,7 @@ module('integration/record-data - Record Data State', function(hooks) {
     owner.register('model:person', Person);
     owner.unregister('service:store');
     owner.register('service:store', CustomStore);
+    owner.register('serializer:application', JSONAPISerializer);
   });
 
   test('Record Data state saving', async function(assert) {
