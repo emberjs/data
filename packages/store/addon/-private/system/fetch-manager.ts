@@ -17,6 +17,7 @@ import { FindRecordQuery, SaveRecordMutation, Request } from '../ts-interfaces/f
 import { symbol } from '../ts-interfaces/utils/symbol';
 import Store from './store';
 import recordDataFor from './record-data-for';
+import { errorsArrayToHash } from './errors-utils';
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
