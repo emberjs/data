@@ -16,7 +16,13 @@ const CRYPTO = (() => {
   if (isFastBoot) {
     return {
       getRandomValues(buffer: Uint8Array) {
-        return (FastBoot as FastBoot).require('crypto').randomFillSync(buffer);
+        try {
+          return (FastBoot as FastBoot).require('crypto').randomFillSync(buffer);
+        } catch (err) {
+          throw new Error(
+            'Using createRecord in Fastboot requires you to add the "crypto" package to "fastbootDependencies" in your package.json'
+          );
+        }
       },
     };
   } else if (hasWindow && typeof window.crypto !== 'undefined') {
