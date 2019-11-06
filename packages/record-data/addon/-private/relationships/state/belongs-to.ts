@@ -95,7 +95,6 @@ export default class BelongsToRelationship extends Relationship {
       this.notifyBelongsToChange();
     }
   }
-
   removeCompletelyFromInverse() {
     super.removeCompletelyFromInverse();
 
