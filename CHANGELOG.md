@@ -2,6 +2,12 @@
 
 ### Master
 
+## Release 3.14.0-beta.1 (November 6, 2019)
+- [#6522](https://github.com/emberjs/data/pull/6522) [FIX DOCS] Docs updates for Packages to fix missing docs and broken links (#6449) (#6522)
+- [#6568](https://github.com/emberjs/data/pull/6568) [BUGFIX release] Enable `store.createRecord` in FastBoot (#6568)
+- [#6586](https://github.com/emberjs/data/pull/6586) [BUGFIX links] relationship setup for link fetch should batch (#6586)
+- [3f428ca9](https://github.com/emberjs/data/commit/3f428ca9d38b63059aa7e5f4c5a4055e9c5ec770) [BUGFIX adapter]: Fix problem with headers precedence #6588 (#6650)
+
 ## Release 3.14.0-beta.0 (September 24, 2019)
 
 - [f4d3866e](https://github.com/emberjs/data/commit/f4d3866e60d4cc81c00e6121d23d019518d5ab8d) [FEATURE] attributesDefintionFor and relationshipsDefinitionFor accept identifiers (#6480)
