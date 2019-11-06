@@ -30,6 +30,7 @@ import { normalizeResponseHelper } from './store/serializer-response';
 import { serializerForAdapter } from './store/serializers';
 import recordDataFor from './record-data-for';
 import FetchManager, { SaveOp } from './fetch-manager';
+import { errorsArrayToHash } from './errors-utils';
 
 import { _find, _findMany, _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
 
