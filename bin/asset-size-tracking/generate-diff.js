@@ -92,7 +92,7 @@ function analyzeDiff(diff) {
   if (diff.currentSize < diff.newSize) {
     let delta = diff.newSize - diff.currentSize;
     let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
-    if (delta > library_failure_threshold) {
+    if (delta > library_failure_threshold && compressedDelta > 0) {
       failures.push(
         `The size of the library ${diff.name} has increased by ${formatBytes(delta)} (${formatBytes(
           compressedDelta
@@ -114,6 +114,7 @@ function analyzeDiff(diff) {
 }
 
 function printDiff(diff) {
+  console.log('\n```\n');
   printItem(diff);
   diff.packages.forEach(pkg => {
     printItem(pkg, 2);
@@ -121,37 +122,57 @@ function printDiff(diff) {
       printItem(m, 4);
     });
   });
+  console.log('\n```\n');
 }
 
 function printItem(item, indent = 0) {
   if (item.currentSize !== item.newSize) {
     const indentColor = indent >= 4 ? 'grey' : indent >= 2 ? 'yellow' : indent >= 0 ? 'magenta' : 'green';
     console.log(
-      leftPad(
-        chalk[indentColor](item.name) + ' ' + chalk.white(formatBytes(item.newSizeCompressed)) + formatDelta(item),
-        indent * 2
-      )
+      leftPad(chalk[indentColor](item.name) + ' ' + formatSize(item, false) + ' ' + formatSize(item, true), indent * 2)
     );
   }
 }
 
-function formatDelta(item) {
-  if (item.currentSize === item.newSize) {
-    return '';
+function formatSize(item, isCompressed = false) {
+  let size = formatBytes(isCompressed ? item.newSizeCompressed : item.newSize);
+  let delta = formatDelta(item, isCompressed);
+
+  return isCompressed ? chalk.grey(`(${chalk.white(size)} ${delta} compressed)`) : `${chalk.white(size)} ${delta}`;
+}
+
+function formatDelta(item, isCompressed = false) {
+  let delta = isCompressed ? item.newSizeCompressed - item.currentSizeCompressed : item.newSize - item.currentSize;
+
+  if (delta === 0) {
+    return chalk.black('±0 B');
   }
-  if (item.currentSize > item.newSize) {
-    return chalk.green(` (- ${formatBytes(item.currentSizeCompressed - item.newSizeCompressed)})`);
+
+  if (delta < 0) {
+    return chalk.green(`${formatBytes(delta)}`);
   } else {
-    return chalk.red(` (+ ${formatBytes(item.newSizeCompressed - item.currentSizeCompressed)})`);
+    return chalk.red(`+${formatBytes(delta)}`);
   }
+}
+
+function humanizeNumber(n) {
+  let s = n.toFixed(2);
+  if (s.charAt(s.length - 1) === '0') {
+    s = n.toFixed(1);
+
+    if (s.charAt(s.length - 2) === '0') {
+      s = n.toFixed(0);
+    }
+  }
+  return s;
 }
 
 function formatBytes(b) {
   let str;
-  if (b > 1024) {
-    str = (b / 1024).toFixed(2) + ' KB';
+  if (b > 1024 || b < -1024) {
+    str = humanizeNumber(b / 1024) + ' KB';
   } else {
-    str = b + ' B';
+    str = humanizeNumber(b) + ' B';
   }
 
   return str;
@@ -164,7 +185,6 @@ function leftPad(str, len, char = ' ') {
   return str;
 }
 
-printDiff(diff);
 const { failures, warnings } = analyzeDiff(diff);
 
 if (failures.length) {
@@ -181,6 +201,8 @@ if (failures.length) {
       console.log(w);
     });
   }
+  console.log('\n**Changeset**\n');
+  printDiff(diff);
   console.log('\n</details>');
   process.exit(1);
 } else {
@@ -189,16 +211,25 @@ if (failures.length) {
     console.log(`\n<details>\n  <summary>${diff.name} has not changed in size</summary>`);
   } else if (delta > 0) {
     console.log(
-      `\n<detail>\n  <summary>${diff.name} shrank by ${formatBytes(delta)} (${formatBytes(
+      `\n<details>\n  <summary>${diff.name} shrank by ${formatBytes(delta)} (${formatBytes(
         diff.currentSizeCompressed - diff.newSizeCompressed
       )} compressed)</summary>`
     );
   } else {
-    console.log(
-      `\n${diff.name} increased by ${formatBytes(-1 * delta)} (${formatBytes(
-        diff.newSizeCompressed - diff.currentSizeCompressed
-      )} compressed) which is within the allowed tolerance of ${library_failure_threshold} bytes uncompressed`
-    );
+    let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
+    if (-1 * delta < library_failure_threshold) {
+      console.log(
+        `\n<details>\n  <summary>${diff.name} increased by ${formatBytes(-1 * delta)} (${formatBytes(
+          compressedDelta
+        )} compressed) which is within the allowed tolerance of ${library_failure_threshold} bytes uncompressed</summary>`
+      );
+    } else {
+      console.log(
+        `\n<details>\n  <summary>${diff.name} increased by ${formatBytes(
+          -1 * delta
+        )} uncompressed but decreased by ${formatBytes(-1 * compressedDelta)} compressed</summary>`
+      );
+    }
   }
   if (warnings.length) {
     console.log('\nWarnings\n-----------------------');
@@ -208,6 +239,8 @@ if (failures.length) {
   } else {
     console.log('\nIf any packages had changed sizes they would be listed here.');
   }
+  console.log('\n**Changeset**\n');
+  printDiff(diff);
   console.log('\n</details>');
   process.exit(0);
 }

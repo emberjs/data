@@ -224,7 +224,7 @@ function formatBytes(b) {
   if (b > 1024) {
     str = (b / 1024).toFixed(2) + ' KB';
   } else {
-    str = b + ' B';
+    str = b.toFixed(2) + ' B';
   }
 
   return str;
