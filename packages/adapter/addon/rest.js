@@ -294,8 +294,18 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   _defaultContentType: 'application/json; charset=utf-8',
 
-  fastboot: computed(function() {
-    return getOwner(this).lookup('service:fastboot');
+  fastboot: computed({
+    // Avoid computed property override deprecation in fastboot as suggested by:
+    // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
+    get() {
+      if (this._fastboot) {
+        return this._fastboot;
+      }
+      return getOwner(this).lookup('service:fastboot');
+    },
+    set(key, value) {
+      this._fastboot = value;
+    },
   }),
 
   useFetch: computed(function() {
