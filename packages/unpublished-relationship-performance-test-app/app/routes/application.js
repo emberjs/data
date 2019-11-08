@@ -19,4 +19,9 @@ export default Route.extend({
       return flattened;
     });
   },
+  afterModel() {
+    if (document.location.href.indexOf('?tracerbench=true') !== -1) {
+      document.location.href = 'about:blank';
+    }
+  },
 });
