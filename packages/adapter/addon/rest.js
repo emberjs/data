@@ -1084,6 +1084,21 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
+      if (DEBUG) {
+        options.headers = options.headers || {};
+        let conflictingHeaders = Object.keys(headers).filter(key => options.headers[key] !== undefined);
+        if (conflictingHeaders.length > 0) {
+          conflictingHeaders.forEach(header => {
+            let value1 = headers[header];
+            let value2 = options.headers[header];
+            if (value1 !== value2) {
+              warn(
+                `The request header \`${header}\` with the value \`${value2}\` defined on the options passed to \`adapter.ajaxOptions(url, method, options)\` in adapter will be overridden with the value \`${value1}\` defined in \`adapter.headers\`. This behavior will change in the next version of Ember Data and the value provided on the  \`options\` passed to \`adapter.ajaxOptions\` will be respected.`
+              );
+            }
+          });
+        }
+      }
       options.headers = assign({}, options.headers, headers);
     } else if (!options.headers) {
       options.headers = {};
