@@ -34,7 +34,9 @@
       "@ember-data/record-data/*": ["packages/record-data/addon/*"],
       "@ember-data/canary-features": ["packages/canary-features/addon"],
       "@ember-data/canary-features/*": ["packages/canary-features/addon/*"],
-      "*": ["packages/store/types/*", "packages/record-data/types/*"]
+      "fastboot-test-app/tests/*": ["tests/*"],
+      "fastboot-test-app/*": ["app/*"],
+      "*": ["packages/store/types/*", "packages/record-data/types/*", "packages/fastboot-test-app/types/*"]
     }
   },
   "include": [
