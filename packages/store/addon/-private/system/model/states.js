@@ -177,8 +177,6 @@ function didSetProperty(internalModel, context) {
   } else {
     internalModel.send('propertyWasReset');
   }
-
-  internalModel.updateRecordArrays();
 }
 
 // Implementation notes:
@@ -396,6 +394,10 @@ const createdState = dirtyState({
   dirtyType: 'created',
   // FLAGS
   isNew: true,
+
+  setup(internalModel) {
+    internalModel.updateRecordArrays();
+  },
 });
 
 createdState.invalid.rolledBack = function(internalModel) {

@@ -73,7 +73,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     '_push',
     'pushPayload',
     'normalize',
-    'recordWasLoaded',
     'adapterFor',
     'serializerFor',
   ];

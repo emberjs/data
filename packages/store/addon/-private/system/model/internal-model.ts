@@ -545,7 +545,6 @@ export default class InternalModel {
         )
         .finally(function() {
           internalModel.finishedReloading();
-          internalModel.updateRecordArrays();
         });
     } else {
       this.startedReloading();
@@ -568,7 +567,6 @@ export default class InternalModel {
         )
         .finally(function() {
           internalModel.finishedReloading();
-          internalModel.updateRecordArrays();
         });
     }
   }
@@ -1041,7 +1039,6 @@ export default class InternalModel {
   */
   adapterDidDirty() {
     this.send('becomeDirty');
-    this.updateRecordArrays();
   }
 
   /*
@@ -1087,7 +1084,6 @@ export default class InternalModel {
           manyArray.retrieveLatest();
         }
       }
-      this.updateRecordArrays();
     }
   }
 
@@ -1098,7 +1094,6 @@ export default class InternalModel {
       } else {
         this._record.notifyBelongsToChange(key, this._record);
       }
-      this.updateRecordArrays();
     }
   }
 
@@ -1123,7 +1118,6 @@ export default class InternalModel {
       } else {
         this._record.notifyPropertyChange(key);
       }
-      this.updateRecordArrays();
     }
     if (!CUSTOM_MODEL_CLASS) {
       let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
@@ -1236,8 +1230,6 @@ export default class InternalModel {
     for (i = 0, l = setups.length; i < l; i++) {
       setups[i].setup(this);
     }
-
-    this.updateRecordArrays();
   }
 
   _unhandledEvent(state, name, context) {
