@@ -281,7 +281,7 @@ module('integration/store - findRecord', function(hooks) {
     this.owner.register('serializer:application', RESTSerializer.extend());
   });
 
-  test('store#findRecord fetches record from server when cached record is not present', function(assert) {
+  test('store#findRecord fetches record from server when cached record is not present', async function(assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -290,21 +290,20 @@ module('integration/store - findRecord', function(hooks) {
     adapter.ajax = ajaxResponse({
       cars: [
         {
-          id: 20,
+          id: '20',
           make: 'BMC',
           model: 'Mini',
         },
       ],
     });
 
-    let cachedRecordIsPresent = store.hasRecordForId('car', 20);
+    let cachedRecordIsPresent = store.hasRecordForId('car', '20');
+
     assert.ok(!cachedRecordIsPresent, 'Car with id=20 should not exist');
 
-    return run(() => {
-      return store.findRecord('car', 20).then(car => {
-        assert.equal(car.get('make'), 'BMC', 'Car with id=20 is now loaded');
-      });
-    });
+    let car = await store.findRecord('car', '20');
+
+    assert.strictEqual(car.get('make'), 'BMC', 'Car with id=20 is now loaded');
   });
 
   test('store#findRecord returns cached record immediately and reloads record in the background', async function(assert) {
@@ -312,6 +311,7 @@ module('integration/store - findRecord', function(hooks) {
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
+
     adapter.shouldReloadRecord = () => false;
     adapter.shouldBackgroundReloadRecord = () => true;
 
@@ -326,33 +326,33 @@ module('integration/store - findRecord', function(hooks) {
       },
     });
 
-    adapter.ajax = () => {
-      return new Promise(resolve => setTimeout(resolve, 1)).then(() => {
-        return {
-          cars: [
-            {
-              id: '1',
-              make: 'BMC',
-              model: 'Princess',
-            },
-          ],
-        };
-      });
+    adapter.ajax = async () => {
+      await new Promise(resolve => setTimeout(resolve, 1));
+
+      return {
+        cars: [
+          {
+            id: '1',
+            make: 'BMC',
+            model: 'Princess',
+          },
+        ],
+      };
     };
 
     const promiseCar = store.findRecord('car', '1');
     const car = await promiseCar;
 
-    assert.equal(promiseCar.get('model'), 'Mini', 'promiseCar is from cache');
-    assert.equal(car.get('model'), 'Mini', 'car record is returned from cache');
+    assert.strictEqual(promiseCar.get('model'), 'Mini', 'promiseCar is from cache');
+    assert.strictEqual(car.get('model'), 'Mini', 'car record is returned from cache');
 
     await settled();
 
-    assert.equal(promiseCar.get('model'), 'Princess', 'promiseCar is updated');
-    assert.equal(car.get('model'), 'Princess', 'Updated car record is returned');
+    assert.strictEqual(promiseCar.get('model'), 'Princess', 'promiseCar is updated');
+    assert.strictEqual(car.get('model'), 'Princess', 'Updated car record is returned');
   });
 
-  test('store#findRecord { reload: true } ignores cached record and reloads record from server', function(assert) {
+  test('store#findRecord { reload: true } ignores cached record and reloads record from server', async function(assert) {
     assert.expect(2);
 
     const testAdapter = DS.RESTAdapter.extend({
@@ -366,50 +366,51 @@ module('integration/store - findRecord', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'car',
-          id: '1',
-          attributes: {
-            make: 'BMC',
-            model: 'Mini',
-          },
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini',
         },
-      });
+      },
     });
 
     adapter.ajax = ajaxResponse({
       cars: [
         {
-          id: 1,
+          id: '1',
           make: 'BMC',
           model: 'Princess',
         },
       ],
     });
 
-    let cachedCar = store.peekRecord('car', 1);
-    assert.equal(cachedCar.get('model'), 'Mini', 'cached car has expected model');
+    let cachedCar = store.peekRecord('car', '1');
 
-    return run(() => {
-      return store.findRecord('car', 1, { reload: true }).then(car => {
-        assert.equal(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
-      });
-    });
+    assert.strictEqual(cachedCar.get('model'), 'Mini', 'cached car has expected model');
+
+    let car = await store.findRecord('car', '1', { reload: true });
+
+    assert.strictEqual(car.model, 'Princess', 'cached record ignored, record reloaded via server');
   });
 
-  test('store#findRecord { reload: true } ignores cached record and reloads record from server even after previous findRecord', function(assert) {
+  test('store#findRecord { reload: true } ignores cached record and reloads record from server even after previous findRecord', async function(assert) {
     assert.expect(5);
+
     let calls = 0;
 
     const testAdapter = DS.JSONAPIAdapter.extend({
       shouldReloadRecord(store, type, id, snapshot) {
         assert.ok(false, 'shouldReloadRecord should not be called when { reload: true }');
       },
-      findRecord() {
+      async findRecord() {
         calls++;
-        return resolve({
+
+        await new Promise(resolve => setTimeout(resolve, 1));
+
+        return {
           data: {
             type: 'car',
             id: '1',
@@ -418,7 +419,7 @@ module('integration/store - findRecord', function(hooks) {
               model: calls === 1 ? 'Mini' : 'Princess',
             },
           },
-        });
+        };
       },
     });
 
@@ -427,25 +428,25 @@ module('integration/store - findRecord', function(hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    let car = run(() => store.findRecord('car', '1'));
+    let car = await store.findRecord('car', '1');
 
-    assert.equal(calls, 1, 'We made one call to findRecord');
-    assert.equal(car.get('model'), 'Mini', 'cached car has expected model');
+    assert.strictEqual(calls, 1, 'We made one call to findRecord');
+    assert.strictEqual(car.model, 'Mini', 'cached car has expected model');
 
-    run(() => {
-      let promiseCar = store.findRecord('car', 1, { reload: true });
+    let promiseCar = store.findRecord('car', '1', { reload: true });
 
-      assert.ok(promiseCar.get('model') === undefined, `We don't have early access to local data`);
-    });
+    assert.strictEqual(promiseCar.get('model'), undefined, `We don't have early access to local data`);
 
-    assert.equal(calls, 2, 'We made a second call to findRecord');
-    assert.equal(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
+    car = await promiseCar;
+
+    assert.strictEqual(calls, 2, 'We made a second call to findRecord');
+    assert.strictEqual(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
   });
 
-  test('store#findRecord { backgroundReload: false } returns cached record and does not reload in the background', function(assert) {
+  test('store#findRecord { backgroundReload: false } returns cached record and does not reload in the background', async function(assert) {
     assert.expect(2);
 
-    let testAdapter = DS.RESTAdapter.extend({
+    const testAdapter = DS.RESTAdapter.extend({
       shouldBackgroundReloadRecord() {
         assert.ok(false, 'shouldBackgroundReloadRecord should not be called when { backgroundReload: false }');
       },
@@ -459,35 +460,30 @@ module('integration/store - findRecord', function(hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'car',
-          id: '1',
-          attributes: {
-            make: 'BMC',
-            model: 'Mini',
-          },
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini',
         },
-      });
+      },
     });
 
-    run(() => {
-      store.findRecord('car', 1, { backgroundReload: false }).then(car => {
-        assert.equal(car.get('model'), 'Mini', 'cached car record is returned');
-      });
-    });
+    let car = await store.findRecord('car', '1', { backgroundReload: false });
 
-    run(() => {
-      let car = store.peekRecord('car', 1);
-      assert.equal(car.get('model'), 'Mini', 'car record was not reloaded');
-    });
+    assert.strictEqual(car.model, 'Mini', 'cached car record is returned');
+
+    car = store.peekRecord('car', '1');
+
+    assert.strictEqual(car.model, 'Mini', 'car record was not reloaded');
   });
 
-  test('store#findRecord { backgroundReload: true } returns cached record and reloads record in background', function(assert) {
+  test('store#findRecord { backgroundReload: true } returns cached record and reloads record in background', async function(assert) {
     assert.expect(2);
 
-    let testAdapter = DS.RESTAdapter.extend({
+    const testAdapter = DS.RESTAdapter.extend({
       shouldBackgroundReloadRecord() {
         assert.ok(false, 'shouldBackgroundReloadRecord should not be called when { backgroundReload: true }');
       },
@@ -498,45 +494,47 @@ module('integration/store - findRecord', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'car',
-          id: '1',
-          attributes: {
-            make: 'BMC',
-            model: 'Mini',
-          },
-        },
-      });
-    });
-
-    adapter.ajax = ajaxResponse({
-      cars: [
-        {
-          id: 1,
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
           make: 'BMC',
-          model: 'Princess',
+          model: 'Mini',
         },
-      ],
+      },
     });
 
-    run(() => {
-      store.findRecord('car', 1, { backgroundReload: true }).then(car => {
-        assert.equal(car.get('model'), 'Mini', 'cached car record is returned');
+    adapter.ajax = async function() {
+      await new Promise(resolve => setTimeout(resolve, 1));
+
+      return deepCopy({
+        cars: [
+          {
+            id: '1',
+            make: 'BMC',
+            model: 'Princess',
+          },
+        ],
       });
-    });
+    };
 
-    run(() => {
-      let car = store.peekRecord('car', 1);
-      assert.equal(car.get('model'), 'Princess', 'car record was reloaded');
-    });
+    let carPromise = await store.findRecord('car', '1', { backgroundReload: true });
+
+    assert.strictEqual(carPromise.model, 'Mini', 'cached car record is returned');
+
+    // Wait for internal promise to be resolved and update the record with the upcoming information.
+    await settled();
+
+    let car = store.peekRecord('car', '1');
+
+    assert.strictEqual(car.model, 'Princess', 'car record was reloaded');
   });
 
-  test('store#findRecord { backgroundReload: false } is ignored if adapter.shouldReloadRecord is true', function(assert) {
+  test('store#findRecord { backgroundReload: false } is ignored if adapter.shouldReloadRecord is true', async function(assert) {
     assert.expect(2);
 
-    let testAdapter = DS.RESTAdapter.extend({
+    const testAdapter = DS.RESTAdapter.extend({
       shouldReloadRecord() {
         return true;
       },
@@ -551,55 +549,53 @@ module('integration/store - findRecord', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'car',
-          id: '1',
-          attributes: {
-            make: 'BMC',
-            model: 'Mini',
-          },
-        },
-      });
-    });
-
-    adapter.ajax = ajaxResponse({
-      cars: [
-        {
-          id: 1,
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
           make: 'BMC',
-          model: 'Princess',
+          model: 'Mini',
         },
-      ],
+      },
     });
 
-    run(() => {
-      let car = store.peekRecord('car', 1);
-      assert.equal(car.get('model'), 'Mini', 'Car record is initially a Mini');
-    });
+    adapter.ajax = async function() {
+      await new Promise(resolve => setTimeout(resolve, 1));
 
-    run(() => {
-      store.findRecord('car', 1, { backgroundReload: false }).then(car => {
-        assert.equal(car.get('model'), 'Princess', 'Car record is reloaded immediately (not in the background)');
+      return deepCopy({
+        cars: [
+          {
+            id: '1',
+            make: 'BMC',
+            model: 'Princess',
+          },
+        ],
       });
-    });
+    };
+
+    let car = store.peekRecord('car', '1');
+
+    assert.strictEqual(car.get('model'), 'Mini', 'Car record is initially a Mini');
+
+    car = await store.findRecord('car', '1', { backgroundReload: false });
+
+    assert.strictEqual(car.get('model'), 'Princess', 'Car record is reloaded immediately (not in the background)');
   });
 
   testInDebug(
     'store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion',
     function(assert) {
       const badValues = ['', undefined, null, NaN, false];
+
       assert.expect(badValues.length);
 
       let store = this.owner.lookup('service:store');
 
-      run(() => {
-        badValues.map(item => {
-          assert.expectAssertion(() => {
-            store.findRecord('car', item);
-          }, `Expected id to be a string or number, received ${String(item)}`);
-        });
+      badValues.map(item => {
+        assert.expectAssertion(() => {
+          store.findRecord('car', item);
+        }, `Expected id to be a string or number, received ${String(item)}`);
       });
     }
   );
