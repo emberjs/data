@@ -2242,16 +2242,24 @@ abstract class CoreStore extends Service {
 
     let snapshotArray = array._createSnapshot(options);
 
-    if (adapter.shouldReloadAll(this, snapshotArray)) {
-      set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, options));
+    if (options.reload !== false) {
+      if (
+        (adapter.shouldReloadAll && adapter.shouldReloadAll(this, snapshotArray)) ||
+        (!adapter.shouldReloadAll && snapshotArray.length === 0)
+      ) {
+        set(array, 'isUpdating', true);
+        return promiseArray(_findAll(adapter, this, modelName, options));
+      }
     }
 
     if (options.backgroundReload === false) {
       return promiseArray(Promise.resolve(array));
     }
 
-    if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
+    if (
+      options.backgroundReload ||
+      (adapter.shouldBackgroundReloadAll && adapter.shouldBackgroundReloadAll(this, snapshotArray))
+    ) {
       set(array, 'isUpdating', true);
       _findAll(adapter, this, modelName, options);
     }
