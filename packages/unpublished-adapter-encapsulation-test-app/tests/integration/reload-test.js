@@ -3,9 +3,14 @@ import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
 import Store from 'adapter-encapsulation-test-app/services/store';
 import Model, { attr } from '@ember-data/model';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Transform from '@ember-data/serializer/transform';
 import { resolve } from 'rsvp';
+
+class MinimalSerializer extends EmberObject {
+  normalizeResponse(_, __, data) {
+    return data;
+  }
+}
 
 class Person extends Model {
   @attr
@@ -82,7 +87,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
     this.owner.register('transform:string', class StringTransform extends Transform {});
 
     this.owner.register('service:store', Store);
-    this.owner.register('serializer:application', JSONAPISerializer);
+    this.owner.register('serializer:application', MinimalSerializer);
     this.owner.register('model:person', Person);
   });
 
