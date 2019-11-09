@@ -2613,10 +2613,8 @@ abstract class CoreStore extends Service {
 
     internalModel.setupData(data);
 
-    if (isUpdate) {
+    if (!isUpdate) {
       this.recordArrayManager.recordDidChange(internalModel);
-    } else {
-      this.recordArrayManager.recordWasLoaded(internalModel);
     }
 
     return internalModel;
@@ -3141,14 +3139,6 @@ abstract class CoreStore extends Service {
       throw new Error(`Private API Removed`);
     }
     return globalClientIdCounter++;
-  }
-
-  //Called by the state machine to notify the store that the record is ready to be interacted with
-  recordWasLoaded(record) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'recordWasLoaded');
-    }
-    this.recordArrayManager.recordWasLoaded(record);
   }
 
   // ...............
