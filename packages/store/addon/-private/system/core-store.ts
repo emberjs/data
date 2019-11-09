@@ -2245,7 +2245,7 @@ abstract class CoreStore extends Service {
     if (options.reload !== false) {
       if (
         (adapter.shouldReloadAll && adapter.shouldReloadAll(this, snapshotArray)) ||
-        (!adapter.shouldReloadAll && snapshotArray.length > 0)
+        (!adapter.shouldReloadAll && snapshotArray.length === 0)
       ) {
         set(array, 'isUpdating', true);
         return promiseArray(_findAll(adapter, this, modelName, options));

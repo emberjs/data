@@ -108,7 +108,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       await this.store.findAll('person', { reload: true });
 
       assert.equal(this.adapter.shouldReloadAllCalled, 0, 'shouldReloadAll is not called');
-      assert.equal(this.adapter.requestsMade, 1, 'an ajaz request is made');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
     test('store.findAll does not error if adapter.shouldReloadAll is not defined (records are present)', async function(assert) {
@@ -129,7 +129,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
 
       await this.store.findAll('person');
 
-      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
 
     test('store.findAll does not error if adapter.shouldReloadAll is not defined (records are absent)', async function(assert) {
@@ -139,7 +139,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
 
       await this.store.findAll('person');
 
-      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
     test('adapter.shouldReloadAll is called when store.findAll is called without a reload flag (shouldReloadAll is false)', async function(assert) {
