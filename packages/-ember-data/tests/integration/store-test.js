@@ -1055,7 +1055,7 @@ module('integration/store - deleteRecord', function(hooks) {
     }, /expected the primary data returned from a 'findRecord' response to be an object but instead it found an array/);
   });
 
-  testInDebug('store#didSaveRecord should assert when the response to a save does not include the id', function(
+  testInDebug('store#didSaveRecord should assert when the response to a save does not include the id', async function(
     assert
   ) {
     this.owner.register('model:car', Car);
@@ -1071,7 +1071,7 @@ module('integration/store - deleteRecord', function(hooks) {
 
     let car = store.createRecord('car');
 
-    assert.expectAssertion(async () => {
+    await assert.expectAssertion(async () => {
       await car.save();
     }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
 
