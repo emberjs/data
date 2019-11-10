@@ -863,7 +863,7 @@ module('integration/store - findAll', function(hooks) {
   });
 
   test('store#findAll should eventually return all known records even if they are not in the adapter response', async function(assert) {
-    assert.expect(5);
+    assert.expect(4);
 
     this.owner.register('model:car', Car);
     this.owner.register('adapter:application', RESTAdapter.extend());
@@ -913,19 +913,15 @@ module('integration/store - findAll', function(hooks) {
 
     assert.equal(cars.length, 2, 'It returns all cars');
 
+    await settled();
+
     let carsInStore = store.peekAll('car');
 
-    assert.equal(carsInStore.length, 2, 'There is 2 cars in the store');
-
-    cars = store.peekAll('car');
+    assert.equal(carsInStore.length, 2, 'There is 2 cars in the store after all promises has been resolved');
 
     let mini = cars.findBy('id', '1');
 
     assert.equal(mini.model, 'New Mini', 'Existing records have been updated');
-
-    carsInStore = store.peekAll('car');
-
-    assert.equal(carsInStore.length, 2, 'There is 2 cars in the store');
   });
 
   test('Using store#fetch on an empty record calls find', async function(assert) {
