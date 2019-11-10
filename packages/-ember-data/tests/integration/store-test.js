@@ -990,53 +990,51 @@ module('integration/store - findAll', function(hooks) {
 module('integration/store - deleteRecord', function(hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
-    this.owner.register('model:person', Person);
-    this.owner.register('model:car', Car);
-    this.owner.register('adapter:application', RESTAdapter.extend());
-    this.owner.register('serializer:application', RESTSerializer.extend());
-  });
-
   test('Using store#deleteRecord should mark the model for removal', function(assert) {
     assert.expect(3);
 
-    let store = this.owner.lookup('service:store');
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
 
+    let store = this.owner.lookup('service:store');
     let person;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom Dale',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
         },
-      });
-      person = store.peekRecord('person', 1);
+      },
     });
 
-    assert.ok(store.hasRecordForId('person', 1), 'expected the record to be in the store');
+    person = store.peekRecord('person', '1');
+
+    assert.ok(store.hasRecordForId('person', '1'), 'expected the record to be in the store');
 
     let personDeleteRecord = tap(person, 'deleteRecord');
 
-    run(() => store.deleteRecord(person));
+    store.deleteRecord(person);
 
     assert.equal(personDeleteRecord.called.length, 1, 'expected person.deleteRecord to have been called');
-    assert.ok(person.get('isDeleted'), 'expect person to be isDeleted');
+    assert.ok(person.isDeleted, 'expect person to be isDeleted');
   });
 
   test('Store should accept a null value for `data`', function(assert) {
     assert.expect(0);
 
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
     let store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: null,
-      });
-    });
+    try {
+      store.push({ data: null });
+    } catch (_error) {
+      assert.ok(false, 'push null value for `data` to store throws an error');
+    }
   });
 
   testInDebug('store#findRecord that returns an array should assert', function(assert) {
@@ -1048,19 +1046,22 @@ module('integration/store - deleteRecord', function(hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('model:car', Car);
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(() => {
-      run(() => {
-        store.findRecord('car', 1);
-      });
+    assert.expectAssertion(async () => {
+      await store.findRecord('car', '1');
     }, /expected the primary data returned from a 'findRecord' response to be an object but instead it found an array/);
   });
 
   testInDebug('store#didSaveRecord should assert when the response to a save does not include the id', function(
     assert
   ) {
+    this.owner.register('model:car', Car);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -1070,8 +1071,8 @@ module('integration/store - deleteRecord', function(hooks) {
 
     let car = store.createRecord('car');
 
-    assert.expectAssertion(() => {
-      run(() => car.save());
+    assert.expectAssertion(async () => {
+      await car.save();
     }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
 
     // This is here to transition the model out of the inFlight state to avoid
