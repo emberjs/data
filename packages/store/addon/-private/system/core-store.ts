@@ -2259,7 +2259,8 @@ abstract class CoreStore extends Service {
 
     if (
       options.backgroundReload ||
-      (adapter.shouldBackgroundReloadAll && adapter.shouldBackgroundReloadAll(this, snapshotArray))
+      !adapter.shouldBackgroundReloadAll ||
+      adapter.shouldBackgroundReloadAll(this, snapshotArray)
     ) {
       set(array, 'isUpdating', true);
       _findAll(adapter, this, modelName, options);
