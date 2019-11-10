@@ -614,10 +614,8 @@ module('integration/store - findAll', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
-
-      return {
+    adapter.ajax = () => {
+      return resolve({
         cars: [
           {
             id: '1',
@@ -630,7 +628,7 @@ module('integration/store - findAll', function(hooks) {
             model: 'Isetta',
           },
         ],
-      };
+      });
     };
 
     let cars = store.peekAll('car');
@@ -835,10 +833,8 @@ module('integration/store - findAll', function(hooks) {
       },
     });
 
-    adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
-
-      return {
+    adapter.ajax = () => {
+      return resolve({
         cars: [
           {
             id: '1',
@@ -851,7 +847,7 @@ module('integration/store - findAll', function(hooks) {
             model: 'Isetta',
           },
         ],
-      };
+      });
     };
 
     let cars = store.peekAll('car');
@@ -897,10 +893,8 @@ module('integration/store - findAll', function(hooks) {
       ],
     });
 
-    adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
-
-      return {
+    adapter.ajax = () => {
+      return resolve({
         cars: [
           {
             id: '1',
@@ -908,7 +902,7 @@ module('integration/store - findAll', function(hooks) {
             model: 'New Mini',
           },
         ],
-      };
+      });
     };
 
     let cars = store.peekAll('car');
@@ -916,9 +910,6 @@ module('integration/store - findAll', function(hooks) {
     assert.equal(cars.length, 2, 'There is two cars in the store');
 
     cars = await store.findAll('car');
-
-    // Ensure all ember data internals are done before checking if the car records were updated.
-    await settled();
 
     assert.equal(cars.length, 2, 'It returns all cars');
 
@@ -948,10 +939,8 @@ module('integration/store - findAll', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
-
-      return {
+    adapter.ajax = () => {
+      return resolve({
         cars: [
           {
             id: '20',
@@ -959,7 +948,7 @@ module('integration/store - findAll', function(hooks) {
             model: 'Mini',
           },
         ],
-      };
+      });
     };
 
     store.push({
