@@ -218,12 +218,35 @@ module('integration/reload - Reloading Tests', function(hooks) {
     test('store.findAll does not error if adapter.shouldBackgroundReloadAll is undefined and backgroundReload is not present.', async function(assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
-        shouldBackgroundReloadAll: undefined,
       });
 
       await this.store.findAll('person');
 
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldBackgroundReloadAll is called when store.findAll is called and there is no backgroundReload flag (returns true', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldReloadAll: false,
+        shouldBackgroundReloadAll: true,
+      });
+
+      await this.store.findAll('person');
+
+      assert.equal(this.adapter.shouldBackgroundReloadAllCalled, 1, 'shouldBackgroundReloadAll is called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldBackgroundReloadAll is called when store.findAll is called and there is no backgroundReload flag (returns true', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldReloadAll: false,
+        shouldBackgroundReloadAll: false,
+      });
+
+      await this.store.findAll('person');
+
+      assert.equal(this.adapter.shouldBackgroundReloadAllCalled, 1, 'shouldBackgroundReloadAll is called');
+      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
   });
 
