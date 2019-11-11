@@ -172,7 +172,84 @@ module('integration/reload - Reloading Tests', function(hooks) {
     });
   });
 
-  module('adapter.shouldBackgroundReloadAll', function() {});
+  module('adapter.shouldBackgroundReloadAll', function() {
+    test('adapter.shouldBackgroundReloadAll is not called called when store.findAll is called with reload: true flag (but we do make request)', async function(assert) {
+      setupReloadTest.call(this, {});
+
+      await this.store.findAll('person', { reload: true });
+
+      assert.equal(this.adapter.shouldBackgroundReloadAllCalled, 0, 'shouldBackgroundReloadAll not called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldBackgroundReloadAll is not called called when store.findAll is called and adaptershouldReloadAll() returns true (but we do make request)', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldReloadAll: true,
+      });
+
+      await this.store.findAll('person');
+
+      assert.equal(this.adapter.shouldBackgroundReloadAllCalled, 0, 'shouldBackgroundReloadAll not called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldBackgroundReloadAll is not called when store.findAll is called with backroundReload: true', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldReloadAll: false,
+      });
+
+      await this.store.findAll('person', { backgroundReload: true });
+
+      assert.equal(this.adapter.shouldBackgroundReloadAllCalled, 0, 'shouldBackgroundReloadAll is not called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldBackgroundReloadAll is not called when store.findAll is called with backroundReload: false', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldReloadAll: false,
+      });
+
+      await this.store.findAll('person', { backgroundReload: false });
+
+      assert.equal(this.adapter.shouldBackgroundReloadAllCalled, 0, 'shouldBackgroundReloadAll is not called');
+      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
+    });
+
+    test('store.findAll does not error if adapter.shouldBackgroundReloadAll is undefined and backgroundReload is not present.', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldReloadAll: false,
+      });
+
+      await this.store.findAll('person');
+
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldBackgroundReloadAll is called when store.findAll is called and there is no backgroundReload flag (returns true)', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldReloadAll: false,
+        shouldBackgroundReloadAll: true,
+      });
+
+      await this.store.findAll('person');
+
+      assert.equal(this.adapter.shouldBackgroundReloadAllCalled, 1, 'shouldBackgroundReloadAll is called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldBackgroundReloadAll is called when store.findAll is called and there is no backgroundReload flag (returns false)', async function(assert) {
+      setupReloadTest.call(this, {
+        shouldReloadAll: false,
+        shouldBackgroundReloadAll: false,
+      });
+
+      await this.store.findAll('person');
+
+      assert.equal(this.adapter.shouldBackgroundReloadAllCalled, 1, 'shouldBackgroundReloadAll is called');
+      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
+    });
+  });
+
   module('adapter.shouldReloadRecord', function() {});
   module('adapter.shouldBackgroundReloadRecord', function() {});
 });
