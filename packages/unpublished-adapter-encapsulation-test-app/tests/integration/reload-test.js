@@ -250,6 +250,184 @@ module('integration/reload - Reloading Tests', function(hooks) {
     });
   });
 
-  module('adapter.shouldReloadRecord', function() {});
+  module('adapter.shouldReloadRecord', function() {
+    test('adapter.shouldReloadRecord is not called when store.findRecord is called for an unloaded record (but we do make request)', async function(assert) {
+      let payload = {
+        data: {
+          id: '1',
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
+          },
+        },
+      };
+
+      setupReloadTest.call(this, {
+        shouldBackgroundReloadRecord: false,
+        resolveFindRecordWith: payload,
+      });
+
+      let record = this.store.push(payload);
+
+      this.store.unloadRecord(record);
+
+      await this.store.findRecord('person', '1');
+
+      assert.equal(this.adapter.shouldReloadRecordCalled, 0, 'shouldReloadRecord is not called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldReloadRecord is not called when store.findRecord is called for a never loaded record (but we do make request)', async function(assert) {
+      let payload = {
+        data: {
+          id: '1',
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
+          },
+        },
+      };
+
+      setupReloadTest.call(this, {
+        shouldBackgroundReloadRecord: false,
+        resolveFindRecordWith: payload,
+      });
+
+      await this.store.findRecord('person', '1');
+
+      assert.equal(this.adapter.shouldReloadRecordCalled, 0, 'shouldReloadRecord is not called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldReloadRecord is not called when store.findRecord is called with a reload flag (but we do make request if reload is true)', async function(assert) {
+      let payload = {
+        data: {
+          id: '1',
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
+          },
+        },
+      };
+
+      setupReloadTest.call(this, {
+        shouldBackgroundReloadRecord: false,
+        resolveFindRecordWith: payload,
+      });
+
+      this.store.push(payload);
+
+      await this.store.findRecord('person', '1', { reload: true });
+
+      assert.equal(this.adapter.shouldReloadRecordCalled, 0, 'shouldReloadRecord is not called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldReloadRecord is not called when store.findRecord is called with a reload flag (and we do not make request if reload is false)', async function(assert) {
+      let payload = {
+        data: {
+          id: '1',
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
+          },
+        },
+      };
+
+      setupReloadTest.call(this, {
+        shouldBackgroundReloadRecord: false,
+        resolveFindRecordWith: payload,
+      });
+
+      this.store.push(payload);
+
+      await this.store.findRecord('person', '1', { reload: false });
+
+      assert.equal(this.adapter.shouldReloadRecordCalled, 0, 'shouldReloadRecord is not called');
+      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
+    });
+
+    test('if adapter.shouldReloadRecord is undefined, we default to false and do not make a request', async function(assert) {
+      let payload = {
+        data: {
+          id: '1',
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
+          },
+        },
+      };
+
+      setupReloadTest.call(this, {
+        shouldBackgroundReloadRecord: false,
+        resolveFindRecordWith: payload,
+      });
+
+      this.store.push(payload);
+
+      await this.store.findRecord('person', '1');
+
+      assert.equal(this.adapter.shouldReloadRecordCalled, 0, 'shouldReloadRecord is not called');
+      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
+    });
+
+    test('adapter.shouldReloadRecord is called when store.findRecord is called without a reload flag (shouldReloadRecord returns true)', async function(assert) {
+      let payload = {
+        data: {
+          id: '1',
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
+          },
+        },
+      };
+
+      setupReloadTest.call(this, {
+        shouldReloadRecord: true,
+        shouldBackgroundReloadRecord: false,
+        resolveFindRecordWith: payload,
+      });
+
+      this.store.push(payload);
+
+      await this.store.findRecord('person', '1');
+
+      assert.equal(this.adapter.shouldReloadRecordCalled, 1, 'shouldReloadRecord is called');
+      assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
+    });
+
+    test('adapter.shouldReloadRecord is called when store.findRecord is called without a reload flag (shouldReloadRecord returns false)', async function(assert) {
+      let payload = {
+        data: {
+          id: '1',
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
+          },
+        },
+      };
+
+      setupReloadTest.call(this, {
+        shouldReloadRecord: false,
+        shouldBackgroundReloadRecord: false,
+        resolveFindRecordWith: payload,
+      });
+
+      this.store.push(payload);
+
+      await this.store.findRecord('person', '1');
+
+      assert.equal(this.adapter.shouldReloadRecordCalled, 1, 'shouldReloadRecord is called');
+      assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
+    });
+  });
+
   module('adapter.shouldBackgroundReloadRecord', function() {});
 });
