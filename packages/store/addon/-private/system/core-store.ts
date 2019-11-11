@@ -1018,7 +1018,11 @@ abstract class CoreStore extends Service {
     }
 
     // Trigger the background refetch if backgroundReload option is passed
-    if (options.backgroundReload || adapter.shouldBackgroundReloadRecord(this, snapshot)) {
+    if (
+      options.backgroundReload ||
+      !adapter.shouldBackgroundReloadRecord ||
+      adapter.shouldBackgroundReloadRecord(this, snapshot)
+    ) {
       this._scheduleFetch(internalModel, options);
     }
 
