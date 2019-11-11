@@ -1005,7 +1005,11 @@ abstract class CoreStore extends Service {
     let adapter = this.adapterFor(internalModel.modelName);
 
     // Refetch the record if the adapter thinks the record is stale
-    if (adapter.shouldReloadRecord(this, snapshot)) {
+    if (
+      typeof options.reload === 'undefined' &&
+      adapter.shouldReloadRecord &&
+      adapter.shouldReloadRecord(this, snapshot)
+    ) {
       return this._scheduleFetch(internalModel, options);
     }
 
