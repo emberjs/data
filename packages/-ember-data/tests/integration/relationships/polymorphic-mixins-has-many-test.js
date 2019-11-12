@@ -134,17 +134,9 @@ module(
     });
 
     test('NATIVE CLASSES: Pushing to the hasMany reflects the change on the belongsTo side - async', function(assert) {
-      class User extends Model {
-        @attr name;
-        @hasMany({ async: true, polymorphic: true }) messages;
-      }
-
       class Video extends Model.extend(Message) {}
-      class NotMessage extends Model {}
 
-      this.owner.register('model:user', User);
       this.owner.register('model:video', Video);
-      this.owner.register('model:not-message', NotMessage);
 
       let store = this.owner.lookup('service:store');
 
