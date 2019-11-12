@@ -3750,10 +3750,10 @@ broccoli-clean-css@^1.1.0:
     inline-source-map-comment "^1.0.5"
     json-stable-stringify "^1.0.0"
 
-broccoli-concat@^3.2.2, broccoli-concat@^3.7.1, broccoli-concat@^3.7.3, broccoli-concat@^3.7.4:
-  version "3.7.4"
-  resolved "https://registry.npmjs.org/broccoli-concat/-/broccoli-concat-3.7.4.tgz#7371e846eb7a97cb44ccff10f68582bcadcafacd"
-  integrity sha512-9gRv1tyCQuq2+48DT9DQyxRNLOuwDtHybDeYuWA3g26HFqZd0PGAOeXcLXHpKRhxzrEbU6Gm28dZ/KolMr04cQ==
+broccoli-concat@^3.2.2, broccoli-concat@^3.7.1, broccoli-concat@^3.7.4, broccoli-concat@^3.7.5:
+  version "3.7.5"
+  resolved "https://registry.npmjs.org/broccoli-concat/-/broccoli-concat-3.7.5.tgz#223beda8c1184252cf08ae020a3d45ffa6a48218"
+  integrity sha512-rDs1Mej3Ej0Cy5yIO9oIQq5+BCv0opAwS2NW7M0BeCsAMeFM42Z/zacDUC6jKc5OV5wiHvGTyCPLnZkMe0h6kQ==
   dependencies:
     broccoli-debug "^0.6.5"
     broccoli-kitchen-sink-helpers "^0.3.1"
