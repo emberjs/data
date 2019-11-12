@@ -191,22 +191,6 @@ export default class BelongsToRelationship extends Relationship {
     return payload;
   }
 
-  /**
-   * Flag indicating whether all inverse records are available
-   *
-   * true if the inverse exists and is loaded (not empty)
-   * true if there is no inverse
-   * false if the inverse exists and is not loaded (empty)
-   *
-   * @return {boolean}
-   */
-  get allInverseRecordsAreLoaded(): boolean {
-    let recordData = this.inverseRecordData;
-    let isEmpty = recordData !== null && recordData.isEmpty();
-
-    return !isEmpty;
-  }
-
   updateData(data: ExistingResourceIdentifierObject, initial: boolean) {
     let recordData;
     if (isNone(data)) {

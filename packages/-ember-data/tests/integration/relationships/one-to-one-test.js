@@ -298,7 +298,6 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       true,
       'The relationship considers its canonical data complete'
     );
-    assert.equal(user1bestFriendState.allInverseRecordsAreLoaded, true, 'The relationship has all required data');
   });
 
   test('Fetching a belongsTo that is set to a different record, sets the old relationship to null - sync', async function(assert) {
@@ -383,7 +382,6 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     assert.equal(user1JobState.relationshipIsStale, false, 'The relationship is not stale');
     assert.equal(user1JobState.shouldForceReload, false, 'The relationship does not require reload');
     assert.equal(user1JobState.hasAnyRelationshipData, true, 'The relationship considers its canonical data complete');
-    assert.equal(user1JobState.allInverseRecordsAreLoaded, true, 'The relationship has all required data');
   });
 
   /*

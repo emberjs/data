@@ -253,30 +253,6 @@ export default class ManyRelationship extends Relationship {
       this.updateRecordDatasFromAdapter(recordDatas);
     }
   }
-
-  /**
-   * Flag indicating whether all inverse records are available
-   *
-   * true if inverse records exist and are all loaded (all not empty)
-   * true if there are no inverse records
-   * false if the inverse records exist and any are not loaded (any empty)
-   *
-   * @return {boolean}
-   */
-  get allInverseRecordsAreLoaded(): boolean {
-    // check currentState for unloaded records
-    let hasEmptyRecords = this.currentState.reduce((hasEmptyModel, i) => {
-      return hasEmptyModel || i.isEmpty();
-    }, false);
-    // check un-synced state for unloaded records
-    if (!hasEmptyRecords && this.willSync) {
-      hasEmptyRecords = this.canonicalState.reduce((hasEmptyModel, i) => {
-        return hasEmptyModel || !i.isEmpty();
-      }, false);
-    }
-
-    return !hasEmptyRecords;
-  }
 }
 
 function setForArray(array) {

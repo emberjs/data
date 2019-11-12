@@ -500,11 +500,6 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
       assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship inverse is dematerialized');
-      assert.equal(
-        relationshipState.allInverseRecordsAreLoaded,
-        false,
-        'The relationship is missing some or all related resources'
-      );
       assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
       assert.equal(!!RelationshipPromiseCache['parent'], false, 'The relationship has no fetch promise');
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
