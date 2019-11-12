@@ -14,13 +14,15 @@ module(
   function(hooks) {
     setupTest(hooks);
 
+    let Message;
+
     hooks.beforeEach(function() {
       const User = Model.extend({
         name: attr('string'),
         messages: hasMany('message', { async: true, polymorphic: true }),
       });
 
-      const Message = Mixin.create({
+      Message = Mixin.create({
         title: attr('string'),
         user: belongsTo('user', { async: true }),
       });
@@ -90,6 +92,60 @@ module(
     Local edits
   */
     test('Pushing to the hasMany reflects the change on the belongsTo side - async', function(assert) {
+      let store = this.owner.lookup('service:store');
+
+      var user, video;
+      run(function() {
+        store.push({
+          data: [
+            {
+              type: 'user',
+              id: '1',
+              attributes: {
+                name: 'Stanley',
+              },
+              relationships: {
+                messages: {
+                  data: [],
+                },
+              },
+            },
+            {
+              type: 'video',
+              id: '2',
+              attributes: {
+                video: 'Here comes Youtube',
+              },
+            },
+          ],
+        });
+        user = store.peekRecord('user', 1);
+        video = store.peekRecord('video', 2);
+      });
+
+      run(function() {
+        user.get('messages').then(function(fetchedMessages) {
+          fetchedMessages.pushObject(video);
+          video.get('user').then(function(fetchedUser) {
+            assert.equal(fetchedUser, user, 'user got set correctly');
+          });
+        });
+      });
+    });
+
+    test('NATIVE CLASSES: Pushing to the hasMany reflects the change on the belongsTo side - async', function(assert) {
+      class User extends Model {
+        @attr name;
+        @hasMany({ async: true, polymorphic: true }) messages;
+      }
+
+      class Video extends Model.extend(Message) {}
+      class NotMessage extends Model {}
+
+      this.owner.register('model:user', User);
+      this.owner.register('model:video', Video);
+      this.owner.register('model:not-message', NotMessage);
+
       let store = this.owner.lookup('service:store');
 
       var user, video;
