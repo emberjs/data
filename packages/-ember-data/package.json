@@ -49,7 +49,7 @@
     "@types/qunit": "^2.5.3",
     "@types/rsvp": "^4.0.3",
     "broccoli-babel-transpiler": "^7.2.0",
-    "broccoli-concat": "^3.7.3",
+    "broccoli-concat": "^3.7.5",
     "broccoli-stew": "^3.0.0",
     "broccoli-string-replace": "^0.1.2",
     "broccoli-test-helper": "^2.0.0",
