@@ -661,23 +661,31 @@ module('integration/store - findAll', function(hooks) {
       },
     });
 
-    adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
+    let resolvefindAll;
+    let resolvefindAllPromise = new Promise(resolve => (resolvefindAll = resolve));
 
-      return {
-        cars: [
-          {
-            id: '1',
-            make: 'BMC',
-            model: 'New Mini',
-          },
-          {
-            id: '2',
-            make: 'BMCW',
-            model: 'Isetta',
-          },
-        ],
-      };
+    adapter.ajax = () => {
+      resolvefindAll();
+      resolvefindAllPromise = new Promise(function(resolve) {
+        resolvefindAll = resolve;
+      }).then(function() {
+        return {
+          cars: [
+            {
+              id: '1',
+              make: 'BMC',
+              model: 'New Mini',
+            },
+            {
+              id: '2',
+              make: 'BMCW',
+              model: 'Isetta',
+            },
+          ],
+        };
+      });
+
+      return resolvefindAllPromise;
     };
 
     let cars = store.peekAll('car');
@@ -688,7 +696,7 @@ module('integration/store - findAll', function(hooks) {
 
     assert.equal(cars.length, 1, 'Store resolves with the existing records');
 
-    await settled();
+    await resolvefindAll();
 
     cars = store.peekAll('car');
 
@@ -863,7 +871,7 @@ module('integration/store - findAll', function(hooks) {
   });
 
   test('store#findAll should eventually return all known records even if they are not in the adapter response', async function(assert) {
-    assert.expect(4);
+    assert.expect(5);
 
     this.owner.register('model:car', Car);
     this.owner.register('adapter:application', RESTAdapter.extend());
@@ -893,34 +901,42 @@ module('integration/store - findAll', function(hooks) {
       ],
     });
 
+    let resolvefindAll;
+    let resolvefindAllPromise = new Promise(resolve => (resolvefindAll = resolve));
+
     adapter.ajax = () => {
-      return resolve({
-        cars: [
-          {
-            id: '1',
-            make: 'BMC',
-            model: 'New Mini',
-          },
-        ],
+      resolvefindAll();
+      resolvefindAllPromise = new Promise(function(resolve) {
+        resolvefindAll = resolve;
+      }).then(function() {
+        return {
+          cars: [
+            {
+              id: '1',
+              make: 'BMC',
+              model: 'New Mini',
+            },
+          ],
+        };
       });
+
+      return resolvefindAllPromise;
     };
 
-    let cars = store.peekAll('car');
-
-    assert.equal(cars.length, 2, 'There is two cars in the store');
-
-    cars = await store.findAll('car');
+    let cars = await store.findAll('car');
 
     assert.equal(cars.length, 2, 'It returns all cars');
 
-    await settled();
-
-    let carsInStore = store.peekAll('car');
-
-    assert.equal(carsInStore.length, 2, 'There is 2 cars in the store after all promises has been resolved');
-
     let mini = cars.findBy('id', '1');
+    assert.equal(mini.model, 'Mini', 'Records have not yet been updated');
 
+    await resolvefindAll();
+
+    assert.equal(cars.length, 2, 'There are still 2 cars in the store after ajax promise resolves');
+    const peeked = store.peekAll('car');
+    assert.strictEqual(peeked, cars, 'findAll and peekAll result are the same');
+
+    mini = cars.findBy('id', '1');
     assert.equal(mini.model, 'New Mini', 'Existing records have been updated');
   });
 
