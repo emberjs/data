@@ -41,6 +41,7 @@
     "zlib": "1.0.5",
     "@babel/plugin-transform-typescript": "^7.7.2",
     "@ember/optional-features": "^1.1.0",
+    "@tracerbench/core": "2.3.0",
     "@types/ember": "^3.1.1",
     "@types/ember-qunit": "^3.4.7",
     "@types/ember-test-helpers": "~1.0.6",
@@ -114,9 +115,11 @@
     "eslint-plugin-qunit": "^4.0.0",
     "execa": "^3.2.0",
     "fromentries": "^1.2.0",
+    "fs-extra": "^8.1.0",
     "git-repo-info": "^2.1.1",
     "github": "^1.1.1",
     "glob": "^7.1.6",
+    "har-remix": "^2.3.0",
     "json-typescript": "^1.1.0",
     "lerna": "^3.18.4",
     "loader.js": "^4.7.0",
@@ -130,7 +133,8 @@
     "rsvp": "^4.8.5",
     "semver": "^6.2.0",
     "silent-error": "^1.1.1",
-    "typescript": "~3.6.4"
+    "typescript": "~3.6.4",
+    "url": "^0.11.0"
   },
   "bin": {
     "test-partner-project": "./bin/test-external-partner-project.js",
