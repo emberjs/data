@@ -6584,10 +6584,10 @@ ember-try-config@^3.0.0:
     rsvp "^4.8.1"
     semver "^5.5.0"
 
-ember-try@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.npmjs.org/ember-try/-/ember-try-1.2.1.tgz#4118521ec3658ebeed542b426020939935bd0f26"
-  integrity sha512-/10g+5bvGNBoN3uN+MMGxidUj4bw0ne453aphjeFf4T/ZF1UoFTPZ8JV+g4XhdVL49zAoeTOLpsbwV0D1M+X6w==
+ember-try@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/ember-try/-/ember-try-1.3.0.tgz#394bdcd726e5acd2ebf8422c7bcf9ecf0aa2c2ac"
+  integrity sha512-XtVhBHNQVdVu5LouyNLhGeKx0f88lz9VtrSf1NYFulVlOHIQEeZCEIs3pTifGhtZJ0B7POPKMdPpNso77Z95uQ==
   dependencies:
     chalk "^2.4.2"
     cli-table3 "^0.5.1"
