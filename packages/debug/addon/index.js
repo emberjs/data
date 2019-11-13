@@ -48,8 +48,9 @@ export default DataAdapter.extend({
     Specifies how records can be filtered based on the state of the record
     Records returned will need to have a `filterValues`
     property with a key for every name in the returned array
-    @private
+
     @method getFilters
+    @private
     @return {Array} List of objects defining filters
      The object should have a `name` and `desc` property
   */
@@ -68,8 +69,9 @@ export default DataAdapter.extend({
   /**
     Fetch the model types and observe them for changes.
     Maintains the list of model types without needing the Model package for detection.
-    @public
+
     @method watchModelTypes
+    @internal
     @param {Function} typesAdded Callback to call to add types.
     Takes an array of objects containing wrapped types (returned from `wrapModelType`).
     @param {Function} typesUpdated Callback to call when a type has changed.
@@ -113,6 +115,7 @@ export default DataAdapter.extend({
    * the consumer of this adapter about the mdoels.
    *
    * @param {store} store
+   * @internal
    * @param {Map} discoveredTypes
    * @param {String} type
    * @param {Function} typesAdded
@@ -131,8 +134,9 @@ export default DataAdapter.extend({
 
   /**
     Creates a human readable string used for column headers
-    @private
+
     @method columnNameToDesc
+    @private
     @param {String} name The attribute name
     @return {String} Human readable string based on the attribute name
   */
@@ -146,8 +150,9 @@ export default DataAdapter.extend({
 
   /**
     Get the columns for a given model type
-    @private
+
     @method columnsForType
+    @private
     @param {Model} typeClass
     @return {Array} An array of columns of the following format:
      name: {String} The name of the column
@@ -174,8 +179,9 @@ export default DataAdapter.extend({
 
   /**
     Fetches all loaded records for a given type
-    @private
+
     @method getRecords
+    @internal
     @param {Model} modelClass of the record
     @param {String} modelName of the record
     @return {Array} An array of Model records
@@ -200,8 +206,9 @@ export default DataAdapter.extend({
   /**
     Gets the values for each column
     This is the attribute values for a given record
-    @private
+
     @method getRecordColumnValues
+    @private
     @param {Model} record to get values from
     @return {Object} Keys should match column names defined by the model type
   */
@@ -220,8 +227,9 @@ export default DataAdapter.extend({
 
   /**
     Returns keywords to match when searching records
-    @private
+
     @method getRecordKeywords
+    @private
     @param {Model} record
     @return {Array} Relevant keywords for search based on the record's attribute values
   */
@@ -236,8 +244,9 @@ export default DataAdapter.extend({
   /**
     Returns the values of filters defined by `getFilters`
     These reflect the state of the record
-    @private
+
     @method getRecordFilterValues
+    @private
     @param {Model} record
     @return {Object} The record state filter values
   */
@@ -251,11 +260,12 @@ export default DataAdapter.extend({
 
   /**
     Returns a color that represents the record's state
-    @private
+    Possible colors: black, blue, green
+
     @method getRecordColor
+    @private
     @param {Model} record
     @return {String} The record color
-      Possible options: black, blue, green
   */
   getRecordColor(record) {
     let color = 'black';
@@ -270,8 +280,9 @@ export default DataAdapter.extend({
   /**
     Observes all relevant properties and re-sends the wrapped record
     when a change occurs
-    @private
-    @method observerRecord
+
+    @method observeRecord
+    @internal
     @param {Model} record
     @param {Function} recordUpdated Callback used to notify changes
     @return {Function} The function to call to remove all observers
