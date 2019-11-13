@@ -18,7 +18,7 @@
     "test:optional-features": "ember test",
     "test:try-one": "ember try:one",
     "test:docs": "qunit node-tests/docs/test-coverage.js",
-    "prepublishOnly": "ember build --environment=production"
+    "prepublishOnly": "ember ember-cli-yuidoc"
   },
   "author": "",
   "license": "MIT",
