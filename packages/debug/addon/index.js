@@ -71,7 +71,7 @@ export default DataAdapter.extend({
     Maintains the list of model types without needing the Model package for detection.
 
     @method watchModelTypes
-    @internal
+    @public
     @param {Function} typesAdded Callback to call to add types.
     Takes an array of objects containing wrapped types (returned from `wrapModelType`).
     @param {Function} typesUpdated Callback to call when a type has changed.
