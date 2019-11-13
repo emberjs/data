@@ -696,7 +696,9 @@ module('integration/store - findAll', function(hooks) {
 
     assert.equal(cars.length, 1, 'Store resolves with the existing records');
 
-    await resolvefindAll();
+    resolvefindAll();
+
+    await settled();
 
     cars = store.peekAll('car');
 
@@ -930,7 +932,9 @@ module('integration/store - findAll', function(hooks) {
     let mini = cars.findBy('id', '1');
     assert.equal(mini.model, 'Mini', 'Records have not yet been updated');
 
-    await resolvefindAll();
+    resolvefindAll();
+
+    await settled();
 
     assert.equal(cars.length, 2, 'There are still 2 cars in the store after ajax promise resolves');
     const peeked = store.peekAll('car');
