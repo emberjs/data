@@ -11,7 +11,7 @@ QUnit.module('Docs coverage', function(hooks) {
     if (!process.env.REUSE_DOCS) {
       buildDocs();
     }
-    docs = require(path.join(__dirname, '../../docs/data.json'));
+    docs = require(path.join(__dirname, '../../dist/docs/data.json'));
     expected = require('../fixtures/expected');
   });
 
