@@ -18,7 +18,7 @@
     "test:optional-features": "ember test",
     "test:try-one": "ember try:one",
     "test:docs": "mkdir -p dist && qunit node-tests/docs/test-coverage.js",
-    "prepublishOnly": "ember ember-cli-yuidoc"
+    "prepublishOnly": "mkdir -p dist && ember ember-cli-yuidoc"
   },
   "author": "",
   "license": "MIT",
