@@ -54,7 +54,6 @@
     "@typescript-eslint/parser": "^2.7.0",
     "babel-eslint": "^10.0.3",
     "babel-plugin-debug-macros": "^0.3.3",
-    "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^3.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-asset-rev": "^3.0.0",
