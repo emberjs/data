@@ -220,7 +220,10 @@ module('integration/reload - Reloading Records', function(hooks) {
                   attributes: { name: 'Tom' },
                   relationships: {
                     tags: {
-                      data: [{ id: '1', type: 'tag' }, { id: '2', type: 'tag' }],
+                      data: [
+                        { id: '1', type: 'tag' },
+                        { id: '2', type: 'tag' },
+                      ],
                     },
                   },
                 },

@@ -201,7 +201,10 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
           },
           relationships: {
             boats: {
-              data: [{ type: 'boat', id: '2' }, { type: 'boat', id: '1' }],
+              data: [
+                { type: 'boat', id: '2' },
+                { type: 'boat', id: '1' },
+              ],
             },
           },
         },

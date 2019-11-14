@@ -210,7 +210,10 @@ module('integration/relationship/json-api-links | Relationship state updates', f
           id: '1',
           relationships: {
             pets: {
-              data: [{ type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
+              data: [
+                { type: 'pet', id: '2' },
+                { type: 'pet', id: '3' },
+              ],
             },
           },
         },
@@ -625,7 +628,11 @@ module('integration/relationship/json-api-links | Relationship state updates', f
           id: '1',
           relationships: {
             pets: {
-              data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
+              data: [
+                { type: 'pet', id: '1' },
+                { type: 'pet', id: '2' },
+                { type: 'pet', id: '3' },
+              ],
               links: {
                 related: './user/1/pets',
               },

@@ -137,7 +137,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
                 },
                 relationships: {
                   tags: {
-                    data: [{ type: 'tag', id: '5' }, { type: 'tag', id: '2' }],
+                    data: [
+                      { type: 'tag', id: '5' },
+                      { type: 'tag', id: '2' },
+                    ],
                   },
                 },
               },
@@ -214,7 +217,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
                 },
                 relationships: {
                   pets: {
-                    data: [{ type: 'pet', id: '4' }, { type: 'pet', id: '12' }],
+                    data: [
+                      { type: 'pet', id: '4' },
+                      { type: 'pet', id: '12' },
+                    ],
                   },
                 },
               },
@@ -1034,7 +1040,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
             },
             relationships: {
               tags: {
-                data: [{ type: 'tag', id: '5' }, { type: 'tag', id: '2' }],
+                data: [
+                  { type: 'tag', id: '5' },
+                  { type: 'tag', id: '2' },
+                ],
               },
             },
           },
@@ -1093,7 +1102,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           attributes: { name: 'Tom Dale' },
           relationships: {
             tags: {
-              data: [{ id: 5, type: 'tag' }, { id: 2, type: 'tag' }],
+              data: [
+                { id: 5, type: 'tag' },
+                { id: 2, type: 'tag' },
+              ],
             },
           },
         },
@@ -1249,7 +1261,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     const rebel = store.peekRecord('pet', '3');
 
     assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-    assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pets to start');
+    assert.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['1'],
+      'precond - relationship has the correct pets to start'
+    );
 
     run(() => {
       pets.pushObjects([rambo, rebel]);
@@ -1267,7 +1283,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
       });
     });
 
-    assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
+    assert.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['2', '3'],
+      'relationship now has the correct two pets'
+    );
   });
 
   todo('[push hasMany] new items added to a hasMany relationship are not cleared by a store.push', function(assert) {
@@ -1341,13 +1361,21 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     const rebel = store.peekRecord('pet', '3');
 
     assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-    assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pets to start');
+    assert.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['1'],
+      'precond - relationship has the correct pets to start'
+    );
 
     run(() => {
       pets.pushObjects([rebel]);
     });
 
-    assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '3'], 'precond2 - relationship now has the correct two pets');
+    assert.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['1', '3'],
+      'precond2 - relationship now has the correct two pets'
+    );
 
     run(() => {
       store.push({
@@ -1365,8 +1393,16 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
 
     let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalMembers.list;
 
-    assert.todo.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct current pets');
-    assert.deepEqual(hasManyCanonical.map(p => get(p, 'id')), ['2'], 'relationship now has the correct canonical pets');
+    assert.todo.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['2', '3'],
+      'relationship now has the correct current pets'
+    );
+    assert.deepEqual(
+      hasManyCanonical.map(p => get(p, 'id')),
+      ['2'],
+      'relationship now has the correct canonical pets'
+    );
   });
 
   todo('[push hasMany] items removed from a hasMany relationship are not cleared by a store.push', function(assert) {
@@ -1403,7 +1439,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           },
           relationships: {
             pets: {
-              data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '3' }],
+              data: [
+                { type: 'pet', id: '1' },
+                { type: 'pet', id: '3' },
+              ],
             },
           },
         },
@@ -1440,13 +1479,21 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     const rebel = store.peekRecord('pet', '3');
 
     assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-    assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '3'], 'precond - relationship has the correct pets to start');
+    assert.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['1', '3'],
+      'precond - relationship has the correct pets to start'
+    );
 
     run(() => {
       pets.removeObject(rebel);
     });
 
-    assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond2 - relationship now has the correct pet');
+    assert.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['1'],
+      'precond2 - relationship now has the correct pet'
+    );
 
     run(() => {
       store.push({
@@ -1455,7 +1502,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           id: '1',
           relationships: {
             pets: {
-              data: [{ type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
+              data: [
+                { type: 'pet', id: '2' },
+                { type: 'pet', id: '3' },
+              ],
             },
           },
         },
@@ -1464,7 +1514,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
 
     let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalMembers.list;
 
-    assert.todo.deepEqual(pets.map(p => get(p, 'id')), ['2'], 'relationship now has the correct current pets');
+    assert.todo.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['2'],
+      'relationship now has the correct current pets'
+    );
     assert.deepEqual(
       hasManyCanonical.map(p => get(p, 'id')),
       ['2', '3'],
@@ -1546,7 +1600,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         const rebel = store.peekRecord('pet', '3');
 
         assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-        assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pet to start');
+        assert.deepEqual(
+          pets.map(p => get(p, 'id')),
+          ['1'],
+          'precond - relationship has the correct pet to start'
+        );
         assert.equal(get(petsProxy, 'length'), 1, 'precond - proxy has only one pet to start');
 
         pets.pushObjects([rambo, rebel]);
@@ -1561,7 +1619,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         return shen.destroyRecord({}).then(() => {
           shen.unloadRecord();
 
-          assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
+          assert.deepEqual(
+            pets.map(p => get(p, 'id')),
+            ['2', '3'],
+            'relationship now has the correct two pets'
+          );
           assert.equal(get(petsProxy, 'length'), 2, 'proxy now reflects two pets');
         });
       });
@@ -1849,7 +1911,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
             },
             relationships: {
               cars: {
-                data: [{ type: 'car', id: 1 }, { type: 'car', id: 2 }],
+                data: [
+                  { type: 'car', id: 1 },
+                  { type: 'car', id: 2 },
+                ],
               },
             },
           },
@@ -1933,7 +1998,10 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           },
           relationships: {
             pets: {
-              data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '2' }],
+              data: [
+                { type: 'pet', id: '1' },
+                { type: 'pet', id: '2' },
+              ],
             },
           },
         },
@@ -1970,7 +2038,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     const rebel = store.peekRecord('pet', '3');
 
     assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-    assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2'], 'precond - relationship has the correct pets to start');
+    assert.deepEqual(
+      pets.map(p => get(p, 'id')),
+      ['1', '2'],
+      'precond - relationship has the correct pets to start'
+    );
 
     run(() => {
       pets.pushObjects([rebel]);

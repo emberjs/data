@@ -754,7 +754,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
         },
@@ -801,7 +804,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
         },
@@ -833,7 +839,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
         },
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+            data: [
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
       },
@@ -872,7 +881,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
         },
@@ -1013,7 +1025,11 @@ module('integration/snapshot - Snapshot', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1134,7 +1150,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
         },
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+            data: [
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
       },

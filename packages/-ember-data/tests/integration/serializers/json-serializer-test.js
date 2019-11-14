@@ -316,7 +316,10 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
 
   test('normalizeResponse normalizes each record in the array', function(assert) {
     var postNormalizeCount = 0;
-    var posts = [{ id: '1', title: 'Rails is omakase' }, { id: '2', title: 'Another Post' }];
+    var posts = [
+      { id: '1', title: 'Rails is omakase' },
+      { id: '2', title: 'Another Post' },
+    ];
 
     this.owner.register(
       'serializer:post',
@@ -1005,7 +1008,10 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     var jsonHash = {
       id: '1',
       title: 'Rails is omakase',
-      comments: [{ id: '1', body: 'comment 1' }, { id: '2', body: 'comment 2' }],
+      comments: [
+        { id: '1', body: 'comment 1' },
+        { id: '2', body: 'comment 2' },
+      ],
     };
 
     let store = this.owner.lookup('service:store');
@@ -1037,7 +1043,10 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       {
         id: '2',
         title: 'Post 2',
-        comments: [{ id: '2', body: 'comment 2' }, { id: '3', body: 'comment 3' }],
+        comments: [
+          { id: '2', body: 'comment 2' },
+          { id: '3', body: 'comment 3' },
+        ],
       },
     ];
 
