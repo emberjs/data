@@ -566,7 +566,10 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
           },
           relationships: {
             occupations: {
-              data: [{ type: 'occupation', id: '5' }, { type: 'occupation', id: '2' }],
+              data: [
+                { type: 'occupation', id: '5' },
+                { type: 'occupation', id: '2' },
+              ],
             },
           },
         },

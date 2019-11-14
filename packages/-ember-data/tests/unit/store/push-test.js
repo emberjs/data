@@ -309,7 +309,10 @@ module('unit/store/push - DS.Store#push', function(hooks) {
         },
         relationships: {
           'phone-numbers': {
-            data: [{ id: 1, type: 'phone-number' }, { id: 2, type: 'phone-number' }],
+            data: [
+              { id: 1, type: 'phone-number' },
+              { id: 2, type: 'phone-number' },
+            ],
           },
         },
       });
@@ -597,7 +600,10 @@ module('unit/store/push - DS.Store#push', function(hooks) {
             id: '1',
             relationships: {
               phoneNumbers: {
-                data: [{ type: 'phone-number', id: '2' }, { type: 'phone-number', id: '3' }],
+                data: [
+                  { type: 'phone-number', id: '2' },
+                  { type: 'phone-number', id: '3' },
+                ],
                 links: {
                   related: '/api/people/1/phone-numbers',
                 },

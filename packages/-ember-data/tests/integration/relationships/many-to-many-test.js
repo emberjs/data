@@ -653,9 +653,17 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       let users = account.get('users');
 
       assert.todo.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');
-      assert.todo.deepEqual(users.map(r => get(r, 'id')), ['1'], 'Accounts were updated correctly (ui state)');
+      assert.todo.deepEqual(
+        users.map(r => get(r, 'id')),
+        ['1'],
+        'Accounts were updated correctly (ui state)'
+      );
       assert.equal(state.length, 2, 'Accounts were updated correctly (server state)');
-      assert.deepEqual(state.map(r => r.id), ['1', '2'], 'Accounts were updated correctly (server state)');
+      assert.deepEqual(
+        state.map(r => r.id),
+        ['1', '2'],
+        'Accounts were updated correctly (server state)'
+      );
     }
   );
 });

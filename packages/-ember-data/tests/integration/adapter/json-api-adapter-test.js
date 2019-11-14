@@ -150,7 +150,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
                 data: { type: 'users', id: '3' },
               },
               comments: {
-                data: [{ type: 'comments', id: '4' }, { type: 'comments', id: '5' }],
+                data: [
+                  { type: 'comments', id: '4' },
+                  { type: 'comments', id: '5' },
+                ],
               },
             },
           },
@@ -555,7 +558,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -613,7 +619,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
           },
           relationships: {
             handles: {
-              data: [{ type: 'github-handle', id: '2' }, { type: 'twitter-handle', id: '3' }],
+              data: [
+                { type: 'github-handle', id: '2' },
+                { type: 'twitter-handle', id: '3' },
+              ],
             },
           },
         },
@@ -671,7 +680,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -726,7 +738,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
           },
           relationships: {
             handles: {
-              data: [{ type: 'github-handle', id: '2' }, { type: 'twitter-handle', id: '3' }],
+              data: [
+                { type: 'github-handle', id: '2' },
+                { type: 'twitter-handle', id: '3' },
+              ],
             },
           },
         },
@@ -984,7 +999,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
                 },
                 relationships: {
                   handles: {
-                    data: [{ type: 'github-handles', id: '2' }, { type: 'twitter-handles', id: '3' }],
+                    data: [
+                      { type: 'github-handles', id: '2' },
+                      { type: 'twitter-handles', id: '3' },
+                    ],
                   },
                 },
               },

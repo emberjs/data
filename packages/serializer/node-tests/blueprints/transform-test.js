@@ -48,7 +48,10 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
       describe('transform-test with ember-cli-qunit@4.1.0', function() {
         beforeEach(function() {
-          modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
+          modifyPackages([
+            { name: 'ember-qunit', delete: true },
+            { name: 'ember-cli-qunit', delete: true },
+          ]);
           generateFakePackageManifest('ember-cli-qunit', '4.1.0');
         });
 
@@ -63,7 +66,10 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
       describe('with ember-cli-mocha v0.12+', function() {
         beforeEach(function() {
-          modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
+          modifyPackages([
+            { name: 'ember-qunit', delete: true },
+            { name: 'ember-cli-mocha', dev: true },
+          ]);
           generateFakePackageManifest('ember-cli-mocha', '0.12.0');
         });
 
@@ -80,7 +86,10 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
       describe('with ember-mocha v0.14+', function() {
         beforeEach(function() {
-          modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-mocha', dev: true }]);
+          modifyPackages([
+            { name: 'ember-qunit', delete: true },
+            { name: 'ember-mocha', dev: true },
+          ]);
           generateFakePackageManifest('ember-mocha', '0.14.0');
         });
 
@@ -129,7 +138,10 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
       describe('transform-test with ember-cli-qunit@4.1.0', function() {
         beforeEach(function() {
-          modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
+          modifyPackages([
+            { name: 'ember-qunit', delete: true },
+            { name: 'ember-cli-qunit', delete: true },
+          ]);
           generateFakePackageManifest('ember-cli-qunit', '4.1.0');
         });
 
@@ -144,7 +156,10 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
       describe('with ember-cli-mocha v0.12+', function() {
         beforeEach(function() {
-          modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
+          modifyPackages([
+            { name: 'ember-qunit', delete: true },
+            { name: 'ember-cli-mocha', dev: true },
+          ]);
           generateFakePackageManifest('ember-cli-mocha', '0.12.0');
         });
 
@@ -161,7 +176,10 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
       describe('with ember-mocha v0.14+', function() {
         beforeEach(function() {
-          modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-mocha', dev: true }]);
+          modifyPackages([
+            { name: 'ember-qunit', delete: true },
+            { name: 'ember-mocha', dev: true },
+          ]);
           generateFakePackageManifest('ember-mocha', '0.14.0');
         });
 

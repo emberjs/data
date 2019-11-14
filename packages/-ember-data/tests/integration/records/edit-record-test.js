@@ -204,7 +204,10 @@ module('Editing a Record', function(hooks) {
             attributes: { name: 'Chris' },
             relationships: {
               pets: {
-                data: [{ type: 'pet', id: '3' }, { type: 'pet', id: '4' }],
+                data: [
+                  { type: 'pet', id: '3' },
+                  { type: 'pet', id: '4' },
+                ],
               },
             },
           },

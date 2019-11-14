@@ -70,7 +70,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
               data: { type: 'companies', id: '2' },
             },
             handles: {
-              data: [{ type: 'github-handles', id: '3' }, { type: 'twitter-handles', id: '4' }],
+              data: [
+                { type: 'github-handles', id: '3' },
+                { type: 'twitter-handles', id: '4' },
+              ],
             },
           },
         },
@@ -509,11 +512,17 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           id: 1,
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+              data: [
+                { type: 'handles', id: 1 },
+                { type: 'handles', id: 2 },
+              ],
             },
           },
         },
-        included: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+        included: [
+          { type: 'handles', id: 1 },
+          { type: 'handles', id: 2 },
+        ],
       });
 
       let user = store.peekRecord('user', 1);
@@ -531,7 +540,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           },
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: '1' }, { type: 'handles', id: '2' }],
+              data: [
+                { type: 'handles', id: '1' },
+                { type: 'handles', id: '2' },
+              ],
             },
           },
         },
@@ -558,11 +570,17 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           id: 1,
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+              data: [
+                { type: 'handles', id: 1 },
+                { type: 'handles', id: 2 },
+              ],
             },
           },
         },
-        included: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+        included: [
+          { type: 'handles', id: 1 },
+          { type: 'handles', id: 2 },
+        ],
       });
 
       let user = store.peekRecord('user', 1);
@@ -581,7 +599,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           },
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: '1' }, { type: 'handles', id: '2' }],
+              data: [
+                { type: 'handles', id: '1' },
+                { type: 'handles', id: '2' },
+              ],
             },
           },
         },
@@ -652,11 +673,17 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           id: 1,
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+              data: [
+                { type: 'handles', id: 1 },
+                { type: 'handles', id: 2 },
+              ],
             },
           },
         },
-        included: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+        included: [
+          { type: 'handles', id: 1 },
+          { type: 'handles', id: 2 },
+        ],
       });
 
       let user = store.peekRecord('user', 1);
