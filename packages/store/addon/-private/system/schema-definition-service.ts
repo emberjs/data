@@ -4,11 +4,11 @@ import { get } from '@ember/object';
 import { getOwner } from '@ember/application';
 import normalizeModelName from './normalize-model-name';
 import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
-import require, { has } from 'require';
+import require from 'require';
 import CoreStore from './core-store';
+import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 type Model = import('@ember-data/model').default;
 
-const HAS_MODEL_PACKAGE = has('@ember-data/model');
 let _Model;
 function getModel() {
   if (HAS_MODEL_PACKAGE) {

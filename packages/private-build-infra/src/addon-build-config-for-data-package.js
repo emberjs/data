@@ -11,6 +11,16 @@ function isProductionEnv() {
   return isProd && !isTest;
 }
 
+function getApp(addon) {
+  while (addon && !addon.app) {
+    addon = addon.parent;
+  }
+  if (!addon || !addon.app) {
+    throw new Error(`Unable to find the parent application`);
+  }
+  return addon.app;
+}
+
 function addonBuildConfigForDataPackage(PackageName) {
   return {
     name: PackageName,
@@ -64,7 +74,7 @@ function addonBuildConfigForDataPackage(PackageName) {
     buildBabelOptions() {
       let babelOptions = this.options.babel || {};
       let existingPlugins = babelOptions.plugins || [];
-      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV);
+      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, getApp(this));
       let plugins = existingPlugins.map(plugin => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });

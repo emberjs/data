@@ -2,7 +2,9 @@
   "name": "@ember-data/private-build-infra",
   "version": "3.16.0-alpha.0",
   "description": "The default blueprint for ember-data private packages.",
-  "keywords": [],
+  "keywords": [
+    "ember-addon"
+  ],
   "repository": "",
   "license": "MIT",
   "author": "",
@@ -10,10 +12,10 @@
     "doc": "doc",
     "test": "tests"
   },
-  "scripts": {
-    "test:node": "mocha"
-  },
+  "scripts": {},
   "dependencies": {
+    "ember-cli-babel": "^7.12.0",
+    "ember-cli-typescript": "^3.1.1",
     "@babel/plugin-transform-block-scoping": "^7.6.3",
     "@ember-data/canary-features": "3.16.0-alpha.0",
     "@ember/edition-utils": "^1.1.1",
@@ -38,14 +40,7 @@
     "rsvp": "^4.8.5",
     "silent-error": "^1.1.1"
   },
-  "devDependencies": {
-    "broccoli-babel-transpiler": "^7.2.0",
-    "broccoli-test-helper": "^2.0.0",
-    "co": "^4.6.0",
-    "common-tags": "^1.8.0",
-    "ember-cli-blueprint-test-helpers": "^0.19.1",
-    "mocha": "^6.2.2"
-  },
+  "devDependencies": {},
   "engines": {
     "node": ">= 8.0.0"
   }

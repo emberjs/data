@@ -4,10 +4,12 @@ const version = require('../package.json').version;
 const isCanary = version.includes('alpha');
 
 const requireEsm = require('esm')(module);
-function getFeatures() {
+
+function getFeatures(isProd) {
   const { default: features } = requireEsm('@ember-data/canary-features/addon/default-features.ts');
 
   if (!isCanary) {
+    // disable all features with a current value of `null`
     for (let feature in features) {
       let featureValue = features[feature];
 
@@ -39,7 +41,18 @@ function getFeatures() {
     }
   }
 
+  if (isProd) {
+    // disable all features with a current value of `null`
+    for (let feature in features) {
+      let featureValue = features[feature];
+
+      if (featureValue === null) {
+        features[feature] = false;
+      }
+    }
+  }
+
   return features;
 }
 
-module.exports = getFeatures();
+module.exports = getFeatures;
