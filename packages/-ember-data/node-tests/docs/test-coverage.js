@@ -18,7 +18,19 @@ QUnit.module('Docs coverage', function(hooks) {
   QUnit.module('classitems', function(hooks) {
     let docsItems, expectedItems;
     hooks.before(function() {
-      docsItems = new Set(docs.classitems.map(item => item.name).filter(Boolean));
+      docsItems = new Set(
+        docs.classitems
+          .map(item => {
+            // docs without internal and without a private flag are published as public by default
+            let status =
+              item.access || (Object.prototype.hasOwnProperty.call(item, 'internal') ? 'internal' : 'public');
+            if (!item.name || status === 'internal') {
+              return;
+            }
+            return `(${status}) ${item.module ? `${item.module} ` : ''}${item.class}#${item.name}`;
+          })
+          .filter(Boolean)
+      );
       expectedItems = new Set(expected.classitems);
     });
 
