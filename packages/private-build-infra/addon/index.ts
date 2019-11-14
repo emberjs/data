@@ -3,15 +3,17 @@
 */
 
 import { has } from 'require';
-import POSSIBLE_PACKAGES from './available-packages';
+import AVAILABLE_PACKAGES from './available-packages';
 
-type PackageSettings = Record<keyof typeof POSSIBLE_PACKAGES, boolean>;
+type PackageSettings = {
+  [key in keyof typeof AVAILABLE_PACKAGES]: boolean;
+};
 
-const PACKAGES = Object.keys(POSSIBLE_PACKAGES).reduce((obj, name) => {
-  const NAME = POSSIBLE_PACKAGES[name];
-  obj[NAME] = has(name) || false;
-  return obj;
-}, {}) as PackageSettings;
+const PACKAGES = {} as PackageSettings;
+Object.keys(AVAILABLE_PACKAGES).forEach(name => {
+  const NAME = AVAILABLE_PACKAGES[name];
+  PACKAGES[NAME] = has(name) || false;
+});
 
 export const HAS_EMBER_DATA_PACKAGE = PACKAGES.HAS_EMBER_DATA_PACKAGE;
 export const HAS_STORE_PACKAGE = PACKAGES.HAS_STORE_PACKAGE;
