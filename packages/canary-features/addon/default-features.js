@@ -14,6 +14,6 @@
 */
 export default {
   SAMPLE_FEATURE_FLAG: null,
-  RECORD_DATA_ERRORS: null,
-  RECORD_DATA_STATE: null,
+  RECORD_DATA_ERRORS: false,
+  RECORD_DATA_STATE: false,
 };
