@@ -8,7 +8,7 @@ const requireEsm = require('esm')(module);
 function getFeatures(isProd) {
   const { default: features } = requireEsm('@ember-data/canary-features/addon/default-features.ts');
 
-  if (!isCanary()) {
+  if (!isCanary) {
     // disable all features with a current value of `null`
     for (let feature in features) {
       let featureValue = features[feature];
