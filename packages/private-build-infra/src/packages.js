@@ -3,17 +3,30 @@
 const requireEsm = require('esm')(module);
 
 function detectPackage(dep, packageName, seen) {
+  let isFirst = !seen;
   seen = seen || new Map();
   if (seen.has(dep)) {
     return false;
   }
   seen.set(dep, true);
 
-  if (dep.project.addonPackages[packageName]) {
+  if (isFirst) {
+    if (dep.name() === packageName) {
+      return true;
+    }
+  } else if (dep.name === packageName) {
     return true;
   }
-  for (let i = 0; i < dep.project.addons.length; i++) {
-    if (detectPackage(dep.project.addons[i], packageName, seen)) {
+
+  if (!dep.addonPackages) {
+    return false;
+  }
+
+  if (dep.addonPackages[packageName]) {
+    return true;
+  }
+  for (let i = 0; i < dep.addons.length; i++) {
+    if (detectPackage(dep.addons[i], packageName, seen)) {
       return true;
     }
   }
@@ -26,8 +39,9 @@ function getPackages(app) {
 
   Object.keys(POSSIBLE_PACKAGES).forEach(flag => {
     const packageName = POSSIBLE_PACKAGES[flag];
-    let hasPackage = app ? detectPackage(app, packageName) : true;
+    let hasPackage = app ? detectPackage(app.project, packageName) : true;
 
+    // console.log(`${flag}=${hasPackage}`);
     flags[flag] = hasPackage;
   });
 
