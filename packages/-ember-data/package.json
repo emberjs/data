@@ -11,14 +11,14 @@
     "build": "ember build",
     "build:production": "ember build --environment=production",
     "start": "ember server",
-    "docs": "ember ember-cli-yuidoc",
+    "docs": "mkdir -p dist && ember ember-cli-yuidoc",
     "test": "ember test",
     "test:all": "ember try:each",
     "test:production": "ember test -e production",
     "test:optional-features": "ember test",
     "test:try-one": "ember try:one",
-    "test:docs": "qunit node-tests/docs/test-coverage.js",
-    "prepublishOnly": "ember build --environment=production"
+    "test:docs": "mkdir -p dist && qunit node-tests/docs/test-coverage.js",
+    "prepublishOnly": "mkdir -p dist && ember ember-cli-yuidoc"
   },
   "author": "",
   "license": "MIT",

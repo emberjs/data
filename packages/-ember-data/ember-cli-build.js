@@ -12,6 +12,9 @@ module.exports = function(defaults) {
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
     },
+    'ember-cli-uglify': {
+      exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
+    },
   });
 
   /*

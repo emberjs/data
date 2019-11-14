@@ -3,7 +3,7 @@
   "description": "The ember-data API: a data persistence library for Ember.js",
   "url": "https://github.com/emberjs/data",
   "options": {
-    "enabledEnvironments": ["production"],
+    "enabledEnvironments": [],
     "extension": ".js,.ts",
     "paths": [
       "addon",
@@ -12,9 +12,10 @@
       "../model/addon",
       "../serializer/addon",
       "../store/addon",
-      "../store/addon/-private/system"
+      "../record-data/addon",
+      "../debug/addon"
     ],
     "exclude": "vendor",
-    "outdir": "docs"
+    "outdir": "dist/docs"
   }
 }
