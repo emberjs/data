@@ -187,7 +187,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
   isEmpty: not('length').readOnly(),
 
   /**
-   Manually adds errors to the record. This will triger the `becameInvalid` event/ lifecycle method on
+   Manually adds errors to the record. This will trigger the `becameInvalid` event/ lifecycle method on
     the record and transition the record into an `invalid` state.
 
    Example
