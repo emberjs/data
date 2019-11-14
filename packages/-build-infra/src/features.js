@@ -1,15 +1,20 @@
 'use strict';
 
-function isCanary() {
-  const version = require('../package.json').version;
-  return version.indexOf('alpha') !== -1;
-}
+const version = require('../package.json').version;
+const isCanary = version.includes('alpha');
 
 const requireEsm = require('esm')(module);
 function getFeatures() {
   const { default: features } = requireEsm('@ember-data/canary-features/addon/default-features.js');
 
   if (!isCanary) {
+    for (let feature in features) {
+      let featureValue = features[feature];
+
+      if (featureValue === null) {
+        features[feature] = false;
+      }
+    }
     return features;
   }
 
