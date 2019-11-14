@@ -1,10 +1,6 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-export function instrument(method) {
-  return method();
-}
-
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
   relationship of the `record`.

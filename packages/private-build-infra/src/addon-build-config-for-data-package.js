@@ -2,7 +2,6 @@ const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 const Funnel = require('broccoli-funnel');
 const merge = require('broccoli-merge-trees');
 const BroccoliDebug = require('broccoli-debug');
-const { isInstrumentedBuild } = require('./cli-flags');
 const rollupPrivateModule = require('./utilities/rollup-private-module');
 
 function isProductionEnv() {
@@ -62,20 +61,14 @@ function addonBuildConfigForDataPackage(PackageName) {
       return requiresModulesDir ? 'modules' : '';
     },
 
-    isLocalBuild() {
-      let appName = this.parent.pkg.name;
-
-      return this.isDevelopingAddon() && appName === PackageName;
-    },
-
     buildBabelOptions() {
       let babelOptions = this.options.babel || {};
       let existingPlugins = babelOptions.plugins || [];
-      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this.isLocalBuild());
+      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV);
       let plugins = existingPlugins.map(plugin => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
-      plugins = plugins.concat(customPlugins.plugins).concat(require('./debug-macros')(process.env.EMBER_ENV));
+      plugins = plugins.concat(customPlugins.plugins);
 
       return {
         loose: true,
@@ -129,7 +122,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       });
 
       let withoutPrivate = new Funnel(tree, {
-        exclude: ['-private', isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false].filter(Boolean),
+        exclude: ['-private', isProductionEnv() ? '-debug' : false].filter(Boolean),
 
         destDir: PackageName,
       });
