@@ -14,9 +14,9 @@
 */
 export default {
   SAMPLE_FEATURE_FLAG: null,
-  RECORD_DATA_ERRORS: null,
-  RECORD_DATA_STATE: null,
-  IDENTIFIERS: null,
-  REQUEST_SERVICE: null,
-  CUSTOM_MODEL_CLASS: null,
+  RECORD_DATA_ERRORS: false,
+  RECORD_DATA_STATE: false,
+  IDENTIFIERS: false,
+  REQUEST_SERVICE: false,
+  CUSTOM_MODEL_CLASS: false,
 };
