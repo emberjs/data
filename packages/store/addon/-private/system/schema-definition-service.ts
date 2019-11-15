@@ -7,6 +7,7 @@ import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-d
 import require from 'require';
 import CoreStore from './core-store';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+import { assert } from '@ember/debug';
 type Model = import('@ember-data/model').default;
 
 let _Model;
@@ -103,7 +104,7 @@ export function getModelFactory(store: CoreStore, cache, normalizedModelName: st
     if (klass.isModel) {
       let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
       if (!hasOwnModelNameSet) {
-        klass.modelName = normalizedModelName;
+        Object.defineProperty(klass, 'modelName', { value: normalizedModelName });
       }
     }
 
