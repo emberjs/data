@@ -7,7 +7,7 @@ import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-d
 import require from 'require';
 import CoreStore from './core-store';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
-import { assert } from '@ember/debug';
+
 type Model = import('@ember-data/model').default;
 
 let _Model;
