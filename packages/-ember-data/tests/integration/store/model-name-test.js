@@ -4,7 +4,6 @@ import Model, { attr } from '@ember-data/model';
 import { computed } from '@ember/object';
 import Service, { inject } from '@ember/service';
 import Store from '@ember-data/store';
-import { P } from 'Object/_api';
 
 module('@ember-data/model klass.modelName', function(hooks) {
   setupTest(hooks);
