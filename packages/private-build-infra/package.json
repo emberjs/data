@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/private-build-infra",
-  "version": "3.16.0-alpha.0",
+  "version": "3.16.0-alpha.1",
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
     "ember-addon"
@@ -14,10 +14,8 @@
   },
   "scripts": {},
   "dependencies": {
-    "ember-cli-babel": "^7.12.0",
-    "ember-cli-typescript": "^3.1.1",
     "@babel/plugin-transform-block-scoping": "^7.6.3",
-    "@ember-data/canary-features": "3.16.0-alpha.0",
+    "@ember-data/canary-features": "3.16.0-alpha.1",
     "@ember/edition-utils": "^1.1.1",
     "babel-plugin-debug-macros": "^0.3.3",
     "babel-plugin-filter-imports": "^3.0.0",
@@ -29,8 +27,10 @@
     "broccoli-rollup": "^4.1.1",
     "calculate-cache-key-for-tree": "^2.0.0",
     "chalk": "^3.0.0",
+    "ember-cli-babel": "^7.12.0",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
+    "ember-cli-typescript": "^3.1.1",
     "ember-cli-version-checker": "^3.1.2",
     "esm": "^3.2.25",
     "git-repo-info": "^2.1.1",
@@ -40,7 +40,6 @@
     "rsvp": "^4.8.5",
     "silent-error": "^1.1.1"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">= 8.0.0"
   }

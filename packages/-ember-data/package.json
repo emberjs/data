@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "3.16.0-alpha.0",
+  "version": "3.16.0-alpha.1",
   "description": "A data layer for your Ember applications.",
   "repository": "git://github.com/emberjs/data.git",
   "directories": {
@@ -23,13 +23,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@ember-data/adapter": "3.16.0-alpha.0",
-    "@ember-data/debug": "3.16.0-alpha.0",
-    "@ember-data/model": "3.16.0-alpha.0",
-    "@ember-data/private-build-infra": "3.16.0-alpha.0",
-    "@ember-data/record-data": "3.16.0-alpha.0",
-    "@ember-data/serializer": "3.16.0-alpha.0",
-    "@ember-data/store": "3.16.0-alpha.0",
+    "@ember-data/adapter": "3.16.0-alpha.1",
+    "@ember-data/debug": "3.16.0-alpha.1",
+    "@ember-data/model": "3.16.0-alpha.1",
+    "@ember-data/private-build-infra": "3.16.0-alpha.1",
+    "@ember-data/record-data": "3.16.0-alpha.1",
+    "@ember-data/serializer": "3.16.0-alpha.1",
+    "@ember-data/store": "3.16.0-alpha.1",
     "@ember/ordered-set": "^2.0.3",
     "@glimmer/env": "^0.1.7",
     "broccoli-merge-trees": "^3.0.2",
