@@ -1,5 +1,4 @@
 'use strict';
-
 /*
   This file generates meta information about what packages
   are included in the project and the tarballs we would produce
@@ -134,6 +133,9 @@ packages.forEach(localName => {
   try {
     pkgInfo = require(pkgPath);
   } catch (e) {
+    return;
+  }
+  if (pkgInfo.private === true) {
     return;
   }
   const version = `${pkgInfo.version}-sha.${CurrentSha}`;

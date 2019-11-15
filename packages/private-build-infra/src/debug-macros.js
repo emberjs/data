@@ -1,11 +1,12 @@
 'use strict';
 
-const FEATURES = require('./features');
-
-module.exports = function debugMacros(environment) {
+module.exports = function debugMacros(app, isProd) {
+  const PACKAGES = require('./packages')(app);
+  const FEATURES = require('./features')(isProd);
+  const debugMacrosPath = require.resolve('babel-plugin-debug-macros');
   let plugins = [
     [
-      require.resolve('babel-plugin-debug-macros'),
+      debugMacrosPath,
       {
         flags: [
           {
@@ -15,6 +16,18 @@ module.exports = function debugMacros(environment) {
         ],
       },
       '@ember-data/canary-features-stripping',
+    ],
+    [
+      debugMacrosPath,
+      {
+        flags: [
+          {
+            source: '@ember-data/private-build-infra',
+            flags: PACKAGES,
+          },
+        ],
+      },
+      '@ember-data/optional-packages-stripping',
     ],
   ];
 

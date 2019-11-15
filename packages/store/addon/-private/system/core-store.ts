@@ -13,7 +13,7 @@ import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
-import require, { has } from 'require';
+import require from 'require';
 import Ember from 'ember';
 import { assert, warn, inspect } from '@ember/debug';
 import { deprecate } from '@ember/application/deprecations';
@@ -46,6 +46,13 @@ import {
   REQUEST_SERVICE,
   CUSTOM_MODEL_CLASS,
 } from '@ember-data/canary-features';
+import {
+  HAS_EMBER_DATA_PACKAGE,
+  HAS_ADAPTER_PACKAGE,
+  HAS_MODEL_PACKAGE,
+  HAS_SERIALIZER_PACKAGE,
+} from '@ember-data/private-build-infra';
+
 import { Record } from '../ts-interfaces/record';
 import { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
 import { ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
@@ -98,12 +105,8 @@ type PendingSaveItem = {
 };
 
 let globalClientIdCounter = 1;
-
-const HAS_DS_META_PACKAGE = has('ember-data');
-const HAS_SERIALIZER_PACKAGE = has('@ember-data/serializer');
-const HAS_ADAPTER_PACKAGE = has('@ember-data/adapter');
-const HAS_MODEL_PACKAGE = has('@ember-data/model');
 let _Model;
+
 function getModel() {
   if (HAS_MODEL_PACKAGE) {
     _Model = _Model || require('@ember-data/model').default;
@@ -299,7 +302,7 @@ abstract class CoreStore extends Service {
     }
 
     if (DEBUG) {
-      if (HAS_DS_META_PACKAGE && HAS_SERIALIZER_PACKAGE) {
+      if (HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE) {
         // support for legacy moduleFor style unit tests
         // that did not include transforms in "needs"
         // or which were not set to integration:true
@@ -3217,7 +3220,7 @@ abstract class CoreStore extends Service {
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
 
     // in production this is handled by the re-export
-    if (DEBUG && HAS_DS_META_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
+    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
       if (normalizedModelName === '-json-api') {
         const Adapter = require('@ember-data/adapter/json-api').default;
         owner.register(`adapter:-json-api`, Adapter);
@@ -3247,7 +3250,7 @@ abstract class CoreStore extends Service {
     adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
 
     // in production this is handled by the re-export
-    if (DEBUG && HAS_DS_META_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
+    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
       if (adapterName === '-json-api') {
         const Adapter = require('@ember-data/adapter/json-api').default;
         owner.register(`adapter:-json-api`, Adapter);
@@ -3323,7 +3326,7 @@ abstract class CoreStore extends Service {
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
 
     // in production this is handled by the re-export
-    if (DEBUG && HAS_DS_META_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       if (normalizedModelName === '-json-api') {
         const Serializer = require('@ember-data/serializer/json-api').default;
         owner.register(`serializer:-json-api`, Serializer);
@@ -3377,7 +3380,7 @@ abstract class CoreStore extends Service {
       : undefined;
 
     // in production this is handled by the re-export
-    if (DEBUG && HAS_DS_META_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       if (serializerName === '-json-api') {
         const Serializer = require('@ember-data/serializer/json-api').default;
         owner.register(`serializer:-json-api`, Serializer);
@@ -3406,7 +3409,7 @@ abstract class CoreStore extends Service {
     // final fallback, no model specific serializer, no application serializer, no
     // `serializer` property on store: use the convenience JSONSerializer
     serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
-    if (DEBUG && HAS_DS_META_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
       const JSONSerializer = require('@ember-data/serializer/json').default;
       owner.register('serializer:-default', JSONSerializer);
       serializer = owner.lookup('serializer:-default');

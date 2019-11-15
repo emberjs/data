@@ -7,7 +7,9 @@ module.exports = function(defaults) {
     babel: {
       // this ensures that the same `@ember-data/canary-features` processing that the various
       // ember-data addons do is done in the dummy app
-      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')()],
+      plugins: [
+        ...require('@ember-data/private-build-infra/src/debug-macros')(null, process.env.EMBER_ENV === 'production'),
+      ],
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
