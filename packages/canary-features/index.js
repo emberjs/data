@@ -1,13 +1,3 @@
-function getApp(addon) {
-  while (addon && !addon.app) {
-    addon = addon.parent;
-  }
-  if (!addon) {
-    throw new Error(`Unable to find the parent application`);
-  }
-  return addon.app;
-}
-
 module.exports = {
   name: require('./package').name,
   treeFor() {
@@ -22,7 +12,7 @@ module.exports = {
     if (this.__isEnabled !== undefined) {
       return this.__isEnabled;
     }
-    const env = getApp(this).env;
+    const env = process.env.EMBER_ENV;
 
     this.__isEnabled = env !== 'production';
 
