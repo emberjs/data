@@ -30,6 +30,11 @@ function getFeatures(isProd) {
         features[feature] = true;
       }
     }
+  } else if (FEATURE_OVERRIDES === 'DISABLE_ALL') {
+    // disable all features, including those with a value of `true`
+    for (let feature in features) {
+      features[feature] = false;
+    }
   } else if (FEATURE_OVERRIDES) {
     // enable only the specific features listed in the environment
     // variable (comma separated)

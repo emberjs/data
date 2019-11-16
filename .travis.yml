@@ -50,12 +50,7 @@ jobs:
 
     - stage: additional tests
 
-      name: 'Enabled In-Progress Features'
-      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
-      install: yarn install
-      script: yarn test:enabled-in-progress-features
-
-    - name: 'Floating Dependencies'
+      name: 'Floating Dependencies'
       install: yarn install --no-lockfile --non-interactive
       script: yarn test
 
