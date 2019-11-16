@@ -24,8 +24,6 @@ branches:
 
 stages:
   - test
-  - additional tests
-  - ember version tests
   - name: external partner tests
     if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
 
@@ -48,77 +46,16 @@ jobs:
     - name: 'Basic Tests'
       script: yarn test
 
-    - stage: additional tests
-
-      name: 'Floating Dependencies'
-      install: yarn install --no-lockfile --non-interactive
-      script: yarn test
-
-    - name: 'Production'
-      install: yarn install
-      script: yarn test:production
-
-    - name: 'Max Transpilation'
-      install: yarn install
-      env: TARGET_IE11=true
-      script: yarn test
-
-    - name: 'Node Tests'
-      install: yarn install
-      script: yarn test:node
-
-    - name: 'Docs Tests'
-      install: yarn install
-      script: yarn test:docs
-
-    - name: 'Fastboot Tests'
-      install: yarn install
-      script: yarn test:fastboot
-
-    # runs tests against each supported Ember version
-    - stage: ember version tests
-      name: 'Ember LTS 3.8'
-      env: EMBER_TRY_SCENARIO=ember-lts-3.8
-    - stage: ember version tests
-      name: 'Ember LTS 3.12'
-      env: EMBER_TRY_SCENARIO=ember-lts-3.12
-    - name: 'Ember Release'
-      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
-      env: EMBER_TRY_SCENARIO=ember-release
-    - name: 'Ember Release with jQuery'
-      if: NOT (branch ~= /^(release|lts).*/)
-      env: EMBER_TRY_SCENARIO=ember-release-with-jquery
-    - name: 'Ember Beta'
-      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
-      env: EMBER_TRY_SCENARIO=ember-beta
-    - name: 'Ember Canary'
-      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
-      env: EMBER_TRY_SCENARIO=ember-canary
-
     # runs tests against various open-source projects for early-warning regression analysis
     # We typically have 4 concurrent jobs, these jobs below are ordered to optimize total completion time
     # By running longer jobs first, we allow the shorter jobs to complete within the same time block in parallel
     - stage: external partner tests
-      name: 'Ilios Frontend' # ~30min job
-      script: yarn test-external:ilios-frontend
-    - name: 'Travis Web' # ~10min job
-      script: yarn test-external:travis-web
-    - name: 'Ember Data Storefront' # ~5min job
-      script: yarn test-external:storefront
-    - name: 'Ember Data Factory Guy' # ~5min job
+      name: 'Ember Data Factory Guy' # ~5min job
       script: yarn test-external:factory-guy
-    - name: 'Ember Observer' # ~5min job
-      script: yarn test-external:ember-observer
-    - name: 'Ember Resource Metadata' # ~4.25min job
-      script: yarn test-external:ember-resource-metadata
-    - name: 'Ember Data Relationship Tracker' # ~4.25min job
-      script: yarn test-external:ember-data-relationship-tracker
     - name: 'Ember Data Model Fragments' # ~3.5min job
       script: yarn test-external:model-fragments
     - name: 'Ember Data Change Tracker' # ~3.5min job
       script: yarn test-external:ember-data-change-tracker
-    - name: 'ember-m3' # ~3.5min job
-      script: yarn test-external:ember-m3
 
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
@@ -127,6 +64,3 @@ before_install:
 install:
   - yarn install --frozen-lockfile
   - node ./bin/packages-for-commit.js
-
-script:
-  - yarn test:try-one $EMBER_TRY_SCENARIO --skip-cleanup
