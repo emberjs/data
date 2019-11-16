@@ -103,7 +103,7 @@ export function getModelFactory(store: CoreStore, cache, normalizedModelName: st
     if (klass.isModel) {
       let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
       if (!hasOwnModelNameSet) {
-        klass.modelName = normalizedModelName;
+        Object.defineProperty(klass, 'modelName', { value: normalizedModelName });
       }
     }
 
