@@ -2,6 +2,38 @@
 
 ### Master
 
+## Release 3.14.0 (November 7, 2019)
+- [#6522](https://github.com/emberjs/data/pull/6522) [FIX DOCS] Docs updates for Packages to fix missing docs and broken links (#6449) (#6522)
+- [#6568](https://github.com/emberjs/data/pull/6568) [BUGFIX] Enable `store.createRecord` in FastBoot (#6568)
+- [#6586](https://github.com/emberjs/data/pull/6586) [BUGFIX links] relationship setup for link fetch should batch (#6586)
+- [3f428ca9](https://github.com/emberjs/data/commit/3f428ca9d38b63059aa7e5f4c5a4055e9c5ec770) [BUGFIX adapter]: Fix problem with headers precedence #6588 (#6650)
+- [#6234](https://github.com/emberjs/data/pull/6234) [BUGFIX relationships] fix proxy isDestroying error (#6234)
+- [#6312](https://github.com/emberjs/data/pull/6312) [CHORE] Add environment variable to opt-out of rolling up `-private` (#6312)
+- [396ae0aa](https://github.com/emberjs/data/commit/396ae0aabe707247e4da05756d17873d727adbc2) [BUGFIX beta] Update edition detection logic.
+- [bb23403b](https://github.com/emberjs/data/commit/bb23403b97107c3579b593c1c8f6272f9f29a253) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444)
+- [e61ab503](https://github.com/emberjs/data/commit/e61ab5038bdeebebfa7bbe44ea8242d553327b08) [BUGFIX] ensure we publish all packages regardless of changes (#6429)
+- [bc7a0eca](https://github.com/emberjs/data/commit/bc7a0eca2eb0f244476aad724482819dc7d8b0f9) [DOC debug-adapter]: Add comments for each method in debug-adapter (#6352)
+- [d4c48d52](https://github.com/emberjs/data/commit/d4c48d52dac9af60d7e1f89af7e29885656a0d9e) [BUGFIX] Fix Model lifecycle event deprecations
+- [aa05d928](https://github.com/emberjs/data/commit/aa05d928737a2832051c8ffd1882d44db399794c) [FEAT] Adds support for parenless attr, belongsTo, and hasMany (#6339)
+- [5c6a30c9](https://github.com/emberjs/data/commit/5c6a30c9e25377d253858f459eb73853e4d0867e) [BUGFIX] Fix Rollup warning about unresolved dependency
+- [#6316](https://github.com/emberjs/data/pull/6316) [BUGFIX] Fix Rollup warning about unresolved dependency (#6316)
+- [#6341](https://github.com/emberjs/data/pull/6341) [BUGFIX]: set Content-Type for non GET requests only (#6341)
+- [#6334](https://github.com/emberjs/data/pull/6334) [BUGFIX] usage of recordDataFor for client side create needs to be in correct cache (#6334)
+- [#6358](https://github.com/emberjs/data/pull/6358) [CHORE blueprints] Update blueprints to use package imports (#6358)
+- [#6349](https://github.com/emberjs/data/pull/6349) [BUGFIX inspector] Set group name to relationship.kind (#6349)
+- [#6452](https://github.com/emberjs/data/pull/6452) [BUGFIX beta] Update edition detection logic.
+- [#6395](https://github.com/emberjs/data/pull/6395) [BUGFIX] Fix Model lifecycle event deprecations
+- [#6390](https://github.com/emberjs/data/pull/6390) [DEPRECATION] RFC-522 implementation to add deprecations (#6390)
+- [#6371](https://github.com/emberjs/data/pull/6371) [BUGFIX] Don't use Typescript in /app (#6371)
+- [#6420](https://github.com/emberjs/data/pull/6420) Improve RecordReference, BelongsToReference and HasManyReference docs (#6420)
+- [#6397](https://github.com/emberjs/data/pull/6397) [DOC] Added URL to `queryRecord` deprecation warning (#6397)
+- [#6396](https://github.com/emberjs/data/pull/6396) [DOC] Added documentation URL to evented deprecation warnings (#6396)
+- [#6410](https://github.com/emberjs/data/pull/6410) Remove module-unification blueprints
+- [#6430](https://github.com/emberjs/data/pull/6430) [BUGFIX] make fetch function JIT (#6430)
+- [#6450](https://github.com/emberjs/data/pull/6450) [CHORE]: Eliminate default injections in favor of re-export (#6450)
+- [#6486](https://github.com/emberjs/data/pull/6486) [DOC] Fix meta example in reference.ts (#6486)
+- [1e7c5738](https://github.com/emberjs/data/commit/1e7c5738b2866da41c00de31711f07e156193afd) [DOC serializer] implements MinimumSerializerInterface (#6451)
+
 ## Release 3.13.1 (September 24, 2019)
 
 - [0ff38fb1](https://github.com/emberjs/data/commit/0ff38fb1c0a8d75c7ad03f5dc8eaf8193d7f6e80) [DOC serializer] implements MinimumSerializerInterface (#6451) (#6499)
