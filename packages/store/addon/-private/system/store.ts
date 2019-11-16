@@ -3096,7 +3096,7 @@ function getModelFactory(store, cache, normalizedModelName) {
     // TODO: deprecate this
     let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
     if (!hasOwnModelNameSet) {
-      klass.modelName = normalizedModelName;
+      Object.defineProperty(klass, 'modelName', { value: normalizedModelName });
     }
 
     cache[normalizedModelName] = factory;
