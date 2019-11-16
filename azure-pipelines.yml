@@ -100,10 +100,16 @@ jobs:
           yarn
 
       - script: |
-          yarn test:enabled-in-progress-features
+          yarn test
         env:
           EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
-          displayName: 'In progress features'
+          displayName: 'Enable All In progress features'
+
+      - script: |
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
+          displayName: 'Disable All In progress features'
 
       - script: |
           yarn test:production
@@ -150,8 +156,16 @@ jobs:
         displayName: 'Basic Tests'
 
       - script: |
-          yarn test:enabled-in-progress-features
-        displayName: 'In progress features'
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
+          displayName: 'Enable All In progress features'
+
+      - script: |
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
+          displayName: 'Disable All In progress features'
 
       - script: |
           yarn test:production
