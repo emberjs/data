@@ -1,6 +1,6 @@
 import RSVP, { resolve } from 'rsvp';
 import Reference from './reference';
-import { Record } from '../../ts-interfaces/record';
+import { RecordInstance } from '../../ts-interfaces/record';
 import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 
 /**
@@ -99,7 +99,7 @@ export default class RecordReference extends Reference {
     @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
   */
-  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<Record> {
+  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<RecordInstance> {
     return resolve(objectOrPromise).then(data => {
       return this.store.push(data);
     });
