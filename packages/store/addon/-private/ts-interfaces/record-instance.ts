@@ -13,4 +13,4 @@
   The type belows allows for anything extending object.
 */
 
-export type RecordInstance = object;
+export type RecordInstance = Object;

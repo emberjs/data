@@ -6,7 +6,7 @@ import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import InternalModelMap from '../internal-model-map';
 import { isNone } from '@ember/utils';
 import { IDENTIFIERS } from '@ember-data/canary-features';
-import { RecordInstance } from '../../ts-interfaces/record';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 import {
   ResourceIdentifierObject,
   ExistingResourceObject,

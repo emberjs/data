@@ -53,7 +53,7 @@ import {
   HAS_SERIALIZER_PACKAGE,
 } from '@ember-data/private-build-infra';
 
-import { RecordInstance } from '../ts-interfaces/record';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 import { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
 import { ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 
