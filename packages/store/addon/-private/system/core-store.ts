@@ -53,7 +53,7 @@ import {
   HAS_SERIALIZER_PACKAGE,
 } from '@ember-data/private-build-infra';
 
-import { Record } from '../ts-interfaces/record';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 import { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
 import { ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 
@@ -472,9 +472,9 @@ abstract class CoreStore extends Service {
     createRecordArgs: { [key: string]: unknown }, // args passed in to store.createRecord() and processed by recordData to be set on creation
     recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): Record;
+  ): RecordInstance;
 
-  abstract teardownRecord(record: Record): void;
+  abstract teardownRecord(record: RecordInstance): void;
 
   _internalDeleteRecord(internalModel: InternalModel) {
     internalModel.deleteRecord();
@@ -1449,7 +1449,7 @@ abstract class CoreStore extends Service {
     @param {String|Integer} id
     @return {Model|null} record
   */
-  peekRecord(modelName: string, id: string | number): Record | null {
+  peekRecord(modelName: string, id: string | number): RecordInstance | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekRecord');
     }
@@ -1550,7 +1550,7 @@ abstract class CoreStore extends Service {
     @param {(String|Integer)} id
     @return {Model} record
   */
-  recordForId(modelName: string, id: string | number): Record {
+  recordForId(modelName: string, id: string | number): RecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordForId');
     }
@@ -2794,9 +2794,9 @@ abstract class CoreStore extends Service {
       updated.
   */
   push(data: EmptyResourceDocument): null;
-  push(data: SingleResourceDocument): Record;
-  push(data: CollectionResourceDocument): Record[];
-  push(data: JsonApiDocument): Record | Record[] | null {
+  push(data: SingleResourceDocument): RecordInstance;
+  push(data: CollectionResourceDocument): RecordInstance[];
+  push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
@@ -3033,7 +3033,7 @@ abstract class CoreStore extends Service {
     return internalModelFactoryFor(this).lookup(resource);
   }
 
-  serializeRecord(record: Record, options?: Dict<unknown>): unknown {
+  serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);
@@ -3044,7 +3044,7 @@ abstract class CoreStore extends Service {
     }
   }
 
-  saveRecord(record: Record, options?: Dict<unknown>): RSVP.Promise<Record> {
+  saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);

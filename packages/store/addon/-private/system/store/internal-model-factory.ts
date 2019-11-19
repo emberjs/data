@@ -6,7 +6,7 @@ import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import InternalModelMap from '../internal-model-map';
 import { isNone } from '@ember/utils';
 import { IDENTIFIERS } from '@ember-data/canary-features';
-import { Record } from '../../ts-interfaces/record';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 import {
   ResourceIdentifierObject,
   ExistingResourceObject,
@@ -23,13 +23,13 @@ import constructResource from '../../utils/construct-resource';
 const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
 type NewResourceInfo = { type: string; id: string | null };
 
-const RecordCache = new WeakMap<Record, StableRecordIdentifier>();
+const RecordCache = new WeakMap<RecordInstance, StableRecordIdentifier>();
 
 export function peekRecordIdentifier(record: any): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
 }
 
-export function recordIdentifierFor(record: Record): StableRecordIdentifier {
+export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   let identifier = RecordCache.get(record);
 
   if (DEBUG && identifier === undefined) {
@@ -39,7 +39,7 @@ export function recordIdentifierFor(record: Record): StableRecordIdentifier {
   return identifier as StableRecordIdentifier;
 }
 
-export function setRecordIdentifier(record: Record, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
   if (DEBUG && RecordCache.has(record)) {
     throw new Error(`${record} was already assigned an identifier`);
   }

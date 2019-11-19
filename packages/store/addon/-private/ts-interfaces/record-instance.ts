@@ -10,8 +10,7 @@
   model instances (aka `Records`) are completely user supplied and opaque to the internals, we need a type
   through which to communicate what is valid.
 
-  The type belows allows for either a class instance, or an object, but not primitive values or functions.
+  The type belows allows for anything extending object.
 */
 
-// TODO Rename to RecordInstance
-export type Record = Object;
+export type RecordInstance = Object;

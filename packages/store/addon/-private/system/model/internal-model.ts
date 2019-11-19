@@ -19,7 +19,7 @@ import RecordArray from '../record-arrays/record-array';
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
-import { Record } from '../../ts-interfaces/record';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 import { ConfidentDict } from '../../ts-interfaces/utils';
 import {
   IDENTIFIERS,
@@ -799,7 +799,7 @@ export default class InternalModel {
     key: string,
     args: {
       promise: RSVP.Promise<any>;
-      content?: Record | ManyArray | null;
+      content?: RecordInstance | ManyArray | null;
       _belongsToState?: BelongsToMetaWrapper;
     }
   ) {
