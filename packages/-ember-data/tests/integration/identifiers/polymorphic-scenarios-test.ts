@@ -1,74 +1,39 @@
 import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import { IDENTIFIERS } from '@ember-data/canary-features';
-import Store from '@ember-data/store';
-import Model, { attr, belongsTo } from '@ember-data/model';
-import Adapter from '@ember-data/adapter';
-import Serializer from '@ember-data/serializer';
 import { resolve } from 'rsvp';
 
+import { setupTest } from 'ember-qunit';
+
+import Adapter from '@ember-data/adapter';
+import { IDENTIFIERS } from '@ember-data/canary-features';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import Serializer from '@ember-data/serializer';
+import Store from '@ember-data/store';
+
+type RID = { type: string; id: string };
+
 if (IDENTIFIERS) {
-  module('Integration | Identifiers - polymorphic scenarios', function(hooks) {
+  module('Integration | Identifiers - single-table-inheritance polymorphic scenarios', function(hooks) {
+    /*
+      In single-table polymorphism, each polymorphic type shares a common primaryKey field.
+        This is typically implemented in Databases as a single-table of which `type` is
+        just a field to filter by.
+
+      As such, in a single-table setup the exact same data can be represented by both a type
+        and the base type.
+
+      A common example is `bmw` and `ferrari` being polymorphic types implementing `car`.
+        In this case it is not possible for a `bwm` and a `ferrari` to share an identical `id`.
+        This results in it being true that `bmw:2` is the same record as `car:2` and `ferrari:1`
+        is the same record as `car:1`
+    */
     setupTest(hooks);
 
     module('single-table', function(hooks) {
       let store;
-      let calls;
+
       class TestSerializer extends Serializer {
         normalizeResponse(_, __, payload) {
           return payload;
-        }
-      }
-      class TestAdapter extends Adapter {
-        shouldBackgroundReloadRecord() {
-          return false;
-        }
-      }
-
-      class CarAdapter extends TestAdapter {
-        findRecord() {
-          return resolve({
-            data: {
-              id: '1',
-              type: 'ferrari',
-              attributes: {
-                color: 'red'
-              },
-            },
-          });
-        }
-      }
-
-      class FerrariAdapter extends TestAdapter {
-        findRecord() {
-          return resolve({
-            data: {
-              id: '1',
-              type: 'ferrari',
-              attributes: {
-                color: 'red'
-              },
-            },
-          });
-        }
-      }
-
-      class DealershipAdapter extends TestAdapter {
-        findRecord() {
-          return resolve({
-            data: {
-              id: '1',
-              type: 'dealership',
-              attributes: {
-                name: 'Brand new* car'
-              },
-              relationships: {
-                car: {
-                  data: { id: 1, type: 'ferrari' },
-                },
-              },
-            }
-          });
         }
       }
 
@@ -79,36 +44,101 @@ if (IDENTIFIERS) {
           @attr() color: string;
         }
 
-        class Ferrari extends Car {
-          @attr() color: string;
-        }
+        class Ferrari extends Car {}
+        class Bmw extends Car {}
 
         class Dealership extends Model {
           @attr() name: string;
-          @belongsTo("car", { polymorphic: true }) car;
+          @belongsTo('car', { polymorphic: true, async: true, inverse: null }) bestCar;
+          @hasMany('car', { polymorphic: true, async: true, inverse: null }) allCars;
         }
 
-        owner.register('adapter:car', CarAdapter);
-        owner.register('adapter:ferrari', FerrariAdapter);
-        owner.register('adapter:dealership', DealershipAdapter);
         owner.register('serializer:application', TestSerializer);
         owner.register('model:car', Car);
         owner.register('model:ferrari', Ferrari);
+        owner.register('model:bmw', Bmw);
         owner.register('model:dealership', Dealership);
         owner.register('service:store', Store);
 
         store = owner.lookup('service:store');
-
       });
 
       test(`Identity of polymorphic relations can change type`, async function(assert) {
+        const { owner } = this;
+        const requests: RID[] = [];
+        const expectedRequests = [
+          { id: '1', type: 'ferrari' },
+          { id: '1', type: 'car' },
+          { id: '2', type: 'bmw' },
+          { id: '2', type: 'car' },
+        ];
+        class TestAdapter extends Adapter {
+          shouldBackgroundReloadRecord() {
+            return false;
+          }
+          findRecord(_, { modelName: type }, id) {
+            if (type === 'dealership') {
+              return resolve({
+                data: {
+                  id: '1',
+                  type: 'dealership',
+                  attributes: {
+                    name: 'Brand new* car',
+                  },
+                  relationships: {
+                    bestCar: {
+                      data: { id: '1', type: 'ferrari' },
+                    },
+                    allCars: {
+                      data: [
+                        { id: '1', type: 'ferrari' },
+                        { id: '2', type: 'bmw' },
+                      ],
+                    },
+                  },
+                },
+              });
+            }
+            requests.push({ type, id });
+            // return the polymorphic type instead of 'car';
+            type = id === '1' ? 'ferrari' : 'bmw';
+            return resolve({
+              data: {
+                id,
+                type,
+                attributes: {
+                  color: 'red',
+                },
+              },
+            });
+          }
+        }
+        owner.register('adapter:application', TestAdapter);
         const topRecord = await store.findRecord('dealership', '1');
-        const relation = await topRecord.get('car');
+        const relation = await topRecord.bestCar;
 
-        assert.strictEqual(relation.id, '1');
+        assert.strictEqual(relation.id, '1', 'We found the right id');
+        assert.strictEqual(relation.constructor.modelName, 'ferrari', 'We found the right type');
 
-        const foundRecord = await store.findRecord('car', '1');
-        assert.strictEqual(foundRecord.id, '1');
+        const foundFerrari = await store.findRecord('car', '1');
+        assert.ok(relation === foundFerrari, 'We found the ferrari by finding car 1');
+
+        const allCars = await topRecord.allCars;
+        assert.deepEqual(
+          allCars.map(c => {
+            return { id: c.id, type: c.constructor.modelName };
+          }),
+          [
+            { id: '1', type: 'ferrari' },
+            { id: '2', type: 'bmw' },
+          ],
+          'We fetched all the right cars'
+        );
+        const bmw = allCars.objectAt(1);
+        const foundBmw = await store.findRecord('car', '2');
+        assert.ok(foundBmw === bmw, 'We found the bmw by finding car 2');
+
+        assert.deepEqual(requests, expectedRequests, 'We triggered the expected requests');
       });
     });
   });
