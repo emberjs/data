@@ -7,7 +7,7 @@
   `Serializers` convert data between the server's API format and
   the format EmberData understands.
 
-  Data received from an API response is **normalized** into 
+  Data received from an API response is **normalized** into
   [JSON:API](https://jsonapi.org/) (the format used internally
   by EmberData), while data sent to an API is **serialized**
   into the format the API expects.
@@ -64,7 +64,7 @@
   Most requests in EmberData are made with respect to a particular `type` (or `modelName`)
   (e.g., "get me the full collection of **books**" or "get me the **employee** whose id is 37"). We
   refer to this as the **primary** resource `type`.
-  
+
   Typically `serializerFor` will be used to find a serializer with a name matching that of the primary
   resource `type` for the request, falling back to the `application` serializer for those types that
   do not have a defined serializer. This is often described as a `per-model` or `per-type` strategy
@@ -104,7 +104,7 @@ import { Object as JSONObject } from 'json-typescript';
 import Store from '../system/core-store';
 import { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
 import Snapshot from '../system/snapshot';
-import ShimModelClass from '../system/model/shim-model-class';
+import { ModelSchema } from './ds-model';
 import { Dict } from './utils';
 
 type OptionsHash = Dict<any>;
@@ -139,7 +139,7 @@ interface Serializer {
    * @method normalizeResponse
    * @public
    * @param {Store} store The store service that initiated the request being normalized
-   * @param {ShimModelClass} schema An object with methods for accessing information about
+   * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {JSONObject} rawPayload The raw JSON response data returned from an API request.
    *  This correlates to the value the promise returned by the adapter method that performed
@@ -153,7 +153,7 @@ interface Serializer {
    */
   normalizeResponse(
     store: Store,
-    schema: ShimModelClass,
+    schema: ModelSchema,
     rawPayload: JSONObject,
     id: string | null,
     requestType:
@@ -233,7 +233,7 @@ interface Serializer {
    * @method normalize [OPTIONAL]
    * @public
    * @optional
-   * @param {ShimModelClass} schema An object with methods for accessing information about
+   * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {JSONObject} rawPayload Some raw JSON data to be normalized into a JSON:API Resource.
    * @param {string} [prop] When called by the EmbeddedRecordsMixin this param will be the
@@ -242,7 +242,7 @@ interface Serializer {
    *  containing a single JSON:API Resource
    *  as its primary data.
    */
-  normalize?(schema: ShimModelClass, rawPayload: JSONObject, prop?: string): SingleResourceDocument;
+  normalize?(schema: ModelSchema, rawPayload: JSONObject, prop?: string): SingleResourceDocument;
 
   /**
    * When using `JSONAPIAdapter` or `RESTAdapter` this method is called
@@ -278,13 +278,13 @@ interface Serializer {
    * @optional
    * @param hash A top most object of the request payload onto
    *  which to append the serialized record
-   * @param {ShimModelClass} schema An object with methods for accessing information about
+   * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {Snapshot} snapshot A Snapshot for the record to serialize
    * @param [options]
    * @returns {void}
    */
-  serializeIntoHash?(hash: object, schema: ShimModelClass, snapshot: Snapshot, options?: OptionsHash): void;
+  serializeIntoHash?(hash: object, schema: ModelSchema, snapshot: Snapshot, options?: OptionsHash): void;
 
   /**
    * This method allows for normalization of data when `store.pushPayload` is called
