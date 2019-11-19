@@ -1,6 +1,7 @@
 import CoreStore from '../core-store';
 import { RelationshipSchema, AttributeSchema } from '../../ts-interfaces/record-data-schemas';
 import { Dict } from '../../ts-interfaces/utils';
+import { ModelSchema } from '../../ts-interfaces/ds-model';
 
 const AvailableShims = new WeakMap<CoreStore, Dict<ShimModelClass>>();
 
@@ -21,7 +22,7 @@ export function getShimClass(store: CoreStore, modelName: string): ShimModelClas
 }
 
 // Mimics the static apis of DSModel
-export default class ShimModelClass {
+export default class ShimModelClass implements ModelSchema {
   // TODO Maybe expose the class here?
   constructor(private __store: CoreStore, public modelName: string) {}
 
