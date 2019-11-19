@@ -325,7 +325,7 @@ export class IdentifierCache {
     let newId = coerceId(data.id);
 
     const keyOptions = getTypeIndex(this._cache.types, identifier.type);
-    let existingIdentifier = detectMerge(keyOptions, identifier, newId);
+    let existingIdentifier = detectMerge(keyOptions, identifier, data, newId, this._cache.lids);
 
     if (existingIdentifier) {
       identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
@@ -364,6 +364,9 @@ export class IdentifierCache {
 
     // ensure a secondary cache entry for this id for the identifier we do keep
     keyOptions.id[newId] = kept;
+    // ensure a secondary cache entry for this id for the abandoned identifier's type we do keep
+    let baseKeyOptions = getTypeIndex(this._cache.types, existingIdentifier.type);
+    baseKeyOptions.id[newId] = kept;
 
     // make sure that the `lid` on the data we are processing matches the lid we kept
     data.lid = kept.lid;
@@ -518,13 +521,23 @@ function performRecordIdentifierUpdate(
 function detectMerge(
   keyOptions: KeyOptions,
   identifier: StableRecordIdentifier,
-  newId: string | null
+  data: ResourceIdentifierObject | ExistingResourceObject,
+  newId: string | null,
+  lids: IdentifierMap
 ): StableRecordIdentifier | false {
-  const { id } = identifier;
+  const { id, type, lid } = identifier;
   if (id !== null && id !== newId && newId !== null) {
     const existingIdentifier = keyOptions.id[newId];
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
+  } else {
+    let newType = normalizeModelName(data.type);
+
+    if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
+      const existingIdentifier = lids[data.lid];
+
+      return existingIdentifier !== undefined ? existingIdentifier : false;
+    }
   }
 
   return false;
