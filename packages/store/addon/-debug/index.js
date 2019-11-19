@@ -29,9 +29,11 @@ let assertPolymorphicType;
 if (DEBUG) {
   let checkPolymorphic = function checkPolymorphic(modelClass, addedModelClass) {
     if (modelClass.__isMixin) {
-      //TODO Need to do this in order to support mixins, should convert to public api
-      //once it exists in Ember
-      return modelClass.__mixin.detect(addedModelClass.PrototypeMixin);
+      return (
+        modelClass.__mixin.detect(addedModelClass.PrototypeMixin) ||
+        // handle native class extension e.g. `class Post extends Model.extend(Commentable) {}`
+        modelClass.__mixin.detect(Object.getPrototypeOf(addedModelClass).PrototypeMixin)
+      );
     }
 
     return addedModelClass.prototype instanceof modelClass || modelClass.detect(addedModelClass);
