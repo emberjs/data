@@ -79,8 +79,8 @@ import { DEBUG } from '@glimmer/env';
   ```
 
   @class Errors
-  @extends Ember.ArrayProxy
-  @uses Ember.Evented
+  @extends ArrayProxy
+  @uses Evented
  */
 export default ArrayProxy.extend(DeprecatedEvented, {
   /**
