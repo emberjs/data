@@ -7,7 +7,7 @@ import Model from '@ember-data/model';
 import { Promise } from 'rsvp';
 import { run } from '@ember/runloop';
 import Ember from 'ember';
-import test from '../../helpers/test-in-debug';
+import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { attr } from '@ember-data/model';
 
 class Person extends Model {

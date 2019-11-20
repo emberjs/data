@@ -5,7 +5,7 @@ import { underscore } from '@ember/string';
 import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import JSONSerializer from '@ember-data/serializer/json';
 import { module, test } from 'qunit';
 

@@ -2,7 +2,7 @@
 
 import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
-import deepCopy from 'dummy/tests/helpers/deep-copy';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import { module, test } from 'qunit';
 import { IDENTIFIERS } from '@ember-data/canary-features';
 

@@ -4,7 +4,7 @@ import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
 import Ember from 'ember';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';

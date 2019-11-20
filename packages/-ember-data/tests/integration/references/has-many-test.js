@@ -4,7 +4,7 @@ import { get } from '@ember/object';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
 
 module('integration/references/has-many', function(hooks) {

@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import Store from '@ember-data/store';
 import Model from '@ember-data/model';
 import { resolve } from 'rsvp';
-import testInDebug from '../../helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('inverse relationship load test', function(hooks) {

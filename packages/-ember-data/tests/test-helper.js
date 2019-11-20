@@ -6,8 +6,8 @@ import { start } from 'ember-qunit';
 import { DEBUG } from '@glimmer/env';
 
 import QUnit from 'qunit';
-import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
-import configureAsserts from 'dummy/tests/helpers/qunit-asserts';
+import { wait, asyncEqual, invokeAsync } from '@ember-data/unpublished-test-infra/test-support/async';
+import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 
 configureAsserts();
 

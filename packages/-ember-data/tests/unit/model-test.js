@@ -1,9 +1,9 @@
 import { guidFor } from '@ember/object/internals';
 import { resolve, reject } from 'rsvp';
 import { set, get, observer, computed } from '@ember/object';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
-import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import { settled } from '@ember/test-helpers';
 import { setupTest } from 'ember-qunit';
 import Model from '@ember-data/model';

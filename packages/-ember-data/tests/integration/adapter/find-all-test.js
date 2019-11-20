@@ -3,7 +3,7 @@ import { setupTest } from 'ember-qunit';
 import { reject, resolve, defer } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import Model from '@ember-data/model';
 import { settled } from '@ember/test-helpers';
 import { attr } from '@ember-data/model';

@@ -1,5 +1,5 @@
 import { module } from 'qunit';
-import test from 'dummy/tests/helpers/test-in-debug';
+import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
 import Store from '@ember-data/store';

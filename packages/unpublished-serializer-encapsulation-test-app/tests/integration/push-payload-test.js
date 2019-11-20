@@ -3,7 +3,7 @@ import Store from 'serializer-encapsulation-test-app/services/store';
 import EmberObject from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import testInDebug from 'serializer-encapsulation-test-app/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Person extends Model {
   @attr

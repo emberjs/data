@@ -3,7 +3,7 @@ import { resolve, all, Promise as EmberPromise } from 'rsvp';
 import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
@@ -13,7 +13,7 @@ import JSONSerializer from '@ember-data/serializer/json';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Store from '@ember-data/store';
-import { deprecatedTest } from '../../helpers/deprecated-test';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('unit/store/adapter-interop - Store working with a Adapter', function(hooks) {
   setupTest(hooks);

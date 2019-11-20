@@ -1,6 +1,6 @@
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import testInDebug from '../../helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';

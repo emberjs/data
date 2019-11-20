@@ -3,6 +3,7 @@ import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
 import Store from 'adapter-encapsulation-test-app/services/store';
 import Model, { attr } from '@ember-data/model';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import { resolve } from 'rsvp';
 
 class MinimalSerializer extends EmberObject {
@@ -56,7 +57,7 @@ module('integration/queries - Queries Tests', function(hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is unexpectedly mutated during store.findRecord
     // if IDENTIFIERS is turned on
-    let expectedResultCopy = JSON.parse(JSON.stringify(expectedResult));
+    let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       findRecord(passedStore, type, id, snapshot) {
@@ -107,7 +108,7 @@ module('integration/queries - Queries Tests', function(hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is unexpectedly mutated during store.findAll
     // if IDENTIFIERS is turned on
-    let expectedResultCopy = JSON.parse(JSON.stringify(expectedResult));
+    let expectedResultCopy = deepCopy(expectedResult);
 
     let { owner } = this;
     let store = owner.lookup('service:store');
