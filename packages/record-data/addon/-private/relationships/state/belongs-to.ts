@@ -101,20 +101,6 @@ export default class BelongsToRelationship extends Relationship {
     this.inverseRecordData = null;
   }
 
-  flushCanonical() {
-    //temporary fix to not remove newly created records if server returned null.
-    //TODO remove once we have proper diffing
-    if (this.inverseRecordData && this.inverseRecordData.isNew() && !this.canonicalState) {
-      this.willSync = false;
-      return;
-    }
-    if (this.inverseRecordData !== this.canonicalState) {
-      this.inverseRecordData = this.canonicalState;
-      this.notifyBelongsToChange();
-    }
-    super.flushCanonical();
-  }
-
   addRecordData(recordData: RelationshipRecordData) {
     if (this.members.has(recordData)) {
       return;

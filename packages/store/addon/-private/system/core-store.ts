@@ -84,6 +84,7 @@ import { Dict } from '../ts-interfaces/utils';
 
 import constructResource from '../utils/construct-resource';
 import { errorsArrayToHash } from './errors-utils';
+import { BelongsToRelationship, ManyRelationship } from '@ember-data/record-data/-private';
 
 type Relationship = import('@ember-data/record-data/-private').Relationship;
 type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
@@ -3491,7 +3492,15 @@ abstract class CoreStore extends Service {
     let updated = this._updatedRelationships;
 
     for (let i = 0, l = updated.length; i < l; i++) {
-      updated[i].flushCanonical();
+      let relationship = updated[i];
+
+      if (relationship.kind === 'belongsTo') {
+        flushBelongsToCanonical(relationship);
+      } else if (relationship.kind === 'hasMany') {
+        flushHasManyCanonical(relationship);
+      } else {
+        flushCanonical(relationship);
+      }
     }
 
     updated.length = 0;
@@ -3693,4 +3702,63 @@ function internalModelForRelatedResource(
 ): InternalModel {
   const identifier = cache.getOrCreateRecordIdentifier(resource);
   return store._internalModelForResource(identifier);
+}
+
+function flushBelongsToCanonical(relationship) {
+  // temporary fix to not remove newly created records if server returned null.
+  // TODO remove once we have proper diffing
+  if (relationship.inverseRecordData && relationship.inverseRecordData.isNew() && !relationship.canonicalState) {
+    relationship.willSync = false;
+    return;
+  }
+
+  if (relationship.inverseRecordData !== relationship.canonicalState) {
+    relationship.inverseRecordData = relationship.canonicalState;
+    relationship.notifyBelongsToChange();
+  }
+
+  flushCanonical(relationship);
+}
+
+function flushHasManyCanonical(relationship) {
+  let toSet = relationship.canonicalState;
+
+  // a hack for not removing new records
+  // TODO remove once we have proper diffing
+  let newRecordDatas = relationship.currentState.filter(
+    // only add new internalModels which are not yet in the canonical state of this
+    // relationship (a new internalModel can be in the canonical state if it has
+    // been 'acknowleged' to be in the relationship via a store.push)
+
+    // TODO Igor deal with this
+    recordData => recordData.isNew() && toSet.indexOf(recordData) === -1
+  );
+
+  toSet = toSet.concat(newRecordDatas);
+  relationship.currentState = toSet;
+
+  flushCanonical(relationship);
+
+  // Once we clean up all the flushing, we will be left with at least the notifying part
+  relationship.notifyHasManyChange();
+}
+
+function flushCanonical(relationship) {
+  let list = relationship.members.list as RelationshipRecordData[];
+  relationship.willSync = false;
+  // a hack for not removing new RecordDatas
+  // TODO remove once we have proper diffing
+  let newRecordDatas: RelationshipRecordData[] = [];
+  for (let i = 0; i < list.length; i++) {
+    // TODO Igor deal with this
+    if (list[i].isNew()) {
+      newRecordDatas.push(list[i]);
+    }
+  }
+
+  // TODO(Igor) make this less abysmally slow
+  relationship.members = relationship.canonicalMembers.copy();
+  for (let i = 0; i < newRecordDatas.length; i++) {
+    relationship.members.add(newRecordDatas[i]);
+  }
 }

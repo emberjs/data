@@ -108,32 +108,6 @@ export default class ManyRelationship extends Relationship {
     this.removeRecordDataFromOwn(recordData);
   }
 
-  flushCanonical() {
-    let toSet = this.canonicalState;
-
-    //a hack for not removing new records
-    //TODO remove once we have proper diffing
-    let newRecordDatas = this.currentState.filter(
-      // only add new internalModels which are not yet in the canonical state of this
-      // relationship (a new internalModel can be in the canonical state if it has
-      // been 'acknowleged' to be in the relationship via a store.push)
-
-      //TODO Igor deal with this
-      recordData => recordData.isNew() && toSet.indexOf(recordData) === -1
-    );
-    toSet = toSet.concat(newRecordDatas);
-
-    /*
-    if (this._manyArray) {
-      this._manyArray.flushCanonical(toSet);
-    }
-    */
-    this.currentState = toSet;
-    super.flushCanonical();
-    // Once we clean up all the flushing, we will be left with at least the notifying part
-    this.notifyHasManyChange();
-  }
-
   //TODO(Igor) idx not used currently, fix
   removeRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
     super.removeRecordDataFromOwn(recordData, idx);
