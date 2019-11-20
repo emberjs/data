@@ -303,6 +303,13 @@ export default class RecordData {
     }
   }
 
+  // internal set coming from the model
+  __setId(id) {
+    if (this.id !== id) {
+      this.id = id;
+    }
+  }
+
   getAttr(key) {
     if (key in this._attributes) {
       return this._attributes[key];

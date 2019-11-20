@@ -369,6 +369,13 @@ module('unit/model - Model', function(hooks) {
       assert.equal(idChange, 0);
       store._setRecordId(person._internalModel, 'john');
       assert.equal(idChange, 1);
+      let recordData = recordDataFor(person);
+      assert.equal(
+        recordData.getResourceIdentifier().id,
+        'john',
+        'new id should be set on the identifier on record data.'
+      );
+      assert.equal(recordData.id, 'john', 'new id should be correctly set on the record data itself.');
       assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
     });
 
