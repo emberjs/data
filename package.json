@@ -53,7 +53,7 @@
     "@typescript-eslint/parser": "^2.8.0",
     "babel-eslint": "^10.0.3",
     "babel-plugin-debug-macros": "^0.3.3",
-    "babel-plugin-filter-imports": "^3.0.0",
+    "babel-plugin-filter-imports": "^4.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-asset-rev": "^3.0.0",
     "broccoli-concat": "^3.7.5",
