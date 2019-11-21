@@ -430,6 +430,13 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
   }
 
+  // internal set coming from the model
+  __setId(id: string) {
+    if (this.id !== id) {
+      this.id = id;
+    }
+  }
+
   getAttr(key: string): string {
     if (key in this._attributes) {
       return this._attributes[key];

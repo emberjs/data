@@ -1369,6 +1369,10 @@ export default class InternalModel {
 
     if (didChange && id !== null) {
       this.store.setRecordId(this.modelName, id, this.clientId);
+      // internal set of ID to get it to RecordData from DS.Model
+      if (this._recordData.__setId) {
+        this._recordData.__setId(id);
+      }
     }
 
     if (didChange && this.hasRecord) {
