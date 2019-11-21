@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 3.8.1 (November 21, 2019)
+- [#6782](https://github.com/emberjs/data/pull/6782) [BUGFIX] fix @babel/plugin-transform-block-scoping import
+- [#6777](https://github.com/emberjs/data/pull/6777) [BUGFIX] Set IDs on Record Data when mutating DS Model
+- [#6750](https://github.com/emberjs/data/pull/6750) [BUGFIX] ensure MandatorySetter does not trigger for modelName
+- [#6028](https://github.com/emberjs/data/pull/6028) [BUGFIX] Fix this.stack assignement in AdapterError
+- [#5968](https://github.com/emberjs/data/pull/5968) add explicit `@ember/string` dependency ahead of deprecation #5968
+
 ### Release 3.8.0 (February 20, 2019)
 
 - [#5671](https://github.com/emberjs/data/pull/5671) Use _scheduleFetch instead of _fetchRecord for belongsTo relationship (#5671)
