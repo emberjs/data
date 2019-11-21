@@ -1,5 +1,4 @@
-ember-data
-==============================================================================
+# EmberData
 
 [![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
 [![Code Climate](https://codeclimate.com/github/emberjs/data/badges/gpa.svg)](https://codeclimate.com/github/emberjs/data)
@@ -24,9 +23,7 @@ It provides many of the facilities you'd find in server-side `ORM`s like
 - [Team](https://emberjs.com/team)
 - [Blog](https://emberjs.com/blog)
 
-
-Installation
-------------------------------------------------------------------------------
+## Installation
 
 `ember-data` is installed by default for new applications generated with `ember-cli`.
 
@@ -37,17 +34,13 @@ the following command, which will use `yarn` or `npm` to install `ember-data` as
 ember install ember-data
 ```
 
-Similarly, if you have generated a new `Ember` application using `ember-cli` but do 
+Similarly, if you have generated a new `Ember` application using `ember-cli` but do
 not wish to use `ember-data`, remove `ember-data` from your `package.json`.
 
-
-Contributing
-------------------------------------------------------------------------------
+## Contributing
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
 
-
-License
-------------------------------------------------------------------------------
+## License
 
 This project is licensed under the [MIT License](LICENSE.md).
