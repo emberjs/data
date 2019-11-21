@@ -60,4 +60,7 @@ export default interface RecordData {
   isDeletionCommitted?(): boolean;
 
   setIsDeleted?(isDeleted: boolean): void;
+
+  // Private and experimental
+  __setId?(id: string): void;
 }
