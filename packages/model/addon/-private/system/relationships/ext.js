@@ -1,10 +1,10 @@
 import { A } from '@ember/array';
 import { computed, get } from '@ember/object';
 import { assert } from '@ember/debug';
-import { typeForRelationshipMeta, relationshipFromMeta } from '../relationship-meta';
+import { typeForRelationshipMeta, relationshipFromMeta } from '@ember-data/store/-private';
 
 /**
-  @module @ember-data/store
+  @module @ember-data/model
 */
 
 export const relationshipsDescriptor = computed(function() {
