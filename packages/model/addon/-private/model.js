@@ -13,12 +13,14 @@ import {
   PromiseObject,
   recordDataFor,
   recordIdentifierFor,
+  RootState,
+} from '@ember-data/store/-private';
+import {
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
   relatedTypesDescriptor,
   relationshipsDescriptor,
-  RootState,
-} from '@ember-data/store/-private';
+} from './system/relationships/ext';
 import Errors from './errors';
 
 const { changeProperties } = Ember;

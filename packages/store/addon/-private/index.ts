@@ -43,9 +43,4 @@ export { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './system/sto
 
 // for Model
 export { default as DeprecatedEvented } from './system/deprecated-evented';
-export {
-  relationshipsByNameDescriptor,
-  relationshipsObjectDescriptor,
-  relatedTypesDescriptor,
-  relationshipsDescriptor,
-} from './system/relationships/ext';
+export { typeForRelationshipMeta, relationshipFromMeta } from './system/relationship-meta';
