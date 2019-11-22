@@ -1,6 +1,12 @@
 # Ember Data Changelog
 
 ### Master
+## Release 3.12.5 (LTS) (November 21, 2019)
+- [#6524](https://github.com/emberjs/data/pull/6524) [DOCS] Docs updates for Packages to fix missing docs and broken links (#6524)
+- [b101be12](https://github.com/emberjs/data/commit/b101be12f6598b9f7ee9cbbcdff88762c074d3ee) [BUGFIX] ensure MandatorySetter does not trigger for modelName (#6749)
+- [c5f85800](https://github.com/emberjs/data/commit/c5f858008ee6eb2e01a57cfdf21005eb00452066) [BUGFIX] Set IDs on Record Data when mutating DS Model (#6775) (#6778)
+- [#6744](https://github.com/emberjs/data/pull/6744) [BUGFIX] ensure feature flagged code is stripped out
+
 
 ## Release 3.12.4 (LTS) (September 24, 2019)
 
