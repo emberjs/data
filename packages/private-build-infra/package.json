@@ -18,7 +18,7 @@
     "@ember-data/canary-features": "3.16.0-alpha.2",
     "@ember/edition-utils": "^1.1.1",
     "babel-plugin-debug-macros": "^0.3.3",
-    "babel-plugin-filter-imports": "^3.0.0",
+    "babel-plugin-filter-imports": "^4.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-debug": "^0.6.5",
     "broccoli-file-creator": "^2.1.1",
