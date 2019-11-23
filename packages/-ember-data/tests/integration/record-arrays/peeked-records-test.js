@@ -3,7 +3,7 @@ import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import { get } from '@ember/object';
-import { watchProperties } from '../../helpers/watch-property';
+import { watchProperties } from '@ember-data/unpublished-test-infra/test-support/watch-property';
 
 let store;
 

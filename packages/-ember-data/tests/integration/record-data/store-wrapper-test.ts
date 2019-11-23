@@ -2,7 +2,7 @@ import { setupTest } from 'ember-qunit';
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
 import { module, test } from 'qunit';
-import publicProps from '../../helpers/public-props';
+import publicProps from '@ember-data/unpublished-test-infra/test-support/public-props';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {

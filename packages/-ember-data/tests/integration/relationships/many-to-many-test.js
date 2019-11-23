@@ -5,7 +5,7 @@ import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import todo from '../../helpers/todo';
+import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
 import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';

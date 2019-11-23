@@ -2,10 +2,10 @@ import { hash, Promise as EmberPromise } from 'rsvp';
 import { get, observer } from '@ember/object';
 import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
-import todo from '../../../helpers/todo';
+import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 module('unit/model/relationships - DS.hasMany', function(hooks) {

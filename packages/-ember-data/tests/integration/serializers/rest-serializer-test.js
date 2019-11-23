@@ -2,7 +2,7 @@ import { camelize, decamelize, dasherize } from '@ember/string';
 import Inflector, { singularize } from 'ember-inflector';
 import { run, bind } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import RESTSerializer from '@ember-data/serializer/rest';

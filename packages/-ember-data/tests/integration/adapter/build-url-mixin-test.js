@@ -2,7 +2,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import { decamelize, underscore } from '@ember/string';
 import { resolve } from 'rsvp';
-import deepCopy from 'dummy/tests/helpers/deep-copy';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import { pluralize } from 'ember-inflector';
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';

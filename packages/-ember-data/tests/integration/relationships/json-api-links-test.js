@@ -6,7 +6,7 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import deepCopy from 'dummy/tests/helpers/deep-copy';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 const { Model, attr, hasMany, belongsTo } = DS;
 

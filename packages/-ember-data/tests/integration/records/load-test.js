@@ -6,7 +6,7 @@ import Model from '@ember-data/model';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { run } from '@ember/runloop';
-import todo from '../../helpers/todo';
+import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 import { attr, belongsTo } from '@ember-data/model';
 
 class Person extends Model {

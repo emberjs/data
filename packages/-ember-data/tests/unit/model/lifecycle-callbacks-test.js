@@ -9,7 +9,7 @@ import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr } from '@ember-data/model';
 import { InvalidError } from '@ember-data/adapter/error';
-import { deprecatedTest } from '../../helpers/deprecated-test';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
   setupTest(hooks);

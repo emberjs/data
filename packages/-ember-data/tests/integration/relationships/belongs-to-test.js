@@ -7,7 +7,7 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { setupTest } from 'ember-qunit';
 import Store from '@ember-data/store';
 import Model from '@ember-data/model';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import DS from 'ember-data';
 import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
 import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';

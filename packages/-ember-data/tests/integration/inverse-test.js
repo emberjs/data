@@ -1,5 +1,5 @@
 import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
 
 import Model from '@ember-data/model';

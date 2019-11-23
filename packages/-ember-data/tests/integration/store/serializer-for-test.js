@@ -1,6 +1,6 @@
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import Store from 'ember-data/store';
 
 class TestAdapter {

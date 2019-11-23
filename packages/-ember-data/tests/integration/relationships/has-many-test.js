@@ -5,8 +5,8 @@ import { resolve, Promise as EmberPromise, all, reject, hash } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import { module, test } from 'qunit';
 import { relationshipStateFor, relationshipsFor } from '@ember-data/record-data/-private';
 

@@ -1,5 +1,5 @@
 import { test } from 'qunit';
-import VERSION from 'ember-data/version';
+import VERSION from '@ember-data/unpublished-test-infra/version';
 import { DEBUG } from '@glimmer/env';
 
 // small comparison function for major and minor semver values

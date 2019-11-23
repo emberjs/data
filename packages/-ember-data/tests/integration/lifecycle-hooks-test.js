@@ -1,6 +1,6 @@
 import { resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
-import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import Model from '@ember-data/model';
 import { attr } from '@ember-data/model';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
