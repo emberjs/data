@@ -11,7 +11,7 @@ import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 type Model = import('@ember-data/model').default;
 
 let _Model;
-function getModel() {
+export function getModel() {
   if (HAS_MODEL_PACKAGE) {
     _Model = _Model || require('@ember-data/model').default;
   }
@@ -87,11 +87,12 @@ export function getModelFactory(store: CoreStore, cache, normalizedModelName: st
   let factory = cache[normalizedModelName];
 
   if (!factory) {
-    factory = _lookupModelFactory(store, normalizedModelName);
+    let owner = getOwner(store);
+    factory = _lookupModelFactory(owner, normalizedModelName);
 
     if (!factory) {
       //Support looking up mixins as base types for polymorphic relationships
-      factory = _modelForMixin(store, normalizedModelName);
+      factory = store._modelForMixin(normalizedModelName);
     }
 
     if (!factory) {
@@ -114,44 +115,6 @@ export function getModelFactory(store: CoreStore, cache, normalizedModelName: st
   return factory;
 }
 
-export function _lookupModelFactory(store, normalizedModelName) {
-  let owner = getOwner(store);
-
+export function _lookupModelFactory(owner, normalizedModelName) {
   return owner.factoryFor(`model:${normalizedModelName}`);
-}
-
-/*
-    In case someone defined a relationship to a mixin, for example:
-    ```
-      let Comment = Model.extend({
-        owner: belongsTo('commentable'. { polymorphic: true })
-      });
-      let Commentable = Ember.Mixin.create({
-        comments: hasMany('comment')
-      });
-    ```
-    we want to look up a Commentable class which has all the necessary
-    relationship metadata. Thus, we look up the mixin and create a mock
-    Model, so we can access the relationship CPs of the mixin (`comments`)
-    in this case
-  */
-export function _modelForMixin(store, normalizedModelName) {
-  if (HAS_MODEL_PACKAGE) {
-    let owner = getOwner(store);
-    let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-    let mixin = MaybeMixin && MaybeMixin.class;
-
-    if (mixin) {
-      let ModelForMixin = getModel().extend(mixin);
-      ModelForMixin.reopenClass({
-        __isMixin: true,
-        __mixin: mixin,
-      });
-
-      //Cache the class as a model
-      owner.register('model:' + normalizedModelName, ModelForMixin);
-    }
-
-    return _lookupModelFactory(store, normalizedModelName);
-  }
 }
