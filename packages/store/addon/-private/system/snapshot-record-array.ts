@@ -1,7 +1,11 @@
+import { Dict } from '../ts-interfaces/utils';
+
 /**
   @module @ember-data/store
 */
-
+type RecordArray = import('./record-arrays/record-array').default;
+type Snapshot = import('./snapshot').default;
+type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
 /**
   @class SnapshotRecordArray
   @private
@@ -10,7 +14,16 @@
   @param {Object} meta
 */
 export default class SnapshotRecordArray {
-  constructor(recordArray, meta, options = {}) {
+  private _snapshots: Snapshot[] | null;
+  private _recordArray: RecordArray | null;
+  private _type: ModelSchema | null;
+
+  public length: number;
+  public meta?: Dict<any>;
+  public adapterOptions: Dict<any>;
+  public include?: string;
+
+  constructor(recordArray: RecordArray, meta?: Dict<any>, options: Dict<any> = {}) {
     /**
       An array of snapshots
       @private
