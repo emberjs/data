@@ -3,6 +3,7 @@ import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
 import Store from 'adapter-encapsulation-test-app/services/store';
 import Model, { attr } from '@ember-data/model';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import { resolve, all } from 'rsvp';
 
 class MinimalSerializer extends EmberObject {
@@ -70,7 +71,7 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is unexpectedly mutated during store.findRecord
     // if IDENTIFIERS is turned on
-    let expectedResultsCopy = JSON.parse(JSON.stringify(expectedResults));
+    let expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -132,7 +133,7 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is unexpectedly mutated during store.findRecord
     // if IDENTIFIERS is turned on
-    let expectedResultsCopy = JSON.parse(JSON.stringify(expectedResults));
+    let expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -212,7 +213,7 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is unexpectedly mutated during store.findRecord
     // if IDENTIFIERS is turned on
-    let expectedResultsCopy = JSON.parse(JSON.stringify(expectedResults));
+    let expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = false;
