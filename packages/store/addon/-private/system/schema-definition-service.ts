@@ -4,19 +4,7 @@ import { get } from '@ember/object';
 import { getOwner } from '@ember/application';
 import normalizeModelName from './normalize-model-name';
 import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
-import require from 'require';
 import CoreStore from './core-store';
-import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
-
-type Model = import('@ember-data/model').default;
-
-let _Model;
-export function getModel() {
-  if (HAS_MODEL_PACKAGE) {
-    _Model = _Model || require('@ember-data/model').default;
-  }
-  return _Model;
-}
 
 export class DSModelSchemaDefinitionService {
   private _modelFactoryCache = Object.create(null);
@@ -87,8 +75,7 @@ export function getModelFactory(store: CoreStore, cache, normalizedModelName: st
   let factory = cache[normalizedModelName];
 
   if (!factory) {
-    let owner = getOwner(store);
-    factory = _lookupModelFactory(owner, normalizedModelName);
+    factory = _lookupModelFactory(store, normalizedModelName);
 
     if (!factory) {
       //Support looking up mixins as base types for polymorphic relationships
@@ -115,6 +102,8 @@ export function getModelFactory(store: CoreStore, cache, normalizedModelName: st
   return factory;
 }
 
-export function _lookupModelFactory(owner, normalizedModelName) {
+export function _lookupModelFactory(store, normalizedModelName) {
+  let owner = getOwner(store);
+
   return owner.factoryFor(`model:${normalizedModelName}`);
 }
