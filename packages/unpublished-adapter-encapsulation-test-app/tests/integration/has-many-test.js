@@ -623,7 +623,9 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'findHasMany returns expected result');
   });
 
-  todo('if a hasMany relationship has link and data (coalescing is on, findHasMany is not defined)', async function(assert) {
+  todo('if a hasMany relationship has link and data (coalescing is on, findHasMany is not defined)', async function(
+    assert
+  ) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
