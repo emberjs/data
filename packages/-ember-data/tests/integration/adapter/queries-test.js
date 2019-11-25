@@ -1,6 +1,4 @@
 import { Promise as EmberPromise, resolve } from 'rsvp';
-import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import { setupTest } from 'ember-qunit';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
@@ -8,6 +6,7 @@ import { module, test } from 'qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr } from '@ember-data/model';
+import { settled } from '@ember/test-helpers';
 
 module('integration/adapter/queries - Queries', function(hooks) {
   setupTest(hooks);
@@ -41,7 +40,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
     }, "You need to pass a query hash to the store's query method");
   });
 
-  test('When a query is made, the adapter should receive a record array it can populate with the results of the query.', function(assert) {
+  test('When a query is made, the adapter should receive a record array it can populate with the results of the query.', async function(assert) {
     const Person = Model.extend({ name: attr() });
 
     this.owner.register('model:person', Person);
@@ -55,14 +54,14 @@ module('integration/adapter/queries - Queries', function(hooks) {
       return EmberPromise.resolve({
         data: [
           {
-            id: 1,
+            id: '1',
             type: 'person',
             attributes: {
               name: 'Peter Wagenet',
             },
           },
           {
-            id: 2,
+            id: '2',
             type: 'person',
             attributes: {
               name: 'Brohuda Katz',
@@ -72,16 +71,18 @@ module('integration/adapter/queries - Queries', function(hooks) {
       });
     };
 
-    return store.query('person', { page: 1 }).then(queryResults => {
-      assert.equal(get(queryResults, 'length'), 2, 'the record array has a length of 2 after the results are loaded');
-      assert.equal(get(queryResults, 'isLoaded'), true, "the record array's `isLoaded` property should be true");
+    let queryResults = await store.query('person', { page: 1 });
 
-      assert.equal(queryResults.objectAt(0).get('name'), 'Peter Wagenet', "the first record is 'Peter Wagenet'");
-      assert.equal(queryResults.objectAt(1).get('name'), 'Brohuda Katz', "the second record is 'Brohuda Katz'");
-    });
+    assert.equal(queryResults.length, 2, 'the record array has a length of 2 after the results are loaded');
+    assert.equal(queryResults.isLoaded, true, "the record array's `isLoaded` property should be true");
+
+    assert.equal(queryResults.objectAt(0).name, 'Peter Wagenet', "the first record is 'Peter Wagenet'");
+    assert.equal(queryResults.objectAt(1).name, 'Brohuda Katz', "the second record is 'Brohuda Katz'");
   });
 
-  test('a query can be updated via `update()`', function(assert) {
+  test('a query can be updated via `update()`', async function(assert) {
+    assert.expect(8);
+
     const Person = Model.extend();
 
     this.owner.register('model:person', Person);
@@ -93,35 +94,42 @@ module('integration/adapter/queries - Queries', function(hooks) {
       return resolve({ data: [{ id: 'first', type: 'person' }] });
     };
 
-    return run(() => {
-      return store
-        .query('person', {})
-        .then(query => {
-          assert.equal(query.get('length'), 1, 'we have one person');
-          assert.equal(query.get('firstObject.id'), 'first', 'the right person is present');
-          assert.equal(query.get('isUpdating'), false, 'we are not updating');
+    let personsQuery = await store.query('person', {});
 
-          adapter.query = function() {
-            assert.ok(true, 'query is called a second time');
-            return resolve({ data: [{ id: 'second', type: 'person' }] });
-          };
+    assert.equal(personsQuery.length, 1, 'There is one person');
+    assert.equal(personsQuery.firstObject.id, 'first', 'the right person is present');
+    assert.equal(personsQuery.isUpdating, false, 'RecordArray is not updating');
 
-          let updateQuery = query.update();
+    let resolveQueryPromise;
 
-          assert.equal(query.get('isUpdating'), true, 'we are updating');
+    adapter.query = function() {
+      assert.ok(true, 'query is called a second time');
 
-          return updateQuery;
-        })
-        .then(query => {
-          assert.equal(query.get('length'), 1, 'we still have one person');
-          assert.equal(query.get('firstObject.id'), 'second', 'now it is a different person');
+      return new EmberPromise(resolve => {
+        resolveQueryPromise = resolve;
+      });
+    };
 
-          assert.equal(query.get('isUpdating'), false, 'we are no longer updating');
-        });
-    });
+    personsQuery.update();
+
+    assert.equal(personsQuery.isUpdating, true, 'RecordArray is updating');
+
+    // Resolve internal promises to allow the RecordArray to build.
+    await settled();
+
+    resolveQueryPromise({ data: [{ id: 'second', type: 'person' }] });
+
+    // Wait for all promises to resolve after the query promise resolves.
+    await settled();
+
+    assert.equal(personsQuery.isUpdating, false, 'RecordArray is not updating anymore');
+    assert.equal(personsQuery.length, 1, 'There is still one person after update resolves');
+    assert.equal(personsQuery.firstObject.id, 'second', 'Now it is a different person');
   });
 
-  testInDebug('The store asserts when query is made and the adapter responses with a single record.', function(assert) {
+  testInDebug('The store asserts when query is made and the adapter responses with a single record.', async function(
+    assert
+  ) {
     const Person = Model.extend({ name: attr() });
 
     this.owner.register('model:person', Person);
@@ -137,8 +145,8 @@ module('integration/adapter/queries - Queries', function(hooks) {
       });
     };
 
-    assert.expectAssertion(() => {
-      run(() => store.query('person', { page: 1 }));
+    await assert.expectAssertion(async () => {
+      await store.query('person', { page: 1 });
     }, /The response to store.query is expected to be an array but it was a single record/);
   });
 });

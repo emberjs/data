@@ -1078,7 +1078,7 @@ module('integration/store - deleteRecord', function(hooks) {
     }
   });
 
-  testInDebug('store#findRecord that returns an array should assert', function(assert) {
+  testInDebug('store#findRecord that returns an array should assert', async function(assert) {
     const ApplicationAdapter = DS.JSONAPIAdapter.extend({
       findRecord() {
         return { data: [] };
@@ -1091,7 +1091,7 @@ module('integration/store - deleteRecord', function(hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(async () => {
+    await assert.expectAssertion(async () => {
       await store.findRecord('car', '1');
     }, /expected the primary data returned from a 'findRecord' response to be an object but instead it found an array/);
   });
@@ -1132,7 +1132,7 @@ module('integration/store - queryRecord', function(hooks) {
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  testInDebug('store#queryRecord should assert when normalized payload of adapter has an array of data', function(
+  testInDebug('store#queryRecord should assert when normalized payload of adapter has an array of data', async function(
     assert
   ) {
     let store = this.owner.lookup('service:store');
@@ -1151,12 +1151,12 @@ module('integration/store - queryRecord', function(hooks) {
       };
     };
 
-    assert.expectAssertion(() => {
-      run(() => store.queryRecord('car', {}));
+    await assert.expectAssertion(async () => {
+      await store.queryRecord('car', {});
     }, /Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array./);
   });
 
-  test('The store should trap exceptions that are thrown from adapter#findRecord', function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#findRecord', async function(assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1166,14 +1166,14 @@ module('integration/store - queryRecord', function(hooks) {
       throw new Error('Refusing to find record');
     };
 
-    run(() => {
-      store.findRecord('car', 1).catch(error => {
-        assert.equal(error.message, 'Refusing to find record');
-      });
-    });
+    try {
+      await store.findRecord('car', '1');
+    } catch (error) {
+      assert.equal(error.message, 'Refusing to find record');
+    }
   });
 
-  test('The store should trap exceptions that are thrown from adapter#findAll', function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#findAll', async function(assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1183,14 +1183,14 @@ module('integration/store - queryRecord', function(hooks) {
       throw new Error('Refusing to find all records');
     };
 
-    run(() => {
-      store.findAll('car').catch(error => {
-        assert.equal(error.message, 'Refusing to find all records');
-      });
-    });
+    try {
+      await store.findAll('car');
+    } catch (error) {
+      assert.equal(error.message, 'Refusing to find all records');
+    }
   });
 
-  test('The store should trap exceptions that are thrown from adapter#query', function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#query', async function(assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1200,14 +1200,14 @@ module('integration/store - queryRecord', function(hooks) {
       throw new Error('Refusing to query records');
     };
 
-    run(() => {
-      store.query('car', {}).catch(error => {
-        assert.equal(error.message, 'Refusing to query records');
-      });
-    });
+    try {
+      await store.query('car', {});
+    } catch (error) {
+      assert.equal(error.message, 'Refusing to query records');
+    }
   });
 
-  test('The store should trap exceptions that are thrown from adapter#queryRecord', function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#queryRecord', async function(assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1217,14 +1217,14 @@ module('integration/store - queryRecord', function(hooks) {
       throw new Error('Refusing to query record');
     };
 
-    run(() => {
-      store.queryRecord('car', {}).catch(error => {
-        assert.equal(error.message, 'Refusing to query record');
-      });
-    });
+    try {
+      await store.queryRecord('car', {});
+    } catch (error) {
+      assert.equal(error.message, 'Refusing to query record');
+    }
   });
 
-  test('The store should trap exceptions that are thrown from adapter#createRecord', function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#createRecord', async function(assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1234,12 +1234,12 @@ module('integration/store - queryRecord', function(hooks) {
       throw new Error('Refusing to serialize');
     };
 
-    run(() => {
+    try {
       let car = store.createRecord('car');
 
-      car.save().catch(error => {
-        assert.equal(error.message, 'Refusing to serialize');
-      });
-    });
+      await car.save();
+    } catch (error) {
+      assert.equal(error.message, 'Refusing to serialize');
+    }
   });
 });
