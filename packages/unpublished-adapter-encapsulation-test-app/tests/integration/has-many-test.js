@@ -1,5 +1,5 @@
 import { setupTest } from 'ember-qunit';
-import { module, test, todo } from 'qunit';
+import { module, test } from 'qunit';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import EmberObject from '@ember/object';
 import Store from 'adapter-encapsulation-test-app/services/store';
@@ -623,9 +623,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'findHasMany returns expected result');
   });
 
-  todo('if a hasMany relationship has link and data (coalescing is on, findHasMany is not defined)', async function(
-    assert
-  ) {
+  test('if a hasMany relationship has link and data (coalescing is on, findHasMany is not defined)', async function(assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
