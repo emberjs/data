@@ -110,7 +110,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
         relationships: {
           post: {
             links: {
-              related: 'https://example.com/api/post/1',
+              related: 'https://example.com/api/post/2',
             },
           },
         },
@@ -177,7 +177,9 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
     assert.deepEqual(post.serialize(), expectedResult, 'findBelongsTo returns expected result');
   });
 
-  testInDebug('if a belongsTo relationship has a link but no data (findBelongsTo is undefined)', async function(assert) {
+  testInDebug('if a belongsTo relationship has a link but no data (findBelongsTo is undefined)', async function(
+    assert
+  ) {
     let initialRecord = {
       data: {
         id: '3',
@@ -188,7 +190,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
         relationships: {
           post: {
             links: {
-              related: 'https://example.com/api/post/1',
+              related: 'https://example.com/api/post/2',
             },
           },
         },
@@ -207,5 +209,318 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
     await assert.expectAssertion(async function() {
       await comment.get('post');
     }, /You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'/);
+  });
+
+  test('if a belongsTo relationship has data but not a link (findBelongsTo is defined)', async function(assert) {
+    let findRecordCalled = 0;
+    let findBelongsToCalled = 0;
+
+    let initialRecord = {
+      data: {
+        id: '3',
+        type: 'comment',
+        attributes: {
+          text: 'You suck',
+        },
+        relationships: {
+          post: {
+            data: {
+              id: '2',
+              type: 'post',
+            },
+          },
+        },
+      },
+    };
+
+    let expectedResult = {
+      data: {
+        id: '2',
+        type: 'post',
+        attributes: {
+          text: "I'm awesome",
+        },
+        relationships: {
+          comments: {
+            data: [
+              {
+                id: '3',
+                type: 'comment',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+
+    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // expectedResult is unexpectedly mutated during store.findRecord
+    // if IDENTIFIERS is turned on
+    let expectedResultCopy = deepCopy(expectedResult);
+
+    class TestFindRecordAdapter extends EmberObject {
+      findRecord(passedStore, type, id, snapshot) {
+        findRecordCalled++;
+
+        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
+        assert.equal(type, Post, 'model is passed to findRecord');
+        assert.equal(id, '2', 'id is passed to findRecord');
+
+        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
+        assert.equal(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
+
+        return resolve(expectedResultCopy);
+      }
+
+      findBelongsTo() {
+        findBelongsToCalled++;
+      }
+    }
+
+    owner.register('adapter:application', TestFindRecordAdapter);
+
+    let comment = store.push(initialRecord);
+
+    let post = await comment.get('post');
+
+    assert.equal(findRecordCalled, 1, 'findRecord is called once');
+    assert.equal(findBelongsToCalled, 0, 'findBelongsTo is not called');
+    assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
+  });
+
+  test('if a belongsTo relationship has data but not a link (findBelongsTo is not defined)', async function(assert) {
+    let findRecordCalled = 0;
+
+    let initialRecord = {
+      data: {
+        id: '3',
+        type: 'comment',
+        attributes: {
+          text: 'You suck',
+        },
+        relationships: {
+          post: {
+            data: {
+              id: '2',
+              type: 'post',
+            },
+          },
+        },
+      },
+    };
+
+    let expectedResult = {
+      data: {
+        id: '2',
+        type: 'post',
+        attributes: {
+          text: "I'm awesome",
+        },
+        relationships: {
+          comments: {
+            data: [
+              {
+                id: '3',
+                type: 'comment',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+
+    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // expectedResult is unexpectedly mutated during store.findRecord
+    // if IDENTIFIERS is turned on
+    let expectedResultCopy = deepCopy(expectedResult);
+
+    class TestFindRecordAdapter extends EmberObject {
+      findRecord(passedStore, type, id, snapshot) {
+        findRecordCalled++;
+
+        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
+        assert.equal(type, Post, 'model is passed to findRecord');
+        assert.equal(id, '2', 'id is passed to findRecord');
+
+        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
+        assert.equal(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
+
+        return resolve(expectedResultCopy);
+      }
+    }
+
+    owner.register('adapter:application', TestFindRecordAdapter);
+
+    let comment = store.push(initialRecord);
+
+    let post = await comment.get('post');
+
+    assert.equal(findRecordCalled, 1, 'findRecord is called once');
+    assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
+  });
+
+  test('if a belongsTo relationship has a link and data (findBelongsTo is defined)', async function(assert) {
+    let findRecordCalled = 0;
+    let findBelongsToCalled = 0;
+
+    let initialRecord = {
+      data: {
+        id: '3',
+        type: 'comment',
+        attributes: {
+          text: 'You suck',
+        },
+        relationships: {
+          post: {
+            data: {
+              id: '2',
+              type: 'post',
+            },
+            links: {
+              related: 'https://example.com/api/post/2',
+            },
+          },
+        },
+      },
+    };
+
+    let expectedResult = {
+      data: {
+        id: '2',
+        type: 'post',
+        attributes: {
+          text: "I'm awesome",
+        },
+        relationships: {
+          comments: {
+            data: [
+              {
+                id: '3',
+                type: 'comment',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+
+    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // expectedResult is unexpectedly mutated during store.findRecord
+    // if IDENTIFIERS is turned on
+    let expectedResultCopy = deepCopy(expectedResult);
+
+    class TestFindBelongsToAdapter extends EmberObject {
+      findRecord() {
+        findRecordCalled++;
+      }
+
+      findBelongsTo(passedStore, snapshot, url, relationship) {
+        findBelongsToCalled++;
+
+        assert.equal(passedStore, store, 'instance of store is passed to findBelongsTo');
+
+        let expectedURL = initialRecord.data.relationships.post.links.related;
+        assert.equal(url, expectedURL, 'url is passed to findBelongsTo');
+        assert.equal(relationship.meta.key, 'post', 'relationship is passed to findBelongsTo');
+
+        assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
+        assert.equal(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
+
+        return resolve(expectedResultCopy);
+      }
+    }
+
+    owner.register('adapter:application', TestFindBelongsToAdapter);
+
+    let comment = store.push(initialRecord);
+
+    let post = await comment.get('post');
+
+    assert.equal(findRecordCalled, 0, 'findRecord is not called');
+    assert.equal(findBelongsToCalled, 1, 'findBelongsTo is called once');
+    assert.deepEqual(post.serialize(), expectedResult, 'findBelongsTo returns expected result');
+  });
+
+  test('if a belongsTo relationship has link and data (findBelongsTo is not defined)', async function(assert) {
+    let findRecordCalled = 0;
+
+    let initialRecord = {
+      data: {
+        id: '3',
+        type: 'comment',
+        attributes: {
+          text: 'You suck',
+        },
+        relationships: {
+          post: {
+            data: {
+              id: '2',
+              type: 'post',
+            },
+          },
+        },
+      },
+    };
+
+    let expectedResult = {
+      data: {
+        id: '2',
+        type: 'post',
+        attributes: {
+          text: "I'm awesome",
+        },
+        relationships: {
+          comments: {
+            data: [
+              {
+                id: '3',
+                type: 'comment',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+
+    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // expectedResult is unexpectedly mutated during store.findRecord
+    // if IDENTIFIERS is turned on
+    let expectedResultCopy = deepCopy(expectedResult);
+
+    class TestFindRecordAdapter extends EmberObject {
+      findRecord(passedStore, type, id, snapshot) {
+        findRecordCalled++;
+
+        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
+        assert.equal(type, Post, 'model is passed to findRecord');
+        assert.equal(id, '2', 'id is passed to findRecord');
+
+        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
+        assert.equal(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
+
+        return resolve(expectedResultCopy);
+      }
+    }
+
+    owner.register('adapter:application', TestFindRecordAdapter);
+
+    let comment = store.push(initialRecord);
+
+    let post = await comment.get('post');
+
+    assert.equal(findRecordCalled, 1, 'findRecord is called once');
+    assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
   });
 });
