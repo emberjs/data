@@ -5,6 +5,7 @@ import { getOwner } from '@ember/application';
 import normalizeModelName from './normalize-model-name';
 import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import CoreStore from './core-store';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 
 export class DSModelSchemaDefinitionService {
   private _modelFactoryCache = Object.create(null);
@@ -71,7 +72,7 @@ export class DSModelSchemaDefinitionService {
  * @param normalizedModelName already normalized modelName
  * @return {*}
  */
-export function getModelFactory(store: CoreStore, cache, normalizedModelName: string): Model | null {
+export function getModelFactory(store: CoreStore, cache, normalizedModelName: string): RecordInstance | null {
   let factory = cache[normalizedModelName];
 
   if (!factory) {
@@ -102,7 +103,7 @@ export function getModelFactory(store: CoreStore, cache, normalizedModelName: st
   return factory;
 }
 
-export function _lookupModelFactory(store, normalizedModelName) {
+export function _lookupModelFactory(store: CoreStore, normalizedModelName: string): RecordInstance | undefined {
   let owner = getOwner(store);
 
   return owner.factoryFor(`model:${normalizedModelName}`);

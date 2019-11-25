@@ -3521,7 +3521,7 @@ abstract class CoreStore extends Service {
       let Comment = Model.extend({
         owner: belongsTo('commentable'. { polymorphic: true })
       });
-      let Commentable = Ember.Mixin.create({
+      let Commentable = Mixin.create({
         comments: hasMany('comment')
       });
     ```
@@ -3533,9 +3533,9 @@ abstract class CoreStore extends Service {
     @method _modelForMixin
     @protected
     @param {String} normalizedModelName
-    @return {Record} record
+    @return {RecordInstance} recordInstance
   */
-  _modelForMixin(normalizedModelName: string): unknown {
+  _modelForMixin(normalizedModelName: string): RecordInstance | undefined {
     throw new Error('Method not implemented.');
   }
 }
