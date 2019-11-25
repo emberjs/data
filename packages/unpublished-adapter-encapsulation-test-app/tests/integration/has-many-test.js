@@ -1,5 +1,5 @@
 import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
+import { module, test, todo } from 'qunit';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import EmberObject from '@ember/object';
 import Store from 'adapter-encapsulation-test-app/services/store';
@@ -117,7 +117,7 @@ let expectedResult = {
           },
         },
       },
-    }
+    },
   ],
 };
 
@@ -540,6 +540,238 @@ module('integration/has-many - Has Many Tests', function(hooks) {
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
     assert.equal(findManyCalled, 1, 'findMany is called once');
+    assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
+  });
+
+  test('if a hasMany relationship has link and data (findHasMany is defined)', async function(assert) {
+    let findRecordCalled = 0;
+    let findManyCalled = 0;
+    let findHasManyCalled = 0;
+
+    let initialRecord = {
+      data: {
+        id: '2',
+        type: 'post',
+        attributes: {
+          text: "I'm awesome",
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: 'https://example.com/api/post/2/comments',
+            },
+            data: [
+              {
+                id: '3',
+                type: 'comment',
+              },
+              {
+                id: '4',
+                type: 'comment',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+
+    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // expectedResult is unexpectedly mutated during store.findRecord
+    // if IDENTIFIERS is turned on
+    let expectedResultCopy = deepCopy(expectedResult);
+
+    class TestFindHasManyAdapter extends EmberObject {
+      findRecord() {
+        findRecordCalled++;
+      }
+
+      findMany() {
+        findManyCalled++;
+      }
+
+      findHasMany(passedStore, snapshot, url, relationship) {
+        findHasManyCalled++;
+
+        assert.equal(passedStore, store, 'instance of store is passed to findHasMany');
+
+        let expectedURL = initialRecord.data.relationships.comments.links.related;
+        assert.equal(url, expectedURL, 'url is passed to findHasMany');
+        assert.equal(relationship.meta.key, 'comments', 'relationship is passed to findHasMany');
+
+        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
+        assert.equal(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');
+
+        return resolve(expectedResultCopy);
+      }
+    }
+
+    owner.register('adapter:application', TestFindHasManyAdapter);
+
+    let post = store.push(initialRecord);
+
+    let comments = await post.get('comments');
+    let serializedComments = {
+      data: comments.toArray().map(comment => comment.serialize().data),
+    };
+
+    assert.equal(findRecordCalled, 0, 'findRecord is not called');
+    assert.equal(findManyCalled, 0, 'findMany is not called');
+    assert.equal(findHasManyCalled, 1, 'findHasMany is called once');
+    assert.deepEqual(serializedComments, expectedResult, 'findHasMany returns expected result');
+  });
+
+  todo('if a hasMany relationship has link and data (coalescing is on, findHasMany is not defined)', async function(assert) {
+    let findRecordCalled = 0;
+    let findManyCalled = 0;
+
+    let initialRecord = {
+      data: {
+        id: '2',
+        type: 'post',
+        attributes: {
+          text: "I'm awesome",
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: 'https://example.com/api/post/2/comments',
+            },
+            data: [
+              {
+                id: '3',
+                type: 'comment',
+              },
+              {
+                id: '4',
+                type: 'comment',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+
+    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // expectedResult is unexpectedly mutated during store.findRecord
+    // if IDENTIFIERS is turned on
+    let expectedResultCopy = deepCopy(expectedResult);
+
+    class TestFindManyAdapter extends EmberObject {
+      coalesceFindRequests = true;
+
+      findRecord() {
+        findRecordCalled++;
+      }
+
+      groupRecordsForFindMany(store, snapshots) {
+        return [snapshots];
+      }
+
+      findMany(passedStore, type, ids, snapshots) {
+        findManyCalled++;
+
+        assert.equal(passedStore, store, 'instance of store is passed to findMany');
+        assert.equal(type, Comment, 'model is passed to findMany');
+
+        let expectedIds = expectedResultCopy.data.map(record => record.id);
+        assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
+
+        snapshots.forEach((snapshot, index) => {
+          assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findMany with correct modelName');
+          assert.equal(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
+        });
+
+        return resolve(expectedResultCopy);
+      }
+    }
+
+    owner.register('adapter:application', TestFindManyAdapter);
+
+    let post = store.push(initialRecord);
+    let comments = await post.get('comments');
+    let serializedComments = {
+      data: comments.toArray().map(comment => comment.serialize().data),
+    };
+
+    assert.equal(findRecordCalled, 0, 'findRecord is not called');
+    assert.equal(findManyCalled, 1, 'findMany is called once');
+    assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
+  });
+
+  test('if a hasMany relationship has link and data (coalescing is off, findHasMany is not defined)', async function(assert) {
+    let findRecordCalled = 0;
+    let findManyCalled = 0;
+
+    let initialRecord = {
+      data: {
+        id: '2',
+        type: 'post',
+        attributes: {
+          text: "I'm awesome",
+        },
+        relationships: {
+          comments: {
+            data: [
+              {
+                id: '3',
+                type: 'comment',
+              },
+              {
+                id: '4',
+                type: 'comment',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+
+    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // expectedResult is unexpectedly mutated during store.findRecord
+    // if IDENTIFIERS is turned on
+    let expectedResultCopy = deepCopy(expectedResult);
+
+    class TestFindRecordAdapter extends EmberObject {
+      coalesceFindRequests = false;
+
+      findRecord(passedStore, type, id, snapshot) {
+        let index = findRecordCalled++;
+        let expectedId = initialRecord.data.relationships.comments.data[index].id;
+
+        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
+        assert.equal(type, Comment, 'model is passed to findRecord');
+        assert.equal(id, expectedId, 'id is passed to findRecord');
+
+        assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
+        assert.equal(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
+
+        return resolve({ data: expectedResultCopy.data[index] });
+      }
+
+      findMany() {
+        findManyCalled++;
+      }
+    }
+
+    owner.register('adapter:application', TestFindRecordAdapter);
+
+    let post = store.push(initialRecord);
+    let comments = await post.get('comments');
+    let serializedComments = {
+      data: comments.toArray().map(comment => comment.serialize().data),
+    };
+
+    assert.equal(findRecordCalled, 2, 'findRecord is called twice');
+    assert.equal(findManyCalled, 0, 'findMany is not called');
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 });
