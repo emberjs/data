@@ -88,6 +88,7 @@ module.exports = {
     '(private) @ember-data/store Store#recordWasInvalid',
     '(private) @ember-data/store Store#scheduleSave',
     '(private) @ember-data/store Store#setRecordId',
+    '(protected) @ember-data/store Store#_modelForMixin',
     '(protected) Ember.Inflector#inflect',
     '(public) @ember-data @ember-data#VERSION',
     '(public) @ember-data/adapter Adapter#coalesceFindRequests',
