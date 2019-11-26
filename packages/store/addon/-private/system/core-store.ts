@@ -1626,6 +1626,7 @@ abstract class CoreStore extends Service {
     if (!resource) {
       return resolve([]);
     }
+    let adapter = this.adapterFor(relationshipMeta.type);
 
     let {
       relationshipIsStale,
@@ -1639,6 +1640,7 @@ abstract class CoreStore extends Service {
     let shouldFindViaLink =
       resource.links &&
       resource.links.related &&
+      (typeof adapter.findHasMany === 'function' || typeof resource.data === 'undefined') &&
       (shouldForceReload ||
         hasDematerializedInverse ||
         relationshipIsStale ||
