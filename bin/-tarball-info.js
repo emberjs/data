@@ -166,8 +166,11 @@ function generatePackageReference(version, tarballName) {
 }
 
 function insertTarballsToPackageJson(fileLocation, options = {}) {
+  // in some flows we have the potential to have previously written
+  //  to the package.json already prior to calling this method.
+  //  this ensures we get the latest and not a stale module
   const location = require.resolve(fileLocation);
-  delete require[location];
+  delete require.cache[location];
   const pkgInfo = require(location);
   if (options.isRelativeTarball) {
     pkgInfo.version = `${pkgInfo.version}-sha.${CurrentSha}`;
