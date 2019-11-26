@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "pre-commit": [
+    "lint:js",
     "lint:js:changed"
   ],
   "scripts": {
@@ -13,7 +14,7 @@
     "build": "yarn workspace ember-data build",
     "build:production": "yarn workspace ember-data build:production",
     "lint:features": "./bin/lint-features",
-    "lint:js": "eslint --cache --ext=js,ts .",
+    "lint:js": "eslint --cache --ext=js,ts . --fix",
     "lint:js:changed": "./bin/lint-changed-js",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "start": "yarn workspace ember-data start",
