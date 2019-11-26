@@ -166,7 +166,9 @@ function generatePackageReference(version, tarballName) {
 }
 
 function insertTarballsToPackageJson(fileLocation, options = {}) {
-  const pkgInfo = require(fileLocation);
+  const location = require.resolve(fileLocation);
+  delete require[location];
+  const pkgInfo = require(location);
   if (options.isRelativeTarball) {
     pkgInfo.version = `${pkgInfo.version}-sha.${CurrentSha}`;
   }
@@ -182,11 +184,11 @@ function insertTarballsToPackageJson(fileLocation, options = {}) {
 
     if (!options.isRelativeTarball) {
       const resolutions = (pkgInfo.resolutions = pkgInfo.resolutions || {});
-      resolutions[packageName] = pkg.tarballLocation;
+      resolutions[packageName] = pkg.reference;
     }
   });
 
-  fs.writeFileSync(fileLocation, JSON.stringify(pkgInfo, null, 2));
+  fs.writeFileSync(location, JSON.stringify(pkgInfo, null, 2));
 }
 
 module.exports = {
