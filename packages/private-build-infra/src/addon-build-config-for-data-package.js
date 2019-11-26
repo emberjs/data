@@ -60,6 +60,7 @@ function addonBuildConfigForDataPackage(PackageName) {
           return;
         } else {
           // make warning actionable
+          // eslint-disable-next-line no-console
           console.log(
             chalk.yellow(
               `\n\n⚠️  Add ${chalk.white(
