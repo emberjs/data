@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
 import { attr } from '@ember-data/model';
 import Ember from 'ember';
-import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
+import { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 import { RECORD_DATA_STATE } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 

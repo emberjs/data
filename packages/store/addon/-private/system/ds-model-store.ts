@@ -17,7 +17,7 @@ import NotificationManager from './record-notification-manager';
 import { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
+import { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
 import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import notifyChanges from './model/notify-changes';

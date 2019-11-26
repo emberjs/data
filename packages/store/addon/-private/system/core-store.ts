@@ -78,8 +78,8 @@ import NotificationManager from './record-notification-manager';
 import { AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import ShimModelClass, { getShimClass } from './model/shim-model-class';
-import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
-import RecordData from '../ts-interfaces/record-data';
+import { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
+import { RecordData } from '../ts-interfaces/record-data';
 import { Dict } from '../ts-interfaces/utils';
 
 import constructResource from '../utils/construct-resource';

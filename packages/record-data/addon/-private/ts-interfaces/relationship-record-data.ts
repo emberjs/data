@@ -1,6 +1,6 @@
 import Relationships from '../relationships/state/create';
 import Relationship from '../relationships/state/relationship';
-import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
+import { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 import {
   SingleResourceRelationship,
   CollectionResourceRelationship,

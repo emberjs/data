@@ -14,6 +14,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember-data/store/-private',
       '@ember-data/store',
       '@ember-data/model',
+      '@ember-data/model/-private',
     ];
   },
   treeForAddon(tree) {

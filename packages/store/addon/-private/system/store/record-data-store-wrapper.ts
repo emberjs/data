@@ -2,7 +2,7 @@ import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-inte
 import { AttributesSchema, RelationshipsSchema } from '../../ts-interfaces/record-data-schemas';
 import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import { upgradeForInternal } from '../ts-upgrade-map';
-import RecordData from '../../ts-interfaces/record-data';
+import { RecordData } from '../../ts-interfaces/record-data';
 import { internalModelFactoryFor } from './internal-model-factory';
 import { IDENTIFIERS, CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { identifierCacheFor, IdentifierCache } from '../../identifiers/cache';

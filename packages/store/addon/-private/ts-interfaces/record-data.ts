@@ -11,7 +11,7 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
-export default interface RecordData {
+export interface RecordData {
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;

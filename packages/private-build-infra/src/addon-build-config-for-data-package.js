@@ -45,10 +45,35 @@ function addonBuildConfigForDataPackage(PackageName) {
       }
     },
 
-    _suppressCircularDependencyWarnings(message, next) {
-      if (message.code !== 'CIRCULAR_DEPENDENCY') {
-        next(message);
+    _suppressUneededRollupWarnings(message, next) {
+      if (message.code === 'CIRCULAR_DEPENDENCY') {
+        return;
+      } else if (message.code === 'NON_EXISTENT_EXPORT') {
+        // ignore ts-interface imports
+        if (message.message.indexOf(`/ts-interfaces/`) !== -1) {
+          return;
+        }
+      } else if (message.code === 'UNRESOLVED_IMPORT') {
+        if (!this.isDevelopingAddon()) {
+          // don't print these for consumers
+          return;
+        } else {
+          const chalk = require('chalk');
+          // make warning actionable
+          // eslint-disable-next-line no-console
+          console.log(
+            chalk.yellow(
+              `\n\n⚠️  Add ${chalk.white(
+                message.source
+              )} to the array returned by externalDependenciesForPrivateModule in index.js of ${chalk.white(
+                this.name
+              )}\n\n`
+            )
+          );
+          throw message.message;
+        }
       }
+      next(message);
     },
 
     getOutputDirForVersion() {
@@ -116,7 +141,7 @@ function addonBuildConfigForDataPackage(PackageName) {
         packageName: PackageName,
         babelCompiler: babel,
         babelOptions: this.options.babel,
-        onWarn: this._suppressCircularDependencyWarnings,
+        onWarn: this._suppressUneededRollupWarnings.bind(this),
         externalDependencies: this.externalDependenciesForPrivateModule(),
         destDir: this.getOutputDirForVersion(),
       });
