@@ -166,7 +166,13 @@ function generatePackageReference(version, tarballName) {
 }
 
 function insertTarballsToPackageJson(fileLocation, options = {}) {
-  const pkgInfo = require(fileLocation);
+  // in some flows we have the potential to have previously written
+  //  to the package.json already prior to calling this method.
+  //  reading it in this way this ensures we get the latest and not
+  //  a stale module from require
+  const location = require.resolve(fileLocation);
+  const pkgInfo = JSON.parse(fs.readFileSync(location, 'utf8'));
+
   if (options.isRelativeTarball) {
     pkgInfo.version = `${pkgInfo.version}-sha.${CurrentSha}`;
   }
@@ -182,11 +188,11 @@ function insertTarballsToPackageJson(fileLocation, options = {}) {
 
     if (!options.isRelativeTarball) {
       const resolutions = (pkgInfo.resolutions = pkgInfo.resolutions || {});
-      resolutions[packageName] = pkg.tarballLocation;
+      resolutions[packageName] = pkg.reference;
     }
   });
 
-  fs.writeFileSync(fileLocation, JSON.stringify(pkgInfo, null, 2));
+  fs.writeFileSync(location, JSON.stringify(pkgInfo, null, 2));
 }
 
 module.exports = {
