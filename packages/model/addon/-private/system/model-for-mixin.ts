@@ -1,6 +1,6 @@
 import Model from '../model';
-import Store from '@ember-data/store';
 import { getOwner } from '@ember/application';
+type Store = import('@ember-data/store').default;
 
 /*
     In case someone defined a relationship to a mixin, for example:

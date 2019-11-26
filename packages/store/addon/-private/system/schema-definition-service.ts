@@ -10,9 +10,15 @@ import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 type Model = import('@ember-data/model').default;
 type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
 
-export let _modelForMixin: ModelForMixin;
+let _modelForMixin: ModelForMixin;
 if (HAS_MODEL_PACKAGE) {
-  _modelForMixin = require('@ember-data/model/-private')._modelForMixin;
+  let _found;
+  _modelForMixin = function() {
+    if (!_found) {
+      _found = require('@ember-data/model/-private')._modelForMixin;
+    }
+    return _found(...arguments);
+  };
 }
 
 export class DSModelSchemaDefinitionService {
