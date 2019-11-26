@@ -3,7 +3,6 @@ const Funnel = require('broccoli-funnel');
 const merge = require('broccoli-merge-trees');
 const BroccoliDebug = require('broccoli-debug');
 const rollupPrivateModule = require('./utilities/rollup-private-module');
-const chalk = require('chalk');
 
 function isProductionEnv() {
   let isProd = /production/.test(process.env.EMBER_ENV);
@@ -59,6 +58,7 @@ function addonBuildConfigForDataPackage(PackageName) {
           // don't print these for consumers
           return;
         } else {
+          const chalk = require('chalk');
           // make warning actionable
           // eslint-disable-next-line no-console
           console.log(
@@ -70,7 +70,7 @@ function addonBuildConfigForDataPackage(PackageName) {
               )}\n\n`
             )
           );
-          return;
+          throw message.message;
         }
       }
       next(message);
