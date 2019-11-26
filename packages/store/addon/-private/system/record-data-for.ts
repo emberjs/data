@@ -1,4 +1,4 @@
-import RecordData from '../ts-interfaces/record-data';
+import { RecordData } from '../ts-interfaces/record-data';
 /*
  * Returns the RecordData instance associated with a given
  * Model or InternalModel.

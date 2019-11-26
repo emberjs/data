@@ -9,7 +9,7 @@ import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import CoreStore from '@ember-data/store/-private/system/core-store';
 import { StableRecordIdentifier, RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
-import RecordDataRecordWrapper from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
+import { RecordDataRecordWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
 
 let CustomStore, store, schemaDefinition;
 if (CUSTOM_MODEL_CLASS) {

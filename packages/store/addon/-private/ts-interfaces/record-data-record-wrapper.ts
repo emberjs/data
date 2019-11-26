@@ -7,7 +7,7 @@ import { ChangedAttributesHash } from './record-data';
   @module @ember-data/store
 */
 
-export default interface RecordDataRecordWrapper {
+export interface RecordDataRecordWrapper {
   rollbackAttributes(): string[];
   changedAttributes(): ChangedAttributesHash;
   hasChangedAttributes(): boolean;

@@ -11,7 +11,7 @@ import coerceId from './coerce-id';
 import BelongsToRelationship from './relationships/state/belongs-to';
 import ManyRelationship from './relationships/state/has-many';
 import Relationship from './relationships/state/relationship';
-import RecordData, { ChangedAttributesHash } from '@ember-data/store/-private/ts-interfaces/record-data';
+import { RecordData, ChangedAttributesHash } from '@ember-data/store/-private/ts-interfaces/record-data';
 import {
   JsonApiResource,
   JsonApiValidationError,

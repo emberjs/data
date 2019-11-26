@@ -17,7 +17,7 @@ import { errorsHashToArray } from '../errors-utils';
 import RecordArray from '../record-arrays/record-array';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
-import RecordData from '../../ts-interfaces/record-data';
+import { RecordData } from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { RecordInstance } from '../../ts-interfaces/record-instance';
 import { ConfidentDict } from '../../ts-interfaces/utils';
