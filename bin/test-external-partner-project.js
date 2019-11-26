@@ -120,13 +120,16 @@ try {
 try {
   debug('Preparing Package To Run Tests Against Commit');
   insertTarballsToPackageJson(packageJsonLocation);
-  // lock files may bring in other versions of EmberData that otherwise
-  // would have resolved to our desired version
-  execExternal(`rm -rf node_modules package-lock.json yarn.lock`);
+
+  // clear node_modules installed for the smoke-test
+  execExternal(`rm -rf node_modules`);
   // we are forced to use yarn so that our resolutions will be respected
   // in addition to the version file link we insert otherwise nested deps
   // may bring their own ember-data
-  execExternal(`yarn install`);
+  //
+  // For this reason we don't trust the lock file
+  // we also can't trust the cache
+  execExternal(`yarn install --no-lockfile --cache-folder=tmp/yarn-cache`);
 } catch (e) {
   console.log(`Unable to npm install tarballs for ember-data\` for ${externalProjectName}. Original error below:`);
 
