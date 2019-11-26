@@ -5,17 +5,14 @@ import { getOwner } from '@ember/application';
 import normalizeModelName from './normalize-model-name';
 import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import require from 'require';
-import CoreStore from './core-store';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
 type Model = import('@ember-data/model').default;
+type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
 
-let _Model;
-function getModel() {
-  if (HAS_MODEL_PACKAGE) {
-    _Model = _Model || require('@ember-data/model').default;
-  }
-  return _Model;
+export let _modelForMixin: ModelForMixin;
+if (HAS_MODEL_PACKAGE) {
+  _modelForMixin = require('@ember-data/model/-private')._modelForMixin;
 }
 
 export class DSModelSchemaDefinitionService {
@@ -83,13 +80,13 @@ export class DSModelSchemaDefinitionService {
  * @param normalizedModelName already normalized modelName
  * @return {*}
  */
-export function getModelFactory(store: CoreStore, cache, normalizedModelName: string): Model | null {
+export function getModelFactory(store: Store, cache, normalizedModelName: string): Model | null {
   let factory = cache[normalizedModelName];
 
   if (!factory) {
     factory = _lookupModelFactory(store, normalizedModelName);
 
-    if (!factory) {
+    if (!factory && HAS_MODEL_PACKAGE) {
       //Support looking up mixins as base types for polymorphic relationships
       factory = _modelForMixin(store, normalizedModelName);
     }
@@ -114,44 +111,8 @@ export function getModelFactory(store: CoreStore, cache, normalizedModelName: st
   return factory;
 }
 
-export function _lookupModelFactory(store, normalizedModelName) {
+export function _lookupModelFactory(store: Store, normalizedModelName: string): Model | null {
   let owner = getOwner(store);
 
   return owner.factoryFor(`model:${normalizedModelName}`);
-}
-
-/*
-    In case someone defined a relationship to a mixin, for example:
-    ```
-      let Comment = Model.extend({
-        owner: belongsTo('commentable'. { polymorphic: true })
-      });
-      let Commentable = Ember.Mixin.create({
-        comments: hasMany('comment')
-      });
-    ```
-    we want to look up a Commentable class which has all the necessary
-    relationship metadata. Thus, we look up the mixin and create a mock
-    Model, so we can access the relationship CPs of the mixin (`comments`)
-    in this case
-  */
-export function _modelForMixin(store, normalizedModelName) {
-  if (HAS_MODEL_PACKAGE) {
-    let owner = getOwner(store);
-    let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-    let mixin = MaybeMixin && MaybeMixin.class;
-
-    if (mixin) {
-      let ModelForMixin = getModel().extend(mixin);
-      ModelForMixin.reopenClass({
-        __isMixin: true,
-        __mixin: mixin,
-      });
-
-      //Cache the class as a model
-      owner.register('model:' + normalizedModelName, ModelForMixin);
-    }
-
-    return _lookupModelFactory(store, normalizedModelName);
-  }
 }
