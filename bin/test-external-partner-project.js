@@ -128,8 +128,9 @@ try {
   // may bring their own ember-data
   execExternal(`yarn install`);
 } catch (e) {
-  debug(e);
-  throw new Error(`Unable to npm install tarballs for ember-data\` for ${externalProjectName}`);
+  console.log(`Unable to npm install tarballs for ember-data\` for ${externalProjectName}. Original error below:`);
+
+  throw e;
 }
 
 if (!skipTest) {
