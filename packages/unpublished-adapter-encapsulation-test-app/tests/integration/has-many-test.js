@@ -92,7 +92,7 @@ let expectedResult = {
       id: '3',
       type: 'comment',
       attributes: {
-        text: 'You suck',
+        text: 'You rock',
       },
       relationships: {
         post: {
@@ -107,7 +107,7 @@ let expectedResult = {
       id: '4',
       type: 'comment',
       attributes: {
-        text: 'You suck too',
+        text: 'You rock too',
       },
       relationships: {
         post: {

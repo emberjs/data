@@ -105,7 +105,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
         id: '3',
         type: 'comment',
         attributes: {
-          text: 'You suck',
+          text: 'You rock',
         },
         relationships: {
           post: {
@@ -185,7 +185,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
         id: '3',
         type: 'comment',
         attributes: {
-          text: 'You suck',
+          text: 'You rock',
         },
         relationships: {
           post: {
@@ -220,7 +220,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
         id: '3',
         type: 'comment',
         attributes: {
-          text: 'You suck',
+          text: 'You rock',
         },
         relationships: {
           post: {
@@ -299,7 +299,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
         id: '3',
         type: 'comment',
         attributes: {
-          text: 'You suck',
+          text: 'You rock',
         },
         relationships: {
           post: {
@@ -374,7 +374,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
         id: '3',
         type: 'comment',
         attributes: {
-          text: 'You suck',
+          text: 'You rock',
         },
         relationships: {
           post: {
@@ -458,7 +458,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
         id: '3',
         type: 'comment',
         attributes: {
-          text: 'You suck',
+          text: 'You rock',
         },
         relationships: {
           post: {
