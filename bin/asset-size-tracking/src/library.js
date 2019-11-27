@@ -8,11 +8,13 @@ const TablePads = {
 const BROTLI_OPTIONS = {
   params: {
     [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+    // brotli currently defaults to 11 but lets be explicit
+    [zlib.constants.BROTLI_PARAM_QUALITY]: zlib.constants.BROTLI_MAX_QUALITY,
   },
 };
 
 function getCompressedSize(code) {
-  return Buffer.byteLength(zlib.brotliCompressSync(code, BROTLI_OPTIONS));
+  return byteCount(zlib.brotliCompressSync(code, BROTLI_OPTIONS));
 }
 
 class Library {
@@ -29,6 +31,7 @@ class Library {
     if (!pkg) {
       pkg = this._packageMap[name] = new Package(name, this);
       this.packages.push(pkg);
+      this._compressedSize = null;
     }
 
     return pkg;
@@ -100,7 +103,11 @@ class Package {
     this.modules.push(mod);
     this._concatModule += code;
     this.library._concatModule += code;
+    this.library._compressedSize = null;
     return mod;
+  }
+  get ratio() {
+    return this.absoluteSize / this.library.absoluteSize;
   }
   get concatModule() {
     return this._concatModule;
@@ -109,10 +116,7 @@ class Package {
     return byteCount(this.concatModule);
   }
   get compressedSize() {
-    return (
-      Math.floor((this.concatModule.length / this.library.concatModule.length) * this.library.compressedSize * 100) /
-      100
-    );
+    return Math.floor(this.ratio * this.library.compressedSize * 100) / 100;
   }
   get percentOfLibrary() {
     return getRelativeSizeOf(this.library, this);
@@ -155,17 +159,14 @@ class Module {
     this.package = pkg;
     this.code = code;
   }
-  get size() {
-    return this.code.length;
+  get ratio() {
+    return this.absoluteSize / this.package.absoluteSize;
   }
   get absoluteSize() {
     return byteCount(this.code);
   }
   get compressedSize() {
-    return (
-      Math.floor((this.size / this.package.library.concatModule.length) * this.package.library.compressedSize * 100) /
-      100
-    );
+    return Math.floor(this.ratio * this.package.compressedSize * 100) / 100;
   }
   get bytes() {
     return formatBytes(this.absoluteSize);
@@ -231,7 +232,7 @@ function formatBytes(b) {
 }
 
 function byteCount(s) {
-  return encodeURI(s).split(/%..|./).length - 1;
+  return Buffer.byteLength(s, 'utf8');
 }
 
 module.exports = Library;
