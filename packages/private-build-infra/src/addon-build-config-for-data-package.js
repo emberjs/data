@@ -162,6 +162,23 @@ function addonBuildConfigForDataPackage(PackageName) {
 
       return this.debugTree(merge([publicTree, privateTree]), 'final');
     },
+
+    _emberDataConfig: null,
+    getEmberDataConfig() {
+      if (this._emberDataConfig) {
+        return this._emberDataConfig;
+      }
+      const app = this._findHost();
+      const parentIsEmberDataAddon = this.parent.pkg.name === 'ember-data';
+
+      let options = (app.options = app.options || {});
+      options.emberData = options.emberData || {};
+
+      if (options.emberData.includeDataAdapterInProduction === undefined) {
+        options.emberData.includeDataAdapterInProduction = parentIsEmberDataAddon;
+      }
+      return options.emberData;
+    },
   };
 }
 
