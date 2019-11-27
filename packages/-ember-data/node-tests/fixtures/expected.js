@@ -8,7 +8,7 @@ module.exports = {
     '@ember-data/deprecations',
     '@ember-data/record-data',
     '@ember-data/serializer',
-    '@ember-data',
+    '@ember-data'
   ],
   classitems: [
     '(private) @ember-data/adapter BuildURLMixin#_buildURL',
@@ -131,6 +131,7 @@ module.exports = {
     '(public) @ember-data/adapter BuildURLMixin#urlForQueryRecord',
     '(public) @ember-data/adapter BuildURLMixin#urlForUpdateRecord',
     '(public) @ember-data/adapter JSONAPIAdapter#coalesceFindRequests',
+    '(public) @ember-data/adapter JSONAPIAdapter#findMany',
     '(public) @ember-data/adapter MinimumAdapterInterface#coalesceFindRequests [OPTIONAL]',
     '(public) @ember-data/adapter MinimumAdapterInterface#createRecord',
     '(public) @ember-data/adapter MinimumAdapterInterface#deleteRecord',
@@ -386,6 +387,6 @@ module.exports = {
     '(public) Ember.Inflector#singularize',
     '(public) Ember.Inflector#uncountable',
     '(public) String#pluralize',
-    '(public) String#singularize',
-  ],
+    '(public) String#singularize'
+  ]
 };

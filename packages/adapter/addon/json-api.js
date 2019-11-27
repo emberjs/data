@@ -1,5 +1,5 @@
 /**
-  @module @ember-data/adapter
+@module @ember-data/adapter
 */
 import { dasherize } from '@ember/string';
 
@@ -21,74 +21,74 @@ import RESTAdapter from './rest';
   actions you can take on a record map onto the following URLs in the
   JSON API adapter:
 
-<table>
-  <tr>
-    <th>
-      Action
-    </th>
-    <th>
-      HTTP Verb
-    </th>
-    <th>
-      URL
-    </th>
-  </tr>
-  <tr>
-    <th>
-      `store.findRecord('post', 123)`
-    </th>
-    <td>
-      GET
-    </td>
-    <td>
-      /posts/123
-    </td>
-  </tr>
-  <tr>
-    <th>
-      `store.findAll('post')`
-    </th>
-    <td>
-      GET
-    </td>
-    <td>
-      /posts
-    </td>
-  </tr>
-  <tr>
-    <th>
-      Update `postRecord.save()`
-    </th>
-    <td>
-      PATCH
-    </td>
-    <td>
-      /posts/123
-    </td>
-  </tr>
-  <tr>
-    <th>
-      Create `store.createRecord('post').save()`
-    </th>
-    <td>
-      POST
-    </td>
-    <td>
-      /posts
-    </td>
-  </tr>
-  <tr>
-    <th>
-      Delete `postRecord.destroyRecord()`
-    </th>
-    <td>
-      DELETE
-    </td>
-    <td>
-      /posts/123
-    </td>
-  </tr>
-</table>
+  <table>
+    <tr>
+      <th>
+        Action
+      </th>
+      <th>
+        HTTP Verb
+      </th>
+      <th>
+        URL
+      </th>
+    </tr>
+    <tr>
+      <th>
+        `store.findRecord('post', 123)`
+      </th>
+      <td>
+        GET
+      </td>
+      <td>
+        /posts/123
+      </td>
+    </tr>
+    <tr>
+      <th>
+        `store.findAll('post')`
+      </th>
+      <td>
+        GET
+      </td>
+      <td>
+        /posts
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Update `postRecord.save()`
+      </th>
+      <td>
+        PATCH
+      </td>
+      <td>
+        /posts/123
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Create `store.createRecord('post').save()`
+      </th>
+      <td>
+        POST
+      </td>
+      <td>
+        /posts
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Delete `postRecord.destroyRecord()`
+      </th>
+      <td>
+        DELETE
+      </td>
+      <td>
+        /posts/123
+      </td>
+    </tr>
+  </table>
 
   ## Success and failure
 
@@ -142,19 +142,19 @@ import RESTAdapter from './rest';
   @class JSONAPIAdapter
   @constructor
   @extends RESTAdapter
-*/
+  */
 const JSONAPIAdapter = RESTAdapter.extend({
   defaultSerializer: '-json-api',
 
   _defaultContentType: 'application/vnd.api+json',
 
   /**
-    @method ajaxOptions
-    @private
-    @param {String} url
-    @param {String} type The request type GET, POST, PUT, DELETE etc.
-    @param {Object} options
-    @return {Object}
+  @method ajaxOptions
+  @private
+  @param {String} url
+  @param {String} type The request type GET, POST, PUT, DELETE etc.
+  @param {Object} options
+  @return {Object}
   */
   ajaxOptions(url, type, options = {}) {
     let hash = this._super(url, type, options);
@@ -165,31 +165,31 @@ const JSONAPIAdapter = RESTAdapter.extend({
   },
 
   /**
-    By default the JSONAPIAdapter will send each find request coming from a `store.find`
-    or from accessing a relationship separately to the server. If your server supports passing
-    ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
-    within a single runloop.
+  By default the JSONAPIAdapter will send each find request coming from a `store.find`
+  or from accessing a relationship separately to the server. If your server supports passing
+  ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
+  within a single runloop.
 
-    For example, if you have an initial payload of:
+  For example, if you have an initial payload of:
 
-    ```javascript
-    {
-      data: {
-        id: 1,
-        type: 'post',
-        relationship: {
-          comments: {
-            data: [
-              { id: 1, type: 'comment' },
-              { id: 2, type: 'comment' }
-            ]
-          }
+  ```javascript
+  {
+    data: {
+      id: 1,
+      type: 'post',
+      relationship: {
+        comments: {
+          data: [
+            { id: 1, type: 'comment' },
+            { id: 2, type: 'comment' }
+          ]
         }
       }
     }
-    ```
+  }
+  ```
 
-    By default calling `post.get('comments')` will trigger the following requests(assuming the
+  By default calling `post.get('comments')` will trigger the following requests(assuming the
     comments haven't been loaded before):
 
     ```
@@ -218,9 +218,35 @@ const JSONAPIAdapter = RESTAdapter.extend({
 
     @property coalesceFindRequests
     @type {boolean}
-  */
+    */
   coalesceFindRequests: false,
 
+  /**
+    Called by the store in order to fetch several records together if `coalesceFindRequests` is true
+    For example, if the original payload looks like:
+    ```js
+    {
+      "id": 1,
+      "title": "Rails is omakase",
+      "comments": [ 1, 2, 3 ]
+    }
+    ```
+    The IDs will be passed in this form:
+    ```
+    filter[id]=1,2,3
+    ```
+    If you want to encode the IDs differently, just override this (one-line) method.
+    The `findMany` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
+    @method findMany
+    @public
+    @param {Store} store
+    @param {Model} type
+    @param {Array} ids
+    @param {Array} snapshots
+    @return {Promise} promise
+    */
   findMany(store, type, ids, snapshots) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
