@@ -1,14 +1,17 @@
 'use strict';
 
+const name = require('./package').name;
 const version = require('@ember-data/private-build-infra/src/create-version-module');
+const addonBuildConfigForDataPackage = require('@ember-data/private-build-infra/src/addon-build-config-for-data-package');
+const addonBaseConfig = addonBuildConfigForDataPackage(name);
 
-module.exports = {
-  name: require('./package').name,
-
+module.exports = Object.assign({}, addonBaseConfig, {
   treeForAddon() {
     if (process.env.EMBER_CLI_TEST_COMMAND) {
-      let tree = version();
-      return this._super.treeForAddon.call(this, tree);
+      const options = this.getEmberDataConfig();
+      let compatVersion = options.compatWith;
+      let tree = version(compatVersion);
+      return this.debugTree(this._super.treeForAddon.call(this, tree), 'addon-output');
     }
   },
-};
+});

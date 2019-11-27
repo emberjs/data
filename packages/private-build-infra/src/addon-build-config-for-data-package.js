@@ -89,7 +89,9 @@ function addonBuildConfigForDataPackage(PackageName) {
     buildBabelOptions() {
       let babelOptions = this.options.babel || {};
       let existingPlugins = babelOptions.plugins || [];
-      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost());
+      let compatVersion = this.getAppOptions().compatWith || null;
+
+      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost(), compatVersion);
       let plugins = existingPlugins.map(plugin => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
@@ -101,6 +103,24 @@ function addonBuildConfigForDataPackage(PackageName) {
         postTransformPlugins: customPlugins.postTransformPlugins,
         exclude: ['transform-block-scoping', 'transform-typeof-symbol'],
       };
+    },
+
+    _appOptions: null,
+    getAppOptions() {
+      if (this._appOptions !== null) {
+        return this._appOptions.emberData;
+      }
+      const app = this._findHost();
+      const parentIsEmberDataAddon = this.parent.pkg.name === 'ember-data';
+
+      let options = (app.options = app.options || {});
+      options.emberData = options.emberData || {};
+
+      if (options.emberData.includeDataAdapterInProduction === undefined) {
+        options.emberData.includeDataAdapterInProduction = parentIsEmberDataAddon;
+      }
+      this._appOptions = options;
+      return options.emberData;
     },
 
     _setupBabelOptions() {

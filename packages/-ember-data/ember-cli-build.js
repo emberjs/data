@@ -3,13 +3,16 @@
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 module.exports = function(defaults) {
+  const isProd = process.env.EMBER_ENV === 'production';
+  const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
   let app = new EmberAddon(defaults, {
+    emberData: {
+      compatWith,
+    },
     babel: {
       // this ensures that the same `@ember-data/canary-features` processing that the various
-      // ember-data addons do is done in the dummy app
-      plugins: [
-        ...require('@ember-data/private-build-infra/src/debug-macros')(null, process.env.EMBER_ENV === 'production'),
-      ],
+      // ember-data addons do is done in the dummy app and tests
+      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, compatWith)],
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
