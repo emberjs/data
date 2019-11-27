@@ -23,12 +23,23 @@ const builtAsset = getBuiltDist(NEW_VENDOR_FILE);
 const new_library = parseModules(builtAsset);
 
 function getDiff(oldLibrary, newLibrary) {
+  const compressionDelta = newLibrary.compressedSize - oldLibrary.compressedSize;
+
+  function getCompressionDelta(item) {
+    const itemDelta = item.newSize - item.currentSize;
+    const libDelta = newLibrary.absoluteSize - oldLibrary.absoluteSize;
+    const itemDeltaRelativeSize = itemDelta / libDelta;
+    const relativeDelta = itemDeltaRelativeSize * compressionDelta;
+    return relativeDelta;
+  }
+
   const diff = {
     name: oldLibrary.name,
     currentSize: oldLibrary.absoluteSize,
     newSize: newLibrary.absoluteSize,
     currentSizeCompressed: oldLibrary.compressedSize,
     newSizeCompressed: newLibrary.compressedSize,
+    compressionDelta,
     packages: {},
   };
   oldLibrary.packages.forEach(pkg => {
@@ -77,7 +88,11 @@ function getDiff(oldLibrary, newLibrary) {
   });
   diff.packages = Object.values(diff.packages);
   diff.packages.forEach(pkg => {
+    pkg.compressionDelta = getCompressionDelta(pkg);
     pkg.modules = Object.values(pkg.modules);
+    pkg.modules.forEach(m => {
+      m.compressionDelta = getCompressionDelta(m);
+    });
   });
 
   return diff;
@@ -142,7 +157,7 @@ function formatSize(item, isCompressed = false) {
 }
 
 function formatDelta(item, isCompressed = false) {
-  let delta = isCompressed ? item.newSizeCompressed - item.currentSizeCompressed : item.newSize - item.currentSize;
+  let delta = isCompressed ? item.compressionDelta : item.newSize - item.currentSize;
 
   if (delta === 0) {
     return chalk.black('±0 B');
