@@ -83,7 +83,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          COMMENT_MARKER="Asset Size Report for "=
+          COMMENT_MARKER="Asset Size Report for "
           sha=$(cat tmp/sha-for-commit.txt)
           node ./bin/asset-size-tracking/src/create-comment-text.js $sha > tmp/asset-sizes/comment.txt
           COMMENT_TEXT="@./tmp/asset-sizes/comment.txt"

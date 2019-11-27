@@ -33,9 +33,10 @@ API_VERSION=v3
 API_HEADER="Accept: application/vnd.github.${API_VERSION}+json; application/vnd.github.antiope-preview+json"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 
-delete_comment_if_exists() {
+update_comment_if_exists() {
   # Get all the comments for the pull request.
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments")
+  FOUND_EXISTING=1
 
   for row in $(echo -E "${body}" | jq --raw-output  '.[] | @base64'); do
     comment=$(echo -E "${row}" | base64 --decode | jq --raw-output '{id: .id, body: .body, author: .user.login}')
@@ -46,15 +47,19 @@ delete_comment_if_exists() {
       # We have found our comment.
       # Delete it.
 
-      echo "Deleting old comment ID: $id"
-      DELETE_URL="${URI}/repos/${GITHUB_REPOSITORY}/issues/comments/${id}"
-      echo $DELETE_URL;
-      curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" -X DELETE $DELETE_URL
+      echo "Updating existing comment ID: $id"
+      UPDATE_URL="${URI}/repos/${GITHUB_REPOSITORY}/issues/comments/${id}"
+      echo $UPDATE_URL;
+      curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" -d "$COMMENT_TEXT" -H "Content-Type: application/json" -X PATCH $UPDATE_URL
+      FOUND_EXISTING=0
     fi
   done
+
+  return $FOUND_EXISTING;
 }
 
 post_comment() {
+  echo "Posting new comment"
   curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" -d "$COMMENT_TEXT" -H "Content-Type: application/json" -X POST "${URI}/repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments"
 }
 
@@ -66,8 +71,10 @@ main() {
   NUMBER=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
   echo "running $GITHUB_ACTION for PR #${NUMBER}"
 
-  delete_comment_if_exists;
-  post_comment;
+  update_comment_if_exists
+  if [ $? -eq 1 ]; then
+    post_comment;
+  fi
 }
 
 main

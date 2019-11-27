@@ -48,14 +48,17 @@ jobs:
         run: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
       - name: Generate TracerBench Results
         run: |
+          set -o pipefail
           mkdir -p tmp/relationship-performance
           export USE_EXISTING_DISTS=true
-          ./bin/relationship-performance-tracking/generate-analysis.sh | tee tmp/relationship-performance/comment.txt
+          ./bin/relationship-performance-tracking/generate-analysis.sh | tee tmp/relationship-performance/commit-analysis.txt
       - name: Report TracerBench Results
         if: failure() || success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          COMMENT_MARKER="TracerBench Report"
+          COMMENT_MARKER="Performance Report for "
+          sha=$(cat tmp/sha-for-commit.txt)
+          node ./bin/relationship-performance-tracking/src/create-comment-text.js $sha > tmp/relationship-performance/comment.txt
           COMMENT_TEXT="@./tmp/relationship-performance/comment.txt"
           source bin/asset-size-tracking/src/post-comment.sh
