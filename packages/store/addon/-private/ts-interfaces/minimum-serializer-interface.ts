@@ -33,7 +33,7 @@
 
     serialize(snapshot, options) {
       const serializedResource = {
-        id: snapshot.id(),
+        id: snapshot.id,
         type: snapshot.modelName,
         attributes: snapshot.attributes()
       };
