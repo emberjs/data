@@ -6,7 +6,9 @@ module.exports = {
   name: require('./package').name,
 
   treeForAddon() {
-    let tree = version();
-    return this._super.treeForAddon.call(this, tree);
+    if (process.env.EMBER_CLI_TEST_COMMAND) {
+      let tree = version();
+      return this._super.treeForAddon.call(this, tree);
+    }
   },
 };
