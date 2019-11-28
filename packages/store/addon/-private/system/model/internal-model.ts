@@ -10,11 +10,10 @@ import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
 import RootState from './states';
 import Snapshot from '../snapshot';
-import ManyArray from '../many-array';
-import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
 import RecordArray from '../record-arrays/record-array';
+import { PromiseArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { RecordData } from '../../ts-interfaces/record-data';
@@ -35,11 +34,21 @@ import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-
 import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
 import recordDataFor from '../record-data-for';
+import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 type RecordArray = InstanceType<typeof RecordArray>;
 type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
 type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
+
+// move to TS hacks module that we can delete when this is no longer a necessary recast
+type ManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
+type PromiseBelongsTo = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
+type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
+
+/**
+  @module @ember-data/store
+*/
 
 // once the presentation logic is moved into the Model package we can make
 // eliminate these lossy and redundant helpers
@@ -55,14 +64,27 @@ function relationshipStateFor(instance: InternalModel, propertyName: string) {
 
 const { hasOwnProperty } = Object.prototype;
 
-/**
-  @module @ember-data/store
-*/
+let ManyArray: ManyArray;
+let PromiseBelongsTo: PromiseBelongsTo;
+let PromiseManyArray: PromiseManyArray;
 
-// move to TS hacks module that we can delete when this is no longer a necessary recast
-type ManyArray = InstanceType<typeof ManyArray>;
-type PromiseBelongsTo = InstanceType<typeof PromiseBelongsTo>;
-type PromiseManyArray = InstanceType<typeof PromiseManyArray>;
+let _found = false;
+let _getModelPackage: () => boolean;
+if (HAS_MODEL_PACKAGE) {
+  _getModelPackage = function() {
+    if (!_found) {
+      let modelPackage = require('@ember-data/model/-private');
+      ({ ManyArray, PromiseBelongsTo, PromiseManyArray } = modelPackage);
+      if (ManyArray && PromiseBelongsTo && PromiseManyArray) {
+        _found = true;
+
+        // Some tests require PromiseManyArray instanceof PromiseArray to be true
+        Object.setPrototypeOf(PromiseManyArray, PromiseArray);
+      }
+    }
+    return _found;
+  };
+}
 
 // TODO this should be integrated with the code removal so we can use it together with the if condition
 // and not alongside it
@@ -149,6 +171,7 @@ export default class InternalModel {
   error: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
+    _getModelPackage();
     this._id = identifier.id;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;

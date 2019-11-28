@@ -9,9 +9,7 @@ export { Snapshot } from '@ember-data/store/-private';
 export {
   AdapterPopulatedRecordArray,
   InternalModel,
-  ManyArray,
   PromiseArray,
-  PromiseManyArray,
   PromiseObject,
   RecordArray,
   RecordArrayManager,
@@ -20,4 +18,5 @@ export {
   normalizeModelName,
   coerceId,
 } from '@ember-data/store/-private';
+export { ManyArray, PromiseManyArray } from '@ember-data/model/-private';
 export { RecordData, Relationship } from '@ember-data/record-data/-private';

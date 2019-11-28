@@ -4,15 +4,11 @@
 import { all } from 'rsvp';
 
 //import Evented from '@ember/object/evented';
-import DeprecatedEvent from './deprecated-evented';
 import MutableArray from '@ember/array/mutable';
 import EmberArray from '@ember/array';
 import EmberObject, { get } from '@ember/object';
 import { assert } from '@ember/debug';
-import { PromiseArray } from './promise-proxies';
-import { _objectIsAlive } from './store/common';
-import diffArray from './diff-array';
-import recordDataFor from './record-data-for';
+import { DeprecatedEvented, PromiseArray, diffArray, _objectIsAlive, recordDataFor } from '@ember-data/store/-private';
 import { CUSTOM_MODEL_CLASS, FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
 
 /**
@@ -55,9 +51,9 @@ import { CUSTOM_MODEL_CLASS, FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/can
 
   @class ManyArray
   @extends EmberObject
-  @uses Ember.MutableArray, EmberData.DeprecatedEvent
+  @uses Ember.MutableArray, DeprecatedEvented
 */
-export default EmberObject.extend(MutableArray, DeprecatedEvent, {
+export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   // here to make TS happy
   _inverseIsAsync: false,
   isLoaded: false,
