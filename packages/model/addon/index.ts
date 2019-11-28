@@ -39,4 +39,4 @@
   @public
  */
 
-export { Model as default, attr, belongsTo, hasMany, ManyArray, PromiseManyArray } from './-private';
+export { Model as default, attr, belongsTo, hasMany } from './-private';

@@ -43,8 +43,8 @@ type Relationships = import('@ember-data/record-data/-private/relationships/stat
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
-type PromiseBelongsTo = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
-type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
+type PromiseBelongsTo = InstanceType<typeof import('@ember-data/model/-private').PromiseBelongsTo>;
+type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private').PromiseManyArray>;
 
 /**
   @module @ember-data/store
@@ -171,7 +171,9 @@ export default class InternalModel {
   error: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
-    _getModelPackage();
+    if (HAS_MODEL_PACKAGE) {
+      _getModelPackage();
+    }
     this._id = identifier.id;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;

@@ -24,6 +24,7 @@ import { PromiseArray, proxyToContent } from '@ember-data/store/-private';
 
   @class PromiseManyArray
   @extends Ember.ArrayProxy
+  @private
 */
 const PromiseManyArray = PromiseArray.extend({
   links: FULL_LINKS_ON_RELATIONSHIPS ? reads('content.links') : undefined,
