@@ -8,6 +8,7 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 let store, Person, PhoneNumber, Post;
 const { attr, hasMany, belongsTo } = DS;
@@ -147,40 +148,44 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     });
   });
 
-  test(`Calling push triggers 'didLoad' even if the record hasn't been requested from the adapter`, async function(assert) {
-    assert.expect(2);
-
-    let didLoad = new EmberPromise((resolve, reject) => {
-      Person.reopen({
-        didLoad() {
-          try {
-            assert.ok(true, 'The didLoad callback was called');
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
-        },
-      });
-    });
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-        },
-      });
-    });
-
-    await didLoad;
-    assert.expectDeprecation({
+  deprecatedTest(
+    `Calling push triggers 'didLoad' even if the record hasn't been requested from the adapter`,
+    {
       id: 'ember-data:record-lifecycle-event-methods',
-    });
-  });
+      until: '4.0',
+    },
+    async function(assert) {
+      assert.expect(1);
+
+      let didLoad = new EmberPromise((resolve, reject) => {
+        Person.reopen({
+          didLoad() {
+            try {
+              assert.ok(true, 'The didLoad callback was called');
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
+          },
+        });
+      });
+
+      run(() => {
+        store.push({
+          data: {
+            type: 'person',
+            id: 'wat',
+            attributes: {
+              firstName: 'Yehuda',
+              lastName: 'Katz',
+            },
+          },
+        });
+      });
+
+      await didLoad;
+    }
+  );
 
   test('Calling push with partial records updates just those attributes', function(assert) {
     assert.expect(2);

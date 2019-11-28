@@ -17,7 +17,7 @@ function getDeprecations(compatVersion, isProd) {
 
     // if we are told we are compatible with a version
     // we check if we can strip this flag
-    if (!!compatVersion) {
+    if (compatVersion) {
       // in DEBUG we never strip
       if (isProd) {
         const isResolved = deprecationIsResolved(deprecatedSince, compatVersion);

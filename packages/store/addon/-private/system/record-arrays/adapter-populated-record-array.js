@@ -4,6 +4,7 @@ import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import RecordArray from './record-array';
 import { DEBUG } from '@glimmer/env';
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 /**
   @module @ember-data/store
@@ -93,10 +94,12 @@ export default RecordArray.extend({
 
     this.manager._associateWithRecordArray(internalModels, this);
 
-    const _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
-    if (_hasDidLoad) {
-      // TODO: should triggering didLoad event be the last action of the runLoop?
-      once(this, 'trigger', 'didLoad');
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      const _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
+      if (_hasDidLoad) {
+        // TODO: should triggering didLoad event be the last action of the runLoop?
+        once(this, 'trigger', 'didLoad');
+      }
     }
   },
 });

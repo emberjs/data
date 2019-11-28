@@ -1,3 +1,4 @@
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 import Evented from '@ember/object/evented';
 import Mixin from '@ember/object/mixin';
 import { deprecate } from '@ember/debug';
@@ -77,4 +78,4 @@ if (DEBUG) {
   });
 }
 
-export default DEBUG ? DeprecatedEvented : Evented;
+export default DEPRECATE_EVENTED_API_USAGE ? (DEBUG ? DeprecatedEvented : Evented) : {};
