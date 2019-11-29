@@ -81,7 +81,7 @@ module('integration/generate-id - GenerateIdForRecord Tests', function(hooks) {
     });
   });
 
-  test('store.createRecord does not error if adapter.generateIdForRecord is undefined.', async function (assert) {
+  test('store.createRecord does not error if adapter.generateIdForRecord is undefined.', async function(assert) {
     let store = this.owner.lookup('service:store');
     let expectedData = {
       data: {
