@@ -38,7 +38,9 @@ update_comment_if_exists() {
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments")
   FOUND_EXISTING=1
 
+  echo "Parsing response body"
   for row in $(echo -E "${body}" | jq --raw-output  '.[] | @base64'); do
+    echo "Parsing response body row"
     comment=$(echo -E "${row}" | base64 --decode | jq --raw-output '{id: .id, body: .body, author: .user.login}')
     id=$(echo -E "$comment" | jq -r '.id')
     b=$(echo -E "$comment" | jq -r '.body')
