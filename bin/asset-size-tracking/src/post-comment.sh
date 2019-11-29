@@ -33,10 +33,10 @@ API_VERSION=v3
 API_HEADER="Accept: application/vnd.github.${API_VERSION}+json; application/vnd.github.antiope-preview+json"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 
+FOUND_EXISTING=1
 update_comment_if_exists() {
   # Get all the comments for the pull request.
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments")
-  FOUND_EXISTING=1
 
   echo "Parsing response body"
   for row in $(echo -E "${body}" | jq --raw-output  '.[] | @base64'); do
@@ -54,12 +54,13 @@ update_comment_if_exists() {
       echo $UPDATE_URL;
       curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" -d "$COMMENT_TEXT" -H "Content-Type: application/json" -X PATCH $UPDATE_URL
       FOUND_EXISTING=0
+      return 0;
     fi
   done
 
-  echo "exiting with $FOUND_EXISTING"
+  echo "No existing comment found."
 
-  return $FOUND_EXISTING;
+  return 0;
 }
 
 post_comment() {
@@ -76,9 +77,8 @@ main() {
   echo "running $GITHUB_ACTION for PR #${NUMBER}"
 
   update_comment_if_exists
-  C=$?
   echo "pre cond"
-  if [ $C -eq 1 ]; then
+  if [ $FOUND_EXISTING -eq 1 ]; then
   echo "in cond";
     post_comment;
   fi
