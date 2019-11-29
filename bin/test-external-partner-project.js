@@ -24,10 +24,12 @@ cliOptionsDef = [
   { name: 'skipSmokeTest', type: Boolean, defaultValue: false },
   { name: 'skipClone', type: Boolean, defaultValue: false },
   { name: 'skipTest', type: Boolean, defaultValue: false },
+  { name: 'noLockFile', type: Boolean, defaultValue: false },
+  { name: 'useCache', type: Boolean, defaultValue: false },
 ];
 cliOptions = cliArgs(cliOptionsDef, { argv });
 
-const { skipSmokeTest, skipClone, skipTest } = cliOptions;
+const { skipSmokeTest, skipClone, skipTest, noLockFile, useCache } = cliOptions;
 
 // we share this for the build
 const cachePath = '../__external-test-cache';
@@ -129,7 +131,7 @@ try {
   //
   // For this reason we don't trust the lock file
   // we also can't trust the cache
-  execExternal(`yarn install --no-lockfile --cache-folder=tmp/yarn-cache`);
+  execExternal(`yarn install${noLockFile ? ' --no-lockfile' : ''}${useCache ? '' : ' --cache-folder=tmp/yarn-cache'}`);
 } catch (e) {
   console.log(`Unable to npm install tarballs for ember-data\` for ${externalProjectName}. Original error below:`);
 
