@@ -38,9 +38,7 @@ update_comment_if_exists() {
   # Get all the comments for the pull request.
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments")
 
-  echo "Parsing response body"
   for row in $(echo -E "${body}" | jq --raw-output  '.[] | @base64'); do
-    echo "Parsing response body row"
     comment=$(echo -E "${row}" | base64 --decode | jq --raw-output '{id: .id, body: .body, author: .user.login}')
     id=$(echo -E "$comment" | jq -r '.id')
     b=$(echo -E "$comment" | jq -r '.body')
@@ -49,9 +47,8 @@ update_comment_if_exists() {
       # We have found our comment.
       # Delete it.
 
-      echo "Updating existing comment ID: $id"
+      echo "Updating Existing Comment: $id"
       UPDATE_URL="${URI}/repos/${GITHUB_REPOSITORY}/issues/comments/${id}"
-      echo $UPDATE_URL;
       curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" -d "$COMMENT_TEXT" -H "Content-Type: application/json" -X PATCH $UPDATE_URL
       FOUND_EXISTING=0
       return 0;
@@ -64,7 +61,7 @@ update_comment_if_exists() {
 }
 
 post_comment() {
-  echo "Posting new comment"
+  echo "Posting A New Comment"
   curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" -d "$COMMENT_TEXT" -H "Content-Type: application/json" -X POST "${URI}/repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments"
 }
 
@@ -77,9 +74,7 @@ main() {
   echo "running $GITHUB_ACTION for PR #${NUMBER}"
 
   update_comment_if_exists
-  echo "pre cond"
   if [ $FOUND_EXISTING -eq 1 ]; then
-  echo "in cond";
     post_comment;
   fi
 }
