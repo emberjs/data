@@ -57,6 +57,8 @@ update_comment_if_exists() {
     fi
   done
 
+  echo "exiting with $FOUND_EXISTING"
+
   return $FOUND_EXISTING;
 }
 
