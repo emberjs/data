@@ -76,7 +76,9 @@ main() {
   echo "running $GITHUB_ACTION for PR #${NUMBER}"
 
   update_comment_if_exists
-  if [ $? -eq 1 ]; then
+  C=$?
+  echo "pre cond"
+  if [ $C -eq 1 ]; then
   echo "in cond";
     post_comment;
   fi
