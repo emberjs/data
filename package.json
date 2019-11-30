@@ -131,7 +131,9 @@
     "semver": "^6.2.0",
     "silent-error": "^1.1.1",
     "typescript": "~3.7.2",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "@ember/edition-utils": "^1.1.1",
+    "@glimmer/component": "^1.0.0-beta.3"
   },
   "bin": {
     "test-partner-project": "./bin/test-external-partner-project.js",
