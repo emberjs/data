@@ -13,8 +13,8 @@ const BROTLI_OPTIONS = {
   },
 };
 
-function getCompressedSize(code) {
-  return byteCount(zlib.brotliCompressSync(code, BROTLI_OPTIONS));
+function compress(code) {
+  zlib.brotliCompressSync(code, BROTLI_OPTIONS);
 }
 
 class Library {
@@ -43,7 +43,7 @@ class Library {
     return byteCount(this.concatModule);
   }
   get compressedSize() {
-    return this._compressedSize || (this._compressedSize = getCompressedSize(this.concatModule));
+    return this._compressedSize || (this._compressedSize = byteCount(compress(this.concatModule)));
   }
   sort() {
     this.packages = this.packages.sort((a, b) => {

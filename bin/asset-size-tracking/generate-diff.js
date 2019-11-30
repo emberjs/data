@@ -25,7 +25,7 @@ const new_library = parseModules(builtAsset);
 function getDiff(oldLibrary, newLibrary) {
   const compressionDelta = newLibrary.compressedSize - oldLibrary.compressedSize;
 
-  function getCompressionDelta(item) {
+  function getRelativeDeltaForItem(item) {
     const itemDelta = item.newSize - item.currentSize;
     const libDelta = newLibrary.absoluteSize - oldLibrary.absoluteSize;
     const itemDeltaRelativeSize = itemDelta / libDelta;
@@ -88,10 +88,10 @@ function getDiff(oldLibrary, newLibrary) {
   });
   diff.packages = Object.values(diff.packages);
   diff.packages.forEach(pkg => {
-    pkg.compressionDelta = getCompressionDelta(pkg);
+    pkg.compressionDelta = getRelativeDeltaForItem(pkg);
     pkg.modules = Object.values(pkg.modules);
     pkg.modules.forEach(m => {
-      m.compressionDelta = getCompressionDelta(m);
+      m.compressionDelta = getRelativeDeltaForItem(m);
     });
   });
 
