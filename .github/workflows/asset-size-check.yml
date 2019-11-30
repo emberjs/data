@@ -29,18 +29,14 @@ jobs:
       - name: Install dependencies for master
         run: yarn install
       - name: Build Production master (IE11)
-        # This will leave the assets in a dist that is maintained when
-        #  We switch back to the primary branch
         run: |
           mkdir -p packages/-ember-data/dists
           TARGET_IE11=true yarn workspace ember-data ember build -e production --output-path dists/control-ie11
       - name: Build Production master
-        # This will leave the assets in a dist that is maintained when
-        #  We switch back to the primary branch
         run: yarn workspace ember-data ember build -e production --output-path dists/control
+      - name: Build Production master (no rollup)
+        run: EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/control-no-rollup
       - name: Checkout ${{github.ref}}
-        # We checkout the PR Branch before parsing the master vendor file
-        #  So that we are always using the current analysis tooling
         run: |
           sha=$(cat tmp/sha-for-check.txt)
           git checkout --progress --force $sha
@@ -50,6 +46,8 @@ jobs:
         run: TARGET_IE11=true yarn workspace ember-data ember build -e production --output-path dists/experiment-ie11
       - name: Build Production ${{github.ref}}
         run: yarn workspace ember-data ember build -e production --output-path dists/experiment
+      - name: Build Production ${{github.ref}} (no rollup)
+        run: EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/experiment-no-rollup
       - name: Analyze Master Assets (IE11)
         run: |
           node ./bin/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/control-ie11 ./control-ie11-data.json
@@ -60,6 +58,10 @@ jobs:
         run: |
           node ./bin/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/control ./control-data.json
           node ./bin/asset-size-tracking/print-analysis.js ./control-data.json -show > tmp/asset-sizes/master-analysis.txt
+      - name: Analyze Master Assets (no rollup)
+        run: |
+          node ./bin/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/control-no-rollup ./control-data-no-rollup.json
+          node ./bin/asset-size-tracking/print-analysis.js ./control-data-no-rollup.json -show > tmp/asset-sizes/master-analysis-no-rollup.txt
       - name: Analyze ${{github.ref}} Assets (IE11)
         run: |
           node ./bin/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/experiment-ie11 ./experiment-ie11-data.json
@@ -68,6 +70,10 @@ jobs:
         run: |
           node ./bin/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/experiment ./experiment-data.json
           node ./bin/asset-size-tracking/print-analysis.js ./experiment-data.json > tmp/asset-sizes/experiment-analysis.txt
+      - name: Analyze ${{github.ref}} Assets
+        run: |
+          node ./bin/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/experiment-no-rollup ./experiment-data-no-rollup.json
+          node ./bin/asset-size-tracking/print-analysis.js ./experiment-data-no-rollup.json > tmp/asset-sizes/experiment-analysis-no-rollup.txt
       - name: Test Asset Sizes (IE11)
         run: |
           set -o pipefail
@@ -77,6 +83,11 @@ jobs:
         run: |
           set -o pipefail
           node ./bin/asset-size-tracking/generate-diff.js ./control-data.json ./experiment-data.json | tee tmp/asset-sizes/diff.txt
+      - name: Test Asset Sizes
+        if: failure() || success()
+        run: |
+          # we don't set -o pipefail as this should always pass, we just want the diff
+          node ./bin/asset-size-tracking/generate-diff.js ./control-data-no-rollup.json ./experiment-data-no-rollup.json | tee tmp/asset-sizes/diff-no-rollup.txt
       - name: Upload Dist Artifacts
         if: failure() || success()
         uses: actions/upload-artifact@v1
