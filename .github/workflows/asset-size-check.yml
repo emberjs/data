@@ -34,7 +34,7 @@ jobs:
         run: |
         mkdir -p packages/-ember-data/dists
         TARGET_IE11=true yarn workspace ember-data ember build -e production --output-path dists/control-ie11
-       - name: Build Production master
+      - name: Build Production master
         # This will leave the assets in a dist that is maintained when
         #  We switch back to the primary branch
         run: yarn workspace ember-data ember build -e production --output-path dists/control
@@ -48,7 +48,7 @@ jobs:
         run: yarn install
       - name: Build Production ${{github.ref}} (IE11)
         run: TARGET_IE11=true yarn workspace ember-data ember build -e production --output-path dists/experiment-ie11
-       - name: Build Production ${{github.ref}}
+      - name: Build Production ${{github.ref}}
         run: yarn workspace ember-data ember build -e production --output-path dists/experiment
       - name: Analyze Master Assets (IE11)
         run: |

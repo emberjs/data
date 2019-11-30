@@ -12,7 +12,7 @@ const IE11AnalysisText = fs.readFileSync(IE11AnalysisPath);
 const ModernDiffText = fs.readFileSync(ModernDiffPath);
 const ModernAnalysisText = fs.readFileSync(ModernAnalysisPath);
 
-const commentText = `Asset Size Report for ${GITHUB_SHA}\n**IE11 Builds**\n${IE11DiffText}\n<details>\n  <summary>Full Asset Analysis (IE11)</summary>\n\n\`\`\`${IE11AnalysisPath}\n\`\`\`\n</details>\n**Modern Builds**\n${ModernDiffText}\n<details>\n  <summary>Full Asset Analysis (Modern)</summary>\n\n\`\`\`${ModernAnalysisPath}\n\`\`\`\n</details>`;
+const commentText = `Asset Size Report for ${GITHUB_SHA}\n**IE11 Builds**\n${IE11DiffText}\n<details>\n  <summary>Full Asset Analysis (IE11)</summary>\n\n\`\`\`${IE11AnalysisText}\n\`\`\`\n</details>\n**Modern Builds**\n${ModernDiffText}\n<details>\n  <summary>Full Asset Analysis (Modern)</summary>\n\n\`\`\`${ModernAnalysisText}\n\`\`\`\n</details>`;
 const commentJSON = {
   body: commentText,
 };
