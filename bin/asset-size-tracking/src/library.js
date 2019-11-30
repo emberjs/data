@@ -133,8 +133,11 @@ class Package {
       compressed: formatBytes(this.compressedSize),
       '% Of Library': this.percentOfLibrary,
     });
+    const longest = this.modules.reduce((longest, m) => {
+      return m.name.length > longest ? m.name.length : longest;
+    }, 0);
     console.log(
-      `\t${rightPad('Module', TablePads.name)} | ` +
+      `\t${rightPad('Module', longest + 4)} | ` +
         `${rightPad('Bytes', TablePads.bytes)} | ` +
         `${rightPad('Compressed', TablePads.compressedBytes)} | ` +
         `${rightPad('% of Package', TablePads.percentOfPackage)} | ` +
@@ -143,7 +146,7 @@ class Package {
     console.log(
       '\t-----------------------------------------------------------------------------------------------------'
     );
-    this.modules.forEach(s => s.print());
+    this.modules.forEach(s => s.print(longest + 4));
   }
   toJSON() {
     return {
@@ -180,10 +183,10 @@ class Module {
   get percentOfLibrary() {
     return getRelativeSizeOf(this.package.library, this);
   }
-  print() {
+  print(namePadding) {
     console.log(
       '\t' +
-        rightPad(this.name, TablePads.name) +
+        rightPad(this.name, namePadding) +
         ' | ' +
         rightPad(this.bytes, TablePads.bytes) +
         ' | ' +
