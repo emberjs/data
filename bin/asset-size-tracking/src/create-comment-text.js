@@ -2,12 +2,17 @@ const fs = require('fs');
 const path = require('path');
 const GITHUB_SHA = process.argv[2];
 
-const diffPath = path.resolve(__dirname, '../../../tmp/asset-sizes/diff.txt');
-const analysisPath = path.resolve(__dirname, '../../../tmp/asset-sizes/commit-analysis.txt');
-const diffText = fs.readFileSync(diffPath);
-const analysisText = fs.readFileSync(analysisPath);
+const IE11DiffPath = path.resolve(__dirname, '../../../tmp/asset-sizes/diff-ie11.txt');
+const IE11AnalysisPath = path.resolve(__dirname, '../../../tmp/asset-sizes/experiment-analysis-ie11.txt');
+const ModernDiffPath = path.resolve(__dirname, '../../../tmp/asset-sizes/diff.txt');
+const ModernAnalysisPath = path.resolve(__dirname, '../../../tmp/asset-sizes/experiment-analysis.txt');
 
-const commentText = `Asset Size Report for ${GITHUB_SHA}\n${diffText}\n<details>\n  <summary>Full Asset Analysis</summary>\n\n\`\`\`${analysisText}\n\`\`\`\n</details>`;
+const IE11DiffText = fs.readFileSync(IE11DiffPath);
+const IE11AnalysisText = fs.readFileSync(IE11AnalysisPath);
+const ModernDiffText = fs.readFileSync(ModernDiffPath);
+const ModernAnalysisText = fs.readFileSync(ModernAnalysisPath);
+
+const commentText = `Asset Size Report for ${GITHUB_SHA}\n**IE11 Builds**\n${IE11DiffText}\n<details>\n  <summary>Full Asset Analysis (IE11)</summary>\n\n\`\`\`${IE11AnalysisPath}\n\`\`\`\n</details>\n**Modern Builds**\n${ModernDiffText}\n<details>\n  <summary>Full Asset Analysis (Modern)</summary>\n\n\`\`\`${ModernAnalysisPath}\n\`\`\`\n</details>`;
 const commentJSON = {
   body: commentText,
 };

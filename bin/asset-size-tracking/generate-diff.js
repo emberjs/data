@@ -10,17 +10,23 @@ const library_failure_threshold = 15;
 const package_warn_threshold = 0;
 
 let BASE_DATA_FILE = process.argv[2] || false;
-let NEW_VENDOR_FILE = process.argv[3] || false;
+let NEW_DATA_FILE = process.argv[3] || false;
 
 if (!BASE_DATA_FILE) {
-  BASE_DATA_FILE = path.resolve(__dirname, './current-data.json');
+  BASE_DATA_FILE = './current-data.json';
 }
 
-const data = fs.readFileSync(BASE_DATA_FILE, 'utf-8');
-const current_library = Library.fromData(JSON.parse(data));
+const baseData = fs.readFileSync(path.resolve(__dirname, BASE_DATA_FILE), 'utf-8');
+const current_library = Library.fromData(JSON.parse(baseData));
 
-const builtAsset = getBuiltDist(NEW_VENDOR_FILE);
-const new_library = parseModules(builtAsset);
+let new_library;
+if (!NEW_DATA_FILE) {
+  const builtAsset = getBuiltDist();
+  new_library = parseModules(builtAsset);
+} else {
+  const newData = fs.readFileSync(path.resolve(__dirname, NEW_DATA_FILE), 'utf-8');
+  new_library = Library.fromData(JSON.parse(newData));
+}
 
 function getDiff(oldLibrary, newLibrary) {
   const compressionDelta = newLibrary.compressedSize - oldLibrary.compressedSize;
