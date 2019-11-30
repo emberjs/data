@@ -9,37 +9,37 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { gte } from 'ember-compatibility-helpers';
 import { has } from 'require';
 
-class Widget extends Model {
-  @attr() name;
-
-  @dependentKeyCompat
-  get numericId() {
-    return Number(this.id);
-  }
-}
-
-class WidgetList extends Component {
-  get sortedWidgets() {
-    let { widgets } = this.args;
-
-    return widgets.slice().sort((a, b) => b.numericId - a.numericId);
-  }
-}
-
-let layout = hbs`
-  <ul>
-    {{#each this.sortedWidgets as |widget index|}}
-      <li class="widget{{index}}">
-        <div class="id">ID: {{widget.id}}</div>
-        <div class="numeric-id">Numeric ID: {{widget.numericId}}</div>
-        <div class="name">Name: {{widget.name}}</div>
-        <br/>
-      </li>
-    {{/each}}
-  </ul>
-`;
-
 if (gte('3.14.0') && has('@glimmer/component')) {
+  class Widget extends Model {
+    @attr() name;
+
+    @dependentKeyCompat
+    get numericId() {
+      return Number(this.id);
+    }
+  }
+
+  class WidgetList extends Component {
+    get sortedWidgets() {
+      let { widgets } = this.args;
+
+      return widgets.slice().sort((a, b) => b.numericId - a.numericId);
+    }
+  }
+
+  let layout = hbs`
+    <ul>
+      {{#each this.sortedWidgets as |widget index|}}
+        <li class="widget{{index}}">
+          <div class="id">ID: {{widget.id}}</div>
+          <div class="numeric-id">Numeric ID: {{widget.numericId}}</div>
+          <div class="name">Name: {{widget.name}}</div>
+          <br/>
+        </li>
+      {{/each}}
+    </ul>
+  `;
+
   module('acceptance/tracking-model-id - tracking model id', function(hooks) {
     setupRenderingTest(hooks);
 
