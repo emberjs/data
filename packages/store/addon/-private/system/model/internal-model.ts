@@ -13,7 +13,6 @@ import Snapshot from '../snapshot';
 import Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
 import RecordArray from '../record-arrays/record-array';
-// import { PromiseArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { RecordData } from '../../ts-interfaces/record-data';

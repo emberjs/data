@@ -4,10 +4,13 @@ import { render, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import Store from '@ember-data/store';
 import Model, { attr } from '@ember-data/model';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Component from '@glimmer/component';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { gte } from 'ember-compatibility-helpers';
 import { has } from 'require';
+import { resolve } from 'rsvp';
 
 if (gte('3.14.0') && has('@glimmer/component')) {
   class Widget extends Model {
@@ -40,6 +43,20 @@ if (gte('3.14.0') && has('@glimmer/component')) {
     </ul>
   `;
 
+  class TestAdapter extends JSONAPIAdapter {
+    createRecord() {
+      return resolve({
+        data: {
+          id: '4',
+          type: 'widget',
+          attributes: {
+            name: 'Contraption',
+          },
+        }
+      });
+    }
+  }
+
   module('acceptance/tracking-model-id - tracking model id', function(hooks) {
     setupRenderingTest(hooks);
 
@@ -49,14 +66,15 @@ if (gte('3.14.0') && has('@glimmer/component')) {
       owner.register('model:widget', Widget);
       owner.register('component:widget-list', WidgetList);
       owner.register('template:components/widget-list', layout);
+      owner.register('adapter:application', TestAdapter);
+      owner.register('serializer:application', JSONAPISerializer);
     });
 
     test("can track model id's without using get", async function(assert) {
       let store = this.owner.lookup('service:store');
       store.createRecord('widget', { id: '1', name: 'Doodad' });
-      store.createRecord('widget', { id: '4', name: 'Gizmo' });
-      store.createRecord('widget', { id: '3', name: 'Gadget' });
-      store.createRecord('widget', { id: '2', name: 'Contraption' });
+      store.createRecord('widget', { id: '3', name: 'Gizmo' });
+      store.createRecord('widget', { id: '2', name: 'Gadget' });
       this.widgets = store.peekAll('widget');
 
       await render(hbs`
@@ -64,11 +82,20 @@ if (gte('3.14.0') && has('@glimmer/component')) {
       `);
       await settled();
 
+      assert.dom('ul>li+li+li').exists;
+      assert.dom('ul>li.widget0>div.name').containsText('Gizmo');
+      assert.dom('ul>li.widget1>div.name').containsText('Gadget');
+      assert.dom('ul>li.widget2>div.name').containsText('Doodad');
+
+      let contraption = store.createRecord('widget', { name: 'Contraption' });
+      await contraption.save();
+      await settled();
+
       assert.dom('ul>li+li+li+li').exists;
-      assert.dom('ul>li.widget1>div.name').containsText('Doodad');
-      assert.dom('ul>li.widget2>div.name').containsText('Contraption');
-      assert.dom('ul>li.widget3>div.name').containsText('Gadget');
-      assert.dom('ul>li.widget4>div.name').containsText('Gizmo');
+      assert.dom('ul>li.widget0>div.name').containsText('Contraption');
+      assert.dom('ul>li.widget1>div.name').containsText('Gizmo');
+      assert.dom('ul>li.widget2>div.name').containsText('Gadget');
+      assert.dom('ul>li.widget3>div.name').containsText('Doodad');
     });
   });
 }
