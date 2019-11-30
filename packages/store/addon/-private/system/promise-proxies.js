@@ -1,7 +1,6 @@
 import ObjectProxy from '@ember/object/proxy';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ArrayProxy from '@ember/array/proxy';
-import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { Promise } from 'rsvp';
 

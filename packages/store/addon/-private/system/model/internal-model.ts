@@ -13,7 +13,7 @@ import Snapshot from '../snapshot';
 import Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
 import RecordArray from '../record-arrays/record-array';
-import { PromiseArray } from '../promise-proxies';
+// import { PromiseArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { RecordData } from '../../ts-interfaces/record-data';
@@ -77,9 +77,6 @@ if (HAS_MODEL_PACKAGE) {
       ({ ManyArray, PromiseBelongsTo, PromiseManyArray } = modelPackage);
       if (ManyArray && PromiseBelongsTo && PromiseManyArray) {
         _found = true;
-
-        // Some tests require PromiseManyArray instanceof PromiseArray to be true
-        Object.setPrototypeOf(PromiseManyArray, PromiseArray);
       }
     }
     return _found;
