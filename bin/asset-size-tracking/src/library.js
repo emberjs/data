@@ -135,7 +135,7 @@ class Package {
     });
     const longest = this.modules.reduce((longest, m) => {
       return m.name.length > longest ? m.name.length : longest;
-    }, 0);
+    }, TablePads.name);
     console.log(
       `\t${rightPad('Module', longest + 4)} | ` +
         `${rightPad('Bytes', TablePads.bytes)} | ` +
@@ -143,9 +143,15 @@ class Package {
         `${rightPad('% of Package', TablePads.percentOfPackage)} | ` +
         `% Of Library`
     );
-    console.log(
-      '\t-----------------------------------------------------------------------------------------------------'
-    );
+    const line =
+      '\t-----------------------------------------------------------------------------------------------------';
+    if (longest > TablePads.name) {
+      let toAdd = longest - TablePads.name;
+      for (let i = 0; i < toAdd; i++) {
+        line += '-';
+      }
+    }
+    console.log(line);
     this.modules.forEach(s => s.print(longest + 4));
   }
   toJSON() {
