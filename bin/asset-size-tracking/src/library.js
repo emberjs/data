@@ -143,7 +143,7 @@ class Package {
         `${rightPad('% of Package', TablePads.percentOfPackage)} | ` +
         `% Of Library`
     );
-    const line =
+    let line =
       '\t-----------------------------------------------------------------------------------------------------';
     if (longest > TablePads.name) {
       let toAdd = longest - TablePads.name;
