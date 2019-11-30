@@ -42,15 +42,9 @@ module('integration/generate-id - GenerateIdForRecord Tests', function(hooks) {
     let seq = 0;
 
     let store = this.owner.lookup('service:store');
-    let expectedData = {
-      data: {
-        id: '12',
-        type: 'person',
-        attributes: {
-          firstName: 'Gaurav',
-          lastName: 'Munjal',
-        },
-      },
+    let expectedProps = {
+      firstName: 'Gaurav',
+      lastName: 'Munjal',
     };
 
     class TestGenerateIdForRecordAdapter extends EmberObject {
@@ -63,20 +57,19 @@ module('integration/generate-id - GenerateIdForRecord Tests', function(hooks) {
 
     this.owner.register('adapter:application', TestGenerateIdForRecordAdapter);
 
-    let props = expectedData.data.attributes;
-    let record = store.createRecord('person', props);
+    let record = store.createRecord('person', expectedProps);
 
     assert.equal(record.id, 'manually generated id 1', 'manually generated id used');
 
     let recordFromPeekRecord = store.peekRecord('person', record.id);
 
-    assert.equal(record, recordFromPeekRecord, 'peekRecord returns the same record');
+    assert.strictEqual(record, recordFromPeekRecord, 'peekRecord returns the same record');
     assert.equal(generateIdForRecordCalled, 1, 'generateIdForRecord is called once');
     assert.deepEqual(record.serialize(), {
       data: {
         id: 'manually generated id 1',
         type: 'person',
-        attributes: props,
+        attributes: expectedProps,
       },
     });
   });
@@ -85,7 +78,6 @@ module('integration/generate-id - GenerateIdForRecord Tests', function(hooks) {
     let store = this.owner.lookup('service:store');
     let expectedData = {
       data: {
-        id: '12',
         type: 'person',
         attributes: {
           firstName: 'Gaurav',
