@@ -24,11 +24,10 @@ export { errorsHashToArray, errorsArrayToHash } from './system/errors-utils';
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
 
-export { PromiseArray, PromiseObject, PromiseManyArray } from './system/promise-proxies';
+export { PromiseArray, PromiseObject } from './system/promise-proxies';
 
 export { RecordArray, AdapterPopulatedRecordArray } from './system/record-arrays';
 
-export { default as ManyArray } from './system/many-array';
 export { default as RecordArrayManager } from './system/record-array-manager';
 
 // // Used by tests
