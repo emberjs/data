@@ -14,7 +14,7 @@ const BROTLI_OPTIONS = {
 };
 
 function compress(code) {
-  zlib.brotliCompressSync(code, BROTLI_OPTIONS);
+  return zlib.brotliCompressSync(code, BROTLI_OPTIONS);
 }
 
 class Library {
