@@ -18,6 +18,9 @@ module.exports = Object.assign({}, addonBaseConfig, {
     ];
   },
   treeForAddon(tree) {
+    // if we don't do this we won't have a super in addonBaseConfig
+    // as a regex is used to decide if to add one for the method
+    this._originalSuper = this._super;
     tree = merge([tree, version()]);
     return addonBaseConfig.treeForAddon.call(this, tree);
   },
