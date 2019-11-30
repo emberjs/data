@@ -82,9 +82,3 @@ export function promiseArray(promise, label) {
     promise: Promise.resolve(promise, label),
   });
 }
-
-export function proxyToContent(method) {
-  return function() {
-    return get(this, 'content')[method](...arguments);
-  };
-}

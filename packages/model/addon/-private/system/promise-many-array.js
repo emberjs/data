@@ -3,7 +3,7 @@ import { reads } from '@ember/object/computed';
 import { Promise } from 'rsvp';
 import { assert } from '@ember/debug';
 import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
-import { PromiseArray, proxyToContent } from '@ember-data/store/-private';
+import { PromiseArray } from '@ember-data/store/-private';
 
 /**
  @module @ember-data/model
@@ -47,4 +47,10 @@ export function promiseManyArray(promise, label) {
   return PromiseManyArray.create({
     promise: Promise.resolve(promise, label),
   });
+}
+
+function proxyToContent(method) {
+  return function() {
+    return get(this, 'content')[method](...arguments);
+  };
 }
