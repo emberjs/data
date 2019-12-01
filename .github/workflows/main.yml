@@ -14,6 +14,7 @@ on:
 
 jobs:
   lint:
+    timeout-minutes: 4
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -30,21 +31,27 @@ jobs:
         run: yarn problems
 
   basic-tests:
+    timeout-minutes: 15
     strategy:
       matrix:
-        os: [macOS-10.14, windows-2016, ubuntu-18.04]
-    runs-on: ubuntu-latest
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
+      - if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew cask install google-chrome
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
       - name: Install dependencies
         run: yarn install
+      - name: Launcher Info
+        run: |
+          yarn run testem launchers
       - name: Basic tests
         run: yarn test
-      - name: Encapsulation tests
-        run: yarn test:encapsulation
       - name: Fastboot tests
         run: yarn test:fastboot
       - name: Production build
@@ -53,7 +60,11 @@ jobs:
         run: yarn test:docs
       - name: Node tests
         run: yarn test:node
+      - if: matrix.os == 'ubuntu-latest'
+        name: Encapsulation tests
+        run: yarn test:encapsulation
       - if: |
+          matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
           ) || github.event_name == 'push' && (
@@ -64,6 +75,7 @@ jobs:
           EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
         run: yarn test
       - if: |
+          matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' && (
             github.base_ref == 'master' || github.base_ref == 'beta'
           ) || github.event_name == 'push' && (
@@ -75,6 +87,7 @@ jobs:
         run: yarn test
 
   floating-dependencies:
+    timeout-minutes: 4
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
@@ -88,6 +101,7 @@ jobs:
         run: yarn test
 
   lts:
+    timeout-minutes: 4
     needs: [lint, basic-tests]
     strategy:
       fail-fast: false
@@ -107,6 +121,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   releases:
+    timeout-minutes: 4
     needs: [lint, basic-tests]
     if: |
       github.event_name == 'pull_request' && (
@@ -132,6 +147,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   additional-scenarios:
+    timeout-minutes: 4
     needs: [lint, basic-tests]
     strategy:
       matrix:
@@ -150,6 +166,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   external-partners:
+    timeout-minutes: 15
     needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
     if: |
       github.event_name == 'pull_request' && (
@@ -195,3 +212,8 @@ jobs:
           CI: true
         run: yarn test-external:${{ matrix.partner }}
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
+      - name: upload built assets
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.partner }}-dist
+          path: ../../data/__external-test-cache/${{ matrix.partner }}/tmp/
