@@ -167,7 +167,6 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   external-partners:
-    timeout-minutes: 15
     needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
     if: |
       github.event_name == 'pull_request' && (
@@ -209,6 +208,7 @@ jobs:
       - name: Generate package tarballs
         run: node ./bin/packages-for-commit.js
       - name: Run Tests
+        timeout-minutes: 12
         env:
           CI: true
         run: yarn test-external:${{ matrix.partner }}
