@@ -214,6 +214,7 @@ jobs:
         run: yarn test-external:${{ matrix.partner }}
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
       - name: upload built assets
+        if: failure() || success()
         uses: actions/upload-artifact@v1
         with:
           name: ${{ matrix.partner }}-dist
