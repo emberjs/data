@@ -58,7 +58,8 @@ jobs:
         run: yarn test:production
       - name: Docs tests
         run: yarn test:docs
-      - name: Node tests
+      - if: matrix.os != 'windows-latest'
+        name: Node tests
         run: yarn test:node
       - if: matrix.os == 'ubuntu-latest'
         name: Encapsulation tests
