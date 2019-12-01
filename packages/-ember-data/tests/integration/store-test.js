@@ -797,8 +797,10 @@ module('integration/store - findAll', function(hooks) {
 
     await settled();
 
-    cars = store.peekAll('car');
-
+    // IE11 hack
+    run(() => {
+      cars = store.peekAll('car');
+    });
     assert.equal(cars.length, 2, 'multiple cars now in the store');
     assert.equal(cars.firstObject.model, 'New Mini', 'existing record updated correctly');
     assert.equal(cars.lastObject.model, 'Isetta', 'new record added to the store');
