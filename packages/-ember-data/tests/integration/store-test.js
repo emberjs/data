@@ -328,7 +328,7 @@ module('integration/store - findRecord', function(hooks) {
     });
 
     adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await resolve();
 
       return {
         cars: [
@@ -408,7 +408,7 @@ module('integration/store - findRecord', function(hooks) {
       async findRecord() {
         calls++;
 
-        await new Promise(resolve => setTimeout(resolve, 1));
+        await resolve();
 
         return {
           data: {
@@ -501,7 +501,7 @@ module('integration/store - findRecord', function(hooks) {
     });
 
     adapter.ajax = async function() {
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await resolve();
 
       return deepCopy({
         cars: [
@@ -555,7 +555,7 @@ module('integration/store - findRecord', function(hooks) {
     });
 
     adapter.ajax = async function() {
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await resolve();
 
       return deepCopy({
         cars: [
@@ -772,7 +772,7 @@ module('integration/store - findAll', function(hooks) {
     });
 
     adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await resolve();
 
       return {
         cars: [
@@ -798,9 +798,7 @@ module('integration/store - findAll', function(hooks) {
     await settled();
 
     // IE11 hack
-    run(() => {
-      cars = store.peekAll('car');
-    });
+    cars = store.peekAll('car');
     assert.equal(cars.length, 2, 'multiple cars now in the store');
     assert.equal(cars.firstObject.model, 'New Mini', 'existing record updated correctly');
     assert.equal(cars.lastObject.model, 'Isetta', 'new record added to the store');
