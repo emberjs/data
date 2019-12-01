@@ -148,7 +148,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   additional-scenarios:
-    timeout-minutes: 4
+    timeout-minutes: 5
     needs: [lint, basic-tests]
     strategy:
       matrix:
