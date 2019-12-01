@@ -8,7 +8,7 @@ module.exports = {
   plugins: ['prettier', 'qunit', 'mocha'],
   extends: ['eslint:recommended', 'prettier'],
   rules: {
-    // 'no-restricted-globals': ['error', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
+    'no-restricted-globals': ['error', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
     'mocha/no-exclusive-tests': 'error',
     'prettier/prettier': 'error',
     'no-unused-vars': ['error', { args: 'none' }],
@@ -89,6 +89,9 @@ module.exports = {
       },
       plugins: ['node'],
       extends: 'plugin:node/recommended',
+      rules: {
+        'no-restricted-globals': 'off',
+      },
     },
 
     // node tests
@@ -96,6 +99,9 @@ module.exports = {
       files: ['packages/*/node-tests/**', 'packages/unpublished-test-infra/src/node-test-helpers/**/*'],
       env: {
         mocha: true,
+      },
+      rules: {
+        'no-restricted-globals': 'off',
       },
     },
 
@@ -105,6 +111,9 @@ module.exports = {
       env: {
         qunit: true,
         es6: false,
+      },
+      rules: {
+        'no-restricted-globals': 'off',
       },
     },
 

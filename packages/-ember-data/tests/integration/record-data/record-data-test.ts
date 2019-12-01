@@ -9,6 +9,7 @@ import { settled } from '@ember/test-helpers';
 import EmberObject from '@ember/object';
 import { attr, hasMany, belongsTo } from '@ember-data/model';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { Promise } from 'rsvp';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

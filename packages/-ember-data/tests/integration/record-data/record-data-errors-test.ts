@@ -10,6 +10,7 @@ import { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data
 import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { Promise } from 'rsvp';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
