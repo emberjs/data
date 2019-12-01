@@ -218,3 +218,4 @@ jobs:
         with:
           name: ${{ matrix.partner }}-dist
           path: ../../data/__external-test-cache/${{ matrix.partner }}/dist
+        continue-on-error: ${{ matrix['continue-on-error'] == true }}
