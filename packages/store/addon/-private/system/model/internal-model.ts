@@ -51,20 +51,20 @@ type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private')
   @module @ember-data/store
 */
 
+let _tracked = tracked;
 // Stub tracked if not defined in Ember
 if (!gte('3.13.0')) {
-  function tracked() {
-
-    return function( target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  _tracked = function() {
+    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
       const originalMethod = descriptor.value;
 
-      descriptor.value = function () {
+      descriptor.value = function() {
         originalMethod.apply(this, arguments);
       };
 
       return descriptor;
-    }
-  }
+    };
+  };
 }
 
 // once the presentation logic is moved into the Model package we can make
@@ -152,7 +152,7 @@ function extractPivotName(name) {
   @class InternalModel
 */
 export default class InternalModel {
-  @tracked _id: string | null;
+  @_tracked _id: string | null;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;

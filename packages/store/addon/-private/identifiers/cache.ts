@@ -427,7 +427,7 @@ function makeStableRecordIdentifier(
     recordIdentifier = {
       lid,
       id,
-      type
+      type,
     };
   }
   markStableIdentifier(recordIdentifier);
