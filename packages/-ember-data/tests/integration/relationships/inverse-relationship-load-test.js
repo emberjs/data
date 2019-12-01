@@ -4019,7 +4019,7 @@ module('inverse relationship load test', function(hooks) {
 
     let allDogs = store.peekAll('dogs').toArray();
     for (let i = 0; i < allDogs.length; i++) {
-      let dog = docs[i];
+      let dog = allDogs[i];
       let dogPerson = await dog.get('person');
       assert.equal(dogPerson.get('id'), person2.get('id'), 'right hand side has correct belongsTo value');
     }
