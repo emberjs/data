@@ -114,6 +114,13 @@ function getModel() {
   return _Model;
 }
 
+function freeze<T>(obj: T): T {
+  if (typeof Object.freeze === 'function') {
+    return Object.freeze(obj);
+  }
+  return obj;
+}
+
 function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
 function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
 function deprecateTestRegistration(
@@ -348,13 +355,6 @@ abstract class CoreStore extends Service {
       }
       if (this.generateStackTracesForTrackedRequests === undefined) {
         this.generateStackTracesForTrackedRequests = false;
-      }
-
-      function freeze<T>(obj: T): T {
-        if (typeof Object.freeze === 'function') {
-          return Object.freeze(obj);
-        }
-        return obj;
       }
 
       this._trackedAsyncRequests = [];
