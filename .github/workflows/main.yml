@@ -93,8 +93,6 @@ jobs:
           yarn run testem launchers
       - name: Production build
         run: yarn test:production
-      - name: Fastboot tests
-        run: yarn test:fastboot -e production
 
   floating-dependencies:
     needs: [lint, basic-tests]
