@@ -36,8 +36,8 @@
       "@ember-data/canary-features/*": ["packages/canary-features/addon/*"],
       "@ember-data/private-build-infra": ["packages/private-build-infra/addon"],
       "@ember-data/private-build-infra/*": ["packages/private-build-infra/addon/*"],
-      "@ember-data/unpublished-test-infra/test-support": ["packages//unpublished-test-infra/addon-test-support"],
-      "@ember-data/unpublished-test-infra/test-support/*": ["packages//unpublished-test-infra/addon-test-support/*"],
+      "@ember-data/unpublished-test-infra/test-support": ["packages/unpublished-test-infra/addon-test-support"],
+      "@ember-data/unpublished-test-infra/test-support/*": ["packages/unpublished-test-infra/addon-test-support/*"],
       "fastboot-test-app/tests/*": ["tests/*"],
       "fastboot-test-app/*": ["app/*"],
       "*": ["packages/store/types/*", "packages/record-data/types/*", "packages/fastboot-test-app/types/*"]

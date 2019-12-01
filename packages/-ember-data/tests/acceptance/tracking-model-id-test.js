@@ -7,7 +7,6 @@ import Model, { attr } from '@ember-data/model';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Component from '@glimmer/component';
-import { dependentKeyCompat } from '@ember/object/compat';
 import { gte } from 'ember-compatibility-helpers';
 import { has } from 'require';
 import { resolve } from 'rsvp';
@@ -16,7 +15,6 @@ if (gte('3.14.0') && has('@glimmer/component')) {
   class Widget extends Model {
     @attr() name;
 
-    @dependentKeyCompat
     get numericId() {
       return Number(this.id);
     }
