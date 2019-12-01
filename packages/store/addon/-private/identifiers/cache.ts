@@ -433,8 +433,6 @@ function makeStableRecordIdentifier(
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
     let wrapper = {
-      [DEBUG_CLIENT_ORIGINATED]: clientOriginated,
-      [DEBUG_IDENTIFIER_BUCKET]: bucket,
       get lid() {
         return recordIdentifier.lid;
       },
