@@ -14,7 +14,6 @@ import { FindRecordQuery, SaveRecordMutation, Request } from '../ts-interfaces/f
 import { symbol } from '../ts-interfaces/utils/symbol';
 import CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
-import { addSymbol } from '../ts-interfaces/utils/symbol';
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
