@@ -19,6 +19,7 @@ import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from
 import isNonEmptyString from '../utils/is-non-empty-string';
 import CoreStore from '../system/core-store';
 import { tracked } from '@glimmer/tracking';
+import { gte } from 'ember-compatibility-helpers';
 
 /**
   @module @ember-data/store
@@ -415,11 +416,20 @@ function makeStableRecordIdentifier(
   bucket: string,
   clientOriginated: boolean = false
 ): Readonly<StableRecordIdentifier> {
-  let recordIdentifier = new (class CoreRecordIdentifier {
-    lid = lid;
-    @tracked id = id;
-    type = type;
-  })();
+  let recordIdentifier;
+  if (gte('3.13.0')) {
+    recordIdentifier = new (class CoreRecordIdentifier {
+      lid = lid;
+      @tracked id = id;
+      type = type;
+    })();
+  } else {
+    recordIdentifier = {
+      lid,
+      id,
+      type
+    };
+  }
   markStableIdentifier(recordIdentifier);
 
   if (DEBUG) {

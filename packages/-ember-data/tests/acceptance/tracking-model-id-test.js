@@ -11,7 +11,7 @@ import { gte } from 'ember-compatibility-helpers';
 import { has } from 'require';
 import { resolve } from 'rsvp';
 
-if (gte('3.14.0') && has('@glimmer/component')) {
+if (gte('3.13.0') && has('@glimmer/component')) {
   class Widget extends Model {
     @attr() name;
 
