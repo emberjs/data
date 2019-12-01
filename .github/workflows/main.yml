@@ -91,10 +91,7 @@ jobs:
       - name: Launcher Info
         run: |
           yarn run testem launchers
-      - name: Basic tests
-        run: yarn test
       - name: Production build
-        if: failure() || success()
         run: yarn test:production
       - name: Fastboot tests
         run: yarn test:fastboot -e production
