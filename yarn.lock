@@ -1264,6 +1264,14 @@
     handlebars "^4.0.13"
     simple-html-tokenizer "^0.5.8"
 
+"@glimmer/tracking@^1.0.0-beta.3":
+  version "1.0.0-beta.3"
+  resolved "https://registry.npmjs.org/@glimmer/tracking/-/tracking-1.0.0-beta.3.tgz#ac7a38e021c28c19c9a3cdacedb6081606a537e6"
+  integrity sha512-fZD8EcgmUI50sw5UX42L4ZII3hSSX3baVxw0mx5uh9rB+0pcfEe0vETOh//H+IwT+h6N0uBRb9pU82l5P1SM+w==
+  dependencies:
+    "@glimmer/env" "^0.1.7"
+    "@glimmer/validator" "^0.44.0"
+
 "@glimmer/util@^0.42.2":
   version "0.42.2"
   resolved "https://registry.npmjs.org/@glimmer/util/-/util-0.42.2.tgz#9ca1631e42766ea6059f4b49d0bdfb6095aad2c4"
@@ -1273,6 +1281,11 @@
   version "0.44.0"
   resolved "https://registry.npmjs.org/@glimmer/util/-/util-0.44.0.tgz#45df98d73812440206ae7bda87cfe04aaae21ed9"
   integrity sha512-duAsm30uVK9jSysElCbLyU6QQYO2X9iLDLBIBUcCqck9qN1o3tK2qWiHbGK5d6g8E2AJ4H88UrfElkyaJlGrwg==
+
+"@glimmer/validator@^0.44.0":
+  version "0.44.0"
+  resolved "https://registry.npmjs.org/@glimmer/validator/-/validator-0.44.0.tgz#03d127097dc9cb23052cdb7fcae59d0a9dca53e1"
+  integrity sha512-i01plR0EgFVz69GDrEuFgq1NheIjZcyTy3c7q+w7d096ddPVeVcRzU3LKaqCfovvLJ+6lJx40j45ecycASUUyw==
 
 "@glimmer/wire-format@^0.42.2":
   version "0.42.2"

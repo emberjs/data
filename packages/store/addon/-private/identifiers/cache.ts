@@ -418,11 +418,12 @@ function makeStableRecordIdentifier(
 ): Readonly<StableRecordIdentifier> {
   let recordIdentifier;
   if (gte('3.13.0')) {
-    recordIdentifier = new (class CoreRecordIdentifier {
+    class CoreRecordIdentifier {
       lid = lid;
       @tracked id = id;
       type = type;
-    })();
+    }
+    recordIdentifier = new CoreRecordIdentifier();
   } else {
     recordIdentifier = {
       lid,
