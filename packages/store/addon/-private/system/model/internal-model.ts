@@ -35,6 +35,7 @@ import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
 import recordDataFor from '../record-data-for';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+import { gte } from 'ember-compatibility-helpers';
 
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 type RecordArray = InstanceType<typeof RecordArray>;
@@ -49,6 +50,22 @@ type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private')
 /**
   @module @ember-data/store
 */
+
+// Stub tracked if not defined in Ember
+if (!gte('3.13.0')) {
+  function tracked() {
+
+    return function( target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      const originalMethod = descriptor.value;
+
+      descriptor.value = function () {
+        originalMethod.apply(this, arguments);
+      };
+
+      return descriptor;
+    }
+  }
+}
 
 // once the presentation logic is moved into the Model package we can make
 // eliminate these lossy and redundant helpers
