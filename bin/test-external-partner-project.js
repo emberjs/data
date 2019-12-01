@@ -141,6 +141,7 @@ try {
 if (!skipTest) {
   try {
     debug('Running tests against EmberData commit');
+    execExternal(`ember --version`, true);
     execExternal(`ember test --output-path="./dist"`, true);
   } catch (e) {
     commitTestPassed = false;
