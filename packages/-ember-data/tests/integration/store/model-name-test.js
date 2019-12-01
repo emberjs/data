@@ -61,7 +61,7 @@ module('@ember-data/model klass.modelName', function(hooks) {
       assert.strictEqual(
         startsWith(e.message, `Cannot assign to read only property 'modelName' of `),
         true,
-        'modelName is immutable'
+        `modelName is immutable: ${e.message}`
       );
     }
 

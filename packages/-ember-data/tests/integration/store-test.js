@@ -492,6 +492,7 @@ module('integration/store - findRecord', function(hooks) {
     this.owner.register('adapter:application', testAdapter);
 
     let store = this.owner.lookup('service:store');
+    store.shouldTrackAsyncRequests = true;
     let adapter = store.adapterFor('application');
 
     store.push({
