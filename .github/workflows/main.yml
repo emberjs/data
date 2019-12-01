@@ -217,4 +217,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: ${{ matrix.partner }}-dist
-          path: ../../data/__external-test-cache/${{ matrix.partner }}/tmp/
+          path: ../../data/__external-test-cache/${{ matrix.partner }}/dist
