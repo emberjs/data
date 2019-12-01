@@ -52,7 +52,7 @@ if (gte('3.14.0') && has('@glimmer/component')) {
           attributes: {
             name: 'Contraption',
           },
-        }
+        },
       });
     }
   }
