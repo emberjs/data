@@ -19,6 +19,27 @@ import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from
 import isNonEmptyString from '../utils/is-non-empty-string';
 import CoreStore from '../system/core-store';
 
+function addSymbol(obj: object, symbol: Symbol | string, value: any): void {
+  if (typeof symbol === 'string') {
+    Object.defineProperty(obj, symbol, {
+      value,
+      configurable: false,
+      enumerable: false,
+      writable: false,
+    });
+  } else {
+    // Typescript doesn't allow Symbol as an index type
+    obj[(symbol as unknown) as string] = value;
+  }
+}
+
+function freeze<T>(obj: T): T {
+  if (typeof Object.freeze === 'function') {
+    return Object.freeze(obj);
+  }
+  return obj;
+}
+
 /**
   @module @ember-data/store
 */
@@ -424,7 +445,7 @@ function makeStableRecordIdentifier(
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
-    let wrapper = Object.freeze({
+    let wrapper = {
       [DEBUG_CLIENT_ORIGINATED]: clientOriginated,
       [DEBUG_IDENTIFIER_BUCKET]: bucket,
       get lid() {
@@ -440,7 +461,10 @@ function makeStableRecordIdentifier(
         let { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
       },
-    });
+    };
+    addSymbol(wrapper, DEBUG_CLIENT_ORIGINATED, clientOriginated);
+    addSymbol(wrapper, DEBUG_IDENTIFIER_BUCKET, bucket);
+    freeze(wrapper);
     markStableIdentifier(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);
     return wrapper;

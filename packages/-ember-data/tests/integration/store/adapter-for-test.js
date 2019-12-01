@@ -1,10 +1,11 @@
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import Store from 'ember-data/store';
+import { assign } from '@ember/polyfills';
 
 class TestAdapter {
   constructor(args) {
-    Object.assign(this, args);
+    assign(this, args);
     this.didInit();
   }
 

@@ -1,6 +1,13 @@
 import { removeObserver, addObserver } from '@ember/object/observers';
 import QUnit from 'qunit';
 
+function freeze(obj) {
+  if (typeof Object.freeze === 'function') {
+    return Object.freeze(obj);
+  }
+  return obj;
+}
+
 function makeCounter() {
   let count = 0;
   const counter = Object.create(null);
@@ -17,7 +24,7 @@ function makeCounter() {
     enumerable: true,
   });
 
-  Object.freeze(counter);
+  freeze(counter);
 
   function increment() {
     count++;

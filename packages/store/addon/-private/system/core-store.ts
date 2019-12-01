@@ -350,6 +350,13 @@ abstract class CoreStore extends Service {
         this.generateStackTracesForTrackedRequests = false;
       }
 
+      function freeze<T>(obj: T): T {
+        if (typeof Object.freeze === 'function') {
+          return Object.freeze(obj);
+        }
+        return obj;
+      }
+
       this._trackedAsyncRequests = [];
       this._trackAsyncRequestStart = label => {
         let trace =
@@ -363,7 +370,7 @@ abstract class CoreStore extends Service {
           }
         }
 
-        let token = Object.freeze({
+        let token = freeze({
           label,
           trace,
         });
