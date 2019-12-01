@@ -1,15 +1,19 @@
 /* global Proxy */
-import QUnit, { test } from 'qunit';
+import QUnit, { test, skip } from 'qunit';
 
 export default function todo(description, callback) {
-  test(`[TODO] ${description}`, async function todoTest(assert) {
-    let todos = [];
-    hijackAssert(assert, todos);
+  if (DEBUG) {
+    test(`[TODO] ${description}`, async function todoTest(assert) {
+      let todos = [];
+      hijackAssert(assert, todos);
 
-    await callback.call(this, assert);
+      await callback.call(this, assert);
 
-    assertTestStatus(assert, todos);
-  });
+      assertTestStatus(assert, todos);
+    });
+  } else {
+    skip(`[TODO] ${description}`, callback);
+  }
 }
 
 function hijackAssert(assert, todos) {
