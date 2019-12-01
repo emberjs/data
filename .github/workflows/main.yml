@@ -74,6 +74,30 @@ jobs:
           EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
         run: yarn test
 
+  basic-tests-ie11:
+    needs: [lint]
+    timeout-minutes: 20
+    runs-on: windows-latest
+    env:
+      TEST_IE11: true
+      TARGET_IE11: true
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Launcher Info
+        run: |
+          yarn run testem launchers
+      - name: Basic tests
+        run: yarn test
+      - name: Production build
+        run: yarn test:production
+      - name: Fastboot tests
+        run: yarn test:fastboot -e production
+
   floating-dependencies:
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest

@@ -9,6 +9,11 @@ import QUnit from 'qunit';
 import { wait, asyncEqual, invokeAsync } from '@ember-data/unpublished-test-infra/test-support/async';
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 
+window.Promise = RSVP.Promise;
+window.Symbol = function FakeSymbol(str) {
+  return `${Date.now()}-${str}`;
+};
+
 configureAsserts();
 
 setApplication(Application.create(config.APP));

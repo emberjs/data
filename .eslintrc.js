@@ -8,6 +8,7 @@ module.exports = {
   plugins: ['prettier', 'qunit', 'mocha'],
   extends: ['eslint:recommended', 'prettier'],
   rules: {
+    // 'no-restricted-globals': ['error', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
     'mocha/no-exclusive-tests': 'error',
     'prettier/prettier': 'error',
     'no-unused-vars': ['error', { args: 'none' }],
@@ -28,6 +29,7 @@ module.exports = {
     Map: false,
     WeakMap: true,
     Set: true,
+    Promise: false,
   },
   env: {
     browser: true,
