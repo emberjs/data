@@ -18,20 +18,7 @@ import normalizeModelName from '../system/normalize-model-name';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import CoreStore from '../system/core-store';
-
-function addSymbol(obj: object, symbol: Symbol | string, value: any): void {
-  if (typeof symbol === 'string') {
-    Object.defineProperty(obj, symbol, {
-      value,
-      configurable: false,
-      enumerable: false,
-      writable: false,
-    });
-  } else {
-    // Typescript doesn't allow Symbol as an index type
-    obj[(symbol as unknown) as string] = value;
-  }
-}
+import { addSymbol } from '../ts-interfaces/utils/symbol';
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
@@ -464,7 +451,7 @@ function makeStableRecordIdentifier(
     };
     addSymbol(wrapper, DEBUG_CLIENT_ORIGINATED, clientOriginated);
     addSymbol(wrapper, DEBUG_IDENTIFIER_BUCKET, bucket);
-    freeze(wrapper);
+    wrapper = freeze(wrapper);
     markStableIdentifier(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);
     return wrapper;

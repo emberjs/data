@@ -13,6 +13,7 @@ import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
+import { addSymbol } from '../ts-interfaces/utils/symbol';
 import require from 'require';
 import Ember from 'ember';
 import { assert, warn, inspect } from '@ember/debug';
@@ -2418,7 +2419,8 @@ abstract class CoreStore extends Service {
       } else if (recordData.isDeleted && recordData.isDeleted()) {
         operation = 'deleteRecord';
       }
-      options[SaveOp] = operation;
+
+      addSymbol(options, SaveOp, operation);
 
       let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
       let promise = fetchManagerPromise.then(
