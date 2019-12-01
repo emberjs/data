@@ -4,6 +4,7 @@ import { default as EmberArray, A } from '@ember/array';
 import { setOwner, getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
+import { tracked } from '@glimmer/tracking';
 import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
@@ -134,7 +135,7 @@ function extractPivotName(name) {
   @class InternalModel
 */
 export default class InternalModel {
-  _id: string | null;
+  @tracked _id: string | null;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;

@@ -18,6 +18,7 @@ import normalizeModelName from '../system/normalize-model-name';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import CoreStore from '../system/core-store';
+import { tracked } from '@glimmer/tracking';
 
 /**
   @module @ember-data/store
@@ -414,11 +415,11 @@ function makeStableRecordIdentifier(
   bucket: string,
   clientOriginated: boolean = false
 ): Readonly<StableRecordIdentifier> {
-  let recordIdentifier = {
-    lid,
-    id,
-    type,
-  };
+  let recordIdentifier = new (class CoreRecordIdentifier {
+    lid = lid;
+    @tracked id = id;
+    type = type;
+  })();
   markStableIdentifier(recordIdentifier);
 
   if (DEBUG) {
