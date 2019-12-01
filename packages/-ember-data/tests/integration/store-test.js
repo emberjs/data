@@ -274,17 +274,19 @@ module('integration/store - destroy', function(hooks) {
 
 module('integration/store - findRecord', function(hooks) {
   setupTest(hooks);
+  let store;
 
   hooks.beforeEach(function() {
     this.owner.register('model:car', Car);
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
+    store = this.owner.lookup('service:store');
+    store.shouldTrackAsyncRequests = true;
   });
 
   test('store#findRecord fetches record from server when cached record is not present', async function(assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     adapter.ajax = ajaxResponse({
@@ -309,7 +311,6 @@ module('integration/store - findRecord', function(hooks) {
   test('store#findRecord returns cached record immediately and reloads record in the background', async function(assert) {
     assert.expect(4);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     adapter.shouldReloadRecord = () => false;
@@ -363,7 +364,6 @@ module('integration/store - findRecord', function(hooks) {
 
     this.owner.register('adapter:application', testAdapter);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     store.push({
@@ -426,8 +426,6 @@ module('integration/store - findRecord', function(hooks) {
     this.owner.register('adapter:application', testAdapter);
     this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    let store = this.owner.lookup('service:store');
-
     let car = await store.findRecord('car', '1');
 
     assert.strictEqual(calls, 1, 'We made one call to findRecord');
@@ -457,8 +455,6 @@ module('integration/store - findRecord', function(hooks) {
     });
 
     this.owner.register('adapter:application', testAdapter);
-
-    let store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -491,8 +487,6 @@ module('integration/store - findRecord', function(hooks) {
 
     this.owner.register('adapter:application', testAdapter);
 
-    let store = this.owner.lookup('service:store');
-    store.shouldTrackAsyncRequests = true;
     let adapter = store.adapterFor('application');
 
     store.push({
@@ -547,7 +541,6 @@ module('integration/store - findRecord', function(hooks) {
 
     this.owner.register('adapter:application', testAdapter);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     store.push({
@@ -590,8 +583,6 @@ module('integration/store - findRecord', function(hooks) {
       const badValues = ['', undefined, null, NaN, false];
 
       assert.expect(badValues.length);
-
-      let store = this.owner.lookup('service:store');
 
       badValues.map(item => {
         assert.expectAssertion(() => {
