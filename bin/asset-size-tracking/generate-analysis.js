@@ -3,7 +3,7 @@
  * Analyze Ember-Data Modules
  *
  * Generates a JSON file with details of size costs of each individual module
- * and package. You should crate a production build of the ember-data
+ * and package. You should create a production build of the ember-data
  * package prior to running this script.
  *
  */
