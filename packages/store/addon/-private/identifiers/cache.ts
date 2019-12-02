@@ -18,6 +18,14 @@ import normalizeModelName from '../system/normalize-model-name';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import CoreStore from '../system/core-store';
+import { addSymbol } from '../ts-interfaces/utils/symbol';
+
+function freeze<T>(obj: T): T {
+  if (typeof Object.freeze === 'function') {
+    return Object.freeze(obj);
+  }
+  return obj;
+}
 
 /**
   @module @ember-data/store
@@ -424,9 +432,7 @@ function makeStableRecordIdentifier(
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
-    let wrapper = Object.freeze({
-      [DEBUG_CLIENT_ORIGINATED]: clientOriginated,
-      [DEBUG_IDENTIFIER_BUCKET]: bucket,
+    let wrapper = {
       get lid() {
         return recordIdentifier.lid;
       },
@@ -440,7 +446,10 @@ function makeStableRecordIdentifier(
         let { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
       },
-    });
+    };
+    addSymbol(wrapper, DEBUG_CLIENT_ORIGINATED, clientOriginated);
+    addSymbol(wrapper, DEBUG_IDENTIFIER_BUCKET, bucket);
+    wrapper = freeze(wrapper);
     markStableIdentifier(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);
     return wrapper;

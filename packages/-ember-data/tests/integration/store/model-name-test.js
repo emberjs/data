@@ -5,6 +5,13 @@ import { computed } from '@ember/object';
 import Service, { inject } from '@ember/service';
 import Store from '@ember-data/store';
 
+function startsWith(str, substr) {
+  if (typeof str.startsWith === 'function') {
+    return str.startsWith(substr);
+  }
+  return str.indexOf(substr) === 0;
+}
+
 module('@ember-data/model klass.modelName', function(hooks) {
   setupTest(hooks);
 
@@ -52,9 +59,11 @@ module('@ember-data/model klass.modelName', function(hooks) {
       assert.ok(false, 'expected modelName to be immutable');
     } catch (e) {
       assert.strictEqual(
-        e.message.startsWith(`Cannot assign to read only property 'modelName' of `),
+        startsWith(e.message, `Cannot assign to read only property 'modelName' of `) ||
+          // IE11 has a different message
+          startsWith(e.message, `Assignment to read-only properties is not allowed in strict mode`),
         true,
-        'modelName is immutable'
+        `modelName is immutable: ${e.message}`
       );
     }
 

@@ -274,17 +274,19 @@ module('integration/store - destroy', function(hooks) {
 
 module('integration/store - findRecord', function(hooks) {
   setupTest(hooks);
+  let store;
 
   hooks.beforeEach(function() {
     this.owner.register('model:car', Car);
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
+    store = this.owner.lookup('service:store');
+    store.shouldTrackAsyncRequests = true;
   });
 
   test('store#findRecord fetches record from server when cached record is not present', async function(assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     adapter.ajax = ajaxResponse({
@@ -309,7 +311,6 @@ module('integration/store - findRecord', function(hooks) {
   test('store#findRecord returns cached record immediately and reloads record in the background', async function(assert) {
     assert.expect(4);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     adapter.shouldReloadRecord = () => false;
@@ -327,7 +328,7 @@ module('integration/store - findRecord', function(hooks) {
     });
 
     adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await resolve();
 
       return {
         cars: [
@@ -363,7 +364,6 @@ module('integration/store - findRecord', function(hooks) {
 
     this.owner.register('adapter:application', testAdapter);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     store.push({
@@ -408,7 +408,7 @@ module('integration/store - findRecord', function(hooks) {
       async findRecord() {
         calls++;
 
-        await new Promise(resolve => setTimeout(resolve, 1));
+        await resolve();
 
         return {
           data: {
@@ -425,8 +425,6 @@ module('integration/store - findRecord', function(hooks) {
 
     this.owner.register('adapter:application', testAdapter);
     this.owner.register('serializer:application', JSONAPISerializer.extend());
-
-    let store = this.owner.lookup('service:store');
 
     let car = await store.findRecord('car', '1');
 
@@ -457,8 +455,6 @@ module('integration/store - findRecord', function(hooks) {
     });
 
     this.owner.register('adapter:application', testAdapter);
-
-    let store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -491,7 +487,6 @@ module('integration/store - findRecord', function(hooks) {
 
     this.owner.register('adapter:application', testAdapter);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     store.push({
@@ -506,7 +501,7 @@ module('integration/store - findRecord', function(hooks) {
     });
 
     adapter.ajax = async function() {
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await resolve();
 
       return deepCopy({
         cars: [
@@ -546,7 +541,6 @@ module('integration/store - findRecord', function(hooks) {
 
     this.owner.register('adapter:application', testAdapter);
 
-    let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
     store.push({
@@ -561,7 +555,7 @@ module('integration/store - findRecord', function(hooks) {
     });
 
     adapter.ajax = async function() {
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await resolve();
 
       return deepCopy({
         cars: [
@@ -589,8 +583,6 @@ module('integration/store - findRecord', function(hooks) {
       const badValues = ['', undefined, null, NaN, false];
 
       assert.expect(badValues.length);
-
-      let store = this.owner.lookup('service:store');
 
       badValues.map(item => {
         assert.expectAssertion(() => {
@@ -780,7 +772,7 @@ module('integration/store - findAll', function(hooks) {
     });
 
     adapter.ajax = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await resolve();
 
       return {
         cars: [
@@ -805,8 +797,8 @@ module('integration/store - findAll', function(hooks) {
 
     await settled();
 
+    // IE11 hack
     cars = store.peekAll('car');
-
     assert.equal(cars.length, 2, 'multiple cars now in the store');
     assert.equal(cars.firstObject.model, 'New Mini', 'existing record updated correctly');
     assert.equal(cars.lastObject.model, 'Isetta', 'new record added to the store');

@@ -8,6 +8,7 @@ import { attr } from '@ember-data/model';
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
 import { RequestStateEnum } from '@ember-data/store/-private/ts-interfaces/fetch-manager';
 import JSONSerializer from '@ember-data/serializer/json';
+import { Promise } from 'rsvp';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

@@ -9,6 +9,10 @@ import QUnit from 'qunit';
 import { wait, asyncEqual, invokeAsync } from '@ember-data/unpublished-test-infra/test-support/async';
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 
+if (window.Promise === undefined) {
+  window.Promise = RSVP.Promise;
+}
+
 configureAsserts();
 
 setApplication(Application.create(config.APP));

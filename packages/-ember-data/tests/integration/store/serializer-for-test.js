@@ -2,10 +2,11 @@ import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import Store from 'ember-data/store';
+import { assign } from '@ember/polyfills';
 
 class TestAdapter {
   constructor(args) {
-    Object.assign(this, args);
+    assign(this, args);
     this.didInit();
   }
 
@@ -18,7 +19,7 @@ class TestAdapter {
 
 class TestSerializer {
   constructor(args) {
-    Object.assign(this, args);
+    assign(this, args);
     this.didInit();
   }
 

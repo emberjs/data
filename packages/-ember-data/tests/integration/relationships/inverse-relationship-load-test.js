@@ -4017,7 +4017,9 @@ module('inverse relationship load test', function(hooks) {
       'hasMany relationship on specified record has correct number of associated records'
     );
 
-    for (let dog of store.peekAll('dogs').toArray()) {
+    let allDogs = store.peekAll('dogs').toArray();
+    for (let i = 0; i < allDogs.length; i++) {
+      let dog = allDogs[i];
       let dogPerson = await dog.get('person');
       assert.equal(dogPerson.get('id'), person2.get('id'), 'right hand side has correct belongsTo value');
     }
@@ -4142,7 +4144,9 @@ module('inverse relationship load test', function(hooks) {
       'hasMany relationship on specified record has correct number of associated records'
     );
 
-    for (let dog of store.peekAll('dogs').toArray()) {
+    let allDogs = store.peekAll('dogs').toArray();
+    for (let i = 0; i < allDogs.length; i++) {
+      let dog = allDogs[i];
       let dogPerson = await dog.get('person');
       assert.equal(dogPerson.get('id'), person2.get('id'), 'right hand side has correct belongsTo value');
     }
@@ -4244,7 +4248,9 @@ module('inverse relationship load test', function(hooks) {
 
     assert.equal(personDogs.get('length'), 0, 'hasMany relationship for parent is empty');
 
-    for (let dog of store.peekAll('dogs').toArray()) {
+    let allDogs = store.peekAll('dogs').toArray();
+    for (let i = 0; i < allDogs.length; i++) {
+      let dog = allDogs[i];
       let dogPerson = await dog.get('person');
       assert.equal(dogPerson, null, 'right hand side has correct belongsTo value');
     }
@@ -4346,7 +4352,9 @@ module('inverse relationship load test', function(hooks) {
 
     assert.equal(personDogs.get('length'), 0, 'hasMany relationship for parent is empty');
 
-    for (let dog of store.peekAll('dogs').toArray()) {
+    let allDogs = store.peekAll('dogs').toArray();
+    for (let i = 0; i < allDogs.length; i++) {
+      let dog = allDogs[i];
       let dogPerson = await dog.get('person');
       assert.equal(dogPerson, null, 'right hand side has correct belongsTo value');
     }
@@ -4471,7 +4479,9 @@ module('inverse relationship load test', function(hooks) {
       'hasMany relationship on specified record has correct number of associated records'
     );
 
-    for (let dog of store.peekAll('dogs').toArray()) {
+    let allDogs = store.peekAll('dogs').toArray();
+    for (let i = 0; i < allDogs.length; i++) {
+      let dog = allDogs[i];
       let dogPerson = await dog.get('pal');
       assert.equal(dogPerson.get('id'), pal2.get('id'), 'right hand side has correct belongsTo value');
     }
@@ -4596,7 +4606,9 @@ module('inverse relationship load test', function(hooks) {
       'hasMany relationship on specified record has correct number of associated records'
     );
 
-    for (let dog of store.peekAll('dogs').toArray()) {
+    let allDogs = store.peekAll('dogs').toArray();
+    for (let i = 0; i < allDogs.length; i++) {
+      let dog = allDogs[i];
       let dogPerson = await dog.get('pal');
       assert.equal(dogPerson.get('id'), pal2.get('id'), 'right hand side has correct belongsTo value');
     }
