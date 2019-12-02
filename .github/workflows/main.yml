@@ -197,7 +197,14 @@ jobs:
     needs: [lint, basic-tests]
     strategy:
       matrix:
-        scenario: [default-with-jquery, with-ember-fetch, with-max-transpilation]
+        scenario:
+          [
+            with-max-transpilation,
+            with-native-fetch,
+            with-ember-fetch-no-jquery,
+            with-ember-fetch-and-jquery,
+            with-jquery,
+          ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master

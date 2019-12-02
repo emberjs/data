@@ -137,11 +137,6 @@ jobs:
           yarn test:fastboot fastboot-with-jquery
         displayName: 'Fastboot Tests with jquery'
 
-      - script: |
-          yarn install
-          yarn test:try-one with-ember-fetch
-        displayName: 'Basic Tests with ember-fetch'
-
   - job: Windows_tests
     dependsOn: Basic_Ember_Data_tests
 
