@@ -273,7 +273,7 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      var isPrimary = !forcedSecondary && this.isPrimaryType(modelName, primaryModelClass);
+      var isPrimary = !forcedSecondary && this.isPrimaryType(typeName, primaryModelClass);
       var value = payload[prop];
 
       if (value === null) {
