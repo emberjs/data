@@ -273,7 +273,7 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      var isPrimary = !forcedSecondary && this._isPrimaryModelName(typeName, primaryModelClass);
+      var isPrimary = !forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass);
       var value = payload[prop];
 
       if (value === null) {
@@ -353,15 +353,7 @@ const RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  isPrimaryType(store, typeName, primaryTypeClass) {
-    deprecate('isPrimaryType is deprecated.', false, {
-      id: 'ds.serializer.rest.is-primary-type',
-      until: '3.17',
-    });
-    return store.modelFor(typeName) === primaryTypeClass;
-  },
-
-  _isPrimaryModelName(modelName, primaryModelClass) {
+  isPrimaryType(store, modelName, primaryModelClass) {
     return normalizeModelName(modelName) === primaryModelClass.modelName;
   },
 
