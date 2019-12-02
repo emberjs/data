@@ -4,7 +4,6 @@ import { default as EmberArray, A } from '@ember/array';
 import { setOwner, getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
-import { tracked } from '@glimmer/tracking';
 import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
@@ -35,7 +34,6 @@ import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
 import recordDataFor from '../record-data-for';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
-import { gte } from 'ember-compatibility-helpers';
 
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 type RecordArray = InstanceType<typeof RecordArray>;
@@ -50,22 +48,6 @@ type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private')
 /**
   @module @ember-data/store
 */
-
-let _tracked = tracked;
-// Stub tracked if not defined in Ember
-if (!gte('3.13.0')) {
-  _tracked = function() {
-    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      const originalMethod = descriptor.value;
-
-      descriptor.value = function() {
-        originalMethod.apply(this, arguments);
-      };
-
-      return descriptor;
-    };
-  };
-}
 
 // once the presentation logic is moved into the Model package we can make
 // eliminate these lossy and redundant helpers
@@ -152,7 +134,9 @@ function extractPivotName(name) {
   @class InternalModel
 */
 export default class InternalModel {
-  @_tracked _id: string | null;
+  _id: string | null;
+  _tag: number;
+  _;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;
@@ -189,6 +173,7 @@ export default class InternalModel {
       _getModelPackage();
     }
     this._id = identifier.id;
+    this._tag = 0;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
 
@@ -233,6 +218,7 @@ export default class InternalModel {
       if (value !== this._id) {
         let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
         identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
+        set(this, '_tag', this._tag + 1);
         // TODO Show deprecation for private api
       }
     } else if (!IDENTIFIERS) {
@@ -1395,6 +1381,7 @@ export default class InternalModel {
     let didChange = id !== this._id;
 
     this._id = id;
+    set(this, '_tag', this._tag + 1);
 
     if (didChange && id !== null) {
       this.store.setRecordId(this.modelName, id, this.clientId);
