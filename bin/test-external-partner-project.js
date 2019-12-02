@@ -141,7 +141,11 @@ try {
 if (!skipTest) {
   try {
     debug('Running tests against EmberData commit');
-    execExternal(`ember test`, true);
+    execExternal(`ember --version`, true);
+    // ember-cli test command does not have --output-path available
+    // in all versions of our partner test's
+    execExternal(`ember build`, true);
+    execExternal(`ember test --path="./dist"`, true);
   } catch (e) {
     commitTestPassed = false;
   }

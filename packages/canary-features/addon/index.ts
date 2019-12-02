@@ -17,7 +17,7 @@ interface ConfigEnv {
 declare global {
   export const EmberDataENV: ConfigEnv | undefined | null;
 }
-const ENV: ConfigEnv = typeof EmberDataENV === 'object' && EmberDataENV !== null ? EmberDataENV : {};
+const ENV: ConfigEnv = typeof EmberDataENV !== 'undefined' && EmberDataENV !== null ? EmberDataENV : {};
 
 function featureValue(value: boolean | null): boolean | null {
   if (ENV.ENABLE_OPTIONAL_FEATURES && value === null) {
