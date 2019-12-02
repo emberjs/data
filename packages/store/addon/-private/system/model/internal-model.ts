@@ -99,6 +99,7 @@ function extractPivotName(name) {
 */
 export default class InternalModel {
   _id: string | null;
+  _tag: number = 0;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;
@@ -176,6 +177,7 @@ export default class InternalModel {
       if (value !== this._id) {
         let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
         identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
+        set(this, '_tag', this._tag + 1);
         // TODO Show deprecation for private api
       }
     } else if (!IDENTIFIERS) {
@@ -1347,6 +1349,7 @@ export default class InternalModel {
     let didChange = id !== this._id;
 
     this._id = id;
+    set(this, '_tag', this._tag + 1);
 
     if (didChange && id !== null) {
       this.store.setRecordId(this.modelName, id, this.clientId);
