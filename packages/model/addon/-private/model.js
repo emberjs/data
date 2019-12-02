@@ -1340,8 +1340,13 @@ const ID_DESCRIPTOR = {
     // the _internalModel guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
-    this._internalModel && get(this._internalModel, '_tag');
-    return this._internalModel && this._internalModel.id;
+    if (DEBUG) {
+      if (!this._internalModel) {
+        return;
+      }
+    }
+    get(this._internalModel, '_tag');
+    return this._internalModel.id;
   },
 };
 
