@@ -87,7 +87,6 @@ jobs:
 
   fastboot-tests:
     needs: [lint]
-    timeout-minutes: 6
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
@@ -105,6 +104,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Fastboot Test ${{ matrix.scenario }}
+        timeout-minutes: 4
         run: yarn test:fastboot ${{ matrix.scenario }}
 
   basic-tests-ie11:
