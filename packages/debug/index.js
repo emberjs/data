@@ -25,6 +25,12 @@ module.exports = Object.assign({}, addonBaseConfig, {
     const options = this.getEmberDataConfig();
     const env = process.env.EMBER_ENV;
 
+    const parentIsEmberDataAddon = this.parent.pkg.name === 'ember-data';
+
+    if (options.includeDataAdapterInProduction === undefined) {
+      options.includeDataAdapterInProduction = parentIsEmberDataAddon;
+    }
+
     this.__isEnabled = env !== 'production' || options.includeDataAdapterInProduction === true;
 
     return this.__isEnabled;
