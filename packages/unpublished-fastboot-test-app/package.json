@@ -15,7 +15,8 @@
     "lint:hbs": "ember-template-lint .",
     "lint:js": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
-    "test": "ember test  --test-port=0"
+    "test": "ember test --test-port=0",
+    "test:try-one": "ember try:one"
   },
   "dependencies": {
     "ember-data": "3.16.0-alpha.2",
@@ -31,6 +32,7 @@
     "@types/rsvp": "^4.0.3",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~3.14.0",
+    "ember-try": "^1.3.0",
     "ember-cli-app-version": "^3.2.0",
     "ember-cli-babel": "^7.13.0",
     "ember-cli-dependency-checker": "^3.2.0",
@@ -42,7 +44,6 @@
     "ember-cli-typescript": "^3.1.1",
     "ember-cli-typescript-blueprints": "^3.0.0",
     "ember-export-application-global": "^2.0.1",
-    "ember-fetch": "^6.7.2",
     "ember-load-initializers": "^2.1.1",
     "ember-maybe-import-regenerator": "^0.1.6",
     "ember-qunit": "^4.6.0",

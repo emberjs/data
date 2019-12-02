@@ -128,10 +128,17 @@ jobs:
         displayName: 'Docs Tests'
 
       - script: |
-          yarn test:fastboot
-        displayName: 'Fastboot Tests'
+          yarn install
+          yarn test:fastboot fastboot-with-ember-fetch
+        displayName: 'Fastboot Tests with ember-fetch'
 
       - script: |
+          yarn install
+          yarn test:fastboot fastboot-with-jquery
+        displayName: 'Fastboot Tests with jquery'
+
+      - script: |
+          yarn install
           yarn test:try-one with-ember-fetch
         displayName: 'Basic Tests with ember-fetch'
 
@@ -189,12 +196,20 @@ jobs:
           yarn install --no-lockfile --non-interactive
 
       - script: |
-          yarn test:try-one default-with-jquery
+          yarn test:try-one with-jquery
         displayName: 'Basic Tests with jQuery'
 
       - script: |
-          yarn test:try-one ember-release-with-jquery
-        displayName: 'Ember Release Channel Tests with jQuery'
+          yarn test:try-one with-native-fetch
+        displayName: 'Basic Tests with Native fetch'
+
+      - script: |
+          yarn test:try-one with-ember-fetch-and-jquery
+        displayName: 'Basic Tests with both ember-fetch and jQuery present'
+
+      - script: |
+          yarn test:try-one with-ember-fetch-no-jquery
+        displayName: 'Basic Tests with ember-fetch but not jQuery'
 
   - job: Floating_dependencies
     dependsOn: Basic_Ember_Data_tests
