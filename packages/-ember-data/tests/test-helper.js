@@ -26,12 +26,16 @@ QUnit.begin(() => {
     }
     assert.expectNoDeprecation(undefined, undefined, deprecation => {
       // only assert EmberData deprecations
-      const id = deprecation.options.id;
-      const isEmberDataDeprecation = id.includes('DS') || id.includes('EmberData') || id.includes('ember-data');
+      const id = deprecation.options.id.toLowerCase();
+      const isEmberDataDeprecation =
+        id.includes('ds.') ||
+        id.includes('emberdata') ||
+        id.includes('ember-data') ||
+        id.includes('mismatched-inverse-relationship-data-from-payload');
 
       if (!isEmberDataDeprecation) {
         // eslint-disable-next-line no-console
-        console.log('Detected Non-Ember-Data Deprecation', deprecation);
+        console.warn('Detected Non-Ember-Data Deprecation:', deprecation.message, deprecation.options.stacktrace);
       }
 
       return isEmberDataDeprecation;

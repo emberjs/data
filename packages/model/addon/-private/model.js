@@ -129,9 +129,18 @@ if (REQUEST_SERVICE) {
 
 let isReloading;
 if (REQUEST_SERVICE) {
-  isReloading = computed(function() {
-    let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
-    return !!requests.find(req => req.request.data[0].options.isReloading);
+  isReloading = computed({
+    get() {
+      if (this._isReloading === undefined) {
+        let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
+        let value = !!requests.find(req => req.request.data[0].options.isReloading);
+        return (this._isReloading = value);
+      }
+      return this._isReloading;
+    },
+    set(_, value) {
+      return (this._isReloading = value);
+    },
   });
 } else {
   isReloading = false;

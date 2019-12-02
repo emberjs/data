@@ -14,14 +14,16 @@ interface DeprecationConfig {
   until: string;
   message?: string | RegExp;
   url?: string;
+  stacktrace?: string;
 }
 interface FoundDeprecation {
   message: string;
   options: {
     id: string;
-    message?: string;
+    message?: string | RegExp;
     until: string;
     url?: string;
+    stacktrace?: string;
   };
 }
 
@@ -37,6 +39,8 @@ interface AssertNoneResult {
   expected: FoundDeprecation[];
   message: string;
 }
+
+Error.stackTraceLimit = 50;
 
 /**
  * Returns a qunit assert result object which passes if the given deprecation
@@ -118,7 +122,8 @@ export function configureDeprecationHandler() {
     HANDLED_DEPRECATIONS_FOR_TEST = [];
   });
 
-  registerDeprecationHandler(function(message, options /*, next*/) {
+  registerDeprecationHandler(function(message, options: DeprecationConfig /*, next*/) {
+    options.stacktrace = new Error().stack;
     if (DEPRECATIONS_FOR_TEST) {
       DEPRECATIONS_FOR_TEST.push({ message, options });
     }
