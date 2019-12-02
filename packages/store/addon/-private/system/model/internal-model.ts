@@ -135,8 +135,7 @@ function extractPivotName(name) {
 */
 export default class InternalModel {
   _id: string | null;
-  _tag: number;
-  _;
+  _tag: number = 0;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;
@@ -173,7 +172,6 @@ export default class InternalModel {
       _getModelPackage();
     }
     this._id = identifier.id;
-    this._tag = 0;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
 
