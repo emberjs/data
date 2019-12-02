@@ -76,13 +76,12 @@ function addonBuildConfigForDataPackage(PackageName) {
       next(message);
     },
 
-    disallowDeps: true,
-
     shouldIncludeChildAddon(addon) {
       if (addon.name.startsWith('@ember-data')) {
-        if (this.name === 'ember-data') {
+        if (this.name === 'ember-data' || addon.name === '@ember-data/canary-features') {
           return true;
         }
+
         return false;
       }
       return true;
