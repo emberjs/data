@@ -178,7 +178,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [ember-release, ember-beta, ember-canary, ember-release-with-jquery]
+        scenario: [ember-release, ember-beta, ember-canary]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
