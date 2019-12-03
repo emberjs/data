@@ -1,0 +1,36 @@
+name: 'Nightly'
+
+on:
+  schedule:
+    - cron: '* 8 * * *' # 8am in UTC is midnight PST
+    branches:
+      - master
+
+jobs:
+  test-all-deprecations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check SHA
+        run: |
+          sha=$(git rev-parse --short=8 HEAD)
+          echo "HEAD sha=$sha"
+          echo "GITHUB_SHA sha=$GITHUB_SHA"
+          mkdir -p tmp
+          echo $sha > tmp/sha-for-check.txt
+          originSha=$(git rev-parse HEAD^2)
+          echo $originSha > tmp/sha-for-commit.txt
+          git show --format=short --no-patch $originSha
+      - name: Checkout master
+        run: git checkout master
+      - name: Install dependencies for master
+        run: yarn install
+      - name: Basic Tests
+        env:
+          CI: true
+          ASSERT_ALL_DEPRECATIONS: true
+        run: yarn test
