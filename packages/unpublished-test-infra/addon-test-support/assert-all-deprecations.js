@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { DEBUG } from '@glimmer/env';
 import QUnit from 'qunit';
-import config from 'dummy/config/environment';
+import config from 'ember-get-config';
 
 const { ASSERT_ALL_DEPRECATIONS } = config;
 

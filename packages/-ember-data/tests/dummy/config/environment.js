@@ -35,8 +35,6 @@ module.exports = function(environment) {
 
     ENV.APP.rootElement = '#ember-testing';
     ENV.APP.autoboot = false;
-
-    ENV.ASSERT_ALL_DEPRECATIONS = process.env.ASSERT_ALL_DEPRECATIONS === 'true';
   }
 
   return ENV;
