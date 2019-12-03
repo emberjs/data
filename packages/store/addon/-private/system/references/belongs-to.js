@@ -3,6 +3,7 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 import Reference from './reference';
 import recordDataFor from '../record-data-for';
 import { peekRecordIdentifier } from '../store/internal-model-factory';
+import { deprecate } from '@ember/application/deprecations';
 
 /**
   @module @ember-data/store
@@ -128,8 +129,11 @@ export default class BelongsToReference extends Reference {
     return resolve(objectOrPromise).then(data => {
       let record;
 
-      // TODO deprecate data as Model
       if (peekRecordIdentifier(data)) {
+        deprecate('Pushing a model into a BelongsToReference is deprecated', false, {
+          id: 'ember-data:-belongs-to-reference-push-model',
+          until: '4.0',
+        });
         record = data;
       } else {
         record = this.store.push(data);
