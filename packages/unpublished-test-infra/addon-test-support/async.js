@@ -1,6 +1,7 @@
 import { all, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 
+// Should not use these going forward, use async/await instead.
 export function wait(callback, timeout) {
   let done = this.async();
 
