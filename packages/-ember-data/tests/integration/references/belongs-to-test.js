@@ -245,7 +245,7 @@ module('integration/references/belongs-to', function(hooks) {
     let record;
     await assert.expectDeprecation(async function() {
       record = await familyReference.push(family);
-    }, /Pushing a model into a BelongsToReference is deprecated/);
+    }, /Pushing a record into a BelongsToReference is deprecated/);
 
     assert.ok(Family.detectInstance(record), 'push resolves with the referenced record');
     assert.equal(get(record, 'name'), 'Coreleone', 'name is set');
@@ -328,7 +328,7 @@ module('integration/references/belongs-to', function(hooks) {
       await assert.expectAssertion(async function() {
         await familyReference.push(anotherPerson);
       }, "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name.");
-    }, /Pushing a model into a BelongsToReference is deprecated/);
+    }, /Pushing a record into a BelongsToReference is deprecated/);
   });
 
   testInDebug('push(record) works with polymorphic modelClass', async function(assert) {
@@ -354,7 +354,7 @@ module('integration/references/belongs-to', function(hooks) {
     let family;
     await assert.expectDeprecation(async function() {
       family = await familyReference.push(mafiaFamily);
-    }, /Pushing a model into a BelongsToReference is deprecated/);
+    }, /Pushing a record into a BelongsToReference is deprecated/);
 
     assert.equal(family, mafiaFamily);
   });
