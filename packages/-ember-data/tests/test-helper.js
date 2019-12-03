@@ -8,6 +8,7 @@ import QUnit from 'qunit';
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 import additionalLegacyAsserts from '@ember-data/unpublished-test-infra/test-support/legacy';
 import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-support/assert-all-deprecations';
+import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';
 
 if (window.Promise === undefined) {
   window.Promise = RSVP.Promise;
@@ -19,6 +20,10 @@ additionalLegacyAsserts();
 setApplication(Application.create(config.APP));
 
 assertAllDeprecations();
+
+if (window.Testem) {
+  window.Testem.useCustomAdapter(customQUnitAdapter);
+}
 
 QUnit.begin(function() {
   RSVP.configure('onerror', reason => {

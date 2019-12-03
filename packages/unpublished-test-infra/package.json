@@ -22,7 +22,8 @@
     "ember-cli-typescript": "^3.1.1",
     "ember-qunit": "^4.6.0",
     "qunit": "^2.9.3",
-    "rsvp": "^4.8.5"
+    "rsvp": "^4.8.5",
+    "testem": "^2.17.0"
   },
   "engines": {
     "node": ">= 8.0.0"

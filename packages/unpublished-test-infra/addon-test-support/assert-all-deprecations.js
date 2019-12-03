@@ -1,8 +1,11 @@
+/* eslint-disable no-console */
 import { DEBUG } from '@glimmer/env';
 import QUnit from 'qunit';
 import config from 'dummy/config/environment';
 
 const { ASSERT_ALL_DEPRECATIONS } = config;
+
+const ALL_ASSERTED_DEPRECATIONS = [];
 
 export default function configureAssertAllDeprecations() {
   QUnit.begin(() => {
@@ -20,8 +23,10 @@ export default function configureAssertAllDeprecations() {
           id.includes('mismatched-inverse-relationship-data-from-payload');
 
         if (!ASSERT_ALL_DEPRECATIONS && !isEmberDataDeprecation) {
-          // eslint-disable-next-line no-console
           console.warn('Detected Non-Ember-Data Deprecation:', deprecation.message, deprecation.options.stacktrace);
+        }
+        if (ASSERT_ALL_DEPRECATIONS) {
+          ALL_ASSERTED_DEPRECATIONS.push((deprecation.options && deprecation.options.id) || deprecation);
         }
 
         return ASSERT_ALL_DEPRECATIONS ? true : isEmberDataDeprecation;
@@ -37,6 +42,21 @@ export default function configureAssertAllDeprecations() {
           hooks.unshift(assertAllDeprecations);
         }
       });
+    }
+  });
+
+  QUnit.done(function() {
+    if (ASSERT_ALL_DEPRECATIONS) {
+      let deprecations = {};
+      for (let deprecation of ALL_ASSERTED_DEPRECATIONS) {
+        if (deprecation in deprecations) {
+          deprecations[deprecation]++;
+        } else {
+          deprecations[deprecation] = 1;
+        }
+      }
+
+      QUnit.config.deprecations = deprecations;
     }
   });
 }
