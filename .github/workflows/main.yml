@@ -52,8 +52,6 @@ jobs:
           yarn run testem launchers
       - name: Basic tests
         run: yarn test
-      - name: Fastboot tests
-        run: yarn test:fastboot
       - name: Production build
         run: yarn test:production
       - name: Docs tests
@@ -87,9 +85,33 @@ jobs:
           EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
         run: yarn test
 
+  fastboot-tests:
+    needs: [lint]
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        scenario: [fastboot-with-ember-fetch, fastboot-with-jquery]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew cask install google-chrome
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Fastboot Test ${{ matrix.scenario }}
+        timeout-minutes: 4
+        run: yarn test:fastboot ${{ matrix.scenario }}
+
   basic-tests-ie11:
     needs: [lint]
-    timeout-minutes: 20
+    strategy:
+      matrix:
+        scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
     runs-on: windows-latest
     env:
       TEST_IE11: true
@@ -104,8 +126,11 @@ jobs:
       - name: Launcher Info
         run: |
           yarn run testem launchers
-      - name: Production build
-        run: yarn test:production
+      - name: Production tests with ${{ matrix.scenario }}
+        timeout-minutes: 6
+        env:
+          CI: true
+        run: yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
 
   floating-dependencies:
     timeout-minutes: 4
@@ -153,7 +178,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [ember-release, ember-beta, ember-canary, ember-release-with-jquery]
+        scenario: [ember-release, ember-beta, ember-canary]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -172,7 +197,14 @@ jobs:
     needs: [lint, basic-tests]
     strategy:
       matrix:
-        scenario: [default-with-jquery, with-ember-fetch, with-max-transpilation]
+        scenario:
+          [
+            with-max-transpilation,
+            with-native-fetch,
+            with-ember-fetch-no-jquery,
+            with-ember-fetch-and-jquery,
+            with-jquery,
+          ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master

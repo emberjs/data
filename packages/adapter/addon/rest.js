@@ -301,10 +301,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       if (this._fastboot) {
         return this._fastboot;
       }
-      return getOwner(this).lookup('service:fastboot');
+      return (this._fastboot = getOwner(this).lookup('service:fastboot'));
     },
     set(key, value) {
-      this._fastboot = value;
+      return (this._fastboot = value);
     },
   }),
 
