@@ -1,5 +1,8 @@
 import { DEBUG } from '@glimmer/env';
 import QUnit from 'qunit';
+import config from 'dummy/config/environment';
+
+const { ASSERT_ALL_DEPRECATIONS } = config;
 
 export default function configureAssertAllDeprecations() {
   QUnit.begin(() => {
@@ -16,12 +19,12 @@ export default function configureAssertAllDeprecations() {
           id.includes('ember-data') ||
           id.includes('mismatched-inverse-relationship-data-from-payload');
 
-        if (!isEmberDataDeprecation) {
+        if (!ASSERT_ALL_DEPRECATIONS && !isEmberDataDeprecation) {
           // eslint-disable-next-line no-console
           console.warn('Detected Non-Ember-Data Deprecation:', deprecation.message, deprecation.options.stacktrace);
         }
 
-        return isEmberDataDeprecation;
+        return ASSERT_ALL_DEPRECATIONS ? true : isEmberDataDeprecation;
       });
     }
     // ensure we don't regress quietly
