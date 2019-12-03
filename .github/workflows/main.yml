@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 4
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -41,7 +41,7 @@ jobs:
         run: |
           brew update
           brew cask install google-chrome
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -97,7 +97,7 @@ jobs:
         run: |
           brew update
           brew cask install google-chrome
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -117,7 +117,7 @@ jobs:
       TEST_IE11: true
       TARGET_IE11: true
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -137,7 +137,7 @@ jobs:
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -154,7 +154,7 @@ jobs:
         scenario: [ember-lts-3.8, ember-lts-3.12]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -181,7 +181,7 @@ jobs:
         scenario: [ember-release, ember-beta, ember-canary]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -207,7 +207,7 @@ jobs:
           ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
@@ -251,7 +251,7 @@ jobs:
           - partner: model-fragments
             continue-on-error: true
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
