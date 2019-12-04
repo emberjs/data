@@ -45,35 +45,28 @@ function addonBuildConfigForDataPackage(PackageName) {
       }
     },
 
-    _suppressUneededRollupWarnings(message, next) {
+    _handleRollupWarning(message) {
       if (message.code === 'CIRCULAR_DEPENDENCY') {
         return;
-      } else if (message.code === 'NON_EXISTENT_EXPORT') {
+      } else if (message.code === 'NON_EXISTENT_EXPORT' && message.message.includes('ts-interfaces')) {
         // ignore ts-interface imports
-        if (message.message.indexOf(`/ts-interfaces/`) !== -1) {
-          return;
-        }
-      } else if (message.code === 'UNRESOLVED_IMPORT') {
-        if (!this.isDevelopingAddon()) {
-          // don't print these for consumers
-          return;
-        } else {
-          const chalk = require('chalk');
-          // make warning actionable
-          // eslint-disable-next-line no-console
-          console.log(
-            chalk.yellow(
-              `\n\n⚠️  Add ${chalk.white(
-                message.source
-              )} to the array returned by externalDependenciesForPrivateModule in index.js of ${chalk.white(
-                this.name
-              )}\n\n`
-            )
-          );
-          throw message.message;
-        }
+        return;
+      } else {
+        const chalk = require('chalk');
+        // make warning actionable
+        // eslint-disable-next-line no-console
+        console.log(
+          chalk.yellow(
+            `\n\n⚠️  Add ${chalk.white(
+              message.source
+            )} to the array returned by externalDependenciesForPrivateModule in index.js of ${chalk.white(
+              this.name
+            )}\n\n`
+          )
+        );
+
+        throw message.message;
       }
-      next(message);
     },
 
     getOutputDirForVersion() {
@@ -141,7 +134,7 @@ function addonBuildConfigForDataPackage(PackageName) {
         packageName: PackageName,
         babelCompiler: babel,
         babelOptions: this.options.babel,
-        onWarn: this._suppressUneededRollupWarnings.bind(this),
+        onWarn: this._handleRollupWarning.bind(this),
         externalDependencies: this.externalDependenciesForPrivateModule(),
         destDir: this.getOutputDirForVersion(),
       });
