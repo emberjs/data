@@ -45,8 +45,8 @@ type Relationships = import('@ember-data/record-data/-private/relationships/stat
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
-type PromiseBelongsTo = InstanceType<typeof import('@ember-data/model/-private').PromiseBelongsTo>;
-type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private').PromiseManyArray>;
+type PromiseBelongsTo = InstanceType<typeof import('@ember-data/model/-private/system/promise-belongs-to').default>;
+type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private/system/promise-many-array').default>;
 
 /**
   @module @ember-data/store

@@ -13,7 +13,7 @@ import coerceId from './coerce-id';
 import Relationships from './relationships/state/create';
 
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type RecordDataStoreWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
+type RecordDataStoreWrapper = import('@ember-data/store/-private/system/store/record-data-store-wrapper').default;
 type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultSingleResourceRelationship = import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
 type DefaultCollectionResourceRelationship = import('./ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;

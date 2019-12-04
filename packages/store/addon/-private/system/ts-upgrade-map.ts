@@ -4,8 +4,7 @@
 
 import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
 
-type RelationshipDefinition = import('./relationship-meta').RelationshipDefinition;
-type RecordDataStoreWrapper = import('./store/record-data-store-wrapper').default;
+type RelationshipDefinition = import('@ember-data/model/addon/-private/system/relationships/relationship-meta').RelationshipDefinition;
 
 /**
  * Maps public interfaces to internal class implementations
@@ -13,7 +12,6 @@ type RecordDataStoreWrapper = import('./store/record-data-store-wrapper').defaul
  * @internal
  */
 export interface UpgradeMap {
-  RecordDataStoreWrapper: RecordDataStoreWrapper;
   RelationshipSchema: RelationshipDefinition;
 }
 

@@ -14,7 +14,6 @@ export {
   RecordArray,
   RecordArrayManager,
   RootState,
-  SnapshotRecordArray,
   normalizeModelName,
   coerceId,
 } from '@ember-data/store/-private';

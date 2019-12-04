@@ -2,11 +2,10 @@ import { DEBUG } from '@glimmer/env';
 
 import { singularize } from 'ember-inflector';
 
-import { RelationshipSchema } from '../ts-interfaces/record-data-schemas';
-import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
-import normalizeModelName from './normalize-model-name';
+import { BRAND_SYMBOL, normalizeModelName } from '@ember-data/store/-private';
 
-type CoreStore = import('./core-store').default;
+type RelationshipSchema = import('@ember-data/store/addon/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 
 /**
   @module @ember-data/store

@@ -30,7 +30,7 @@ export default class Relationship {
   members: OrderedSet<RelationshipRecordData>;
   canonicalMembers: OrderedSet<RelationshipRecordData>;
   store: any;
-  key: string | null;
+  key: string;
   inverseKey: string | null;
   isAsync: boolean;
   isPolymorphic: boolean;
@@ -63,7 +63,7 @@ export default class Relationship {
     this.members = new OrderedSet();
     this.canonicalMembers = new OrderedSet();
     this.store = store;
-    this.key = relationshipMeta.key || null;
+    this.key = relationshipMeta.key || '---implicit';
     this.inverseKey = inverseKey;
     this.isAsync = typeof async === 'undefined' ? true : async;
     this.isPolymorphic = typeof polymorphic === 'undefined' ? false : polymorphic;
@@ -693,14 +693,14 @@ export default class Relationship {
         let recordData = this.recordData;
         let storeWrapper = this.recordData.storeWrapper;
         if (CUSTOM_MODEL_CLASS) {
-          storeWrapper.notifyBelongsToChange(recordData.modelName, recordData.id, recordData.clientId, this.key!);
+          storeWrapper.notifyBelongsToChange(recordData.modelName, recordData.id, recordData.clientId!, this.key);
         } else {
           storeWrapper.notifyPropertyChange(
             recordData.modelName,
             recordData.id,
-            recordData.clientId,
+            recordData.clientId!,
             // We know we are not an implicit relationship here
-            this.key!
+            this.key
           );
         }
       }

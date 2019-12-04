@@ -207,16 +207,16 @@ export default class ManyRelationship extends Relationship {
     let recordData = this.recordData;
     let storeWrapper = recordData.storeWrapper;
     if (CUSTOM_MODEL_CLASS) {
-      storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+      storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId!, this.key);
     } else {
-      storeWrapper.notifyPropertyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+      storeWrapper.notifyPropertyChange(recordData.modelName, recordData.id, recordData.clientId!, this.key);
     }
   }
 
   notifyHasManyChange() {
     let recordData = this.recordData;
     let storeWrapper = recordData.storeWrapper;
-    storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+    storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId!, this.key);
   }
 
   getData(): DefaultCollectionResourceRelationship {
