@@ -1393,11 +1393,11 @@ if (DEBUG) {
   };
 
   let lookupDeprecations;
-  let DEPRECATED_LIFECYCLE_EVENT_METHODS;
+  let _deprecatedLifecycleMethods;
 
   if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
     const INSTANCE_DEPRECATIONS = new WeakMap();
-    DEPRECATED_LIFECYCLE_EVENT_METHODS = [
+    _deprecatedLifecycleMethods = [
       'becameError',
       'becameInvalid',
       'didCreate',
@@ -1454,7 +1454,7 @@ if (DEBUG) {
       if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
         let lifecycleDeprecations = lookupDeprecations(this.constructor);
 
-        DEPRECATED_LIFECYCLE_EVENT_METHODS.forEach(methodName => {
+        _deprecatedLifecycleMethods.forEach(methodName => {
           if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
             deprecate(
               `You defined a \`${methodName}\` method for ${this.constructor.toString()} but lifecycle events for models have been deprecated.`,
