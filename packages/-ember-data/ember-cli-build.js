@@ -10,8 +10,8 @@ module.exports = function(defaults) {
       compatWith,
     },
     babel: {
-      // this ensures that the same `@ember-data/canary-features` processing that the various
-      // ember-data addons do is done in the dummy app and tests
+      // this ensures that the same build-time code stripping that is done
+      // for library packages is also done for our tests and dummy app
       plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, compatWith)],
     },
     'ember-cli-babel': {
