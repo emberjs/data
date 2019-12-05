@@ -1,9 +1,6 @@
 name: 'Nightly'
 
 on:
-  pull_request:
-    branches:
-      - master
   schedule:
     - cron: '* 14 * * *' # 14:00 in UTC is 6am PST
 
