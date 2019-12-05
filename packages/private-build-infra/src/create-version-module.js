@@ -34,6 +34,6 @@ module.exports = function(compatVersion) {
     'export default "' +
       calculateVersion() +
       '";\n' +
-      (compatVersion && compatVersion !== 'null' ? `export const COMPAT_VERSION = "${compatVersion}";\n` : '')
+      (compatVersion ? `export const COMPAT_VERSION = "${compatVersion}";\n` : '')
   );
 };
