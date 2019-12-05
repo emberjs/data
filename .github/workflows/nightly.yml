@@ -3,8 +3,6 @@ name: 'Nightly'
 on:
   schedule:
     - cron: '* 14 * * *' # 14:00 in UTC is 6am PST
-    branches:
-      - master
 
 jobs:
   test-all-deprecations:
