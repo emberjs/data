@@ -9,10 +9,6 @@ on:
 
 jobs:
   test-all-deprecations:
-    strategy:
-      fail-fast: false
-      matrix:
-        scenario: [ember-beta, ember-canary]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
