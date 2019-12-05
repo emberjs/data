@@ -5,7 +5,15 @@ import config from 'ember-get-config';
 
 const { ASSERT_ALL_DEPRECATIONS } = config;
 
-const ALL_ASSERTED_DEPRECATIONS = [];
+const ALL_ASSERTED_DEPRECATIONS = {};
+
+function pushDeprecation(deprecation) {
+  if (deprecation in ALL_ASSERTED_DEPRECATIONS) {
+    ALL_ASSERTED_DEPRECATIONS[deprecation]++;
+  } else {
+    ALL_ASSERTED_DEPRECATIONS[deprecation] = 1;
+  }
+}
 
 export default function configureAssertAllDeprecations() {
   QUnit.begin(() => {
@@ -22,11 +30,12 @@ export default function configureAssertAllDeprecations() {
           id.includes('ember-data') ||
           id.includes('mismatched-inverse-relationship-data-from-payload');
 
-        if (!ASSERT_ALL_DEPRECATIONS && !isEmberDataDeprecation) {
-          console.warn('Detected Non-Ember-Data Deprecation:', deprecation.message, deprecation.options.stacktrace);
-        }
-        if (ASSERT_ALL_DEPRECATIONS) {
-          ALL_ASSERTED_DEPRECATIONS.push((deprecation.options && deprecation.options.id) || deprecation);
+        if (!isEmberDataDeprecation) {
+          if (ASSERT_ALL_DEPRECATIONS) {
+            pushDeprecation((deprecation.options && deprecation.options.id) || deprecation);
+          } else {
+            console.warn('Detected Non-Ember-Data Deprecation:', deprecation.message, deprecation.options.stacktrace);
+          }
         }
 
         return ASSERT_ALL_DEPRECATIONS ? true : isEmberDataDeprecation;
@@ -47,16 +56,7 @@ export default function configureAssertAllDeprecations() {
 
   QUnit.done(function() {
     if (ASSERT_ALL_DEPRECATIONS) {
-      let deprecations = {};
-      for (let deprecation of ALL_ASSERTED_DEPRECATIONS) {
-        if (deprecation in deprecations) {
-          deprecations[deprecation]++;
-        } else {
-          deprecations[deprecation] = 1;
-        }
-      }
-
-      QUnit.config.deprecations = deprecations;
+      QUnit.config.deprecations = ALL_ASSERTED_DEPRECATIONS;
     }
   });
 }
