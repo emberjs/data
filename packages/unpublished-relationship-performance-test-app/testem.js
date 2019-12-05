@@ -1,3 +1,4 @@
+// eslint-disable-next-line node/no-unpublished-require
 const customDotReporter = require('@ember-data/unpublished-test-infra/src/testem/custom-dot-reporter');
 
 const TestIE = process.env.TEST_IE11;
