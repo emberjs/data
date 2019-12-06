@@ -98,6 +98,64 @@
  *
  * ### Preparing an Addon to use a Canary Feature
  *
+ * For most addons and most features simple version detection should be
+ * enough. Using the provided version compatibility helpers from
+ * [ember-compatibility-helpers](https://github.com/pzuraq/ember-compatibility-helpers)
+ * the following can be done:
+ *
+ * ```js
+ * if (gte('@ember-data/store', '3.12.0')) {
+ *
+ * } else {
+ *
+ * }
+ * ```
+ *
+ * For addons needing more advanced detection [babel-plugin-debug-macros](https://github.com/ember-cli/babel-plugin-debug-macros)
+ * can be leveraged to provide code-stripping based on feature presence. For example in your addon's `index.js`:
+ *
+ * ```js
+ * function debugMacros(features) {
+ *   let plugins = [
+ *     [
+ *       require.resolve('babel-plugin-debug-macros'),
+ *       {
+ *         flags: [
+ *           {
+ *             source: '<addon-name>/feature-flags',
+ *             flags: features,
+ *           },
+ *         ],
+ *       },
+ *       '<addon-name>/canary-features-stripping',
+ *     ],
+ *   ];
+ *
+ *   return plugins;
+ * }
+ *
+ * module.exports = {
+ *   name: '<addon-name>',
+ *
+ *   init() {
+ *     this._super.init.apply(this, arguments);
+ *
+ *     let features;
+ *     try {
+ *       features = this.project.require('@ember-data/private-build-infra/src/features')();
+ *     } catch (e) {
+ *       features = { CUSTOM_MODEL_CLASS: false };
+ *     }
+ *
+ *     this.options = this.options || {};
+ *     this.options.babel = this.options.babel || {};
+ *     // this ensures that the same `@ember-data/canary-features` processing that the various
+ *     // ember-data addons do is done for this addon
+ *     this.options.babel.plugins = [...debugMacros(features)];
+ *   }
+ * }
+ * ```
+ *
  * @module @ember-data/canary-features
  * @main @ember-data/canary-features
  */
