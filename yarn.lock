@@ -4165,6 +4165,24 @@ broccoli-funnel@^2.0.0, broccoli-funnel@^2.0.1, broccoli-funnel@^2.0.2:
     symlink-or-copy "^1.0.0"
     walk-sync "^0.3.1"
 
+broccoli-funnel@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/broccoli-funnel/-/broccoli-funnel-3.0.0.tgz#46fa8b570eccdfa9f66c71e85ce4a5dc68ec2ad6"
+  integrity sha512-BzqVvCXQt/d0Lk9fmT8Z/34rt2BB1OjQe1+e5w29ZXkg7pBlvRIYiPq3M+1Hy0E6jJ/ASB6m/d7TBl7cTHjEFQ==
+  dependencies:
+    array-equal "^1.0.0"
+    blank-object "^1.0.1"
+    broccoli-plugin "^3.0.0"
+    debug "^4.1.1"
+    fast-ordered-set "^1.0.0"
+    fs-tree-diff "^2.0.1"
+    heimdalljs "^0.2.0"
+    minimatch "^3.0.0"
+    path-posix "^1.0.0"
+    rimraf "^3.0.0"
+    symlink-or-copy "^1.0.0"
+    walk-sync "^0.3.1"
+
 broccoli-kitchen-sink-helpers@^0.2.5:
   version "0.2.9"
   resolved "https://registry.npmjs.org/broccoli-kitchen-sink-helpers/-/broccoli-kitchen-sink-helpers-0.2.9.tgz#a5e0986ed8d76fb5984b68c3f0450d3a96e36ecc"
