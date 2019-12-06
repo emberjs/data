@@ -6,7 +6,6 @@ module.exports = {
     '@ember-data/model',
     '@ember-data/store',
     '@ember-data/deprecations',
-    '@ember-data/private-build-infra',
     '@ember-data/record-data',
     '@ember-data/serializer',
     '@ember-data',
