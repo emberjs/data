@@ -153,7 +153,8 @@ export default Mixin.create({
 
    export default JSONAPIAdapter.extend({
      urlForFindAll(modelName, snapshot) {
-       return 'data/comments.json';
+       let baseUrl = this.buildURL(modelName);
+       return `${baseUrl}/data/comments.json`;
      }
    });
    ```
