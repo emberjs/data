@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/private-build-infra
-*/
-
 import { has } from 'require';
 import AVAILABLE_PACKAGES from './available-packages';
 

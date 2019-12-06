@@ -13,7 +13,9 @@
       "../serializer/addon",
       "../store/addon",
       "../record-data/addon",
-      "../debug/addon"
+      "../debug/addon",
+      "../private-build-infra/addon",
+      "../canary-features/addon"
     ],
     "exclude": "vendor",
     "outdir": "dist/docs"
