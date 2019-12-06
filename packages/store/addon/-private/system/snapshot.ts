@@ -163,6 +163,7 @@ export default class Snapshot {
     if (CUSTOM_MODEL_CLASS) {
       attrs.forEach(keyName => {
         if (schemaIsDSModel(this.type)) {
+          // if the schema is for a DSModel then the instance is too
           attributes[keyName] = get(record as DSModel, keyName);
         } else {
           attributes[keyName] = recordDataFor(this._internalModel).getAttr(keyName);
@@ -457,6 +458,7 @@ export default class Snapshot {
         callback.call(binding, key, attrDefs[key]);
       });
     } else {
+      // in the non CUSTOM_MODEL_CLASS world we only have DSModel instances
       (this.record as DSModel).eachAttribute(callback, binding);
     }
   }
@@ -484,6 +486,7 @@ export default class Snapshot {
         callback.call(binding, key, relationshipDefs[key]);
       });
     } else {
+      // in the non CUSTOM_MODEL_CLASS world we only have DSModel instances
       (this.record as DSModel).eachRelationship(callback, binding);
     }
   }
