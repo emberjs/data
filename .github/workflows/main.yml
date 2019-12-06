@@ -84,6 +84,16 @@ jobs:
         env:
           EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
         run: yarn test
+      - if: |
+          github.event_name == 'pull_request' && (
+            github.base_ref == 'master' || github.base_ref == 'beta'
+          ) || github.event_name == 'push' && (
+            endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+          )
+        name: Remove All Deprecations
+        env:
+          EMBER_DATA_FULL_COMPAT: true
+        run: yarn test:production
 
   fastboot-tests:
     needs: [lint]

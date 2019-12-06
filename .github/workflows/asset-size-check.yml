@@ -33,11 +33,11 @@ jobs:
       - name: Build Production master (IE11)
         run: |
           mkdir -p packages/-ember-data/dists
-          TARGET_IE11=true yarn workspace ember-data ember build -e production --output-path dists/control-ie11
+          EMBER_DATA_FULL_COMPAT=true TARGET_IE11=true yarn workspace ember-data ember build -e production --output-path dists/control-ie11
       - name: Build Production master
-        run: yarn workspace ember-data ember build -e production --output-path dists/control
+        run: EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/control
       - name: Build Production master (no rollup)
-        run: EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/control-no-rollup
+        run: EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/control-no-rollup
       - name: Checkout ${{github.ref}}
         run: |
           sha=$(cat tmp/sha-for-check.txt)
@@ -45,11 +45,11 @@ jobs:
       - name: Install dependencies for ${{github.ref}}
         run: yarn install
       - name: Build Production ${{github.ref}} (IE11)
-        run: TARGET_IE11=true yarn workspace ember-data ember build -e production --output-path dists/experiment-ie11
+        run: EMBER_DATA_FULL_COMPAT=true TARGET_IE11=true yarn workspace ember-data ember build -e production --output-path dists/experiment-ie11
       - name: Build Production ${{github.ref}}
-        run: yarn workspace ember-data ember build -e production --output-path dists/experiment
+        run: EMBER_DATA_FULL_COMPAT=true yarn workspace ember-data ember build -e production --output-path dists/experiment
       - name: Build Production ${{github.ref}} (no rollup)
-        run: EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/experiment-no-rollup
+        run: EMBER_DATA_FULL_COMPAT=true EMBER_DATA_ROLLUP_PRIVATE=false yarn workspace ember-data ember build -e production --output-path dists/experiment-no-rollup
       - name: Analyze Master Assets (IE11)
         run: |
           node ./bin/asset-size-tracking/generate-analysis.js packages/-ember-data/dists/control-ie11 ./control-ie11-data.json

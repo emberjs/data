@@ -8,6 +8,7 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { InvalidError } from '@ember-data/adapter/error';
+import { DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS } from '@ember-data/private-build-infra/deprecations';
 
 import { module, test } from 'qunit';
 
@@ -65,13 +66,17 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       });
 
       assert.equal(person.get('firstName'), 'Thomas');
-      assert.equal(person.get('rolledBackCount'), 0);
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        assert.equal(person.get('rolledBackCount'), 0);
+      }
 
       run(() => person.rollbackAttributes());
 
       assert.equal(person.get('firstName'), 'Tom');
       assert.equal(person.get('hasDirtyAttributes'), false);
-      assert.equal(person.get('rolledBackCount'), 1);
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        assert.equal(person.get('rolledBackCount'), 1);
+      }
     });
 
     test('changes to unassigned attributes can be rolled back', function(assert) {
@@ -95,13 +100,18 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       });
 
       assert.equal(person.get('firstName'), 'Thomas');
-      assert.equal(person.get('rolledBackCount'), 0);
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        assert.equal(person.get('rolledBackCount'), 0);
+      }
 
       run(() => person.rollbackAttributes());
 
       assert.strictEqual(person.get('firstName'), undefined);
       assert.equal(person.get('hasDirtyAttributes'), false);
-      assert.equal(person.get('rolledBackCount'), 1);
+
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        assert.equal(person.get('rolledBackCount'), 1);
+      }
     });
 
     test('changes to attributes made after a record is in-flight only rolls back the local changes', function(assert) {
@@ -139,7 +149,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
         person.set('lastName', 'Dolly');
 
         assert.equal(person.get('lastName'), 'Dolly');
-        assert.equal(person.get('rolledBackCount'), 0);
+        if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+          assert.equal(person.get('rolledBackCount'), 0);
+        }
 
         person.rollbackAttributes();
 
@@ -148,7 +160,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
         assert.equal(person.get('isSaving'), true);
 
         return saving.then(() => {
-          assert.equal(person.get('rolledBackCount'), 1);
+          if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+            assert.equal(person.get('rolledBackCount'), 1);
+          }
           assert.equal(person.get('hasDirtyAttributes'), false, 'The person is now clean');
         });
       });
@@ -186,8 +200,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
         person.save().then(null, function() {
           assert.equal(person.get('isError'), true);
           assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas']);
-          assert.equal(person.get('rolledBackCount'), 0);
-
+          if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+            assert.equal(person.get('rolledBackCount'), 0);
+          }
           run(function() {
             person.rollbackAttributes();
           });
@@ -195,7 +210,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
           assert.equal(person.get('firstName'), 'Tom');
           assert.equal(person.get('isError'), false);
           assert.equal(Object.keys(person.changedAttributes()).length, 0);
-          assert.equal(person.get('rolledBackCount'), 1);
+          if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+            assert.equal(person.get('rolledBackCount'), 1);
+          }
         });
       });
     });
@@ -236,14 +253,18 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
           .catch(() => {
             assert.equal(person.get('isError'), true);
             assert.equal(person.get('isDeleted'), true);
-            assert.equal(person.get('rolledBackCount'), 0);
+            if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+              assert.equal(person.get('rolledBackCount'), 0);
+            }
 
             run(() => person.rollbackAttributes());
 
             assert.equal(person.get('isDeleted'), false);
             assert.equal(person.get('isError'), false);
             assert.equal(person.get('hasDirtyAttributes'), false, 'must be not dirty');
-            assert.equal(person.get('rolledBackCount'), 1);
+            if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+              assert.equal(person.get('rolledBackCount'), 1);
+            }
           })
           .then(() => {
             assert.equal(
@@ -261,14 +282,18 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
 
       assert.equal(person.get('isNew'), true, 'must be new');
       assert.equal(person.get('hasDirtyAttributes'), true, 'must be dirty');
-      assert.equal(person.get('rolledBackCount'), 0);
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        assert.equal(person.get('rolledBackCount'), 0);
+      }
 
       run(person, 'rollbackAttributes');
 
       assert.equal(person.get('isNew'), false, 'must not be new');
       assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
       assert.equal(person.get('isDeleted'), true, 'must be deleted');
-      assert.equal(person.get('rolledBackCount'), 1);
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        assert.equal(person.get('rolledBackCount'), 1);
+      }
     });
 
     test(`invalid new record's attributes can be rollbacked`, function(assert) {
@@ -304,7 +329,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
           assert.equal(person.get('isNew'), false, 'must not be new');
           assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
           assert.equal(person.get('isDeleted'), true, 'must be deleted');
-          assert.equal(person.get('rolledBackCount'), 1);
+          if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+            assert.equal(person.get('rolledBackCount'), 1);
+          }
         });
       });
     });
@@ -357,7 +384,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
               'original name',
               'after rollbackAttributes() firstName has the original value'
             );
-            assert.equal(person.get('rolledBackCount'), 1);
+            if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+              assert.equal(person.get('rolledBackCount'), 1);
+            }
           });
       });
     });
@@ -394,10 +423,12 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     test("invalid record's attributes can be rollbacked", async function(assert) {
       class Dog extends Model {
         @attr() name;
-        rolledBackCount = 0;
-        rolledBack() {
+      }
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        Dog.prototype.rolledBackCount = 0;
+        Dog.prototype.rolledBack = function() {
           this.incrementProperty('rolledBackCount');
-        }
+        };
       }
       const thrownAdapterError = new InvalidError([
         {
@@ -457,7 +488,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
         assert.equal(dog.get('name'), 'Pluto', 'Name is rolled back');
         assert.notOk(dog.get('errors.name'), 'We have no errors for name anymore');
         assert.ok(dog.get('isValid'), 'We are now in a valid state');
-        assert.equal(dog.get('rolledBackCount'), 1, 'we only rolled back once');
+        if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+          assert.equal(dog.get('rolledBackCount'), 1, 'we only rolled back once');
+        }
       }
     });
   });

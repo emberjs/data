@@ -85,6 +85,11 @@ import { Dict } from '../ts-interfaces/utils';
 
 import constructResource from '../utils/construct-resource';
 import { errorsArrayToHash } from './errors-utils';
+import {
+  DEPRECATE_DEFAULT_ADAPTER,
+  DEPRECATE_DEFAULT_SERIALIZER,
+  DEPRECATE_LEGACY_TEST_REGISTRATIONS,
+} from '@ember-data/private-build-infra/deprecations';
 
 type Relationship = import('@ember-data/record-data/-private').Relationship;
 type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
@@ -137,7 +142,6 @@ function deprecateTestRegistration(
     }
   );
 }
-
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `Model` that wrap
@@ -3336,23 +3340,25 @@ abstract class CoreStore extends Service {
 
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
 
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-      if (normalizedModelName === '-json-api') {
-        const Serializer = require('@ember-data/serializer/json-api').default;
-        owner.register(`serializer:-json-api`, Serializer);
-        serializer = owner.lookup(`serializer:-json-api`);
-        deprecateTestRegistration('serializer', '-json-api');
-      } else if (normalizedModelName === '-rest') {
-        const Serializer = require('@ember-data/serializer/rest').default;
-        owner.register(`serializer:-rest`, Serializer);
-        serializer = owner.lookup(`serializer:-rest`);
-        deprecateTestRegistration('serializer', '-rest');
-      } else if (normalizedModelName === '-default') {
-        const Serializer = require('@ember-data/serializer/json').default;
-        owner.register(`serializer:-default`, Serializer);
-        serializer = owner.lookup(`serializer:-default`);
-        serializer && deprecateTestRegistration('serializer', '-default');
+    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
+      // in production this is handled by the re-export
+      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+        if (normalizedModelName === '-json-api') {
+          const Serializer = require('@ember-data/serializer/json-api').default;
+          owner.register(`serializer:-json-api`, Serializer);
+          serializer = owner.lookup(`serializer:-json-api`);
+          deprecateTestRegistration('serializer', '-json-api');
+        } else if (normalizedModelName === '-rest') {
+          const Serializer = require('@ember-data/serializer/rest').default;
+          owner.register(`serializer:-rest`, Serializer);
+          serializer = owner.lookup(`serializer:-rest`);
+          deprecateTestRegistration('serializer', '-rest');
+        } else if (normalizedModelName === '-default') {
+          const Serializer = require('@ember-data/serializer/json').default;
+          owner.register(`serializer:-default`, Serializer);
+          serializer = owner.lookup(`serializer:-default`);
+          serializer && deprecateTestRegistration('serializer', '-default');
+        }
       }
     }
 
@@ -3371,83 +3377,95 @@ abstract class CoreStore extends Service {
       return serializer;
     }
 
-    // no model specific serializer or application serializer, check for the `defaultSerializer`
-    // property defined on the adapter
-    let adapter = this.adapterFor(modelName);
-    let serializerName = get(adapter, 'defaultSerializer');
+    let serializerName;
+    if (DEPRECATE_DEFAULT_SERIALIZER) {
+      // no model specific serializer or application serializer, check for the `defaultSerializer`
+      // property defined on the adapter
+      let adapter = this.adapterFor(modelName);
+      serializerName = get(adapter, 'defaultSerializer');
 
-    deprecate(
-      `store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
-      !serializerName,
-      {
-        id: 'ember-data:default-serializer',
-        until: '4.0',
-        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+      deprecate(
+        `store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
+        !serializerName,
+        {
+          id: 'ember-data:default-serializer',
+          until: '4.0',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+        }
+      );
+
+      serializer = serializerName
+        ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
+        : undefined;
+    }
+
+    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
+      // in production this is handled by the re-export
+      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+        if (serializerName === '-json-api') {
+          const Serializer = require('@ember-data/serializer/json-api').default;
+          owner.register(`serializer:-json-api`, Serializer);
+          serializer = owner.lookup(`serializer:-json-api`);
+          deprecateTestRegistration('serializer', '-json-api');
+        } else if (serializerName === '-rest') {
+          const Serializer = require('@ember-data/serializer/rest').default;
+          owner.register(`serializer:-rest`, Serializer);
+          serializer = owner.lookup(`serializer:-rest`);
+          deprecateTestRegistration('serializer', '-rest');
+        } else if (serializerName === '-default') {
+          const Serializer = require('@ember-data/serializer/json').default;
+          owner.register(`serializer:-default`, Serializer);
+          serializer = owner.lookup(`serializer:-default`);
+          serializer && deprecateTestRegistration('serializer', '-default');
+        }
       }
-    );
 
-    serializer = serializerName
-      ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
-      : undefined;
+      if (serializer !== undefined) {
+        set(serializer, 'store', this);
+        _serializerCache[normalizedModelName] = serializer;
+        _serializerCache[serializerName] = serializer;
+        return serializer;
+      }
+    }
 
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-      if (serializerName === '-json-api') {
-        const Serializer = require('@ember-data/serializer/json-api').default;
-        owner.register(`serializer:-json-api`, Serializer);
-        serializer = owner.lookup(`serializer:-json-api`);
-        deprecateTestRegistration('serializer', '-json-api');
-      } else if (serializerName === '-rest') {
-        const Serializer = require('@ember-data/serializer/rest').default;
-        owner.register(`serializer:-rest`, Serializer);
-        serializer = owner.lookup(`serializer:-rest`);
-        deprecateTestRegistration('serializer', '-rest');
-      } else if (serializerName === '-default') {
-        const Serializer = require('@ember-data/serializer/json').default;
-        owner.register(`serializer:-default`, Serializer);
-        serializer = owner.lookup(`serializer:-default`);
+    if (DEPRECATE_DEFAULT_SERIALIZER) {
+      // final fallback, no model specific serializer, no application serializer, no
+      // `serializer` property on store: use the convenience JSONSerializer
+      serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
+      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+        const JSONSerializer = require('@ember-data/serializer/json').default;
+        owner.register('serializer:-default', JSONSerializer);
+        serializer = owner.lookup('serializer:-default');
+
         serializer && deprecateTestRegistration('serializer', '-default');
       }
-    }
 
-    if (serializer !== undefined) {
+      deprecate(
+        `store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`,
+        !serializer,
+        {
+          id: 'ember-data:default-serializer',
+          until: '4.0',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+        }
+      );
+
+      assert(
+        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
+        serializer !== undefined
+      );
+
       set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
-      _serializerCache[serializerName] = serializer;
+      _serializerCache['-default'] = serializer;
+
       return serializer;
+    } else {
+      assert(
+        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
+        serializer !== undefined
+      );
     }
-
-    // final fallback, no model specific serializer, no application serializer, no
-    // `serializer` property on store: use the convenience JSONSerializer
-    serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-      const JSONSerializer = require('@ember-data/serializer/json').default;
-      owner.register('serializer:-default', JSONSerializer);
-      serializer = owner.lookup('serializer:-default');
-
-      serializer && deprecateTestRegistration('serializer', '-default');
-    }
-
-    deprecate(
-      `store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`,
-      !serializer,
-      {
-        id: 'ember-data:default-serializer',
-        until: '4.0',
-        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
-      }
-    );
-
-    assert(
-      `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
-      serializer !== undefined
-    );
-
-    set(serializer, 'store', this);
-    _serializerCache[normalizedModelName] = serializer;
-    _serializerCache['-default'] = serializer;
-
-    return serializer;
   }
 
   willDestroy() {
@@ -3527,30 +3545,32 @@ abstract class CoreStore extends Service {
   }
 }
 
-defineProperty(
-  CoreStore.prototype,
-  'defaultAdapter',
-  computed('adapter', function() {
-    deprecate(
-      `store.adapterFor(modelName) resolved the ("${this.adapter ||
-        '-json-api'}") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
-      false,
-      {
-        id: 'ember-data:default-adapter',
-        until: '4.0',
-        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-adapter',
-      }
-    );
-    let adapter = this.adapter || '-json-api';
+if (DEPRECATE_DEFAULT_ADAPTER) {
+  defineProperty(
+    CoreStore.prototype,
+    'defaultAdapter',
+    computed('adapter', function() {
+      deprecate(
+        `store.adapterFor(modelName) resolved the ("${this.adapter ||
+          '-json-api'}") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
+        false,
+        {
+          id: 'ember-data:default-adapter',
+          until: '4.0',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-adapter',
+        }
+      );
+      let adapter = this.adapter || '-json-api';
 
-    assert(
-      'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
-      typeof adapter === 'string'
-    );
+      assert(
+        'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
+        typeof adapter === 'string'
+      );
 
-    return this.adapterFor(adapter);
-  })
-);
+      return this.adapterFor(adapter);
+    })
+  );
+}
 
 export default CoreStore;
 

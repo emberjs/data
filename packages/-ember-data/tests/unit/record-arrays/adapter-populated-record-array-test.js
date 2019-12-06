@@ -4,6 +4,8 @@ import { run } from '@ember/runloop';
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 const { AdapterPopulatedRecordArray, RecordArrayManager } = DS;
+import Evented from '@ember/object/evented';
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray', function() {
   function internalModelFor(record) {
@@ -125,9 +127,11 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(didAddRecord, 0, 'no records should have been added yet');
 
     let didLoad = 0;
-    recordArray.on('didLoad', function() {
-      didLoad++;
-    });
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      recordArray.on('didLoad', function() {
+        didLoad++;
+      });
+    }
 
     let links = { foo: 1 };
     let meta = { bar: 2 };
@@ -150,11 +154,15 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
         'should now contain the loaded records'
       );
 
-      assert.equal(didLoad, 0, 'didLoad event should not have fired');
+      if (DEPRECATE_EVENTED_API_USAGE) {
+        assert.equal(didLoad, 0, 'didLoad event should not have fired');
+      }
       assert.equal(recordArray.get('links').foo, 1);
       assert.equal(recordArray.get('meta').bar, 2);
     });
-    assert.equal(didLoad, 1, 'didLoad event should have fired once');
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      assert.equal(didLoad, 1, 'didLoad event should have fired once');
+    }
     assert.expectDeprecation({
       id: 'ember-data:evented-api-usage',
     });
@@ -176,7 +184,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       assert.equal(array, recordArray);
     }
 
-    let recordArray = AdapterPopulatedRecordArray.create({
+    // we need Evented to gain access to the @array:change event
+    let recordArray = AdapterPopulatedRecordArray.extend(Evented).create({
       query: 'some-query',
       manager: new RecordArrayManager({}),
     });

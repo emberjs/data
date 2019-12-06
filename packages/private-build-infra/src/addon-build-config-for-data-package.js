@@ -76,6 +76,17 @@ function addonBuildConfigForDataPackage(PackageName) {
       next(message);
     },
 
+    shouldIncludeChildAddon(addon) {
+      if (addon.name.startsWith('@ember-data')) {
+        if (this.name === 'ember-data' || addon.name === '@ember-data/canary-features') {
+          return true;
+        }
+
+        return false;
+      }
+      return true;
+    },
+
     getOutputDirForVersion() {
       let VersionChecker = require('ember-cli-version-checker');
       let checker = new VersionChecker(this);
@@ -89,7 +100,9 @@ function addonBuildConfigForDataPackage(PackageName) {
     buildBabelOptions() {
       let babelOptions = this.options.babel || {};
       let existingPlugins = babelOptions.plugins || [];
-      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost());
+      let compatVersion = this.getEmberDataConfig().compatWith || null;
+
+      let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost(), compatVersion);
       let plugins = existingPlugins.map(plugin => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
@@ -169,14 +182,10 @@ function addonBuildConfigForDataPackage(PackageName) {
         return this._emberDataConfig;
       }
       const app = this._findHost();
-      const parentIsEmberDataAddon = this.parent.pkg.name === 'ember-data';
 
       let options = (app.options = app.options || {});
       options.emberData = options.emberData || {};
 
-      if (options.emberData.includeDataAdapterInProduction === undefined) {
-        options.emberData.includeDataAdapterInProduction = parentIsEmberDataAddon;
-      }
       return options.emberData;
     },
   };

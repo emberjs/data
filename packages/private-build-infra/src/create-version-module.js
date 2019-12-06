@@ -28,6 +28,12 @@ function calculateVersion() {
   return packageVersion + suffix;
 }
 
-module.exports = function() {
-  return createFile('version.js', 'export default "' + calculateVersion() + '";');
+module.exports = function(compatVersion) {
+  return createFile(
+    'version.js',
+    'export default "' +
+      calculateVersion() +
+      '";\n' +
+      (compatVersion ? `export const COMPAT_VERSION = "${compatVersion}";\n` : '')
+  );
 };

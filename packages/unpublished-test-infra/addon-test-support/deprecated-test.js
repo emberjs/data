@@ -1,5 +1,5 @@
-import { test } from 'qunit';
-import VERSION from '@ember-data/unpublished-test-infra/version';
+import { test, skip } from 'qunit';
+import VERSION, { COMPAT_VERSION } from '@ember-data/unpublished-test-infra/version';
 import { DEBUG } from '@glimmer/env';
 
 // small comparison function for major and minor semver values
@@ -33,10 +33,15 @@ export function deprecatedTest(testName, deprecation, testCallback) {
     }
   }
 
+  let testFn = test;
+  if (COMPAT_VERSION && gte(COMPAT_VERSION, VERSION)) {
+    testFn = skip;
+  }
+
   if (gte(VERSION, deprecation.until)) {
-    test(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, interceptor);
+    testFn(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, interceptor);
   } else {
-    test(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, function(assert) {
+    testFn(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, function(assert) {
       if (deprecation.refactor === true) {
         assert.ok(false, 'This test includes use of a deprecated feature that should now be refactored.');
       } else {

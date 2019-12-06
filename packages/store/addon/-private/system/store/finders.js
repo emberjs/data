@@ -2,7 +2,6 @@ import { A } from '@ember/array';
 import { Promise } from 'rsvp';
 import { assert, warn, deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
-import Ember from 'ember';
 import coerceId from '../coerce-id';
 
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
@@ -169,20 +168,21 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
       typeof relationshipData !== 'undefined' &&
       !relationshipDataPointsToParent(relationshipData, parentInternalModel)
     ) {
-      let quotedType = Ember.inspect(type);
-      let quotedInverse = Ember.inspect(inverseKey);
-      let expected = Ember.inspect({
+      let inspect = function inspect(thing) {
+        return `'${JSON.stringify(thing)}'`;
+      };
+      let quotedType = inspect(type);
+      let quotedInverse = inspect(inverseKey);
+      let expected = inspect({
         id: parentInternalModel.id,
         type: parentInternalModel.modelName,
       });
-      let expectedModel = Ember.inspect(parentInternalModel);
-      let got = Ember.inspect(relationshipData);
+      let expectedModel = `${parentInternalModel.modelName}:${parentInternalModel.id}`;
+      let got = inspect(relationshipData);
       let prefix = typeof index === 'number' ? `data[${index}]` : `data`;
       let path = `${prefix}.relationships.${inverseKey}.data`;
       let other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
-      let relationshipFetched = `${Ember.inspect(parentInternalModel)}.${parentRelationship.kind}("${
-        parentRelationship.name
-      }")`;
+      let relationshipFetched = `${expectedModel}.${parentRelationship.kind}("${parentRelationship.name}")`;
       let includedRecord = `<${type}:${id}>`;
       let message = [
         `Encountered mismatched relationship: Ember Data expected ${path} in the payload from ${relationshipFetched} to include ${expected} but got ${got} instead.\n`,

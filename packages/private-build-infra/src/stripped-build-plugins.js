@@ -8,10 +8,10 @@ function isProduction(environment) {
   return /production/.test(environment);
 }
 
-module.exports = function(environment, app) {
+module.exports = function(environment, app, compatVersion) {
   const isProd = isProduction(environment);
   let plugins = [];
-  const DebugMacros = require('./debug-macros')(app, isProd);
+  const DebugMacros = require('./debug-macros')(app, isProd, compatVersion);
   let postTransformPlugins = [];
 
   if (isProd) {
