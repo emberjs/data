@@ -18,7 +18,7 @@ import { RecordReference, BelongsToReference, HasManyReference } from '../refere
 import { RecordData } from '../../ts-interfaces/record-data';
 import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
 import { RecordInstance } from '../../ts-interfaces/record-instance';
-import { ConfidentDict } from '../../ts-interfaces/utils';
+import { ConfidentDict, Dict } from '../../ts-interfaces/utils';
 import {
   IDENTIFIERS,
   RECORD_DATA_ERRORS,
@@ -967,7 +967,7 @@ export default class InternalModel {
     @method createSnapshot
     @private
   */
-  createSnapshot(options) {
+  createSnapshot(options?: Dict<any>): Snapshot {
     return new Snapshot(options || {}, this.identifier, this.store);
   }
 

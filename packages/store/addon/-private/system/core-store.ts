@@ -61,7 +61,7 @@ import { ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 import promiseRecord from '../utils/promise-record';
 import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
 import { internalModelFactoryFor, setRecordIdentifier, recordIdentifierFor } from './store/internal-model-factory';
-import { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
+import { RecordIdentifier, StableRecordIdentifier, StableExistingRecordIdentifier } from '../ts-interfaces/identifier';
 import { RecordReference, HasManyReference, BelongsToReference } from './references';
 import { Backburner } from '@ember/runloop/-private/backburner';
 import Snapshot from './snapshot';
@@ -1148,7 +1148,13 @@ abstract class CoreStore extends Service {
     // TODO  remove this once we dont rely on state machine
     internalModel.loadingData();
     let identifier = internalModel.identifier;
-    let promise = this._fetchManager.scheduleFetch(internalModel.identifier, options, generateStackTrace);
+
+    // TODO when we upgrade to TS 3.7 we can make use of assert
+    if (!identifierIsExisting(identifier)) {
+      throw new Error(`Attempted to schedule a fetch for a record without an id.`);
+    }
+
+    let promise = this._fetchManager.scheduleFetch(identifier, options, generateStackTrace);
     return promise.then(
       payload => {
         if (IDENTIFIERS) {
@@ -2481,7 +2487,9 @@ abstract class CoreStore extends Service {
       let pendingItem = pending[i];
       let snapshot = pendingItem.snapshot;
       let resolver = pendingItem.resolver;
-      let internalModel = snapshot._internalModel;
+      // TODO We have to cast due to our reliance on this private property
+      // this will be refactored away once we change our pending API to be identifier based
+      let internalModel = ((snapshot as unknown) as { _internalModel: InternalModel })._internalModel;
       let adapter = this.adapterFor(internalModel.modelName);
       let operation;
 
@@ -3034,7 +3042,7 @@ abstract class CoreStore extends Service {
     return internalModel.reloadBelongsTo(key, options);
   }
 
-  _internalModelForResource(resource: RecordIdentifier): InternalModel {
+  _internalModelForResource(resource: ResourceIdentifierObject): InternalModel {
     return internalModelFactoryFor(this).getByResource(resource);
   }
 
@@ -3724,4 +3732,8 @@ function internalModelForRelatedResource(
 ): InternalModel {
   const identifier = cache.getOrCreateRecordIdentifier(resource);
   return store._internalModelForResource(identifier);
+}
+
+function identifierIsExisting(identifier: StableRecordIdentifier): identifier is StableExistingRecordIdentifier {
+  return identifier.id !== null;
 }

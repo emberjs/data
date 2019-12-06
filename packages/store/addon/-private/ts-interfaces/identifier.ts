@@ -12,6 +12,16 @@ export interface Identifier {
   clientId?: string;
 }
 
+export interface ExistingRecordIdentifier extends Identifier {
+  id: string;
+  type: string;
+}
+
+export interface NewRecordIdentifier extends Identifier {
+  id: string | null;
+  type: string;
+}
+
 /**
  * An Identifier specific to a record which may or may not
  * be present in the cache.
@@ -21,10 +31,7 @@ export interface Identifier {
  * may also indicate that it was generated for a secondary
  * index and the primary `id` index is not yet known.
  */
-export interface RecordIdentifier extends Identifier {
-  id: string | null;
-  type: string;
-}
+export type RecordIdentifier = ExistingRecordIdentifier | NewRecordIdentifier;
 
 /**
  * Used when an Identifier is known to be the stable version
@@ -40,11 +47,18 @@ export interface StableIdentifier extends Identifier {
  *
  * @internal
  */
-export interface StableRecordIdentifier extends StableIdentifier {
+export interface StableExistingRecordIdentifier extends StableIdentifier {
+  id: string;
+  type: string;
+  [DEBUG_CLIENT_ORIGINATED]?: boolean;
+}
+export interface StableNewRecordIdentifier extends StableIdentifier {
   id: string | null;
   type: string;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
 }
+
+export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewRecordIdentifier;
 
 /**
   A method which can expect to receive various data as its first argument

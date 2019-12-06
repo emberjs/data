@@ -9,11 +9,14 @@ import coerceId from './coerce-id';
 import { A } from '@ember/array';
 import RequestCache from './request-cache';
 import { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
-import { RecordIdentifier } from '../ts-interfaces/identifier';
+import { RecordIdentifier, ExistingRecordIdentifier } from '../ts-interfaces/identifier';
 import { FindRecordQuery, SaveRecordMutation, Request } from '../ts-interfaces/fetch-manager';
 import { symbol } from '../ts-interfaces/utils/symbol';
 import CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
+import { Dict } from '../ts-interfaces/utils';
+
+type InternalModel = import('./model/internal-model').default;
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -27,7 +30,7 @@ const emberRun = emberRunLoop.backburner;
 export const SaveOp: unique symbol = symbol('SaveOp');
 
 interface PendingFetchItem {
-  identifier: RecordIdentifier;
+  identifier: ExistingRecordIdentifier;
   queryRequest: Request;
   resolver: RSVP.Deferred<any>;
   options: { [k: string]: unknown };
@@ -97,7 +100,9 @@ export default class FetchManager {
     let adapter = this._store.adapterFor(identifier.type);
     let operation = options[SaveOp];
 
-    let internalModel = snapshot._internalModel;
+    // TODO We have to cast due to our reliance on this private property
+    // this will be refactored away once we change our pending API to be identifier based
+    let internalModel = ((snapshot as unknown) as { _internalModel: InternalModel })._internalModel;
     let modelName = snapshot.modelName;
     let store = this._store;
     let modelClass = store.modelFor(modelName);
@@ -162,7 +167,7 @@ export default class FetchManager {
     }
   }
 
-  scheduleFetch(identifier: RecordIdentifier, options: any, shouldTrace: boolean): RSVP.Promise<any> {
+  scheduleFetch(identifier: ExistingRecordIdentifier, options: any, shouldTrace: boolean): RSVP.Promise<any> {
     // TODO Probably the store should pass in the query object
 
     let query: FindRecordQuery = {
@@ -318,7 +323,12 @@ export default class FetchManager {
     for (let i = 0, l = expectedSnapshots.length; i < l; i++) {
       let snapshot = expectedSnapshots[i];
 
-      if (!found[snapshot.id]) {
+      // TODO @runspired
+      // We know id is a string because you can't fetch
+      // without one.
+      // we should refactor to keying pending by identifier.lid
+      // so we can eliminate this cast
+      if (!found[snapshot.id as string]) {
         missingSnapshots.push(snapshot);
       }
     }
@@ -339,14 +349,17 @@ export default class FetchManager {
 
   rejectFetchedItems(seeking: { [id: string]: PendingFetchItem }, snapshots: Snapshot[], error?) {
     for (let i = 0, l = snapshots.length; i < l; i++) {
-      let identifier = snapshots[i];
-      let pair = seeking[identifier.id];
+      let snapshot = snapshots[i];
+      // TODO refactor to identifier.lid to avoid this cast to string
+      //  we can do this case because you can only fetch an identifier
+      //  that has an ID
+      let pair = seeking[snapshot.id as string];
 
       if (pair) {
         pair.resolver.reject(
           error ||
             new Error(
-              `Expected: '<${identifier.modelName}:${identifier.id}>' to be present in the adapter provided payload, but it was not found.`
+              `Expected: '<${snapshot.modelName}:${snapshot.id}>' to be present in the adapter provided payload, but it was not found.`
             )
         );
       }
@@ -435,7 +448,7 @@ export default class FetchManager {
       let identifier = pendingItem.identifier;
       identifiers[i] = identifier;
       optionsMap.set(identifier, pendingItem.options);
-      seeking[identifier.id as string] = pendingItem;
+      seeking[identifier.id] = pendingItem;
     }
 
     if (shouldCoalesce) {
@@ -451,7 +464,9 @@ export default class FetchManager {
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array<Snapshot>(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        let options = optionsMap.get(identifiers[i]);
+        // we know options is in the map due to having just set it above
+        // but TS doesn't know so we cast it
+        let options = optionsMap.get(identifiers[i]) as Dict<any>;
         snapshots[i] = new Snapshot(options, identifiers[i], this._store);
       }
 
