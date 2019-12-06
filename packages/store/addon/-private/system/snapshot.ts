@@ -169,6 +169,7 @@ export default class Snapshot {
         }
       });
     } else {
+      // When CUSTOM_MODEL_CLASS is false `record` must be DSModel
       (record as DSModel).eachAttribute(keyName => (attributes[keyName] = get(record as DSModel, keyName)));
     }
 
@@ -295,17 +296,17 @@ export default class Snapshot {
    will be returned if the contents of the relationship is unknown.
    */
   belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
-    let id = !!(options && options.id);
+    const returnModeIsId = !!(options && options.id);
     let relationship: BelongsToRelationship;
     let inverseInternalModel: InternalModel | null;
     let result: Snapshot | RecordId | undefined;
     let store = this._internalModel.store;
 
-    if (id === true && keyName in this._belongsToIds) {
+    if (returnModeIsId === true && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
     }
 
-    if (id === false && keyName in this._belongsToRelationships) {
+    if (returnModeIsId === false && keyName in this._belongsToRelationships) {
       return this._belongsToRelationships[keyName];
     }
 
@@ -329,7 +330,7 @@ export default class Snapshot {
 
     if (value && value.data !== undefined) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
-        if (id) {
+        if (returnModeIsId) {
           result = get(inverseInternalModel, 'id');
         } else {
           result = inverseInternalModel.createSnapshot();
@@ -339,7 +340,7 @@ export default class Snapshot {
       }
     }
 
-    if (id) {
+    if (returnModeIsId) {
       this._belongsToIds[keyName] = result as RecordId;
     } else {
       this._belongsToRelationships[keyName] = result as Snapshot;
@@ -378,17 +379,17 @@ export default class Snapshot {
    undefined will be returned if the contents of the relationship is unknown.
    */
   hasMany(keyName: string, options?: { ids?: boolean }): RecordId[] | Snapshot[] | undefined {
-    let ids = !!(options && options.ids);
+    const returnModeIsIds = !!(options && options.ids);
     let relationship: HasManyRelationship;
     let results: RecordId[] | Snapshot[] | undefined;
     let cachedIds: RecordId[] | undefined = this._hasManyIds[keyName];
     let cachedSnapshots: Snapshot[] | undefined = this._hasManyRelationships[keyName];
 
-    if (ids === true && keyName in this._hasManyIds) {
+    if (returnModeIsIds === true && keyName in this._hasManyIds) {
       return cachedIds;
     }
 
-    if (ids === false && keyName in this._hasManyRelationships) {
+    if (returnModeIsIds === false && keyName in this._hasManyRelationships) {
       return cachedSnapshots;
     }
 
@@ -413,7 +414,7 @@ export default class Snapshot {
       value.data.forEach(member => {
         let internalModel = store._internalModelForResource(member);
         if (!internalModel.isDeleted()) {
-          if (ids) {
+          if (returnModeIsIds) {
             (results as RecordId[]).push(member.id);
           } else {
             (results as Snapshot[]).push(internalModel.createSnapshot());
@@ -424,7 +425,7 @@ export default class Snapshot {
 
     // we assign even if `undefined` so that we don't reprocess the relationship
     // on next access. This works with the `keyName in` checks above.
-    if (ids) {
+    if (returnModeIsIds) {
       this._hasManyIds[keyName] = results as RecordId[];
     } else {
       this._hasManyRelationships[keyName] = results as Snapshot[];

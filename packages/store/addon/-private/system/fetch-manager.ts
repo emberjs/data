@@ -441,7 +441,7 @@ export default class FetchManager {
     let identifiers = new Array(totalItems);
     let seeking: { [id: string]: PendingFetchItem } = Object.create(null);
 
-    let optionsMap = new WeakMap<RecordIdentifier, Object>();
+    let optionsMap = new WeakMap<RecordIdentifier, Dict<unknown>>();
 
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];
@@ -466,7 +466,7 @@ export default class FetchManager {
       for (let i = 0; i < totalItems; i++) {
         // we know options is in the map due to having just set it above
         // but TS doesn't know so we cast it
-        let options = optionsMap.get(identifiers[i]) as Dict<any>;
+        let options = optionsMap.get(identifiers[i]) as Dict<unknown>;
         snapshots[i] = new Snapshot(options, identifiers[i], this._store);
       }
 
