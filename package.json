@@ -130,7 +130,7 @@
     "rsvp": "^4.8.5",
     "semver": "^6.2.0",
     "silent-error": "^1.1.1",
-    "typescript": "~3.7.2",
+    "typescript": "~3.7.3",
     "url": "^0.11.0",
     "zlib": "1.0.5"
   },
