@@ -32,7 +32,7 @@
     "@ember/edition-utils": "^1.1.1",
     "@ember/ordered-set": "^2.0.3",
     "@glimmer/env": "^0.1.7",
-    "broccoli-merge-trees": "^4.0.0",
+    "broccoli-merge-trees": "^3.0.2",
     "ember-cli-babel": "^7.13.0",
     "ember-cli-typescript": "^3.1.1",
     "ember-inflector": "^3.0.1"
@@ -50,7 +50,7 @@
     "@types/ember__test-helpers": "~0.7.9",
     "@types/qunit": "^2.5.3",
     "@types/rsvp": "^4.0.3",
-    "broccoli-concat": "^4.2.0",
+    "broccoli-concat": "^3.7.5",
     "broccoli-stew": "^3.0.0",
     "broccoli-string-replace": "^0.1.2",
     "broccoli-test-helper": "^2.0.0",
