@@ -12,7 +12,7 @@
   - null - The feature is disabled by default, but can be enabled at runtime via `EmberDataENV`.
 
   @module @ember-data/canary-features
-  @main
+  @main @ember-data/canary-features
   @private
   */
 export default {
