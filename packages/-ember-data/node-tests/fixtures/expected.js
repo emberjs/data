@@ -1,4 +1,16 @@
 module.exports = {
+  modules: [
+    '@ember-data/adapter',
+    '@ember-data/canary-features',
+    '@ember-data/debug',
+    '@ember-data/model',
+    '@ember-data/store',
+    '@ember-data/deprecations',
+    '@ember-data/private-build-infra',
+    '@ember-data/record-data',
+    '@ember-data/serializer',
+    '@ember-data',
+  ],
   classitems: [
     '(private) @ember-data/adapter BuildURLMixin#_buildURL',
     '(private) @ember-data/adapter BuildURLMixin#urlPrefix',

@@ -15,6 +15,12 @@ QUnit.module('Docs coverage', function(hooks) {
     expected = require('../fixtures/expected');
   });
 
+  QUnit.module('modules', function() {
+    test('We have all expected modules', function(assert) {
+      assert.deepEqual(Object.keys(docs.modules), expected.modules, 'We have all modules');
+    });
+  });
+
   QUnit.module('classitems', function(hooks) {
     let docsItems, expectedItems;
     hooks.before(function() {
