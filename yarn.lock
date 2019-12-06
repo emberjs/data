@@ -4229,14 +4229,6 @@ broccoli-merge-trees@^3.0.0, broccoli-merge-trees@^3.0.1, broccoli-merge-trees@^
     broccoli-plugin "^1.3.0"
     merge-trees "^2.0.0"
 
-broccoli-merge-trees@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/broccoli-merge-trees/-/broccoli-merge-trees-4.0.0.tgz#57c7993cc74bf16efed8df7a5188a0202a70216d"
-  integrity sha512-FJ1dTqxzDmpqbQFxuhicPbA6URV0D1XCKHFIvKwi6Y70pxuYLMpyRfjNv6iNSwSq/juxGubunKiLb8U2dM+a2A==
-  dependencies:
-    broccoli-plugin "^3.1.0"
-    merge-trees "^2.0.0"
-
 broccoli-middleware@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/broccoli-middleware/-/broccoli-middleware-2.1.0.tgz#cbb458cb6360bdd79aa75a54057f10fe918157e6"
