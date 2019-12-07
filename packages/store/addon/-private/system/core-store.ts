@@ -3736,7 +3736,7 @@ function internalModelForRelatedResource(
 function assertIdentifierHasId(
   identifier: StableRecordIdentifier
 ): asserts identifier is StableExistingRecordIdentifier {
-  if (DEBUG && identifier.id !== null) {
+  if (DEBUG && identifier.id === null) {
     throw new Error(`Attempted to schedule a fetch for a record without an id.`);
   }
 }
