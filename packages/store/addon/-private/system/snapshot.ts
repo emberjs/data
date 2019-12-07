@@ -65,7 +65,7 @@ export default class Snapshot implements Snapshot {
   public identifier: StableRecordIdentifier;
   public modelName: string;
   public id: string | null;
-  public include?: string;
+  public include?: unknown;
   public adapterOptions: Dict<unknown>;
 
   constructor(options: Dict<any>, identifier: StableRecordIdentifier, private _store: Store) {
