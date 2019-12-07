@@ -13,7 +13,6 @@ import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
-import { addSymbol } from '../ts-interfaces/utils/symbol';
 import require from 'require';
 import Ember from 'ember';
 import { assert, warn, inspect } from '@ember/debug';
@@ -54,34 +53,15 @@ import {
   HAS_SERIALIZER_PACKAGE,
 } from '@ember-data/private-build-infra';
 
-import { RecordInstance } from '../ts-interfaces/record-instance';
-import { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
-import { ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
-
 import promiseRecord from '../utils/promise-record';
 import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
 import { internalModelFactoryFor, setRecordIdentifier, recordIdentifierFor } from './store/internal-model-factory';
-import { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
 import { RecordReference, HasManyReference, BelongsToReference } from './references';
 import { Backburner } from '@ember/runloop/-private/backburner';
 import Snapshot from './snapshot';
-import {
-  EmptyResourceDocument,
-  SingleResourceDocument,
-  CollectionResourceDocument,
-  JsonApiDocument,
-  ExistingResourceObject,
-} from '../ts-interfaces/ember-data-json-api';
 import { RequestPromise } from './request-cache';
-import { PromiseProxy } from '../ts-interfaces/promise-proxies';
-import { DSModel } from '../ts-interfaces/ds-model';
 import NotificationManager from './record-notification-manager';
-import { AttributesSchema } from '../ts-interfaces/record-data-schemas';
-import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import ShimModelClass, { getShimClass } from './model/shim-model-class';
-import { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
-import { RecordData } from '../ts-interfaces/record-data';
-import { Dict } from '../ts-interfaces/utils';
 
 import constructResource from '../utils/construct-resource';
 import { errorsArrayToHash } from './errors-utils';
@@ -91,8 +71,30 @@ import {
   DEPRECATE_LEGACY_TEST_REGISTRATIONS,
 } from '@ember-data/private-build-infra/deprecations';
 
+// TODO this comes from ts-interfaces but it is a function we ship
+// so needs to be moved somewhere else
+import { addSymbol } from '../ts-interfaces/utils/symbol';
+
+type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
+type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
+type EmptyResourceDocument = import('../ts-interfaces/ember-data-json-api').EmptyResourceDocument;
+type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
+type JsonApiDocument = import('../ts-interfaces/ember-data-json-api').JsonApiDocument;
+type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
+type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
+type RecordData = import('../ts-interfaces/record-data').RecordData;
+type DSModel = import('../ts-interfaces/ds-model').DSModel;
+type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
+type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
+type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
+type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
+type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 type Relationship = import('@ember-data/record-data/-private').Relationship;
-type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
 
 const emberRun = emberRunLoop.backburner;
 
@@ -1148,7 +1150,10 @@ abstract class CoreStore extends Service {
     // TODO  remove this once we dont rely on state machine
     internalModel.loadingData();
     let identifier = internalModel.identifier;
-    let promise = this._fetchManager.scheduleFetch(internalModel.identifier, options, generateStackTrace);
+
+    assertIdentifierHasId(identifier);
+
+    let promise = this._fetchManager.scheduleFetch(identifier, options, generateStackTrace);
     return promise.then(
       payload => {
         if (IDENTIFIERS) {
@@ -2481,7 +2486,9 @@ abstract class CoreStore extends Service {
       let pendingItem = pending[i];
       let snapshot = pendingItem.snapshot;
       let resolver = pendingItem.resolver;
-      let internalModel = snapshot._internalModel;
+      // TODO We have to cast due to our reliance on this private property
+      // this will be refactored away once we change our pending API to be identifier based
+      let internalModel = ((snapshot as unknown) as PrivateSnapshot)._internalModel;
       let adapter = this.adapterFor(internalModel.modelName);
       let operation;
 
@@ -3034,7 +3041,7 @@ abstract class CoreStore extends Service {
     return internalModel.reloadBelongsTo(key, options);
   }
 
-  _internalModelForResource(resource: RecordIdentifier): InternalModel {
+  _internalModelForResource(resource: ResourceIdentifierObject): InternalModel {
     return internalModelFactoryFor(this).getByResource(resource);
   }
 
@@ -3724,4 +3731,12 @@ function internalModelForRelatedResource(
 ): InternalModel {
   const identifier = cache.getOrCreateRecordIdentifier(resource);
   return store._internalModelForResource(identifier);
+}
+
+function assertIdentifierHasId(
+  identifier: StableRecordIdentifier
+): asserts identifier is StableExistingRecordIdentifier {
+  if (DEBUG && identifier.id === null) {
+    throw new Error(`Attempted to schedule a fetch for a record without an id.`);
+  }
 }

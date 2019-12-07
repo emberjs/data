@@ -8,13 +8,13 @@ import { RelationshipSchema, AttributeSchema } from './record-data-schemas';
 export interface DSModel extends RecordInstance, EmberObject {
   toString(): string;
   save(): RSVP.Promise<DSModel>;
-  eachRelationship(callback: (key: string, meta: RelationshipSchema) => void): void;
-  eachAttribute(callback: (key: string) => void): void;
+  eachRelationship<T>(callback: (this: T, key: string, meta: RelationshipSchema) => void, binding?: T): void;
+  eachAttribute<T>(callback: (this: T, key: string, meta: AttributeSchema) => void, binding?: T): void;
   invalidErrorsChanged(errors: JsonApiValidationError[]): void;
   [key: string]: unknown;
 }
 
-// When model.js is typed this should be the static methods and properties
+// Implemented by both ShimModelClass and DSModel
 export interface ModelSchema {
   modelName: string;
   fields: Map<string, 'attribute' | 'belongsTo' | 'hasMany'>;
@@ -27,4 +27,10 @@ export interface ModelSchema {
     binding?: T
   ): void;
   toString(): string;
+}
+
+// This is the static side of DSModel should become DSModel
+//  once we can type it.
+export interface DSModelSchema extends ModelSchema {
+  isModel: true;
 }

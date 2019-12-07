@@ -1,22 +1,51 @@
 /**
   @module @ember-data/store
 */
-import { inspect } from '@ember/debug';
-import EmberError from '@ember/error';
+import { assert } from '@ember/debug';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import recordDataFor from './record-data-for';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+type InternalModel = import('./model/internal-model').default;
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type ChangedAttributesHash = import('../ts-interfaces/record-data').ChangedAttributesHash;
+type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
+type DSModel = import('../ts-interfaces/ds-model').DSModel;
+type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
+type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
+type AttributeSchema = import('../ts-interfaces/record-data-schemas').AttributeSchema;
+type RelationshipSchema = import('../ts-interfaces/record-data-schemas').RelationshipSchema;
+type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
+type HasManyRelationship = import('@ember-data/record-data/-private/relationships/state/has-many').default;
+type BelongsToRelationship = import('@ember-data/record-data/-private/relationships/state/belongs-to').default;
+type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
+type Store = import('./core-store').default;
+type RecordId = string | null;
 
-function relationshipsFor(instance) {
-  let recordData = recordDataFor(instance) || instance;
+function relationshipsFor(instance: Snapshot): Relationships {
+  let i = (instance as unknown) as PrivateSnapshot;
+  // TODO this cast is not safe but it is the assumption of the current
+  // state of the code. We need to update this class to handle CUSTOM_MODEL_CLASS
+  // requirements.
+  let recordData = i._internalModel._recordData as RelationshipRecordData;
 
   return recordData._relationships;
 }
 
-function relationshipStateFor(instance, propertyName) {
+function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModelSchema {
+  return (schema as DSModelSchema).isModel === true;
+}
+
+function relationshipStateFor(instance: Snapshot, propertyName: string): BelongsToRelationship | HasManyRelationship {
   return relationshipsFor(instance).get(propertyName);
 }
+
+type ProtoExntends<T, U> = U & Omit<T, keyof U>;
+interface _PrivateSnapshot {
+  _internalModel: InternalModel;
+}
+export type PrivateSnapshot = ProtoExntends<Snapshot, _PrivateSnapshot>;
 
 /**
   @class Snapshot
@@ -24,15 +53,23 @@ function relationshipStateFor(instance, propertyName) {
   @constructor
   @param {Model} internalModel The model to create a snapshot from
 */
-export default class Snapshot {
-  constructor(options, identifier, store) {
-    this.__attributes = null;
-    this._belongsToRelationships = Object.create(null);
-    this._belongsToIds = Object.create(null);
-    this._hasManyRelationships = Object.create(null);
-    this._hasManyIds = Object.create(null);
-    let internalModel = (this._internalModel = store._internalModelForResource(identifier));
-    this._store = store;
+export default class Snapshot implements Snapshot {
+  private __attributes: Dict<unknown> | null = null;
+  private _belongsToRelationships: Dict<Snapshot> = Object.create(null);
+  private _belongsToIds: Dict<RecordId> = Object.create(null);
+  private _hasManyRelationships: Dict<Snapshot[]> = Object.create(null);
+  private _hasManyIds: Dict<RecordId[]> = Object.create(null);
+  private _internalModel: InternalModel;
+  private _changedAttributes: ChangedAttributesHash;
+
+  public identifier: StableRecordIdentifier;
+  public modelName: string;
+  public id: string | null;
+  public include?: unknown;
+  public adapterOptions: Dict<unknown>;
+
+  constructor(options: Dict<any>, identifier: StableRecordIdentifier, private _store: Store) {
+    let internalModel = (this._internalModel = _store._internalModelForResource(identifier));
     this.modelName = identifier.type;
 
     if (CUSTOM_MODEL_CLASS) {
@@ -49,7 +86,7 @@ export default class Snapshot {
       this._attributes;
     }
 
-    /**O
+    /**
      The id of the snapshot's underlying record
 
      Example
@@ -98,34 +135,35 @@ export default class Snapshot {
    @property record
    @type {Model}
    */
-  get record() {
+  get record(): RecordInstance {
     return this._internalModel.getRecord();
   }
 
-  get _attributes() {
-    let attributes = this.__attributes;
+  get _attributes(): Dict<any> {
+    if (this.__attributes !== null) {
+      return this.__attributes;
+    }
+    let record = this.record;
+    let attributes = (this.__attributes = Object.create(null));
+    let attrs: string[];
 
-    if (attributes === null) {
-      let record = this.record;
-      attributes = this.__attributes = Object.create(null);
-      let attrs;
-
-      if (CUSTOM_MODEL_CLASS) {
-        attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, this.identifier));
-      } else {
-        attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, record.id));
-      }
-      if (CUSTOM_MODEL_CLASS) {
-        attrs.forEach(keyName => {
-          if (this.type.isModel) {
-            attributes[keyName] = get(record, keyName);
-          } else {
-            attributes[keyName] = recordDataFor(this._internalModel).getAttr(keyName);
-          }
-        });
-      } else {
-        record.eachAttribute(keyName => (attributes[keyName] = get(record, keyName)));
-      }
+    if (CUSTOM_MODEL_CLASS) {
+      attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, this.identifier));
+    } else {
+      attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName));
+    }
+    if (CUSTOM_MODEL_CLASS) {
+      attrs.forEach(keyName => {
+        if (schemaIsDSModel(this.type)) {
+          // if the schema is for a DSModel then the instance is too
+          attributes[keyName] = get(record as DSModel, keyName);
+        } else {
+          attributes[keyName] = recordDataFor(this._internalModel).getAttr(keyName);
+        }
+      });
+    } else {
+      // When CUSTOM_MODEL_CLASS is false `record` must be DSModel
+      (record as DSModel).eachAttribute(keyName => (attributes[keyName] = get(record as DSModel, keyName)));
     }
 
     return attributes;
@@ -137,19 +175,17 @@ export default class Snapshot {
    @property type
    @type {Model}
    */
-  get type() {
-    // TODO @runspired we should deprecate this in favor of modelClass but only once
-    // we've cleaned up the internals enough that a public change to follow suite is
-    // uncontroversial.
+  get type(): ModelSchema {
     return this._internalModel.modelClass;
   }
 
-  get isNew() {
+  get isNew(): boolean {
     if (!CUSTOM_MODEL_CLASS) {
       throw new Error('isNew is only available when custom model class ff is on');
     }
     return this._internalModel.isNew();
   }
+
   /**
    Returns the value of an attribute.
 
@@ -167,11 +203,11 @@ export default class Snapshot {
    @param {String} keyName
    @return {Object} The attribute value or undefined
    */
-  attr(keyName) {
+  attr(keyName: string): unknown {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
-    throw new EmberError("Model '" + inspect(this.record) + "' has no attribute named '" + keyName + "' defined.");
+    assert(`Model '${this.identifier}' has no attribute named '${keyName}' defined.`, false);
   }
 
   /**
@@ -187,7 +223,7 @@ export default class Snapshot {
    @method attributes
    @return {Object} All attributes of the current snapshot
    */
-  attributes() {
+  attributes(): Dict<unknown> {
     return assign({}, this._attributes);
   }
 
@@ -205,7 +241,7 @@ export default class Snapshot {
    @method changedAttributes
    @return {Object} All changed attributes of the current snapshot
    */
-  changedAttributes() {
+  changedAttributes(): ChangedAttributesHash {
     let changedAttributes = Object.create(null);
     let changedAttributeKeys = Object.keys(this._changedAttributes);
 
@@ -252,39 +288,42 @@ export default class Snapshot {
    relationship or null if the relationship is known but unset. undefined
    will be returned if the contents of the relationship is unknown.
    */
-  belongsTo(keyName, options) {
-    let id = options && options.id;
-    let relationship;
-    let inverseInternalModel;
-    let result;
+  belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
+    let returnModeIsId = !!(options && options.id);
+    let relationship: BelongsToRelationship;
+    let inverseInternalModel: InternalModel | null;
+    let result: Snapshot | RecordId | undefined;
     let store = this._internalModel.store;
 
-    if (id && keyName in this._belongsToIds) {
+    if (returnModeIsId === true && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
     }
 
-    if (!id && keyName in this._belongsToRelationships) {
+    if (returnModeIsId === false && keyName in this._belongsToRelationships) {
       return this._belongsToRelationships[keyName];
     }
 
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
-    if (!(relationshipMeta && relationshipMeta.kind === 'belongsTo')) {
-      throw new EmberError(
-        "Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined."
-      );
-    }
+    assert(
+      `Model '${this.identifier}' has no belongsTo relationship named '${keyName}' defined.`,
+      relationshipMeta && relationshipMeta.kind === 'belongsTo'
+    );
 
-    relationship = relationshipStateFor(this, keyName);
+    // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
+
+    // TODO @runspired instead of casting here either generify relationship state or
+    // provide a mechanism on relationship state by which to narrow.
+    relationship = relationshipStateFor(this, keyName) as BelongsToRelationship;
 
     let value = relationship.getData();
     let data = value && value.data;
 
-    inverseInternalModel = data && store._internalModelForResource(data);
+    inverseInternalModel = data ? store._internalModelForResource(data) : null;
 
     if (value && value.data !== undefined) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
-        if (id) {
-          result = get(inverseInternalModel, 'id');
+        if (returnModeIsId) {
+          result = inverseInternalModel.id;
         } else {
           result = inverseInternalModel.createSnapshot();
         }
@@ -293,10 +332,10 @@ export default class Snapshot {
       }
     }
 
-    if (id) {
-      this._belongsToIds[keyName] = result;
+    if (returnModeIsId) {
+      this._belongsToIds[keyName] = result as RecordId;
     } else {
-      this._belongsToRelationships[keyName] = result;
+      this._belongsToRelationships[keyName] = result as Snapshot;
     }
 
     return result;
@@ -331,28 +370,33 @@ export default class Snapshot {
    relationship or an empty array if the relationship is known but unset.
    undefined will be returned if the contents of the relationship is unknown.
    */
-  hasMany(keyName, options) {
-    let ids = options && options.ids;
-    let relationship;
-    let results;
+  hasMany(keyName: string, options?: { ids?: boolean }): RecordId[] | Snapshot[] | undefined {
+    let returnModeIsIds = !!(options && options.ids);
+    let relationship: HasManyRelationship;
+    let results: RecordId[] | Snapshot[] | undefined;
+    let cachedIds: RecordId[] | undefined = this._hasManyIds[keyName];
+    let cachedSnapshots: Snapshot[] | undefined = this._hasManyRelationships[keyName];
 
-    if (ids && keyName in this._hasManyIds) {
-      return this._hasManyIds[keyName];
+    if (returnModeIsIds === true && keyName in this._hasManyIds) {
+      return cachedIds;
     }
 
-    if (!ids && keyName in this._hasManyRelationships) {
-      return this._hasManyRelationships[keyName];
+    if (returnModeIsIds === false && keyName in this._hasManyRelationships) {
+      return cachedSnapshots;
     }
 
     let store = this._internalModel.store;
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
-    if (!(relationshipMeta && relationshipMeta.kind === 'hasMany')) {
-      throw new EmberError(
-        "Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined."
-      );
-    }
+    assert(
+      `Model '${this.identifier}' has no hasMany relationship named '${keyName}' defined.`,
+      relationshipMeta && relationshipMeta.kind === 'hasMany'
+    );
 
-    relationship = relationshipStateFor(this, keyName);
+    // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
+
+    // TODO @runspired instead of casting here either generify relationship state or
+    // provide a mechanism on relationship state by which to narrow.
+    relationship = relationshipStateFor(this, keyName) as HasManyRelationship;
 
     let value = relationship.getData();
 
@@ -361,19 +405,21 @@ export default class Snapshot {
       value.data.forEach(member => {
         let internalModel = store._internalModelForResource(member);
         if (!internalModel.isDeleted()) {
-          if (ids) {
-            results.push(member.id);
+          if (returnModeIsIds) {
+            (results as RecordId[]).push(member.id);
           } else {
-            results.push(internalModel.createSnapshot());
+            (results as Snapshot[]).push(internalModel.createSnapshot());
           }
         }
       });
     }
 
-    if (ids) {
-      this._hasManyIds[keyName] = results;
+    // we assign even if `undefined` so that we don't reprocess the relationship
+    // on next access. This works with the `keyName in` checks above.
+    if (returnModeIsIds) {
+      this._hasManyIds[keyName] = results as RecordId[];
     } else {
-      this._hasManyRelationships[keyName] = results;
+      this._hasManyRelationships[keyName] = results as Snapshot[];
     }
 
     return results;
@@ -395,14 +441,15 @@ export default class Snapshot {
     @param {Function} callback the callback to execute
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
-  eachAttribute(callback, binding) {
+  eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
     if (CUSTOM_MODEL_CLASS) {
       let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.identifier);
       Object.keys(attrDefs).forEach(key => {
         callback.call(binding, key, attrDefs[key]);
       });
     } else {
-      this.record.eachAttribute(callback, binding);
+      // in the non CUSTOM_MODEL_CLASS world we only have DSModel instances
+      (this.record as DSModel).eachAttribute(callback, binding);
     }
   }
 
@@ -422,14 +469,15 @@ export default class Snapshot {
     @param {Function} callback the callback to execute
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
-  eachRelationship(callback, binding) {
+  eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
     if (CUSTOM_MODEL_CLASS) {
       let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.identifier);
       Object.keys(relationshipDefs).forEach(key => {
         callback.call(binding, key, relationshipDefs[key]);
       });
     } else {
-      this.record.eachRelationship(callback, binding);
+      // in the non CUSTOM_MODEL_CLASS world we only have DSModel instances
+      (this.record as DSModel).eachRelationship(callback, binding);
     }
   }
 
@@ -458,7 +506,7 @@ export default class Snapshot {
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
    */
-  serialize(options) {
-    return this.record.store.serializerFor(this.modelName).serialize(this, options);
+  serialize(options: unknown): unknown {
+    return this._store.serializerFor(this.modelName).serialize(this, options);
   }
 }

@@ -236,8 +236,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
     });
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
-
-    assert.throws(
+    assert.expectAssertion(
       () => {
         snapshot.attr('unknown');
       },
@@ -452,7 +451,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
 
-    assert.throws(
+    assert.expectAssertion(
       () => {
         snapshot.belongsTo('unknown');
       },
@@ -982,7 +981,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
 
-    assert.throws(
+    assert.expectAssertion(
       () => {
         snapshot.hasMany('unknown');
       },
