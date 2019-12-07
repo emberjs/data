@@ -236,7 +236,6 @@ module('integration/snapshot - Snapshot', function(hooks) {
     });
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
-
     assert.throws(
       () => {
         snapshot.attr('unknown');

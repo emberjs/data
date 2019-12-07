@@ -1,8 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { inspect } from '@ember/debug';
-import EmberError from '@ember/error';
+import { assert } from '@ember/debug';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import recordDataFor from './record-data-for';
@@ -208,7 +207,7 @@ export default class Snapshot implements Snapshot {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
-    throw new EmberError("Model '" + inspect(this.record) + "' has no attribute named '" + keyName + "' defined.");
+    assert(`Model '${this.identifier}' has no attribute named '${keyName}' defined.`, false);
   }
 
   /**
@@ -305,11 +304,10 @@ export default class Snapshot implements Snapshot {
     }
 
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
-    if (!(relationshipMeta && relationshipMeta.kind === 'belongsTo')) {
-      throw new EmberError(
-        "Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined."
-      );
-    }
+    assert(
+      `Model '${this.identifier}' has no belongsTo relationship named '${keyName}' defined.`,
+      relationshipMeta && relationshipMeta.kind === 'belongsTo'
+    );
 
     // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
 
@@ -325,7 +323,7 @@ export default class Snapshot implements Snapshot {
     if (value && value.data !== undefined) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
         if (returnModeIsId) {
-          result = get(inverseInternalModel, 'id');
+          result = inverseInternalModel.id;
         } else {
           result = inverseInternalModel.createSnapshot();
         }
@@ -389,11 +387,10 @@ export default class Snapshot implements Snapshot {
 
     let store = this._internalModel.store;
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
-    if (!(relationshipMeta && relationshipMeta.kind === 'hasMany')) {
-      throw new EmberError(
-        "Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined."
-      );
-    }
+    assert(
+      `Model '${this.identifier}' has no hasMany relationship named '${keyName}' defined.`,
+      relationshipMeta && relationshipMeta.kind === 'hasMany'
+    );
 
     // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
 
