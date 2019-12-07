@@ -967,7 +967,7 @@ export default class InternalModel {
     @method createSnapshot
     @private
   */
-  createSnapshot(options?: Dict<any>): Snapshot {
+  createSnapshot(options?: Dict<unknown>): Snapshot {
     return new Snapshot(options || {}, this.identifier, this.store);
   }
 
