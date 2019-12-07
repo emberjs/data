@@ -329,13 +329,11 @@ export default class FetchManager {
 
     for (let i = 0, l = expectedSnapshots.length; i < l; i++) {
       let snapshot = expectedSnapshots[i];
+      assertIsString(snapshot.id);
 
-      // TODO @runspired
       // We know id is a string because you can't fetch
       // without one.
-      // we should refactor to keying pending by identifier.lid
-      // so we can eliminate this cast
-      if (!found[snapshot.id as string]) {
+      if (!found[snapshot.id]) {
         missingSnapshots.push(snapshot);
       }
     }
@@ -357,10 +355,11 @@ export default class FetchManager {
   rejectFetchedItems(seeking: { [id: string]: PendingFetchItem }, snapshots: Snapshot[], error?) {
     for (let i = 0, l = snapshots.length; i < l; i++) {
       let snapshot = snapshots[i];
+      assertIsString(snapshot.id);
       // TODO refactor to identifier.lid to avoid this cast to string
       //  we can do this case because you can only fetch an identifier
       //  that has an ID
-      let pair = seeking[snapshot.id as string];
+      let pair = seeking[snapshot.id];
 
       if (pair) {
         pair.resolver.reject(
@@ -500,5 +499,13 @@ export default class FetchManager {
 
   destroy() {
     this.isDestroyed = true;
+  }
+}
+
+function assertIsString(id: string | null): asserts id is string {
+  if (DEBUG) {
+    if (typeof id !== 'string') {
+      throw new Error(`Cannot fetch record without an id`);
+    }
   }
 }

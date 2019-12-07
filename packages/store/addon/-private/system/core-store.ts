@@ -1151,7 +1151,7 @@ abstract class CoreStore extends Service {
     internalModel.loadingData();
     let identifier = internalModel.identifier;
 
-    assertIdentifierIsExisting(identifier);
+    assertIdentifierHasId(identifier);
 
     let promise = this._fetchManager.scheduleFetch(identifier, options, generateStackTrace);
     return promise.then(
@@ -3733,7 +3733,7 @@ function internalModelForRelatedResource(
   return store._internalModelForResource(identifier);
 }
 
-function assertIdentifierIsExisting(
+function assertIdentifierHasId(
   identifier: StableRecordIdentifier
 ): asserts identifier is StableExistingRecordIdentifier {
   if (DEBUG && identifier.id !== null) {
