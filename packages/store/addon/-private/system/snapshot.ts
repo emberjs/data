@@ -7,15 +7,17 @@ import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import recordDataFor from './record-data-for';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import { Dict } from '../ts-interfaces/utils';
-import { StableRecordIdentifier } from '../ts-interfaces/identifier';
-import InternalModel from './model/internal-model';
-import { ChangedAttributesHash } from '../ts-interfaces/record-data';
-import { RecordInstance } from '../ts-interfaces/record-instance';
-import { DSModel, DSModelSchema, ModelSchema } from '../ts-interfaces/ds-model';
-import { AttributeSchema, RelationshipSchema } from '../ts-interfaces/record-data-schemas';
-import { RelationshipRecordData } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
-
+type InternalModel = import('./model/internal-model').default;
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type ChangedAttributesHash = import('../ts-interfaces/record-data').ChangedAttributesHash;
+type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
+type DSModel = import('../ts-interfaces/ds-model').DSModel;
+type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
+type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
+type AttributeSchema = import('../ts-interfaces/record-data-schemas').AttributeSchema;
+type RelationshipSchema = import('../ts-interfaces/record-data-schemas').RelationshipSchema;
+type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
 type HasManyRelationship = import('@ember-data/record-data/-private/relationships/state/has-many').default;
 type BelongsToRelationship = import('@ember-data/record-data/-private/relationships/state/belongs-to').default;
 type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
@@ -33,7 +35,7 @@ function relationshipsFor(instance: Snapshot): Relationships {
 }
 
 function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModelSchema {
-  return 'isModel' in schema && schema.isModel === true;
+  return (schema as DSModelSchema).isModel === true;
 }
 
 function relationshipStateFor(instance: Snapshot, propertyName: string): BelongsToRelationship | HasManyRelationship {
