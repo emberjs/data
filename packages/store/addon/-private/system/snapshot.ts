@@ -144,7 +144,7 @@ export default class Snapshot implements Snapshot {
       return this.__attributes;
     }
     let record = this.record;
-    const attributes = (this.__attributes = Object.create(null));
+    let attributes = (this.__attributes = Object.create(null));
     let attrs: string[];
 
     if (CUSTOM_MODEL_CLASS) {
@@ -289,7 +289,7 @@ export default class Snapshot implements Snapshot {
    will be returned if the contents of the relationship is unknown.
    */
   belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
-    const returnModeIsId = !!(options && options.id);
+    let returnModeIsId = !!(options && options.id);
     let relationship: BelongsToRelationship;
     let inverseInternalModel: InternalModel | null;
     let result: Snapshot | RecordId | undefined;
@@ -371,7 +371,7 @@ export default class Snapshot implements Snapshot {
    undefined will be returned if the contents of the relationship is unknown.
    */
   hasMany(keyName: string, options?: { ids?: boolean }): RecordId[] | Snapshot[] | undefined {
-    const returnModeIsIds = !!(options && options.ids);
+    let returnModeIsIds = !!(options && options.ids);
     let relationship: HasManyRelationship;
     let results: RecordId[] | Snapshot[] | undefined;
     let cachedIds: RecordId[] | undefined = this._hasManyIds[keyName];
