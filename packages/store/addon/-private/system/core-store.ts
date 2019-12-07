@@ -1152,7 +1152,6 @@ abstract class CoreStore extends Service {
     internalModel.loadingData();
     let identifier = internalModel.identifier;
 
-    // TODO when we upgrade to TS 3.7 we can make use of assert
     assertIdentifierIsExisting(identifier);
 
     let promise = this._fetchManager.scheduleFetch(identifier, options, generateStackTrace);
