@@ -82,7 +82,6 @@ type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').Sin
 type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
 type JsonApiDocument = import('../ts-interfaces/ember-data-json-api').JsonApiDocument;
 type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
-
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
@@ -94,7 +93,7 @@ type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
 type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
 type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
-
+type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 type Relationship = import('@ember-data/record-data/-private').Relationship;
 
 const emberRun = emberRunLoop.backburner;
@@ -2489,7 +2488,7 @@ abstract class CoreStore extends Service {
       let resolver = pendingItem.resolver;
       // TODO We have to cast due to our reliance on this private property
       // this will be refactored away once we change our pending API to be identifier based
-      let internalModel = ((snapshot as unknown) as { _internalModel: InternalModel })._internalModel;
+      let internalModel = ((snapshot as unknown) as PrivateSnapshot)._internalModel;
       let adapter = this.adapterFor(internalModel.modelName);
       let operation;
 

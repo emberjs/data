@@ -23,22 +23,7 @@ type Store = import('./core-store').default;
 type RecordId = string | null;
 
 function relationshipsFor(instance: Snapshot): Relationships {
-  // typescript doesn't have a pattern for private utils
-  // meant to encapsulate private property access like this
-  // so the method takes the typed thing and returns a typed
-  // thing but internally we cast to any to allow tsc to be happy.
-  // over time this helper will ship to looking up relationship
-  // info from a store cache via identifier eliminating
-  // this private API usage.
-  // @mnorth has suggested that over time we will be able to use
-  // https://github.com/microsoft/rushstack/tree/master/apps/api-extractor
-  // to mark all APIs as public but separate out what is public vs private
-  // for docs and public types purposes.
-  // That said keeping things `private` helps us avoid breaking API
-  // boundaries internally so we should think about how to improve
-  // the design to avoid these sorts of casts but preserve the ability
-  // to have private helper utils for a module.
-  let i = (instance as unknown) as { _internalModel: InternalModel };
+  let i = (instance as unknown) as PrivateSnapshot;
   // TODO this cast is not safe but it is the assumption of the current
   // state of the code. We need to update this class to handle CUSTOM_MODEL_CLASS
   // requirements.
@@ -55,13 +40,19 @@ function relationshipStateFor(instance: Snapshot, propertyName: string): Belongs
   return relationshipsFor(instance).get(propertyName);
 }
 
+type ProtoExntends<T, U> = U & Omit<T, keyof U>;
+interface _PrivateSnapshot {
+  _internalModel: InternalModel;
+}
+export type PrivateSnapshot = ProtoExntends<Snapshot, _PrivateSnapshot>;
+
 /**
   @class Snapshot
   @private
   @constructor
   @param {Model} internalModel The model to create a snapshot from
 */
-export default class Snapshot {
+export default class Snapshot implements Snapshot {
   private __attributes: Dict<unknown> | null = null;
   private _belongsToRelationships: Dict<Snapshot> = Object.create(null);
   private _belongsToIds: Dict<RecordId> = Object.create(null);

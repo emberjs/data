@@ -8,15 +8,22 @@ import { normalizeResponseHelper } from './store/serializer-response';
 import coerceId from './coerce-id';
 import { A } from '@ember/array';
 import RequestCache from './request-cache';
-import { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
-import { RecordIdentifier, ExistingRecordIdentifier } from '../ts-interfaces/identifier';
-import { FindRecordQuery, SaveRecordMutation, Request } from '../ts-interfaces/fetch-manager';
-import { symbol } from '../ts-interfaces/utils/symbol';
-import CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
-import { Dict } from '../ts-interfaces/utils';
 
-type InternalModel = import('./model/internal-model').default;
+// TODO @runspired symbol shouldn't be in ts-interfaces
+// as it is runtime code
+import { symbol } from '../ts-interfaces/utils/symbol';
+
+type CoreStore = import('./core-store').default;
+type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
+type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
+type Request = import('../ts-interfaces/fetch-manager').Request;
+type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
+type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
+type ExistingRecordIdentifier = import('../ts-interfaces/identifier').ExistingRecordIdentifier;
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
+type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -102,7 +109,7 @@ export default class FetchManager {
 
     // TODO We have to cast due to our reliance on this private property
     // this will be refactored away once we change our pending API to be identifier based
-    let internalModel = ((snapshot as unknown) as { _internalModel: InternalModel })._internalModel;
+    let internalModel = ((snapshot as unknown) as PrivateSnapshot)._internalModel;
     let modelName = snapshot.modelName;
     let store = this._store;
     let modelClass = store.modelFor(modelName);
