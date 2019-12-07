@@ -28,7 +28,7 @@
     "test-external:ember-m3": "./bin/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "./bin/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
     "test-external:model-fragments": "./bin/test-external-partner-project.js model-fragments https://github.com/lytics/ember-data-model-fragments.git",
-    "test-external:ember-observer": "./bin/test-external-partner-project.js ember-observer https://github.com/emberobserver/client.git",
+    "test-external:ember-observer": "./bin/test-external-partner-project.js ember-observer https://github.com/emberobserver/client.git --noLockFile",
     "test-external:travis-web": "./bin/test-external-partner-project.js travis-web https://github.com/travis-ci/travis-web.git",
     "test-external:storefront": "./bin/test-external-partner-project.js storefront https://github.com/embermap/ember-data-storefront.git",
     "test-external:factory-guy": "./bin/test-external-partner-project.js factory-guy https://github.com/danielspaniel/ember-data-factory-guy.git",
