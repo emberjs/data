@@ -41,18 +41,30 @@ module('integration/records/error', function(hooks) {
       lastName: null,
     });
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.uncommitted');
+    assert.equal(
+      person._internalModel.currentState.stateName,
+      'root.loaded.updated.uncommitted',
+      'Model state is root.loaded.updated.uncommitted'
+    );
 
     person.errors.add('firstName', 'is invalid');
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.invalid');
+    assert.equal(
+      person._internalModel.currentState.stateName,
+      'root.loaded.updated.invalid',
+      'Model state is updated to root.loaded.updated.invalid after an error is manually added'
+    );
 
     person.errors.add('lastName', 'is invalid');
 
-    assert.deepEqual(person.errors.toArray(), [
-      { attribute: 'firstName', message: 'is invalid' },
-      { attribute: 'lastName', message: 'is invalid' },
-    ]);
+    assert.deepEqual(
+      person.errors.toArray(),
+      [
+        { attribute: 'firstName', message: 'is invalid' },
+        { attribute: 'lastName', message: 'is invalid' },
+      ],
+      'Manually added errors appear in errors with their respective messages'
+    );
   });
 
   testInDebug('adding errors root.loaded.created.invalid works', function(assert) {
@@ -78,18 +90,30 @@ module('integration/records/error', function(hooks) {
       lastName: null,
     });
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
+    assert.equal(
+      person._internalModel.currentState.stateName,
+      'root.loaded.created.uncommitted',
+      'Model state is root.loaded.updated.uncommitted'
+    );
 
     person.errors.add('firstName', 'is invalid');
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+    assert.equal(
+      person._internalModel.currentState.stateName,
+      'root.loaded.created.invalid',
+      'Model state is updated to root.loaded.updated.invalid after an error is manually added'
+    );
 
     person.errors.add('lastName', 'is invalid');
 
-    assert.deepEqual(person.errors.toArray(), [
-      { attribute: 'firstName', message: 'is invalid' },
-      { attribute: 'lastName', message: 'is invalid' },
-    ]);
+    assert.deepEqual(
+      person.errors.toArray(),
+      [
+        { attribute: 'firstName', message: 'is invalid' },
+        { attribute: 'lastName', message: 'is invalid' },
+      ],
+      'Manually added errors appear in errors with their respective messages'
+    );
   });
 
   testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function(assert) {
@@ -196,18 +220,16 @@ module('integration/records/error', function(hooks) {
     } catch (_error) {
       let errors = person.errors;
 
-      assert.equal(errors.length, 2);
-      assert.ok(errors.has('firstName'));
-      assert.ok(errors.has('lastName'));
+      assert.equal(errors.length, 2, 'Adds two errors to the model');
+      assert.equal(errors.has('firstName'), true, 'firstName is included in the errors object');
+      assert.equal(errors.has('lastName'), true, 'lastName is included in the errors object');
 
       person.setProperties({
         firstName: 'updated',
         lastName: 'updated',
       });
 
-      assert.equal(errors.length, 0);
-      assert.notOk(errors.has('firstName'));
-      assert.notOk(errors.has('lastName'));
+      assert.equal(errors.length, 0, 'Clears errors after the attributes are updated');
     }
   });
 });
