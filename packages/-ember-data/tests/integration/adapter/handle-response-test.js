@@ -198,6 +198,7 @@ module('integration/adapter/handle-response', function(hooks) {
 
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
+
   test('handleResponse is called on invalid repsonse', async function(assert) {
     let handleResponseCalled = 0;
 
@@ -219,6 +220,65 @@ module('integration/adapter/handle-response', function(hooks) {
       },
       text() {
         return reject('bogus reponse');
+      },
+    };
+
+    class TestAdapter extends JSONAPIAdapter {
+      handleResponse(status, headers, payload, requestData) {
+        handleResponseCalled++;
+
+        if (this.isSuccess(status, headers, payload)) {
+          return payload;
+        }
+
+        let errors = this.normalizeErrorResponse(status, headers, payload);
+        let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
+
+        return new AdapterError(errors, detailedMessage);
+      }
+
+      _ajaxRequest() {
+        return reject(ajaxResponse);
+      }
+
+      _fetchRequest() {
+        return reject(fetchResponse);
+      }
+    }
+
+    this.owner.register('adapter:application', TestAdapter);
+
+    try {
+      await this.store.findAll('person');
+      assert.ok(false, 'promise should reject');
+    } catch {
+      assert.ok(true, 'promise rejected');
+    }
+
+    assert.equal(handleResponseCalled, 1, 'handle response is called');
+  });
+
+  test('handleResponse is called on invalid repsonse with 400 status', async function(assert) {
+    let handleResponseCalled = 0;
+
+    let ajaxResponse = {
+      status: '400',
+      headers: {},
+      text() {
+        return reject('');
+      },
+    };
+
+    let fetchResponse = {
+      ok: false,
+      status: '400',
+      headers: {
+        forEach(callback) {
+          callback('json', 'content-type');
+        },
+      },
+      text() {
+        return reject('');
       },
     };
 
