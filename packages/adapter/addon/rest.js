@@ -1266,9 +1266,7 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 function ajaxError(adapter, payload, requestData, responseData) {
   let error;
 
-  if (responseData.errorThrown instanceof Error) {
-    error = responseData.errorThrown;
-  } else if (responseData.textStatus === 'timeout') {
+  if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
   } else if (responseData.textStatus === 'abort' || responseData.status === 0) {
     error = handleAbort(requestData, responseData);
@@ -1283,6 +1281,10 @@ function ajaxError(adapter, payload, requestData, responseData) {
     } catch (e) {
       error = e;
     }
+  }
+
+  if (responseData.errorThrown instanceof Error) {
+    error = responseData.errorThrown;
   }
 
   return error;

@@ -4,6 +4,7 @@ import { module, test } from 'qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import AdapterError from '@ember-data/adapter/error';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
+import Pretender from 'pretender';
 import Model, { attr } from '@ember-data/model';
 
 class Person extends Model {
@@ -17,7 +18,16 @@ module('integration/adapter/handle-response', function(hooks) {
     this.owner.register('serializer:application', JSONAPISerializer);
 
     this.store = this.owner.lookup('service:store');
+    this.server = new Pretender();
   });
+
+  hooks.afterEach(function() {
+    if (this.server) {
+      this.server.shutdown();
+      this.server = null;
+    }
+  });
+
   test('handleResponse is called with normal response', async function(assert) {
     let handleResponseCalled = 0;
 
@@ -40,22 +50,9 @@ module('integration/adapter/handle-response', function(hooks) {
       ],
     };
 
-    let ajaxResponse = {
-      status: '200',
-      headers: {},
-      text() {
-        return resolve(JSON.stringify(samplePayload));
-      },
-    };
-
-    let fetchResponse = {
-      ok: true,
-      status: '200',
-      headers: [],
-      text() {
-        return resolve(JSON.stringify(samplePayload));
-      },
-    };
+    this.server.get('/people', function() {
+      return [200, { 'Content-Type': 'application/json' }, JSON.stringify(samplePayload)];
+    });
 
     class TestAdapter extends JSONAPIAdapter {
       handleResponse(status, headers, payload, requestData) {
@@ -69,14 +66,6 @@ module('integration/adapter/handle-response', function(hooks) {
         let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
         return new AdapterError(errors, detailedMessage);
-      }
-
-      _ajaxRequest() {
-        return resolve(ajaxResponse);
-      }
-
-      _fetchRequest() {
-        return resolve(fetchResponse);
       }
     }
 
@@ -86,6 +75,7 @@ module('integration/adapter/handle-response', function(hooks) {
 
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
+
   test('handleResponse is called with empty response', async function(assert) {
     let handleResponseCalled = 0;
 
@@ -93,22 +83,9 @@ module('integration/adapter/handle-response', function(hooks) {
       data: [],
     };
 
-    let ajaxResponse = {
-      status: '200',
-      headers: {},
-      text() {
-        return resolve(JSON.stringify(samplePayload));
-      },
-    };
-
-    let fetchResponse = {
-      ok: true,
-      status: '200',
-      headers: [],
-      text() {
-        return resolve(JSON.stringify(samplePayload));
-      },
-    };
+    this.server.get('/people', function() {
+      return [200, { 'Content-Type': 'application/json' }, JSON.stringify(samplePayload)];
+    });
 
     class TestAdapter extends JSONAPIAdapter {
       handleResponse(status, headers, payload, requestData) {
@@ -122,14 +99,6 @@ module('integration/adapter/handle-response', function(hooks) {
         let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
         return new AdapterError(errors, detailedMessage);
-      }
-
-      _ajaxRequest() {
-        return resolve(ajaxResponse);
-      }
-
-      _fetchRequest() {
-        return resolve(fetchResponse);
       }
     }
 
@@ -143,26 +112,9 @@ module('integration/adapter/handle-response', function(hooks) {
   test('handleResponse is called on empty repsonse', async function(assert) {
     let handleResponseCalled = 0;
 
-    let ajaxResponse = {
-      status: '200',
-      headers: {},
-      text() {
-        return reject('');
-      },
-    };
-
-    let fetchResponse = {
-      ok: true,
-      status: '200',
-      headers: {
-        forEach(callback) {
-          callback('json', 'content-type');
-        },
-      },
-      text() {
-        return reject('');
-      },
-    };
+    this.server.get('/people', function() {
+      return [200, { 'Content-Type': 'application/json' }, ''];
+    });
 
     class TestAdapter extends JSONAPIAdapter {
       handleResponse(status, headers, payload, requestData) {
@@ -176,14 +128,6 @@ module('integration/adapter/handle-response', function(hooks) {
         let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
         return new AdapterError(errors, detailedMessage);
-      }
-
-      _ajaxRequest() {
-        return reject(ajaxResponse);
-      }
-
-      _fetchRequest() {
-        return reject(fetchResponse);
       }
     }
 
@@ -202,26 +146,9 @@ module('integration/adapter/handle-response', function(hooks) {
   test('handleResponse is called on invalid repsonse', async function(assert) {
     let handleResponseCalled = 0;
 
-    let ajaxResponse = {
-      status: '200',
-      headers: {},
-      text() {
-        return reject('bogus response');
-      },
-    };
-
-    let fetchResponse = {
-      ok: true,
-      status: '200',
-      headers: {
-        forEach(callback) {
-          callback('json', 'content-type');
-        },
-      },
-      text() {
-        return reject('bogus reponse');
-      },
-    };
+    this.server.get('/people', function() {
+      return [200, { 'Content-Type': 'application/json' }, 'bogus response'];
+    });
 
     class TestAdapter extends JSONAPIAdapter {
       handleResponse(status, headers, payload, requestData) {
@@ -235,14 +162,6 @@ module('integration/adapter/handle-response', function(hooks) {
         let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
         return new AdapterError(errors, detailedMessage);
-      }
-
-      _ajaxRequest() {
-        return reject(ajaxResponse);
-      }
-
-      _fetchRequest() {
-        return reject(fetchResponse);
       }
     }
 
@@ -261,26 +180,9 @@ module('integration/adapter/handle-response', function(hooks) {
   test('handleResponse is called on invalid repsonse with 400 status', async function(assert) {
     let handleResponseCalled = 0;
 
-    let ajaxResponse = {
-      status: '400',
-      headers: {},
-      text() {
-        return reject('');
-      },
-    };
-
-    let fetchResponse = {
-      ok: false,
-      status: '400',
-      headers: {
-        forEach(callback) {
-          callback('json', 'content-type');
-        },
-      },
-      text() {
-        return reject('');
-      },
-    };
+    this.server.get('/people', function() {
+      return [400, { 'Content-Type': 'application/json' }, ''];
+    });
 
     class TestAdapter extends JSONAPIAdapter {
       handleResponse(status, headers, payload, requestData) {
@@ -294,14 +196,6 @@ module('integration/adapter/handle-response', function(hooks) {
         let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
         return new AdapterError(errors, detailedMessage);
-      }
-
-      _ajaxRequest() {
-        return reject(ajaxResponse);
-      }
-
-      _fetchRequest() {
-        return reject(fetchResponse);
       }
     }
 
