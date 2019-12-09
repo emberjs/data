@@ -2,6 +2,7 @@
 
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
+
 import { determineBodyPromise } from '@ember-data/adapter/-private';
 
 class Response {

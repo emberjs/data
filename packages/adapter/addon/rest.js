@@ -11,7 +11,7 @@ import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import RSVP, { Promise as EmberPromise } from 'rsvp';
+import { Promise } from 'rsvp';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
@@ -27,7 +27,6 @@ import AdapterError, {
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
-const Promise = EmberPromise;
 const hasJQuery = typeof jQuery !== 'undefined';
 const hasNajax = typeof najax !== 'undefined';
 
@@ -1001,6 +1000,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let hash = adapter.ajaxOptions(url, type, options);
 
     if (useFetch) {
+      let _response;
       return (
         this._fetchRequest(hash)
           // fetch sometimes rejects and sometimes resolves with errors
@@ -1012,16 +1012,18 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
             return determineBodyPromise(response, requestData).then(handlePayload, handlePayload);
           })
           .then(response => {
-            return RSVP.hash({
-              response,
-              payload: determineBodyPromise(response, requestData),
-            });
+            _response = response;
+            return determineBodyPromise(response, requestData);
           })
-          .then(({ response, payload }) => {
-            if (response.ok) {
-              return fetchSuccessHandler(adapter, payload, response, requestData);
+          .catch(error => {
+            _response.ok = false;
+            return Promise.reject(fetchErrorHandler(adapter, error, _response, null, requestData));
+          })
+          .then(payload => {
+            if (_response.ok) {
+              return fetchSuccessHandler(adapter, payload, _response, requestData);
             } else {
-              throw fetchErrorHandler(adapter, payload, response, null, requestData);
+              throw fetchErrorHandler(adapter, payload, _response, null, requestData);
             }
           })
       );

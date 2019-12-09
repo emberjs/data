@@ -1,10 +1,11 @@
-import { resolve, reject } from 'rsvp';
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import AdapterError from '@ember-data/adapter/error';
-import JSONAPISerializer from 'ember-data/serializers/json-api';
 import Pretender from 'pretender';
+import { module, test } from 'qunit';
+
+import JSONAPISerializer from 'ember-data/serializers/json-api';
+import { setupTest } from 'ember-qunit';
+
+import AdapterError from '@ember-data/adapter/error';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
 
 class Person extends Model {
