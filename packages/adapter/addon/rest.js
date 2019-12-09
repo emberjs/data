@@ -1001,20 +1001,30 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let hash = adapter.ajaxOptions(url, type, options);
 
     if (useFetch) {
-      return this._fetchRequest(hash)
-        .then(response => {
-          return RSVP.hash({
-            response,
-            payload: determineBodyPromise(response, requestData),
-          });
-        })
-        .then(({ response, payload }) => {
-          if (response.ok) {
-            return fetchSuccessHandler(adapter, payload, response, requestData);
-          } else {
-            throw fetchErrorHandler(adapter, payload, response, null, requestData);
-          }
-        });
+      return (
+        this._fetchRequest(hash)
+          // fetch sometimes rejects and sometimes resolves with errors
+          .catch(response => {
+            response.ok = false;
+            let handlePayload = function(payload) {
+              return Promise.reject(fetchErrorHandler(adapter, payload, response, null, requestData));
+            };
+            return determineBodyPromise(response, requestData).then(handlePayload, handlePayload);
+          })
+          .then(response => {
+            return RSVP.hash({
+              response,
+              payload: determineBodyPromise(response, requestData),
+            });
+          })
+          .then(({ response, payload }) => {
+            if (response.ok) {
+              return fetchSuccessHandler(adapter, payload, response, requestData);
+            } else {
+              throw fetchErrorHandler(adapter, payload, response, null, requestData);
+            }
+          })
+      );
     }
 
     return new Promise(function(resolve, reject) {

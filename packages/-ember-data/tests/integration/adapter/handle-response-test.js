@@ -1,7 +1,6 @@
 import { resolve, reject } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import { DEBUG } from '@glimmer/env';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import AdapterError from '@ember-data/adapter/error';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
@@ -100,7 +99,7 @@ module('integration/adapter/handle-response', function(hooks) {
       text() {
         return resolve(JSON.stringify(samplePayload));
       },
-    }
+    };
 
     let fetchResponse = {
       ok: true,
@@ -190,16 +189,11 @@ module('integration/adapter/handle-response', function(hooks) {
 
     this.owner.register('adapter:application', TestAdapter);
 
-    if (DEBUG) {
-      await assert.expectAssertion(async () => {
-        await this.store.findAll('person');
-      }, /Assertion Failed: You made a 'findAll' request for 'person' records, but the adapter's response did not have any data/);
-    } else {
-      try {
-        await this.store.findAll('person');
-      } catch {
-        assert.ok(true, 'promise rejected');
-      }
+    try {
+      await this.store.findAll('person');
+      assert.ok(false, 'promise should reject');
+    } catch {
+      assert.ok(true, 'promise rejected');
     }
 
     assert.equal(handleResponseCalled, 1, 'handle response is called');
@@ -253,16 +247,11 @@ module('integration/adapter/handle-response', function(hooks) {
 
     this.owner.register('adapter:application', TestAdapter);
 
-    if (DEBUG) {
-      await assert.expectAssertion(async () => {
-        await this.store.findAll('person');
-      }, /Assertion Failed: You made a 'findAll' request for 'person' records, but the adapter's response did not have any data/);
-    } else {
-      try {
-        await this.store.findAll('person');
-      } catch {
-        assert.ok(true, 'promise rejected');
-      }
+    try {
+      await this.store.findAll('person');
+      assert.ok(false, 'promise should reject');
+    } catch {
+      assert.ok(true, 'promise rejected');
     }
 
     assert.equal(handleResponseCalled, 1, 'handle response is called');
