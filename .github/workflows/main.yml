@@ -32,9 +32,6 @@ jobs:
 
   test-infra:
     timeout-minutes: 4
-    strategy:
-      matrix:
-        version: ['3.0', '3.8', '3.12', '3.16', '99.0']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -43,9 +40,25 @@ jobs:
           node-version: 12.x
       - name: Yarn install
         run: yarn --frozen-lockfile
-      - name: Yarn test infrastructure
+      - name: Yarn test infra compatWith 3.0
         env:
-          COMPAT_WITH: ${{matrix.version}}
+          COMPAT_WITH: '3.0'
+        run: yarn test:infra
+      - name: Yarn test infra compatWith 3.8
+        env:
+          COMPAT_WITH: '3.8'
+        run: yarn test:infra
+      - name: Yarn test infra compatWith 3.12
+        env:
+          COMPAT_WITH: '3.12'
+        run: yarn test:infra
+      - name: Yarn test infra compatWith 3.16
+        env:
+          COMPAT_WITH: '3.16'
+        run: yarn test:infra
+      - name: Yarn test infra compatWith 99.0
+        env:
+          COMPAT_WITH: '99.0'
         run: yarn test:infra
 
 
