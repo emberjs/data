@@ -43,12 +43,13 @@ module.exports = {
       parserOptions: {
         sourceType: 'module',
       },
-      plugins: ['@typescript-eslint'],
+      plugins: ['@typescript-eslint', 'ember-data'],
       extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
       rules: {
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'no-unused-vars': 'off',
         'require-atomic-updates': 'off',
+        'ember-data/prefer-type-only-import': 'error',
       },
     },
 
@@ -61,6 +62,7 @@ module.exports = {
         'bin/**',
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',
+        'packages/unpublished-eslint-rules/src/**/*.js',
         'packages/*/.ember-cli.js',
         'packages/*/.eslintrc.js',
         'packages/*/.template-lintrc.js',
