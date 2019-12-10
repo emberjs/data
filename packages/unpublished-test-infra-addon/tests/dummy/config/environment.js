@@ -2,7 +2,7 @@
 
 module.exports = function(environment) {
   let ENV = {
-    modulePrefix: 'test-infra-app',
+    modulePrefix: 'dummy',
     environment,
     rootURL: '/',
     locationType: 'auto',
@@ -13,16 +13,15 @@ module.exports = function(environment) {
       },
       EXTEND_PROTOTYPES: {
         // Prevent Ember Data from overriding Date.parse.
-        Date: false,
-      },
+        Date: false
+      }
     },
 
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
     },
-
-    compatWith: process.env.COMPAT_WITH,
+    compatWith: process.env.COMPAT_WITH;
   };
 
   if (environment === 'development') {
