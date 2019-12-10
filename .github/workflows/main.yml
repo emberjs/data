@@ -30,6 +30,25 @@ jobs:
       - name: Check for TypeScript problems
         run: yarn problems
 
+  test-infra:
+    timeout-minutes: 4
+    strategy:
+      matrix:
+        version: ['3.0', '3.8', '3.12', '3.16', '99.0']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Yarn install
+        run: yarn --frozen-lockfile
+      - name: Yarn test infrastructure
+        env:
+          COMPAT_WITH: ${{matrix.version}}
+        run: yarn test:infra
+
+
   basic-tests:
     timeout-minutes: 15
     strategy:
