@@ -1,0 +1,23 @@
+import { module, test } from 'ember-qunit';
+import config from 'test-infra-app/config/environment';
+import DEPRECATE_EVENTED_API_USAGE from '@ember-data/private-build-infra/deprecations';
+
+const { compatWith } = config;
+
+module('test compatWith', function(hooks) {
+  test('deprecation strips', function(assert) {
+    let deprecation_stripped = false;
+
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      deprecation_stripped = true;
+    }
+
+    if (compatWith === '3.0' || compatWith === '3.8' || compatWith === '3.12') {
+      assert.equal(deprecation_stripped, false, 'deprecation was not stripped');
+    } else if (compatWith === '3.16' || compatWith === '99.0') {
+      assert.equal(deprecation_stripped, true, 'deprecation was stripped');
+    } else {
+      // do nothing
+    }
+  });
+});
