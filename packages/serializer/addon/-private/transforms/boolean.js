@@ -1,4 +1,5 @@
 import { isNone } from '@ember/utils';
+
 import Transform from './transform';
 
 /**

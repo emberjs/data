@@ -1,6 +1,7 @@
-var createFile = require('broccoli-file-creator');
 var path = require('path');
 var fs = require('fs');
+
+var createFile = require('broccoli-file-creator');
 var gitRepoInfo = require('git-repo-info');
 var npmGitInfo = require('npm-git-info');
 

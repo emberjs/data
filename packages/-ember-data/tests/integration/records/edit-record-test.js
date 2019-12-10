@@ -1,8 +1,9 @@
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
+
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
-import Model from '@ember-data/model';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })

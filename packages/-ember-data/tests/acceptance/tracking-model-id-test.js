@@ -1,15 +1,18 @@
-import { module, test } from 'qunit';
-import { setupRenderingTest } from 'ember-qunit';
 import { render, settled } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
-import Store from '@ember-data/store';
-import Model, { attr } from '@ember-data/model';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Component from '@glimmer/component';
-import { gte } from 'ember-compatibility-helpers';
+
+import hbs from 'htmlbars-inline-precompile';
+import { module, test } from 'qunit';
 import { has } from 'require';
 import { resolve } from 'rsvp';
+
+import { gte } from 'ember-compatibility-helpers';
+import { setupRenderingTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
 
 if (gte('3.13.0') && has('@glimmer/component')) {
   class Widget extends Model {

@@ -1,12 +1,14 @@
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { resolve } from 'rsvp';
-import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 function setupModels(owner, testState) {
   let types;

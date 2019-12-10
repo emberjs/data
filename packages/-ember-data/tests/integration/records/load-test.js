@@ -1,13 +1,15 @@
-import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import { reject, resolve } from 'rsvp';
-import Store from '@ember-data/store';
-import Model from '@ember-data/model';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { run } from '@ember/runloop';
+
+import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
-import { attr, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @attr()

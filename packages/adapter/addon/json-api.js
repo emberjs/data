@@ -2,9 +2,11 @@
   @module @ember-data/adapter
 */
 import { dasherize } from '@ember/string';
-import RESTAdapter from './rest';
+
 import { pluralize } from 'ember-inflector';
+
 import { serializeIntoHash } from './-private';
+import RESTAdapter from './rest';
 
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It

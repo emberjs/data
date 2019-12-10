@@ -1,8 +1,10 @@
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { computed } from '@ember/object';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('Debug', function(hooks) {
   setupTest(hooks);

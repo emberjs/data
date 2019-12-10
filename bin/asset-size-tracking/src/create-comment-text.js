@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+
 const GITHUB_SHA = process.argv[2];
 
 const IE11DiffPath = path.resolve(__dirname, '../../../tmp/asset-sizes/diff-ie11.txt');

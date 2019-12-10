@@ -1,6 +1,8 @@
 /* global require */
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
+
 import Store from '@ember-data/store';
 
 function assertPackageNotPresent(packageName, assert) {

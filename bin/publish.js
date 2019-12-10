@@ -21,14 +21,16 @@ Flags
 Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3200f183bffb7d520a3c71249#diff-19fef6f3236e72e3b5af7c884eef67a0
 */
 
-const debug = require('debug')('publish-packages');
-const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
+
+const chalk = require('chalk');
 const execa = require('execa');
 const cliArgs = require('command-line-args');
-const readline = require('readline');
 const semver = require('semver');
+const debug = require('debug')('publish-packages');
+
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);

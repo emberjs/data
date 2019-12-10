@@ -1,7 +1,9 @@
+import { assert, inspect, warn } from '@ember/debug';
 import { computed } from '@ember/object';
-import { assert, warn, inspect } from '@ember/debug';
-import { normalizeModelName } from '@ember-data/store';
 import { DEBUG } from '@glimmer/env';
+
+import { normalizeModelName } from '@ember-data/store';
+
 import { computedMacroWithOptionalParams } from './util';
 
 /**

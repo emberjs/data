@@ -1,7 +1,10 @@
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
+
 import Store from 'adapter-encapsulation-test-app/services/store';
+import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
 import Model, { attr } from '@ember-data/model';
 
 class MinimalSerializer extends EmberObject {

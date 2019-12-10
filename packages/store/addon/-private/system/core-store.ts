@@ -2,75 +2,69 @@
   @module @ember-data/store
 */
 
-import { registerWaiter, unregisterWaiter } from '@ember/test';
-
-import { A } from '@ember/array';
 import { getOwner } from '@ember/application';
-import { run as emberRunLoop } from '@ember/runloop';
-import { set, get, computed, defineProperty } from '@ember/object';
+import { deprecate } from '@ember/application/deprecations';
+import { A } from '@ember/array';
+import { assert, inspect, warn } from '@ember/debug';
+import { computed, defineProperty, get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
+import { run as emberRunLoop } from '@ember/runloop';
 import Service from '@ember/service';
-import { typeOf, isPresent, isNone } from '@ember/utils';
+import { registerWaiter, unregisterWaiter } from '@ember/test';
+import { isNone, isPresent, typeOf } from '@ember/utils';
+import { DEBUG } from '@glimmer/env';
+import Ember from 'ember';
 
 import require from 'require';
-import Ember from 'ember';
-import { assert, warn, inspect } from '@ember/debug';
-import { deprecate } from '@ember/application/deprecations';
-import { DEBUG } from '@glimmer/env';
-import normalizeModelName from './normalize-model-name';
-import RecordDataStoreWrapper from './store/record-data-store-wrapper';
+import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
 
-import { promiseArray, promiseObject } from './promise-proxies';
-
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
-
-import { normalizeResponseHelper } from './store/serializer-response';
-import recordDataFor from './record-data-for';
-import FetchManager, { SaveOp } from './fetch-manager';
-
-import { _find, _findMany, _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
-
-import coerceId, { ensureStringId } from './coerce-id';
-import RecordArrayManager from './record-array-manager';
 import {
-  assertRecordsPassedToHasMany,
-  extractRecordDataFromRecord,
-  extractRecordDatasFromRecords,
-} from './model/internal-model';
-import edBackburner from './backburner';
-import {
+  CUSTOM_MODEL_CLASS,
   IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
-  CUSTOM_MODEL_CLASS,
 } from '@ember-data/canary-features';
 import {
-  HAS_EMBER_DATA_PACKAGE,
   HAS_ADAPTER_PACKAGE,
+  HAS_EMBER_DATA_PACKAGE,
   HAS_MODEL_PACKAGE,
   HAS_SERIALIZER_PACKAGE,
 } from '@ember-data/private-build-infra';
-
-import promiseRecord from '../utils/promise-record';
-import { identifierCacheFor } from '../identifiers/cache';
-import { internalModelFactoryFor, setRecordIdentifier, recordIdentifierFor } from './store/internal-model-factory';
-import { RequestPromise } from './request-cache';
-import NotificationManager from './record-notification-manager';
-import { getShimClass } from './model/shim-model-class';
-
-import constructResource from '../utils/construct-resource';
-import { errorsArrayToHash } from './errors-utils';
 import {
   DEPRECATE_DEFAULT_ADAPTER,
   DEPRECATE_DEFAULT_SERIALIZER,
   DEPRECATE_LEGACY_TEST_REGISTRATIONS,
 } from '@ember-data/private-build-infra/deprecations';
 
+import { identifierCacheFor } from '../identifiers/cache';
 // TODO this comes from ts-interfaces but it is a function we ship
 // so needs to be moved somewhere else
 import { addSymbol } from '../ts-interfaces/utils/symbol';
+import constructResource from '../utils/construct-resource';
+import promiseRecord from '../utils/promise-record';
+import edBackburner from './backburner';
+import coerceId, { ensureStringId } from './coerce-id';
+import { errorsArrayToHash } from './errors-utils';
+import FetchManager, { SaveOp } from './fetch-manager';
+import {
+  assertRecordsPassedToHasMany,
+  extractRecordDataFromRecord,
+  extractRecordDatasFromRecords,
+} from './model/internal-model';
+import { getShimClass } from './model/shim-model-class';
+import normalizeModelName from './normalize-model-name';
+import { promiseArray, promiseObject } from './promise-proxies';
+import RecordArrayManager from './record-array-manager';
+import recordDataFor from './record-data-for';
+import NotificationManager from './record-notification-manager';
+import { RequestPromise } from './request-cache';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
+import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
+import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
+import RecordDataStoreWrapper from './store/record-data-store-wrapper';
+import { normalizeResponseHelper } from './store/serializer-response';
+
 type ShimModelClass = import('./model/shim-model-class').default;
 type Snapshot = import('./snapshot').default;
 type Backburner = import('@ember/runloop/-private/backburner').Backburner;

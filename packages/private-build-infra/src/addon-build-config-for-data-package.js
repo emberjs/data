@@ -2,6 +2,7 @@ const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 const Funnel = require('broccoli-funnel');
 const merge = require('broccoli-merge-trees');
 const BroccoliDebug = require('broccoli-debug');
+
 const rollupPrivateModule = require('./utilities/rollup-private-module');
 
 function isProductionEnv() {

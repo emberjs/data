@@ -1,12 +1,13 @@
 import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import RSVP from 'rsvp';
 
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Model, { attr } from '@ember-data/model';
 import { InvalidError } from '@ember-data/adapter/error';
+import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/records/error', function(hooks) {
   setupTest(hooks);

@@ -1,10 +1,13 @@
-import { guidFor } from '@ember/object/internals';
-import { get } from '@ember/object';
-import { relationshipStateFor, implicitRelationshipStateFor } from '../../record-data-for';
 import { assert, warn } from '@ember/debug';
-import OrderedSet from '../../ordered-set';
-import _normalizeLink from '../../normalize-link';
+import { get } from '@ember/object';
+import { guidFor } from '@ember/object/internals';
+
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
+import _normalizeLink from '../../normalize-link';
+import OrderedSet from '../../ordered-set';
+import { implicitRelationshipStateFor, relationshipStateFor } from '../../record-data-for';
+
 type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
 type JsonApiRelationship = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiRelationship;

@@ -1,5 +1,6 @@
-import { computed } from '@ember/object';
 import { assert } from '@ember/debug';
+import { computed } from '@ember/object';
+
 import { PromiseObject } from '@ember-data/store/-private';
 
 /**

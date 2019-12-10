@@ -1,4 +1,5 @@
 import { module, test } from 'qunit';
+
 import DS from 'ember-data';
 
 module('unit/adapters/rest-adapter/build-query - building queries', function() {

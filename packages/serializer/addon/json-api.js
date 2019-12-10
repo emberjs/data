@@ -2,16 +2,16 @@
   @module @ember-data/serializer
 */
 
-import { typeOf, isNone } from '@ember/utils';
-
-import { dasherize } from '@ember/string';
-import { pluralize, singularize } from 'ember-inflector';
 import { assert, warn } from '@ember/debug';
+import { dasherize } from '@ember/string';
+import { isNone, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
+import { pluralize, singularize } from 'ember-inflector';
+
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONSerializer from '@ember-data/serializer/json';
 import { normalizeModelName } from '@ember-data/store';
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 /**
   Ember Data 2.0 Serializer:

@@ -16,6 +16,7 @@
 'use strict';
 
 const fs = require('fs');
+
 const execa = require('execa');
 // apparently violates no-extraneous require? /shrug
 const debug = require('debug')('test-external');
@@ -25,6 +26,7 @@ const chalk = require('chalk');
 const TarballConfig = require('./-tarball-info').config;
 const OurPackages = require('./-tarball-info').PackageInfos;
 const insertTarballsToPackageJson = require('./-tarball-info').insertTarballsToPackageJson;
+
 const tarballDir = TarballConfig.tarballDir;
 
 function execWithLog(command, force) {

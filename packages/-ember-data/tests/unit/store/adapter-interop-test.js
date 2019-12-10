@@ -1,19 +1,20 @@
 import { A } from '@ember/array';
-import { resolve, all, Promise as EmberPromise } from 'rsvp';
-import { set, get } from '@ember/object';
+import { get, set } from '@ember/object';
 import { run } from '@ember/runloop';
 
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
+import { all, Promise as EmberPromise, resolve } from 'rsvp';
+
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import JSONSerializer from '@ember-data/serializer/json';
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONSerializer from '@ember-data/serializer/json';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/store/adapter-interop - Store working with a Adapter', function(hooks) {
   setupTest(hooks);

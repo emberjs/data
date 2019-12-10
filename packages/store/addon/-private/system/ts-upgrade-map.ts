@@ -3,6 +3,7 @@
 */
 
 import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
+
 type RelationshipDefinition = import('./relationship-meta').RelationshipDefinition;
 type RecordDataStoreWrapper = import('./store/record-data-store-wrapper').default;
 

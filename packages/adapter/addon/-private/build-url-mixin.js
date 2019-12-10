@@ -1,6 +1,7 @@
-import { camelize } from '@ember/string';
-import Mixin from '@ember/object/mixin';
 import { get } from '@ember/object';
+import Mixin from '@ember/object/mixin';
+import { camelize } from '@ember/string';
+
 import { pluralize } from 'ember-inflector';
 
 /**

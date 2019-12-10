@@ -1,15 +1,17 @@
-import { module, test } from 'qunit';
-import { setupRenderingTest } from 'ember-qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import Model from '@ember-data/model';
 import { render } from '@ember/test-helpers';
+import Ember from 'ember';
+
 import hbs from 'htmlbars-inline-precompile';
+import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
+
+import { setupRenderingTest } from 'ember-qunit';
+
+import { ServerError } from '@ember-data/adapter/error';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { resolve, reject } from 'rsvp';
-import { ServerError } from '@ember-data/adapter/error';
-import Ember from 'ember';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 function domListToArray(domList) {
   return Array.prototype.slice.call(domList);

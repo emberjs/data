@@ -1,5 +1,6 @@
 import { module, test } from 'qunit';
-import { setup, visit, mockServer } from 'ember-cli-fastboot-testing/test-support';
+
+import { mockServer, setup, visit } from 'ember-cli-fastboot-testing/test-support';
 
 const people = [
   {

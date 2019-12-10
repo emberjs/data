@@ -1,4 +1,5 @@
 const zlib = require('zlib');
+
 const TablePads = {
   name: 45,
   bytes: 9,

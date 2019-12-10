@@ -1,8 +1,9 @@
+const fs = require('fs');
+const path = require('path');
+
 const stringUtil = require('ember-cli-string-utils');
 const SilentError = require('silent-error');
 const pathUtil = require('ember-cli-path-utils');
-const fs = require('fs');
-const path = require('path');
 
 module.exports = function(type, baseClass, options) {
   let isAddon = options.inRepoAddon || options.project.isEmberCLIAddon();

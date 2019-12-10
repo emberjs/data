@@ -1,11 +1,13 @@
-import { set, get } from '@ember/object';
+import { get, set } from '@ember/object';
 import { run } from '@ember/runloop';
-import RSVP, { all, hash, resolve } from 'rsvp';
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
 
-import Model, { attr } from '@ember-data/model';
+import { module, test } from 'qunit';
+import RSVP, { all, hash, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/adapter/record_persistence - Persisting Records', function(hooks) {

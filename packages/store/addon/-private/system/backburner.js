@@ -3,8 +3,8 @@
 */
 
 import { registerWaiter } from '@ember/test';
-import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
+import Ember from 'ember';
 
 const backburner = new Ember._Backburner(['normalizeRelationships', 'syncRelationships', 'finished']);
 

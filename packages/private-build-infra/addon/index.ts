@@ -1,4 +1,5 @@
 import { has } from 'require';
+
 import AVAILABLE_PACKAGES from './available-packages';
 
 function flagState(flag: keyof typeof AVAILABLE_PACKAGES): boolean {

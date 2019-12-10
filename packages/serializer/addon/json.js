@@ -1,15 +1,14 @@
+import { getOwner } from '@ember/application';
+import { assert, warn } from '@ember/debug';
+import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { isNone, typeOf } from '@ember/utils';
-import { get } from '@ember/object';
-import { assert, warn } from '@ember/debug';
-import { getOwner } from '@ember/application';
+
 import Serializer from '@ember-data/serializer';
-
-import { errorsArrayToHash } from '@ember-data/store/-private';
-import { modelHasAttributeOrRelationshipNamedType } from './-private';
-
 import { normalizeModelName } from '@ember-data/store';
-import { coerceId } from '@ember-data/store/-private';
+import { coerceId, errorsArrayToHash } from '@ember-data/store/-private';
+
+import { modelHasAttributeOrRelationshipNamedType } from './-private';
 
 /**
   @module @ember-data/serializer

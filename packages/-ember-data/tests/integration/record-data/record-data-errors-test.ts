@@ -1,13 +1,17 @@
-import { setupTest } from 'ember-qunit';
+import EmberObject from '@ember/object';
+
+import { module, test } from 'qunit';
+import { Promise } from 'rsvp';
+
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
-import { module, test } from 'qunit';
-import EmberObject from '@ember/object';
-import { attr } from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
 import { InvalidError } from '@ember-data/adapter/error';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { Promise } from 'rsvp';
+
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
 type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
 type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;

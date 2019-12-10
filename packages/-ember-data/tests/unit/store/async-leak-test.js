@@ -1,14 +1,16 @@
-import { module } from 'qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { setupTest } from 'ember-qunit';
-import Store from '@ember-data/store';
-import Model from '@ember-data/model';
-import { Promise } from 'rsvp';
 import { run } from '@ember/runloop';
 import Ember from 'ember';
+
+import { module } from 'qunit';
+import { Promise } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
 import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import { attr } from '@ember-data/model';
 
 class Person extends Model {
   @attr()

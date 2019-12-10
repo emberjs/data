@@ -1,12 +1,14 @@
-import { DEBUG } from '@glimmer/env';
 import { warn } from '@ember/debug';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
+import { DEBUG } from '@glimmer/env';
+
 import coerceId from '../system/coerce-id';
-import uuidv4 from './utils/uuid-v4';
 import normalizeModelName from '../system/normalize-model-name';
-import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
-import isNonEmptyString from '../utils/is-non-empty-string';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
 import { addSymbol } from '../ts-interfaces/utils/symbol';
+import isNonEmptyString from '../utils/is-non-empty-string';
+import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
+import uuidv4 from './utils/uuid-v4';
+
 type CoreStore = import('../system/core-store').default;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type GenerationMethod = import('../ts-interfaces/identifier').GenerationMethod;

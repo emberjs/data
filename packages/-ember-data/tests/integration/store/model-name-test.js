@@ -1,8 +1,11 @@
-import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import Model, { attr } from '@ember-data/model';
 import { computed } from '@ember/object';
 import Service, { inject } from '@ember/service';
+
+import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr } from '@ember-data/model';
 import Store from '@ember-data/store';
 
 function startsWith(str, substr) {

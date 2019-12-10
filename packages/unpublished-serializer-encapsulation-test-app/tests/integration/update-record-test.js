@@ -1,10 +1,13 @@
-import Model, { attr } from '@ember-data/model';
-import Store from 'serializer-encapsulation-test-app/services/store';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import EmberObject from '@ember/object';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
+import Store from 'serializer-encapsulation-test-app/services/store';
+
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr } from '@ember-data/model';
 
 class Person extends Model {
   @attr

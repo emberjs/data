@@ -1,8 +1,11 @@
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
-import Store from 'ember-data/store';
 import { assign } from '@ember/polyfills';
+
+import { module, test } from 'qunit';
+
+import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class TestAdapter {
   constructor(args) {

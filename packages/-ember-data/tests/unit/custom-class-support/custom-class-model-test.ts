@@ -1,10 +1,13 @@
-import RSVP from 'rsvp';
 import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
+import RSVP from 'rsvp';
+
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
 import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
 type RecordDataRecordWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
 type NotificationManager = import('@ember-data/store/-private/system/record-notification-manager').default;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;

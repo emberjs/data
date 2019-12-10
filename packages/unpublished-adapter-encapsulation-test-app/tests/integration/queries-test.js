@@ -1,10 +1,13 @@
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
+
 import Store from 'adapter-encapsulation-test-app/services/store';
+import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
 import Model, { attr } from '@ember-data/model';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
-import { resolve } from 'rsvp';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {

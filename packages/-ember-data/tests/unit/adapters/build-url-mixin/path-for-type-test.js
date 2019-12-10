@@ -1,5 +1,7 @@
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 
 module('unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType', function(hooks) {

@@ -1,20 +1,22 @@
 /*eslint no-unused-vars: ["error", { "args": "none", "varsIgnorePattern": "(page)" }]*/
 
 import { A } from '@ember/array';
-import { resolve, Promise as EmberPromise, all, reject, hash } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+
 import { module, test } from 'qunit';
-import { relationshipStateFor, relationshipsFor } from '@ember-data/record-data/-private';
+import { all, hash, Promise as EmberPromise, reject, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
-import RESTSerializer from '@ember-data/serializer/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import RESTSerializer from '@ember-data/serializer/rest';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/relationships/has_many - Has-Many Relationships', function(hooks) {
   setupTest(hooks);

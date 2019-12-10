@@ -1,12 +1,15 @@
-import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
 import { decamelize, underscore } from '@ember/string';
+
+import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+
 import { pluralize } from 'ember-inflector';
+import { setupTest } from 'ember-qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
-import RESTSerializer from '@ember-data/serializer/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import RESTSerializer from '@ember-data/serializer/rest';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', function(hooks) {
   setupTest(hooks);

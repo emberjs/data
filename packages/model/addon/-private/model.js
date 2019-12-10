@@ -1,15 +1,16 @@
-import { isNone } from '@ember/utils';
+import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
 import EmberObject, { computed, get } from '@ember/object';
+import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
-import { assert, warn, deprecate } from '@ember/debug';
 import Ember from 'ember';
+
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import {
-  DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
+  DEPRECATE_EVENTED_API_USAGE,
   DEPRECATE_MODEL_DATA,
   DEPRECATE_MODEL_TOJSON,
-  DEPRECATE_EVENTED_API_USAGE,
+  DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
 } from '@ember-data/private-build-infra/deprecations';
 import {
   coerceId,
@@ -21,13 +22,14 @@ import {
   recordIdentifierFor,
   RootState,
 } from '@ember-data/store/-private';
-import {
-  relationshipsByNameDescriptor,
-  relationshipsObjectDescriptor,
-  relatedTypesDescriptor,
-  relationshipsDescriptor,
-} from './system/relationships/ext';
+
 import Errors from './errors';
+import {
+  relatedTypesDescriptor,
+  relationshipsByNameDescriptor,
+  relationshipsDescriptor,
+  relationshipsObjectDescriptor,
+} from './system/relationships/ext';
 
 const { changeProperties } = Ember;
 

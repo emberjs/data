@@ -1,5 +1,6 @@
-import isNonEmptyString from './is-non-empty-string';
 import coerceId from '../system/coerce-id';
+import isNonEmptyString from './is-non-empty-string';
+
 type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
 
 export default function constructResource(

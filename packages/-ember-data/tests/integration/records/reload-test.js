@@ -1,12 +1,14 @@
-import { resolve, reject } from 'rsvp';
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
-import Store from '@ember-data/store';
+import { reject, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Model from '@ember-data/model';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+import Store from '@ember-data/store';
 
 module('integration/reload - Reloading Records', function(hooks) {
   let store;

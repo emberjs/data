@@ -1,11 +1,15 @@
 import { A } from '@ember/array';
-import RSVP from 'rsvp';
-import { run } from '@ember/runloop';
-import DS from 'ember-data';
-import { module, test } from 'qunit';
-const { AdapterPopulatedRecordArray, RecordArrayManager } = DS;
 import Evented from '@ember/object/evented';
+import { run } from '@ember/runloop';
+
+import { module, test } from 'qunit';
+import RSVP from 'rsvp';
+
+import DS from 'ember-data';
+
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
+
+const { AdapterPopulatedRecordArray, RecordArrayManager } = DS;
 
 module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray', function() {
   function internalModelFor(record) {

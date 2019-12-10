@@ -1,10 +1,12 @@
 /**
   @module @ember-data/model
 */
-import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
-import { normalizeModelName } from '@ember-data/store';
+import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
+
+import { normalizeModelName } from '@ember-data/store';
+
 import { computedMacroWithOptionalParams } from './util';
 
 /**

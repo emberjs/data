@@ -1,12 +1,14 @@
-import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
 
+import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/adapter/store-adapter - client-side delete', function(hooks) {
   setupTest(hooks);

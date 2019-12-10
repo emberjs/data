@@ -1,10 +1,12 @@
-import { once } from '@ember/runloop';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import RecordArray from './record-array';
+import { once } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
+
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
+
+import RecordArray from './record-array';
 
 /**
   @module @ember-data/store

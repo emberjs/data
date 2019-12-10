@@ -1,7 +1,8 @@
 'use strict';
 
-const { has } = require('@ember/edition-utils');
 const path = require('path');
+
+const { has } = require('@ember/edition-utils');
 
 module.exports = function(blueprint) {
   blueprint.filesPath = function() {

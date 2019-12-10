@@ -1,17 +1,17 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|dave|cersei)" }]*/
 
-import { Promise as EmberPromise, all } from 'rsvp';
-
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+import { all, Promise as EmberPromise } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Model, { attr, hasMany } from '@ember-data/model';
 import { InvalidError } from '@ember-data/adapter/error';
+import Model, { attr, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/deletedRecord - Deleting Records', function(hooks) {
   setupTest(hooks);

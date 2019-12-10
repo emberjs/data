@@ -1,10 +1,12 @@
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+
 import { module, test } from 'qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+
+import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/system/relationships/relationship-payloads-manager (polymorphic)', function(hooks) {
   setupTest(hooks);

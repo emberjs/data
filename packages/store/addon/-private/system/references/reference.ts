@@ -1,5 +1,7 @@
-import recordDataFor from '../record-data-for';
 import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+
+import recordDataFor from '../record-data-for';
+
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
 type PaginationLinks = import('../../ts-interfaces/ember-data-json-api').PaginationLinks;

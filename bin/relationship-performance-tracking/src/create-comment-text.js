@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+
 const GITHUB_SHA = process.argv[2];
 
 const analysisPath = path.resolve(__dirname, '../../../tmp/relationship-performance/commit-analysis.txt');

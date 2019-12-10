@@ -1,9 +1,12 @@
-import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+
 import QUnit, { module } from 'qunit';
+import { resolve } from 'rsvp';
+
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function payloadError(owner, payload, expectedError, assert) {
   owner.register(

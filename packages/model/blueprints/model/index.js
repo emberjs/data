@@ -1,6 +1,7 @@
+const EOL = require('os').EOL;
+
 const inflection = require('inflection');
 const stringUtils = require('ember-cli-string-utils');
-const EOL = require('os').EOL;
 const useEditionDetector = require('@ember-data/private-build-infra/src/utilities/edition-detector');
 const { has } = require('@ember/edition-utils');
 

@@ -1,4 +1,5 @@
 import { module, test } from 'qunit';
+
 import { InternalModel, RootState } from '@ember-data/store/-private';
 
 module('-private', function() {

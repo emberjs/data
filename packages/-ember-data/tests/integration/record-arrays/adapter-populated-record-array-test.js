@@ -1,12 +1,14 @@
 import { run } from '@ember/runloop';
-import { Promise } from 'rsvp';
-import { setupTest } from 'ember-qunit';
 import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
+import { Promise } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import Model, { attr } from '@ember-data/model';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 const Person = Model.extend({

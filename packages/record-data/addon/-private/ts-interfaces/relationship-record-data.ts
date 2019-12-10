@@ -1,8 +1,9 @@
-import { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 import {
-  SingleResourceRelationship,
   CollectionResourceRelationship,
+  SingleResourceRelationship,
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+
 type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
 type HasManyRelationship = import('../relationships/state/has-many').default;
 type BelongsToRelationship = import('../relationships/state/belongs-to').default;

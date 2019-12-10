@@ -1,10 +1,12 @@
+import { CUSTOM_MODEL_CLASS, IDENTIFIERS } from '@ember-data/canary-features';
+
+import { identifierCacheFor } from '../../identifiers/cache';
 import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
 import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
+import constructResource from '../../utils/construct-resource';
 import { upgradeForInternal } from '../ts-upgrade-map';
 import { internalModelFactoryFor } from './internal-model-factory';
-import { IDENTIFIERS, CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import { identifierCacheFor } from '../../identifiers/cache';
-import constructResource from '../../utils/construct-resource';
+
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type CoreStore = import('../core-store').default;
 type IdentifierCache = import('../../identifiers/cache').IdentifierCache;

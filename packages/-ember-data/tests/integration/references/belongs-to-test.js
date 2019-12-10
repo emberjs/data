@@ -1,12 +1,15 @@
-import { defer, resolve } from 'rsvp';
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+
+import { module, test } from 'qunit';
+import { defer, resolve } from 'rsvp';
+
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import { module, test } from 'qunit';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/references/belongs-to', function(hooks) {
   setupTest(hooks);

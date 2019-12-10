@@ -1,11 +1,14 @@
-import { Promise, reject, defer, resolve, all } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+
 import { module, test } from 'qunit';
+import { all, defer, Promise, reject, resolve } from 'rsvp';
+
 import Adapter from 'ember-data/adapter';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
+import { setupTest } from 'ember-qunit';
+
 import Model, { attr } from '@ember-data/model';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/adapter/find - Finding Records', function(hooks) {
   setupTest(hooks);

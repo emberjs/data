@@ -1,15 +1,16 @@
 /**
   @module @ember-data/store
 */
-import { all } from 'rsvp';
-
+import EmberArray from '@ember/array';
 //import Evented from '@ember/object/evented';
 import MutableArray from '@ember/array/mutable';
-import EmberArray from '@ember/array';
-import EmberObject, { get } from '@ember/object';
 import { assert } from '@ember/debug';
-import { DeprecatedEvented, PromiseArray, diffArray, _objectIsAlive, recordDataFor } from '@ember-data/store/-private';
+import EmberObject, { get } from '@ember/object';
+
+import { all } from 'rsvp';
+
 import { CUSTOM_MODEL_CLASS, FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { _objectIsAlive, DeprecatedEvented, diffArray, PromiseArray, recordDataFor } from '@ember-data/store/-private';
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many

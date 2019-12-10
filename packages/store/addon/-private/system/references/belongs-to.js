@@ -1,10 +1,13 @@
+import { deprecate } from '@ember/debug';
+
 import { resolve } from 'rsvp';
+
+import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
-import Reference from './reference';
+
 import recordDataFor from '../record-data-for';
 import { peekRecordIdentifier } from '../store/internal-model-factory';
-import { deprecate } from '@ember/debug';
-import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
+import Reference from './reference';
 
 /**
   @module @ember-data/store

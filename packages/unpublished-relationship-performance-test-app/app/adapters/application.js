@@ -1,4 +1,5 @@
 import EmberObject from '@ember/object';
+
 import { resolve } from 'rsvp';
 
 export default class ApplicationMockAdapter extends EmberObject {

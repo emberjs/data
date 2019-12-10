@@ -1,7 +1,8 @@
-const { default: HARRemix } = require('har-remix');
 const { URL } = require('url');
 const fs = require('fs');
 const path = require('path');
+
+const { default: HARRemix } = require('har-remix');
 
 const { HR_PORT, HR_GROUP } = process.env;
 

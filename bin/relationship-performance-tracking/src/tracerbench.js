@@ -1,5 +1,6 @@
-const fs = require('fs-extra');
 const path = require('path');
+
+const fs = require('fs-extra');
 const { InitialRenderBenchmark, Runner } = require('@tracerbench/core');
 
 // The number of samples TracerBench will run. Higher sample count is more accurate.

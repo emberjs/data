@@ -1,12 +1,12 @@
-import { resolve } from 'rsvp';
-import { setupTest } from 'ember-qunit';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
-import Model from '@ember-data/model';
-import { attr } from '@ember-data/model';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-
 import { module } from 'qunit';
+import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('integration/lifecycle_hooks - Lifecycle Hooks', function(hooks) {
   setupTest(hooks);

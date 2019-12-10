@@ -1,20 +1,21 @@
 /* globals jQuery */
 
-import { underscore } from '@ember/string';
-import { resolve, reject } from 'rsvp';
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
-import { singularize } from 'ember-inflector';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import { module, test } from 'qunit';
-import RESTAdapter from '@ember-data/adapter/rest';
-import RESTSerializer from '@ember-data/serializer/rest';
+import { run } from '@ember/runloop';
+import { underscore } from '@ember/string';
 
 import Pretender from 'pretender';
+import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
 
 import DS from 'ember-data';
+import { singularize } from 'ember-inflector';
+import { setupTest } from 'ember-qunit';
+
+import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const hasJQuery = typeof jQuery !== 'undefined';
 

@@ -1,6 +1,8 @@
 import { A } from '@ember/array';
-import { SnapshotRecordArray } from 'ember-data/-private';
+
 import { module, test } from 'qunit';
+
+import { SnapshotRecordArray } from 'ember-data/-private';
 
 module('Unit - snapshot-record-array', function() {
   test('constructor', function(assert) {

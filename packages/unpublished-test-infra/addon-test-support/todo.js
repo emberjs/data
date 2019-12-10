@@ -1,6 +1,7 @@
 /* global Proxy */
-import QUnit, { test, skip } from 'qunit';
 import { DEBUG } from '@glimmer/env';
+
+import QUnit, { skip, test } from 'qunit';
 
 export default function todo(description, callback) {
   if (DEBUG) {

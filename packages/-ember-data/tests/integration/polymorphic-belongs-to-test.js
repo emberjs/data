@@ -1,7 +1,8 @@
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import Model from '@ember-data/model';
-import { attr, belongsTo } from '@ember-data/model';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr, belongsTo } from '@ember-data/model';
 
 module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(hooks) {
   setupTest(hooks);

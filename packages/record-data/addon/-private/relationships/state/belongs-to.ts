@@ -1,7 +1,10 @@
 import { assert, inspect } from '@ember/debug';
-import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { isNone } from '@ember/utils';
+
+import { assertPolymorphicType } from '@ember-data/store/-debug';
+
 import Relationship from './relationship';
+
 type ExistingResourceIdentifierObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
 type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;

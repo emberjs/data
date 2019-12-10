@@ -1,4 +1,5 @@
 import InternalModelMap from './internal-model-map';
+
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 /**

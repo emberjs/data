@@ -1,8 +1,10 @@
-import { computed } from '@ember/object';
 import { assert } from '@ember/debug';
+import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
-import { recordDataFor } from '@ember-data/store/-private';
+
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { recordDataFor } from '@ember-data/store/-private';
+
 import { computedMacroWithOptionalParams } from './util';
 
 /**

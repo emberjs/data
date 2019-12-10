@@ -1,31 +1,34 @@
-import { set, get } from '@ember/object';
+import { getOwner, setOwner } from '@ember/application';
+import { A, default as EmberArray } from '@ember/array';
+import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
-import { default as EmberArray, A } from '@ember/array';
-import { setOwner, getOwner } from '@ember/application';
+import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
-import RSVP, { Promise } from 'rsvp';
-import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
-import { assert, inspect } from '@ember/debug';
-import RootState from './states';
-import Snapshot from '../snapshot';
-import { errorsHashToArray } from '../errors-utils';
+import Ember from 'ember';
 
-import { RecordReference, BelongsToReference, HasManyReference } from '../references';
+import RSVP, { Promise } from 'rsvp';
+
 import {
+  CUSTOM_MODEL_CLASS,
+  FULL_LINKS_ON_RELATIONSHIPS,
   IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
-  CUSTOM_MODEL_CLASS,
-  FULL_LINKS_ON_RELATIONSHIPS,
 } from '@ember-data/canary-features';
-import { identifierCacheFor } from '../../identifiers/cache';
-import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
-import coerceId from '../coerce-id';
-import recordDataFor from '../record-data-for';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+
+import { identifierCacheFor } from '../../identifiers/cache';
+import coerceId from '../coerce-id';
+import { errorsHashToArray } from '../errors-utils';
+import recordDataFor from '../record-data-for';
+import { BelongsToReference, HasManyReference, RecordReference } from '../references';
+import Snapshot from '../snapshot';
+import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
+import RootState from './states';
+
 type CoreStore = import('../core-store').default;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type ConfidentDict<T> = import('../../ts-interfaces/utils').ConfidentDict<T>;

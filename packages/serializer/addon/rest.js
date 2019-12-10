@@ -2,18 +2,19 @@
   @module @ember-data/serializer
 */
 
-import { typeOf, isNone } from '@ember/utils';
-
 import { makeArray } from '@ember/array';
-import { camelize } from '@ember/string';
-import { singularize } from 'ember-inflector';
 import { assert, deprecate, warn } from '@ember/debug';
+import { camelize } from '@ember/string';
+import { isNone, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
+import { singularize } from 'ember-inflector';
+
 import JSONSerializer from '@ember-data/serializer/json';
-import { coerceId } from '@ember-data/store/-private';
-import { modelHasAttributeOrRelationshipNamedType } from './-private';
 import { normalizeModelName } from '@ember-data/store';
+import { coerceId } from '@ember-data/store/-private';
+
+import { modelHasAttributeOrRelationshipNamedType } from './-private';
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing

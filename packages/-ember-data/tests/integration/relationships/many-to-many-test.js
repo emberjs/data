@@ -1,15 +1,17 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(ada)" }]*/
 
-import { Promise as EmberPromise } from 'rsvp';
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
-import todo from '@ember-data/unpublished-test-infra/test-support/todo';
+import { Promise as EmberPromise } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
 module('integration/relationships/many_to_many_test - ManyToMany relationships', function(hooks) {
   setupTest(hooks);

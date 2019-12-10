@@ -4,8 +4,11 @@
 import { assert } from '@ember/debug';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import recordDataFor from './record-data-for';
+
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
+import recordDataFor from './record-data-for';
+
 type InternalModel = import('./model/internal-model').default;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;

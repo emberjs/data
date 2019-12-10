@@ -1,11 +1,13 @@
 import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import { IDENTIFIERS, RECORD_DATA_STATE } from '@ember-data/canary-features';
-import Store, { recordIdentifierFor } from '@ember-data/store';
-import Model, { attr } from '@ember-data/model';
-import Adapter from '@ember-data/adapter';
-import Serializer from '@ember-data/serializer';
 import { defer } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
+import Adapter from '@ember-data/adapter';
+import { IDENTIFIERS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import Model, { attr } from '@ember-data/model';
+import Serializer from '@ember-data/serializer';
+import Store, { recordIdentifierFor } from '@ember-data/store';
 
 if (IDENTIFIERS) {
   module('Integration | Identifiers - lid reflection', function(hooks) {
