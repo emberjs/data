@@ -1,6 +1,12 @@
 // eslint-disable-next-line node/no-unpublished-require
 const customDotReporter = require('@ember-data/unpublished-test-infra/src/testem/custom-dot-reporter');
 
+let BROWSER_PATHS = {};
+try {
+  // if puppeteer is available, use the chrome it provides
+  BROWSER_PATHS.chrome = require('puppeteer').executablePath();
+} catch (e) {}
+
 const TestIE = process.env.TEST_IE11;
 
 if (TestIE) {
@@ -15,6 +21,7 @@ module.exports = {
   launch_in_ci: TestIE ? ['IE'] : ['Chrome'],
   launch_in_dev: ['Chrome'],
   browser_start_timeout: 120,
+  browser_paths: BROWSER_PATHS,
   browser_args: {
     Chrome: {
       ci: [
