@@ -1,5 +1,4 @@
-import { Dict } from '../ts-interfaces/utils';
-
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 /**
   @module @ember-data/store
 */

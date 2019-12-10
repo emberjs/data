@@ -1,5 +1,5 @@
-import { SingleResourceRelationship, CollectionResourceRelationship } from './ember-data-json-api';
-
+type SingleResourceRelationship = import('./ember-data-json-api').SingleResourceRelationship;
+type CollectionResourceRelationship = import('./ember-data-json-api').CollectionResourceRelationship;
 /**
   @module @ember-data/store
 */

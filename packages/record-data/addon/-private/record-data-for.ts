@@ -1,10 +1,10 @@
 import { recordDataFor } from '@ember-data/store/-private';
-import Relationships from './relationships/state/create';
-import Relationship from './relationships/state/relationship';
-import BelongsToRelationship from './relationships/state/belongs-to';
-import ManyRelationship from './relationships/state/has-many';
-import { ConfidentDict } from '@ember-data/store/-private/ts-interfaces/utils';
-import { RelationshipRecordData } from './ts-interfaces/relationship-record-data';
+type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
+type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
+type ManyRelationship = import('./relationships/state/has-many').default;
+type BelongsToRelationship = import('./relationships/state/belongs-to').default;
+type Relationship = import('./relationships/state/relationship').default;
+type Relationships = import('./relationships/state/create').default;
 
 export function relationshipsFor(instance: any): Relationships {
   let recordData = (recordDataFor(instance) || instance) as RelationshipRecordData;

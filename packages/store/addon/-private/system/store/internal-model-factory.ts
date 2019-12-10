@@ -1,20 +1,19 @@
 import { assert, warn } from '@ember/debug';
-import { IdentifierCache, identifierCacheFor } from '../../identifiers/cache';
+import { identifierCacheFor } from '../../identifiers/cache';
 import InternalModel from '../model/internal-model';
 import IdentityMap from '../identity-map';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import InternalModelMap from '../internal-model-map';
 import { isNone } from '@ember/utils';
 import { IDENTIFIERS } from '@ember-data/canary-features';
-import { RecordInstance } from '../../ts-interfaces/record-instance';
-import {
-  ResourceIdentifierObject,
-  ExistingResourceObject,
-  NewResourceIdentifierObject,
-} from '../../ts-interfaces/ember-data-json-api';
 import { DEBUG } from '@glimmer/env';
-import CoreStore from '../core-store';
 import constructResource from '../../utils/construct-resource';
+type CoreStore = import('../core-store').default;
+type ResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
+type ExistingResourceObject = import('../../ts-interfaces/ember-data-json-api').ExistingResourceObject;
+type NewResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').NewResourceIdentifierObject;
+type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
+type InternalModelMap = import('../internal-model-map').default;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
+type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 
 /**
   @module @ember-data/store

@@ -1,7 +1,8 @@
-import CoreStore from '../core-store';
-import { RelationshipSchema, AttributeSchema } from '../../ts-interfaces/record-data-schemas';
-import { Dict } from '../../ts-interfaces/utils';
 import { ModelSchema } from '../../ts-interfaces/ds-model';
+type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
+type RelationshipSchema = import('../../ts-interfaces/record-data-schemas').RelationshipSchema;
+type AttributeSchema = import('../../ts-interfaces/record-data-schemas').AttributeSchema;
+type CoreStore = import('../core-store').default;
 
 const AvailableShims = new WeakMap<CoreStore, Dict<ShimModelClass>>();
 

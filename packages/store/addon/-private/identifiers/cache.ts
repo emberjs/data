@@ -1,24 +1,22 @@
 import { DEBUG } from '@glimmer/env';
 import { warn } from '@ember/debug';
-import { ConfidentDict } from '../ts-interfaces/utils';
-import { ResourceIdentifierObject, ExistingResourceObject } from '../ts-interfaces/ember-data-json-api';
-import {
-  StableRecordIdentifier,
-  DEBUG_CLIENT_ORIGINATED,
-  DEBUG_IDENTIFIER_BUCKET,
-  GenerationMethod,
-  UpdateMethod,
-  ForgetMethod,
-  ResetMethod,
-  RecordIdentifier,
-} from '../ts-interfaces/identifier';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
 import coerceId from '../system/coerce-id';
 import uuidv4 from './utils/uuid-v4';
 import normalizeModelName from '../system/normalize-model-name';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import isNonEmptyString from '../utils/is-non-empty-string';
-import CoreStore from '../system/core-store';
 import { addSymbol } from '../ts-interfaces/utils/symbol';
+type CoreStore = import('../system/core-store').default;
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type GenerationMethod = import('../ts-interfaces/identifier').GenerationMethod;
+type UpdateMethod = import('../ts-interfaces/identifier').UpdateMethod;
+type ForgetMethod = import('../ts-interfaces/identifier').ForgetMethod;
+type ResetMethod = import('../ts-interfaces/identifier').ResetMethod;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
+type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
+type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
+type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {

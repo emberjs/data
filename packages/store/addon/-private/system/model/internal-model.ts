@@ -10,15 +10,9 @@ import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
 import RootState from './states';
 import Snapshot from '../snapshot';
-import Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
-import RecordArray from '../record-arrays/record-array';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
-import { RecordData } from '../../ts-interfaces/record-data';
-import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
-import { RecordInstance } from '../../ts-interfaces/record-instance';
-import { ConfidentDict, Dict } from '../../ts-interfaces/utils';
 import {
   IDENTIFIERS,
   RECORD_DATA_ERRORS,
@@ -28,12 +22,20 @@ import {
   FULL_LINKS_ON_RELATIONSHIPS,
 } from '@ember-data/canary-features';
 import { identifierCacheFor } from '../../identifiers/cache';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
-import CoreStore from '../core-store';
 import coerceId from '../coerce-id';
 import recordDataFor from '../record-data-for';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+type CoreStore = import('../core-store').default;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
+type ConfidentDict<T> = import('../../ts-interfaces/utils').ConfidentDict<T>;
+type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
+type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
+type JsonApiResource = import('../../ts-interfaces/record-data-json-api').JsonApiResource;
+type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api').JsonApiValidationError;
+type RecordData = import('../../ts-interfaces/record-data').RecordData;
+type RecordArray = import('../record-arrays/record-array').default;
+type Store = import('../ds-model-store').default;
 
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 type RecordArray = InstanceType<typeof RecordArray>;

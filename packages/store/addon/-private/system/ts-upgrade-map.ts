@@ -3,8 +3,8 @@
 */
 
 import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
-import RecordDataStoreWrapper from './store/record-data-store-wrapper';
-import { RelationshipDefinition } from './relationship-meta';
+type RelationshipDefinition = import('./relationship-meta').RelationshipDefinition;
+type RecordDataStoreWrapper = import('./store/record-data-store-wrapper').default;
 
 /**
  * Maps public interfaces to internal class implementations

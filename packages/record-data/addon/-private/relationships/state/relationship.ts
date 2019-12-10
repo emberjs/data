@@ -4,11 +4,11 @@ import { relationshipStateFor, implicitRelationshipStateFor } from '../../record
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
-import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
-import { JsonApiRelationship } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
-import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import { PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type JsonApiRelationship = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiRelationship;
+type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
 
 /**
   @module @ember-data/store

@@ -1,13 +1,11 @@
-import { RecordIdentifier } from '../ts-interfaces/identifier';
-import {
-  FindRecordQuery,
-  SaveRecordMutation,
-  Request,
-  RequestState,
-  Operation,
-  RequestStateEnum,
-} from '../ts-interfaces/fetch-manager';
+import { RequestStateEnum } from '../ts-interfaces/fetch-manager';
 import { symbol, addSymbol } from '../ts-interfaces/utils/symbol';
+type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
+type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
+type Request = import('../ts-interfaces/fetch-manager').Request;
+type RequestState = import('../ts-interfaces/fetch-manager').RequestState;
+type Operation = import('../ts-interfaces/fetch-manager').Operation;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 
 const Touching: unique symbol = symbol('touching');
 export const RequestPromise: unique symbol = symbol('promise');
