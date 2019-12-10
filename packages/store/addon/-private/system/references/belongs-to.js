@@ -130,17 +130,13 @@ export default class BelongsToReference extends Reference {
     return resolve(objectOrPromise).then(data => {
       let record;
 
-      if (DEPRECATE_BELONGS_TO_REFERENCE_PUSH) {
-        if (peekRecordIdentifier(data)) {
-          deprecate('Pushing a record into a BelongsToReference is deprecated', false, {
-            id: 'ember-data:belongs-to-reference-push-record',
-            until: '4.0',
-          });
-          record = data;
-        }
-      }
-
-      if (typeof record === 'undefined') {
+      if (DEPRECATE_BELONGS_TO_REFERENCE_PUSH && peekRecordIdentifier(data)) {
+        deprecate('Pushing a record into a BelongsToReference is deprecated', false, {
+          id: 'ember-data:belongs-to-reference-push-record',
+          until: '4.0',
+        });
+        record = data;
+      } else {
         record = this.store.push(data);
       }
 
