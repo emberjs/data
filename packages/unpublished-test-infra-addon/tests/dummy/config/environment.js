@@ -21,7 +21,7 @@ module.exports = function(environment) {
       // Here you can pass flags/options to your application instance
       // when it is created
     },
-    compatWith: process.env.COMPAT_WITH;
+    compatWith: process.env.COMPAT_WITH,
   };
 
   if (environment === 'development') {

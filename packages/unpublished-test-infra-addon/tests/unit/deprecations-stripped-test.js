@@ -1,10 +1,10 @@
 import { module, test } from 'ember-qunit';
-import config from 'test-infra-app/config/environment';
+import config from 'dummy/config/environment';
 import DEPRECATE_EVENTED_API_USAGE from '@ember-data/private-build-infra/deprecations';
 
 const { compatWith } = config;
 
-module('test compatWith', function(hooks) {
+module('test compatWith', function() {
   test('deprecation strips', function(assert) {
     let deprecation_stripped = false;
 
