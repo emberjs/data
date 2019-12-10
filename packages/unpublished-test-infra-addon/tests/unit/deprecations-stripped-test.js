@@ -6,20 +6,16 @@ const { compatWith } = config;
 
 module('test compatWith', function() {
   test('deprecation strips', function(assert) {
-    let deprecation_stripped = false;
+    let deprecation_stripped = true;
 
     if (DEPRECATE_EVENTED_API_USAGE) {
-      deprecation_stripped = true;
+      deprecation_stripped = false;
     }
 
-    // console.log(DEPRECATE_EVENTED_API_USAGE);
-    // console.log(compatWith);
-    // console.log(deprecation_stripped);
-
     if (compatWith === '3.0' || compatWith === '3.8' || compatWith === '3.12') {
-      assert.equal(deprecation_stripped, false, 'deprecation code  was stripped');
+      assert.equal(deprecation_stripped, false, 'deprecation code was not stripped');
     } else if (compatWith === '3.16' || compatWith === '99.0') {
-      assert.equal(deprecation_stripped, true, 'deprecation code was not stripped');
+      assert.equal(deprecation_stripped, true, 'deprecation code was stripped');
     } else {
       // do nothing
     }
