@@ -39,8 +39,7 @@ jobs:
     steps:
       - if: matrix.os == 'macos-latest'
         run: |
-          brew update
-          brew cask install google-chrome
+          yarn add puppeteer -W # Puppeteer will install chrome for us
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
@@ -105,8 +104,7 @@ jobs:
     steps:
       - if: matrix.os == 'macos-latest'
         run: |
-          brew update
-          brew cask install google-chrome
+          yarn add puppeteer -W # Puppeteer will install chrome for us
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:

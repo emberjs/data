@@ -1,5 +1,10 @@
 const customDotReporter = require('@ember-data/unpublished-test-infra/src/testem/custom-dot-reporter');
 
+try {
+  require.resolve('puppeteer');
+  process.env.CHROME_BIN = require('puppeteer').executablePath();
+} catch (e) {}
+
 const TestIE = process.env.TEST_IE11;
 
 if (TestIE) {
