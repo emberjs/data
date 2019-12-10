@@ -1,5 +1,5 @@
 {
-  "name": "test-infra-app",
+  "name": "test-infra-addon",
   "version": "0.0.0",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [

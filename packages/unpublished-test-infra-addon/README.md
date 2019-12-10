@@ -1,4 +1,4 @@
-test-infra-app
+test-infra-addon
 ==============================================================================
 
 [Short description of the addon.]
@@ -16,7 +16,7 @@ Installation
 ------------------------------------------------------------------------------
 
 ```
-ember install test-infra-app
+ember install test-infra-addon
 ```
 
 

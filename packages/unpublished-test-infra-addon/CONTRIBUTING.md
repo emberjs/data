@@ -3,7 +3,7 @@
 ## Installation
 
 * `git clone <repository-url>`
-* `cd test-infra-app`
+* `cd test-infra-addon`
 * `yarn install`
 
 ## Linting
