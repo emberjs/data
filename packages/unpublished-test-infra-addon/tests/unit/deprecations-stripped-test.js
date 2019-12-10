@@ -1,6 +1,6 @@
 import { module, test } from 'ember-qunit';
 import config from 'dummy/config/environment';
-import DEPRECATE_EVENTED_API_USAGE from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 const { compatWith } = config;
 
@@ -12,10 +12,14 @@ module('test compatWith', function() {
       deprecation_stripped = true;
     }
 
+    // console.log(DEPRECATE_EVENTED_API_USAGE);
+    // console.log(compatWith);
+    // console.log(deprecation_stripped);
+
     if (compatWith === '3.0' || compatWith === '3.8' || compatWith === '3.12') {
-      assert.equal(deprecation_stripped, false, 'deprecation was not stripped');
+      assert.equal(deprecation_stripped, false, 'deprecation code  was stripped');
     } else if (compatWith === '3.16' || compatWith === '99.0') {
-      assert.equal(deprecation_stripped, true, 'deprecation was stripped');
+      assert.equal(deprecation_stripped, true, 'deprecation code was not stripped');
     } else {
       // do nothing
     }
