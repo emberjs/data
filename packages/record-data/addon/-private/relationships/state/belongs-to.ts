@@ -2,12 +2,10 @@ import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
-import {
-  RelationshipRecordData,
-  DefaultSingleResourceRelationship,
-} from '../../ts-interfaces/relationship-record-data';
-import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
-import { ExistingResourceIdentifierObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+type ExistingResourceIdentifierObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
+type DefaultSingleResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
 
 export default class BelongsToRelationship extends Relationship {
   inverseRecordData: RelationshipRecordData | null;

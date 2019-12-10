@@ -100,12 +100,13 @@
   @public
 */
 
-import { Object as JSONObject } from 'json-typescript';
-import Store from '../system/core-store';
-import { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
-import Snapshot from '../system/snapshot';
-import { ModelSchema } from './ds-model';
-import { Dict } from './utils';
+type Dict<T> = import('./utils').Dict<T>;
+type ModelSchema = import('./ds-model').ModelSchema;
+type Snapshot = import('../system/snapshot').default;
+type JsonApiDocument = import('./ember-data-json-api').JsonApiDocument;
+type SingleResourceDocument = import('./ember-data-json-api').SingleResourceDocument;
+type Store = import('../system/core-store').default;
+type JSONObject = import('json-typescript').Object;
 
 type OptionsHash = Dict<any>;
 

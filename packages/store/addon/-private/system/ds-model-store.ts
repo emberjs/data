@@ -10,17 +10,18 @@ import { isPresent } from '@ember/utils';
 import { deprecate } from '@ember/application/deprecations';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
-import ShimModelClass, { getShimClass } from './model/shim-model-class';
+import { getShimClass } from './model/shim-model-class';
 import { setOwner, getOwner } from '@ember/application';
-import { DSModel } from '../ts-interfaces/ds-model';
-import NotificationManager from './record-notification-manager';
-import { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
-import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
-import { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import notifyChanges from './model/notify-changes';
+type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
+type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
+type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type NotificationManager = import('./record-notification-manager').default;
+type DSModel = import('../ts-interfaces/ds-model').DSModel;
+type ShimModelClass = import('./model/shim-model-class').default;
 type DSModelClass = import('@ember-data/model').default;
 
 /**

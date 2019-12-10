@@ -5,12 +5,12 @@ import { module, test } from 'qunit';
 import EmberObject from '@ember/object';
 import { attr } from '@ember-data/model';
 import { InvalidError } from '@ember-data/adapter/error';
-import { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
-import { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
-import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { Promise } from 'rsvp';
+type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
+type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

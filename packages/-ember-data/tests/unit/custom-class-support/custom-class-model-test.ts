@@ -3,13 +3,14 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
-import { Snapshot } from 'ember-data/-private';
 import Store from 'ember-data/store';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import CoreStore from '@ember-data/store/-private/system/core-store';
-import { StableRecordIdentifier, RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
-import { RecordDataRecordWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
+type RecordDataRecordWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
+type NotificationManager = import('@ember-data/store/-private/system/record-notification-manager').default;
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type Snapshot = import('ember-data/-private').Snapshot;
 
 let CustomStore, store, schemaDefinition;
 if (CUSTOM_MODEL_CLASS) {

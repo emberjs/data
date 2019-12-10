@@ -1,7 +1,7 @@
 import RSVP, { resolve } from 'rsvp';
 import Reference from './reference';
-import { RecordInstance } from '../../ts-interfaces/record-instance';
-import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
+type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
 
 /**
   @module @ember-data/store

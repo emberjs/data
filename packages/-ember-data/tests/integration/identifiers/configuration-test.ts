@@ -14,12 +14,12 @@ import Model, { attr, belongsTo } from '@ember-data/model';
 import Adapter from '@ember-data/adapter';
 import Serializer from '@ember-data/serializer';
 import { resolve, all } from 'rsvp';
-import { ExistingResourceObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { set } from '@ember/object';
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 import { identifierCacheFor } from '@ember-data/store/-private';
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+type ExistingResourceObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
 
 if (IDENTIFIERS) {
   module('Integration | Identifiers - configuration', function(hooks) {

@@ -33,7 +33,7 @@ import { _find, _findMany, _findHasMany, _findBelongsTo, _findAll, _query, _quer
 
 import coerceId, { ensureStringId } from './coerce-id';
 import RecordArrayManager from './record-array-manager';
-import InternalModel, {
+import {
   assertRecordsPassedToHasMany,
   extractRecordDataFromRecord,
   extractRecordDatasFromRecords,
@@ -54,14 +54,11 @@ import {
 } from '@ember-data/private-build-infra';
 
 import promiseRecord from '../utils/promise-record';
-import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
+import { identifierCacheFor } from '../identifiers/cache';
 import { internalModelFactoryFor, setRecordIdentifier, recordIdentifierFor } from './store/internal-model-factory';
-import { RecordReference, HasManyReference, BelongsToReference } from './references';
-import { Backburner } from '@ember/runloop/-private/backburner';
-import Snapshot from './snapshot';
 import { RequestPromise } from './request-cache';
 import NotificationManager from './record-notification-manager';
-import ShimModelClass, { getShimClass } from './model/shim-model-class';
+import { getShimClass } from './model/shim-model-class';
 
 import constructResource from '../utils/construct-resource';
 import { errorsArrayToHash } from './errors-utils';
@@ -74,6 +71,14 @@ import {
 // TODO this comes from ts-interfaces but it is a function we ship
 // so needs to be moved somewhere else
 import { addSymbol } from '../ts-interfaces/utils/symbol';
+type ShimModelClass = import('./model/shim-model-class').default;
+type Snapshot = import('./snapshot').default;
+type Backburner = import('@ember/runloop/-private/backburner').Backburner;
+type RecordReference = import('./references').RecordReference;
+type HasManyReference = import('./references').HasManyReference;
+type BelongsToReference = import('./references').BelongsToReference;
+type IdentifierCache = import('../identifiers/cache').IdentifierCache;
+type InternalModel = import('./model/internal-model').default;
 
 type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
 type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;

@@ -1,11 +1,12 @@
-import Store from './ds-model-store';
-import { RecordIdentifier } from '../ts-interfaces/identifier';
 import { get } from '@ember/object';
 import { getOwner } from '@ember/application';
 import normalizeModelName from './normalize-model-name';
-import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
 import require from 'require';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
+type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
+type Store = import('./ds-model-store').default;
 
 type Model = import('@ember-data/model').default;
 type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;

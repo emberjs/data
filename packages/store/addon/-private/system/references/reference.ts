@@ -1,11 +1,13 @@
-import InternalModel from '../model/internal-model';
 import recordDataFor from '../record-data-for';
-import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
-import CoreStore from '../core-store';
-import { PaginationLinks, LinkObject } from '../../ts-interfaces/ember-data-json-api';
-import { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
 import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
-import { Dict } from '../../ts-interfaces/utils';
+type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
+type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
+type PaginationLinks = import('../../ts-interfaces/ember-data-json-api').PaginationLinks;
+type LinkObject = import('../../ts-interfaces/ember-data-json-api').LinkObject;
+type CoreStore = import('../core-store').default;
+type JSONObject = import('json-typescript').Object;
+type JSONValue = import('json-typescript').Value;
+type InternalModel = import('../model/internal-model').default;
 
 /**
   @module @ember-data/store

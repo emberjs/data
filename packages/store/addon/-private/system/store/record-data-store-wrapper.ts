@@ -1,14 +1,16 @@
 import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import { AttributesSchema, RelationshipsSchema } from '../../ts-interfaces/record-data-schemas';
 import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import { upgradeForInternal } from '../ts-upgrade-map';
-import { RecordData } from '../../ts-interfaces/record-data';
 import { internalModelFactoryFor } from './internal-model-factory';
 import { IDENTIFIERS, CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import { identifierCacheFor, IdentifierCache } from '../../identifiers/cache';
-import CoreStore from '../core-store';
+import { identifierCacheFor } from '../../identifiers/cache';
 import constructResource from '../../utils/construct-resource';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
+type CoreStore = import('../core-store').default;
+type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
+type RecordData = import('../../ts-interfaces/record-data').RecordData;
+type AttributesSchema = import('../../ts-interfaces/record-data-schemas').AttributesSchema;
+type RelationshipsSchema = import('../../ts-interfaces/record-data-schemas').RelationshipsSchema;
 
 /**
   @module @ember-data/store

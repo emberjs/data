@@ -2,12 +2,10 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
-import {
-  RelationshipRecordData,
-  DefaultCollectionResourceRelationship,
-} from '../../ts-interfaces/relationship-record-data';
-import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
+type DefaultCollectionResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
 
 /**
   @module @ember-data/store
