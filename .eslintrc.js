@@ -1,3 +1,31 @@
+// See https://github.com/lydell/eslint-plugin-simple-import-sort#custom-grouping
+const ImportSortGroups = [
+  // Side effect imports.
+  // eslint-disable-next-line no-useless-escape
+  [`^\u0000`],
+  // Glimmer & Ember Dependencies
+  [`^(@ember/|@glimmer|ember$)`],
+  // Packages.
+  // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
+  // But not our packages or packages starting with ember-
+  // eslint-disable-next-line no-useless-escape
+  [`^(?!@ember\-data)(?!ember-)(@?\\w)`],
+  // Packages starting with ember-
+  // eslint-disable-next-line no-useless-escape
+  [`^ember\-`],
+  // Our Packages.
+  // Things that start with @ember-data
+  // eslint-disable-next-line no-useless-escape
+  [`^@ember\-data`],
+  // Absolute imports and other imports such as Vue-style `@/foo`.
+  // Anything that does not start with a dot.
+  ['^[^.]'],
+  // Relative imports.
+  // Anything that starts with a dot.
+  // eslint-disable-next-line no-useless-escape
+  [`^\.`],
+];
+
 module.exports = {
   parser: 'babel-eslint',
   root: true,
@@ -5,7 +33,7 @@ module.exports = {
     ecmaVersion: 2017,
     sourceType: 'module',
   },
-  plugins: ['prettier', 'qunit', 'mocha'],
+  plugins: ['prettier', 'qunit', 'mocha', 'simple-import-sort', 'import'],
   extends: ['eslint:recommended', 'prettier'],
   rules: {
     'no-restricted-globals': ['error', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
@@ -19,6 +47,14 @@ module.exports = {
     'no-caller': 'error',
     'no-eq-null': 'error',
     'no-console': 'error', // no longer recommended in eslint v6, this restores it
+    'simple-import-sort/sort': ['error', { groups: ImportSortGroups }],
+    'sort-imports': 'off',
+    'import/order': 'off',
+    'import/first': 'error',
+    'import/newline-after-import': 'error',
+    // this rule doesn't work properly with --fix
+    // https://github.com/benmosher/eslint-plugin-import/issues/1504
+    'import/no-duplicates': 'warn',
 
     // Too many false positives
     // See https://github.com/eslint/eslint/issues/11899 and similar
@@ -43,13 +79,21 @@ module.exports = {
       parserOptions: {
         sourceType: 'module',
       },
-      plugins: ['@typescript-eslint', 'ember-data'],
+      plugins: ['@typescript-eslint', 'ember-data', 'simple-import-sort', 'import'],
       extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
       rules: {
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'no-unused-vars': 'off',
         'require-atomic-updates': 'off',
         'ember-data/prefer-type-only-import': 'error',
+        'simple-import-sort/sort': ['error', { groups: ImportSortGroups }],
+        'sort-imports': 'off',
+        'import/order': 'off',
+        'import/first': 'error',
+        'import/newline-after-import': 'error',
+        // this rule doesn't work properly with --fix
+        // https://github.com/benmosher/eslint-plugin-import/issues/1504
+        'import/no-duplicates': 'warn',
       },
     },
 
@@ -89,10 +133,15 @@ module.exports = {
         node: true,
         es6: true,
       },
-      plugins: ['node'],
+      plugins: ['node', 'import'],
       extends: 'plugin:node/recommended',
       rules: {
+        'simple-import-sort/sort': 'off',
         'no-restricted-globals': 'off',
+        'import/first': 'error',
+        'import/newline-after-import': 'error',
+        'import/no-duplicates': 'error',
+        'import/order': ['error', { 'newlines-between': 'always' }],
       },
     },
 
