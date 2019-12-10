@@ -2,10 +2,13 @@
 
 const fs = require('fs');
 const path = require('path');
+
+const chalk = require('chalk');
+
 const Library = require('./src/library');
 const parseModules = require('./src/parse-modules');
 const getBuiltDist = require('./src/get-built-dist');
-const chalk = require('chalk');
+
 const library_failure_threshold = 15;
 const package_warn_threshold = 0;
 

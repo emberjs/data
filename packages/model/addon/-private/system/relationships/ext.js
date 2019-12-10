@@ -1,7 +1,8 @@
 import { A } from '@ember/array';
-import { computed, get } from '@ember/object';
 import { assert } from '@ember/debug';
-import { typeForRelationshipMeta, relationshipFromMeta } from '@ember-data/store/-private';
+import { computed, get } from '@ember/object';
+
+import { relationshipFromMeta, typeForRelationshipMeta } from '@ember-data/store/-private';
 
 /**
   @module @ember-data/model

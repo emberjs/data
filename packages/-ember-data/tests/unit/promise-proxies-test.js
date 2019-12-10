@@ -1,12 +1,14 @@
-import { Promise as EmberPromise } from 'rsvp';
 import { A } from '@ember/array';
-import Model, { belongsTo } from '@ember-data/model';
-import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
+import { Promise as EmberPromise } from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import Adapter from '@ember-data/adapter';
+import Model, { belongsTo } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('PromiseManyArray', function() {
   test('.reload should NOT leak the internal promise, rather return another promiseArray', function(assert) {

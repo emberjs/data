@@ -1,12 +1,14 @@
-import { resolve } from 'rsvp';
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/relationships/one_to_many_test - OneToMany relationships', function(hooks) {
   setupTest(hooks);

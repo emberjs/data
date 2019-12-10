@@ -1,10 +1,12 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
 
-import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('integration/relationships/nested_relationships_test - Nested relationships', function(hooks) {
   setupTest(hooks);

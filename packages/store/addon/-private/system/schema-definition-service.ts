@@ -1,8 +1,12 @@
-import { get } from '@ember/object';
 import { getOwner } from '@ember/application';
-import normalizeModelName from './normalize-model-name';
+import { get } from '@ember/object';
+
 import require from 'require';
+
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+
+import normalizeModelName from './normalize-model-name';
+
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;

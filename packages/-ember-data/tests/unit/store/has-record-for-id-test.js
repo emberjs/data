@@ -1,7 +1,10 @@
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
-import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('unit/store/hasRecordForId - Store hasRecordForId', function(hooks) {
   setupTest(hooks);

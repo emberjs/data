@@ -1,8 +1,11 @@
-import { singularize } from 'ember-inflector';
 import { DEBUG } from '@glimmer/env';
-import normalizeModelName from './normalize-model-name';
+
+import { singularize } from 'ember-inflector';
+
 import { RelationshipSchema } from '../ts-interfaces/record-data-schemas';
 import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
+import normalizeModelName from './normalize-model-name';
+
 type CoreStore = import('./core-store').default;
 
 /**

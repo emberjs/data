@@ -1,6 +1,8 @@
-import { test, skip } from 'qunit';
-import VERSION, { COMPAT_VERSION } from '@ember-data/unpublished-test-infra/version';
 import { DEBUG } from '@glimmer/env';
+
+import { skip, test } from 'qunit';
+
+import VERSION, { COMPAT_VERSION } from '@ember-data/unpublished-test-infra/version';
 
 // small comparison function for major and minor semver values
 function gte(EDVersion, DeprecationVersion) {

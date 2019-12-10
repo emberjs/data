@@ -24,13 +24,14 @@
   @main @ember-data/debug
   @public
 */
+import { A } from '@ember/array';
+import { assert } from '@ember/debug';
+import DataAdapter from '@ember/debug/data-adapter';
+import { get } from '@ember/object';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';
-import { A } from '@ember/array';
-import DataAdapter from '@ember/debug/data-adapter';
 import { capitalize, underscore } from '@ember/string';
-import { assert } from '@ember/debug';
-import { get } from '@ember/object';
+
 import { typesMapFor } from './setup';
 
 /**

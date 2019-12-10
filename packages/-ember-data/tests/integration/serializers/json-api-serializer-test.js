@@ -1,11 +1,12 @@
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
 
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/serializers/json-api-serializer - JSONAPISerializer', function(hooks) {
   setupTest(hooks);

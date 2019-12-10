@@ -1,20 +1,21 @@
+import { computed, get, observer, set } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
-import { resolve, reject } from 'rsvp';
-import { set, get, observer, computed } from '@ember/object';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import { module, test } from 'qunit';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import { settled } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
+
+import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
-import Model from '@ember-data/model';
+
 import { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, attr as DSattr, belongsTo, hasMany } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
-import { attr as DSattr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordDataFor } from '@ember-data/store/-private';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
-import { gte } from 'ember-compatibility-helpers';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model - Model', function(hooks) {
   setupTest(hooks);

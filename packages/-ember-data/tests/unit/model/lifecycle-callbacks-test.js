@@ -1,14 +1,15 @@
-import { resolve, reject } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
 import { module } from 'qunit';
+import { reject, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Model, { attr } from '@ember-data/model';
 import { InvalidError } from '@ember-data/adapter/error';
+import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {

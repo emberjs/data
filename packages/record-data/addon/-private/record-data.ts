@@ -1,14 +1,17 @@
 /**
   @module @ember-data/record-data
 */
-import { DEBUG } from '@glimmer/env';
+import { assert, inspect, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
-import { isEqual } from '@ember/utils';
-import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
-import Relationships from './relationships/state/create';
-import coerceId from './coerce-id';
+import { isEqual } from '@ember/utils';
+import { DEBUG } from '@glimmer/env';
+
 import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+
+import coerceId from './coerce-id';
+import Relationships from './relationships/state/create';
+
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
 type RecordDataStoreWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
 type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;

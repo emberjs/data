@@ -1,6 +1,8 @@
-import Store from '@ember-data/store';
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
+
+import Store from '@ember-data/store';
 
 module('modelFor without @ember-data/model', function(hooks) {
   setupTest(hooks);

@@ -1,14 +1,17 @@
-import Application from '../app';
-import config from '../config/environment';
-import RSVP from 'rsvp';
 import { setApplication } from '@ember/test-helpers';
-import { start } from 'ember-qunit';
 
 import QUnit from 'qunit';
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
-import additionalLegacyAsserts from '@ember-data/unpublished-test-infra/test-support/legacy';
+import RSVP from 'rsvp';
+
+import { start } from 'ember-qunit';
+
 import assertAllDeprecations from '@ember-data/unpublished-test-infra/test-support/assert-all-deprecations';
+import additionalLegacyAsserts from '@ember-data/unpublished-test-infra/test-support/legacy';
+import configureAsserts from '@ember-data/unpublished-test-infra/test-support/qunit-asserts';
 import customQUnitAdapter from '@ember-data/unpublished-test-infra/test-support/testem/custom-qunit-adapter';
+
+import Application from '../app';
+import config from '../config/environment';
 
 if (window.Promise === undefined) {
   window.Promise = RSVP.Promise;

@@ -1,9 +1,11 @@
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import RSVP from 'rsvp';
 import { run } from '@ember/runloop';
-import DS from 'ember-data';
+
 import { module, test } from 'qunit';
+import RSVP from 'rsvp';
+
+import DS from 'ember-data';
 
 const { RecordArray } = DS;
 

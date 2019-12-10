@@ -1,5 +1,7 @@
 import RSVP, { resolve } from 'rsvp';
+
 import Reference from './reference';
+
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
 

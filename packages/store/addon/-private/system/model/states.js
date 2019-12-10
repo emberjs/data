@@ -2,6 +2,7 @@
   @module @ember-data/store
 */
 import { assert } from '@ember/debug';
+
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
 /*
   This file encapsulates the various states that a record can transition

@@ -1,8 +1,11 @@
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
-import Model, { belongsTo, hasMany, attr } from '@ember-data/model';
 import EmberObject, { set } from '@ember/object';
 import { settled } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 module('Relationships | unloading new records', function(hooks) {
   setupTest(hooks);

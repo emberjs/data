@@ -4,12 +4,14 @@
 
 const fs = require('fs');
 const path = require('path');
+
 const execa = require('execa');
 // apparently violates no-extraneous require? /shrug
 const debug = require('debug')('test-external');
 const rimraf = require('rimraf');
 const chalk = require('chalk');
 const cliArgs = require('command-line-args');
+
 const projectRoot = path.resolve(__dirname, '../');
 
 let cliOptionsDef = [{ name: 'projectName', defaultOption: true }];

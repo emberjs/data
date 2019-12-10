@@ -1,19 +1,19 @@
-import { resolve, hash, Promise as EmberPromise, reject } from 'rsvp';
-import { set, get } from '@ember/object';
+import { get, set } from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { hash, Promise as EmberPromise, reject, resolve } from 'rsvp';
 
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
 import AdapterError, { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
-
 import { PromiseArray, Snapshot } from '@ember-data/store/-private';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function moveRecordOutOfInFlight(record) {
   run(() => {

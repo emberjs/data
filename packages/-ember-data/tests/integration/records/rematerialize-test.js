@@ -1,14 +1,16 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+
 import { module, test } from 'qunit';
-import { IDENTIFIERS } from '@ember-data/canary-features';
+
+import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { IDENTIFIERS } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 module('integration/unload - Rematerializing Unloaded Records', function(hooks) {
   setupTest(hooks);

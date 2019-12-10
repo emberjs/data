@@ -1,5 +1,7 @@
-import Model from '../model';
 import { getOwner } from '@ember/application';
+
+import Model from '../model';
+
 type Store = import('@ember-data/store').default;
 
 /*

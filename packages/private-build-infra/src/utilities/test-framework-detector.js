@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+
 const VersionChecker = require('ember-cli-version-checker');
 
 module.exports = function(blueprint) {

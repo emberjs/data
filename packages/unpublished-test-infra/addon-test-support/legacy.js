@@ -1,5 +1,6 @@
-import { wait, asyncEqual, invokeAsync } from './async';
 import QUnit from 'qunit';
+
+import { asyncEqual, invokeAsync, wait } from './async';
 
 const { assert } = QUnit;
 

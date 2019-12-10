@@ -1,4 +1,5 @@
 import Store from '@ember-data/store';
+
 const StoreTypesMap = new WeakMap();
 
 export function typesMapFor(store) {

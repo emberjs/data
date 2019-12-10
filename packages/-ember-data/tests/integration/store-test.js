@@ -1,16 +1,18 @@
-import { Promise, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import Ember from 'ember';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
-import { module, test } from 'qunit';
-import RESTAdapter from '@ember-data/adapter/rest';
-import RESTSerializer from '@ember-data/serializer/rest';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { settled } from '@ember/test-helpers';
+import Ember from 'ember';
+
+import { module, test } from 'qunit';
+import { Promise, resolve } from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import RESTAdapter from '@ember-data/adapter/rest';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import RESTSerializer from '@ember-data/serializer/rest';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const Person = DS.Model.extend({
   name: DS.attr('string'),

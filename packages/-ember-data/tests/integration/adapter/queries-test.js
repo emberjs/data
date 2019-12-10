@@ -1,12 +1,14 @@
-import { Promise as EmberPromise, resolve } from 'rsvp';
-import { setupTest } from 'ember-qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr } from '@ember-data/model';
-import { settled } from '@ember/test-helpers';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/adapter/queries - Queries', function(hooks) {
   setupTest(hooks);

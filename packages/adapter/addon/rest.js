@@ -4,26 +4,28 @@
   @module @ember-data/adapter
 */
 
-import RSVP, { Promise as EmberPromise } from 'rsvp';
-import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
-import { run } from '@ember/runloop';
-import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+import { warn } from '@ember/debug';
+import { computed, get } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { determineBodyPromise, fetch, parseResponseHeaders, serializeQueryParams } from './-private';
+import { run } from '@ember/runloop';
+import { DEBUG } from '@glimmer/env';
+
+import RSVP, { Promise as EmberPromise } from 'rsvp';
+
+import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
-  InvalidError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
+  AbortError,
   ConflictError,
+  ForbiddenError,
+  InvalidError,
+  NotFoundError,
   ServerError,
   TimeoutError,
-  AbortError,
+  UnauthorizedError,
 } from '@ember-data/adapter/error';
-import { warn } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
-import { serializeIntoHash } from './-private';
+
+import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
 const Promise = EmberPromise;
 const hasJQuery = typeof jQuery !== 'undefined';

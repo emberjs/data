@@ -1,10 +1,10 @@
-import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
 
 let store, Post, Tag;
 

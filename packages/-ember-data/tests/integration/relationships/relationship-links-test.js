@@ -1,10 +1,13 @@
 import EmberObject from '@ember/object';
-import { test, module } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import Store from '@ember-data/store';
-import Model, { attr, hasMany } from '@ember-data/model';
+
+import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
 import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import Model, { attr, hasMany } from '@ember-data/model';
+import Store from '@ember-data/store';
 
 module('JSON:API links access on relationships', function(hooks) {
   setupTest(hooks);

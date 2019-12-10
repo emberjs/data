@@ -1,15 +1,15 @@
 import { A } from '@ember/array';
-import { Promise } from 'rsvp';
-import { assert, warn, deprecate } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
-import coerceId from '../coerce-id';
-
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
-
-import { normalizeResponseHelper } from './serializer-response';
+import { assert, deprecate, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
-import { IDENTIFIERS } from '@ember-data/canary-features';
-import { REQUEST_SERVICE } from '@ember-data/canary-features';
+import { DEBUG } from '@glimmer/env';
+
+import { Promise } from 'rsvp';
+
+import { IDENTIFIERS, REQUEST_SERVICE } from '@ember-data/canary-features';
+
+import coerceId from '../coerce-id';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
+import { normalizeResponseHelper } from './serializer-response';
 
 /**
   @module @ember-data/store

@@ -1,15 +1,15 @@
-import { run } from '@ember/runloop';
 import Mixin from '@ember/object/mixin';
-import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
 
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-import Model from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
 
-import { assertPolymorphicType } from '@ember-data/store/-debug';
+import Model from '@ember-data/model';
 import { modelHasAttributeOrRelationshipNamedType } from '@ember-data/serializer/-private';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/utils', function(hooks) {
   setupTest(hooks);

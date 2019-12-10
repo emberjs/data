@@ -1,5 +1,6 @@
 import { get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
+
 import { resolve } from 'rsvp';
 
 /**

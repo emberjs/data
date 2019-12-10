@@ -1,20 +1,23 @@
 /**
   @module @ember-data/store
 */
-import CoreStore from './core-store';
-import { assert } from '@ember/debug';
-import normalizeModelName from './normalize-model-name';
-import { assign } from '@ember/polyfills';
-import { DEBUG } from '@glimmer/env';
-import { isPresent } from '@ember/utils';
+import { getOwner, setOwner } from '@ember/application';
 import { deprecate } from '@ember/application/deprecations';
+import { assert } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
-import { getShimClass } from './model/shim-model-class';
-import { setOwner, getOwner } from '@ember/application';
-import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
+import { assign } from '@ember/polyfills';
+import { isPresent } from '@ember/utils';
+import { DEBUG } from '@glimmer/env';
+
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
+import CoreStore from './core-store';
 import notifyChanges from './model/notify-changes';
+import { getShimClass } from './model/shim-model-class';
+import normalizeModelName from './normalize-model-name';
+import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
+
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
 type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;

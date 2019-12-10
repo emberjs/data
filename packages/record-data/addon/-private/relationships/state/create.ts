@@ -1,7 +1,8 @@
-import ManyRelationship from './has-many';
-import BelongsToRelationship from './belongs-to';
-
 import { upgradeForInternal } from '@ember-data/store/-private';
+
+import BelongsToRelationship from './belongs-to';
+import ManyRelationship from './has-many';
+
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;

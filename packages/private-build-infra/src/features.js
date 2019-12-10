@@ -1,9 +1,10 @@
 'use strict';
 
-const version = require('../package.json').version;
-const isCanary = version.includes('alpha');
-
 const requireEsm = require('esm')(module);
+
+const version = require('../package.json').version;
+
+const isCanary = version.includes('alpha');
 
 function getFeatures(isProd) {
   const { default: features } = requireEsm('@ember-data/canary-features/addon/default-features.ts');

@@ -1,9 +1,10 @@
-import { mapBy, not } from '@ember/object/computed';
-import { DeprecatedEvented } from '@ember-data/store/-private';
+import { A, makeArray } from '@ember/array';
 import ArrayProxy from '@ember/array/proxy';
-import { get, computed } from '@ember/object';
-import { makeArray, A } from '@ember/array';
+import { computed, get } from '@ember/object';
+import { mapBy, not } from '@ember/object/computed';
 import { DEBUG } from '@glimmer/env';
+
+import { DeprecatedEvented } from '@ember-data/store/-private';
 
 /**
   @module @ember-data/store

@@ -1,6 +1,8 @@
-import QUnit from 'qunit';
-import { checkMatcher } from './check-matcher';
 import { DEBUG } from '@glimmer/env';
+
+import QUnit from 'qunit';
+
+import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
 
 let HAS_REGISTERED = false;

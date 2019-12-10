@@ -1,11 +1,11 @@
 import { A } from '@ember/array';
-import { set, get } from '@ember/object';
+import { get, set } from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
 
 module('unit/model/relationships - RecordArray', function(hooks) {
   setupTest(hooks);

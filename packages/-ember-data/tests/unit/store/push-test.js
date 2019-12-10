@@ -1,14 +1,15 @@
 import EmberObject from '@ember/object';
-import { Promise as EmberPromise, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 import Ember from 'ember';
 
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from 'qunit';
+import { Promise as EmberPromise, resolve } from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, Person, PhoneNumber, Post;
 const { attr, hasMany, belongsTo } = DS;

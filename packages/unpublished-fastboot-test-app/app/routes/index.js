@@ -1,4 +1,5 @@
 import Route from '@ember/routing/route';
+
 import { buildTree } from 'ember-simple-tree/utils/tree';
 
 export default class IndexRoute extends Route {

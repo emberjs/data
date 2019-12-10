@@ -1,8 +1,11 @@
-import Model, { attr } from '@ember-data/model';
-import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
 import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+
+import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr } from '@ember-data/model';
 import { watchProperties } from '@ember-data/unpublished-test-infra/test-support/watch-property';
 
 let store;

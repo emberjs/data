@@ -1,20 +1,21 @@
-import { isPresent } from '@ember/utils';
 import { addObserver } from '@ember/object/observers';
-import { Promise as EmberPromise, reject } from 'rsvp';
-import { run, later } from '@ember/runloop';
-import Model, { attr } from '@ember-data/model';
-import Adapter from '@ember-data/adapter';
-import RESTAdapter from '@ember-data/adapter/rest';
-import RESTSerializer from '@ember-data/serializer/rest';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { InvalidError } from '@ember-data/adapter/error';
-import { DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS } from '@ember-data/private-build-infra/deprecations';
+import { later, run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
+import { isPresent } from '@ember/utils';
 
 import { module, test } from 'qunit';
+import { Promise as EmberPromise, reject } from 'rsvp';
 
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
-import { settled } from '@ember/test-helpers';
+
+import Adapter from '@ember-data/adapter';
+import { InvalidError } from '@ember-data/adapter/error';
+import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { attr } from '@ember-data/model';
+import { DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS } from '@ember-data/private-build-infra/deprecations';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import RESTSerializer from '@ember-data/serializer/rest';
 
 module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(hooks) {
   setupTest(hooks);

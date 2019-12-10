@@ -1,11 +1,13 @@
-import { resolve } from 'rsvp';
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
-import Model from '@ember-data/model';
+import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('integration - Client Id Generation', function(hooks) {
   setupTest(hooks);

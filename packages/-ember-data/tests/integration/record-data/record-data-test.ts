@@ -1,15 +1,17 @@
-import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import EmberObject, { get } from '@ember/object';
+import { settled } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import { Promise } from 'rsvp';
+
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { module, test } from 'qunit';
-import { settled } from '@ember/test-helpers';
-import EmberObject from '@ember/object';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
-import { Promise } from 'rsvp';
+import { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

@@ -1,12 +1,13 @@
 import { module, test } from 'qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { setupTest } from 'ember-qunit';
-import Store from '@ember-data/store';
-import Model from '@ember-data/model';
 import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('inverse relationship load test', function(hooks) {
   let store;

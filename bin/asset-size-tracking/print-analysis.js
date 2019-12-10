@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+
 const Library = require('./src/library');
 
 let INPUT_FILE = process.argv[2] !== '-show' ? process.argv[2] : false;

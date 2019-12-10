@@ -1,6 +1,9 @@
-import RSVP from 'rsvp';
 import EmberObject from '@ember/object';
+
+import RSVP from 'rsvp';
+
 import { RecordInstance } from './record-instance';
+
 type RelationshipSchema = import('./record-data-schemas').RelationshipSchema;
 type AttributeSchema = import('./record-data-schemas').AttributeSchema;
 type JsonApiValidationError = import('./record-data-json-api').JsonApiValidationError;

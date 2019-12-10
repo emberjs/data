@@ -5,6 +5,7 @@
 */
 
 import { assign } from '@ember/polyfills';
+
 import DEFAULT_FEATURES from './default-features';
 
 interface ConfigEnv {

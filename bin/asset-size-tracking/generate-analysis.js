@@ -9,6 +9,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+
 let INPUT_DIST = process.argv[2] || false;
 let OUTPUT_FILE = process.argv[3] || './current-data.json';
 const parseModules = require('./src/parse-modules');

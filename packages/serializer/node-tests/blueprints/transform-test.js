@@ -1,18 +1,16 @@
 'use strict';
 
 const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
+const chai = require('ember-cli-blueprint-test-helpers/chai');
+const generateFakePackageManifest = require('@ember-data/unpublished-test-infra/src/node-test-helpers/generate-fake-package-manifest');
+const fixture = require('@ember-data/unpublished-test-infra/src/node-test-helpers/fixture');
+const setupTestEnvironment = require('@ember-data/unpublished-test-infra/src/node-test-helpers/setup-test-environment');
+
 const setupTestHooks = blueprintHelpers.setupTestHooks;
 const emberNew = blueprintHelpers.emberNew;
 const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
 const modifyPackages = blueprintHelpers.modifyPackages;
-
-const chai = require('ember-cli-blueprint-test-helpers/chai');
 const expect = chai.expect;
-
-const generateFakePackageManifest = require('@ember-data/unpublished-test-infra/src/node-test-helpers/generate-fake-package-manifest');
-const fixture = require('@ember-data/unpublished-test-infra/src/node-test-helpers/fixture');
-
-const setupTestEnvironment = require('@ember-data/unpublished-test-infra/src/node-test-helpers/setup-test-environment');
 const enableOctane = setupTestEnvironment.enableOctane;
 
 describe('Acceptance: generate and destroy transform blueprints', function() {

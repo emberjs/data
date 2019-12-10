@@ -1,7 +1,7 @@
-import Store from '@ember-data/store';
-import { RecordData } from '@ember-data/record-data/-private';
-import { identifierCacheFor } from '@ember-data/store/-private';
 import { IDENTIFIERS } from '@ember-data/canary-features';
+import { RecordData } from '@ember-data/record-data/-private';
+import Store from '@ember-data/store';
+import { identifierCacheFor } from '@ember-data/store/-private';
 
 export default class DefaultStore extends Store {
   createRecordDataFor(modelName, id, clientId, storeWrapper) {

@@ -1,11 +1,14 @@
-import { defer, resolve } from 'rsvp';
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+
+import { module, test } from 'qunit';
+import { defer, resolve } from 'rsvp';
+
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
+
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import { module, test } from 'qunit';
 
 module('integration/references/has-many', function(hooks) {
   setupTest(hooks);

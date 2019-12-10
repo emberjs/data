@@ -1,7 +1,9 @@
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
-import Store from 'ember-data/store';
 import { assign } from '@ember/polyfills';
+
+import { module, test } from 'qunit';
+
+import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
 
 class TestAdapter {
   constructor(args) {

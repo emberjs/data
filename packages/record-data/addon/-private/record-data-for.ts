@@ -1,4 +1,5 @@
 import { recordDataFor } from '@ember-data/store/-private';
+
 type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
 type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
 type ManyRelationship = import('./relationships/state/has-many').default;

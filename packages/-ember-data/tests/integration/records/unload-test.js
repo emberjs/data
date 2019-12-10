@@ -1,14 +1,17 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
-import { resolve, Promise as EmberPromise } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
-import { recordDataFor } from '@ember-data/store/-private';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordDataFor } from '@ember-data/store/-private';
 
 function idsFromOrderedSet(set) {
   return set.list.map(i => i.id);

@@ -1,4 +1,5 @@
 import { module, test } from 'qunit';
+
 import { fetchOptions } from '@ember-data/adapter/rest';
 
 module('unit/adapters/rest-adapter/fetch-options', function(hooks) {

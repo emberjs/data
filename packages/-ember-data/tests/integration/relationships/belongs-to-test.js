@@ -1,18 +1,21 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import RSVP, { resolve } from 'rsvp';
-import { module, test } from 'qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { setupTest } from 'ember-qunit';
-import Store from '@ember-data/store';
-import Model from '@ember-data/model';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import DS from 'ember-data';
-import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
-import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';
-import { IDENTIFIERS } from '@ember-data/canary-features';
 import { setupContext, teardownContext } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import RSVP, { resolve } from 'rsvp';
+
+import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { IDENTIFIERS } from '@ember-data/canary-features';
+import Model from '@ember-data/model';
+import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
+import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;

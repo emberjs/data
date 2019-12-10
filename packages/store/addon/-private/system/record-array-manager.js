@@ -3,11 +3,12 @@
 */
 
 import { A } from '@ember/array';
-import { set, get } from '@ember/object';
+import { assert } from '@ember/debug';
+import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run as emberRunloop } from '@ember/runloop';
-import { assert } from '@ember/debug';
-import { RecordArray, AdapterPopulatedRecordArray } from './record-arrays';
+
+import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import { internalModelFactoryFor } from './store/internal-model-factory';
 
 const emberRun = emberRunloop.backburner;

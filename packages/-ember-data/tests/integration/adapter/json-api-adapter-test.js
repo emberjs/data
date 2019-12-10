@@ -1,8 +1,10 @@
-import { resolve } from 'rsvp';
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { resolve } from 'rsvp';
+
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, adapter;
 let passedUrl, passedVerb, passedHash;

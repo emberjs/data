@@ -1,11 +1,14 @@
 import { assert, warn } from '@ember/debug';
-import { identifierCacheFor } from '../../identifiers/cache';
-import InternalModel from '../model/internal-model';
-import IdentityMap from '../identity-map';
 import { isNone } from '@ember/utils';
-import { IDENTIFIERS } from '@ember-data/canary-features';
 import { DEBUG } from '@glimmer/env';
+
+import { IDENTIFIERS } from '@ember-data/canary-features';
+
+import { identifierCacheFor } from '../../identifiers/cache';
 import constructResource from '../../utils/construct-resource';
+import IdentityMap from '../identity-map';
+import InternalModel from '../model/internal-model';
+
 type CoreStore = import('../core-store').default;
 type ResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
 type ExistingResourceObject = import('../../ts-interfaces/ember-data-json-api').ExistingResourceObject;

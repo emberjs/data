@@ -1,4 +1,5 @@
-import { removeObserver, addObserver } from '@ember/object/observers';
+import { addObserver, removeObserver } from '@ember/object/observers';
+
 import QUnit from 'qunit';
 
 function freeze(obj) {

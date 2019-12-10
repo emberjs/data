@@ -1,15 +1,16 @@
 /* eslint no-prototype-builtins: 'off' */
 // prototype hasOwnProperty has no security issues here because it is not production code
 
-import { underscore } from '@ember/string';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
+import { underscore } from '@ember/string';
 
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import JSONSerializer from '@ember-data/serializer/json';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import JSONSerializer from '@ember-data/serializer/json';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 var Post, Comment, Favorite;
 

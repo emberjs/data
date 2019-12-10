@@ -1,11 +1,14 @@
-import { camelize, decamelize, dasherize } from '@ember/string';
-import Inflector, { singularize } from 'ember-inflector';
-import { run, bind } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { bind, run } from '@ember/runloop';
+import { camelize, dasherize, decamelize } from '@ember/string';
+
 import { module, test } from 'qunit';
+
 import DS from 'ember-data';
+import Inflector, { singularize } from 'ember-inflector';
+import { setupTest } from 'ember-qunit';
+
 import RESTSerializer from '@ember-data/serializer/rest';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let HomePlanet, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container;
 

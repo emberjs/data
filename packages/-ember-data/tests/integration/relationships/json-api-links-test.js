@@ -1,9 +1,12 @@
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { resolve } from 'rsvp';
-import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';

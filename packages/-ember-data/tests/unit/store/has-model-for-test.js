@@ -1,5 +1,7 @@
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
 import Model from '@ember-data/model';
 
 module('unit/store/has-model-For', function(hooks) {

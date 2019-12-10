@@ -1,7 +1,9 @@
+import { assert } from '@ember/debug';
 import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
+
 import { Promise } from 'rsvp';
-import { assert } from '@ember/debug';
+
 import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
 import { PromiseArray } from '@ember-data/store/-private';
 

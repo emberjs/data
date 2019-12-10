@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
 'use strict';
 
-const QUnit = require('qunit');
-const test = QUnit.test;
 const path = require('path');
+
+const QUnit = require('qunit');
+
+const test = QUnit.test;
 
 QUnit.module('Docs coverage', function(hooks) {
   let docs, expected;

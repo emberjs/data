@@ -1,9 +1,11 @@
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+
+import { setupTest } from 'ember-qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/embedded-records-mixin', function(hooks) {
   setupTest(hooks);

@@ -1,12 +1,16 @@
-import { setupTest } from 'ember-qunit';
-import Model from 'ember-data/model';
-import { module, test } from 'qunit';
-import { identifierCacheFor } from '@ember-data/store/-private';
 import EmberObject from '@ember/object';
-import { attr } from '@ember-data/model';
-import { REQUEST_SERVICE } from '@ember-data/canary-features';
-import JSONSerializer from '@ember-data/serializer/json';
+
+import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
+
+import Model from 'ember-data/model';
+import { setupTest } from 'ember-qunit';
+
+import { REQUEST_SERVICE } from '@ember-data/canary-features';
+import { attr } from '@ember-data/model';
+import JSONSerializer from '@ember-data/serializer/json';
+import { identifierCacheFor } from '@ember-data/store/-private';
+
 type RequestStateEnum = import('@ember-data/store/-private/ts-interfaces/fetch-manager').RequestStateEnum;
 type Store = import('ember-data/store').default;
 

@@ -1,5 +1,6 @@
 const collapseRanges = require('./utils/collapse-ranges');
 const createParamStringForGenerics = require('./utils/create-param-string-for-generics');
+
 const RULE_FAILURE_MESSAGE = `ES Import Declaration should be converted to Typescript type only import.`;
 
 function identifierIsModuleScopeReference(identifier, scope) {

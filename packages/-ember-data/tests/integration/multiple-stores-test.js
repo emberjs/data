@@ -1,12 +1,14 @@
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
 // we intentionally test against the ember-data version here
 // because the ember-data/store uses DefaultRecordData while @ember-data/store does not
+import { module, test } from 'qunit';
+
 import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
+import Adapter from '@ember-data/adapter';
+import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
-import RESTAdapter from '@ember-data/adapter/rest';
-import Adapter from '@ember-data/adapter';
 
 module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
   setupTest(hooks);

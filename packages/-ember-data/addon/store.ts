@@ -1,7 +1,7 @@
-import Store from '@ember-data/store';
-import { RecordData } from '@ember-data/record-data/-private';
-import { identifierCacheFor } from '@ember-data/store/-private';
 import { IDENTIFIERS } from '@ember-data/canary-features';
+import { RecordData } from '@ember-data/record-data/-private';
+import Store from '@ember-data/store';
+import { identifierCacheFor } from '@ember-data/store/-private';
 
 type RecordDataStoreWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
 
