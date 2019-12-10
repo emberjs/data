@@ -578,4 +578,41 @@ module('async belongs-to rendering tests', function (hooks) {
       }
     });
   });
+
+  test('Can reset a previously failed linked async belongs-to', async function (assert) {
+    assert.expect(4);
+    let people = makePeopleWithRelationshipData();
+    let sedona = store.push({
+      data: people.dict['6:has-linked-parent'],
+    });
+
+    adapter.setupPayloads(assert, [new ServerError([], 'person not found'), new ServerError([], 'person not found')]);
+
+    // render
+    this.set('sedona', sedona);
+
+    let originalOnError = Ember.onerror;
+    Ember.onerror = function (e) {
+      assert.ok(true, 'Rejects the first time');
+    };
+
+    await render(hbs`
+    <p>{{sedona.parent.name}}</p>
+    `);
+
+    const newParent = store.createRecord('person', { name: 'New Person' });
+    sedona.set('parent', newParent);
+    await settled();
+    assert.equal(
+      this.element.textContent.trim(),
+      'New Person',
+      'after resetting to a new record, shows new content on page'
+    );
+    newParent.unloadRecord();
+    await settled();
+    assert.equal(this.element.textContent.trim(), '', 'after unloading the record it shows no content on page');
+    sedona.reload();
+    await settled();
+    Ember.onerror = originalOnError;
+  });
 });
