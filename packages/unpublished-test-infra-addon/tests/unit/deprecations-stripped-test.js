@@ -12,9 +12,9 @@ module('test compatWith', function() {
       deprecation_stripped = false;
     }
 
-    if (compatWith === '3.0' || compatWith === '3.8' || compatWith === '3.12') {
+    if (compatWith === '3.0' || compatWith === '3.8') {
       assert.equal(deprecation_stripped, false, 'deprecation code was not stripped');
-    } else if (compatWith === '3.16' || compatWith === '99.0') {
+    } else if (compatWith === '3.12' || compatWith === '3.16' || compatWith === '99.0') {
       assert.equal(deprecation_stripped, true, 'deprecation code was stripped');
     } else {
       // do nothing
