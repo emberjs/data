@@ -36,9 +36,7 @@ type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api')
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
 type RecordArray = import('../record-arrays/record-array').default;
 type Store = import('../ds-model-store').default;
-
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
-type RecordArray = InstanceType<typeof RecordArray>;
 type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
 type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
 
