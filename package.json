@@ -25,6 +25,7 @@
     "test:docs": "yarn workspace ember-data test:docs",
     "test:encapsulation": "lerna run --scope='*-encapsulation-test-app' test",
     "test:fastboot": "yarn workspace fastboot-test-app test:try-one",
+    "test:infra": "yarn workspace @ember-data/unpublished-test-infra test",
     "test-external:ember-m3": "./bin/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "./bin/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
     "test-external:model-fragments": "./bin/test-external-partner-project.js model-fragments https://github.com/lytics/ember-data-model-fragments.git",
