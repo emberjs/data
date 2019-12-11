@@ -6048,10 +6048,10 @@ ember-cli-htmlbars-inline-precompile@^2.1.0:
     heimdalljs-logger "^0.1.9"
     silent-error "^1.1.0"
 
-ember-cli-htmlbars@^4.0.0, ember-cli-htmlbars@^4.0.9:
-  version "4.0.9"
-  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.0.9.tgz#a4f56f2f91ee4bf3ef4d1b3ec1d653800d05251b"
-  integrity sha512-6WJXN/XX3ylczGMVxpPIFWjieS0MDUGPQaW0nTqo/gT91WaH+DX5/4tySDKtjM5e32oFN0OXFOk8AhePzuw3Aw==
+ember-cli-htmlbars@^4.0.0, ember-cli-htmlbars@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.1.0.tgz#2abb96d20d22d024f384df3691ad9d667ccabbe7"
+  integrity sha512-ZxVtixNPvtdCyYd9AdgCfSVO/WWLHdvK0WpTzbZ+/iTbMH0unNypJ8o2GY6DbArEB/PE6bV/Ta3khYURyuH47g==
   dependencies:
     "@ember/edition-utils" "^1.1.1"
     babel-plugin-htmlbars-inline-precompile "^3.0.0"
@@ -6060,11 +6060,10 @@ ember-cli-htmlbars@^4.0.0, ember-cli-htmlbars@^4.0.9:
     broccoli-plugin "^3.0.0"
     common-tags "^1.8.0"
     ember-cli-babel-plugin-helpers "^1.1.0"
-    fs-copy-file-sync "^1.1.1"
+    fs-tree-diff "^2.0.1"
     hash-for-dep "^1.5.1"
     heimdalljs-logger "^0.1.10"
     json-stable-stringify "^1.0.1"
-    mkdirp "^0.5.1"
     semver "^6.3.0"
     strip-bom "^4.0.0"
     walk-sync "^2.0.2"
@@ -7560,11 +7559,6 @@ fromentries@^1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/fromentries/-/fromentries-1.2.0.tgz#e6aa06f240d6267f913cea422075ef88b63e7897"
   integrity sha512-33X7H/wdfO99GdRLLgkjUrD4geAFdq/Uv0kl3HD4da6HDixd2GUg8Mw7dahLCV9r/EARkmtYBB6Tch4EEokFTQ==
-
-fs-copy-file-sync@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/fs-copy-file-sync/-/fs-copy-file-sync-1.1.1.tgz#11bf32c096c10d126e5f6b36d06eece776062918"
-  integrity sha512-2QY5eeqVv4m2PfyMiEuy9adxNP+ajf+8AR05cEi+OAzPcOj90hvFImeZhTmKLBgSd9EvG33jsD7ZRxsx9dThkQ==
 
 fs-extra@^0.24.0:
   version "0.24.0"
