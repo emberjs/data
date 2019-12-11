@@ -41,7 +41,7 @@
     "@ember/edition-utils": "^1.1.1",
     "@ember/optional-features": "^1.1.0",
     "@glimmer/component": "^1.0.0-beta.3",
-    "@tracerbench/core": "3.0.8",
+    "@tracerbench/core": "3.0.9",
     "@types/ember": "^3.1.1",
     "@types/ember-qunit": "^3.4.7",
     "@types/ember-test-helpers": "~1.0.6",
