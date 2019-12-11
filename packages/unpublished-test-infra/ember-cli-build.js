@@ -5,7 +5,7 @@
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 const isProd = true;
-const compatWith = process.env.COMPAT_WITH;
+const compatWith = process.env.COMPAT_WITH || '0.0.0';
 
 module.exports = function(defaults) {
   let app = new EmberAddon(defaults, {
@@ -16,6 +16,9 @@ module.exports = function(defaults) {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
       plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(null, isProd, compatWith)],
+    },
+    'ember-cli-babel': {
+      throwUnlessParallelizable: true,
     },
   });
 
