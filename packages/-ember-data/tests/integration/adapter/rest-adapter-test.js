@@ -2577,6 +2577,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         hash.error(jqXHR, jqXHR.responseText, errorThrown);
       };
 
+      adapter.handleResponse = function(status, headers, payload) {
+        assert.ok(false);
+      };
+
       return run(() => {
         return store.findRecord('post', '1').catch(err => {
           assert.equal(err, errorThrown);

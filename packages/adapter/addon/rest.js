@@ -1005,15 +1005,16 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
         this._fetchRequest(hash)
           // fetch sometimes rejects and sometimes resolves with errors
           .catch(response => {
-            response.ok = false;
+            _response = response;
+            _response.ok = false;
             let handlePayload = function(payload) {
-              return Promise.reject(fetchErrorHandler(adapter, payload, response, null, requestData));
+              return Promise.reject(fetchErrorHandler(adapter, payload, _response, null, requestData));
             };
-            return determineBodyPromise(response, requestData).then(handlePayload, handlePayload);
+            return determineBodyPromise(_response, requestData, true).then(handlePayload, handlePayload);
           })
           .then(response => {
             _response = response;
-            return determineBodyPromise(response, requestData);
+            return determineBodyPromise(response, requestData, true);
           })
           .catch(error => {
             _response.ok = false;
@@ -1268,7 +1269,9 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 function ajaxError(adapter, payload, requestData, responseData) {
   let error;
 
-  if (responseData.textStatus === 'timeout') {
+  if (responseData.errorThrown instanceof Error && payload !== '') {
+    error = responseData.errorThrown;
+  } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
   } else if (responseData.textStatus === 'abort' || responseData.status === 0) {
     error = handleAbort(requestData, responseData);
@@ -1283,10 +1286,6 @@ function ajaxError(adapter, payload, requestData, responseData) {
     } catch (e) {
       error = e;
     }
-  }
-
-  if (responseData.errorThrown instanceof Error) {
-    error = responseData.errorThrown;
   }
 
   return error;
@@ -1317,7 +1316,12 @@ function fetchSuccessHandler(adapter, payload, response, requestData) {
 
 function fetchErrorHandler(adapter, payload, response, errorThrown, requestData) {
   let responseData = fetchResponseData(response);
-  responseData.errorThrown = errorThrown;
+  if (responseData.status === 200 && payload instanceof Error) {
+    responseData.errorThrown = payload;
+    payload = responseData.errorThrown.payload;
+  } else {
+    responseData.errorThrown = errorThrown;
+  }
   return ajaxError(adapter, payload, requestData, responseData);
 }
 

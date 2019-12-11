@@ -68,7 +68,7 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is called with empty response', async function(assert) {
+  test('handleResponse is called with empty array response', async function(assert) {
     let handleResponseCalled = 0;
 
     let samplePayload = {
@@ -94,7 +94,7 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is called on empty repsonse', async function(assert) {
+  test('handleResponse is called on empty string repsonse', async function(assert) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function() {
@@ -121,7 +121,7 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is called on invalid repsonse', async function(assert) {
+  test('handleResponse is not called on invalid repsonse', async function(assert) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function() {
@@ -145,10 +145,10 @@ module('integration/adapter/handle-response', function(hooks) {
       assert.ok(true, 'promise rejected');
     }
 
-    assert.equal(handleResponseCalled, 1, 'handle response is called');
+    assert.equal(handleResponseCalled, 0, 'handle response is not called');
   });
 
-  test('handleResponse is called on invalid repsonse with 400 status', async function(assert) {
+  test('handleResponse is called on empty string repsonse with 400 status', async function(assert) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function() {
