@@ -26,7 +26,7 @@ module('Unit | determineBodyPromise', function() {
     const bodyPromise = determineBodyPromise(response, {});
 
     return bodyPromise.then(body => {
-      assert.deepEqual(body, { data: 'foo' });
+      assert.deepEqual(body, { data: 'foo' }, 'body response parsed correctly');
     });
   });
 
@@ -37,7 +37,7 @@ module('Unit | determineBodyPromise', function() {
     const bodyPromise = determineBodyPromise(response, {});
 
     return bodyPromise.then(body => {
-      assert.deepEqual(body, 'this is not json');
+      assert.deepEqual(body, 'this is not json', 'body response returned as is if cannot be parsed as json');
     });
   });
 
@@ -48,7 +48,7 @@ module('Unit | determineBodyPromise', function() {
     const bodyPromise = determineBodyPromise(response, {});
 
     return bodyPromise.then(body => {
-      assert.deepEqual(body, undefined);
+      assert.deepEqual(body, undefined, 'body response of null does not throw error for 204');
     });
   });
 
@@ -59,7 +59,7 @@ module('Unit | determineBodyPromise', function() {
     const bodyPromise = determineBodyPromise(response, {});
 
     return bodyPromise.then(body => {
-      assert.deepEqual(body, undefined);
+      assert.deepEqual(body, undefined, 'body response of null does not throw error for 205');
     });
   });
 
@@ -70,7 +70,7 @@ module('Unit | determineBodyPromise', function() {
     const bodyPromise = determineBodyPromise(response, { method: 'HEAD' });
 
     return bodyPromise.then(body => {
-      assert.deepEqual(body, undefined);
+      assert.deepEqual(body, undefined, 'body response of null does not throw error HEAD calls');
     });
   });
 });

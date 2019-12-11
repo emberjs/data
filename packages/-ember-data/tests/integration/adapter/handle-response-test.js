@@ -1,12 +1,10 @@
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
-
-import JSONAPISerializer from 'ember-data/serializers/json-api';
 import { setupTest } from 'ember-qunit';
 
-import AdapterError from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 class Person extends Model {
   @attr name;
@@ -59,14 +57,7 @@ module('integration/adapter/handle-response', function(hooks) {
       handleResponse(status, headers, payload, requestData) {
         handleResponseCalled++;
 
-        if (this.isSuccess(status, headers, payload)) {
-          return payload;
-        }
-
-        let errors = this.normalizeErrorResponse(status, headers, payload);
-        let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
-
-        return new AdapterError(errors, detailedMessage);
+        return super.handleResponse(status, headers, payload, requestData);
       }
     }
 
@@ -92,14 +83,7 @@ module('integration/adapter/handle-response', function(hooks) {
       handleResponse(status, headers, payload, requestData) {
         handleResponseCalled++;
 
-        if (this.isSuccess(status, headers, payload)) {
-          return payload;
-        }
-
-        let errors = this.normalizeErrorResponse(status, headers, payload);
-        let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
-
-        return new AdapterError(errors, detailedMessage);
+        return super.handleResponse(status, headers, payload, requestData);
       }
     }
 
@@ -121,14 +105,7 @@ module('integration/adapter/handle-response', function(hooks) {
       handleResponse(status, headers, payload, requestData) {
         handleResponseCalled++;
 
-        if (this.isSuccess(status, headers, payload)) {
-          return payload;
-        }
-
-        let errors = this.normalizeErrorResponse(status, headers, payload);
-        let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
-
-        return new AdapterError(errors, detailedMessage);
+        return super.handleResponse(status, headers, payload, requestData);
       }
     }
 
@@ -155,14 +132,7 @@ module('integration/adapter/handle-response', function(hooks) {
       handleResponse(status, headers, payload, requestData) {
         handleResponseCalled++;
 
-        if (this.isSuccess(status, headers, payload)) {
-          return payload;
-        }
-
-        let errors = this.normalizeErrorResponse(status, headers, payload);
-        let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
-
-        return new AdapterError(errors, detailedMessage);
+        return super.handleResponse(status, headers, payload, requestData);
       }
     }
 
@@ -189,14 +159,7 @@ module('integration/adapter/handle-response', function(hooks) {
       handleResponse(status, headers, payload, requestData) {
         handleResponseCalled++;
 
-        if (this.isSuccess(status, headers, payload)) {
-          return payload;
-        }
-
-        let errors = this.normalizeErrorResponse(status, headers, payload);
-        let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
-
-        return new AdapterError(errors, detailedMessage);
+        return super.handleResponse(status, headers, payload, requestData);
       }
     }
 
