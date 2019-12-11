@@ -20,10 +20,12 @@
     "@ember-data/private-build-infra": "3.16.0-alpha.2",
     "ember-cli-babel": "^7.13.0",
     "ember-cli-typescript": "^3.1.1",
-    "ember-get-config": "^0.2.4"
+    "ember-get-config": "^0.2.4",
+    "ember-cli-blueprint-test-helpers": "^0.19.2",
+    "@ember/edition-utils": "^1.1.1",
+    "testem": "^3.0.2"
   },
   "devDependencies": {
-    "@ember/edition-utils": "^1.1.1",
     "@ember/optional-features": "^1.1.0",
     "ember-cli": "~3.14.0",
     "ember-cli-dependency-checker": "^3.2.0",
@@ -41,8 +43,7 @@
     "ember-source": "^3.15.0",
     "loader.js": "^4.7.0",
     "qunit": "^2.9.3",
-    "rsvp": "^4.8.5",
-    "testem": "^3.0.2"
+    "rsvp": "^4.8.5"
   },
   "engines": {
     "node": "8.* || >= 10.*"
