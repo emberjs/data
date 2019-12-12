@@ -51,8 +51,10 @@ function _determineContent(response: MutableResponse, requestData: JQueryAjaxSet
   }
 
   if (error) {
-    // eslint-disable-next-line no-console
-    console.warn('This response was unable to be parsed as json.', payload);
+    if (DEBUG) {
+      // eslint-disable-next-line no-console
+      console.warn('This response was unable to be parsed as json.', payload);
+    }
     return error;
   }
 
