@@ -1,4 +1,4 @@
-// Copied from ember-fetch addon
+// Tests copied from ember-fetch addon
 
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
@@ -30,15 +30,19 @@ module('Unit | determineBodyPromise', function() {
     });
   });
 
-  test('determineBodyResponse returns the body even if it is not json', function(assert) {
+  test('determineBodyResponse rejects with an error if it is not json', function(assert) {
     assert.expect(1);
 
     const response = new Response('this is not json', { status: 200 });
     const bodyPromise = determineBodyPromise(response, {});
 
-    return bodyPromise.then(body => {
-      assert.deepEqual(body, 'this is not json', 'body response returned as is if cannot be parsed as json');
-    });
+    return bodyPromise
+      .then(body => {
+        assert.ok(false, 'should not have succeeded');
+      })
+      .catch(error => {
+        assert.equal(error instanceof SyntaxError, true, 'body response syntax errored if cannot be parsed as json');
+      });
   });
 
   test('determineBodyResponse returns undefined when the http status code is 204', function(assert) {

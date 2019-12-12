@@ -2,6 +2,7 @@ import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
+
 import continueOnReject from './continue-on-reject';
 
 interface CustomSyntaxError extends SyntaxError {
@@ -9,6 +10,11 @@ interface CustomSyntaxError extends SyntaxError {
 }
 
 type Payload = object | string | undefined;
+
+function checkStatus(response: Response, requestData: JQueryAjaxSettings): boolean {
+  const status = response.status;
+  return response.ok && (status === 204 || status === 205 || requestData.method === 'HEAD');
+}
 
 /*
  * Function that always attempts to parse the response as json, and if an error is thrown,
@@ -18,8 +24,7 @@ type Payload = object | string | undefined;
 function _determineBodyPromise(
   response: Response,
   requestData: JQueryAjaxSettings,
-  payload: Payload,
-  getError?: boolean
+  payload: Payload
 ): Promise<Payload> {
   let ret: Payload = payload;
 
@@ -35,8 +40,7 @@ function _determineBodyPromise(
     }
     (error as CustomSyntaxError).payload = payload;
 
-    const status = response.status;
-    if (response.ok && (status === 204 || status === 205 || requestData.method === 'HEAD')) {
+    if (checkStatus(response, requestData)) {
       ret = undefined;
       return resolve(ret);
     }
@@ -52,14 +56,10 @@ function _determineBodyPromise(
 
     // eslint-disable-next-line no-console
     console.warn('This response was unable to be parsed as json.', payload);
-
-    if (getError) {
-      throw error;
-    }
+    throw error;
   }
 
-  const status = response.status;
-  if (response.ok && (status === 204 || status === 205 || requestData.method === 'HEAD')) {
+  if (checkStatus(response, requestData)) {
     ret = undefined;
   }
 
@@ -74,6 +74,5 @@ export function determineBodyPromise(
 ): Promise<Payload> {
   // response.text() may resolve or reject
   // it is a native promise, may not have finally
-  return continueOnReject(response.text())
-    .then(payload => _determineBodyPromise(response, requestData, payload, getError))
+  return continueOnReject(response.text()).then(payload => _determineBodyPromise(response, requestData, payload));
 }
