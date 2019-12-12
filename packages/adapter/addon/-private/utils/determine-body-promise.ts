@@ -69,8 +69,7 @@ function _determineBodyPromise(
 // This must remain compatible with ember-fetch
 export function determineBodyPromise(
   response: Response,
-  requestData: JQueryAjaxSettings,
-  getError?: boolean
+  requestData: JQueryAjaxSettings
 ): Promise<Payload> {
   // response.text() may resolve or reject
   // it is a native promise, may not have finally

@@ -1006,7 +1006,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           // fetch sometimes rejects and sometimes resolves with errors
           .then(response => {
             _response = response;
-            return determineBodyPromise(response, requestData, true);
+            return determineBodyPromise(response, requestData);
           })
           .catch(error => {
             _response.ok = false;
