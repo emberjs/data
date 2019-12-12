@@ -1,5 +1,6 @@
 import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
+
 import continueOnReject from './continue-on-reject';
 
 type Payload = object | string | undefined;
