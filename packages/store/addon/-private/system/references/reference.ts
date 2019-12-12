@@ -1,6 +1,7 @@
 import { deprecate } from '@ember/debug';
 
 import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
 
 import recordDataFor from '../record-data-for';
 
@@ -50,15 +51,6 @@ abstract class Reference {
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
-
-  get internalModel() {
-    deprecate('Accessing the internalModel property of Reference is deprecated', false, {
-      id: 'ember-data:reference-internal-model',
-      until: '3.17',
-    });
-
-    return INTERNAL_MODELS.get(this.recordData);
-  }
 
   /**
    This returns a string that represents how the reference will be
@@ -214,6 +206,19 @@ if (FULL_LINKS_ON_RELATIONSHIPS) {
 
     return resource && resource.links ? resource.links : null;
   };
+}
+
+if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
+  Object.defineProperty(Reference.prototype, 'internalModel', {
+    get() {
+      deprecate('Accessing the internalModel property of Reference is deprecated', false, {
+        id: 'ember-data:reference-internal-model',
+        until: '3.17',
+      });
+
+      return INTERNAL_MODELS.get(this.recordData);
+    },
+  });
 }
 
 export default Reference;
