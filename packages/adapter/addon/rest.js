@@ -1003,17 +1003,12 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       let _response;
       return (
         this._fetchRequest(hash)
-          // fetch sometimes rejects and sometimes resolves with errors
           .then(response => {
             _response = response;
             return determineBodyPromise(response, requestData);
           })
-          .catch(error => {
-            _response.ok = false;
-            return Promise.reject(fetchErrorHandler(adapter, error, _response, null, requestData));
-          })
           .then(payload => {
-            if (_response.ok) {
+            if (_response.ok || !(payload instanceof Error)) {
               return fetchSuccessHandler(adapter, payload, _response, requestData);
             } else {
               throw fetchErrorHandler(adapter, payload, _response, null, requestData);

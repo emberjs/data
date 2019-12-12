@@ -5,6 +5,10 @@ import continueOnReject from './continue-on-reject';
 
 type Payload = object | string | undefined;
 
+interface MutableResponse extends Response {
+  ok: boolean;
+}
+
 interface CustomSyntaxError extends SyntaxError {
   payload: Payload;
 }
@@ -14,7 +18,7 @@ interface CustomSyntaxError extends SyntaxError {
  * returns `undefined` if the response is successful and has a status code of 204 (No Content),
  * or 205 (Reset Content) or if the request method was 'HEAD', and the plain payload otherwise.
  */
-function _determineContent(response: Response, requestData: JQueryAjaxSettings, payload: Payload): Payload {
+function _determineContent(response: MutableResponse, requestData: JQueryAjaxSettings, payload: Payload): Payload {
   let ret: Payload = payload;
   let error;
 
@@ -26,7 +30,7 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
     ret = JSON.parse(payload as string);
   } catch (e) {
     if (!(e instanceof SyntaxError)) {
-      throw e;
+      return e;
     }
     (e as CustomSyntaxError).payload = payload;
     error = e;
@@ -49,7 +53,7 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
   if (error) {
     // eslint-disable-next-line no-console
     console.warn('This response was unable to be parsed as json.', payload);
-    throw error;
+    return error;
   }
 
   return ret;
