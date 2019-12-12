@@ -22,7 +22,7 @@
     "ember-cli-typescript": "^3.1.1",
     "ember-get-config": "^0.2.4",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
-    "@ember/edition-utils": "^1.1.1",
+    "@ember/edition-utils": "^1.2.0",
     "testem": "^3.0.2"
   },
   "devDependencies": {
