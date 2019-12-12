@@ -2,10 +2,13 @@ import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
+import continueOnReject from './continue-on-reject';
 
 interface CustomSyntaxError extends SyntaxError {
   payload?: string | object;
 }
+
+type Payload = object | string | undefined;
 
 /*
  * Function that always attempts to parse the response as json, and if an error is thrown,
@@ -15,10 +18,10 @@ interface CustomSyntaxError extends SyntaxError {
 function _determineBodyPromise(
   response: Response,
   requestData: JQueryAjaxSettings,
-  payload: string | object | undefined,
+  payload: Payload,
   getError?: boolean
-): Promise<object | string | undefined> {
-  let ret: string | object | undefined = payload;
+): Promise<Payload> {
+  let ret: Payload = payload;
 
   if (!response.ok) {
     return resolve(payload);
@@ -68,15 +71,9 @@ export function determineBodyPromise(
   response: Response,
   requestData: JQueryAjaxSettings,
   getError?: boolean
-): Promise<object | string | undefined> {
+): Promise<Payload> {
   // response.text() may resolve or reject
   // it is a native promise, may not have finally
-  return response.text().then(
-    function(payload) {
-      return _determineBodyPromise(response, requestData, payload, getError);
-    },
-    function(payload) {
-      return _determineBodyPromise(response, requestData, payload, getError);
-    }
-  );
+  return continueOnReject(response.text())
+    .then(payload => _determineBodyPromise(response, requestData, payload, getError))
 }
