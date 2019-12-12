@@ -1,6 +1,6 @@
 import RSVP, { resolve } from 'rsvp';
 
-import Reference, { INTERNAL_MODELS } from './reference';
+import Reference from './reference';
 
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
@@ -123,10 +123,9 @@ export default class RecordReference extends Reference {
      @method value
      @return {Model} the record for this RecordReference
   */
-  value() {
-    let internalModel = INTERNAL_MODELS.get(this.recordData);
-    if (internalModel && internalModel.hasRecord) {
-      return internalModel.getRecord();
+  value(): RecordInstance | null {
+    if (this._id !== null) {
+      return this.store.peekRecord(this.type, this._id);
     }
     return null;
   }
@@ -171,11 +170,9 @@ export default class RecordReference extends Reference {
      @return {Promise<record>} the record for this RecordReference
   */
   reload() {
-    let record = this.value();
-    if (record) {
-      return record.reload();
+    if (this._id !== null) {
+      return this.store.findRecord(this.type, this._id, { reload: true });
     }
-
-    return this.load();
+    throw new Error(`Unable to fetch record of type ${this.type} without an id`);
   }
 }
