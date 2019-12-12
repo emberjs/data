@@ -73,4 +73,37 @@ module('Unit | determineBodyPromise', function() {
       assert.deepEqual(body, undefined, 'body response of null does not throw error HEAD calls');
     });
   });
+
+  test('determineBodyResponse returns undefined when the http status code is 204', function(assert) {
+    assert.expect(1);
+
+    const response = new Response('null', { status: 204 });
+    const bodyPromise = determineBodyPromise(response, {});
+
+    return bodyPromise.then(body => {
+      assert.deepEqual(body, undefined, 'body response of null does not throw error for 204');
+    });
+  });
+
+  test('determineBodyResponse returns undefined when the http status code is 205', function(assert) {
+    assert.expect(1);
+
+    const response = new Response('null', { status: 205 });
+    const bodyPromise = determineBodyPromise(response, {});
+
+    return bodyPromise.then(body => {
+      assert.deepEqual(body, undefined, 'body response of null does not throw error for 205');
+    });
+  });
+
+  test("determineBodyResponse returns undefined when the request method is 'HEAD'", function(assert) {
+    assert.expect(1);
+
+    const response = new Response('null', { status: 200 });
+    const bodyPromise = determineBodyPromise(response, { method: 'HEAD' });
+
+    return bodyPromise.then(body => {
+      assert.deepEqual(body, undefined, 'body response of null does not throw error HEAD calls');
+    });
+  });
 });
