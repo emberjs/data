@@ -36,13 +36,9 @@ module('Unit | determineBodyPromise', function() {
     const response = new Response('this is not json', { status: 200 });
     const bodyPromise = determineBodyPromise(response, {});
 
-    return bodyPromise
-      .then(body => {
-        assert.ok(false, 'should not have succeeded');
-      })
-      .catch(error => {
-        assert.equal(error instanceof SyntaxError, true, 'body response syntax errored if cannot be parsed as json');
-      });
+    return bodyPromise.then(body => {
+      assert.equal(body instanceof SyntaxError, true, 'body response syntax errored if cannot be parsed as json');
+    });
   });
 
   test('determineBodyResponse returns undefined when the http status code is 204', function(assert) {
