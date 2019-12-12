@@ -1,5 +1,6 @@
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
