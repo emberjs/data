@@ -29,7 +29,7 @@
     "@ember-data/record-data": "3.16.0-alpha.2",
     "@ember-data/serializer": "3.16.0-alpha.2",
     "@ember-data/store": "3.16.0-alpha.2",
-    "@ember/edition-utils": "^1.1.1",
+    "@ember/edition-utils": "^1.2.0",
     "@ember/ordered-set": "^2.0.3",
     "@glimmer/env": "^0.1.7",
     "broccoli-merge-trees": "^3.0.2",
