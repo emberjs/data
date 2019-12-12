@@ -13,8 +13,10 @@ import RSVP, { Promise } from 'rsvp';
 import {
   CUSTOM_MODEL_CLASS,
   FULL_LINKS_ON_RELATIONSHIPS,
+  RECORD_ARRAY_MANAGER_IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
+  REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
   REQUEST_SERVICE,
 } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
@@ -22,6 +24,7 @@ import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 import { identifierCacheFor } from '../../identifiers/cache';
 import coerceId from '../coerce-id';
 import { errorsHashToArray } from '../errors-utils';
+import { recordArraysForIdentifier } from '../record-array-manager';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
@@ -247,13 +250,6 @@ export default class InternalModel {
 
   set _recordData(newValue) {
     this.__recordData = newValue;
-  }
-
-  get _recordArrays(): Set<RecordArray> {
-    if (this.__recordArrays === null) {
-      this.__recordArrays = new Set();
-    }
-    return this.__recordArrays;
   }
 
   get references() {
@@ -500,9 +496,9 @@ export default class InternalModel {
     }
 
     // move to an empty never-loaded state
+    this.updateRecordArrays();
     this._recordData.unloadRecord();
     this.resetRecord();
-    this.updateRecordArrays();
   }
 
   deleteRecord() {
@@ -1363,8 +1359,11 @@ export default class InternalModel {
     @private
   */
   updateRecordArrays() {
-    // @ts-ignore: Store is untyped and typescript does not detect instance props set in `init`
-    this.store.recordArrayManager.recordDidChange(this);
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      this.store.recordArrayManager.recordDidChange(this.identifier);
+    } else {
+      this.store.recordArrayManager.recordDidChange(this);
+    }
   }
 
   setId(id: string) {
@@ -1578,6 +1577,29 @@ export default class InternalModel {
 
     return reference;
   }
+}
+
+if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+  // in production code, this is only accesssed in `record-array-manager`
+  // if LEGACY_COMPAT is also on
+  if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+    Object.defineProperty(InternalModel.prototype, '_recordArrays', {
+      get() {
+        return recordArraysForIdentifier(this.identifier);
+      },
+    });
+  }
+} else {
+  // TODO investigate removing this property since it will only be used in tests
+  // once RECORD_ARRAY_MANAGER_IDENTIFIERS is turned on
+  Object.defineProperty(InternalModel.prototype, '_recordArrays', {
+    get() {
+      if (this.__recordArrays === null) {
+        this.__recordArrays = new Set();
+      }
+      return this.__recordArrays;
+    },
+  });
 }
 
 function handleCompletedRelationshipRequest(internalModel, key, relationship, value, error) {

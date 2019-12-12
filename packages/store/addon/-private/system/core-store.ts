@@ -20,6 +20,7 @@ import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
 
 import {
   CUSTOM_MODEL_CLASS,
+  RECORD_ARRAY_MANAGER_IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
@@ -225,7 +226,7 @@ abstract class CoreStore extends Service {
    * EmberData specific backburner instance
    */
   public _backburner: Backburner = edBackburner;
-  private recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
+  public recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
 
   public _notificationManager: NotificationManager;
   private _adapterCache = Object.create(null);
@@ -2639,8 +2640,8 @@ abstract class CoreStore extends Service {
     const isUpdate = internalModel.currentState.isEmpty === false && !isLoading;
 
     // exclude store.push (root.empty) case
+    let identifier = internalModel.identifier;
     if (isUpdate || isLoading) {
-      let identifier = internalModel.identifier;
       let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
 
       if (updatedIdentifier !== identifier) {
@@ -2657,7 +2658,11 @@ abstract class CoreStore extends Service {
     internalModel.setupData(data);
 
     if (!isUpdate) {
-      this.recordArrayManager.recordDidChange(internalModel);
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        this.recordArrayManager.recordDidChange(identifier);
+      } else {
+        this.recordArrayManager.recordDidChange(internalModel);
+      }
     }
 
     return internalModel;

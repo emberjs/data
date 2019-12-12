@@ -5,7 +5,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
-import { REQUEST_SERVICE } from '@ember-data/canary-features';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS, REQUEST_SERVICE } from '@ember-data/canary-features';
 
 import coerceId from '../coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
@@ -375,15 +375,29 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
         'The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.',
         Array.isArray(internalModels)
       );
-      if (recordArray) {
-        recordArray._setInternalModels(internalModels, payload);
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        let identifiers = internalModels.map(im => im.identifier);
+        if (recordArray) {
+          recordArray._setIdentifiers(identifiers, payload);
+        } else {
+          recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(
+            modelName,
+            query,
+            identifiers,
+            payload
+          );
+        }
       } else {
-        recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(
-          modelName,
-          query,
-          internalModels,
-          payload
-        );
+        if (recordArray) {
+          recordArray._setInternalModels(internalModels, payload);
+        } else {
+          recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(
+            modelName,
+            query,
+            internalModels,
+            payload
+          );
+        }
       }
 
       return recordArray;
