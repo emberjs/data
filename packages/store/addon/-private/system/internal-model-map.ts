@@ -2,6 +2,8 @@ import { assert } from '@ember/debug';
 
 import InternalModel from './model/internal-model';
 
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 /**
@@ -40,6 +42,10 @@ export default class InternalModelMap {
 
   get length(): number {
     return this._models.length;
+  }
+
+  get recordIdentifiers(): StableRecordIdentifier[] {
+    return this._models.map(m => m.identifier);
   }
 
   set(id: string, internalModel: InternalModel): void {
