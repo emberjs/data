@@ -953,10 +953,10 @@
     unique-filename "^1.1.1"
     which "^1.3.1"
 
-"@glimmer/component@^1.0.0-beta.3":
-  version "1.0.0-beta.3"
-  resolved "https://registry.npmjs.org/@glimmer/component/-/component-1.0.0-beta.3.tgz#bc466f4da776cb74bc8c6c836d6aa658f2161bee"
-  integrity sha512-I/NTVE8Nz0gjvAlO9mAdP0+XumRj65zqh0+J2jBDxAQHJTw9R55MTx4nvkbQteh6+sWPixFzgtt/oLzy8L9sxQ==
+"@glimmer/component@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/@glimmer/component/-/component-1.0.0.tgz#f9052c8e99fb7b3d48d27c65891c5f0e59084a82"
+  integrity sha512-1ERZYNLZRuC8RYbcfkJeAWn3Ly7W2VdoHLQIHCmhQH/m7ubkNOdLQcTnUzje7OnRUs9EJ6DjfoN57XRX9Ux4rA==
   dependencies:
     "@glimmer/di" "^0.1.9"
     "@glimmer/env" "^0.1.7"
