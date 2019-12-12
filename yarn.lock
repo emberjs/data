@@ -5962,7 +5962,7 @@ ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cl
     ensure-posix-path "^1.0.2"
     semver "^5.5.0"
 
-ember-cli-blueprint-test-helpers@^0.19.1:
+ember-cli-blueprint-test-helpers@^0.19.1, ember-cli-blueprint-test-helpers@^0.19.2:
   version "0.19.2"
   resolved "https://registry.npmjs.org/ember-cli-blueprint-test-helpers/-/ember-cli-blueprint-test-helpers-0.19.2.tgz#9e563cd81ab39931253ced0982c5d02475895401"
   integrity sha512-otCKdGcNFK0+MkQo+LLjYbRD9EerApH6Z/odvvlL1hxrN+owHMV5E+jI2rbtdvNEH0/6w5ZqjH4kS232fvtCxQ==
@@ -6598,10 +6598,10 @@ ember-try-config@^3.0.0:
     rsvp "^4.8.1"
     semver "^5.5.0"
 
-ember-try@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.npmjs.org/ember-try/-/ember-try-1.3.0.tgz#394bdcd726e5acd2ebf8422c7bcf9ecf0aa2c2ac"
-  integrity sha512-XtVhBHNQVdVu5LouyNLhGeKx0f88lz9VtrSf1NYFulVlOHIQEeZCEIs3pTifGhtZJ0B7POPKMdPpNso77Z95uQ==
+ember-try@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.npmjs.org/ember-try/-/ember-try-1.4.0.tgz#be15965bd1727c27a65a78c4c8392f03763cc565"
+  integrity sha512-o0SoCH4K8umCf8etphla8FDygKfQGkwY+w47wEuYFVKaESrOZaK63ObnAK7DTKkjJU74Fss2abf+r+pAWpX43g==
   dependencies:
     chalk "^2.4.2"
     cli-table3 "^0.5.1"
