@@ -1007,7 +1007,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           return determineBodyPromise(response, requestData);
         })
         .then(payload => {
-          if (_response.ok || !(payload instanceof Error)) {
+          if (_response.ok && !(payload instanceof Error)) {
             return fetchSuccessHandler(adapter, payload, _response, requestData);
           } else {
             throw fetchErrorHandler(adapter, payload, _response, null, requestData);
