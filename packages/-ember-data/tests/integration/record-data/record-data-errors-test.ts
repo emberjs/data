@@ -26,6 +26,9 @@ class Person extends Model {
 }
 
 class TestRecordData implements RecordData {
+  id = null;
+  modelName = 'tst';
+
   commitWasRejected(recordIdentifier: RecordIdentifier, errors?: JsonApiValidationError[]): void {}
 
   // Use correct interface once imports have been fix

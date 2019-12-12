@@ -7,7 +7,7 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import recordDataFor from '../record-data-for';
 import { peekRecordIdentifier } from '../store/internal-model-factory';
-import Reference from './reference';
+import Reference, { INTERNAL_MODELS } from './reference';
 
 /**
   @module @ember-data/store
@@ -144,7 +144,7 @@ export default class BelongsToReference extends Reference {
       }
 
       assertPolymorphicType(
-        this.internalModel,
+        INTERNAL_MODELS.get(this.recordData),
         this.belongsToRelationship.relationshipMeta,
         record._internalModel,
         this.store

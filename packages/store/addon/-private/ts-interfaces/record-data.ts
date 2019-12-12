@@ -13,6 +13,9 @@ export interface ChangedAttributesHash {
 }
 
 export interface RecordData {
+  id: string | null;
+  modelName: string;
+
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;
