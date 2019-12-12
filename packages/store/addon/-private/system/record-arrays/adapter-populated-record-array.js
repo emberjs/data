@@ -1,9 +1,9 @@
-import { A } from '@ember/array';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { once } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 import RecordArray from './record-array';
@@ -49,11 +49,8 @@ import RecordArray from './record-array';
   @class AdapterPopulatedRecordArray
   @extends RecordArray
 */
-export default RecordArray.extend({
+const AdapterPopulatedRecordArray = RecordArray.extend({
   init() {
-    // yes we are touching `this` before super, but ArrayProxy has a bug that requires this.
-    this.set('content', this.get('content') || A());
-
     this._super(...arguments);
     this.query = this.query || null;
     this.links = this.links || null;
@@ -74,14 +71,46 @@ export default RecordArray.extend({
 
     return store._query(this.modelName, query, this);
   },
+});
 
+if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   /**
-    @method _setInternalModels
+    @method _setIdentifiers
+    @param {StableRecordIdentifier[]} identifiers
+    @param {Object} payload normalized payload
+    @internal
+  */
+  AdapterPopulatedRecordArray.prototype._setIdentifiers = function _setIdentifiers(identifiers, payload) {
+    // TODO: initial load should not cause change events at all, only
+    // subsequent. This requires changing the public api of adapter.query, but
+    // hopefully we can do that soon.
+    this.get('content').setObjects(identifiers);
+
+    this.setProperties({
+      isLoaded: true,
+      isUpdating: false,
+      meta: assign({}, payload.meta),
+      links: assign({}, payload.links),
+    });
+
+    this.manager._associateWithRecordArray(identifiers, this);
+
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      const _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
+      if (_hasDidLoad) {
+        // TODO: should triggering didLoad event be the last action of the runLoop?
+        once(this, 'trigger', 'didLoad');
+      }
+    }
+  };
+} else {
+  /**
+    @method _setIdentifiers
     @param {Array} internalModels
     @param {Object} payload normalized payload
-    @private
+    @internal
   */
-  _setInternalModels(internalModels, payload) {
+  AdapterPopulatedRecordArray.prototype._setInternalModels = function _setInternalModels(internalModels, payload) {
     // TODO: initial load should not cause change events at all, only
     // subsequent. This requires changing the public api of adapter.query, but
     // hopefully we can do that soon.
@@ -103,5 +132,7 @@ export default RecordArray.extend({
         once(this, 'trigger', 'didLoad');
       }
     }
-  },
-});
+  };
+}
+
+export default AdapterPopulatedRecordArray;

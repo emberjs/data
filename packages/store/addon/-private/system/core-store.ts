@@ -23,6 +23,7 @@ import {
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
+  RECORD_ARRAY_MANAGER_IDENTIFIERS
 } from '@ember-data/canary-features';
 import {
   HAS_ADAPTER_PACKAGE,
@@ -2657,7 +2658,12 @@ abstract class CoreStore extends Service {
     internalModel.setupData(data);
 
     if (!isUpdate) {
-      this.recordArrayManager.recordDidChange(internalModel);
+      // TODO: do we want to maintain old API with this flag?
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        this.recordArrayManager.recordDidChange(internalModel.identifier, internalModel.modelName);
+      } else {
+        this.store.recordArrayManager.recordDidChange(this);
+      }
     }
 
     return internalModel;

@@ -2,6 +2,7 @@
   @module @ember-data/store
 */
 import ArrayProxy from '@ember/array/proxy';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { computed, get, set } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
@@ -10,6 +11,15 @@ import { Promise } from 'rsvp';
 import DeprecatedEvented from '../deprecated-evented';
 import { PromiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
+import { internalModelFactoryFor } from '../store/internal-model-factory';
+
+function recordForIdentifier(store, identifier) {
+  return internalModelForIdentifier(store, identifier).getRecord();
+}
+
+function internalModelForIdentifier(store, identifier) {
+  return internalModelFactoryFor(store).lookup(identifier);
+}
 
 /**
   A record array is an array that contains records of a certain modelName. The record
@@ -23,9 +33,9 @@ import SnapshotRecordArray from '../snapshot-record-array';
   @uses Ember.Evented
 */
 
-export default ArrayProxy.extend(DeprecatedEvented, {
-  init() {
-    this._super(...arguments);
+const RecordArray = ArrayProxy.extend(DeprecatedEvented, {
+  init(args) {
+    this._super(args);
 
     if (DEBUG) {
       this._getDeprecatedEventedInfo = () => `RecordArray containing ${this.modelName}`;
@@ -41,7 +51,6 @@ export default ArrayProxy.extend(DeprecatedEvented, {
       @private
       @type Ember.Array
       */
-    this.set('content', this.content || null);
 
     /**
     The flag to signal a `RecordArray` is finished loading data.
@@ -113,8 +122,9 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @return {Model} record
   */
   objectAtContent(index) {
-    let internalModel = get(this, 'content').objectAt(index);
-    return internalModel && internalModel.getRecord();
+    let identifier = get(this, 'content').objectAt(index);
+
+    return identifier ? recordForIdentifier(this.store, identifier) : undefined;
   },
 
   /**
@@ -165,31 +175,6 @@ export default ArrayProxy.extend(DeprecatedEvented, {
   },
 
   /**
-    Adds an internal model to the `RecordArray` without duplicates
-
-    @method _pushInternalModels
-    @private
-    @param {InternalModel} internalModel
-  */
-  _pushInternalModels(internalModels) {
-    // pushObjects because the internalModels._recordArrays set was already
-    // consulted for inclusion, so addObject and its on .contains call is not
-    // required.
-    get(this, 'content').pushObjects(internalModels);
-  },
-
-  /**
-    Removes an internalModel to the `RecordArray`.
-
-    @method removeInternalModel
-    @private
-    @param {InternalModel} internalModel
-  */
-  _removeInternalModels(internalModels) {
-    get(this, 'content').removeObjects(internalModels);
-  },
-
-  /**
     Saves all of the records in the `RecordArray`.
 
     Example
@@ -217,8 +202,8 @@ export default ArrayProxy.extend(DeprecatedEvented, {
   },
 
   _dissociateFromOwnRecords() {
-    this.get('content').forEach(internalModel => {
-      let recordArrays = internalModel.__recordArrays;
+    this.get('content').forEach(identifier => {
+      let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
 
       if (recordArrays) {
         recordArrays.delete(this);
@@ -263,6 +248,55 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @private
   */
   _takeSnapshot() {
-    return get(this, 'content').map(internalModel => internalModel.createSnapshot());
+    return get(this, 'content').map(identifier => internalModelForIdentifier(this.store, identifier).createSnapshot());
   },
 });
+
+if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+  /**
+    Adds identifiers to the `RecordArray` without duplicates
+
+    @method _pushIdentifiers
+    @internal
+    @param {StableRecordIdentifier[]} identifiers
+  */
+  RecordArray.prototype._pushIdentifiers = function _pushIdentifiers(identifiers) {
+    get(this, 'content').pushObjects(identifiers);
+  };
+
+  /**
+    Removes identifiers from the `RecordArray`.
+
+    @method _removeIdentifiers
+    @internal
+    @param {StableRecordIdentifier[]} identifiers
+  */
+  RecordArray.prototype._removeIdentifiers = function _removeIdentifiers(identifiers) {
+    get(this, 'content').removeObjects(identifiers);
+  };
+} else {
+  /**
+    Adds an internal model to the `RecordArray` without duplicates
+    @method _pushInternalModels
+    @private
+    @param {InternalModel} internalModel
+  */
+  RecordArray.prototype._pushInternalModels = function _pushInternalModels(internalModels) {
+    // pushObjects because the internalModels._recordArrays set was already
+    // consulted for inclusion, so addObject and its on .contains call is not
+    // required.
+    get(this, 'content').pushObjects(internalModels);
+  };
+
+  /**
+    Removes an internalModel to the `RecordArray`.
+    @method removeInternalModel
+    @private
+    @param {InternalModel} internalModel
+  */
+  RecordArray.prototype._removeInternalModels = function _removeInternalModels(internalModels) {
+    get(this, 'content').removeObjects(internalModels);
+  };
+}
+
+export default RecordArray;

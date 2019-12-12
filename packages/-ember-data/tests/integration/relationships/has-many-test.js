@@ -3743,7 +3743,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
   });
 
-  test('deleteRecord + unloadRecord fun', function(assert) {
+  test('deleteRecord + unloadRecord', async function(assert) {
     let store = this.owner.lookup('service:store');
 
     store.modelFor('user').reopen({
@@ -3754,87 +3754,82 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       user: belongsTo('user', { inverse: null, async: false }),
     });
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'user',
-            id: 'user-1',
-            attributes: {
-              name: 'Adolfo Builes',
-            },
-            relationships: {
-              posts: {
-                data: [
-                  { type: 'post', id: 'post-1' },
-                  { type: 'post', id: 'post-2' },
-                  { type: 'post', id: 'post-3' },
-                  { type: 'post', id: 'post-4' },
-                  { type: 'post', id: 'post-5' },
-                ],
-              },
+    store.push({
+      data: [
+        {
+          type: 'user',
+          id: 'user-1',
+          attributes: {
+            name: 'Adolfo Builes',
+          },
+          relationships: {
+            posts: {
+              data: [
+                { type: 'post', id: 'post-1' },
+                { type: 'post', id: 'post-2' },
+                { type: 'post', id: 'post-3' },
+                { type: 'post', id: 'post-4' },
+                { type: 'post', id: 'post-5' },
+              ],
             },
           },
-          { type: 'post', id: 'post-1' },
-          { type: 'post', id: 'post-2' },
-          { type: 'post', id: 'post-3' },
-          { type: 'post', id: 'post-4' },
-          { type: 'post', id: 'post-5' },
-        ],
+        },
+        { type: 'post', id: 'post-1' },
+        { type: 'post', id: 'post-2' },
+        { type: 'post', id: 'post-3' },
+        { type: 'post', id: 'post-4' },
+        { type: 'post', id: 'post-5' },
+      ],
+    });
+
+    let user = store.peekRecord('user', 'user-1');
+    let posts = user.get('posts');
+
+    store.adapterFor('post').deleteRecord = function() {
+      // just acknowledge all deletes, but with a noop
+      return { data: null };
+    };
+
+    assert.deepEqual(
+      posts.map(x => x.get('id')),
+      ['post-1', 'post-2', 'post-3', 'post-4', 'post-5']
+    );
+
+    await store
+      .peekRecord('post', 'post-2')
+      .destroyRecord()
+      .then(record => {
+        return store.unloadRecord(record);
       });
 
-      let user = store.peekRecord('user', 'user-1');
-      let posts = user.get('posts');
+    assert.deepEqual(
+      posts.map(x => x.get('id')),
+      ['post-1', 'post-3', 'post-4', 'post-5']
+    );
 
-      store.adapterFor('post').deleteRecord = function() {
-        // just acknowledge all deletes, but with a noop
-        return { data: null };
-      };
+    await store
+      .peekRecord('post', 'post-3')
+      .destroyRecord()
+      .then(record => {
+        return store.unloadRecord(record);
+      });
 
-      assert.deepEqual(
-        posts.map(x => x.get('id')),
-        ['post-1', 'post-2', 'post-3', 'post-4', 'post-5']
-      );
+    assert.deepEqual(
+      posts.map(x => x.get('id')),
+      ['post-1', 'post-4', 'post-5']
+    );
 
-      return run(() => {
-        return store
-          .peekRecord('post', 'post-2')
-          .destroyRecord()
-          .then(record => {
-            return store.unloadRecord(record);
-          });
-      })
-        .then(() => {
-          assert.deepEqual(
-            posts.map(x => x.get('id')),
-            ['post-1', 'post-3', 'post-4', 'post-5']
-          );
-          return store
-            .peekRecord('post', 'post-3')
-            .destroyRecord()
-            .then(record => {
-              return store.unloadRecord(record);
-            });
-        })
-        .then(() => {
-          assert.deepEqual(
-            posts.map(x => x.get('id')),
-            ['post-1', 'post-4', 'post-5']
-          );
-          return store
-            .peekRecord('post', 'post-4')
-            .destroyRecord()
-            .then(record => {
-              return store.unloadRecord(record);
-            });
-        })
-        .then(() => {
-          assert.deepEqual(
-            posts.map(x => x.get('id')),
-            ['post-1', 'post-5']
-          );
-        });
-    });
+    await store
+      .peekRecord('post', 'post-4')
+      .destroyRecord()
+      .then(record => {
+        return store.unloadRecord(record);
+      });
+
+    assert.deepEqual(
+      posts.map(x => x.get('id')),
+      ['post-1', 'post-5']
+    );
   });
 
   test('unloading and reloading a record with hasMany relationship - #3084', function(assert) {

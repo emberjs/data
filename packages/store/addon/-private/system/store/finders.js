@@ -375,13 +375,14 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
         'The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.',
         Array.isArray(internalModels)
       );
+      let identifiers = internalModels.map(im => im.identifier);
       if (recordArray) {
-        recordArray._setInternalModels(internalModels, payload);
+        recordArray._setIdentifiers(identifiers, payload);
       } else {
         recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(
           modelName,
           query,
-          internalModels,
+          identifiers,
           payload
         );
       }

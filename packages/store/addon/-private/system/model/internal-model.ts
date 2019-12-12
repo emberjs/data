@@ -16,12 +16,15 @@ import {
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
+  RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
+  RECORD_ARRAY_MANAGER_IDENTIFIERS
 } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
 import { identifierCacheFor } from '../../identifiers/cache';
 import coerceId from '../coerce-id';
 import { errorsHashToArray } from '../errors-utils';
+import { recordArraysForIdentifier } from '../record-array-manager';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
@@ -143,7 +146,6 @@ export default class InternalModel {
   __recordData: RecordData | null;
   _isDestroyed: boolean;
   isError: boolean;
-  _pendingRecordArrayManagerFlush: boolean;
   _isDematerializing: boolean;
   isReloading: boolean;
   _doNotDestroy: boolean;
@@ -155,7 +157,6 @@ export default class InternalModel {
   _scheduledDestroy: any;
   _modelClass: any;
   __deferredTriggers: any;
-  __recordArrays: any;
   _references: any;
   _recordReference: any;
   _manyArrayCache: ConfidentDict<ManyArray> = Object.create(null);
@@ -186,7 +187,6 @@ export default class InternalModel {
     this._record = null;
     this._isDestroyed = false;
     this.isError = false;
-    this._pendingRecordArrayManagerFlush = false; // used by the recordArrayManager
 
     // During dematerialization we don't want to rematerialize the record.  The
     // reason this might happen is that dematerialization removes records from
@@ -201,7 +201,6 @@ export default class InternalModel {
     // caches for lazy getters
     this._modelClass = null;
     this.__deferredTriggers = null;
-    this.__recordArrays = null;
     this._references = null;
     this._recordReference = null;
   }
@@ -247,13 +246,6 @@ export default class InternalModel {
 
   set _recordData(newValue) {
     this.__recordData = newValue;
-  }
-
-  get _recordArrays(): Set<RecordArray> {
-    if (this.__recordArrays === null) {
-      this.__recordArrays = new Set();
-    }
-    return this.__recordArrays;
   }
 
   get references() {
@@ -500,9 +492,9 @@ export default class InternalModel {
     }
 
     // move to an empty never-loaded state
+    this.updateRecordArrays();
     this._recordData.unloadRecord();
     this.resetRecord();
-    this.updateRecordArrays();
   }
 
   deleteRecord() {
@@ -1363,8 +1355,14 @@ export default class InternalModel {
     @private
   */
   updateRecordArrays() {
-    // @ts-ignore: Store is untyped and typescript does not detect instance props set in `init`
-    this.store.recordArrayManager.recordDidChange(this);
+    // TODO: do we want to maintain old API with this flag?
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      // @ts-ignore: Store is untyped and typescript does not detect instance props set in `init`
+      this.store.recordArrayManager.recordDidChange(this.identifier, this.modelName);
+    } else {
+      // @ts-ignore: Store is untyped and typescript does not detect instance props set in `init`
+      this.store.recordArrayManager.recordDidChange(this);
+    }
   }
 
   setId(id: string) {
@@ -1578,6 +1576,14 @@ export default class InternalModel {
 
     return reference;
   }
+}
+
+if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+  Object.defineProperty(InternalModel.prototype, '_recordArrays', {
+    get() {
+      return recordArraysForIdentifier(this.identifier);
+    },
+  });
 }
 
 function handleCompletedRelationshipRequest(internalModel, key, relationship, value, error) {
