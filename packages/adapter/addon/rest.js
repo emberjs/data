@@ -11,7 +11,7 @@ import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import RSVP, { Promise as EmberPromise } from 'rsvp';
+import { Promise } from 'rsvp';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
@@ -27,7 +27,6 @@ import AdapterError, {
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
-const Promise = EmberPromise;
 const hasJQuery = typeof jQuery !== 'undefined';
 const hasNajax = typeof najax !== 'undefined';
 
@@ -1001,18 +1000,17 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let hash = adapter.ajaxOptions(url, type, options);
 
     if (useFetch) {
+      let _response;
       return this._fetchRequest(hash)
         .then(response => {
-          return RSVP.hash({
-            response,
-            payload: determineBodyPromise(response, requestData),
-          });
+          _response = response;
+          return determineBodyPromise(response, requestData);
         })
-        .then(({ response, payload }) => {
-          if (response.ok) {
-            return fetchSuccessHandler(adapter, payload, response, requestData);
+        .then(payload => {
+          if (_response.ok && !(payload instanceof Error)) {
+            return fetchSuccessHandler(adapter, payload, _response, requestData);
           } else {
-            throw fetchErrorHandler(adapter, payload, response, null, requestData);
+            throw fetchErrorHandler(adapter, payload, _response, null, requestData);
           }
         });
     }
@@ -1256,7 +1254,7 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 function ajaxError(adapter, payload, requestData, responseData) {
   let error;
 
-  if (responseData.errorThrown instanceof Error) {
+  if (responseData.errorThrown instanceof Error && payload !== '') {
     error = responseData.errorThrown;
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
@@ -1303,7 +1301,12 @@ function fetchSuccessHandler(adapter, payload, response, requestData) {
 
 function fetchErrorHandler(adapter, payload, response, errorThrown, requestData) {
   let responseData = fetchResponseData(response);
-  responseData.errorThrown = errorThrown;
+  if (responseData.status === 200 && payload instanceof Error) {
+    responseData.errorThrown = payload;
+    payload = responseData.errorThrown.payload;
+  } else {
+    responseData.errorThrown = errorThrown;
+  }
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
