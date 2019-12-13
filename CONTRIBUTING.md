@@ -106,6 +106,14 @@ All commits should be tagged. Tags are denoted by square brackets (`[]`) and com
 In general almost all commits should fall into one of the above categories. In the cases where they don't please submit
 your PR untagged.
 
+#### Backporting
+
+This repo uses the backport bot which is available on the Github marketplace at https://github.com/marketplace/actions/backport-bot and is maintained at https://github.com/Gaurav0/backport
+
+To use it, maintainer or collaborator can label a pull request with "backport &lt;branchname&gt;".
+Then after the PR is merged, a new PR will automatically be opened if possible. Please note that the PR
+must have been merged using "squash and merge" in order for the cherry-pick operation to work.
+
 ## Notes
 
 - Commit tagging section taken from [ember.js](https://github.com/emberjs/ember.js/blob/5641c3089180bdd1d4fa54e9dd2d3ac285f088e4/CONTRIBUTING.md#commit-tagging)
