@@ -1,6 +1,6 @@
 {
   "name": "fastboot-test-app",
-  "version": "3.16.0-alpha.2",
+  "version": "3.16.0-alpha.3",
   "private": true,
   "description": "Small description for fastboot-test-app goes here",
   "repository": "",
@@ -19,12 +19,12 @@
     "test:try-one": "ember try:one"
   },
   "dependencies": {
-    "ember-data": "3.16.0-alpha.2",
+    "ember-data": "3.16.0-alpha.3",
     "ember-inflector": "^3.0.1"
   },
   "devDependencies": {
+    "@ember-data/unpublished-test-infra": "3.16.0-alpha.3",
     "@ember/optional-features": "^1.1.0",
-    "@ember-data/unpublished-test-infra": "3.16.0-alpha.2",
     "@types/ember": "^3.1.1",
     "@types/ember-qunit": "^3.4.7",
     "@types/ember__test-helpers": "~0.7.9",
@@ -32,7 +32,6 @@
     "@types/rsvp": "^4.0.3",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~3.14.0",
-    "ember-try": "^1.4.0",
     "ember-cli-app-version": "^3.2.0",
     "ember-cli-babel": "^7.13.0",
     "ember-cli-dependency-checker": "^3.2.0",
@@ -50,6 +49,7 @@
     "ember-resolver": "^6.0.0",
     "ember-simple-tree": "^0.7.2",
     "ember-source": "^3.15.0",
+    "ember-try": "^1.4.0",
     "eslint": "^6.7.2",
     "eslint-plugin-ember": "^7.7.1",
     "eslint-plugin-node": "^10.0.0",
