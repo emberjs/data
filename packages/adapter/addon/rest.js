@@ -25,7 +25,6 @@ import AdapterError, {
   AbortError,
 } from '@ember-data/adapter/error';
 import { warn } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
 import { serializeIntoHash } from './-private';
 
 const hasJQuery = typeof jQuery !== 'undefined';
