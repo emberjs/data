@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@ember-data/unpublished-test-infra": "3.16.0-alpha.3",
-    "@ember/optional-features": "^1.1.0",
+    "@ember/optional-features": "^1.2.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~3.14.0",
     "ember-cli-blueprint-test-helpers": "^0.19.1",
