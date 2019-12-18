@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-ember-data",
   "main": "./src/index.js",
-  "version": "3.16.0-alpha.3",
+  "version": "3.16.0-beta.0",
   "private": true
 }
