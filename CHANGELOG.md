@@ -2,6 +2,15 @@
 
 ### Master
 
+## Release 3.14.1 (December 18, 2019)
+- [c408dd1d](https://github.com/emberjs/data/commit/c408dd1da5de55aaca782cc7850f0bdd4183a161) [BUGFIX] Better fastboot crypto error message (#6699)
+- [#6708](https://github.com/emberjs/data/pull/6708) [BUGFIX] Fix Fastboot issues (#6683) (#6708)
+- [358c229a](https://github.com/emberjs/data/commit/358c229aaf2179a64ebe1610dcd5f1d430406cde) [BUGFIX] ensure MandatorySetter does not trigger for modelName (#6748)
+- [e44f6523](https://github.com/emberjs/data/commit/e44f65232c34b7db1bf8d0d681ceb39f1651c937) [BUGFIX] Set IDs on Record Data when mutating DS Model (#6775) (#6779)
+- [c2fe49ab](https://github.com/emberjs/data/commit/c2fe49ab89eddf97736f54fa0fc1c78d76dd2eec) [BUGFIX] only allow feature flag alterations in canary (#6738)
+- [#6767](https://github.com/emberjs/data/pull/6767) [BUGFIX] fix detect usage for native class polymorphism (#6767)
+- [c8995256](https://github.com/emberjs/data/commit/c89952563a9353a710bdb4d621fb9bf418ab37ff) [BUGFIX] Octane: should not need to use get with model.id (#6829)
+
 ## Release 3.14.0 (November 7, 2019)
 - [#6522](https://github.com/emberjs/data/pull/6522) [FIX DOCS] Docs updates for Packages to fix missing docs and broken links (#6449) (#6522)
 - [#6568](https://github.com/emberjs/data/pull/6568) [BUGFIX] Enable `store.createRecord` in FastBoot (#6568)
