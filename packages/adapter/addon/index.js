@@ -1,10 +1,3 @@
-/**
- * 
- * 
-  @module @ember-data/adapter
-  @main @ember-data/adapter
-*/
-
 import EmberObject from '@ember/object';
 
 /**
