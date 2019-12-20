@@ -799,13 +799,12 @@
   resolved "https://registry.npmjs.org/@ember/edition-utils/-/edition-utils-1.2.0.tgz#a039f542dc14c8e8299c81cd5abba95e2459cfa6"
   integrity sha512-VmVq/8saCaPdesQmftPqbFtxJWrzxNGSQ+e8x8LLe3Hjm36pJ04Q8LeORGZkAeOhldoUX9seLGmSaHeXkIqoog==
 
-"@ember/optional-features@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/@ember/optional-features/-/optional-features-1.2.0.tgz#121934fb8fbda2217bffea8fe18d6a916a01c257"
-  integrity sha512-XK3J4vW0nwo1FwrvIHsa93FgkLfT84hTmYIPyCj1roYVok9gpzyTYGqr1uCmfk1yl12NmwIetiCZTO37GMgTPQ==
+"@ember/optional-features@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/@ember/optional-features/-/optional-features-1.3.0.tgz#d7da860417b85a56cec88419f30da5ee1dde2756"
+  integrity sha512-Lrfojy4xKwTX+J4EAylmxZY2TO6bQtP4Lg5C8/z2priVqiT0X5fVB1+4WQCJbRBetctO1lMDnqjmhWCVKB8bmQ==
   dependencies:
     chalk "^3.0.0"
-    co "^4.6.0"
     ember-cli-version-checker "^3.1.3"
     glob "^7.1.6"
     inquirer "^7.0.1"
