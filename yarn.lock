@@ -6281,10 +6281,10 @@ ember-cli-typescript@^2.0.2:
     stagehand "^1.0.0"
     walk-sync "^1.0.0"
 
-ember-cli-typescript@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.npmjs.org/ember-cli-typescript/-/ember-cli-typescript-3.1.1.tgz#a5a12ebf915e43ded7bf6bb460ecea4b67b0d95b"
-  integrity sha512-HCjM5EZ29Yh94Jy/M2+MVkS9LdtOoGYtYLIcZ4F7umJaRJM67ku/xCyN/2r+uTeYTNdpJN9+HWx30a6yyAbfRA==
+ember-cli-typescript@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.npmjs.org/ember-cli-typescript/-/ember-cli-typescript-3.1.2.tgz#696454177c3039b711a19fc0669dfc7c2ce81358"
+  integrity sha512-J7sC9EL652pEplZRlCzhGoW0T4F6pt29vhEcK4kA397YEootoAZlqTdIhRpR13o8fmTJ8xRWtXEC7KrPPnqamQ==
   dependencies:
     "@babel/plugin-proposal-nullish-coalescing-operator" "^7.4.4"
     "@babel/plugin-proposal-optional-chaining" "^7.6.0"

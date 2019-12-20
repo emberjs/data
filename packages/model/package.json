@@ -28,7 +28,7 @@
     "ember-cli-babel": "^7.13.2",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
-    "ember-cli-typescript": "^3.1.1",
+    "ember-cli-typescript": "^3.1.2",
     "ember-compatibility-helpers": "^1.2.0",
     "inflection": "1.12.0"
   },
