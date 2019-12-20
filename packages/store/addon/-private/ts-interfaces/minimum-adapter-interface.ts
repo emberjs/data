@@ -431,6 +431,12 @@ interface Adapter {
    * `relatedLink` and should return a `Promise` which fulfills with data for a single
    *  resource.
    *
+   * ⚠️ This method is only called if the store previously received relationship information for a resource
+   * containing a [related link](https://jsonapi.org/format/#document-resource-object-related-resource-links).
+   *
+   * If the cache does not have a `link` for the relationship then `findRecord` will be used if a `type` and `id`
+   * for the related resource is known.
+   *
    * The response will be fed to the associated serializer's `normalizeResponse` method
    *  with the `requestType` set to `findBelongsTo`, which should return a `JSON:API` document.
    *
@@ -461,6 +467,13 @@ interface Adapter {
    * `adapter.findHasMany` takes a request to fetch a related resource collection located
    *  at a `relatedLink` and should return a `Promise` which fulfills with data for that
    *  collection.
+   *
+   * ⚠️ This method is only called if the store previously received relationship information for a resource
+   * containing a [related link](https://jsonapi.org/format/#document-resource-object-related-resource-links).
+   *
+   * If the cache does not have a `link` for the relationship but the `type` and `id` of
+   * related resources are known then `findRecord` will be used for each individual related
+   * resource.
    *
    * The response will be fed to the associated serializer's `normalizeResponse` method
    *  with the `requestType` set to `findHasMany`, which should return a `JSON:API` document.
