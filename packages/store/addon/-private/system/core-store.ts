@@ -56,7 +56,7 @@ import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { promiseArray, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
-import recordDataFor from './record-data-for';
+import recordDataFor, { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
 import { RequestPromise } from './request-cache';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
@@ -229,7 +229,7 @@ abstract class CoreStore extends Service {
   public _notificationManager: NotificationManager;
   private _adapterCache = Object.create(null);
   private _serializerCache = Object.create(null);
-  private _storeWrapper = new RecordDataStoreWrapper(this);
+  public _storeWrapper = new RecordDataStoreWrapper(this);
 
   /*
     Ember Data uses several specialized micro-queues for organizing
@@ -3093,7 +3093,11 @@ abstract class CoreStore extends Service {
    * @internal
    */
   _createRecordData(identifier: StableRecordIdentifier): RecordData {
-    return this.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
+    const recordData = this.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
+
+    setRecordDataFor(identifier, recordData);
+
+    return recordData;
   }
 
   /**
@@ -3485,6 +3489,7 @@ abstract class CoreStore extends Service {
     identifierCacheFor(this).destroy();
 
     this.unloadAll();
+    this._storeWrapper.destroy();
 
     if (DEBUG) {
       unregisterWaiter(this.__asyncWaiter);

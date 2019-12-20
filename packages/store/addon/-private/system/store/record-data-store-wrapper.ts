@@ -1,4 +1,7 @@
+import require from 'require';
+
 import { CUSTOM_MODEL_CLASS, IDENTIFIERS } from '@ember-data/canary-features';
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import { identifierCacheFor } from '../../identifiers/cache';
 import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
@@ -7,12 +10,21 @@ import constructResource from '../../utils/construct-resource';
 import { upgradeForInternal } from '../ts-upgrade-map';
 import { internalModelFactoryFor } from './internal-model-factory';
 
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type CoreStore = import('../core-store').default;
 type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
 type AttributesSchema = import('../../ts-interfaces/record-data-schemas').AttributesSchema;
 type RelationshipsSchema = import('../../ts-interfaces/record-data-schemas').RelationshipsSchema;
+
+let peekGraph;
+if (HAS_RECORD_DATA_PACKAGE) {
+  let _peekGraph;
+  peekGraph = wrapper => {
+    _peekGraph = _peekGraph || require('@ember-data/record-data/-private').peekGraph;
+    return _peekGraph(wrapper);
+  };
+}
 
 /**
   @module @ember-data/store
@@ -225,9 +237,24 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   disconnectRecord(type: string, id: string | null, lid?: string | null): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    if (HAS_RECORD_DATA_PACKAGE) {
+      let graph = peekGraph(this);
+      if (graph) {
+        graph.unload(identifier);
+      }
+    }
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
     if (internalModel) {
       internalModel.destroyFromRecordData();
+    }
+  }
+
+  destroy() {
+    if (HAS_RECORD_DATA_PACKAGE) {
+      let graph = peekGraph(this);
+      if (graph) {
+        graph.destroy();
+      }
     }
   }
 }

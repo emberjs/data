@@ -189,7 +189,7 @@ export default class HasManyReference extends Reference {
         return recordDataFor(record);
       });
 
-      this.hasManyRelationship.computeChanges(internalModels);
+      this.hasManyRelationship.computeChanges(internalModels.map(i => i.identifier));
 
       return this.internalModel.getHasMany(this.hasManyRelationship.key);
       // TODO IGOR it seems wrong that we were returning the many array here
@@ -206,9 +206,9 @@ export default class HasManyReference extends Reference {
     let members = this.hasManyRelationship.members.toArray();
 
     //TODO Igor cleanup
-    return members.every(recordData => {
+    return members.every(identifier => {
       let store = this.parentInternalModel.store;
-      let internalModel = store._internalModelForResource(recordData.getResourceIdentifier());
+      let internalModel = store._internalModelForResource(identifier);
       return internalModel.isLoaded() === true;
     });
   }

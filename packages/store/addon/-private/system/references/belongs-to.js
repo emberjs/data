@@ -5,7 +5,6 @@ import { resolve } from 'rsvp';
 import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
-import recordDataFor from '../record-data-for';
 import { peekRecordIdentifier } from '../store/internal-model-factory';
 import Reference from './reference';
 
@@ -151,7 +150,7 @@ export default class BelongsToReference extends Reference {
       );
 
       //TODO Igor cleanup, maybe move to relationship push
-      this.belongsToRelationship.setCanonicalRecordData(recordDataFor(record));
+      this.belongsToRelationship.setCanonicalIdentifier(peekRecordIdentifier(record));
 
       return record;
     });

@@ -6,7 +6,7 @@ import { registerWaiter } from '@ember/test';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
-const backburner = new Ember._Backburner(['normalizeRelationships', 'syncRelationships', 'finished']);
+const backburner = new Ember._Backburner(['flushRelationships', 'syncRelationships', 'finished']);
 
 if (DEBUG) {
   registerWaiter(() => {

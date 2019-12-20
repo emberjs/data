@@ -2,22 +2,21 @@
 
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { Promise as EmberPromise, resolve } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordDataFor } from '@ember-data/store/-private';
 
 function idsFromOrderedSet(set) {
   return set.list.map(i => i.id);
 }
-
-const { attr, belongsTo, hasMany, Model } = DS;
 
 const Person = Model.extend({
   name: attr('string'),
@@ -99,7 +98,7 @@ Boat.toString = function() {
 };
 
 const Bike = Model.extend({
-  name: DS.attr(),
+  name: attr(),
 });
 Bike.toString = function() {
   return 'Bike';
@@ -681,7 +680,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('unloading a disconnected subgraph clears the relevant internal models', function(assert) {
+  test('unloading a disconnected subgraph clears the relevant internal models', async function(assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
@@ -740,9 +739,9 @@ module('integration/unload - Unloading Records', function(hooks) {
 
     assert.equal(store._internalModelsFor('person').models.length, 1, 'one person record is loaded');
     assert.equal(store._internalModelsFor('boat').models.length, 2, 'two boat records are loaded');
-    assert.equal(store.hasRecordForId('person', 1), true);
-    assert.equal(store.hasRecordForId('boat', 1), true);
-    assert.equal(store.hasRecordForId('boat', 2), true);
+    assert.equal(store.hasRecordForId('person', 1), true, 'we have person 1');
+    assert.equal(store.hasRecordForId('boat', 1), true, 'we have boat 1');
+    assert.equal(store.hasRecordForId('boat', 2), true, 'we have boat 2');
 
     let checkOrphanCalls = 0;
     let cleanupOrphanCalls = 0;
@@ -768,22 +767,17 @@ module('integration/unload - Unloading Records', function(hooks) {
     countOrphanCalls(store.peekRecord('boat', 2));
 
     // make sure relationships are initialized
-    return store
-      .peekRecord('person', 1)
-      .get('boats')
-      .then(() => {
-        run(() => {
-          store.peekRecord('person', 1).unloadRecord();
-          store.peekRecord('boat', 1).unloadRecord();
-          store.peekRecord('boat', 2).unloadRecord();
-        });
+    await store.peekRecord('person', 1).get('boats');
+    store.peekRecord('person', 1).unloadRecord();
+    store.peekRecord('boat', 1).unloadRecord();
+    store.peekRecord('boat', 2).unloadRecord();
+    await settled();
 
-        assert.equal(store._internalModelsFor('person').models.length, 0);
-        assert.equal(store._internalModelsFor('boat').models.length, 0);
+    assert.equal(store._internalModelsFor('person').models.length, 0, 'no more internal models for person');
+    assert.equal(store._internalModelsFor('boat').models.length, 0, 'no more internal models for boat');
 
-        assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
-        assert.equal(cleanupOrphanCalls, 3, 'each model data tries to cleanup');
-      });
+    assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
+    assert.equal(cleanupOrphanCalls, 3, 'each model data tries to cleanup');
   });
 
   test('Unloading a record twice only schedules destroy once', function(assert) {

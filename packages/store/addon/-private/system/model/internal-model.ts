@@ -18,7 +18,7 @@ import {
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
 } from '@ember-data/canary-features';
-import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import { identifierCacheFor } from '../../identifiers/cache';
 import coerceId from '../coerce-id';
@@ -37,11 +37,9 @@ type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstan
 type JsonApiResource = import('../../ts-interfaces/record-data-json-api').JsonApiResource;
 type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api').JsonApiValidationError;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
-type RecordArray = import('../record-arrays/record-array').default;
 type Store = import('../ds-model-store').default;
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
-type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
-type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
+type RecordArray = InstanceType<typeof import('../record-arrays/record-array').default>;
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
@@ -51,18 +49,6 @@ type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private')
 /**
   @module @ember-data/store
 */
-
-// once the presentation logic is moved into the Model package we can make
-// eliminate these lossy and redundant helpers
-function relationshipsFor(instance: InternalModel): Relationships {
-  let recordData = recordDataFor(instance) as RelationshipRecordData;
-
-  return recordData._relationships;
-}
-
-function relationshipStateFor(instance: InternalModel, propertyName: string) {
-  return relationshipsFor(instance).get(propertyName);
-}
 
 const { hasOwnProperty } = Object.prototype;
 
@@ -247,7 +233,7 @@ export default class InternalModel {
   get _recordData(): RecordData {
     if (this.__recordData === null) {
       let recordData = this.store._createRecordData(this.identifier);
-      this._recordData = recordData;
+      this.__recordData = recordData;
       return recordData;
     }
     return this.__recordData;
@@ -629,7 +615,6 @@ export default class InternalModel {
       `You cannot cancel the destruction of an InternalModel once it has already been destroyed`,
       !this.isDestroyed
     );
-
     this._doNotDestroy = true;
     this._isDematerializing = false;
     run.cancel(this._scheduledDestroy);
@@ -1387,8 +1372,9 @@ export default class InternalModel {
     if (didChange && id !== null) {
       this.store.setRecordId(this.modelName, id, this.clientId);
       // internal set of ID to get it to RecordData from DS.Model
-      if (this._recordData.__setId) {
-        this._recordData.__setId(id);
+      // if we hit setId without a recordData we are within create
+      if (this.__recordData && this.__recordData.__setId) {
+        this.__recordData.__setId(id);
       }
     }
 
@@ -1560,8 +1546,11 @@ export default class InternalModel {
     let reference = this.references[name];
 
     if (!reference) {
-      // TODO IGOR AND DAVID REFACTOR
-      let relationship = relationshipStateFor(this, name);
+      if (!HAS_RECORD_DATA_PACKAGE) {
+        throw new Error(`snapshot.belongsTo only supported for @ember-data/record-data`);
+      }
+      const relationshipStateFor = require('@ember-data/record-data/-private').relationshipStateFor;
+      const relationship = relationshipStateFor(this.store._storeWrapper, this.identifier, name);
 
       if (DEBUG && kind) {
         let modelName = this.modelName;

@@ -2,32 +2,35 @@ import { isNone } from '@ember/utils';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+import { identifierCacheFor } from '@ember-data/store/-private';
 
 import OrderedSet from '../../ordered-set';
-import Relationship from './relationship';
+import Relationship, { isNew } from './relationship';
 
-type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
-type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultCollectionResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store
 */
 
 export default class ManyRelationship extends Relationship {
-  canonicalState: RelationshipRecordData[];
-  currentState: RelationshipRecordData[];
+  canonicalState: StableRecordIdentifier[];
+  currentState: StableRecordIdentifier[];
   _willUpdateManyArray: boolean;
   _pendingManyArrayUpdates: any;
   key: string;
+  kind: 'hasMany' = 'hasMany';
+
   constructor(
     store: any,
     inverseKey: string | null,
     relationshipMeta: RelationshipSchema,
-    recordData: RelationshipRecordData,
+    identifier: StableRecordIdentifier,
     inverseIsAsync: boolean
   ) {
-    super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
+    super(store, inverseKey, relationshipMeta, identifier, inverseIsAsync);
     this.canonicalState = [];
     this.currentState = [];
     this._willUpdateManyArray = false;
@@ -35,78 +38,83 @@ export default class ManyRelationship extends Relationship {
     this.key = relationshipMeta.key;
   }
 
-  addCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
-    if (this.canonicalMembers.has(recordData)) {
+  addCanonicalIdentifier(identifier: StableRecordIdentifier, idx?: number) {
+    if (this.canonicalMembers.has(identifier)) {
       return;
     }
     if (idx !== undefined) {
-      this.canonicalState.splice(idx, 0, recordData);
+      this.canonicalState.splice(idx, 0, identifier);
     } else {
-      this.canonicalState.push(recordData);
+      this.canonicalState.push(identifier);
     }
-    super.addCanonicalRecordData(recordData, idx);
+    super.addCanonicalIdentifier(identifier, idx);
   }
 
-  inverseDidDematerialize(inverseRecordData: RelationshipRecordData) {
-    super.inverseDidDematerialize(inverseRecordData);
+  inverseDidDematerialize(inverseIdentifier: StableRecordIdentifier) {
+    super.inverseDidDematerialize(inverseIdentifier);
     if (this.isAsync) {
       this.notifyManyArrayIsStale();
     }
   }
 
-  addRecordData(recordData: RelationshipRecordData, idx?: number) {
-    if (this.members.has(recordData)) {
+  addIdentifier(identifier: StableRecordIdentifier, idx?: number) {
+    if (this.members.has(identifier)) {
       return;
     }
 
     // TODO Type this
-    assertPolymorphicType(this.recordData, this.relationshipMeta, recordData, this.store);
-    super.addRecordData(recordData, idx);
+    assertPolymorphicType(
+      this.storeWrapper.recordDataFor(this.identifier.type, this.identifier.id, this.identifier.lid),
+      this.relationshipMeta,
+      this.storeWrapper.recordDataFor(identifier.type, identifier.id, identifier.lid),
+      this.store
+    );
+    super.addIdentifier(identifier, idx);
     // make lazy later
     if (idx === undefined) {
       idx = this.currentState.length;
     }
-    this.currentState.splice(idx, 0, recordData);
+    this.currentState.splice(idx, 0, identifier);
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
     // this.manyArray.flushCanonical(this.currentState);
     this.notifyHasManyChange();
   }
 
-  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
+  removeCanonicalIdentifierFromOwn(identifier: StableRecordIdentifier, idx?: number) {
     let i = idx;
-    if (!this.canonicalMembers.has(recordData)) {
+    if (!this.canonicalMembers.has(identifier)) {
       return;
     }
     if (i === undefined) {
-      i = this.canonicalState.indexOf(recordData);
+      i = this.canonicalState.indexOf(identifier);
     }
     if (i > -1) {
       this.canonicalState.splice(i, 1);
     }
-    super.removeCanonicalRecordDataFromOwn(recordData, idx);
+    super.removeCanonicalIdentifierFromOwn(identifier, idx);
     //TODO(Igor) Figure out what to do here
   }
 
-  removeAllCanonicalRecordDatasFromOwn() {
-    super.removeAllCanonicalRecordDatasFromOwn();
+  removeAllCanonicalIdentifiersFromOwn() {
+    super.removeAllCanonicalIdentifiersFromOwn();
     this.canonicalMembers.clear();
     this.canonicalState.splice(0, this.canonicalState.length);
-    super.removeAllCanonicalRecordDatasFromOwn();
+    super.removeAllCanonicalIdentifiersFromOwn();
   }
 
   //TODO(Igor) DO WE NEED THIS?
-  removeCompletelyFromOwn(recordData: RelationshipRecordData) {
-    super.removeCompletelyFromOwn(recordData);
+  removeCompletelyFromOwn(identifier: StableRecordIdentifier) {
+    super.removeCompletelyFromOwn(identifier);
 
     // TODO SkEPTICAL
-    const canonicalIndex = this.canonicalState.indexOf(recordData);
+    const canonicalIndex = this.canonicalState.indexOf(identifier);
 
     if (canonicalIndex !== -1) {
       this.canonicalState.splice(canonicalIndex, 1);
     }
 
-    this.removeRecordDataFromOwn(recordData);
+    this.removeIdentifierFromOwn(identifier);
   }
 
   flushCanonical() {
@@ -114,15 +122,15 @@ export default class ManyRelationship extends Relationship {
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    let newRecordDatas = this.currentState.filter(
+    let newIdentifiers = this.currentState.filter(
       // only add new internalModels which are not yet in the canonical state of this
       // relationship (a new internalModel can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
 
       //TODO Igor deal with this
-      recordData => recordData.isNew() && toSet.indexOf(recordData) === -1
+      identifier => isNew(identifier) && toSet.indexOf(identifier) === -1
     );
-    toSet = toSet.concat(newRecordDatas);
+    toSet = toSet.concat(newIdentifiers);
 
     /*
     if (this._manyArray) {
@@ -136,9 +144,9 @@ export default class ManyRelationship extends Relationship {
   }
 
   //TODO(Igor) idx not used currently, fix
-  removeRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
-    super.removeRecordDataFromOwn(recordData, idx);
-    let index = idx || this.currentState.indexOf(recordData);
+  removeIdentifierFromOwn(identifier: StableRecordIdentifier, idx?: number) {
+    super.removeIdentifierFromOwn(identifier, idx);
+    let index = idx || this.currentState.indexOf(identifier);
 
     //TODO IGOR DAVID INVESTIGATE
     if (index === -1) {
@@ -155,45 +163,35 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
-  computeChanges(recordDatas: RelationshipRecordData[] = []) {
+  computeChanges(identifiers: StableRecordIdentifier[] = []) {
     let members = this.canonicalMembers;
-    let recordDatasToRemove: RelationshipRecordData[] = [];
-    let recordDatasSet = setForArray(recordDatas);
+    let identifiersToRemove: StableRecordIdentifier[] = [];
+    let identifiersSet = setForArray(identifiers);
 
     members.forEach(member => {
-      if (recordDatasSet.has(member)) {
+      if (identifiersSet.has(member)) {
         return;
       }
 
-      recordDatasToRemove.push(member);
+      identifiersToRemove.push(member);
     });
 
-    this.removeCanonicalRecordDatas(recordDatasToRemove);
+    this.removeCanonicalIdentifiers(identifiersToRemove);
 
-    for (let i = 0, l = recordDatas.length; i < l; i++) {
-      let recordData = recordDatas[i];
-      this.removeCanonicalRecordData(recordData);
-      this.addCanonicalRecordData(recordData, i);
-    }
-  }
+    for (let i = 0, l = identifiers.length; i < l; i++) {
+      let identifier = identifiers[i];
 
-  setInitialRecordDatas(recordDatas: RelationshipRecordData[] | undefined) {
-    if (Array.isArray(recordDatas) === false || !recordDatas || recordDatas.length === 0) {
-      return;
-    }
-
-    for (let i = 0; i < recordDatas.length; i++) {
-      let recordData = recordDatas[i];
-      if (this.canonicalMembers.has(recordData)) {
-        continue;
+      if (members.list[i] !== identifier) {
+        this.removeCanonicalIdentifier(identifier);
+        this.addCanonicalIdentifier(identifier, i);
       }
-
-      this.canonicalMembers.add(recordData);
-      this.members.add(recordData);
-      this.setupInverseRelationship(recordData);
     }
-
-    this.canonicalState = this.canonicalMembers.toArray();
+    // TODO this flush is here because we may not have triggered one above
+    // due to the index guard on the remove+add pattern.
+    //
+    // while not doing this flush is actually an improvement, for semantics we
+    // have to preserve the flush cannonical to "lose" local changes
+    this.flushCanonicalLater();
   }
 
   /*
@@ -204,25 +202,23 @@ export default class ManyRelationship extends Relationship {
       - @runspired
   */
   notifyManyArrayIsStale() {
-    let recordData = this.recordData;
-    let storeWrapper = recordData.storeWrapper;
+    let identifier = this.identifier;
     if (CUSTOM_MODEL_CLASS) {
-      storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+      this.storeWrapper.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, this.key);
     } else {
-      storeWrapper.notifyPropertyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+      this.storeWrapper.notifyPropertyChange(identifier.type, identifier.id, identifier.lid, this.key);
     }
   }
 
   notifyHasManyChange() {
-    let recordData = this.recordData;
-    let storeWrapper = recordData.storeWrapper;
-    storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+    let identifier = this.identifier;
+    this.storeWrapper.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, this.key);
   }
 
   getData(): DefaultCollectionResourceRelationship {
     let payload: any = {};
     if (this.hasAnyRelationshipData) {
-      payload.data = this.currentState.map(recordData => recordData.getResourceIdentifier());
+      payload.data = this.currentState.slice();
     }
     if (this.links) {
       payload.links = this.links;
@@ -238,21 +234,18 @@ export default class ManyRelationship extends Relationship {
     return payload;
   }
 
-  updateData(data, initial) {
-    let recordDatas: RelationshipRecordData[] | undefined;
+  updateData(data) {
+    let identifiers: StableRecordIdentifier[] | undefined;
     if (isNone(data)) {
-      recordDatas = undefined;
+      identifiers = undefined;
     } else {
-      recordDatas = new Array(data.length);
+      identifiers = new Array(data.length);
+      const cache = identifierCacheFor(this.store);
       for (let i = 0; i < data.length; i++) {
-        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(data[i].type, data[i].id) as RelationshipRecordData;
+        identifiers[i] = cache.getOrCreateRecordIdentifier(data[i]);
       }
     }
-    if (initial) {
-      this.setInitialRecordDatas(recordDatas);
-    } else {
-      this.updateRecordDatasFromAdapter(recordDatas);
-    }
+    this.updateIdentifiersFromAdapter(identifiers);
   }
 }
 

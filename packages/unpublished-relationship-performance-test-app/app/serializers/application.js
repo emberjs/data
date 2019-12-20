@@ -1,7 +1,8 @@
-import DS from 'ember-data';
-
-export default DS.JSONAPISerializer.extend({
-  normalizeResponse(store, primaryModelClass, payload) {
+export default class Serializer {
+  normalizeResponse(_, __, payload) {
     return payload;
-  },
-});
+  }
+  static create() {
+    return new this();
+  }
+}

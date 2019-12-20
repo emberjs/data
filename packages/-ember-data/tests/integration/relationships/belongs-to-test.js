@@ -3,23 +3,18 @@ import { run } from '@ember/runloop';
 import { setupContext, teardownContext } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import RSVP, { resolve } from 'rsvp';
+import RSVP, { hash, resolve } from 'rsvp';
 
-import DS from 'ember-data';
-import { setupTest } from 'ember-qunit';
+import { setupTest, skip } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { IDENTIFIERS } from '@ember-data/canary-features';
-import Model from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-
-const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
-const { hash } = RSVP;
-const { attr, belongsTo } = DS;
 
 let store, User, Message, Post, Comment, Book, Book1, Chapter, Author, Section;
 
@@ -190,49 +185,49 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
   setupTest(hooks);
 
   hooks.beforeEach(function() {
-    User = DS.Model.extend({
-      name: DSattr('string'),
-      messages: DShasMany('message', { polymorphic: true, async: false }),
-      favouriteMessage: DSbelongsTo('message', { polymorphic: true, inverse: null, async: false }),
+    User = Model.extend({
+      name: attr('string'),
+      messages: hasMany('message', { polymorphic: true, async: false }),
+      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null, async: false }),
     });
 
-    Message = DS.Model.extend({
-      user: DSbelongsTo('user', { inverse: 'messages', async: false }),
-      created_at: DSattr('date'),
+    Message = Model.extend({
+      user: belongsTo('user', { inverse: 'messages', async: false }),
+      created_at: attr('date'),
     });
 
     Post = Message.extend({
-      title: DSattr('string'),
-      comments: DShasMany('comment', { async: false, inverse: null }),
+      title: attr('string'),
+      comments: hasMany('comment', { async: false, inverse: null }),
     });
 
     Comment = Message.extend({
-      body: DS.attr('string'),
-      message: DS.belongsTo('message', { polymorphic: true, async: false, inverse: null }),
+      body: attr('string'),
+      message: belongsTo('message', { polymorphic: true, async: false, inverse: null }),
     });
 
-    Book = DS.Model.extend({
-      name: DSattr('string'),
-      author: DSbelongsTo('author', { async: false }),
-      chapters: DShasMany('chapters', { async: false, inverse: 'book' }),
+    Book = Model.extend({
+      name: attr('string'),
+      author: belongsTo('author', { async: false }),
+      chapters: hasMany('chapters', { async: false, inverse: 'book' }),
     });
 
-    Book1 = DS.Model.extend({
-      name: DSattr('string'),
+    Book1 = Model.extend({
+      name: attr('string'),
     });
 
-    Chapter = DS.Model.extend({
-      title: DSattr('string'),
-      book: DSbelongsTo('book', { async: false, inverse: 'chapters' }),
+    Chapter = Model.extend({
+      title: attr('string'),
+      book: belongsTo('book', { async: false, inverse: 'chapters' }),
     });
 
-    Author = DS.Model.extend({
-      name: DSattr('string'),
-      books: DShasMany('books', { async: false }),
+    Author = Model.extend({
+      name: attr('string'),
+      books: hasMany('books', { async: false }),
     });
 
-    Section = DS.Model.extend({
-      name: DSattr('string'),
+    Section = Model.extend({
+      name: attr('string'),
     });
 
     this.owner.register('model:user', User);
@@ -250,7 +245,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
     this.owner.register(
       'serializer:user',
-      DS.JSONAPISerializer.extend({
+      JSONAPISerializer.extend({
         attrs: {
           favouriteMessage: { embedded: 'always' },
         },
@@ -271,15 +266,15 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
   test('returning a null relationship from payload sets the relationship to null on both sides', function(assert) {
     this.owner.register(
       'model:app',
-      DS.Model.extend({
-        name: DSattr('string'),
-        team: DSbelongsTo('team', { async: true }),
+      Model.extend({
+        name: attr('string'),
+        team: belongsTo('team', { async: true }),
       })
     );
     this.owner.register(
       'model:team',
-      DS.Model.extend({
-        apps: DShasMany('app', { async: true }),
+      Model.extend({
+        apps: hasMany('app', { async: true }),
       })
     );
 
@@ -372,7 +367,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     let adapter = store.adapterFor('application');
 
     store.modelFor('post').reopen({
-      user: DS.belongsTo('user', {
+      user: belongsTo('user', {
         async: true,
         inverse: 'messages',
       }),
@@ -648,12 +643,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let Group = DS.Model.extend({
-      people: DS.hasMany('person', { async: false }),
+    let Group = Model.extend({
+      people: hasMany('person', { async: false }),
     });
 
-    let Person = DS.Model.extend({
-      group: DS.belongsTo({ async: true }),
+    let Person = Model.extend({
+      group: belongsTo({ async: true }),
     });
 
     this.owner.register('model:group', Group);
@@ -716,12 +711,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let Seat = DS.Model.extend({
-      person: DS.belongsTo('person', { async: false }),
+    let Seat = Model.extend({
+      person: belongsTo('person', { async: false }),
     });
 
-    let Person = DS.Model.extend({
-      seat: DS.belongsTo('seat', { async: true }),
+    let Person = Model.extend({
+      seat: belongsTo('seat', { async: true }),
     });
 
     this.owner.register('model:seat', Seat);
@@ -771,12 +766,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let Group = DS.Model.extend({
-      people: DS.hasMany('person', { async: false }),
+    let Group = Model.extend({
+      people: hasMany('person', { async: false }),
     });
 
-    let Person = DS.Model.extend({
-      group: DS.belongsTo({ async: true }),
+    let Person = Model.extend({
+      group: belongsTo({ async: true }),
     });
 
     this.owner.register('model:group', Group);
@@ -824,12 +819,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let Group = DS.Model.extend({
-      people: DS.hasMany('person', { async: false }),
+    let Group = Model.extend({
+      people: hasMany('person', { async: false }),
     });
 
-    let Person = DS.Model.extend({
-      group: DS.belongsTo({ async: true }),
+    let Person = Model.extend({
+      group: belongsTo({ async: true }),
     });
 
     this.owner.register('model:group', Group);
@@ -934,14 +929,14 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     let adapter = store.adapterFor('application');
 
     store.modelFor('post').reopen({
-      comments: DS.hasMany('comment', {
+      comments: hasMany('comment', {
         async: true,
         inverse: 'post',
       }),
     });
 
     store.modelFor('comment').reopen({
-      post: DS.belongsTo('post', { async: false }),
+      post: belongsTo('post', { async: false }),
     });
 
     let comment;
@@ -1013,13 +1008,13 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     let post;
 
     store.modelFor('message').reopen({
-      user: DS.hasMany('user', {
+      user: hasMany('user', {
         async: true,
       }),
     });
 
     store.modelFor('post').reopen({
-      user: DS.belongsTo('user', {
+      user: belongsTo('user', {
         async: true,
         inverse: 'messages',
       }),
@@ -1100,7 +1095,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
   test('Rollbacking attributes for a deleted record restores implicit relationship - async', function(assert) {
     Book.reopen({
-      author: DS.belongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1190,10 +1185,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(1);
 
     assert.expectAssertion(() => {
-      User = DS.Model.extend();
+      User = Model.extend();
 
-      DS.Model.extend({
-        user: DSbelongsTo(User, { async: false }),
+      Model.extend({
+        user: belongsTo(User, { async: false }),
       });
     }, /The first argument to belongsTo must be a string/);
   });
@@ -1202,7 +1197,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(1);
 
     Book.reopen({
-      author: DSbelongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1260,7 +1255,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(1);
 
     Book.reopen({
-      author: DSbelongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1315,7 +1310,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(2);
 
     Book.reopen({
-      author: DSbelongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1425,7 +1420,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(3);
 
     Book.reopen({
-      author: DS.belongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1468,7 +1463,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(2);
 
     Book.reopen({
-      author: DS.belongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1513,7 +1508,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(1);
 
     Book.reopen({
-      author: DS.belongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1563,7 +1558,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(3);
 
     Book.reopen({
-      author: DS.belongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1625,7 +1620,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(4);
 
     Book.reopen({
-      author: DS.belongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1705,7 +1700,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.expect(2);
 
     Book.reopen({
-      author: DS.belongsTo('author', { async: true }),
+      author: belongsTo('author', { async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1773,7 +1768,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
   test('A belongsTo relationship can be reloaded using the reference if it was fetched via link', function(assert) {
     Chapter.reopen({
-      book: DS.belongsTo({ async: true }),
+      book: belongsTo({ async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1836,7 +1831,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
   test('A synchronous belongsTo relationship can be reloaded using a reference if it was fetched via id', function(assert) {
     Chapter.reopen({
-      book: DS.belongsTo({ async: false }),
+      book: belongsTo({ async: false }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1891,7 +1886,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
   test('A belongsTo relationship can be reloaded using a reference if it was fetched via id', function(assert) {
     Chapter.reopen({
-      book: DS.belongsTo({ async: true }),
+      book: belongsTo({ async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -1969,7 +1964,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
   test("belongsTo relationship with links doesn't trigger extra change notifications - #4942", function(assert) {
     Chapter.reopen({
-      book: DS.belongsTo({ async: true }),
+      book: belongsTo({ async: true }),
     });
 
     let store = this.owner.lookup('service:store');
@@ -2004,12 +1999,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     assert.equal(count, 0);
   });
 
-  test("belongsTo relationship doesn't trigger when model data doesn't support implicit relationship", function(assert) {
+  skip("belongsTo relationship doesn't trigger when model data doesn't support implicit relationship", function(assert) {
     class TestRecordData extends RecordData {
       constructor(...args) {
         super(...args);
-        delete this.__implicitRelationships;
-        delete this.__relationships;
       }
 
       _destroyRelationships() {}
@@ -2026,20 +2019,13 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
         this.isDestroyed = true;
         this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
       }
-
-      get _implicitRelationships() {
-        return undefined;
-      }
-      get _relationships() {
-        return undefined;
-      }
     }
 
     Chapter.reopen({
       // book is still an inverse from prior to the reopen
-      sections: DS.hasMany('section', { async: false }),
-      book1: DS.belongsTo('book1', { async: false, inverse: 'chapters' }), // incorrect inverse
-      book2: DS.belongsTo('book1', { async: false, inverse: null }), // correct inverse
+      sections: hasMany('section', { async: false }),
+      book1: belongsTo('book1', { async: false, inverse: 'chapters' }), // incorrect inverse
+      book2: belongsTo('book1', { async: false, inverse: null }), // correct inverse
     });
 
     let store = this.owner.lookup('service:store');
@@ -2101,7 +2087,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     // Expect assertion failure as Book1 RecordData
     // doesn't have relationship attribute
     // and inverse is not set to null in
-    // DSbelongsTo
+    // belongsTo
     assert.expectAssertion(() => {
       run(() => {
         store.push(data);
@@ -2112,9 +2098,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     // with inverse set to null
     // no errors thrown
     Chapter.reopen({
-      book1: DS.belongsTo({ async: false }),
-      sections: DS.hasMany('section', { async: false }),
-      book: DS.belongsTo({ async: false, inverse: null }),
+      book1: belongsTo({ async: false }),
+      sections: hasMany('section', { async: false }),
+      book: belongsTo({ async: false, inverse: null }),
     });
 
     run(() => {
