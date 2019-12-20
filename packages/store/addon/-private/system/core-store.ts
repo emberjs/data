@@ -1360,7 +1360,12 @@ abstract class CoreStore extends Service {
         snapshots[i] = internalModels[i].createSnapshot(optionsMap.get(internalModel));
       }
 
-      let groups = adapter.groupRecordsForFindMany(this, snapshots);
+      let groups;
+      if (adapter.groupRecordsForFindMany) {
+        groups = adapter.groupRecordsForFindMany(this, snapshots);
+      } else {
+        groups = [snapshots];
+      }
 
       for (var i = 0, l = groups.length; i < l; i++) {
         var group = groups[i];
