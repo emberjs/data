@@ -6514,17 +6514,17 @@ ember-qunit@^4.6.0:
     ember-cli-test-loader "^2.2.0"
     qunit "^2.9.3"
 
-ember-resolver@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.npmjs.org/ember-resolver/-/ember-resolver-6.0.1.tgz#a112c168f8c82810b5336f8f2f6171184ea5641d"
-  integrity sha512-Q5rrN4CB9fWtXyw0X3eMukuT2uz7ECuZC9M9GOg+9F0O3nEcN+TFKG+WfIdRSKVHvnxP4m0eHTd/vRlG4CbXHw==
+ember-resolver@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.npmjs.org/ember-resolver/-/ember-resolver-7.0.0.tgz#07ca86b3bae373395b44bba784b8c133f75d61c2"
+  integrity sha512-tqyWk9E1P5LL42x7AnVoE25a/YWe0WcwAr8LXasm5V7Az3vFR/zbFtwN0oI3tpoSP/nCoGWDct6dRYlXrQjqBQ==
   dependencies:
     babel-plugin-debug-macros "^0.3.3"
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.0"
     ember-cli-babel "^7.13.2"
     ember-cli-version-checker "^3.1.3"
-    resolve "^1.13.1"
+    resolve "^1.14.0"
 
 ember-rfc176-data@^0.3.1, ember-rfc176-data@^0.3.12:
   version "0.3.12"
@@ -12103,10 +12103,10 @@ resolve@1.9.0:
   dependencies:
     path-parse "^1.0.6"
 
-resolve@^1.1.3, resolve@^1.10.0, resolve@^1.10.1, resolve@^1.11.1, resolve@^1.12.0, resolve@^1.13.1, resolve@^1.3.2, resolve@^1.3.3, resolve@^1.4.0, resolve@^1.5.0, resolve@^1.7.1, resolve@^1.8.1:
-  version "1.14.0"
-  resolved "https://registry.npmjs.org/resolve/-/resolve-1.14.0.tgz#6d14c6f9db9f8002071332b600039abf82053f64"
-  integrity sha512-uviWSi5N67j3t3UKFxej1loCH0VZn5XuqdNxoLShPcYPw6cUZn74K1VRj+9myynRX03bxIBEkwlkob/ujLsJVw==
+resolve@^1.1.3, resolve@^1.10.0, resolve@^1.10.1, resolve@^1.11.1, resolve@^1.12.0, resolve@^1.14.0, resolve@^1.3.2, resolve@^1.3.3, resolve@^1.4.0, resolve@^1.5.0, resolve@^1.7.1, resolve@^1.8.1:
+  version "1.14.1"
+  resolved "https://registry.npmjs.org/resolve/-/resolve-1.14.1.tgz#9e018c540fcf0c427d678b9931cbf45e984bcaff"
+  integrity sha512-fn5Wobh4cxbLzuHaE+nphztHy43/b++4M6SsGFC2gB8uYwf0C8LcarfCz1un7UTW8OFQg9iNjZ4xpcFVGebDPg==
   dependencies:
     path-parse "^1.0.6"
 
