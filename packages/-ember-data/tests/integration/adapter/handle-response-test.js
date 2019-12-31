@@ -175,4 +175,35 @@ module('integration/adapter/handle-response', function(hooks) {
 
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
+
+  test('handleResponse is called with correct parameters on string repsonse with 422 status', async function(assert) {
+    let handleResponseCalled = 0;
+
+    let errorObject = {errors: {}};
+
+    this.server.get('/people', function() {
+      return [422, { 'Content-Type': 'application/json' }, JSON.stringify(errorObject)];
+    });
+
+    class TestAdapter extends JSONAPIAdapter {
+      handleResponse(status, headers, payload, requestData) {
+        handleResponseCalled++;
+        assert.deepEqual(payload, errorObject);
+
+        return super.handleResponse(status, headers, payload, requestData);
+      }
+    }
+
+    this.owner.register('adapter:application', TestAdapter);
+
+    try {
+      await this.store.findAll('person');
+      assert.ok(false, 'promise should reject');
+    } catch {
+      assert.ok(true, 'promise rejected');
+    }
+
+    assert.equal(handleResponseCalled, 1, 'handle response is called');
+  });
 });
+
