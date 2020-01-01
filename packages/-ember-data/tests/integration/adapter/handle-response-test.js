@@ -95,7 +95,7 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is called on empty string repsonse', async function(assert) {
+  test('handleResponse is called on empty string response', async function(assert) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function() {
@@ -122,7 +122,7 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is not called on invalid repsonse', async function(assert) {
+  test('handleResponse is not called on invalid response', async function(assert) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function() {
@@ -149,7 +149,7 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 0, 'handle response is not called');
   });
 
-  test('handleResponse is called on empty string repsonse with 400 status', async function(assert) {
+  test('handleResponse is called on empty string response with 400 status', async function(assert) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function() {
@@ -176,10 +176,10 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is called with correct parameters on string repsonse with 422 status', async function(assert) {
+  test('handleResponse is called with correct parameters on string response with 422 status', async function(assert) {
     let handleResponseCalled = 0;
 
-    let errorObject = {errors: {}};
+    let errorObject = { errors: {} };
 
     this.server.get('/people', function() {
       return [422, { 'Content-Type': 'application/json' }, JSON.stringify(errorObject)];
@@ -188,7 +188,7 @@ module('integration/adapter/handle-response', function(hooks) {
     class TestAdapter extends JSONAPIAdapter {
       handleResponse(status, headers, payload, requestData) {
         handleResponseCalled++;
-        assert.deepEqual(payload, errorObject);
+        assert.deepEqual(payload, errorObject, 'payload from handleResponse matches expected error');
 
         return super.handleResponse(status, headers, payload, requestData);
       }
@@ -206,4 +206,3 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 });
-

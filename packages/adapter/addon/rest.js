@@ -1301,13 +1301,13 @@ function fetchSuccessHandler(adapter, payload, response, requestData) {
 
 function fetchErrorHandler(adapter, payload, response, errorThrown, requestData) {
   let responseData = fetchResponseData(response);
-  payload = adapter.parseErrorResponse(payload);
 
   if (responseData.status === 200 && payload instanceof Error) {
     responseData.errorThrown = payload;
-    payload = responseData.errorThrown;
+    payload = responseData.errorThrown.payload;
   } else {
     responseData.errorThrown = errorThrown;
+    payload = adapter.parseErrorResponse(payload);
   }
   return ajaxError(adapter, payload, requestData, responseData);
 }
@@ -1415,4 +1415,3 @@ function ajaxOptions(options, adapter) {
 }
 
 export default RESTAdapter;
-
