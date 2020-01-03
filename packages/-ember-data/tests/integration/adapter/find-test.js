@@ -1,7 +1,5 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
-import { all, defer, Promise, reject, resolve } from 'rsvp';
+import { all, allSettled, Promise, reject, resolve } from 'rsvp';
 
 import Adapter from 'ember-data/adapter';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
@@ -13,7 +11,7 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 module('integration/adapter/find - Finding Records', function(hooks) {
   setupTest(hooks);
 
-  testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', function(assert) {
+  testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', async function(assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -24,12 +22,12 @@ module('integration/adapter/find - Finding Records', function(hooks) {
 
     const store = this.owner.lookup('service:store');
 
-    assert.expectAssertion(() => {
-      store.find('person', undefined);
+    await assert.expectAssertion(async () => {
+      await store.find('person', undefined);
     }, `You cannot pass 'undefined' as id to the store's find method`);
 
-    assert.expectAssertion(() => {
-      store.find('person', null);
+    await assert.expectAssertion(async () => {
+      await store.find('person', null);
     }, `You cannot pass 'null' as id to the store's find method`);
   });
 
@@ -74,7 +72,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     store.findRecord('person', '1');
   });
 
-  test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', function(assert) {
+  test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', async function(assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -83,40 +81,41 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    const deferred = defer();
+    let resolveFindRecordPromise;
+    let findRecordPromise = new Promise(resolve => (resolveFindRecordPromise = resolve));
 
     this.owner.register(
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return deferred.promise;
+          return findRecordPromise;
         },
       })
     );
 
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    let store = this.owner.lookup('service:store');
 
-    const store = this.owner.lookup('service:store');
-    const requestOne = store.findRecord('person', '1').then(person => {
-      assert.equal(person.get('id'), '1');
-      assert.equal(person.get('name'), 'Braaaahm Dale');
-    });
-    const requestTwo = store.findRecord('person', '1').then(post => {
-      assert.equal(post.get('id'), '1');
-      assert.equal(post.get('name'), 'Braaaahm Dale');
+    let firstPlayerRequest = store.findRecord('person', '1').then(function(firstPlayerRequest) {
+      assert.strictEqual(firstPlayerRequest.id, '1');
+      assert.strictEqual(firstPlayerRequest.name, 'Totono Grisales');
     });
 
-    deferred.resolve({
+    let secondPlayerRequest = store.findRecord('person', '1').then(function(secondPlayerRequest) {
+      assert.strictEqual(secondPlayerRequest.id, '1');
+      assert.strictEqual(secondPlayerRequest.name, 'Totono Grisales');
+    });
+
+    resolveFindRecordPromise({
       data: {
         id: '1',
         type: 'person',
         attributes: {
-          name: 'Braaaahm Dale',
+          name: 'Totono Grisales',
         },
       },
     });
 
-    return Promise.all([requestOne, requestTwo]);
+    await allSettled([firstPlayerRequest, secondPlayerRequest]);
   });
 
   test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', async function(assert) {
@@ -231,7 +230,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     }
   });
 
-  testInDebug('warns when returned record has different id', function(assert) {
+  testInDebug('warns when returned record has different id', async function(assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -258,13 +257,9 @@ module('integration/adapter/find - Finding Records', function(hooks) {
 
     const store = this.owner.lookup('service:store');
 
-    assert.expectWarning(
-      () =>
-        run(() => {
-          store.findRecord('person', 'me');
-        }),
-      /You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/
-    );
+    await assert.expectWarning(async () => {
+      await store.findRecord('person', 'me');
+    }, /You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/);
   });
 
   testInDebug('coerces ids before warning when returned record has different id', async function(assert) {
@@ -303,12 +298,12 @@ module('integration/adapter/find - Finding Records', function(hooks) {
 
     const store = this.owner.lookup('service:store');
 
-    assert.expectNoWarning(
-      () => run(() => store.findRecord('person', '1')),
+    await assert.expectNoWarning(
+      async () => await store.findRecord('person', '1'),
       /You requested a record of type 'person' with id '1' but the adapter returned a payload with primary data having an id of '1'/
     );
-    assert.expectNoWarning(
-      () => run(() => store.findRecord('person', '1')),
+    await assert.expectNoWarning(
+      async () => await store.findRecord('person', '1'),
       /You requested a record of type 'person' with id '1' but the adapter returned a payload with primary data having an id of '1'/
     );
   });
