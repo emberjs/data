@@ -14,11 +14,11 @@ Note: This uses a HAR file (`bin/relationship-performance-tracking/src/trace.har
 
 ## manually create HAR capture
 
-- `cd packages/unpublished-relationship-performance-test-app/ && ember serve -prod --port 5000`
+- `cd packages/unpublished-relationship-performance-test-app/ && ember serve -prod --live-reload false --port 5000`
    - *Note* some shells may error on the `&&` operator. If so execute each command separately:
      ```sh
       $ cd packages/unpublished-relationship-performance-test-app/
-      $ ember serve -prod --port 5000
+      $ ember serve -prod --live-reload false --port 5000
      ```
 - Visit [http://localhost:5000](http://localhost:5000)
 - open the Network panel in Chrome Dev Tools
