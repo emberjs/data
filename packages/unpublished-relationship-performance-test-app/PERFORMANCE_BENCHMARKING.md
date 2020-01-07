@@ -22,5 +22,5 @@ Note: This uses a HAR file (`bin/relationship-performance-tracking/src/trace.har
      ```
 - Visit [http://localhost:5000](http://localhost:5000)
 - open the Network panel in Chrome Dev Tools
-- right click on "localhost"
+- right click on any of loaded network assets such as vendor.css
 - select "Save all as HAR with content"
