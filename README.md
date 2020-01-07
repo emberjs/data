@@ -17,7 +17,7 @@ It provides many of the facilities you'd find in server-side `ORM`s like
 `JavaScript` in the browser.
 
 - [Usage Guide](https://guides.emberjs.com/release/models/)
-- [API Documentation](https://emberjs.com/api/ember-data/release/modules/ember-data)
+- [API Documentation](https://api.emberjs.com/ember-data/release)
 - [Contributing Guide](./CONTRIBUTING.md)
 - [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data)
 - [Community](https://emberjs.com/community)
