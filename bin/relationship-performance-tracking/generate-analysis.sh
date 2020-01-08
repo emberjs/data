@@ -1,5 +1,13 @@
 #!/bin/bash
 
+verify_installed_or_exit() {
+  # https://stackoverflow.com/questions/592620/how-can-i-check-if-a-program-exists-from-a-bash-script#677212
+  command -v $1 >/dev/null 2>&1 || { echo >&2 "Please install $1 to run this script.  Aborting."; exit 1; }
+}
+
+verify_installed_or_exit node
+verify_installed_or_exit pm2
+verify_installed_or_exit tracerbench
 HAR_REMIX_SCRIPT="bin/relationship-performance-tracking/src/har-remix.js"
 WORKSPACE="relationship-performance-test-app"
 TEST_APP_PATH="packages/unpublished-relationship-performance-test-app"
