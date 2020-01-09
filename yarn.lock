@@ -981,18 +981,20 @@
   resolved "https://registry.npmjs.org/@glimmer/env/-/env-0.1.7.tgz#fd2d2b55a9029c6b37a6c935e8c8871ae70dfa07"
   integrity sha1-/S0rVakCnGs3psk16MiHGucN+gc=
 
-"@glimmer/interfaces@^0.44.0":
-  version "0.44.0"
-  resolved "https://registry.npmjs.org/@glimmer/interfaces/-/interfaces-0.44.0.tgz#0896204815f05fd8907b5703cbaee9d1b9edf5d3"
-  integrity sha512-O1VBrB1uhWh/XpBRaMbT5zncZiJJNTAqe0rnhRr4JicrlmNoIC4/5ADRgDORj5oBxuENjuZ+6UTul3WCOHETiw==
-
-"@glimmer/syntax@^0.44.0":
-  version "0.44.0"
-  resolved "https://registry.npmjs.org/@glimmer/syntax/-/syntax-0.44.0.tgz#66a4d0a5047becb210259e7678b6efa9c14dbc6f"
-  integrity sha512-B/kLng2z9Cf/7jbfY7p50Q/3ouUouVT5jBgGVVTJJHvtCbrNszdMj3XY0v3hLxB83TASXf1dwJh3CNni82JnOQ==
+"@glimmer/interfaces@^0.45.3":
+  version "0.45.3"
+  resolved "https://registry.npmjs.org/@glimmer/interfaces/-/interfaces-0.45.3.tgz#9a54b6cc3f9d5887fc26c39750fd180d9dc650c0"
+  integrity sha512-RsjpflPimJUgkJwzhKWhu/CJ8HdRwqBFcSNPL9Fu8cElE1DyERdcqJbSCfw7pkFornVrhoU8gTNxzo24ly1H3g==
   dependencies:
-    "@glimmer/interfaces" "^0.44.0"
-    "@glimmer/util" "^0.44.0"
+    "@simple-dom/interface" "^1.4.0"
+
+"@glimmer/syntax@^0.45.0":
+  version "0.45.3"
+  resolved "https://registry.npmjs.org/@glimmer/syntax/-/syntax-0.45.3.tgz#298c1eff98661726eb8df0806a241e7b43ac662b"
+  integrity sha512-olTpMV4FiF7ylLYWTHzlNGiirQvCPGSVFDtohDcrNgHVkXwYYpaCF6QUgsHQMPCrY2Zu2Ohqv4PpZo1cJXY0ug==
+  dependencies:
+    "@glimmer/interfaces" "^0.45.3"
+    "@glimmer/util" "^0.45.3"
     handlebars "^4.5.1"
     simple-html-tokenizer "^0.5.8"
 
@@ -1000,6 +1002,13 @@
   version "0.44.0"
   resolved "https://registry.npmjs.org/@glimmer/util/-/util-0.44.0.tgz#45df98d73812440206ae7bda87cfe04aaae21ed9"
   integrity sha512-duAsm30uVK9jSysElCbLyU6QQYO2X9iLDLBIBUcCqck9qN1o3tK2qWiHbGK5d6g8E2AJ4H88UrfElkyaJlGrwg==
+
+"@glimmer/util@^0.45.3":
+  version "0.45.3"
+  resolved "https://registry.npmjs.org/@glimmer/util/-/util-0.45.3.tgz#da902da3c5e36a8dfc79c9993718044d88eacc76"
+  integrity sha512-2lf+f3ND5OiKIFbjeHMq/1me0xymqAanvJoVjxHMd//s74o6GVsjFUSVx7FJ53E8VE2gmtdL4m/Yz5smAJHD4A==
+  dependencies:
+    "@simple-dom/interface" "^1.4.0"
 
 "@lerna/add@3.20.0":
   version "3.20.0"
@@ -6215,10 +6224,10 @@ ember-cli-string-utils@^1.0.0, ember-cli-string-utils@^1.1.0:
   resolved "https://registry.npmjs.org/ember-cli-string-utils/-/ember-cli-string-utils-1.1.0.tgz#39b677fc2805f55173735376fcef278eaa4452a1"
   integrity sha1-ObZ3/CgF9VFzc1N2/O8njqpEUqE=
 
-ember-cli-template-lint@^1.0.0-beta.1:
-  version "1.0.0-beta.3"
-  resolved "https://registry.npmjs.org/ember-cli-template-lint/-/ember-cli-template-lint-1.0.0-beta.3.tgz#48f2fa43e7ad0172685fa171e5acd4d75b873792"
-  integrity sha512-ivrvYih+cx7VUlyyMQBmk61Ki+gT5axfppWrk6fSvHaoxHZadXU3zRJMT5DPkeRaayRu0y1dls4wqfrUhzQ1PA==
+ember-cli-template-lint@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/ember-cli-template-lint/-/ember-cli-template-lint-1.0.0.tgz#8ca8f5f05fdcad35c13f26b65fb93c016196bdc9"
+  integrity sha512-acWyJUvRFo2aA/0kqeUxfCPwLtPk3ckZ/1I0BzBX9qW/Gi8qWqYnwnI/vEotIqmsQl+npbl0/SXeQHFrUdyB0g==
   dependencies:
     aot-test-generators "^0.1.0"
     broccoli-concat "^3.7.1"
@@ -6226,7 +6235,7 @@ ember-cli-template-lint@^1.0.0-beta.1:
     chalk "^2.4.1"
     debug "^4.0.1"
     ember-cli-version-checker "^3.0.1"
-    ember-template-lint "^1.1.0"
+    ember-template-lint "^1.2.0"
     json-stable-stringify "^1.0.1"
     md5-hex "^2.0.0"
     strip-ansi "^4.0.0"
@@ -6619,12 +6628,12 @@ ember-source@^3.15.0:
     semver "^6.1.1"
     silent-error "^1.1.1"
 
-ember-template-lint@^1.1.0:
-  version "1.10.0"
-  resolved "https://registry.npmjs.org/ember-template-lint/-/ember-template-lint-1.10.0.tgz#490acdb312fa8e2d484c397c03b26bb366bc6f24"
-  integrity sha512-R7RsmOFoC+LlvM+Wu7TvSj8ZQxIM8ryCFCdGfcOEBCdlqRo6vgJ/jHy8CRITc8RlbrKJDPcaNDxHcNWfto1BqA==
+ember-template-lint@^1.2.0:
+  version "1.13.0"
+  resolved "https://registry.npmjs.org/ember-template-lint/-/ember-template-lint-1.13.0.tgz#9e271da31ca34fe65ed8af30f91b94cb701d3093"
+  integrity sha512-poQoMxSaUs+7LQgN5+h7DkNyvSkpoX94uwEA2WkPrsyXJeUSwO9541jiseXUFNCCNMvEDAlBPvOcfG99BA9uxA==
   dependencies:
-    "@glimmer/syntax" "^0.44.0"
+    "@glimmer/syntax" "^0.45.0"
     chalk "^2.0.0"
     globby "^9.0.0"
     minimatch "^3.0.4"
