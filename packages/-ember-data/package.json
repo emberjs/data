@@ -87,7 +87,7 @@
     "typescript": "~3.7.4"
   },
   "engines": {
-    "node": ">= 8.0.0"
+    "node": "10.* || >= 12.*"
   },
   "keywords": [
     "ember-addon"
