@@ -145,6 +145,6 @@
   },
   "dependencies": {},
   "engines": {
-    "node": ">= 8.0.0"
+    "node": "10.* || >= 12.*"
   }
 }
