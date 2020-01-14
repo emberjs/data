@@ -13,7 +13,6 @@ import RSVP, { Promise } from 'rsvp';
 import {
   CUSTOM_MODEL_CLASS,
   FULL_LINKS_ON_RELATIONSHIPS,
-  IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
@@ -208,22 +207,15 @@ export default class InternalModel {
   }
 
   get id(): string | null {
-    if (IDENTIFIERS) {
-      return this.identifier.id; // || this._id;
-    }
-    return this._id;
+    return this.identifier.id; // || this._id;
   }
 
   set id(value: string | null) {
-    if (IDENTIFIERS) {
-      if (value !== this._id) {
-        let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
-        identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
-        set(this, '_tag', this._tag + 1);
-        // TODO Show deprecation for private api
-      }
-    } else if (!IDENTIFIERS) {
-      this._id = value;
+    if (value !== this._id) {
+      let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
+      identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
+      set(this, '_tag', this._tag + 1);
+      // TODO Show deprecation for private api
     }
   }
 
@@ -1376,9 +1368,6 @@ export default class InternalModel {
   }
 
   setId(id: string) {
-    if (!IDENTIFIERS) {
-      assert("A record's id cannot be changed once it is in the loaded state", this.id === null || this.id === id);
-    }
     let didChange = id !== this._id;
 
     this._id = id;
@@ -1469,7 +1458,7 @@ export default class InternalModel {
   hasErrors() {
     if (RECORD_DATA_ERRORS) {
       if (this._recordData.getErrors) {
-        return this._recordData.getErrors(IDENTIFIERS ? this.identifier : {}).length > 0;
+        return this._recordData.getErrors(this.identifier).length > 0;
       } else {
         let errors = get(this.getRecord(), 'errors');
         return errors.get('length') > 0;
@@ -1503,10 +1492,10 @@ export default class InternalModel {
         if (jsonApiErrors.length === 0) {
           jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
         }
-        this._recordData.commitWasRejected(IDENTIFIERS ? this.identifier : {}, jsonApiErrors);
+        this._recordData.commitWasRejected(this.identifier, jsonApiErrors);
       } else {
         this.send('becameError');
-        this._recordData.commitWasRejected(IDENTIFIERS ? this.identifier : {});
+        this._recordData.commitWasRejected(this.identifier);
       }
     } else {
       let attribute;
@@ -1526,7 +1515,7 @@ export default class InternalModel {
   notifyErrorsChange() {
     let invalidErrors;
     if (this._recordData.getErrors) {
-      invalidErrors = this._recordData.getErrors(IDENTIFIERS ? this.identifier : {}) || [];
+      invalidErrors = this._recordData.getErrors(this.identifier) || [];
     } else {
       return;
     }

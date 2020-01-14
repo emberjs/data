@@ -72,8 +72,8 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
@@ -134,8 +134,8 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
@@ -214,8 +214,8 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {

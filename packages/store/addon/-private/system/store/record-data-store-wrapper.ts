@@ -1,4 +1,4 @@
-import { CUSTOM_MODEL_CLASS, IDENTIFIERS } from '@ember-data/canary-features';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 import { identifierCacheFor } from '../../identifiers/cache';
 import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
@@ -31,9 +31,6 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   }
 
   get identifierCache(): IdentifierCache {
-    if (!IDENTIFIERS) {
-      throw new Error(`Store.identifierCache is unavailable in this build of EmberData`);
-    }
     return identifierCacheFor(this._store);
   }
 

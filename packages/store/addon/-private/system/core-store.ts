@@ -20,7 +20,6 @@ import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
 
 import {
   CUSTOM_MODEL_CLASS,
-  IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
@@ -114,7 +113,6 @@ type PendingSaveItem = {
   resolver: RSVP.Deferred<InternalModel | void>;
 };
 
-let globalClientIdCounter = 1;
 let _Model;
 
 function getModel() {
@@ -420,11 +418,7 @@ abstract class CoreStore extends Service {
   }
 
   get identifierCache(): IdentifierCache {
-    if (IDENTIFIERS) {
-      return identifierCacheFor(this);
-    }
-
-    assertInDebug(`Store.identifierCache is unavailable in this build of EmberData`, false);
+    return identifierCacheFor(this);
   }
 
   _instantiateRecord(
@@ -1160,11 +1154,9 @@ abstract class CoreStore extends Service {
     let promise = this._fetchManager.scheduleFetch(identifier, options, generateStackTrace);
     return promise.then(
       payload => {
-        if (IDENTIFIERS) {
-          // ensure that regardless of id returned we assign to the correct record
-          if (payload.data && !Array.isArray(payload.data)) {
-            payload.data.lid = identifier.lid;
-          }
+        // ensure that regardless of id returned we assign to the correct record
+        if (payload.data && !Array.isArray(payload.data)) {
+          payload.data.lid = identifier.lid;
         }
 
         // Returning this._push here, breaks typing but not any tests, invesstigate potential missing tests
@@ -2551,13 +2543,11 @@ abstract class CoreStore extends Service {
       );
     }
 
-    if (IDENTIFIERS) {
-      const cache = identifierCacheFor(this);
-      const identifier = internalModel.identifier;
+    const cache = identifierCacheFor(this);
+    const identifier = internalModel.identifier;
 
-      if (op !== 'deleteRecord' && data) {
-        cache.updateRecordIdentifier(identifier, data);
-      }
+    if (op !== 'deleteRecord' && data) {
+      cache.updateRecordIdentifier(identifier, data);
     }
 
     //We first make sure the primary data has been updated
@@ -2642,21 +2632,19 @@ abstract class CoreStore extends Service {
     const isLoading = internalModel.currentState.stateName === 'root.loading';
     const isUpdate = internalModel.currentState.isEmpty === false && !isLoading;
 
-    if (IDENTIFIERS) {
-      // exclude store.push (root.empty) case
-      if (isUpdate || isLoading) {
-        let identifier = internalModel.identifier;
-        let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
+    // exclude store.push (root.empty) case
+    if (isUpdate || isLoading) {
+      let identifier = internalModel.identifier;
+      let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
 
-        if (updatedIdentifier !== identifier) {
-          // we encountered a merge of identifiers in which
-          // two identifiers (and likely two internalModels)
-          // existed for the same resource. Now that we have
-          // determined the correct identifier to use, make sure
-          // that we also use the correct internalModel.
-          identifier = updatedIdentifier;
-          internalModel = internalModelFactoryFor(this).lookup(identifier);
-        }
+      if (updatedIdentifier !== identifier) {
+        // we encountered a merge of identifiers in which
+        // two identifiers (and likely two internalModels)
+        // existed for the same resource. Now that we have
+        // determined the correct identifier to use, make sure
+        // that we also use the correct internalModel.
+        identifier = updatedIdentifier;
+        internalModel = internalModelFactoryFor(this).lookup(identifier);
       }
     }
 
@@ -3126,16 +3114,12 @@ abstract class CoreStore extends Service {
         _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataClass;
       }
 
-      if (IDENTIFIERS) {
-        let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
-          type: modelName,
-          id,
-          lid: clientId,
-        });
-        return new _RecordData(identifier, storeWrapper);
-      } else {
-        return new _RecordData(modelName, id, clientId, storeWrapper);
-      }
+      let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+        type: modelName,
+        id,
+        lid: clientId,
+      });
+      return new _RecordData(identifier, storeWrapper);
     }
 
     assertInDebug(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
@@ -3206,10 +3190,6 @@ abstract class CoreStore extends Service {
   }
 
   newClientId() {
-    if (!IDENTIFIERS) {
-      return globalClientIdCounter++;
-    }
-
     assertInDebug(`Private API Removed`, false);
   }
 
