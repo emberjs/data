@@ -50,7 +50,7 @@
     "@types/ember__test-helpers": "~0.7.9",
     "@types/qunit": "^2.5.3",
     "@types/rsvp": "^4.0.3",
-    "broccoli-concat": "^3.7.5",
+    "broccoli-concat": "^4.2.2",
     "broccoli-stew": "^3.0.0",
     "broccoli-string-replace": "^0.1.2",
     "broccoli-test-helper": "^2.0.0",
