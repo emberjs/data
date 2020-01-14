@@ -132,7 +132,7 @@
     "qunit-dom": "^0.9.2",
     "rimraf": "^3.0.0",
     "rsvp": "^4.8.5",
-    "semver": "^6.2.0",
+    "semver": "^7.1.1",
     "silent-error": "^1.1.1",
     "typescript": "~3.7.4",
     "url": "^0.11.0",
