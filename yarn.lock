@@ -6850,6 +6850,10 @@ eslint-module-utils@^2.4.1:
     debug "^2.6.9"
     pkg-dir "^2.0.0"
 
+"eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
+  version "0.0.0"
+  uid ""
+
 eslint-plugin-ember@^7.7.1:
   version "7.7.1"
   resolved "https://registry.npmjs.org/eslint-plugin-ember/-/eslint-plugin-ember-7.7.1.tgz#41398c9a32304c21547fb969c689cd3300718f9d"
