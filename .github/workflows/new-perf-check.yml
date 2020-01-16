@@ -1,0 +1,28 @@
+actions/hello-world-javascript-action@v1
+name: NewRelationshipPerformanceCheck
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  relationship-performance-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - uses: ember-performance-monitoring/tracerbench-compare-action@master
+        with:
+          experiment-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
+          experiment-serve-command: yarn workspace relationship-performance-test-app ember s --path="./dist-experiment --port=4201"
+          experiment-url: 'http://localhost:4201'
+          control-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-control
+          control-serve-command: yarn workspace relationship-performance-test-app ember s --path="./dist-control"
+          control-url: 'http://localhost:4200'
+          markers: ['start-find-all', 'start-outer-materialization', 'end-outer-materialization', 'end-find-all']
+
