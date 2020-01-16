@@ -12,9 +12,6 @@ jobs:
       - uses: actions/checkout@v1
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
       - uses: ember-performance-monitoring/tracerbench-compare-action@master
         with:
           experiment-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
