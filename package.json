@@ -143,7 +143,9 @@
     "prepare-local-packages": "./bin/packages-for-commit.js",
     "publish": "./bin/publish.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@ember-performance-monitoring/tracerbench-compare-action": "ember-performance-monitoring/tracerbench-compare-action#master"
+  },
   "engines": {
     "node": ">= 8.0.0"
   }
