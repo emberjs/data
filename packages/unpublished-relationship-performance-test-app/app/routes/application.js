@@ -25,8 +25,12 @@ export default Route.extend({
       endTrace();
 =======
     if (document.location.href.indexOf('?tracerbench=true') !== -1) {
+<<<<<<< HEAD
       // document.location.href = 'about:blank';
 >>>>>>> nice things
+=======
+      endTrace();
+>>>>>>> things
     }
   },
 });
