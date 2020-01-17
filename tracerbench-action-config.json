@@ -6,5 +6,6 @@
   "control-serve-command": "yarn workspace relationship-performance-test-app ember s --path dist-control",
   "control-url": "http://localhost:4200",
   "markers": "start-find-all,start-outer-materialization,end-outer-materialization,end-find-all",
-  "clean-after-analyze": true
+  "clean-after-analyze": true,
+  "headless": false
 }
