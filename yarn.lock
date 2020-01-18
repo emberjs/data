@@ -846,7 +846,7 @@
 
 "@ember-performance-monitoring/tracerbench-compare-action@ember-performance-monitoring/tracerbench-compare-action#master":
   version "0.0.0"
-  resolved "https://codeload.github.com/ember-performance-monitoring/tracerbench-compare-action/tar.gz/2d0e70d691a238a809afd7420c5a880df77f00f6"
+  resolved "https://codeload.github.com/ember-performance-monitoring/tracerbench-compare-action/tar.gz/358ad46f953443d69125768224af252b334a1656"
   dependencies:
     "@actions/core" "^1.2.1"
     "@actions/github" "^2.0.1"
