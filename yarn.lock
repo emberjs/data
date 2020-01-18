@@ -6966,9 +6966,9 @@ ember-source@^3.15.0:
     silent-error "^1.1.1"
 
 ember-template-lint@^1.2.0:
-  version "1.13.1"
-  resolved "https://registry.npmjs.org/ember-template-lint/-/ember-template-lint-1.13.1.tgz#52f453f891ee4811a791e86ebd1bf57cd20e80b7"
-  integrity sha512-TXsAr9wobz4tlVnABhr/GDXCBZAKQzPd9CUNXiNe3CrrlD3lIpeRzj/d153bgUz1dqWILb3AMjL+T7PKydCL4A==
+  version "1.13.2"
+  resolved "https://registry.npmjs.org/ember-template-lint/-/ember-template-lint-1.13.2.tgz#d4664e37f7af3b74a80eb41e9f03592900cc7e25"
+  integrity sha512-hcOp91lROLo27Ym/qUHEB3QI80rNOSTDO2K4SUeQg7t/MlZ5wie3WkPSVH+jadyvADA3McQZjxX5i9qoPVaLAA==
   dependencies:
     "@glimmer/syntax" "^0.45.0"
     chalk "^2.0.0"
