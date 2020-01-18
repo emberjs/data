@@ -20,17 +20,8 @@ export default Route.extend({
     });
   },
   afterModel() {
-<<<<<<< HEAD
     if (document.location.href.indexOf('?tracing') !== -1 || document.location.href.indexOf('?tracerbench=true') !== -1) {
       endTrace();
-=======
-    if (document.location.href.indexOf('?tracerbench=true') !== -1) {
-<<<<<<< HEAD
-      // document.location.href = 'about:blank';
->>>>>>> nice things
-=======
-      endTrace();
->>>>>>> things
     }
   },
 });
