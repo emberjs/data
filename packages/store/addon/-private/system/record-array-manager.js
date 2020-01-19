@@ -8,7 +8,7 @@ import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run as emberRunloop } from '@ember/runloop';
 
-import { RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS, RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
 
 import isStableIdentifier from '../identifiers/is-stable-identifier';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
@@ -30,51 +30,104 @@ if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
       this.isDestroyed = false;
       this._liveRecordArrays = Object.create(null);
       this._pending = Object.create(null);
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        this._pendingIdentifiers = Object.create(null);
+      }
       this._adapterPopulatedRecordArrays = [];
     }
 
     recordDidChange(internalModel) {
       let modelName = internalModel.modelName;
 
-      if (internalModel._pendingRecordArrayManagerFlush) {
-        return;
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        let identifier = getIdentifier(internalModel.identifier);
+
+        if (PENDING_FOR_IDENTIFIER.has(identifier)) {
+          return;
+        }
+
+        PENDING_FOR_IDENTIFIER.add(identifier);
+
+        let pending = this._pendingIdentifiers;
+        let models = (pending[modelName] = pending[modelName] || []);
+        if (models.push(identifier) !== 1) {
+          return;
+        }
+
+        emberRun.schedule('actions', this, this._flush);
+      } else {
+        if (internalModel._pendingRecordArrayManagerFlush) {
+          return;
+        }
+
+        internalModel._pendingRecordArrayManagerFlush = true;
+
+        let pending = this._pending;
+        let models = (pending[modelName] = pending[modelName] || []);
+        if (models.push(internalModel) !== 1) {
+          return;
+        }
+
+        emberRun.schedule('actions', this, this._flush);
       }
-
-      internalModel._pendingRecordArrayManagerFlush = true;
-
-      let pending = this._pending;
-      let models = (pending[modelName] = pending[modelName] || []);
-      if (models.push(internalModel) !== 1) {
-        return;
-      }
-
-      emberRun.schedule('actions', this, this._flush);
     }
 
     _flushPendingInternalModelsForModelName(modelName, internalModels) {
       let modelsToRemove = [];
 
-      for (let j = 0; j < internalModels.length; j++) {
-        let internalModel = internalModels[j];
-        // mark internalModels, so they can once again be processed by the
-        // recordArrayManager
-        internalModel._pendingRecordArrayManagerFlush = false;
-        // build up a set of models to ensure we have purged correctly;
-        if (internalModel.isHiddenFromRecordArrays()) {
-          modelsToRemove.push(internalModel);
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        let identifiers = internalModels.map(i => i.identifier);
+        for (let j = 0; j < identifiers.length; j++) {
+          let i = identifiers[j];
+          // mark identifiers, so they can once again be processed by the
+          // recordArrayManager
+          PENDING_FOR_IDENTIFIER.delete(i);
+          // build up a set of models to ensure we have purged correctly;
+          let isIncluded = shouldIncludeInRecordArrays(this.store, i);
+          if (!isIncluded) {
+            modelsToRemove.push(i);
+          }
         }
-      }
 
-      let array = this._liveRecordArrays[modelName];
-      if (array) {
-        // TODO: skip if it only changed
-        // process liveRecordArrays
-        updateLiveRecordArray(array, internalModels);
-      }
+        let array = this._liveRecordArrays[modelName];
+        if (array) {
+          // TODO: skip if it only changed
+          // process liveRecordArrays
+          updateLiveRecordIdentifiersArray(this.store, array, identifiers);
+        }
 
-      // process adapterPopulatedRecordArrays
-      if (modelsToRemove.length > 0) {
-        removeFromAdapterPopulatedRecordArrays(modelsToRemove);
+        // process adapterPopulatedRecordArrays
+        if (modelsToRemove.length > 0) {
+          removeIdentifiersFromAdapterPopulatedRecordArrays(this.store, modelsToRemove);
+        }
+      } else {
+        for (let j = 0; j < internalModels.length; j++) {
+          let internalModel = internalModels[j];
+          // mark internalModels, so they can once again be processed by the
+          // recordArrayManager
+          internalModel._pendingRecordArrayManagerFlush = false;
+          // build up a set of models to ensure we have purged correctly;
+          if (internalModel.isHiddenFromRecordArrays()) {
+            modelsToRemove.push(internalModel);
+          }
+        }
+
+        let array = this._liveRecordArrays[modelName];
+        if (array) {
+          // TODO: skip if it only changed
+          // process liveRecordArrays
+          if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+            let identifiers = internalModels.map(i => i.identifier);
+            updateLiveRecordIdentifiersArray(this.store, array, identifiers);
+          } else {
+            updateLiveRecordArray(array, internalModels);
+          }
+        }
+
+        // process adapterPopulatedRecordArrays
+        if (modelsToRemove.length > 0) {
+          removeFromAdapterPopulatedRecordArrays(modelsToRemove);
+        }
       }
     }
 
@@ -310,11 +363,11 @@ if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
     recordDidChange(identifier, modelName) {
       identifier = getIdentifier(identifier);
 
-      if (pendingForIdentifier.has(identifier)) {
+      if (PENDING_FOR_IDENTIFIER.has(identifier)) {
         return;
       }
 
-      pendingForIdentifier.add(identifier);
+      PENDING_FOR_IDENTIFIER.add(identifier);
 
       let pending = this._pendingIdentifiers;
       let models = (pending[modelName] = pending[modelName] || []);
@@ -345,7 +398,7 @@ if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
         let i = identifiers[j];
         // mark identifiers, so they can once again be processed by the
         // recordArrayManager
-        pendingForIdentifier.delete(i);
+        PENDING_FOR_IDENTIFIER.delete(i);
         // build up a set of models to ensure we have purged correctly;
         let isIncluded = shouldIncludeInRecordArrays(this.store, i);
         if (!isIncluded) {
@@ -471,10 +524,10 @@ if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
       Create a `RecordArray` for a modelName.
       @method createRecordArray
       @param {String} modelName
-      @param {Array} _content (optional|private)
+      @param {Array} identifiers (optional|private)
       @return {RecordArray}
     */
-    createRecordArray(modelName, content) {
+    createRecordArray(modelName, identifiers) {
       assert(
         `recordArrayManger.createRecordArray expects modelName not modelClass as the param`,
         typeof modelName === 'string'
@@ -482,14 +535,14 @@ if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
 
       let array = RecordArray.create({
         modelName,
-        content: A(content || []),
+        content: A(identifiers || []),
         store: this.store,
         isLoaded: true,
         manager: this,
       });
 
-      if (Array.isArray(content)) {
-        this._associateWithRecordArray(content, array);
+      if (Array.isArray(identifiers)) {
+        this._associateWithRecordArray(identifiers, array);
       }
 
       return array;
@@ -684,7 +737,7 @@ function removeIdentifiersFromAdapterPopulatedRecordArrays(store, identifiers) {
   }
 }
 
-const pendingForIdentifier = new Set([]);
+const PENDING_FOR_IDENTIFIER = new Set([]);
 // store StableIdentifier => Set[RecordArray[]]
 const RecordArraysCache = new WeakMap();
 
