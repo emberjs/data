@@ -144,7 +144,7 @@
     "publish": "./bin/publish.js"
   },
   "dependencies": {
-    "@ember-performance-monitoring/tracerbench-compare-action": "ember-performance-monitoring/tracerbench-compare-action#master"
+    "@ember-performance-monitoring/tracerbench-compare-action": "ember-performance-monitoring/tracerbench-compare-action#use-esm"
   },
   "engines": {
     "node": ">= 8.0.0"
