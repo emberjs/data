@@ -8,7 +8,7 @@ import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run as emberRunloop } from '@ember/runloop';
 
-import { RECORD_ARRAY_MANAGER_IDENTIFIERS, RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 
 import isStableIdentifier from '../identifiers/is-stable-identifier';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
@@ -550,7 +550,7 @@ function removeIdentifiersFromAdapterPopulatedRecordArrays(store, identifiers) {
 
 function getIdentifier(identifier) {
   let i = identifier;
-  if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !isStableIdentifier(identifier)) {
+  if (!isStableIdentifier(identifier)) {
     // identifier may actually be an internalModel
     // but during materialization we will get an identifier that
     // has already been removed from the identifiers cache yet
