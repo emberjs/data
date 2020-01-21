@@ -1,15 +1,13 @@
-import Relationships from '../relationships/state/create';
-import Relationship from '../relationships/state/relationship';
-import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
-import {
-  SingleResourceRelationship,
-  CollectionResourceRelationship,
-} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import { RecordDataStoreWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-store-wrapper';
-import BelongsToRelationship from '../relationships/state/belongs-to';
-import HasManyRelationship from '../relationships/state/has-many';
 import { ConfidentDict } from '@ember-data/store/-private/ts-interfaces/utils';
+type SingleResourceRelationship = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').SingleResourceRelationship;
+type CollectionResourceRelationship = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
+import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
+type HasManyRelationship = import('../relationships/state/has-many').default;
+type BelongsToRelationship = import('../relationships/state/belongs-to').default;
+type RecordDataStoreWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
+type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type Relationship = import('../relationships/state/relationship').default;
+type Relationships = import('../relationships/state/create').default;
 
 export interface DefaultSingleResourceRelationship extends SingleResourceRelationship {
   _relationship: BelongsToRelationship;
