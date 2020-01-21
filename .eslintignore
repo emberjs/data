@@ -4,6 +4,8 @@
 
 # compiled output
 **/dist/
+**/dist-control/
+**/dist-experiment/
 **/tmp/
 /packages/-ember-data/docs/
 
