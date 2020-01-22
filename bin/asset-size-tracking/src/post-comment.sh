@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 
 # Shamelessly stolen from the very awesome ShakingFingerAction
 #  Written by the amazing https://twitter.com/jessfraz
