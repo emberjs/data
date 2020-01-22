@@ -1,15 +1,17 @@
-import { module, test } from 'qunit';
-import { setupRenderingTest } from 'ember-qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import Model from '@ember-data/model';
 import { render } from '@ember/test-helpers';
+import Ember from 'ember';
+
 import hbs from 'htmlbars-inline-precompile';
+import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
+
+import { setupRenderingTest } from 'ember-qunit';
+
+import { ServerError } from '@ember-data/adapter/error';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { resolve, reject } from 'rsvp';
-import { ServerError } from '@ember-data/adapter/error';
-import Ember from 'ember';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 function domListToArray(domList) {
   return Array.prototype.slice.call(domList);
@@ -276,7 +278,7 @@ module('async has-many rendering tests', function(hooks) {
     });
 
     test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
-      assert.expect(12);
+      assert.expect(11);
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -320,11 +322,6 @@ module('async has-many rendering tests', function(hooks) {
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
       assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship has a dematerialized inverse');
-      assert.equal(
-        relationshipState.allInverseRecordsAreLoaded,
-        false,
-        'The relationship is missing some or all related resources'
-      );
       assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
       assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
@@ -399,7 +396,7 @@ module('async has-many rendering tests', function(hooks) {
     });
 
     test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
-      assert.expect(12);
+      assert.expect(11);
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -448,16 +445,11 @@ module('async has-many rendering tests', function(hooks) {
         'The relationship is empty because no signal has been received as to true state'
       );
       assert.equal(relationshipState.relationshipIsStale, true, 'The relationship is still stale');
-      assert.equal(
-        relationshipState.allInverseRecordsAreLoaded,
-        true,
-        'The relationship is missing some or all related resources'
-      );
       assert.equal(relationshipState.hasAnyRelationshipData, false, 'The relationship knows which record it needs');
       assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
       assert.equal(!!RelationshipProxyCache['children'], true, 'The relationship has a promise proxy');
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
-      assert.equal(!!relationshipState.link, true, 'The relationship has a link');
+      assert.equal(!!(relationshipState.links && relationshipState.links.related), true, 'The relationship has a link');
 
       Ember.onerror = originalOnError;
     });

@@ -2,7 +2,7 @@ import require, { has } from 'require';
 
 type FetchFunction = (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>;
 
-let _fetch: () => FetchFunction | null = null;
+let _fetch: (() => FetchFunction) | null = null;
 
 export default function getFetchFunction(): FetchFunction {
   if (_fetch !== null) {

@@ -2,6 +2,7 @@
   @module @ember-data/store
 */
 import { assert } from '@ember/debug';
+
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
 /*
   This file encapsulates the various states that a record can transition
@@ -177,8 +178,6 @@ function didSetProperty(internalModel, context) {
   } else {
     internalModel.send('propertyWasReset');
   }
-
-  internalModel.updateRecordArrays();
 }
 
 // Implementation notes:
@@ -396,6 +395,10 @@ const createdState = dirtyState({
   dirtyType: 'created',
   // FLAGS
   isNew: true,
+
+  setup(internalModel) {
+    internalModel.updateRecordArrays();
+  },
 });
 
 createdState.invalid.rolledBack = function(internalModel) {
@@ -506,6 +509,10 @@ const RootState = {
       internalModel.triggerLater('didLoad');
       internalModel.triggerLater('ready');
     },
+
+    // Record is already in an empty state, triggering transition to empty here
+    // produce an error.
+    notFound() {},
   },
 
   // A record enters this state when the store asks

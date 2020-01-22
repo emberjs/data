@@ -1,12 +1,14 @@
-import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import Model from '@ember-data/model';
-import { run } from '@ember/runloop';
 import { assign } from '@ember/polyfills';
-import { recordDataFor } from '@ember-data/store/-private';
-import { RecordData } from '@ember-data/record-data/-private';
+import { run } from '@ember/runloop';
+
+import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { RecordData } from '@ember-data/record-data/-private';
+import { recordDataFor } from '@ember-data/store/-private';
 
 class Person extends Model {
   @hasMany('pet', { inverse: null, async: false })
@@ -122,7 +124,10 @@ module('RecordData Compatibility', function(hooks) {
         attributes: { name: 'Chris' },
         relationships: {
           pets: {
-            data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '2' }],
+            data: [
+              { type: 'pet', id: '1' },
+              { type: 'pet', id: '2' },
+            ],
           },
         },
       },
@@ -177,7 +182,10 @@ module('RecordData Compatibility', function(hooks) {
         attributes: { name: 'Chris' },
         relationships: {
           pets: {
-            data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '2' }],
+            data: [
+              { type: 'pet', id: '1' },
+              { type: 'pet', id: '2' },
+            ],
           },
         },
       },

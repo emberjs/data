@@ -1,3 +1,31 @@
+// See https://github.com/lydell/eslint-plugin-simple-import-sort#custom-grouping
+const ImportSortGroups = [
+  // Side effect imports.
+  // eslint-disable-next-line no-useless-escape
+  [`^\u0000`],
+  // Glimmer & Ember Dependencies
+  [`^(@ember/|@glimmer|ember$)`],
+  // Packages.
+  // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
+  // But not our packages or packages starting with ember-
+  // eslint-disable-next-line no-useless-escape
+  [`^(?!@ember\-data)(?!ember-)(@?\\w)`],
+  // Packages starting with ember-
+  // eslint-disable-next-line no-useless-escape
+  [`^ember\-`],
+  // Our Packages.
+  // Things that start with @ember-data
+  // eslint-disable-next-line no-useless-escape
+  [`^@ember\-data`],
+  // Absolute imports and other imports such as Vue-style `@/foo`.
+  // Anything that does not start with a dot.
+  ['^[^.]'],
+  // Relative imports.
+  // Anything that starts with a dot.
+  // eslint-disable-next-line no-useless-escape
+  [`^\.`],
+];
+
 module.exports = {
   parser: 'babel-eslint',
   root: true,
@@ -5,9 +33,10 @@ module.exports = {
     ecmaVersion: 2017,
     sourceType: 'module',
   },
-  plugins: ['prettier', 'qunit', 'mocha'],
-  extends: ['eslint:recommended', 'prettier'],
+  plugins: ['prettier', 'qunit', 'mocha', 'simple-import-sort', 'import'],
+  extends: ['eslint:recommended', 'prettier', 'plugin:qunit/recommended'],
   rules: {
+    'no-restricted-globals': ['error', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
     'mocha/no-exclusive-tests': 'error',
     'prettier/prettier': 'error',
     'no-unused-vars': ['error', { args: 'none' }],
@@ -18,16 +47,33 @@ module.exports = {
     'no-caller': 'error',
     'no-eq-null': 'error',
     'no-console': 'error', // no longer recommended in eslint v6, this restores it
+    'simple-import-sort/sort': ['error', { groups: ImportSortGroups }],
+    'sort-imports': 'off',
+    'import/order': 'off',
+    'import/first': 'error',
+    'import/newline-after-import': 'error',
+    // this rule doesn't work properly with --fix
+    // https://github.com/benmosher/eslint-plugin-import/issues/1504
+    'import/no-duplicates': 'warn',
 
     // Too many false positives
     // See https://github.com/eslint/eslint/issues/11899 and similar
     'require-atomic-updates': 'off',
+
+    // eslint-plugin-qunit
+    'qunit/assert-args': 'off',
+    'qunit/literal-compare-order': 'off',
+    'qunit/no-identical-names': 'off',
+    'qunit/no-ok-equality': 'off',
+    'qunit/require-expect': 'off',
+    'qunit/resolve-async': 'off',
   },
   globals: {
     heimdall: true,
     Map: false,
     WeakMap: true,
     Set: true,
+    Promise: false,
   },
   env: {
     browser: true,
@@ -41,12 +87,21 @@ module.exports = {
       parserOptions: {
         sourceType: 'module',
       },
-      plugins: ['@typescript-eslint'],
+      plugins: ['@typescript-eslint', 'ember-data', 'simple-import-sort', 'import'],
       extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
       rules: {
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'no-unused-vars': 'off',
         'require-atomic-updates': 'off',
+        'ember-data/prefer-type-only-import': 'error',
+        'simple-import-sort/sort': ['error', { groups: ImportSortGroups }],
+        'sort-imports': 'off',
+        'import/order': 'off',
+        'import/first': 'error',
+        'import/newline-after-import': 'error',
+        // this rule doesn't work properly with --fix
+        // https://github.com/benmosher/eslint-plugin-import/issues/1504
+        'import/no-duplicates': 'warn',
       },
     },
 
@@ -56,9 +111,10 @@ module.exports = {
         '.mocharc.js',
         '.eslintrc.js',
         '.prettierrc.js',
-        'bin/*',
-        'packages/-build-infra/src/**/*.js',
-        'packages/-test-infra/src/**/*.js',
+        'bin/**',
+        'packages/private-build-infra/src/**/*.js',
+        'packages/unpublished-test-infra/src/**/*.js',
+        'packages/unpublished-eslint-rules/src/**/*.js',
         'packages/*/.ember-cli.js',
         'packages/*/.eslintrc.js',
         'packages/*/.template-lintrc.js',
@@ -85,15 +141,26 @@ module.exports = {
         node: true,
         es6: true,
       },
-      plugins: ['node'],
+      plugins: ['node', 'import'],
       extends: 'plugin:node/recommended',
+      rules: {
+        'simple-import-sort/sort': 'off',
+        'no-restricted-globals': 'off',
+        'import/first': 'error',
+        'import/newline-after-import': 'error',
+        'import/no-duplicates': 'error',
+        'import/order': ['error', { 'newlines-between': 'always' }],
+      },
     },
 
     // node tests
     {
-      files: ['packages/*/node-tests/**', 'packages/-test-infra/src/node-test-helpers/**/*'],
+      files: ['packages/*/node-tests/**', 'packages/unpublished-test-infra/src/node-test-helpers/**/*'],
       env: {
         mocha: true,
+      },
+      rules: {
+        'no-restricted-globals': 'off',
       },
     },
 
@@ -104,16 +171,20 @@ module.exports = {
         qunit: true,
         es6: false,
       },
+      rules: {
+        'no-restricted-globals': 'off',
+      },
     },
 
     // bin files
     {
-      files: ['bin/*'],
+      files: ['bin/**'],
       // eslint-disable-next-line node/no-unpublished-require
       rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
         'no-console': 'off',
         'no-process-exit': 'off',
         'node/no-unpublished-require': 'off',
+        'node/no-unsupported-features/node-builtins': 'off',
       }),
     },
   ],

@@ -1,23 +1,31 @@
-import { DEBUG } from '@glimmer/env';
 import { warn } from '@ember/debug';
-import { ConfidentDict } from '../ts-interfaces/utils';
-import { ResourceIdentifierObject, ExistingResourceObject } from '../ts-interfaces/ember-data-json-api';
-import {
-  StableRecordIdentifier,
-  DEBUG_CLIENT_ORIGINATED,
-  DEBUG_IDENTIFIER_BUCKET,
-  GenerationMethod,
-  UpdateMethod,
-  ForgetMethod,
-  ResetMethod,
-  RecordIdentifier,
-} from '../ts-interfaces/identifier';
+import { DEBUG } from '@glimmer/env';
+
 import coerceId from '../system/coerce-id';
-import uuidv4 from './utils/uuid-v4';
 import normalizeModelName from '../system/normalize-model-name';
-import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
+import { addSymbol } from '../ts-interfaces/utils/symbol';
 import isNonEmptyString from '../utils/is-non-empty-string';
-import CoreStore from '../system/core-store';
+import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
+import uuidv4 from './utils/uuid-v4';
+
+type CoreStore = import('../system/core-store').default;
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type GenerationMethod = import('../ts-interfaces/identifier').GenerationMethod;
+type UpdateMethod = import('../ts-interfaces/identifier').UpdateMethod;
+type ForgetMethod = import('../ts-interfaces/identifier').ForgetMethod;
+type ResetMethod = import('../ts-interfaces/identifier').ResetMethod;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
+type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
+type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
+type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
+
+function freeze<T>(obj: T): T {
+  if (typeof Object.freeze === 'function') {
+    return Object.freeze(obj);
+  }
+  return obj;
+}
 
 /**
   @module @ember-data/store
@@ -317,7 +325,7 @@ export class IdentifierCache {
     let newId = coerceId(data.id);
 
     const keyOptions = getTypeIndex(this._cache.types, identifier.type);
-    let existingIdentifier = detectMerge(keyOptions, identifier, newId);
+    let existingIdentifier = detectMerge(keyOptions, identifier, data, newId, this._cache.lids);
 
     if (existingIdentifier) {
       identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
@@ -356,6 +364,9 @@ export class IdentifierCache {
 
     // ensure a secondary cache entry for this id for the identifier we do keep
     keyOptions.id[newId] = kept;
+    // ensure a secondary cache entry for this id for the abandoned identifier's type we do keep
+    let baseKeyOptions = getTypeIndex(this._cache.types, existingIdentifier.type);
+    baseKeyOptions.id[newId] = kept;
 
     // make sure that the `lid` on the data we are processing matches the lid we kept
     data.lid = kept.lid;
@@ -424,9 +435,7 @@ function makeStableRecordIdentifier(
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
-    let wrapper = Object.freeze({
-      [DEBUG_CLIENT_ORIGINATED]: clientOriginated,
-      [DEBUG_IDENTIFIER_BUCKET]: bucket,
+    let wrapper = {
       get lid() {
         return recordIdentifier.lid;
       },
@@ -440,7 +449,10 @@ function makeStableRecordIdentifier(
         let { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
       },
-    });
+    };
+    addSymbol(wrapper, DEBUG_CLIENT_ORIGINATED, clientOriginated);
+    addSymbol(wrapper, DEBUG_IDENTIFIER_BUCKET, bucket);
+    wrapper = freeze(wrapper);
     markStableIdentifier(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);
     return wrapper;
@@ -509,13 +521,23 @@ function performRecordIdentifierUpdate(
 function detectMerge(
   keyOptions: KeyOptions,
   identifier: StableRecordIdentifier,
-  newId: string | null
+  data: ResourceIdentifierObject | ExistingResourceObject,
+  newId: string | null,
+  lids: IdentifierMap
 ): StableRecordIdentifier | false {
-  const { id } = identifier;
+  const { id, type, lid } = identifier;
   if (id !== null && id !== newId && newId !== null) {
     const existingIdentifier = keyOptions.id[newId];
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
+  } else {
+    let newType = normalizeModelName(data.type);
+
+    if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
+      const existingIdentifier = lids[data.lid];
+
+      return existingIdentifier !== undefined ? existingIdentifier : false;
+    }
   }
 
   return false;

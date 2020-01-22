@@ -1,7 +1,8 @@
-import { JsonApiResource, JsonApiValidationError } from './record-data-json-api';
-import { SingleResourceRelationship, CollectionResourceRelationship } from './ember-data-json-api';
-
-import { RecordIdentifier } from './identifier';
+type RecordIdentifier = import('./identifier').RecordIdentifier;
+type SingleResourceRelationship = import('./ember-data-json-api').SingleResourceRelationship;
+type CollectionResourceRelationship = import('./ember-data-json-api').CollectionResourceRelationship;
+type JsonApiResource = import('./record-data-json-api').JsonApiResource;
+type JsonApiValidationError = import('./record-data-json-api').JsonApiValidationError;
 
 /**
   @module @ember-data/store
@@ -11,7 +12,7 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
-export default interface RecordData {
+export interface RecordData {
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;
@@ -61,4 +62,7 @@ export default interface RecordData {
   isDeletionCommitted?(): boolean;
 
   setIsDeleted?(isDeleted: boolean): void;
+
+  // Private and experimental
+  __setId?(id: string): void;
 }

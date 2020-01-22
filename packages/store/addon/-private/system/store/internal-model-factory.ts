@@ -1,20 +1,22 @@
 import { assert, warn } from '@ember/debug';
-import { IdentifierCache, identifierCacheFor } from '../../identifiers/cache';
-import InternalModel from '../model/internal-model';
-import IdentityMap from '../identity-map';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import InternalModelMap from '../internal-model-map';
 import { isNone } from '@ember/utils';
-import { IDENTIFIERS } from '@ember-data/canary-features';
-import { Record } from '../../ts-interfaces/record';
-import {
-  ResourceIdentifierObject,
-  ExistingResourceObject,
-  NewResourceIdentifierObject,
-} from '../../ts-interfaces/ember-data-json-api';
 import { DEBUG } from '@glimmer/env';
-import CoreStore from '../core-store';
+
+import { IDENTIFIERS } from '@ember-data/canary-features';
+
+import { identifierCacheFor } from '../../identifiers/cache';
 import constructResource from '../../utils/construct-resource';
+import IdentityMap from '../identity-map';
+import InternalModel from '../model/internal-model';
+
+type CoreStore = import('../core-store').default;
+type ResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
+type ExistingResourceObject = import('../../ts-interfaces/ember-data-json-api').ExistingResourceObject;
+type NewResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').NewResourceIdentifierObject;
+type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
+type InternalModelMap = import('../internal-model-map').default;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
+type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 
 /**
   @module @ember-data/store
@@ -23,13 +25,13 @@ import constructResource from '../../utils/construct-resource';
 const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
 type NewResourceInfo = { type: string; id: string | null };
 
-const RecordCache = new WeakMap<Record, StableRecordIdentifier>();
+const RecordCache = new WeakMap<RecordInstance, StableRecordIdentifier>();
 
 export function peekRecordIdentifier(record: any): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
 }
 
-export function recordIdentifierFor(record: Record): StableRecordIdentifier {
+export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   let identifier = RecordCache.get(record);
 
   if (DEBUG && identifier === undefined) {
@@ -39,7 +41,7 @@ export function recordIdentifierFor(record: Record): StableRecordIdentifier {
   return identifier as StableRecordIdentifier;
 }
 
-export function setRecordIdentifier(record: Record, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
   if (DEBUG && RecordCache.has(record)) {
     throw new Error(`${record} was already assigned an identifier`);
   }

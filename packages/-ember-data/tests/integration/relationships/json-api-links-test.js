@@ -1,12 +1,15 @@
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { resolve } from 'rsvp';
-import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import deepCopy from 'dummy/tests/helpers/deep-copy';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 const { Model, attr, hasMany, belongsTo } = DS;
 
@@ -210,7 +213,10 @@ module('integration/relationship/json-api-links | Relationship state updates', f
           id: '1',
           relationships: {
             pets: {
-              data: [{ type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
+              data: [
+                { type: 'pet', id: '2' },
+                { type: 'pet', id: '3' },
+              ],
             },
           },
         },
@@ -625,7 +631,11 @@ module('integration/relationship/json-api-links | Relationship state updates', f
           id: '1',
           relationships: {
             pets: {
-              data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
+              data: [
+                { type: 'pet', id: '1' },
+                { type: 'pet', id: '2' },
+                { type: 'pet', id: '3' },
+              ],
               links: {
                 related: './user/1/pets',
               },

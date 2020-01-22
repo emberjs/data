@@ -1,25 +1,35 @@
-import { isNone } from '@ember/utils';
+import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
 import EmberObject, { computed, get } from '@ember/object';
+import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
-import { assert, warn, deprecate } from '@ember/debug';
 import Ember from 'ember';
+
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
+import {
+  DEPRECATE_EVENTED_API_USAGE,
+  DEPRECATE_MODEL_DATA,
+  DEPRECATE_MODEL_TOJSON,
+  DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
+} from '@ember-data/private-build-infra/deprecations';
 import {
   coerceId,
   DeprecatedEvented,
   errorsArrayToHash,
-  Errors,
   InternalModel,
   PromiseObject,
   recordDataFor,
   recordIdentifierFor,
-  relationshipsByNameDescriptor,
-  relationshipsObjectDescriptor,
-  relatedTypesDescriptor,
-  relationshipsDescriptor,
   RootState,
 } from '@ember-data/store/-private';
+
+import Errors from './errors';
+import {
+  relatedTypesDescriptor,
+  relationshipsByNameDescriptor,
+  relationshipsDescriptor,
+  relationshipsObjectDescriptor,
+} from './system/relationships/ext';
 
 const { changeProperties } = Ember;
 
@@ -127,9 +137,18 @@ if (REQUEST_SERVICE) {
 
 let isReloading;
 if (REQUEST_SERVICE) {
-  isReloading = computed(function() {
-    let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
-    return !!requests.find(req => req.request.data[0].options.isReloading);
+  isReloading = computed({
+    get() {
+      if (this._isReloading === undefined) {
+        let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
+        let value = !!requests.find(req => req.request.data[0].options.isReloading);
+        return (this._isReloading = value);
+      }
+      return this._isReloading;
+    },
+    set(_, value) {
+      return (this._isReloading = value);
+    },
   });
 } else {
   isReloading = false;
@@ -603,37 +622,6 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   },
 
   /**
-    Use [JSONSerializer](JSONSerializer.html) to
-    get the JSON representation of a record.
-
-    `toJSON` takes an optional hash as a parameter, currently
-    supported options are:
-
-    - `includeId`: `true` if the record's ID should be included in the
-      JSON representation.
-
-    @method toJSON
-    @param {Object} options
-    @return {Object} A JSON representation of the object.
-  */
-  toJSON(options) {
-    // container is for lazy transform lookups
-    deprecate(
-      `Called the built-in \`toJSON\` on the record "${this.constructor.modelName}:${this.id}". The built-in \`toJSON\` method on instances of classes extending \`Model\` is deprecated. For more information see the link below.`,
-      false,
-      {
-        id: 'ember-data:model.toJSON',
-        until: '4.0',
-        url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-toJSON',
-      }
-    );
-    let serializer = this._internalModel.store.serializerFor('-default');
-    let snapshot = this._internalModel.createSnapshot();
-
-    return serializer.serialize(snapshot, options);
-  },
-
-  /**
     Fired when the record is ready to be interacted with,
     that is either loaded from the server or created locally.
 
@@ -999,33 +987,6 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     });
   },
 
-  /**
-    Override the default event firing from Ember.Evented to
-    also call methods with the given name.
-
-    @method trigger
-    @private
-    @param {String} name
-  */
-  trigger(name) {
-    let fn = this[name];
-
-    if (typeof fn === 'function') {
-      let length = arguments.length;
-      let args = new Array(length - 1);
-
-      for (let i = 1; i < length; i++) {
-        args[i - 1] = arguments[i];
-      }
-      fn.apply(this, args);
-    }
-
-    const _hasEvent = DEBUG ? this._has(name) : this.has(name);
-    if (_hasEvent) {
-      this._super(...arguments);
-    }
-  },
-
   attr() {
     assert(
       'The `attr` method is not available on Model, a Snapshot was probably expected. Are you passing a Model instead of a Snapshot to your serializer?',
@@ -1303,26 +1264,95 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   },
 });
 
-/**
+if (DEPRECATE_EVENTED_API_USAGE) {
+  /**
+  Override the default event firing from Ember.Evented to
+  also call methods with the given name.
+
+  @method trigger
+  @private
+  @param {String} name
+*/
+  Model.reopen({
+    trigger(name) {
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        let fn = this[name];
+        if (typeof fn === 'function') {
+          let length = arguments.length;
+          let args = new Array(length - 1);
+
+          for (let i = 1; i < length; i++) {
+            args[i - 1] = arguments[i];
+          }
+          fn.apply(this, args);
+        }
+      }
+
+      const _hasEvent = DEBUG ? this._has(name) : this.has(name);
+      if (_hasEvent) {
+        this._super(...arguments);
+      }
+    },
+  });
+}
+
+if (DEPRECATE_MODEL_DATA) {
+  /**
  @property data
  @private
  @deprecated
  @type {Object}
  */
-Object.defineProperty(Model.prototype, 'data', {
-  configurable: false,
-  get() {
-    deprecate(
-      `Model.data was private and it's use has been deprecated. For public access, use the RecordData API or iterate attributes`,
-      false,
-      {
-        id: 'ember-data:Model.data',
-        until: '3.9',
-      }
-    );
-    return recordDataFor(this)._data;
-  },
-});
+  Object.defineProperty(Model.prototype, 'data', {
+    configurable: false,
+    get() {
+      deprecate(
+        `Model.data was private and it's use has been deprecated. For public access, use the RecordData API or iterate attributes`,
+        false,
+        {
+          id: 'ember-data:Model.data',
+          until: '3.9',
+        }
+      );
+      return recordDataFor(this)._data;
+    },
+  });
+}
+
+if (DEPRECATE_MODEL_TOJSON) {
+  /**
+    Use [JSONSerializer](JSONSerializer.html) to
+    get the JSON representation of a record.
+
+    `toJSON` takes an optional hash as a parameter, currently
+    supported options are:
+
+    - `includeId`: `true` if the record's ID should be included in the
+      JSON representation.
+
+    @method toJSON
+    @param {Object} options
+    @return {Object} A JSON representation of the object.
+  */
+  Model.reopen({
+    toJSON(options) {
+      // container is for lazy transform lookups
+      deprecate(
+        `Called the built-in \`toJSON\` on the record "${this.constructor.modelName}:${this.id}". The built-in \`toJSON\` method on instances of classes extending \`Model\` is deprecated. For more information see the link below.`,
+        false,
+        {
+          id: 'ember-data:model.toJSON',
+          until: '4.0',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-toJSON',
+        }
+      );
+      let serializer = this._internalModel.store.serializerFor('-default');
+      let snapshot = this._internalModel.createSnapshot();
+
+      return serializer.serialize(snapshot, options);
+    },
+  });
+}
 
 const ID_DESCRIPTOR = {
   configurable: false,
@@ -1338,7 +1368,13 @@ const ID_DESCRIPTOR = {
     // the _internalModel guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
-    return this._internalModel && this._internalModel.id;
+    if (DEBUG) {
+      if (!this._internalModel) {
+        return;
+      }
+    }
+    get(this._internalModel, '_tag');
+    return this._internalModel.id;
   },
 };
 
@@ -1367,34 +1403,41 @@ if (DEBUG) {
     return isBasicDesc(instanceDesc) && lookupDescriptor(obj.constructor, keyName) === null;
   };
 
-  const INSTANCE_DEPRECATIONS = new WeakMap();
-  const DEPRECATED_LIFECYCLE_EVENT_METHODS = [
-    'becameError',
-    'becameInvalid',
-    'didCreate',
-    'didDelete',
-    'didLoad',
-    'didUpdate',
-    'ready',
-    'rolledBack',
-  ];
+  let lookupDeprecations;
+  let _deprecatedLifecycleMethods;
 
-  let lookupDeprecations = function lookupInstanceDeprecations(instance) {
-    let deprecations = INSTANCE_DEPRECATIONS.get(instance);
+  if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+    const INSTANCE_DEPRECATIONS = new WeakMap();
+    _deprecatedLifecycleMethods = [
+      'becameError',
+      'becameInvalid',
+      'didCreate',
+      'didDelete',
+      'didLoad',
+      'didUpdate',
+      'ready',
+      'rolledBack',
+    ];
 
-    if (!deprecations) {
-      deprecations = new Set();
-      INSTANCE_DEPRECATIONS.set(instance, deprecations);
-    }
+    lookupDeprecations = function lookupInstanceDeprecations(instance) {
+      let deprecations = INSTANCE_DEPRECATIONS.get(instance);
 
-    return deprecations;
-  };
+      if (!deprecations) {
+        deprecations = new Set();
+        INSTANCE_DEPRECATIONS.set(instance, deprecations);
+      }
+
+      return deprecations;
+    };
+  }
 
   Model.reopen({
     init() {
       this._super(...arguments);
 
-      this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
+      if (DEPRECATE_EVENTED_API_USAGE) {
+        this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
+      }
 
       if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
         throw new Error(
@@ -1419,23 +1462,25 @@ if (DEBUG) {
         );
       }
 
-      let lifecycleDeprecations = lookupDeprecations(this.constructor);
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        let lifecycleDeprecations = lookupDeprecations(this.constructor);
 
-      DEPRECATED_LIFECYCLE_EVENT_METHODS.forEach(methodName => {
-        if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
-          deprecate(
-            `You defined a \`${methodName}\` method for ${this.constructor.toString()} but lifecycle events for models have been deprecated.`,
-            false,
-            {
-              id: 'ember-data:record-lifecycle-event-methods',
-              until: '4.0',
-              url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-lifecycle-event-methods',
-            }
-          );
+        _deprecatedLifecycleMethods.forEach(methodName => {
+          if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
+            deprecate(
+              `You defined a \`${methodName}\` method for ${this.constructor.toString()} but lifecycle events for models have been deprecated.`,
+              false,
+              {
+                id: 'ember-data:record-lifecycle-event-methods',
+                until: '4.0',
+                url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-lifecycle-event-methods',
+              }
+            );
 
-          lifecycleDeprecations.add(methodName);
-        }
-      });
+            lifecycleDeprecations.add(methodName);
+          }
+        });
+      }
     },
   });
 }

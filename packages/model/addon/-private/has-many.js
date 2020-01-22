@@ -1,10 +1,12 @@
 /**
   @module @ember-data/model
 */
-import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
-import { normalizeModelName } from '@ember-data/store';
+import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
+
+import { normalizeModelName } from '@ember-data/store';
+
 import { computedMacroWithOptionalParams } from './util';
 
 /**
@@ -16,6 +18,7 @@ import { computedMacroWithOptionalParams } from './util';
 
   - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
   - `inverse`: A string used to identify the inverse property on a related model.
+  - `polymorphic` A boolean value to mark the relationship as polymorphic
 
   #### One-To-Many
   To declare a one-to-many relationship between two models, use

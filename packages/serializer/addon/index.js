@@ -1,6 +1,5 @@
 /**
   @module @ember-data/serializer
-  @main @ember-data/serializer
 */
 
 import EmberObject from '@ember/object';

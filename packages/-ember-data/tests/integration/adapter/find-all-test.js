@@ -1,13 +1,15 @@
-import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import { reject, resolve, defer } from 'rsvp';
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import Model from '@ember-data/model';
+import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
-import { attr } from '@ember-data/model';
+
+import { module, test } from 'qunit';
+import { defer, reject, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Person extends Model {
   @attr()

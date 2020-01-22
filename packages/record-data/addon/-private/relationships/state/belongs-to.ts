@@ -1,13 +1,14 @@
 import { assert, inspect } from '@ember/debug';
-import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { isNone } from '@ember/utils';
+
+import { assertPolymorphicType } from '@ember-data/store/-debug';
+
 import Relationship from './relationship';
-import {
-  RelationshipRecordData,
-  DefaultSingleResourceRelationship,
-} from '../../ts-interfaces/relationship-record-data';
-import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
-import { ExistingResourceIdentifierObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+
+type ExistingResourceIdentifierObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
+type DefaultSingleResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
 
 export default class BelongsToRelationship extends Relationship {
   inverseRecordData: RelationshipRecordData | null;
@@ -95,7 +96,6 @@ export default class BelongsToRelationship extends Relationship {
       this.notifyBelongsToChange();
     }
   }
-
   removeCompletelyFromInverse() {
     super.removeCompletelyFromInverse();
 
@@ -178,10 +178,8 @@ export default class BelongsToRelationship extends Relationship {
     if (this.inverseRecordData === null && this.hasAnyRelationshipData) {
       data = null;
     }
-    if (this.link) {
-      payload.links = {
-        related: this.link,
-      };
+    if (this.links) {
+      payload.links = this.links;
     }
     if (data !== undefined) {
       payload.data = data;
@@ -192,22 +190,6 @@ export default class BelongsToRelationship extends Relationship {
 
     payload._relationship = this;
     return payload;
-  }
-
-  /**
-   * Flag indicating whether all inverse records are available
-   *
-   * true if the inverse exists and is loaded (not empty)
-   * true if there is no inverse
-   * false if the inverse exists and is not loaded (empty)
-   *
-   * @return {boolean}
-   */
-  get allInverseRecordsAreLoaded(): boolean {
-    let recordData = this.inverseRecordData;
-    let isEmpty = recordData !== null && recordData.isEmpty();
-
-    return !isEmpty;
   }
 
   updateData(data: ExistingResourceIdentifierObject, initial: boolean) {

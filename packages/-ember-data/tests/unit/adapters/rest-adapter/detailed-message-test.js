@@ -1,5 +1,7 @@
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
 

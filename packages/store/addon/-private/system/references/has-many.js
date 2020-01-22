@@ -1,9 +1,12 @@
-import { resolve } from 'rsvp';
 import { get } from '@ember/object';
-import Reference from './reference';
 import { DEBUG } from '@glimmer/env';
+
+import { resolve } from 'rsvp';
+
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+
 import recordDataFor from '../record-data-for';
+import Reference from './reference';
 
 /**
   @module @ember-data/store

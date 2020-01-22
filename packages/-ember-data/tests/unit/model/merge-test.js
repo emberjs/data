@@ -1,12 +1,14 @@
-import { resolve, reject, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import { InvalidError } from '@ember-data/adapter/error';
+
 import { module, test } from 'qunit';
+import { Promise as EmberPromise, reject, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('unit/model/merge - Merging', function(hooks) {
   setupTest(hooks);

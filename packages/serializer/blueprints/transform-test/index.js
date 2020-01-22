@@ -1,6 +1,7 @@
-const testInfo = require('ember-cli-test-info');
-const useTestFrameworkDetector = require('@ember-data/-build-infra/src/utilities/test-framework-detector');
 const path = require('path');
+
+const testInfo = require('ember-cli-test-info');
+const useTestFrameworkDetector = require('@ember-data/private-build-infra/src/utilities/test-framework-detector');
 
 module.exports = useTestFrameworkDetector({
   description: 'Generates a transform unit test.',

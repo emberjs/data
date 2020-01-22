@@ -1,10 +1,12 @@
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import deepCopy from 'dummy/tests/helpers/deep-copy';
+
 import { module, test } from 'qunit';
-import testInDebug from '../../../helpers/test-in-debug';
+
+import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/system/relationships/relationship-payloads-manager (polymorphic)', function(hooks) {
   setupTest(hooks);
@@ -644,7 +646,10 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
           type: 'user',
           relationships: {
             hats: {
-              data: [{ id: '1', type: 'big-hat' }, { id: '1', type: 'small-hat' }],
+              data: [
+                { id: '1', type: 'big-hat' },
+                { id: '1', type: 'small-hat' },
+              ],
             },
           },
         },
@@ -663,8 +668,14 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
 
     const hats = user.get('hats');
 
-    assert.deepEqual(hats.map(h => h.constructor.modelName), ['big-hat', 'small-hat']);
-    assert.deepEqual(hats.map(h => h.id), ['1', '1']);
+    assert.deepEqual(
+      hats.map(h => h.constructor.modelName),
+      ['big-hat', 'small-hat']
+    );
+    assert.deepEqual(
+      hats.map(h => h.id),
+      ['1', '1']
+    );
   });
 
   test('polymorphic hasMany to types with separate id-spaces, from inverse payload', function(assert) {
@@ -713,8 +724,14 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
 
     const hats = user.get('hats');
 
-    assert.deepEqual(hats.map(h => h.constructor.modelName), ['big-hat', 'small-hat']);
-    assert.deepEqual(hats.map(h => h.id), ['1', '1']);
+    assert.deepEqual(
+      hats.map(h => h.constructor.modelName),
+      ['big-hat', 'small-hat']
+    );
+    assert.deepEqual(
+      hats.map(h => h.id),
+      ['1', '1']
+    );
   });
 
   test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces', function(assert) {
@@ -809,7 +826,10 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
 
     assert.deepEqual(
       finalSmallResult.map(h => ({ type: h.constructor.modelName, id: h.get('id') })),
-      [{ type: 'big-hat', id: '3' }, { type: 'small-hat', id: '3' }],
+      [
+        { type: 'big-hat', id: '3' },
+        { type: 'small-hat', id: '3' },
+      ],
       'small-person hats is all good'
     );
   });

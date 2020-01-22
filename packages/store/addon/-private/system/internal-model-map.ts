@@ -1,6 +1,8 @@
 import { assert } from '@ember/debug';
+
 import InternalModel from './model/internal-model';
-import { ConfidentDict } from '../ts-interfaces/utils';
+
+type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 /**
   @module @ember-data/store

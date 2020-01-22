@@ -1,5 +1,6 @@
-import { parseResponseHeaders } from '@ember-data/adapter/-private';
 import { module, test } from 'qunit';
+
+import { parseResponseHeaders } from '@ember-data/adapter/-private';
 
 const CRLF = '\u000d\u000a';
 const LF = '\u000a';

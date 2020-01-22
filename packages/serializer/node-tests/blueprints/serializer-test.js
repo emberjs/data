@@ -1,21 +1,18 @@
 'use strict';
 
 const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
+const chai = require('ember-cli-blueprint-test-helpers/chai');
+const SilentError = require('silent-error');
+const generateFakePackageManifest = require('@ember-data/unpublished-test-infra/src/node-test-helpers/generate-fake-package-manifest');
+const fixture = require('@ember-data/unpublished-test-infra/src/node-test-helpers/fixture');
+const setupTestEnvironment = require('@ember-data/unpublished-test-infra/src/node-test-helpers/setup-test-environment');
+
 const setupTestHooks = blueprintHelpers.setupTestHooks;
 const emberNew = blueprintHelpers.emberNew;
 const emberGenerate = blueprintHelpers.emberGenerate;
 const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
 const modifyPackages = blueprintHelpers.modifyPackages;
-
-const chai = require('ember-cli-blueprint-test-helpers/chai');
 const expect = chai.expect;
-
-const SilentError = require('silent-error');
-
-const generateFakePackageManifest = require('@ember-data/-test-infra/src/node-test-helpers/generate-fake-package-manifest');
-const fixture = require('@ember-data/-test-infra/src/node-test-helpers/fixture');
-
-const setupTestEnvironment = require('@ember-data/-test-infra/src/node-test-helpers/setup-test-environment');
 const enableOctane = setupTestEnvironment.enableOctane;
 
 describe('Acceptance: generate and destroy serializer blueprints', function() {
@@ -94,7 +91,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('serializer-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-cli-qunit', delete: true },
+        ]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -109,7 +109,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-cli-mocha', dev: true },
+        ]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
@@ -126,7 +129,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('with ember-mocha v0.14+', function() {
       beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-mocha', dev: true }]);
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-mocha', dev: true },
+        ]);
         generateFakePackageManifest('ember-mocha', '0.14.0');
       });
 
@@ -217,7 +223,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('serializer-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-qunit', delete: true }]);
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-cli-qunit', delete: true },
+        ]);
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
@@ -232,7 +241,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-cli-mocha', dev: true }]);
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-cli-mocha', dev: true },
+        ]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
@@ -249,7 +261,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
 
     describe('with ember-mocha v0.14+', function() {
       beforeEach(function() {
-        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-mocha', dev: true }]);
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-mocha', dev: true },
+        ]);
         generateFakePackageManifest('ember-mocha', '0.14.0');
       });
 

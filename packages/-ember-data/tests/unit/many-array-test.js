@@ -1,10 +1,10 @@
-import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
 
 let store, Post, Tag;
 
@@ -77,7 +77,10 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
             },
             relationships: {
               tags: {
-                data: [{ type: 'tag', id: '1' }, { type: 'tag', id: '2' }],
+                data: [
+                  { type: 'tag', id: '1' },
+                  { type: 'tag', id: '2' },
+                ],
               },
             },
           },
@@ -167,7 +170,10 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
             },
             relationships: {
               tags: {
-                data: [{ type: 'tag', id: '1' }, { type: 'tag', id: '2' }],
+                data: [
+                  { type: 'tag', id: '1' },
+                  { type: 'tag', id: '2' },
+                ],
               },
             },
           },

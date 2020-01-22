@@ -1,8 +1,3 @@
-/**
-  @module @ember-data/adapter
-  @main @ember-data/adapter
-*/
-
 import EmberObject from '@ember/object';
 
 /**
@@ -56,6 +51,7 @@ import EmberObject from '@ember/object';
   For an example of the implementation, see `RESTAdapter`, the
   included REST adapter.
 
+  @module @ember-data/adapter
   @class Adapter
   @extends EmberObject
 */
@@ -77,6 +73,7 @@ export default EmberObject.extend({
     });
     ```
 
+    @deprecated
     @property defaultSerializer
     @type {String}
   */

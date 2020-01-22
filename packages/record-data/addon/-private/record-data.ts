@@ -1,30 +1,30 @@
 /**
   @module @ember-data/record-data
 */
-import { DEBUG } from '@glimmer/env';
+import { assert, inspect, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
-import { isEqual } from '@ember/utils';
-import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
-import Relationships from './relationships/state/create';
-import coerceId from './coerce-id';
-import BelongsToRelationship from './relationships/state/belongs-to';
-import ManyRelationship from './relationships/state/has-many';
-import Relationship from './relationships/state/relationship';
-import RecordData, { ChangedAttributesHash } from '@ember-data/store/-private/ts-interfaces/record-data';
-import {
-  JsonApiResource,
-  JsonApiValidationError,
-  AttributesHash,
-} from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
-import {
-  DefaultSingleResourceRelationship,
-  DefaultCollectionResourceRelationship,
-} from './ts-interfaces/relationship-record-data';
-import { RelationshipRecordData } from './ts-interfaces/relationship-record-data';
-import { RecordDataStoreWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-store-wrapper';
+import { isEqual } from '@ember/utils';
+import { DEBUG } from '@glimmer/env';
+
 import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
-import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+
+import coerceId from './coerce-id';
+import Relationships from './relationships/state/create';
+
+type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type RecordDataStoreWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
+type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
+type DefaultSingleResourceRelationship = import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
+type DefaultCollectionResourceRelationship = import('./ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
+type JsonApiResource = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiResource;
+type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
+type AttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').AttributesHash;
+type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
+type ChangedAttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data').ChangedAttributesHash;
+type Relationship = import('./relationships/state/relationship').default;
+type ManyRelationship = import('./relationships/state/has-many').default;
+type BelongsToRelationship = import('./relationships/state/belongs-to').default;
 
 let nextBfsId = 1;
 
@@ -135,7 +135,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   getErrors(): JsonApiValidationError[] {
-    assert('Can not call getErrors unless the RECORD_DATA_ERRORS feature flag is on', RECORD_DATA_ERRORS);
+    assert('Can not call getErrors unless the RECORD_DATA_ERRORS feature flag is on', !!RECORD_DATA_ERRORS);
     if (RECORD_DATA_ERRORS) {
       let errors: JsonApiValidationError[] = this._errors || [];
       return errors;
@@ -427,6 +427,13 @@ export default class RecordDataDefault implements RelationshipRecordData {
     // If we went back to our original value, we shouldn't keep the attribute around anymore
     if (value === originalValue) {
       delete this._attributes[key];
+    }
+  }
+
+  // internal set coming from the model
+  __setId(id: string) {
+    if (this.id !== id) {
+      this.id = id;
     }
   }
 

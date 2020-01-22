@@ -1,6 +1,7 @@
-import { camelize } from '@ember/string';
-import Mixin from '@ember/object/mixin';
 import { get } from '@ember/object';
+import Mixin from '@ember/object/mixin';
+import { camelize } from '@ember/string';
+
 import { pluralize } from 'ember-inflector';
 
 /**
@@ -153,7 +154,8 @@ export default Mixin.create({
 
    export default JSONAPIAdapter.extend({
      urlForFindAll(modelName, snapshot) {
-       return 'data/comments.json';
+       let baseUrl = this.buildURL(modelName);
+       return `${baseUrl}/data/comments.json`;
      }
    });
    ```

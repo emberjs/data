@@ -8,14 +8,15 @@
   project without publishing the commit to a registry.
 
   The tarballs produced will reference each other appropriately. For instance
-  if `@ember-data/store` has a dependency on `@ember-data/-build-infra` the
+  if `@ember-data/store` has a dependency on `@ember-data/private-build-infra` the
   tarball for `@ember-data/store` will have a package.json file whose version
-  of `@ember-data/-build-infra` is the tarball for the commit for that package.
+  of `@ember-data/private-build-infra` is the tarball for the commit for that package.
 */
 
 'use strict';
 
 const fs = require('fs');
+
 const execa = require('execa');
 // apparently violates no-extraneous require? /shrug
 const debug = require('debug')('test-external');
@@ -25,6 +26,7 @@ const chalk = require('chalk');
 const TarballConfig = require('./-tarball-info').config;
 const OurPackages = require('./-tarball-info').PackageInfos;
 const insertTarballsToPackageJson = require('./-tarball-info').insertTarballsToPackageJson;
+
 const tarballDir = TarballConfig.tarballDir;
 
 function execWithLog(command, force) {

@@ -1,13 +1,14 @@
-import { resolve, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
+
+import { module, test } from 'qunit';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+
 import { setupTest } from 'ember-qunit';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { module, test } from 'qunit';
-
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, belongsTo } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/relationships/one_to_one_test - OneToOne relationships', function(hooks) {
   setupTest(hooks);
@@ -298,7 +299,6 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       true,
       'The relationship considers its canonical data complete'
     );
-    assert.equal(user1bestFriendState.allInverseRecordsAreLoaded, true, 'The relationship has all required data');
   });
 
   test('Fetching a belongsTo that is set to a different record, sets the old relationship to null - sync', async function(assert) {
@@ -383,7 +383,6 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     assert.equal(user1JobState.relationshipIsStale, false, 'The relationship is not stale');
     assert.equal(user1JobState.shouldForceReload, false, 'The relationship does not require reload');
     assert.equal(user1JobState.hasAnyRelationshipData, true, 'The relationship considers its canonical data complete');
-    assert.equal(user1JobState.allInverseRecordsAreLoaded, true, 'The relationship has all required data');
   });
 
   /*

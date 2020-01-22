@@ -1,5 +1,6 @@
 import { deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
+
 import Store from '@ember-data/store';
 
 function initializeStore(application) {

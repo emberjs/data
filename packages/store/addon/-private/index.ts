@@ -2,8 +2,6 @@
   @module @ember-data/store
 */
 
-// // public
-export { default as Errors } from './system/model/errors';
 export { default as Store } from './system/ds-model-store';
 
 export { recordIdentifierFor } from './system/store/internal-model-factory';
@@ -26,11 +24,10 @@ export { errorsHashToArray, errorsArrayToHash } from './system/errors-utils';
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
 
-export { PromiseArray, PromiseObject, PromiseManyArray } from './system/promise-proxies';
+export { PromiseArray, PromiseObject } from './system/promise-proxies';
 
 export { RecordArray, AdapterPopulatedRecordArray } from './system/record-arrays';
 
-export { default as ManyArray } from './system/many-array';
 export { default as RecordArrayManager } from './system/record-array-manager';
 
 // // Used by tests
@@ -45,9 +42,4 @@ export { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './system/sto
 
 // for Model
 export { default as DeprecatedEvented } from './system/deprecated-evented';
-export {
-  relationshipsByNameDescriptor,
-  relationshipsObjectDescriptor,
-  relatedTypesDescriptor,
-  relationshipsDescriptor,
-} from './system/relationships/ext';
+export { typeForRelationshipMeta, relationshipFromMeta } from './system/relationship-meta';

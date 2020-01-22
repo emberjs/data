@@ -1,12 +1,13 @@
-import { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/store/query-record - Query one record with a query hash', function(hooks) {
   setupTest(hooks);

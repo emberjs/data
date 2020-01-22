@@ -1,9 +1,10 @@
 import EmberError from '@ember/error';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/adapter-errors - DS.AdapterError', function() {
   test('DS.AdapterError', function(assert) {

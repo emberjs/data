@@ -1,7 +1,9 @@
 import { A } from '@ember/array';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 

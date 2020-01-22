@@ -1,15 +1,17 @@
-import { module, test } from 'qunit';
-import { setupRenderingTest } from 'ember-qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import Model from '@ember-data/model';
 import { render, settled } from '@ember/test-helpers';
+import Ember from 'ember';
+
 import hbs from 'htmlbars-inline-precompile';
+import { module, test } from 'qunit';
+import { Promise, reject, resolve } from 'rsvp';
+
+import { setupRenderingTest } from 'ember-qunit';
+
+import { ServerError } from '@ember-data/adapter/error';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { Promise, resolve, reject } from 'rsvp';
-import { ServerError } from '@ember-data/adapter/error';
-import Ember from 'ember';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @attr()
@@ -500,11 +502,6 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
       assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship inverse is dematerialized');
-      assert.equal(
-        relationshipState.allInverseRecordsAreLoaded,
-        false,
-        'The relationship is missing some or all related resources'
-      );
       assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
       assert.equal(!!RelationshipPromiseCache['parent'], false, 'The relationship has no fetch promise');
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');

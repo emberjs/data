@@ -1,11 +1,12 @@
 import { run } from '@ember/runloop';
-import { Promise as EmberPromise } from 'rsvp';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
+import { Promise as EmberPromise } from 'rsvp';
 
-import Model from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 
 let store, requests;
@@ -65,7 +66,10 @@ module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
       }
     });
 
-    assert.ok(lengths.every(len => len <= maxLength), `Some URLs are longer than ${maxLength} chars`);
+    assert.ok(
+      lengths.every(len => len <= maxLength),
+      `Some URLs are longer than ${maxLength} chars`
+    );
     return EmberPromise.all(wait);
   });
 

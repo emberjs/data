@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/canary-features",
-  "version": "3.15.0-alpha.0",
+  "version": "3.17.0-alpha.1",
   "description": "Canary features",
   "keywords": [
     "ember-addon"
@@ -14,14 +14,13 @@
   },
   "scripts": {},
   "dependencies": {
-    "ember-cli-babel": "^7.12.0"
+    "ember-cli-babel": "^7.13.2",
+    "ember-cli-typescript": "^3.1.2"
   },
   "devDependencies": {
     "babel-plugin-debug-macros": "^0.3.3",
-    "babel-plugin-feature-flags": "^0.3.1",
-    "babel-plugin-filter-imports": "^3.0.0",
+    "babel-plugin-filter-imports": "^4.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
-    "broccoli-babel-transpiler": "^7.2.0",
     "broccoli-file-creator": "^2.1.1",
     "broccoli-test-helper": "^2.0.0",
     "calculate-cache-key-for-tree": "^2.0.0",
@@ -31,9 +30,9 @@
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-version-checker": "^3.1.2",
-    "git-repo-info": "^2.0.0",
-    "glob": "^7.1.4",
-    "mocha": "^6.2.1",
+    "git-repo-info": "^2.1.1",
+    "glob": "^7.1.6",
+    "mocha": "^7.0.0",
     "npm-git-info": "^1.0.3",
     "rimraf": "^3.0.0",
     "rsvp": "^4.8.5",

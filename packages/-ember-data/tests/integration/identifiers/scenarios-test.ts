@@ -1,22 +1,26 @@
+import { set } from '@ember/object';
+
 import { module, test } from 'qunit';
+import { all, resolve } from 'rsvp';
+
 import { setupTest } from 'ember-qunit';
+
+import Adapter from '@ember-data/adapter';
 import { IDENTIFIERS } from '@ember-data/canary-features';
+import Model, { attr } from '@ember-data/model';
+import Serializer from '@ember-data/serializer';
 import Store, {
   recordIdentifierFor,
-  setIdentifierUpdateMethod,
+  setIdentifierForgetMethod,
   setIdentifierGenerationMethod,
   setIdentifierResetMethod,
-  setIdentifierForgetMethod,
+  setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import Model, { attr } from '@ember-data/model';
-import Adapter from '@ember-data/adapter';
-import Serializer from '@ember-data/serializer';
-import { resolve, all } from 'rsvp';
-import { ExistingResourceObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import { ConfidentDict } from '@ember-data/store/-private/ts-interfaces/utils';
-import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { identifierCacheFor } from '@ember-data/store/-private';
-import { set } from '@ember/object';
+
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
+type ExistingResourceObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
 
 function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;

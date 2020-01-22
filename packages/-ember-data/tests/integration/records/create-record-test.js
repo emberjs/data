@@ -1,11 +1,12 @@
 import { module, test } from 'qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { setupTest } from 'ember-qunit';
-import Store from '@ember-data/store';
-import Model from '@ember-data/model';
 import { resolve } from 'rsvp';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })

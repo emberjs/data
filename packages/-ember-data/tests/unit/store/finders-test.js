@@ -1,10 +1,11 @@
-import { defer } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
+import { defer } from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('unit/store/finders', function(hooks) {

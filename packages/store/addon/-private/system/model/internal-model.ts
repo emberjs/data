@@ -1,44 +1,56 @@
-import { set, get } from '@ember/object';
+import { getOwner, setOwner } from '@ember/application';
+import { A, default as EmberArray } from '@ember/array';
+import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
-import { default as EmberArray, A } from '@ember/array';
-import { setOwner, getOwner } from '@ember/application';
+import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
-import RSVP, { Promise } from 'rsvp';
-import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
-import { assert, inspect } from '@ember/debug';
-import RootState from './states';
-import Snapshot from '../snapshot';
-import ManyArray from '../many-array';
-import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
-import Store from '../ds-model-store';
-import { errorsHashToArray } from '../errors-utils';
-import RecordArray from '../record-arrays/record-array';
+import Ember from 'ember';
 
-import { RecordReference, BelongsToReference, HasManyReference } from '../references';
-import RecordData from '../../ts-interfaces/record-data';
-import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
-import { Record } from '../../ts-interfaces/record';
-import { ConfidentDict } from '../../ts-interfaces/utils';
+import RSVP, { Promise } from 'rsvp';
+
 import {
+  CUSTOM_MODEL_CLASS,
+  FULL_LINKS_ON_RELATIONSHIPS,
   IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
-  CUSTOM_MODEL_CLASS,
 } from '@ember-data/canary-features';
-import { identifierCacheFor } from '../../identifiers/cache';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
-import CoreStore from '../core-store';
-import coerceId from '../coerce-id';
-import recordDataFor from '../record-data-for';
+import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
+import { identifierCacheFor } from '../../identifiers/cache';
+import coerceId from '../coerce-id';
+import { errorsHashToArray } from '../errors-utils';
+import recordDataFor from '../record-data-for';
+import { BelongsToReference, HasManyReference, RecordReference } from '../references';
+import Snapshot from '../snapshot';
+import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
+import RootState from './states';
+
+type CoreStore = import('../core-store').default;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
+type ConfidentDict<T> = import('../../ts-interfaces/utils').ConfidentDict<T>;
+type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
+type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
+type JsonApiResource = import('../../ts-interfaces/record-data-json-api').JsonApiResource;
+type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api').JsonApiValidationError;
+type RecordData = import('../../ts-interfaces/record-data').RecordData;
+type RecordArray = import('../record-arrays/record-array').default;
+type Store = import('../ds-model-store').default;
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
-type RecordArray = InstanceType<typeof RecordArray>;
 type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
 type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
+
+// move to TS hacks module that we can delete when this is no longer a necessary recast
+type ManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
+type PromiseBelongsTo = InstanceType<typeof import('@ember-data/model/-private').PromiseBelongsTo>;
+type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private').PromiseManyArray>;
+
+/**
+  @module @ember-data/store
+*/
 
 // once the presentation logic is moved into the Model package we can make
 // eliminate these lossy and redundant helpers
@@ -54,14 +66,24 @@ function relationshipStateFor(instance: InternalModel, propertyName: string) {
 
 const { hasOwnProperty } = Object.prototype;
 
-/**
-  @module @ember-data/store
-*/
+let ManyArray: ManyArray;
+let PromiseBelongsTo: PromiseBelongsTo;
+let PromiseManyArray: PromiseManyArray;
 
-// move to TS hacks module that we can delete when this is no longer a necessary recast
-type ManyArray = InstanceType<typeof ManyArray>;
-type PromiseBelongsTo = InstanceType<typeof PromiseBelongsTo>;
-type PromiseManyArray = InstanceType<typeof PromiseManyArray>;
+let _found = false;
+let _getModelPackage: () => boolean;
+if (HAS_MODEL_PACKAGE) {
+  _getModelPackage = function() {
+    if (!_found) {
+      let modelPackage = require('@ember-data/model/-private');
+      ({ ManyArray, PromiseBelongsTo, PromiseManyArray } = modelPackage);
+      if (ManyArray && PromiseBelongsTo && PromiseManyArray) {
+        _found = true;
+      }
+    }
+    return _found;
+  };
+}
 
 // TODO this should be integrated with the code removal so we can use it together with the if condition
 // and not alongside it
@@ -116,6 +138,7 @@ function extractPivotName(name) {
 */
 export default class InternalModel {
   _id: string | null;
+  _tag: number = 0;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;
@@ -148,6 +171,9 @@ export default class InternalModel {
   error: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
+    if (HAS_MODEL_PACKAGE) {
+      _getModelPackage();
+    }
     this._id = identifier.id;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
@@ -193,6 +219,7 @@ export default class InternalModel {
       if (value !== this._id) {
         let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
         identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
+        set(this, '_tag', this._tag + 1);
         // TODO Show deprecation for private api
       }
     } else if (!IDENTIFIERS) {
@@ -515,16 +542,6 @@ export default class InternalModel {
     }
   }
 
-  linkWasLoadedForRelationship(key, data) {
-    let relationships = {};
-    relationships[key] = data;
-    this._recordData.pushData({
-      id: this.id,
-      type: this.modelName,
-      relationships,
-    });
-  }
-
   finishedReloading() {
     this.isReloading = false;
     if (this.hasRecord) {
@@ -554,7 +571,6 @@ export default class InternalModel {
         )
         .finally(function() {
           internalModel.finishedReloading();
-          internalModel.updateRecordArrays();
         });
     } else {
       this.startedReloading();
@@ -577,7 +593,6 @@ export default class InternalModel {
         )
         .finally(function() {
           internalModel.finishedReloading();
-          internalModel.updateRecordArrays();
         });
     }
   }
@@ -660,12 +675,10 @@ export default class InternalModel {
 
   _findBelongsTo(key, resource, relationshipMeta, options) {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
-    return this.store
-      ._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options)
-      .then(
-        internalModel => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
-        e => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
-      );
+    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
+      internalModel => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
+      e => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
+    );
   }
 
   getBelongsTo(key, options) {
@@ -739,6 +752,7 @@ export default class InternalModel {
         type: this.store.modelFor(relationshipMeta.type),
         recordData: this._recordData,
         meta: jsonApi.meta,
+        links: FULL_LINKS_ON_RELATIONSHIPS ? jsonApi.links : undefined,
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
@@ -766,7 +780,7 @@ export default class InternalModel {
 
     loadingPromise = this.store
       ._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta, options)
-      .then(initialState => {
+      .then(() => {
         // TODO why don't we do this in the store method
         manyArray.retrieveLatest();
         manyArray.set('isLoaded', true);
@@ -811,7 +825,7 @@ export default class InternalModel {
     key: string,
     args: {
       promise: RSVP.Promise<any>;
-      content?: Record | ManyArray | null;
+      content?: RecordInstance | ManyArray | null;
       _belongsToState?: BelongsToMetaWrapper;
     }
   ) {
@@ -956,7 +970,7 @@ export default class InternalModel {
     @method createSnapshot
     @private
   */
-  createSnapshot(options) {
+  createSnapshot(options?: Dict<unknown>): Snapshot {
     return new Snapshot(options || {}, this.identifier, this.store);
   }
 
@@ -1049,7 +1063,6 @@ export default class InternalModel {
   */
   adapterDidDirty() {
     this.send('becomeDirty');
-    this.updateRecordArrays();
   }
 
   /*
@@ -1095,7 +1108,6 @@ export default class InternalModel {
           manyArray.retrieveLatest();
         }
       }
-      this.updateRecordArrays();
     }
   }
 
@@ -1106,7 +1118,6 @@ export default class InternalModel {
       } else {
         this._record.notifyBelongsToChange(key, this._record);
       }
-      this.updateRecordArrays();
     }
   }
 
@@ -1131,7 +1142,6 @@ export default class InternalModel {
       } else {
         this._record.notifyPropertyChange(key);
       }
-      this.updateRecordArrays();
     }
     if (!CUSTOM_MODEL_CLASS) {
       let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
@@ -1147,7 +1157,7 @@ export default class InternalModel {
   }
 
   notifyStateChange(key?) {
-    assert('Cannot notify state change if Record Data State flag is not on', RECORD_DATA_STATE);
+    assert('Cannot notify state change if Record Data State flag is not on', !!RECORD_DATA_STATE);
     if (this.hasRecord) {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'state');
@@ -1244,8 +1254,6 @@ export default class InternalModel {
     for (i = 0, l = setups.length; i < l; i++) {
       setups[i].setup(this);
     }
-
-    this.updateRecordArrays();
   }
 
   _unhandledEvent(state, name, context) {
@@ -1374,9 +1382,14 @@ export default class InternalModel {
     let didChange = id !== this._id;
 
     this._id = id;
+    set(this, '_tag', this._tag + 1);
 
     if (didChange && id !== null) {
       this.store.setRecordId(this.modelName, id, this.clientId);
+      // internal set of ID to get it to RecordData from DS.Model
+      if (this._recordData.__setId) {
+        this._recordData.__setId(id);
+      }
     }
 
     if (didChange && this.hasRecord) {
@@ -1554,7 +1567,7 @@ export default class InternalModel {
         let modelName = this.modelName;
         assert(
           `There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`,
-          relationship
+          !!relationship
         );
 
         let actualRelationshipKind = relationship.relationshipMeta.kind;

@@ -4,28 +4,29 @@
   @module @ember-data/adapter
 */
 
-import RSVP, { Promise as EmberPromise } from 'rsvp';
-import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
-import { run } from '@ember/runloop';
-import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+import { warn } from '@ember/debug';
+import { computed, get } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { determineBodyPromise, fetch, parseResponseHeaders, serializeQueryParams } from './-private';
+import { run } from '@ember/runloop';
+import { DEBUG } from '@glimmer/env';
+
+import { Promise } from 'rsvp';
+
+import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
-  InvalidError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
+  AbortError,
   ConflictError,
+  ForbiddenError,
+  InvalidError,
+  NotFoundError,
   ServerError,
   TimeoutError,
-  AbortError,
+  UnauthorizedError,
 } from '@ember-data/adapter/error';
-import { warn } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
-import { serializeIntoHash } from './-private';
 
-const Promise = EmberPromise;
+import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
+
 const hasJQuery = typeof jQuery !== 'undefined';
 const hasNajax = typeof najax !== 'undefined';
 
@@ -294,8 +295,18 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   _defaultContentType: 'application/json; charset=utf-8',
 
-  fastboot: computed(function() {
-    return getOwner(this).lookup('service:fastboot');
+  fastboot: computed({
+    // Avoid computed property override deprecation in fastboot as suggested by:
+    // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
+    get() {
+      if (this._fastboot) {
+        return this._fastboot;
+      }
+      return (this._fastboot = getOwner(this).lookup('service:fastboot'));
+    },
+    set(key, value) {
+      return (this._fastboot = value);
+    },
   }),
 
   useFetch: computed(function() {
@@ -989,18 +1000,17 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let hash = adapter.ajaxOptions(url, type, options);
 
     if (useFetch) {
+      let _response;
       return this._fetchRequest(hash)
         .then(response => {
-          return RSVP.hash({
-            response,
-            payload: determineBodyPromise(response, requestData),
-          });
+          _response = response;
+          return determineBodyPromise(response, requestData);
         })
-        .then(({ response, payload }) => {
-          if (response.ok) {
-            return fetchSuccessHandler(adapter, payload, response, requestData);
+        .then(payload => {
+          if (_response.ok && !(payload instanceof Error)) {
+            return fetchSuccessHandler(adapter, payload, _response, requestData);
           } else {
-            throw fetchErrorHandler(adapter, payload, response, null, requestData);
+            throw fetchErrorHandler(adapter, payload, _response, null, requestData);
           }
         });
     }
@@ -1086,7 +1096,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
-      options.headers = assign({}, options.headers, headers);
+      options.headers = assign({}, headers, options.headers);
     } else if (!options.headers) {
       options.headers = {};
     }
@@ -1244,7 +1254,7 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 function ajaxError(adapter, payload, requestData, responseData) {
   let error;
 
-  if (responseData.errorThrown instanceof Error) {
+  if (responseData.errorThrown instanceof Error && payload !== '') {
     error = responseData.errorThrown;
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
@@ -1291,7 +1301,12 @@ function fetchSuccessHandler(adapter, payload, response, requestData) {
 
 function fetchErrorHandler(adapter, payload, response, errorThrown, requestData) {
   let responseData = fetchResponseData(response);
-  responseData.errorThrown = errorThrown;
+  if (responseData.status === 200 && payload instanceof Error) {
+    responseData.errorThrown = payload;
+    payload = responseData.errorThrown.payload;
+  } else {
+    responseData.errorThrown = errorThrown;
+  }
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
@@ -1363,7 +1378,19 @@ export function fetchOptions(options, adapter) {
     } else {
       // NOTE: a request's body cannot be an object, so we stringify it if it is.
       // JSON.stringify removes keys with values of `undefined` (mimics jQuery.ajax).
-      options.body = JSON.stringify(options.data);
+      // If the data is not a POJO (it's a String, FormData, etc), we just set it.
+      // If the data is a string, we assume it's a stringified object.
+
+      /* We check for Objects this way because we want the logic inside the consequent to run
+       * if `options.data` is a POJO, not if it is a data structure whose `typeof` returns "object"
+       * when it's not (Array, FormData, etc). The reason we don't use `options.data.constructor`
+       * to check is in case `data` is an object with no prototype (e.g. created with null).
+       */
+      if (Object.prototype.toString.call(options.data) === '[object Object]') {
+        options.body = JSON.stringify(options.data);
+      } else {
+        options.body = options.data;
+      }
     }
   }
 

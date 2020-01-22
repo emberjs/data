@@ -5,6 +5,7 @@
 
 import Namespace from '@ember/application/namespace';
 import Ember from 'ember';
+
 import VERSION from 'ember-data/version';
 
 /**

@@ -1,13 +1,16 @@
-import Namespace from '@ember/application/namespace';
-import Service, { inject as service } from '@ember/service';
-import Controller from '@ember/controller';
 import Application from '@ember/application';
-import Store from 'ember-data/store';
+import Namespace from '@ember/application/namespace';
+import Controller from '@ember/controller';
+import Service, { inject as service } from '@ember/service';
+
 import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import initializeEmberData from 'ember-data/setup-container';
+
 import initializeStoreService from 'ember-data/initialize-store-service';
+import initializeEmberData from 'ember-data/setup-container';
+import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 module('integration/application - Injecting a Custom Store', function(hooks) {
   setupTest(hooks);
@@ -147,6 +150,9 @@ module('integration/application - Attaching initializer', function(hooks) {
     this.owner = this.application.buildInstance();
 
     let store = this.owner.lookup('service:store');
+    assert.expectDeprecation({
+      id: 'ember-data:-legacy-test-registrations',
+    });
     assert.ok(
       store && store.get('isCustomStore'),
       'ember-data initializer does not overwrite the previous registered service store'

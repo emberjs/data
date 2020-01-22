@@ -1,9 +1,9 @@
-import { typeOf } from '@ember/utils';
 import { A } from '@ember/array';
+import { warn } from '@ember/debug';
+import { get, set } from '@ember/object';
 import Mixin from '@ember/object/mixin';
 import { camelize } from '@ember/string';
-import { set, get } from '@ember/object';
-import { warn } from '@ember/debug';
+import { typeOf } from '@ember/utils';
 
 /**
   @module @ember-data/serializer

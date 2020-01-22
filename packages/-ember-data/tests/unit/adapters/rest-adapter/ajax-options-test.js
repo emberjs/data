@@ -1,8 +1,9 @@
-import { resolve, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
@@ -190,6 +191,33 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       type: 'POST',
       method: 'POST',
       headers: {},
+      url: 'example.com',
+    });
+  });
+
+  test('ajaxOptions() headers take precedence over adapter headers', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    assert.deepEqual(ajaxOptions, {
+      credentials: 'same-origin',
+      type: 'POST',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       url: 'example.com',
     });
   });

@@ -1,0 +1,394 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - master
+  - beta
+  - release
+
+jobs:
+  - job: Lint
+    condition: |
+      or(
+        in(variables['Build.SourceBranchName'], 'master', 'beta'),
+        in(variables['System.PullRequest.TargetBranch'], 'master', 'beta')
+      )
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+      - script: |
+          yarn --frozen-lockfile
+          yarn lint:features
+      - script: |
+          yarn lint:js
+      - script: |
+          yarn problems
+        displayName: 'Lint'
+
+  - job: Performance
+    dependsOn: Lint
+    condition: |
+      in(variables['System.PullRequest.TargetBranch'], 'master')
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+      - script: |
+          npm install -g tracerbench@2.3.0
+        displayName: TracerBench CLI Install
+      - script: |
+          npm install -g pm2
+        displayName: PM2 CLI Install
+      - script: |
+          ./bin/relationship-performance-tracking/head-vs-master.sh
+        displayName: TracerBench Compare
+
+  - job: Basic_Ember_Data_tests
+    dependsOn: Lint
+    condition: or(succeeded(), eq(dependencies.Lint.result, 'Skipped'))
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          yarn
+          brew update
+          brew cask install google-chrome
+
+      - script: |
+          yarn test
+        displayName: 'Basic Tests'
+
+      - script: |
+          yarn test:encapsulation
+        displayName: 'Encapsulation Tests'
+
+  - job: Ember_Data_builds_tests
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install google-chrome
+          yarn
+
+      - script: |
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
+          displayName: 'Enable All In progress features'
+
+      - script: |
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
+          displayName: 'Disable All In progress features'
+
+      - script: |
+          yarn test:production
+        displayName: 'Production'
+
+      - script: |
+          TARGET_IE11=true yarn test
+        displayName: 'Max transpilation Tests'
+
+      - script: |
+          yarn test:node
+        displayName: 'Node Tests'
+
+      - script: |
+          yarn test:docs
+        displayName: 'Docs Tests'
+
+      - script: |
+          yarn install
+          yarn test:fastboot fastboot-with-ember-fetch
+        displayName: 'Fastboot Tests with ember-fetch'
+
+      - script: |
+          yarn install
+          yarn test:fastboot fastboot-with-jquery
+        displayName: 'Fastboot Tests with jquery'
+
+  - job: Windows_tests
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'windows-2019'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          yarn
+        displayName: 'Yarn install'
+
+      - script: |
+          yarn test
+        displayName: 'Basic Tests'
+
+      - script: |
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
+          displayName: 'Enable All In progress features'
+
+      - script: |
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
+          displayName: 'Disable All In progress features'
+
+      - script: |
+          yarn test:production
+        displayName: 'Production'
+
+  - job: jQuery_Tests
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install google-chrome
+          yarn install --no-lockfile --non-interactive
+
+      - script: |
+          yarn test:try-one with-jquery
+        displayName: 'Basic Tests with jQuery'
+
+      - script: |
+          yarn test:try-one with-native-fetch
+        displayName: 'Basic Tests with Native fetch'
+
+      - script: |
+          yarn test:try-one with-ember-fetch-and-jquery
+        displayName: 'Basic Tests with both ember-fetch and jQuery present'
+
+      - script: |
+          yarn test:try-one with-ember-fetch-no-jquery
+        displayName: 'Basic Tests with ember-fetch but not jQuery'
+
+  - job: Floating_dependencies
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install google-chrome
+          yarn install --no-lockfile --non-interactive
+
+      - script: |
+          yarn test
+        displayName: 'Basic Tests'
+
+  - job: Ember_LTS_tests
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install google-chrome
+          yarn
+
+      - script: |
+          yarn install
+          yarn test:try-one ember-lts-3.8
+        displayName: 'Ember LTS test 3.8'
+
+      - script: |
+          yarn install
+          yarn test:try-one ember-lts-3.12
+        displayName: 'Ember LTS test 3.12'
+
+      - script: |
+          yarn install
+          yarn test:try-one ember-release
+        displayName: 'Ember Release'
+
+      - script: |
+          yarn install
+          yarn test:try-one ember-beta
+        displayName: 'Ember Beta'
+
+      - script: |
+          yarn install
+          yarn test:try-one ember-canary
+        displayName: 'Ember Canary'
+
+  - job: External_Partner_tests_ilios
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install firefox
+          yarn
+          node ./bin/packages-for-commit.js
+
+      - script: |
+          yarn test-external:ilios-frontend
+        displayName: 'External: ilios-frontend'
+
+  - job: External_Partner_tests_travis
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install google-chrome
+          brew cask install firefox
+          yarn
+          node ./bin/packages-for-commit.js
+
+      - script: |
+          CI=true yarn test-external:travis-web
+        displayName: 'External: travis-web'
+
+  - job: External_Partner_tests_ember_observer
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install google-chrome
+          brew cask install firefox
+          yarn
+          node ./bin/packages-for-commit.js
+
+      - script: |
+          yarn test-external:ember-observer
+        displayName: 'External: ember-observer'
+
+  - job: External_Partner_tests_other
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install google-chrome
+          brew cask install firefox
+          yarn
+          node ./bin/packages-for-commit.js
+        condition: always()
+
+      - script: |
+          yarn test-external:storefront
+        displayName: 'External: storefront'
+        condition: always()
+
+      #  - script: |
+      #      yarn test-external:factory-guy
+      #    displayName: 'External: factory-guy'
+
+      - script: |
+          yarn test-external:ember-resource-metadata
+        displayName: 'External: ember-resource-metadata'
+        condition: always()
+
+      - script: |
+          yarn test-external:ember-data-relationship-tracker
+        displayName: 'External: ember-data-relationship-tracker'
+        condition: always()
+
+      - script: |
+          yarn test-external:model-fragments
+          exit 0
+        displayName: 'External: model-fragments'
+        condition: always()
+
+      - script: |
+          yarn test-external:ember-data-change-tracker
+          exit 0
+        displayName: 'External: ember-data-change-tracker'
+        condition: always()
+
+      - script: |
+          yarn test-external:ember-m3
+        displayName: 'External: ember-m3'
+        condition: always()

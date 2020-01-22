@@ -1,9 +1,12 @@
-import { module } from 'qunit';
-import test from 'dummy/tests/helpers/test-in-debug';
 import { run } from '@ember/runloop';
+
+import { module } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
-import Store from '@ember-data/store';
+
 import Model from '@ember-data/model';
+import Store from '@ember-data/store';
+import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/store/asserts - DS.Store methods produce useful assertion messages', function(hooks) {
   let store;
@@ -73,7 +76,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     '_push',
     'pushPayload',
     'normalize',
-    'recordWasLoaded',
     'adapterFor',
     'serializerFor',
   ];

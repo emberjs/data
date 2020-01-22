@@ -1,18 +1,21 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import RSVP, { resolve } from 'rsvp';
-import { module, test } from 'qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { setupTest } from 'ember-qunit';
-import Store from '@ember-data/store';
-import Model from '@ember-data/model';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import DS from 'ember-data';
-import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
-import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';
-import { IDENTIFIERS } from '@ember-data/canary-features';
 import { setupContext, teardownContext } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import RSVP, { resolve } from 'rsvp';
+
+import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { IDENTIFIERS } from '@ember-data/canary-features';
+import Model from '@ember-data/model';
+import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
+import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
@@ -1461,7 +1464,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     });
   });
 
-  test('Related link should take precedence over relationship data if no local record data is available', function(assert) {
+  test('Related link should take precedence over relationship data if no local record data is available', async function(assert) {
     assert.expect(2);
 
     Book.reopen({
@@ -1486,26 +1489,24 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    return run(() => {
-      let book = store.push({
-        data: {
-          type: 'book',
-          id: '1',
-          relationships: {
-            author: {
-              links: {
-                related: 'author',
-              },
-              data: { type: 'author', id: '1' },
+    let book = store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author',
             },
+            data: { type: 'author', id: '1' },
           },
         },
-      });
-
-      return book.get('author').then(author => {
-        assert.equal(author.get('name'), 'This is author', 'author name is correct');
-      });
+      },
     });
+
+    const author = await book.get('author');
+
+    assert.equal(author.get('name'), 'This is author', 'author name is correct');
   });
 
   test('Relationship data should take precedence over related link when local record data is available', function(assert) {

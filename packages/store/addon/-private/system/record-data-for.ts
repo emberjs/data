@@ -1,4 +1,4 @@
-import RecordData from '../ts-interfaces/record-data';
+type RecordData = import('../ts-interfaces/record-data').RecordData;
 /*
  * Returns the RecordData instance associated with a given
  * Model or InternalModel.

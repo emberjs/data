@@ -3,11 +3,12 @@
 */
 
 import { A } from '@ember/array';
-import { set, get } from '@ember/object';
+import { assert } from '@ember/debug';
+import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run as emberRunloop } from '@ember/runloop';
-import { assert } from '@ember/debug';
-import { RecordArray, AdapterPopulatedRecordArray } from './record-arrays';
+
+import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import { internalModelFactoryFor } from './store/internal-model-factory';
 
 const emberRun = emberRunloop.backburner;
@@ -27,18 +28,6 @@ export default class RecordArrayManager {
   }
 
   recordDidChange(internalModel) {
-    // TODO: change name
-    // TODO: track that it was also a change
-    this.internalModelDidChange(internalModel);
-  }
-
-  recordWasLoaded(internalModel) {
-    // TODO: change name
-    // TODO: track that it was also that it was first loaded
-    this.internalModelDidChange(internalModel);
-  }
-
-  internalModelDidChange(internalModel) {
     let modelName = internalModel.modelName;
 
     if (internalModel._pendingRecordArrayManagerFlush) {
@@ -74,7 +63,7 @@ export default class RecordArrayManager {
     if (array) {
       // TODO: skip if it only changed
       // process liveRecordArrays
-      this.updateLiveRecordArray(array, internalModels);
+      updateLiveRecordArray(array, internalModels);
     }
 
     // process adapterPopulatedRecordArrays
@@ -90,10 +79,6 @@ export default class RecordArrayManager {
     for (let modelName in pending) {
       this._flushPendingInternalModelsForModelName(modelName, pending[modelName]);
     }
-  }
-
-  updateLiveRecordArray(array, internalModels) {
-    return updateLiveRecordArray(array, internalModels);
   }
 
   _syncLiveRecordArray(array, modelName) {
@@ -343,10 +328,6 @@ function updateLiveRecordArray(array, internalModels) {
   if (modelsToRemove.length > 0) {
     array._removeInternalModels(modelsToRemove);
   }
-
-  // return whether we performed an update.
-  // Necessary until 3.5 allows us to finish off ember-data-filter support.
-  return (modelsToAdd.length || modelsToRemove.length) > 0;
 }
 
 function removeFromAdapterPopulatedRecordArrays(internalModels) {

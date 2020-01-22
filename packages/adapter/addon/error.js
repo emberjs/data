@@ -1,5 +1,5 @@
-import EmberError from '@ember/error';
 import { assert } from '@ember/debug';
+import EmberError from '@ember/error';
 
 /**
   @module @ember-data/adapter

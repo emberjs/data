@@ -1,9 +1,9 @@
-import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-import Model from '@ember-data/model';
-import { attr, belongsTo } from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr, belongsTo } from '@ember-data/model';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function stringify(string) {
   return function() {

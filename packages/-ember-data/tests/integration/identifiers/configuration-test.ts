@@ -1,25 +1,29 @@
-import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import { IDENTIFIERS } from '@ember-data/canary-features';
-import Store, {
-  recordIdentifierFor,
-  setIdentifierUpdateMethod,
-  setIdentifierGenerationMethod,
-  setIdentifierResetMethod,
-  setIdentifierForgetMethod,
-} from '@ember-data/store';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Model, { attr, belongsTo } from '@ember-data/model';
-import Adapter from '@ember-data/adapter';
-import Serializer from '@ember-data/serializer';
-import { resolve, all } from 'rsvp';
-import { ExistingResourceObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
-import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { set } from '@ember/object';
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import { all, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
+import Adapter from '@ember-data/adapter';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { IDENTIFIERS } from '@ember-data/canary-features';
+import Model, { attr, belongsTo } from '@ember-data/model';
+import Serializer from '@ember-data/serializer';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store, {
+  recordIdentifierFor,
+  setIdentifierForgetMethod,
+  setIdentifierGenerationMethod,
+  setIdentifierResetMethod,
+  setIdentifierUpdateMethod,
+} from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
+
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+type ExistingResourceObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
 
 if (IDENTIFIERS) {
   module('Integration | Identifiers - configuration', function(hooks) {

@@ -1,11 +1,12 @@
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/serializers/json-api-serializer - JSONAPISerializer', function(hooks) {
   setupTest(hooks);
@@ -70,7 +71,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
               data: { type: 'companies', id: '2' },
             },
             handles: {
-              data: [{ type: 'github-handles', id: '3' }, { type: 'twitter-handles', id: '4' }],
+              data: [
+                { type: 'github-handles', id: '3' },
+                { type: 'twitter-handles', id: '4' },
+              ],
             },
           },
         },
@@ -509,11 +513,17 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           id: 1,
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+              data: [
+                { type: 'handles', id: 1 },
+                { type: 'handles', id: 2 },
+              ],
             },
           },
         },
-        included: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+        included: [
+          { type: 'handles', id: 1 },
+          { type: 'handles', id: 2 },
+        ],
       });
 
       let user = store.peekRecord('user', 1);
@@ -531,7 +541,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           },
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: '1' }, { type: 'handles', id: '2' }],
+              data: [
+                { type: 'handles', id: '1' },
+                { type: 'handles', id: '2' },
+              ],
             },
           },
         },
@@ -558,11 +571,17 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           id: 1,
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+              data: [
+                { type: 'handles', id: 1 },
+                { type: 'handles', id: 2 },
+              ],
             },
           },
         },
-        included: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+        included: [
+          { type: 'handles', id: 1 },
+          { type: 'handles', id: 2 },
+        ],
       });
 
       let user = store.peekRecord('user', 1);
@@ -581,7 +600,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           },
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: '1' }, { type: 'handles', id: '2' }],
+              data: [
+                { type: 'handles', id: '1' },
+                { type: 'handles', id: '2' },
+              ],
             },
           },
         },
@@ -652,11 +674,17 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
           id: 1,
           relationships: {
             handles: {
-              data: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+              data: [
+                { type: 'handles', id: 1 },
+                { type: 'handles', id: 2 },
+              ],
             },
           },
         },
-        included: [{ type: 'handles', id: 1 }, { type: 'handles', id: 2 }],
+        included: [
+          { type: 'handles', id: 1 },
+          { type: 'handles', id: 2 },
+        ],
       });
 
       let user = store.peekRecord('user', 1);

@@ -1,9 +1,11 @@
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
-import testInDebug from '../../helpers/test-in-debug';
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+
+import { setupTest } from 'ember-qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/embedded-records-mixin', function(hooks) {
   setupTest(hooks);
@@ -247,7 +249,10 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
           relationships: {
             children: {
-              data: [{ id: '2', type: 'comment' }, { id: '3', type: 'comment' }],
+              data: [
+                { id: '2', type: 'comment' },
+                { id: '3', type: 'comment' },
+              ],
             },
           },
         },
@@ -329,7 +334,10 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
           relationships: {
             children: {
-              data: [{ id: '2', type: 'comment' }, { id: '3', type: 'comment' }],
+              data: [
+                { id: '2', type: 'comment' },
+                { id: '3', type: 'comment' },
+              ],
             },
           },
         },
@@ -432,10 +440,16 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
           relationships: {
             villains: {
-              data: [{ id: '1', type: 'super-villain' }, { id: '3', type: 'super-villain' }],
+              data: [
+                { id: '1', type: 'super-villain' },
+                { id: '3', type: 'super-villain' },
+              ],
             },
             reformedVillains: {
-              data: [{ id: '2', type: 'super-villain' }, { id: '4', type: 'super-villain' }],
+              data: [
+                { id: '2', type: 'super-villain' },
+                { id: '4', type: 'super-villain' },
+              ],
             },
           },
         },
@@ -633,7 +647,10 @@ module('integration/embedded-records-mixin', function(hooks) {
           id: '1',
           relationships: {
             secretWeapons: {
-              data: [{ type: 'light-saber', id: '1' }, { type: 'secret-weapon', id: '1' }],
+              data: [
+                { type: 'light-saber', id: '1' },
+                { type: 'secret-weapon', id: '1' },
+              ],
             },
           },
           type: 'super-villain',
@@ -1132,7 +1149,10 @@ module('integration/embedded-records-mixin', function(hooks) {
             },
             relationships: {
               children: {
-                data: [{ id: '2', type: 'comment' }, { id: '3', type: 'comment' }],
+                data: [
+                  { id: '2', type: 'comment' },
+                  { id: '3', type: 'comment' },
+                ],
               },
             },
           },
@@ -1249,10 +1269,16 @@ module('integration/embedded-records-mixin', function(hooks) {
             },
             relationships: {
               reformedVillains: {
-                data: [{ id: '2', type: 'super-villain' }, { id: '4', type: 'super-villain' }],
+                data: [
+                  { id: '2', type: 'super-villain' },
+                  { id: '4', type: 'super-villain' },
+                ],
               },
               villains: {
-                data: [{ id: '1', type: 'super-villain' }, { id: '3', type: 'super-villain' }],
+                data: [
+                  { id: '1', type: 'super-villain' },
+                  { id: '3', type: 'super-villain' },
+                ],
               },
             },
           },
@@ -1264,10 +1290,16 @@ module('integration/embedded-records-mixin', function(hooks) {
             },
             relationships: {
               reformedVillains: {
-                data: [{ id: '5', type: 'super-villain' }, { id: '6', type: 'super-villain' }],
+                data: [
+                  { id: '5', type: 'super-villain' },
+                  { id: '6', type: 'super-villain' },
+                ],
               },
               villains: {
-                data: [{ id: '1', type: 'super-villain' }, { id: '3', type: 'super-villain' }],
+                data: [
+                  { id: '1', type: 'super-villain' },
+                  { id: '3', type: 'super-villain' },
+                ],
               },
             },
           },
@@ -1477,7 +1509,10 @@ module('integration/embedded-records-mixin', function(hooks) {
           },
           relationships: {
             secretWeapons: {
-              data: [{ id: '1', type: 'light-saber' }, { id: '1', type: 'secret-weapon' }],
+              data: [
+                { id: '1', type: 'light-saber' },
+                { id: '1', type: 'secret-weapon' },
+              ],
             },
           },
         },

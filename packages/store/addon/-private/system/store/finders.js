@@ -1,16 +1,15 @@
 import { A } from '@ember/array';
-import { Promise } from 'rsvp';
-import { assert, warn, deprecate } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
-import Ember from 'ember';
-import coerceId from '../coerce-id';
-
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
-
-import { normalizeResponseHelper } from './serializer-response';
+import { assert, deprecate, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
-import { IDENTIFIERS } from '@ember-data/canary-features';
-import { REQUEST_SERVICE } from '@ember-data/canary-features';
+import { DEBUG } from '@glimmer/env';
+
+import { Promise } from 'rsvp';
+
+import { IDENTIFIERS, REQUEST_SERVICE } from '@ember-data/canary-features';
+
+import coerceId from '../coerce-id';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
+import { normalizeResponseHelper } from './serializer-response';
 
 /**
   @module @ember-data/store
@@ -130,17 +129,24 @@ function syncRelationshipDataFromLink(store, payload, parentInternalModel, relat
 
   // now, push the left hand side (the parent record) to ensure things are in sync, since
   // the payload will be pushed with store._push
-  store.push({
-    data: {
-      id: parentInternalModel.id,
-      type: parentInternalModel.modelName,
-      relationships: {
-        [relationship.key]: {
-          data: relationshipData,
-        },
+  const parentPayload = {
+    id: parentInternalModel.id,
+    type: parentInternalModel.modelName,
+    relationships: {
+      [relationship.key]: {
+        meta: payload.meta,
+        links: payload.links,
+        data: relationshipData,
       },
     },
-  });
+  };
+
+  if (!Array.isArray(payload.included)) {
+    payload.included = [];
+  }
+  payload.included.push(parentPayload);
+
+  return payload;
 }
 
 function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, parentRelationship, index) {
@@ -162,20 +168,21 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
       typeof relationshipData !== 'undefined' &&
       !relationshipDataPointsToParent(relationshipData, parentInternalModel)
     ) {
-      let quotedType = Ember.inspect(type);
-      let quotedInverse = Ember.inspect(inverseKey);
-      let expected = Ember.inspect({
+      let inspect = function inspect(thing) {
+        return `'${JSON.stringify(thing)}'`;
+      };
+      let quotedType = inspect(type);
+      let quotedInverse = inspect(inverseKey);
+      let expected = inspect({
         id: parentInternalModel.id,
         type: parentInternalModel.modelName,
       });
-      let expectedModel = Ember.inspect(parentInternalModel);
-      let got = Ember.inspect(relationshipData);
+      let expectedModel = `${parentInternalModel.modelName}:${parentInternalModel.id}`;
+      let got = inspect(relationshipData);
       let prefix = typeof index === 'number' ? `data[${index}]` : `data`;
-      let path = `${prefix}.relationships.${inverse}.data`;
+      let path = `${prefix}.relationships.${inverseKey}.data`;
       let other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
-      let relationshipFetched = `${Ember.inspect(parentInternalModel)}.${parentRelationship.kind}("${
-        parentRelationship.name
-      }")`;
+      let relationshipFetched = `${expectedModel}.${parentRelationship.kind}("${parentRelationship.name}")`;
       let includedRecord = `<${type}:${id}>`;
       let message = [
         `Encountered mismatched relationship: Ember Data expected ${path} in the payload from ${relationshipFetched} to include ${expected} but got ${got} instead.\n`,
@@ -267,7 +274,9 @@ function validateRelationshipEntry({ id }, { id: parentModelID }) {
 export function _findHasMany(adapter, store, internalModel, link, relationship, options) {
   let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
-  let promise = adapter.findHasMany(store, snapshot, link, relationship);
+  let useLink = !link || typeof link === 'string';
+  let relatedLink = useLink ? link : link.href;
+  let promise = adapter.findHasMany(store, snapshot, relatedLink, relationship);
   let label = `DS: Handle Adapter#findHasMany of '${internalModel.modelName}' : '${relationship.type}'`;
 
   promise = guardDestroyedStore(promise, store, label);
@@ -282,10 +291,9 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findHasMany');
 
-      syncRelationshipDataFromLink(store, payload, internalModel, relationship);
+      payload = syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       let internalModelArray = store._push(payload);
-      internalModelArray.meta = payload.meta;
       return internalModelArray;
     },
     null,
@@ -296,7 +304,9 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship, options) {
   let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
-  let promise = adapter.findBelongsTo(store, snapshot, link, relationship);
+  let useLink = !link || typeof link === 'string';
+  let relatedLink = useLink ? link : link.href;
+  let promise = adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
   let label = `DS: Handle Adapter#findBelongsTo of ${internalModel.modelName} : ${relationship.type}`;
 
   promise = guardDestroyedStore(promise, store, label);
@@ -311,7 +321,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
         return null;
       }
 
-      syncRelationshipDataFromLink(store, payload, internalModel, relationship);
+      payload = syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       return store._push(payload);
     },

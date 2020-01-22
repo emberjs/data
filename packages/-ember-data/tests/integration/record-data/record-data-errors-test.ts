@@ -1,14 +1,20 @@
-import { setupTest } from 'ember-qunit';
+import EmberObject from '@ember/object';
+
+import { module, test } from 'qunit';
+import { Promise } from 'rsvp';
+
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
-import { module, test } from 'qunit';
-import EmberObject from '@ember/object';
-import { attr } from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
 import { InvalidError } from '@ember-data/adapter/error';
-import { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
-import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
-import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+
+type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
+type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -109,6 +115,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
     owner.register('model:person', Person);
     owner.unregister('service:store');
     owner.register('service:store', CustomStore);
+    owner.register('serializer:application', JSONAPISerializer);
   });
 
   test('Record Data invalid errors', async function(assert) {
@@ -165,7 +172,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    person.save().then(() => {}, err => {});
+    person.save().then(
+      () => {},
+      err => {}
+    );
   });
 
   test('Record Data adapter errors', async function(assert) {
@@ -206,7 +216,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    await person.save().then(() => {}, err => {});
+    await person.save().then(
+      () => {},
+      err => {}
+    );
   });
 
   test('Getting errors from Record Data shows up on the record', async function(assert) {
@@ -338,7 +351,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    await person.save().then(() => {}, err => {});
+    await person.save().then(
+      () => {},
+      err => {}
+    );
 
     assert.equal(person.get('isValid'), false, 'rejecting the save invalidates the person');
     let nameError = person

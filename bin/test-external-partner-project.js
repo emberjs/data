@@ -4,20 +4,35 @@
 
 const fs = require('fs');
 const path = require('path');
+
 const execa = require('execa');
 // apparently violates no-extraneous require? /shrug
 const debug = require('debug')('test-external');
 const rimraf = require('rimraf');
 const chalk = require('chalk');
+const cliArgs = require('command-line-args');
 
 const projectRoot = path.resolve(__dirname, '../');
-const externalProjectName = process.argv[2];
-const gitUrl = process.argv[3];
-const skipSmokeTest =
-  (process.argv[4] && process.argv[4] === '--skip-smoke-test') ||
-  (process.argv[5] && process.argv[5] === '--skip-smoke-test');
-const skipClone =
-  (process.argv[4] && process.argv[4] === '--skip-clone') || (process.argv[5] && process.argv[5] === '--skip-clone');
+
+let cliOptionsDef = [{ name: 'projectName', defaultOption: true }];
+let cliOptions = cliArgs(cliOptionsDef, { stopAtFirstUnknown: true });
+const externalProjectName = cliOptions.projectName;
+let argv = cliOptions._unknown || [];
+cliOptionsDef = [{ name: 'gitUrl', defaultOption: true }];
+cliOptions = cliArgs(cliOptionsDef, { stopAtFirstUnknown: true, argv });
+const gitUrl = cliOptions.gitUrl;
+argv = cliOptions._unknown || [];
+cliOptionsDef = [
+  { name: 'skipSmokeTest', type: Boolean, defaultValue: false },
+  { name: 'skipClone', type: Boolean, defaultValue: false },
+  { name: 'skipTest', type: Boolean, defaultValue: false },
+  { name: 'noLockFile', type: Boolean, defaultValue: false },
+  { name: 'useCache', type: Boolean, defaultValue: false },
+];
+cliOptions = cliArgs(cliOptionsDef, { argv });
+
+const { skipSmokeTest, skipClone, skipTest, noLockFile, useCache } = cliOptions;
+
 // we share this for the build
 const cachePath = '../__external-test-cache';
 const tempDir = path.join(projectRoot, cachePath);
@@ -109,34 +124,47 @@ try {
 try {
   debug('Preparing Package To Run Tests Against Commit');
   insertTarballsToPackageJson(packageJsonLocation);
-  // we must use npm because yarn fails to install
-  // the nested tarballs correctly (just as it fails to pack them correctly)
-  // we rimraf node_modules first because it was previously
-  // installed using yarn's resolution algorithm
-  if (!skipSmokeTest) {
-    execExternal(`rm -rf node_modules`);
+
+  // clear node_modules installed for the smoke-test
+  execExternal(`rm -rf node_modules`);
+  // we are forced to use yarn so that our resolutions will be respected
+  // in addition to the version file link we insert otherwise nested deps
+  // may bring their own ember-data
+  //
+  // For this reason we don't trust the lock file
+  // we also can't trust the cache
+  execExternal(`yarn install${noLockFile ? ' --no-lockfile' : ''}${useCache ? '' : ' --cache-folder=tmp/yarn-cache'}`);
+} catch (e) {
+  console.log(`Unable to npm install tarballs for ember-data\` for ${externalProjectName}. Original error below:`);
+
+  throw e;
+}
+
+if (!skipTest) {
+  try {
+    debug('Running tests against EmberData commit');
+    execExternal(`ember --version`, true);
+    // ember-cli test command does not have --output-path available
+    // in all versions of our partner test's
+    execExternal(`ember build`, true);
+    execExternal(`ember test --path="./dist"`, true);
+  } catch (e) {
+    commitTestPassed = false;
   }
-  execExternal(`npm install`);
-} catch (e) {
-  debug(e);
-  throw new Error(`Unable to npm install tarballs for ember-data\` for ${externalProjectName}`);
 }
 
-try {
-  debug('Running tests against EmberData commit');
-  execExternal(`ember test`, true);
-} catch (e) {
-  commitTestPassed = false;
-}
-
-if (skipSmokeTest && !commitTestPassed) {
-  throw new Error('Commit may result in a regression, but the smoke test was skipped.');
-} else if (!smokeTestPassed && !commitTestPassed) {
-  throw new Error(`Commit may result in a regression, but the smoke test for ${externalProjectName} also failed.`);
-} else if (smokeTestPassed && !commitTestPassed) {
-  throw new Error(`Commit results in a regression in ${externalProjectName}`);
-} else if (!smokeTestPassed) {
-  console.log(`Commit may resolve issues present in the smoke test for ${externalProjectName}`);
+if (skipTest) {
+  console.log(`Skipped Tests: Commit viability unknown`);
 } else {
-  console.log(`Commit does not regress ${externalProjectName}`);
+  if (skipSmokeTest && !commitTestPassed) {
+    throw new Error('Commit may result in a regression, but the smoke test was skipped.');
+  } else if (!smokeTestPassed && !commitTestPassed) {
+    throw new Error(`Commit may result in a regression, but the smoke test for ${externalProjectName} also failed.`);
+  } else if (smokeTestPassed && !commitTestPassed) {
+    throw new Error(`Commit results in a regression in ${externalProjectName}`);
+  } else if (!smokeTestPassed) {
+    console.log(`Commit may resolve issues present in the smoke test for ${externalProjectName}`);
+  } else {
+    console.log(`Commit does not regress ${externalProjectName}`);
+  }
 }

@@ -1,0 +1,66 @@
+name: RelationshipPerformanceCheck
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  relationship-performance-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: TracerBench CLI Install
+        run: npm install -g tracerbench@2.3.0
+      - name: PM2 CLI Install
+        run: npm install -g pm2
+      - name: Check SHA
+        run: |
+          sha=$(git rev-parse --short=8 HEAD)
+          echo "HEAD sha=$sha"
+          echo "GITHUB_SHA sha=$GITHUB_SHA"
+          mkdir -p tmp
+          echo $sha > tmp/sha-for-check.txt
+          originSha=$(git rev-parse HEAD^2)
+          echo $originSha > tmp/sha-for-commit.txt
+          git show --format=short --no-patch $originSha
+      - name: Checkout master
+        run: git checkout master
+      - name: Install dependencies for master
+        run: yarn install
+      - name: Build Production master
+        # This will leave the assets in a dist that is maintained when
+        #  We switch back to the PR commit
+        run: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-control
+      - name: Checkout ${{github.ref}}
+        # We checkout the PR Branch before parsing the master vendor file
+        #  So that we are always using the current analysis tooling
+        run: |
+          sha=$(cat tmp/sha-for-check.txt)
+          git checkout --progress --force $sha
+      - name: Install dependencies for ${{github.ref}}
+        run: yarn install
+      - name: Build Production ${{github.ref}}
+        run: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
+      - name: Generate TracerBench Results
+        run: |
+          set -o pipefail
+          mkdir -p tmp/relationship-performance
+          export USE_EXISTING_DISTS=true
+          ./bin/relationship-performance-tracking/generate-analysis.sh | tee tmp/relationship-performance/commit-analysis.txt
+      - name: Report TracerBench Results
+        if: failure() || success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMENT_MARKER="Performance Report for "
+          sha=$(cat tmp/sha-for-commit.txt)
+          node ./bin/relationship-performance-tracking/src/create-comment-text.js $sha > tmp/relationship-performance/comment.txt
+          COMMENT_TEXT="@./tmp/relationship-performance/comment.txt"
+          source bin/asset-size-tracking/src/post-comment.sh

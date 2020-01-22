@@ -1,10 +1,12 @@
-import ManyRelationship from './has-many';
-import BelongsToRelationship from './belongs-to';
+import { upgradeForInternal } from '@ember-data/store/-private';
 
-import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
-import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
-import { RecordDataStoreWrapper, upgradeForInternal } from '@ember-data/store/-private';
-import CoreStore from '@ember-data/store/-private/system/core-store';
+import BelongsToRelationship from './belongs-to';
+import ManyRelationship from './has-many';
+
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
 
 function createRelationshipFor(
   relationshipMeta: RelationshipSchema,

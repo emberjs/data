@@ -1,8 +1,9 @@
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import Model from '@ember-data/model';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/relationships/inverse_relationships - Inverse Relationships', function(hooks) {
   setupTest(hooks);
@@ -627,7 +628,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
       assert.expectAssertion(() => {
         store.createRecord('user', { post: null });
-      }, /No model was found for/);
+      }, /No model was found for 'post' and no schema handles the type/);
 
       // but don't error if the relationship is not used
       store.createRecord('user', {});

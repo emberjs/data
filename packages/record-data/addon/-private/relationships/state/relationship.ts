@@ -1,13 +1,17 @@
-import { guidFor } from '@ember/object/internals';
-import { get } from '@ember/object';
-import { relationshipStateFor, implicitRelationshipStateFor } from '../../record-data-for';
 import { assert, warn } from '@ember/debug';
-import OrderedSet from '../../ordered-set';
-import _normalizeLink from '../../normalize-link';
-import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
-import { JsonApiRelationship } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
-import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
+import { get } from '@ember/object';
+import { guidFor } from '@ember/object/internals';
+
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
+import _normalizeLink from '../../normalize-link';
+import OrderedSet from '../../ordered-set';
+import { implicitRelationshipStateFor, relationshipStateFor } from '../../record-data-for';
+
+type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type JsonApiRelationship = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiRelationship;
+type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
 
 /**
   @module @ember-data/store
@@ -41,7 +45,7 @@ export default class Relationship {
   hasAnyRelationshipData: boolean;
   relationshipIsEmpty: boolean;
   hasFailedLoadAttempt: boolean = false;
-  link?: string | null;
+  links?: PaginationLinks;
   willSync?: boolean;
 
   constructor(
@@ -569,20 +573,8 @@ export default class Relationship {
     this.store._updateRelationshipState(this);
   }
 
-  updateLink(link: string | null) {
-    warn(
-      `You pushed a record of type '${this.recordData.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
-      this.isAsync || this.hasAnyRelationshipData,
-      {
-        id: 'ds.store.push-link-for-sync-relationship',
-      }
-    );
-    assert(
-      `You have pushed a record of type '${this.recordData.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`,
-      typeof link === 'string' || link === null
-    );
-
-    this.link = link;
+  updateLinks(links: PaginationLinks): void {
+    this.links = links;
   }
 
   updateRecordDatasFromAdapter(recordDatas?: RelationshipRecordData[]) {
@@ -646,11 +638,28 @@ export default class Relationship {
       this.updateData(data, initial);
     }
 
-    if (payload.links && payload.links.related) {
-      let relatedLink = _normalizeLink(payload.links.related);
-      if (relatedLink && relatedLink.href && relatedLink.href !== this.link) {
-        hasLink = true;
-        this.updateLink(relatedLink.href);
+    if (payload.links) {
+      let originalLinks = this.links;
+      this.updateLinks(payload.links);
+      if (payload.links.related) {
+        let relatedLink = _normalizeLink(payload.links.related);
+        let currentLink = originalLinks && originalLinks.related ? _normalizeLink(originalLinks.related) : null;
+        let currentLinkHref = currentLink ? currentLink.href : null;
+
+        if (relatedLink && relatedLink.href && relatedLink.href !== currentLinkHref) {
+          warn(
+            `You pushed a record of type '${this.recordData.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
+            this.isAsync || this.hasAnyRelationshipData,
+            {
+              id: 'ds.store.push-link-for-sync-relationship',
+            }
+          );
+          assert(
+            `You have pushed a record of type '${this.recordData.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`,
+            typeof relatedLink.href === 'string' || relatedLink.href === null
+          );
+          hasLink = true;
+        }
       }
     }
 

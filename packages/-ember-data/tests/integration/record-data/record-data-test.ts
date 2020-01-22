@@ -1,14 +1,17 @@
-import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import EmberObject, { get } from '@ember/object';
+import { settled } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import { Promise } from 'rsvp';
+
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { module, test } from 'qunit';
-import { settled } from '@ember/test-helpers';
-import EmberObject from '@ember/object';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -629,7 +632,12 @@ module('integration/record-data - Custom RecordData Implementations', function(h
         assert.equal(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
         calledAddToHasMany++;
 
-        hasManyReturnValue = { data: [{ id: '3', type: 'person' }, { id: '2', type: 'person' }] };
+        hasManyReturnValue = {
+          data: [
+            { id: '3', type: 'person' },
+            { id: '2', type: 'person' },
+          ],
+        };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
 
@@ -648,7 +656,12 @@ module('integration/record-data - Custom RecordData Implementations', function(h
       setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
         assert.equal(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
-        hasManyReturnValue = { data: [{ id: '1', type: 'person' }, { id: '2', type: 'person' }] };
+        hasManyReturnValue = {
+          data: [
+            { id: '1', type: 'person' },
+            { id: '2', type: 'person' },
+          ],
+        };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
     }

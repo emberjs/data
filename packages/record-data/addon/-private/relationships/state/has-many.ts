@@ -1,13 +1,14 @@
-import { assertPolymorphicType } from '@ember-data/store/-debug';
-import Relationship from './relationship';
-import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
-import {
-  RelationshipRecordData,
-  DefaultCollectionResourceRelationship,
-} from '../../ts-interfaces/relationship-record-data';
-import { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
+
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
+
+import OrderedSet from '../../ordered-set';
+import Relationship from './relationship';
+
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
+type DefaultCollectionResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
 
 /**
   @module @ember-data/store
@@ -223,10 +224,8 @@ export default class ManyRelationship extends Relationship {
     if (this.hasAnyRelationshipData) {
       payload.data = this.currentState.map(recordData => recordData.getResourceIdentifier());
     }
-    if (this.link) {
-      payload.links = {
-        related: this.link,
-      };
+    if (this.links) {
+      payload.links = this.links;
     }
     if (this.meta) {
       payload.meta = this.meta;
@@ -254,30 +253,6 @@ export default class ManyRelationship extends Relationship {
     } else {
       this.updateRecordDatasFromAdapter(recordDatas);
     }
-  }
-
-  /**
-   * Flag indicating whether all inverse records are available
-   *
-   * true if inverse records exist and are all loaded (all not empty)
-   * true if there are no inverse records
-   * false if the inverse records exist and any are not loaded (any empty)
-   *
-   * @return {boolean}
-   */
-  get allInverseRecordsAreLoaded(): boolean {
-    // check currentState for unloaded records
-    let hasEmptyRecords = this.currentState.reduce((hasEmptyModel, i) => {
-      return hasEmptyModel || i.isEmpty();
-    }, false);
-    // check un-synced state for unloaded records
-    if (!hasEmptyRecords && this.willSync) {
-      hasEmptyRecords = this.canonicalState.reduce((hasEmptyModel, i) => {
-        return hasEmptyModel || !i.isEmpty();
-      }, false);
-    }
-
-    return !hasEmptyRecords;
   }
 }
 

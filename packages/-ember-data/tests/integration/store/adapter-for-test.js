@@ -1,10 +1,13 @@
-import { setupTest } from 'ember-qunit';
+import { assign } from '@ember/polyfills';
+
 import { module, test } from 'qunit';
+
 import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
 
 class TestAdapter {
   constructor(args) {
-    Object.assign(this, args);
+    assign(this, args);
     this.didInit();
   }
 
@@ -42,6 +45,9 @@ module('integration/store - adapterFor', function(hooks) {
     assert.expectAssertion(() => {
       store.adapterFor('person');
     }, /Assertion Failed: No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
+    assert.expectDeprecation({
+      id: 'ember-data:-legacy-test-registrations',
+    });
   });
 
   test('we find and instantiate the application adapter', async function(assert) {
