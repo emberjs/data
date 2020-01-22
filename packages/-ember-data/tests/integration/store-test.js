@@ -579,20 +579,17 @@ module('integration/store - findRecord', function(hooks) {
     assert.strictEqual(car.get('model'), 'Princess', 'Car record is reloaded immediately (not in the background)');
   });
 
-  testInDebug(
-    'store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion',
-    function(assert) {
-      const badValues = ['', undefined, null, NaN, false];
+  test('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', function(assert) {
+    const badValues = ['', undefined, null, NaN, false];
 
-      assert.expect(badValues.length);
+    assert.expect(badValues.length);
 
-      badValues.map(item => {
-        assert.expectAssertion(() => {
-          store.findRecord('car', item);
-        }, `Expected id to be a string or number, received ${String(item)}`);
-      });
-    }
-  );
+    badValues.map(item => {
+      assert.expectAssertion(() => {
+        store.findRecord('car', item);
+      }, `Expected id to be a string or number, received ${String(item)}`);
+    });
+  });
 });
 
 module('integration/store - findAll', function(hooks) {
