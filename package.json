@@ -77,7 +77,7 @@
     "ember-cli-dependency-checker": "^3.2.0",
     "ember-cli-fastboot": "^2.2.1",
     "ember-cli-fastboot-testing": "^0.2.3",
-    "ember-cli-htmlbars": "^4.2.0",
+    "ember-cli-htmlbars": "^4.2.2",
     "ember-cli-inject-live-reload": "^2.0.2",
     "ember-cli-internal-test-helpers": "^0.9.1",
     "ember-cli-path-utils": "^1.0.0",
