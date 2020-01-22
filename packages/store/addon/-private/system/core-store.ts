@@ -29,6 +29,7 @@ import {
   HAS_ADAPTER_PACKAGE,
   HAS_EMBER_DATA_PACKAGE,
   HAS_MODEL_PACKAGE,
+  HAS_RECORD_DATA_PACKAGE,
   HAS_SERIALIZER_PACKAGE,
 } from '@ember-data/private-build-infra';
 import {
@@ -94,7 +95,9 @@ type AttributesSchema = import('../ts-interfaces/record-data-schemas').Attribute
 type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
 type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 type Relationship = import('@ember-data/record-data/-private').Relationship;
+type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
 
+let _RecordData: RecordDataClass | undefined;
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
@@ -412,14 +415,16 @@ abstract class CoreStore extends Service {
     if (REQUEST_SERVICE) {
       return this._fetchManager.requestCache;
     }
-    throw new Error('RequestService is not available unless the feature flag is on and running on a canary build');
+
+    assertInDebug('RequestService is not available unless the feature flag is on and running on a canary build', false);
   }
 
   get identifierCache(): IdentifierCache {
-    if (!IDENTIFIERS) {
-      throw new Error(`Store.identifierCache is unavailable in this build of EmberData`);
+    if (IDENTIFIERS) {
+      return identifierCacheFor(this);
     }
-    return identifierCacheFor(this);
+
+    assertInDebug(`Store.identifierCache is unavailable in this build of EmberData`, false);
   }
 
   _instantiateRecord(
@@ -475,9 +480,9 @@ abstract class CoreStore extends Service {
       setRecordIdentifier(record, identifier);
       //recordToInternalModelMap.set(record, internalModel);
       return record;
-    } else {
-      throw new Error('should not be here, custom model class ff error');
     }
+
+    assertInDebug('should not be here, custom model class ff error', false);
   }
 
   abstract instantiateRecord(
@@ -517,9 +522,9 @@ abstract class CoreStore extends Service {
   getSchemaDefinitionService(): SchemaDefinitionService {
     if (CUSTOM_MODEL_CLASS) {
       return this._schemaDefinitionService;
-    } else {
-      throw new Error('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
     }
+
+    assertInDebug('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService', false);
   }
 
   // TODO Double check this return value is correct
@@ -3060,9 +3065,9 @@ abstract class CoreStore extends Service {
       let internalModel = internalModelFactoryFor(this).peek(identifier);
       // TODO we used to check if the record was destroyed here
       return internalModel!.createSnapshot(options).serialize(options);
-    } else {
-      throw new Error('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on');
     }
+
+    assertInDebug('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
@@ -3073,9 +3078,9 @@ abstract class CoreStore extends Service {
       // Casting can be removed once REQUEST_SERVICE ff is turned on
       // because a `Record` is provided there will always be a matching internalModel
       return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
-    } else {
-      throw new Error('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
     }
+
+    assertInDebug('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
@@ -3084,9 +3089,9 @@ abstract class CoreStore extends Service {
       let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
       // TODO we used to check if the record was destroyed here
       return internalModel!.referenceFor(null, key);
-    } else {
-      throw new Error('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on');
     }
+
+    assertInDebug('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   /**
@@ -3111,7 +3116,29 @@ abstract class CoreStore extends Service {
     clientId: string,
     storeWrapper: RecordDataStoreWrapper
   ): RecordData {
-    throw new Error(`Expected store.createRecordDataFor to be implemented but it wasn't`);
+    if (HAS_RECORD_DATA_PACKAGE) {
+      // we can't greedily use require as this causes
+      // a cycle we can't easily fix (or clearly pin point) at present.
+      //
+      // it can be reproduced in partner tests by running
+      // node ./bin/packages-for-commit.js && yarn test-external:ember-observer
+      if (_RecordData === undefined) {
+        _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataClass;
+      }
+
+      if (IDENTIFIERS) {
+        let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+          type: modelName,
+          id,
+          lid: clientId,
+        });
+        return new _RecordData(identifier, storeWrapper);
+      } else {
+        return new _RecordData(modelName, id, clientId, storeWrapper);
+      }
+    }
+
+    assertInDebug(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
   }
 
   /**
@@ -3179,10 +3206,11 @@ abstract class CoreStore extends Service {
   }
 
   newClientId() {
-    if (IDENTIFIERS) {
-      throw new Error(`Private API Removed`);
+    if (!IDENTIFIERS) {
+      return globalClientIdCounter++;
     }
-    return globalClientIdCounter++;
+
+    assertInDebug(`Private API Removed`, false);
   }
 
   // ...............
@@ -3732,10 +3760,14 @@ function internalModelForRelatedResource(
   return store._internalModelForResource(identifier);
 }
 
+function assertInDebug(msg: string, cond: boolean = false): asserts cond is true {
+  if (DEBUG && cond) {
+    throw new Error(msg);
+  }
+}
+
 function assertIdentifierHasId(
   identifier: StableRecordIdentifier
 ): asserts identifier is StableExistingRecordIdentifier {
-  if (DEBUG && identifier.id === null) {
-    throw new Error(`Attempted to schedule a fetch for a record without an id.`);
-  }
+  assertInDebug(`Attempted to schedule a fetch for a record without an id.`, identifier.id === null);
 }

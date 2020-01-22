@@ -26,7 +26,7 @@ import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 import Transform from '@ember-data/serializer/transform';
-import { normalizeModelName } from '@ember-data/store';
+import Store, { normalizeModelName } from '@ember-data/store';
 
 import {
   AdapterPopulatedRecordArray,
@@ -45,7 +45,6 @@ import {
 } from './-private';
 import initializeStoreService from './initialize-store-service';
 import setupContainer from './setup-container';
-import Store from './store';
 
 if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
   throw new EmberError(
