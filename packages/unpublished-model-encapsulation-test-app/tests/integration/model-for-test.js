@@ -2,8 +2,8 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Store from '@ember-data/store';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import Store from '@ember-data/store';
 
 if (CUSTOM_MODEL_CLASS) {
   module('modelFor without @ember-data/model', function(hooks) {
