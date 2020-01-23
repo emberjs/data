@@ -182,6 +182,73 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
   });
 
+  test('coalesceFindRequests is true and findMany is defined but groupRecordsForFindMany is undefined', async function(assert) {
+    let findRecordCalled = 0;
+    let findManyCalled = 0;
+
+    let expectedResults = {
+      data: [
+        {
+          id: '12',
+          type: 'person',
+          attributes: {
+            firstName: 'Gaurav',
+            lastName: 'Munjal',
+          },
+        },
+        {
+          id: '19',
+          type: 'person',
+          attributes: {
+            firstName: 'Chris',
+            lastName: 'Thoburn',
+          },
+        },
+      ],
+    };
+
+    let { owner } = this;
+    let store = owner.lookup('service:store');
+    let expectedResultsCopy = deepCopy(expectedResults);
+
+    class TestFindRecordAdapter extends EmberObject {
+      coalesceFindRequests = true;
+
+      findRecord() {
+        findRecordCalled++;
+      }
+
+      findMany(passedStore, type, ids, snapshots) {
+        findManyCalled++;
+
+        assert.equal(passedStore, store, 'instance of store is passed to findMany');
+        assert.equal(type, Person, 'model is passed to findMany');
+
+        let expectedIds = expectedResultsCopy.data.map(record => record.id);
+        assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
+
+        snapshots.forEach((snapshot, index) => {
+          assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findMany with correct modelName');
+          assert.equal(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
+        });
+
+        return resolve(expectedResultsCopy);
+      }
+    }
+
+    owner.register('adapter:application', TestFindRecordAdapter);
+
+    let promises = expectedResults.data.map(result => result.id).map(id => store.findRecord('person', id));
+    let records = await all(promises);
+
+    let serializedRecords = records.toArray().map(record => record.serialize());
+    expectedResults = expectedResults.data.map(result => ({ data: result }));
+
+    assert.equal(findRecordCalled, 0, 'findRecord is not called');
+    assert.equal(findManyCalled, 1, 'findMany is called once');
+    assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
+  });
+
   test('coalesceFindRequests is false', async function(assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
