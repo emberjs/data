@@ -207,7 +207,7 @@ export default class InternalModel {
   }
 
   get id(): string | null {
-    return this.identifier.id; // || this._id;
+    return this.identifier.id;
   }
 
   set id(value: string | null) {
