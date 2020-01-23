@@ -16,7 +16,6 @@ branches:
   only:
     - master
     - beta
-    - release
     # release and LTS branches
     - /^(release|lts)-.*/
     # npm version tags
