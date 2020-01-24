@@ -18,6 +18,8 @@
     "test": "ember test --test-port=0"
   },
   "dependencies": {
+    "@ember-data/canary-features": "3.17.0-alpha.1",
+    "@ember-data/private-build-infra": "3.17.0-alpha.1",
     "@ember-data/adapter": "3.17.0-alpha.1",
     "@ember-data/serializer": "3.17.0-alpha.1",
     "@ember-data/store": "3.17.0-alpha.1",
