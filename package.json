@@ -85,7 +85,7 @@
     "ember-cli-shims": "^1.2.0",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-string-utils": "^1.1.0",
-    "ember-cli-template-lint": "^1.0.0",
+    "ember-cli-template-lint": "^2.0.0",
     "ember-cli-test-loader": "^3.0.0",
     "ember-cli-typescript": "^3.1.2",
     "ember-cli-typescript-blueprints": "^3.0.0",
