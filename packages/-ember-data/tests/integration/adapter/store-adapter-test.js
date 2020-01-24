@@ -1073,7 +1073,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
             },
             relationships: {
               dogs: {
-                data: [{ type: 'dog', id: '1' }, { type: 'dog', id: '2' }],
+                data: [
+                  { type: 'dog', id: '1' },
+                  { type: 'dog', id: '2' },
+                ],
               },
             },
           },
@@ -1324,7 +1327,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.findMany = function(store, type, ids, snapshots) {
       assert.ok(snapshots[0] instanceof Snapshot, 'snapshots[0] is an instance of Snapshot');
       assert.ok(snapshots[1] instanceof Snapshot, 'snapshots[1] is an instance of Snapshot');
-      return resolve({ data: [{ id: 2, type: 'dog' }, { id: 3, type: 'dog' }] });
+      return resolve({
+        data: [
+          { id: 2, type: 'dog' },
+          { id: 3, type: 'dog' },
+        ],
+      });
     };
 
     let person;
@@ -1336,7 +1344,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           id: '1',
           relationships: {
             dogs: {
-              data: [{ type: 'dog', id: '2' }, { type: 'dog', id: '3' }],
+              data: [
+                { type: 'dog', id: '2' },
+                { type: 'dog', id: '3' },
+              ],
             },
           },
         },
@@ -1360,7 +1371,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findHasMany = function(store, snapshot, link, relationship) {
       assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve({ data: [{ id: 2, type: 'dog' }, { id: 3, type: 'dog' }] });
+      return resolve({
+        data: [
+          { id: 2, type: 'dog' },
+          { id: 3, type: 'dog' },
+        ],
+      });
     };
 
     let person;
@@ -1608,7 +1624,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       },
       findHasMany() {
         return resolve({
-          comments: [{ id: 1, name: 'FIRST' }, { id: 2, name: 'Rails is unagi' }, { id: 3, name: 'What is omakase?' }],
+          comments: [
+            { id: 1, name: 'FIRST' },
+            { id: 2, name: 'Rails is unagi' },
+            { id: 3, name: 'What is omakase?' },
+          ],
         });
       },
       shouldBackgroundReloadRecord() {

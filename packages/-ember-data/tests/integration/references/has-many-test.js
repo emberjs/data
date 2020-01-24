@@ -80,7 +80,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -130,7 +133,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -182,7 +188,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -278,7 +287,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -321,7 +333,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -366,7 +381,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -388,7 +406,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -481,7 +502,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -616,7 +640,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },
@@ -676,7 +703,10 @@ module('integration/references/has-many', function(hooks) {
           id: 1,
           relationships: {
             persons: {
-              data: [{ type: 'person', id: 1 }, { type: 'person', id: 2 }],
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 },
+              ],
             },
           },
         },

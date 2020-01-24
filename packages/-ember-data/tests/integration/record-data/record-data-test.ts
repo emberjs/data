@@ -629,7 +629,12 @@ module('integration/record-data - Custom RecordData Implementations', function(h
         assert.equal(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
         calledAddToHasMany++;
 
-        hasManyReturnValue = { data: [{ id: '3', type: 'person' }, { id: '2', type: 'person' }] };
+        hasManyReturnValue = {
+          data: [
+            { id: '3', type: 'person' },
+            { id: '2', type: 'person' },
+          ],
+        };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
 
@@ -648,7 +653,12 @@ module('integration/record-data - Custom RecordData Implementations', function(h
       setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
         assert.equal(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
-        hasManyReturnValue = { data: [{ id: '1', type: 'person' }, { id: '2', type: 'person' }] };
+        hasManyReturnValue = {
+          data: [
+            { id: '1', type: 'person' },
+            { id: '2', type: 'person' },
+          ],
+        };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
     }

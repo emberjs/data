@@ -1,6 +1,6 @@
 import { gte } from 'ember-compatibility-helpers';
 
-export type DecoratorPropertyDescriptor = PropertyDescriptor & { initializer?: any } | undefined;
+export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: any }) | undefined;
 
 export function isElementDescriptor(args: any[]): args is [object, string, DecoratorPropertyDescriptor] {
   let [maybeTarget, maybeKey, maybeDesc] = args;

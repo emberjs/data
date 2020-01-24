@@ -77,7 +77,10 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
             },
             relationships: {
               tags: {
-                data: [{ type: 'tag', id: '1' }, { type: 'tag', id: '2' }],
+                data: [
+                  { type: 'tag', id: '1' },
+                  { type: 'tag', id: '2' },
+                ],
               },
             },
           },
@@ -167,7 +170,10 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
             },
             relationships: {
               tags: {
-                data: [{ type: 'tag', id: '1' }, { type: 'tag', id: '2' }],
+                data: [
+                  { type: 'tag', id: '1' },
+                  { type: 'tag', id: '2' },
+                ],
               },
             },
           },

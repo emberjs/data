@@ -167,7 +167,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    person.save().then(() => {}, err => {});
+    person.save().then(
+      () => {},
+      err => {}
+    );
   });
 
   test('Record Data adapter errors', async function(assert) {
@@ -208,7 +211,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    await person.save().then(() => {}, err => {});
+    await person.save().then(
+      () => {},
+      err => {}
+    );
   });
 
   test('Getting errors from Record Data shows up on the record', async function(assert) {
@@ -340,7 +346,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    await person.save().then(() => {}, err => {});
+    await person.save().then(
+      () => {},
+      err => {}
+    );
 
     assert.equal(person.get('isValid'), false, 'rejecting the save invalidates the person');
     let nameError = person

@@ -209,14 +209,21 @@ export default EmberObject.extend(MutableArray, DeprecatedEvent, {
     let internalModels;
     if (amt > 0) {
       internalModels = this.currentState.slice(idx, idx + amt);
-      this.get('recordData').removeFromHasMany(this.get('key'), internalModels.map(im => recordDataFor(im)));
+      this.get('recordData').removeFromHasMany(
+        this.get('key'),
+        internalModels.map(im => recordDataFor(im))
+      );
     }
     if (objects) {
       assert(
         'The third argument to replace needs to be an array.',
         Array.isArray(objects) || EmberArray.detect(objects)
       );
-      this.get('recordData').addToHasMany(this.get('key'), objects.map(obj => recordDataFor(obj)), idx);
+      this.get('recordData').addToHasMany(
+        this.get('key'),
+        objects.map(obj => recordDataFor(obj)),
+        idx
+      );
     }
     this.retrieveLatest();
   },

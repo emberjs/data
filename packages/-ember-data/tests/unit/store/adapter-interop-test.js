@@ -94,7 +94,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
       findMany(store, type, ids, snapshots) {
         assert.ok(true, 'Adapter#findMany was called');
         assert.deepEqual(ids, ['1', '2'], 'Correct ids were passed in to findMany');
-        return resolve({ data: [{ id: 1, type: 'test' }, { id: 2, type: 'test' }] });
+        return resolve({
+          data: [
+            { id: 1, type: 'test' },
+            { id: 2, type: 'test' },
+          ],
+        });
       },
       coalesceFindRequests: true,
     });

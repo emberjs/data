@@ -65,7 +65,10 @@ module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
       }
     });
 
-    assert.ok(lengths.every(len => len <= maxLength), `Some URLs are longer than ${maxLength} chars`);
+    assert.ok(
+      lengths.every(len => len <= maxLength),
+      `Some URLs are longer than ${maxLength} chars`
+    );
     return EmberPromise.all(wait);
   });
 

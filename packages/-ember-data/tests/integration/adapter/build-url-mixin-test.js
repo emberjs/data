@@ -207,7 +207,11 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
         id: '2',
         relationships: {
           comments: {
-            data: [{ id: '1', type: 'comment' }, { id: '2', type: 'comment' }, { id: '3', type: 'comment' }],
+            data: [
+              { id: '1', type: 'comment' },
+              { id: '2', type: 'comment' },
+              { id: '3', type: 'comment' },
+            ],
           },
         },
       },

@@ -132,23 +132,39 @@ module('Relationships | unloading new records', function(hooks) {
     const originalRootNode = entryNode.parent;
 
     assert.ok(originalRootNode.name === 'root', 'PreCond: We have rootNode set');
-    assert.deepEqual(originalRootNode.children.map(c => c.id), ['2'], 'Precond: Root Node has the correct children');
+    assert.deepEqual(
+      originalRootNode.children.map(c => c.id),
+      ['2'],
+      'Precond: Root Node has the correct children'
+    );
 
     set(entryNode, 'parent', newNode);
     const value = entryNode.parent;
 
     assert.ok(value === newNode, 'PreCond: We properly set the sync belongsTo to the new value');
-    assert.deepEqual(originalRootNode.children.map(c => c.id), [], 'Precond: Root Node has the correct children');
+    assert.deepEqual(
+      originalRootNode.children.map(c => c.id),
+      [],
+      'Precond: Root Node has the correct children'
+    );
 
     newNode.unloadRecord();
     await settled();
 
     assert.ok(entryNode.parent === null, 'Our relationship state is now null');
-    assert.deepEqual(originalRootNode.children.map(c => c.id), [], 'Root Node still has the correct children');
+    assert.deepEqual(
+      originalRootNode.children.map(c => c.id),
+      [],
+      'Root Node still has the correct children'
+    );
   });
 
   test('Unloading an entry in a sync hasMany does not force the relationship state to reload', async function(assert) {
-    assert.deepEqual(entryNode.children.map(c => c.id), ['3'], 'Precond: EntryNode has the correct children');
+    assert.deepEqual(
+      entryNode.children.map(c => c.id),
+      ['3'],
+      'Precond: EntryNode has the correct children'
+    );
     assert.ok(newNode.parent === null, 'PreCond: The new node does not have a parent');
 
     set(newNode, 'parent', entryNode);
@@ -163,7 +179,11 @@ module('Relationships | unloading new records', function(hooks) {
     newNode.unloadRecord();
     await settled();
 
-    assert.deepEqual(entryNode.children.map(c => c.id), ['3'], 'entryNode has the correct children');
+    assert.deepEqual(
+      entryNode.children.map(c => c.id),
+      ['3'],
+      'entryNode has the correct children'
+    );
   });
 
   test('Unloading an async belongsTo does not force the relationship state to reload', async function(assert) {
@@ -173,7 +193,11 @@ module('Relationships | unloading new records', function(hooks) {
 
     let originalNodeAsyncEdges = await originalRelatedNode.asyncEdges;
 
-    assert.deepEqual(originalNodeAsyncEdges.map(c => c.id), ['2'], 'Precond: Related Node has the correct asyncEdges');
+    assert.deepEqual(
+      originalNodeAsyncEdges.map(c => c.id),
+      ['2'],
+      'Precond: Related Node has the correct asyncEdges'
+    );
 
     set(entryNode, 'relatedGraph', newNode);
 
@@ -196,7 +220,11 @@ module('Relationships | unloading new records', function(hooks) {
 
   test('Unloading an entry in an async hasMany does not force the relationship state to reload', async function(assert) {
     let asyncEdges = await entryNode.asyncEdges;
-    assert.deepEqual(asyncEdges.map(c => c.id), ['5'], 'Precond: entryNode has the correct asyncEdges');
+    assert.deepEqual(
+      asyncEdges.map(c => c.id),
+      ['5'],
+      'Precond: entryNode has the correct asyncEdges'
+    );
     let originalRelatedNode = await newNode.relatedGraph;
     assert.strictEqual(originalRelatedNode, null, 'PreCond: newNode has no relatedGraph yet');
 
@@ -216,6 +244,10 @@ module('Relationships | unloading new records', function(hooks) {
     await settled();
 
     asyncEdges = await entryNode.asyncEdges;
-    assert.deepEqual(asyncEdges.map(c => c.name), ['an async edge'], 'Precond: entryNode has the correct asyncEdges');
+    assert.deepEqual(
+      asyncEdges.map(c => c.name),
+      ['an async edge'],
+      'Precond: entryNode has the correct asyncEdges'
+    );
   });
 });
