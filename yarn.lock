@@ -6844,10 +6844,10 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.15.0:
-  version "3.15.0"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.15.0.tgz#f6500c6d289ce58231bf1e6695c4974df2be7390"
-  integrity sha512-daTELJBDMGqAmQb/Puxdk1YR204/zs1DEiEMQWlqbtmhphAoDUbGi9ifJu20ajP/IcOCWw9Vp7aPzguTohWF7w==
+ember-source@^3.16.0:
+  version "3.16.0"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.16.0.tgz#c899ccac6783e218f12774139b1e6c3d2fc4c16b"
+  integrity sha512-zotw+jrvlV/Fdq0fwL04jdFsxtHBo+0YtMKVvaNbSWeV97DrULSdnBQ91Sq1KZ+9ueBbClngHF4wXJmlIwqb8g==
   dependencies:
     "@babel/helper-module-imports" "^7.0.0"
     "@babel/plugin-transform-block-scoping" "^7.6.2"
@@ -6856,6 +6856,7 @@ ember-source@^3.15.0:
     babel-plugin-debug-macros "^0.3.3"
     babel-plugin-filter-imports "^3.0.0"
     broccoli-concat "^3.7.4"
+    broccoli-debug "^0.6.4"
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.2"
     chalk "^2.4.2"
@@ -12568,14 +12569,7 @@ resolve@1.9.0:
   dependencies:
     path-parse "^1.0.6"
 
-resolve@^1.10.0, resolve@^1.10.1, resolve@^1.11.1, resolve@^1.12.0, resolve@^1.14.0, resolve@^1.3.2, resolve@^1.3.3, resolve@^1.4.0, resolve@^1.5.0, resolve@^1.7.1, resolve@^1.8.1:
-  version "1.14.1"
-  resolved "https://registry.npmjs.org/resolve/-/resolve-1.14.1.tgz#9e018c540fcf0c427d678b9931cbf45e984bcaff"
-  integrity sha512-fn5Wobh4cxbLzuHaE+nphztHy43/b++4M6SsGFC2gB8uYwf0C8LcarfCz1un7UTW8OFQg9iNjZ4xpcFVGebDPg==
-  dependencies:
-    path-parse "^1.0.6"
-
-resolve@^1.14.2:
+resolve@^1.10.0, resolve@^1.10.1, resolve@^1.11.1, resolve@^1.12.0, resolve@^1.14.0, resolve@^1.14.2, resolve@^1.3.2, resolve@^1.3.3, resolve@^1.4.0, resolve@^1.5.0, resolve@^1.7.1, resolve@^1.8.1:
   version "1.15.0"
   resolved "https://registry.npmjs.org/resolve/-/resolve-1.15.0.tgz#1b7ca96073ebb52e741ffd799f6b39ea462c67f5"
   integrity sha512-+hTmAldEGE80U2wJJDC1lebb5jWqvTYAfm3YZ1ckk1gBr0MnCqUKlwK1e+anaFljIl+F5tR5IoZcm4ZDA1zMQw==
