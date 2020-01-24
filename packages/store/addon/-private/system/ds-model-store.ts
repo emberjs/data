@@ -1,26 +1,36 @@
 /**
   @module @ember-data/store
 */
-import CoreStore from './core-store';
 import { assert } from '@ember/debug';
-import normalizeModelName from './normalize-model-name';
 import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
-import { isPresent } from '@ember/utils';
 import { deprecate } from '@ember/application/deprecations';
+
+import { CUSTOM_MODEL_CLASS, IDENTIFIERS } from '@ember-data/canary-features';
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import { isPresent } from '@ember/utils';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
-import ShimModelClass, { getShimClass } from './model/shim-model-class';
 import { setOwner, getOwner } from '@ember/application';
-import { DSModel } from '../ts-interfaces/ds-model';
-import NotificationManager from './record-notification-manager';
-import { StableRecordIdentifier } from '../ts-interfaces/identifier';
-import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
-import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
-import { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
+
+import { identifierCacheFor } from '../identifiers/cache';
+import CoreStore from './core-store';
 import notifyChanges from './model/notify-changes';
+import { getShimClass } from './model/shim-model-class';
+import normalizeModelName from './normalize-model-name';
+import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
+
+type RecordDataStoreWrapper = import('./store/record-data-store-wrapper').default;
+
+const RecordData = HAS_RECORD_DATA_PACKAGE ? require('@ember-data/record-data/-private').RecordData : null;
+
+type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
+type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
+import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type NotificationManager = import('./record-notification-manager').default;
+type DSModel = import('../ts-interfaces/ds-model').DSModel;
+type ShimModelClass = import('./model/shim-model-class').default;
 type DSModelClass = import('@ember-data/model').default;
 
 /**
@@ -132,14 +142,31 @@ class Store extends CoreStore {
     record.destroy();
   }
 
+  createRecordDataFor(modelName: string, id: string | null, clientId: string, storeWrapper: RecordDataStoreWrapper) {
+    if (HAS_RECORD_DATA_PACKAGE) {
+      if (IDENTIFIERS) {
+        let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+          type: modelName,
+          id,
+          lid: clientId,
+        });
+        return new RecordData(identifier, storeWrapper);
+      } else {
+        return new RecordData(modelName, id, clientId, storeWrapper);
+      }
+    } else {
+      throw new Error(`Expected store.createRecordDataFor to be implemented but it wasn't`);
+    }
+  }
+
   /**
   Returns the model class for the particular `modelName`.
-
+ 
   The class of a model might be useful if you want to get a list of all the
   relationship names of the model, see
   [`relationshipNames`](/ember-data/release/classes/Model?anchor=relationshipNames)
   for example.
-
+ 
   @method modelFor
   @param {String} modelName
   @return {Model}
@@ -188,10 +215,10 @@ class Store extends CoreStore {
   This exists for legacy support for the RESTSerializer,
   which due to how it must guess whether a key is a model
   must query for whether a match exists.
-
+ 
   We should investigate an RFC to make this public or removing
   this requirement.
-
+ 
   @private
  */
   _hasModelFor(modelName) {
