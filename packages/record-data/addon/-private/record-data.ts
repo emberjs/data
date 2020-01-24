@@ -7,7 +7,7 @@ import { run } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
-import { IDENTIFIERS, RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 
 import coerceId from './coerce-id';
 import Relationships from './relationships/state/create';
@@ -44,29 +44,11 @@ export default class RecordDataDefault implements RelationshipRecordData {
   _scheduledDestroy: any;
   _isDeleted: boolean;
   _isDeletionCommited: boolean;
-  private identifier: RecordIdentifier;
-  public storeWrapper: RecordDataStoreWrapper;
 
-  constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper);
-  /**
-   * @deprecated
-   */
-  constructor(modelName: string, id: string | null, clientId: string, storeWrapper: RecordDataStoreWrapper);
-  constructor(arg1: RecordIdentifier | string, arg2: RecordDataStoreWrapper | string | null) {
-    if (IDENTIFIERS) {
-      const [identifier, storeWrapper] = arguments;
-      this.identifier = identifier;
-      this.modelName = identifier.type;
-      this.clientId = identifier.lid;
-      this.id = identifier.id;
-      this.storeWrapper = storeWrapper;
-    } else {
-      const [modelName, id, clientId, storeWrapper] = arguments;
-      this.modelName = modelName;
-      this.clientId = clientId;
-      this.id = id;
-      this.storeWrapper = storeWrapper;
-    }
+  constructor(private identifier: RecordIdentifier, public storeWrapper: RecordDataStoreWrapper) {
+    this.modelName = identifier.type;
+    this.clientId = identifier.lid;
+    this.id = identifier.id;
 
     this.__relationships = null;
     this.__implicitRelationships = null;
@@ -80,11 +62,8 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   // PUBLIC API
-
   getResourceIdentifier(): RecordIdentifier {
-    return IDENTIFIERS
-      ? this.identifier
-      : { id: this.id, type: this.modelName, lid: this.clientId, clientId: this.clientId };
+    return this.identifier;
   }
 
   pushData(data: JsonApiResource, calculateChange: boolean) {

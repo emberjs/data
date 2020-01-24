@@ -160,8 +160,8 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindHasManyAdapter extends EmberObject {
@@ -269,8 +269,8 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
@@ -345,8 +345,8 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
@@ -417,8 +417,8 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
@@ -500,8 +500,8 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
@@ -582,8 +582,8 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindHasManyAdapter extends EmberObject {
@@ -661,8 +661,8 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
@@ -739,8 +739,8 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
-    // expectedResult is unexpectedly mutated during store.findRecord
-    // if IDENTIFIERS is turned on
+    // expectedResult is mutated during store.findRecord
+    // to add the lid
     let expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {

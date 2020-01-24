@@ -5,7 +5,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
-import { IDENTIFIERS, REQUEST_SERVICE } from '@ember-data/canary-features';
+import { REQUEST_SERVICE } from '@ember-data/canary-features';
 
 import coerceId from '../coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
@@ -58,10 +58,8 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
         }
       );
 
-      if (IDENTIFIERS) {
-        // ensure that regardless of id returned we assign to the correct record
-        payload.data.lid = identifier.lid;
-      }
+      // ensure that regardless of id returned we assign to the correct record
+      payload.data.lid = identifier.lid;
 
       return store._push(payload);
     },

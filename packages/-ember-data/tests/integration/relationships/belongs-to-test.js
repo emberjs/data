@@ -9,7 +9,6 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { IDENTIFIERS } from '@ember-data/canary-features';
 import Model from '@ember-data/model';
 import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -2047,16 +2046,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     const createRecordDataFor = store.createRecordDataFor;
     store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
       if (modelName === 'book1' || modelName === 'section') {
-        if (IDENTIFIERS) {
-          let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
-            type: modelName,
-            id,
-            lid,
-          });
-          return new TestRecordData(identifier, storeWrapper);
-        } else {
-          return new TestRecordData(modelName, id, lid, storeWrapper);
-        }
+        let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+          type: modelName,
+          id,
+          lid,
+        });
+        return new TestRecordData(identifier, storeWrapper);
       }
       return createRecordDataFor.call(this, modelName, id, lid, storeWrapper);
     };
