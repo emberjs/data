@@ -61,7 +61,6 @@ jobs:
           COMPAT_WITH: '99.0'
         run: yarn test:infra
 
-
   basic-tests:
     timeout-minutes: 15
     strategy:
@@ -220,7 +219,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [ember-release, ember-beta, ember-canary]
+        scenario: [ember-release]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -233,6 +232,32 @@ jobs:
         env:
           CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
+
+  future-releases:
+    timeout-minutes: 4
+    needs: [lint, basic-tests]
+    if: |
+      github.event_name == 'pull_request' && (
+        github.base_ref == 'master' || github.base_ref == 'beta'
+      ) || github.event_name == 'push' && (
+        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+      )
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [ember-beta, ember-canary]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests with ${{ matrix.scenario }}
+        env:
+          CI: true
+        run: yarn test:try-one ${{ matrix.scenario }} || exit 0
 
   additional-scenarios:
     timeout-minutes: 5

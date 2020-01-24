@@ -261,12 +261,12 @@ jobs:
 
       - script: |
           yarn install
-          yarn test:try-one ember-beta
+          yarn test:try-one ember-beta || exit 0
         displayName: 'Ember Beta'
 
       - script: |
           yarn install
-          yarn test:try-one ember-canary
+          yarn test:try-one ember-canary || exit 0
         displayName: 'Ember Canary'
 
   - job: External_Partner_tests_ilios
