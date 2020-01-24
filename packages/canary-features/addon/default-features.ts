@@ -176,5 +176,5 @@ export default {
   IDENTIFIERS: true,
   REQUEST_SERVICE: null,
   CUSTOM_MODEL_CLASS: null,
-  FULL_LINKS_ON_RELATIONSHIPS: null,
+  FULL_LINKS_ON_RELATIONSHIPS: true,
 };
