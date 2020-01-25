@@ -1,6 +1,13 @@
 # Ember Data Changelog
 
-### Master
+### Release 3.16.beta.1
+
+- [#6986](https://github.com/emberjs/data/pull/6986) [BUFGIX BETA] dont run canary model tests in beta
+- [#6960](https://github.com/emberjs/data/pull/6960) [BUGFIX] fix @ember-data/store import
+- [#6968](https://github.com/emberjs/data/pull/6968) remove IDENTIFIERS off branches (#6968)
+- [#6985](https://github.com/emberjs/data/pull/6985) [FIX] RecordData is not a constructor
+- [#7001](https://github.com/emberjs/data/pull/7001) Disable known failure for 3.16.x
+- [#7003](https://github.com/emberjs/data/pull/7003) beta backports
 
 ## Release 3.16.beta.0 (December 18, 2019)
 - [#6767](https://github.com/emberjs/data/pull/6767) [BUGFIX] fix detect usage for native class polymorphism (#6767)
