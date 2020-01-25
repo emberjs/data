@@ -100,7 +100,10 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
           id: '1',
           relationships: {
             people: {
-              data: [{ type: 'person', id: '1' }, { type: 'person', id: '2' }],
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
             },
           },
         },

@@ -1,12 +1,15 @@
 import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
+
+import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
 import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import todo from '../../helpers/todo';
 
 module('integration/relationships/one_to_many_test - OneToMany relationships', function(hooks) {
   setupTest(hooks);
@@ -1564,39 +1567,51 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     assert.equal(account.get('user'), null, 'Account does not have the user anymore');
   });
 
-  test('createRecord updates inverse record array which has observers', function(assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-
-    adapter.findAll = () => {
-      return {
-        data: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Stanley',
-            },
-          },
-        ],
-      };
-    };
-
-    return store.findAll('user').then(users => {
-      assert.equal(users.get('length'), 1, 'Exactly 1 user');
-
-      let user = users.get('firstObject');
-      assert.equal(user.get('messages.length'), 0, 'Record array is initially empty');
-
-      // set up an observer
-      user.addObserver('messages.@each.title', () => {});
-      user.get('messages.firstObject');
-
-      let message = store.createRecord('message', { user, title: 'EmberFest was great' });
-      assert.equal(user.get('messages.length'), 1, 'The message is added to the record array');
-
-      let messageFromArray = user.get('messages.firstObject');
-      assert.ok(message === messageFromArray, 'Only one message record instance should be created');
+  // This is the check we actually want, but compatibility-helpers doesn't give correct results for pre-release tags
+  // see https://github.com/pzuraq/ember-compatibility-helpers/pull/41
+  // if ((gte('3.16.0') && !gte('3.17.0')) /* 3.16.x */ || (gte('3.17.99') && !gte('3.18.0')) /* 3.18.0-canary */) {
+  //
+  if (gte('3.16.0')) {
+    // known failure in 3.16.x due to upstream glimmer VM issue
+    // https://github.com/glimmerjs/glimmer-vm/pull/1010
+    todo('createRecord updates inverse record array which has observers', function(assert) {
+      assert.todo.ok(false, 'known failure in ember-source@^3.16.0');
     });
-  });
+  } else {
+    test('createRecord updates inverse record array which has observers', function(assert) {
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
+
+      adapter.findAll = () => {
+        return {
+          data: [
+            {
+              id: '2',
+              type: 'user',
+              attributes: {
+                name: 'Stanley',
+              },
+            },
+          ],
+        };
+      };
+
+      return store.findAll('user').then(users => {
+        assert.equal(users.get('length'), 1, 'Exactly 1 user');
+
+        let user = users.get('firstObject');
+        assert.equal(user.get('messages.length'), 0, 'Record array is initially empty');
+
+        // set up an observer
+        user.addObserver('messages.@each.title', () => {});
+        user.get('messages.firstObject');
+
+        let message = store.createRecord('message', { user, title: 'EmberFest was great' });
+        assert.equal(user.get('messages.length'), 1, 'The message is added to the record array');
+
+        let messageFromArray = user.get('messages.firstObject');
+        assert.ok(message === messageFromArray, 'Only one message record instance should be created');
+      });
+    });
+  }
 });

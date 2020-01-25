@@ -192,7 +192,10 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     });
 
     assert.equal(didAddRecord, 2, 'expected 2 didAddRecords');
-    assert.deepEqual(recordArray.map(x => x.name), ['Scumbag Dale', 'Scumbag Katz']);
+    assert.deepEqual(
+      recordArray.map(x => x.name),
+      ['Scumbag Dale', 'Scumbag Katz']
+    );
 
     assert.equal(arrayDidChange, 0, 'array should not yet have emitted a change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
@@ -239,7 +242,10 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(arrayDidChange, 1, 'record array should have omitted ONE change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
-    assert.deepEqual(recordArray.map(x => x.name), ['Scumbag Penner', 'Scumbag Hamilton']);
+    assert.deepEqual(
+      recordArray.map(x => x.name),
+      ['Scumbag Penner', 'Scumbag Hamilton']
+    );
 
     arrayDidChange = 0; // reset change event counter
     contentDidChange = 0; // reset change event counter
@@ -278,7 +284,10 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(arrayDidChange, 1, 'record array should have emitted one change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
-    assert.deepEqual(recordArray.map(x => x.name), ['Scumbag Penner']);
+    assert.deepEqual(
+      recordArray.map(x => x.name),
+      ['Scumbag Penner']
+    );
     assert.expectDeprecation({
       id: 'ember-data:evented-api-usage',
       count: 1,

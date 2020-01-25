@@ -122,7 +122,10 @@ module('RecordData Compatibility', function(hooks) {
         attributes: { name: 'Chris' },
         relationships: {
           pets: {
-            data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '2' }],
+            data: [
+              { type: 'pet', id: '1' },
+              { type: 'pet', id: '2' },
+            ],
           },
         },
       },
@@ -177,7 +180,10 @@ module('RecordData Compatibility', function(hooks) {
         attributes: { name: 'Chris' },
         relationships: {
           pets: {
-            data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '2' }],
+            data: [
+              { type: 'pet', id: '1' },
+              { type: 'pet', id: '2' },
+            ],
           },
         },
       },

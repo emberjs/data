@@ -553,7 +553,10 @@ if (CUSTOM_MODEL_CLASS) {
           attributes: { name: 'chris' },
           relationships: {
             house: {
-              data: [{ type: 'house', id: '1' }, { type: 'house', id: '2' }],
+              data: [
+                { type: 'house', id: '1' },
+                { type: 'house', id: '2' },
+              ],
             },
           },
         },

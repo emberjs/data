@@ -749,7 +749,10 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   test('normalizeResponse can load secondary records of the same type without affecting the query count', function(assert) {
     var jsonHash = {
       comments: [{ id: '1', body: 'Parent Comment', root: true, children: [2, 3] }],
-      _comments: [{ id: '2', body: 'Child Comment 1', root: false }, { id: '3', body: 'Child Comment 2', root: false }],
+      _comments: [
+        { id: '2', body: 'Child Comment 1', root: false },
+        { id: '3', body: 'Child Comment 2', root: false },
+      ],
     };
     var array;
     this.owner.register('serializer:comment', DS.JSONSerializer);
@@ -771,7 +774,10 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
         },
         relationships: {
           children: {
-            data: [{ id: '2', type: 'comment' }, { id: '3', type: 'comment' }],
+            data: [
+              { id: '2', type: 'comment' },
+              { id: '3', type: 'comment' },
+            ],
           },
         },
       },
@@ -805,7 +811,10 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     run(function() {
       store.push(
         serializer.normalizeArrayResponse(store, Basket, {
-          basket: [{ type: 'bamboo', size: 10, id: '1' }, { type: 'yellowMinion', size: 10, id: '65536' }],
+          basket: [
+            { type: 'bamboo', size: 10, id: '1' },
+            { type: 'yellowMinion', size: 10, id: '65536' },
+          ],
         })
       );
     });

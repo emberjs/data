@@ -653,12 +653,10 @@ export default class InternalModel {
 
   _findBelongsTo(key, resource, relationshipMeta, options) {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
-    return this.store
-      ._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options)
-      .then(
-        internalModel => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
-        e => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
-      );
+    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
+      internalModel => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
+      e => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
+    );
   }
 
   getBelongsTo(key, options) {
