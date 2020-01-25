@@ -6700,10 +6700,10 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.15.0:
-  version "3.15.0"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.15.0.tgz#f6500c6d289ce58231bf1e6695c4974df2be7390"
-  integrity sha512-daTELJBDMGqAmQb/Puxdk1YR204/zs1DEiEMQWlqbtmhphAoDUbGi9ifJu20ajP/IcOCWw9Vp7aPzguTohWF7w==
+ember-source@~3.16.0:
+  version "3.16.0"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.16.0.tgz#c899ccac6783e218f12774139b1e6c3d2fc4c16b"
+  integrity sha512-zotw+jrvlV/Fdq0fwL04jdFsxtHBo+0YtMKVvaNbSWeV97DrULSdnBQ91Sq1KZ+9ueBbClngHF4wXJmlIwqb8g==
   dependencies:
     "@babel/helper-module-imports" "^7.0.0"
     "@babel/plugin-transform-block-scoping" "^7.6.2"
@@ -6712,6 +6712,7 @@ ember-source@^3.15.0:
     babel-plugin-debug-macros "^0.3.3"
     babel-plugin-filter-imports "^3.0.0"
     broccoli-concat "^3.7.4"
+    broccoli-debug "^0.6.4"
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.2"
     chalk "^2.4.2"
