@@ -2,6 +2,13 @@
 
 ### Master
 
+## Release 3.15.1 (January 24, 2020)
+
+- [7bc74620](https://github.com/emberjs/data/commit/7bc74620aad159f37eb75eee07293c8b89216048) [BUGFIX] fix importing from @ember-data/store
+- [#6985](https://github.com/emberjs/data/pull/6985) [FIX] RecordData is not a constructor
+- [#7001](https://github.com/emberjs/data/pull/7001) Disable known failure for 3.16.x
+- [#7002](https://github.com/emberjs/data/pull/7002) 3.15.x release backports
+
 ## Release 3.15.0 (December 18, 2019)
 
 - [#6586](https://github.com/emberjs/data/pull/6586) [BUGFIX] relationship setup for link fetch should batch (#6586)
