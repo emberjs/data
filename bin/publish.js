@@ -53,10 +53,10 @@ function cleanProject() {
 function execWithLog(command, proxyIO = false) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
   if (proxyIO) {
-    return execa.sync(command, { stdio: [0, 1, 2], shell: true });
+    return execa.sync(command, { stdio: [0, 1, 2], shell: true, preferLocal: true });
   }
 
-  return execa.sync(command, { shell: true }).stdout;
+  return execa.sync(command, { shell: true, preferLocal: true }).stdout;
 }
 
 function getConfig() {
