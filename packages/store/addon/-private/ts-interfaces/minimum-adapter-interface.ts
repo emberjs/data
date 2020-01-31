@@ -699,6 +699,18 @@ interface Adapter {
    * @return {boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made in the background, false otherwise
    */
   shouldBackgroundReloadAll?(store: Store, snapshotArray: SnapshotRecordArray): boolean;
+
+  /**
+   * In some situations the adapter may need to perform cleanup when destroyed,
+   * that cleanup can be done in `destroy`.
+   *
+   * If not implemented, the store does not inform the adapter of destruction.
+   *
+   * @method destroy [OPTIONAL]
+   * @public
+   * @optional
+   */
+  destroy?(): void;
 }
 
 export default Adapter;
