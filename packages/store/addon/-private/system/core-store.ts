@@ -70,6 +70,7 @@ type RecordReference = import('./references').RecordReference;
 type HasManyReference = import('./references').HasManyReference;
 type BelongsToReference = import('./references').BelongsToReference;
 type IdentifierCache = import('../identifiers/cache').IdentifierCache;
+type Peekable = import('../identifiers/cache').Peekable;
 type InternalModel = import('./model/internal-model').default;
 
 type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
@@ -125,6 +126,7 @@ function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
     return Object.freeze(obj);
   }
+
   return obj;
 }
 
@@ -1520,7 +1522,24 @@ abstract class CoreStore extends Service {
     @param {String|Integer} id
     @return {Model|null} record
   */
-  peekRecord(modelName: string, id: string | number): RecordInstance | null {
+  peekRecord(modelName: string, id: string | number): RecordInstance | null;
+  peekRecord(identifier: Peekable): RecordInstance | null;
+  peekRecord(identifier: Peekable | string, id?: string | number): RecordInstance | null {
+    if (
+      arguments.length === 1 &&
+      identifier !== null &&
+      typeof identifier === 'object' &&
+      identifier.id &&
+      identifier.type
+    ) {
+      const _identifier = identifierCacheFor(this).peekRecordIdentifier(identifier as Peekable);
+      if (_identifier) {
+        return internalModelFactoryFor(this).peek(_identifier);
+      }
+      return null;
+    }
+
+    const modelName = identifier as string;
     if (DEBUG) {
       assertDestroyingStore(this, 'peekRecord');
     }

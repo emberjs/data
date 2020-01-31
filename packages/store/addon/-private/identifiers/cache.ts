@@ -23,6 +23,15 @@ type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').R
 type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
+/**
+ * Peekable - (id && type) || lid
+ * - Identifiers are guaranteed to have a lid
+ * - ResourceIdentifierObject is Existing or New
+ *    - NewResources are guaranteed to have a lid
+ *    - ExistingResources are guaranteed to have an id AND type
+ */
+export type Peekable = RecordIdentifier | ResourceIdentifierObject;
+
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
     return Object.freeze(obj);
@@ -149,7 +158,7 @@ export class IdentifierCache {
     shouldGenerate: false
   ): StableRecordIdentifier | undefined;
   private _getRecordIdentifier(
-    resource: ResourceIdentifierObject,
+    resource: Peekable,
     shouldGenerate: boolean = false
   ): StableRecordIdentifier | undefined {
     // short circuit if we're already the stable version
@@ -170,8 +179,9 @@ export class IdentifierCache {
       return identifier;
     }
 
-    let type = normalizeModelName(resource.type);
-    let id = coerceId(resource.id);
+    const _resource = resource as ResourceIdentifierObject;
+    let type = normalizeModelName(_resource.type);
+    let id = coerceId(_resource.id);
 
     if (shouldGenerate === false) {
       if (!type || !id) {
@@ -181,7 +191,7 @@ export class IdentifierCache {
 
     // `type` must always be present
     if (DEBUG) {
-      if (!isNonEmptyString(resource.type)) {
+      if (!isNonEmptyString(_resource.type)) {
         throw new Error('resource.type needs to be a string');
       }
     }
@@ -268,7 +278,7 @@ export class IdentifierCache {
    *
    * @internal
    */
-  peekRecordIdentifier(resource: ResourceIdentifierObject): StableRecordIdentifier | undefined {
+  peekRecordIdentifier(resource: Peekable): StableRecordIdentifier | undefined {
     return this._getRecordIdentifier(resource, false);
   }
 
