@@ -3502,13 +3502,28 @@ abstract class CoreStore extends Service {
     }
   }
 
+  destroy() {
+    // enqueue destruction of any adapters/serializers we have created
+    for (let adapterName in this._adapterCache) {
+      let adapter = this._adapterCache[adapterName];
+      if (typeof adapter.destroy === 'function') {
+        adapter.destroy();
+      }
+    }
+
+    for (let serializerName in this._serializerCache) {
+      let serializer = this._serializerCache[serializerName];
+      if (typeof serializer.destroy === 'function') {
+        serializer.destroy();
+      }
+    }
+
+    return super.destroy();
+  }
+
   willDestroy() {
     super.willDestroy();
     this.recordArrayManager.destroy();
-
-    // Check if we need to null this out
-    // this._adapterCache = null;
-    // this._serializerCache = null;
 
     identifierCacheFor(this).destroy();
 
