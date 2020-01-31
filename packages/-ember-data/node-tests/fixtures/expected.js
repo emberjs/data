@@ -76,6 +76,7 @@ module.exports = {
     '(private) @ember-data/store RecordArray#objectAtContent',
     '(private) @ember-data/store RecordArray#removeInternalModel',
     '(private) @ember-data/store RecordArray#store',
+    '(private) @ember-data/store RecordArrayManager#_associateWithRecordArray',
     '(private) @ember-data/store SnapshotRecordArray#_recordArray',
     '(private) @ember-data/store SnapshotRecordArray#_snapshots',
     '(private) @ember-data/store Store#_didUpdateAll',
