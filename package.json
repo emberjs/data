@@ -130,7 +130,7 @@
     "prettier": "~1.19.1",
     "qunit": "^2.9.3",
     "qunit-dom": "^0.9.2",
-    "rimraf": "^3.0.0",
+    "rimraf": "^3.0.1",
     "rsvp": "^4.8.5",
     "semver": "^7.1.2",
     "silent-error": "^1.1.1",
