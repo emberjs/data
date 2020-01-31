@@ -52,7 +52,7 @@
     "@types/qunit": "^2.5.3",
     "@types/rsvp": "^4.0.3",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
-    "@typescript-eslint/parser": "^2.17.0",
+    "@typescript-eslint/parser": "^2.18.0",
     "babel-eslint": "^10.0.3",
     "babel-plugin-debug-macros": "^0.3.3",
     "babel-plugin-filter-imports": "^4.0.0",
