@@ -669,6 +669,18 @@ export default EmberObject.extend({
   shouldBackgroundReloadAll(store, snapshotRecordArray) {
     return true;
   },
+
+  /**
+    In some situations the adapter may need to perform cleanup when destroyed,
+    that cleanup can be done in `destroy`.
+
+    If not implemented, the store does not inform the adapter of destruction.
+
+    @method destroy [OPTIONAL]
+    @public
+    @optional
+  */
+  destroy: null
 });
 
 export { BuildURLMixin } from './-private';

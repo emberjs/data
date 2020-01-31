@@ -1,4 +1,6 @@
 import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
 import Store from 'ember-data/store';
 
@@ -409,5 +411,32 @@ module('integration/store - serializerFor', function(hooks) {
       defaultSerializer === fallbackSerializer,
       'We fell back to the -default serializer instance for the adapter defaultSerializer'
     );
+  });
+
+  test('serializers are destroyed', async function(assert) {
+    let { owner } = this;
+    let didInstantiate = false;
+    let didDestroy = false;
+
+    class AppSerializer extends TestSerializer {
+      didInit() {
+        didInstantiate = true;
+      }
+
+      destroy() {
+        didDestroy = true;
+      }
+    }
+
+    owner.register('serializer:application', AppSerializer);
+
+    let serializer = store.serializerFor('application');
+
+    assert.ok(serializer instanceof AppSerializer, 'precond - We found the correct serializer');
+    assert.ok(didInstantiate, 'precond - We instantiated the serializer');
+
+    run(store, 'destroy');
+
+    assert.ok(didDestroy, 'serializer was destroyed');
   });
 });

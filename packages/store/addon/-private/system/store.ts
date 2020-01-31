@@ -2920,13 +2920,29 @@ const Store = Service.extend({
     return serializer;
   },
 
+  destroy() {
+    // enqueue destruction of any adapters/serializers we have created
+    for (let adapterName in this._adapterCache) {
+      let adapter = this._adapterCache[adapterName];
+      if (typeof adapter.destroy === 'function') {
+        adapter.destroy();
+      }
+    }
+
+    for (let serializerName in this._serializerCache) {
+      let serializer = this._serializerCache[serializerName];
+      if (typeof serializer.destroy === 'function') {
+        serializer.destroy();
+      }
+    }
+
+    return this._super();
+  },
+
   willDestroy() {
     this._super(...arguments);
     this._pushedInternalModels = null;
     this.recordArrayManager.destroy();
-
-    this._adapterCache = null;
-    this._serializerCache = null;
 
     this.unloadAll();
 
