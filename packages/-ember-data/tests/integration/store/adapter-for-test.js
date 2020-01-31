@@ -1,4 +1,5 @@
 import { assign } from '@ember/polyfills';
+import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 
@@ -277,5 +278,32 @@ module('integration/store - adapterFor', function(hooks) {
       'We fell back to the -json-api adapter instance for the fallback -not-a-real-adapter'
     );
     assert.ok(jsonApiAdapter === adapter, 'We fell back to the -json-api adapter instance for the per-type adapter');
+  });
+
+  test('adapters are destroyed', async function(assert) {
+    let { owner } = this;
+    let didInstantiate = false;
+    let didDestroy = false;
+
+    class AppAdapter extends TestAdapter {
+      didInit() {
+        didInstantiate = true;
+      }
+
+      destroy() {
+        didDestroy = true;
+      }
+    }
+
+    owner.register('adapter:application', AppAdapter);
+
+    let adapter = store.adapterFor('application');
+
+    assert.ok(adapter instanceof AppAdapter, 'precond - We found the correct adapter');
+    assert.ok(didInstantiate, 'precond - We instantiated the adapter');
+
+    run(store, 'destroy');
+
+    assert.ok(didDestroy, 'adapter was destroyed');
   });
 });
