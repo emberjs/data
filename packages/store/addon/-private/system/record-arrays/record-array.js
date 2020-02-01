@@ -1,7 +1,6 @@
 /**
   @module @ember-data/store
 */
-import { A } from '@ember/array';
 import ArrayProxy from '@ember/array/proxy';
 import { computed, get, set } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
@@ -239,7 +238,6 @@ const RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     // this is private for users, but public for ember-data internals
     return new SnapshotRecordArray(this, this.get('meta'), options);
   },
-
 });
 
 if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {

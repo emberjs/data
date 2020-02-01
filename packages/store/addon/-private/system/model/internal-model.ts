@@ -13,11 +13,10 @@ import RSVP, { Promise } from 'rsvp';
 import {
   CUSTOM_MODEL_CLASS,
   FULL_LINKS_ON_RELATIONSHIPS,
+  RECORD_ARRAY_MANAGER_IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
-  RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
-  RECORD_ARRAY_MANAGER_IDENTIFIERS
 } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
@@ -202,7 +201,7 @@ export default class InternalModel {
     // caches for lazy getters
     this._modelClass = null;
     this.__deferredTriggers = null;
-    this.__recordArrays= null;
+    this.__recordArrays = null;
     this._references = null;
     this._recordReference = null;
   }

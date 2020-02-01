@@ -20,10 +20,10 @@ import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
 
 import {
   CUSTOM_MODEL_CLASS,
+  RECORD_ARRAY_MANAGER_IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
-  RECORD_ARRAY_MANAGER_IDENTIFIERS
 } from '@ember-data/canary-features';
 import {
   HAS_ADAPTER_PACKAGE,

@@ -5,7 +5,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
-import { REQUEST_SERVICE, RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS, REQUEST_SERVICE } from '@ember-data/canary-features';
 
 import coerceId from '../coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
