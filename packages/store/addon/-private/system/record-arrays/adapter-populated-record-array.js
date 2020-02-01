@@ -108,7 +108,7 @@ if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   };
 } else {
   /**
-    @method _setIdentifiers
+    @method _setInternalModels
     @param {Array} internalModels
     @param {Object} payload normalized payload
     @internal
