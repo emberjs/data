@@ -18,11 +18,21 @@ import {
 // only used by RECORD_ARRAY_MANAGER_IDENTIFIERS
 import isStableIdentifier from '../identifiers/is-stable-identifier';
 
-
+const RecordArraysCache = new WeakMap();
 const emberRun = emberRunloop.backburner;
 let RecordArrayManager;
+
 export let associateWithRecordArray;
-export let recordArraysForIdentifier;
+export function recordArraysForIdentifier(identifierOrInternalModel) {
+  if (RecordArraysCache.has(identifierOrInternalModel)) {
+    // return existing Set if exists
+    return RecordArraysCache.get(identifierOrInternalModel);
+  }
+
+  // return workable Set instance
+  RecordArraysCache.set(identifierOrInternalModel, new Set());
+  return RecordArraysCache.get(identifierOrInternalModel);
+}
 
 /**
   @class RecordArrayManager
@@ -358,13 +368,19 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     recordArrays.clear();
   }
 
+  associateWithRecordArray = function assocWithRecordArray(internalModels, array) {
+    for (let i = 0, l = internalModels.length; i < l; i++) {
+      let internalModel = internalModels[i];
+      internalModel._recordArrays.add(array);
+    }
+  }
+
 } else {
 
   const emberRun = emberRunloop.backburner;
   const pendingForIdentifier = new Set([]);
   const IMFallback = new WeakMap();
   // store StableIdentifier => Set[RecordArray[]]
-  const RecordArraysCache = new WeakMap();
 
   function getIdentifier(identifier) {
   let i = identifier;
@@ -389,17 +405,6 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     return im;
   }
   return cache.peek(identifier);
-  }
-
-  recordArraysForIdentifier = function recordArrsForIdentifier(identifier) {
-  if (RecordArraysCache.has(identifier)) {
-    // return existing Set if exists
-    return RecordArraysCache.get(identifier);
-  }
-
-  // return workable Set instance
-  RecordArraysCache.set(identifier, new Set());
-  return RecordArraysCache.get(identifier);
   }
 
   function shouldIncludeInRecordArrays(store, identifier) {
@@ -677,10 +682,11 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       }
     }
 
-    recordDidChange(identifier, modelName) {
+    recordDidChange(identifier) {
       if (this.isDestroying || this.isDestroyed) {
         return;
       }
+      let modelName = identifier.type;
       identifier = getIdentifier(identifier);
 
       if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
@@ -792,13 +798,6 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   });
 
   recordArrays.clear();
-  }
-
-  associateWithRecordArray = function assocWithRecordArray(internalModels, array) {
-    for (let i = 0, l = internalModels.length; i < l; i++) {
-      let internalModel = internalModels[i];
-      internalModel._recordArrays.add(array);
-    }
   }
 }
 

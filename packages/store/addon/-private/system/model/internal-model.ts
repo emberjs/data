@@ -1578,7 +1578,7 @@ export default class InternalModel {
   }
 }
 
-if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+if (!RECORD_ARRAY_MANAGER_IDENTIFIERS || RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
   Object.defineProperty(InternalModel.prototype, '_recordArrays', {
     get() {
       return recordArraysForIdentifier(this.identifier);

@@ -124,7 +124,11 @@ const RecordArray = ArrayProxy.extend(DeprecatedEvented, {
   objectAtContent(index) {
     let identifier = get(this, 'content').objectAt(index);
 
-    return identifier ? recordForIdentifier(this.store, identifier) : undefined;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      return identifier ? recordForIdentifier(this.store, identifier) : undefined;
+    } else {
+      return identifier ? identifier.getRecord() : undefined;
+    }
   },
 
   /**

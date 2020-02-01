@@ -10,6 +10,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 
 const Person = Model.extend({
   name: attr('string'),
@@ -66,10 +67,19 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     };
 
     let results = store.push(payload);
-    recordArray._setIdentifiers(
-      results.map(r => recordIdentifierFor(r)),
-      payload
-    );
+
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      recordArray._setIdentifiers(
+        results.map(r => recordIdentifierFor(r)),
+        payload
+      );
+    } else {
+      recordArray._setInternalModels(
+        results.map(r => r._internalModel),
+        payload
+      );
+    }
+
 
     assert.equal(recordArray.get('length'), 3, 'expected recordArray to contain exactly 3 records');
 

@@ -2660,9 +2660,9 @@ abstract class CoreStore extends Service {
     if (!isUpdate) {
       // TODO: do we want to maintain old API with this flag?
       if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-        this.recordArrayManager.recordDidChange(internalModel.identifier, internalModel.modelName);
+        this.recordArrayManager.recordDidChange(internalModel.identifier);
       } else {
-        this.store.recordArrayManager.recordDidChange(this);
+        this.recordArrayManager.recordDidChange(internalModel);
       }
     }
 
