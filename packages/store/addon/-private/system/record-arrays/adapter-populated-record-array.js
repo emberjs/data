@@ -1,3 +1,4 @@
+import { A } from '@ember/array';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { once } from '@ember/runloop';
@@ -51,6 +52,8 @@ import RecordArray from './record-array';
 */
 const AdapterPopulatedRecordArray = RecordArray.extend({
   init() {
+    this.set('content', this.get('content') || A());
+
     this._super(...arguments);
     this.query = this.query || null;
     this.links = this.links || null;

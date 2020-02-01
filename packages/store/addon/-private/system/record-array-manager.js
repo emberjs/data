@@ -1,22 +1,20 @@
+/* eslint-disable no-inner-declarations */
 /**
   @module @ember-data/store
 */
 
 import { A } from '@ember/array';
-import { assert, deprecate } from '@ember/debug';
+import { assert /*, deprecate */ } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run as emberRunloop } from '@ember/runloop';
 
-import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
-import { internalModelFactoryFor } from './store/internal-model-factory';
-import {
-  RECORD_ARRAY_MANAGER_IDENTIFIERS,
-  RECORD_ARRAY_MANAGER_LEGACY_COMPAT
-} from '@ember-data/canary-features';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS, RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
 
 // only used by RECORD_ARRAY_MANAGER_IDENTIFIERS
 import isStableIdentifier from '../identifiers/is-stable-identifier';
+import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
+import { internalModelFactoryFor } from './store/internal-model-factory';
 
 const RecordArraysCache = new WeakMap();
 const emberRun = emberRunloop.backburner;
@@ -305,7 +303,7 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       this.isDestroying = true;
       emberRun.schedule('actions', this, this.willDestroy);
     }
-  }
+  };
 
   function destroy(entry) {
     entry.destroy();
@@ -373,48 +371,46 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       let internalModel = internalModels[i];
       internalModel._recordArrays.add(array);
     }
-  }
-
+  };
 } else {
-
   const emberRun = emberRunloop.backburner;
   const pendingForIdentifier = new Set([]);
   const IMFallback = new WeakMap();
   // store StableIdentifier => Set[RecordArray[]]
 
   function getIdentifier(identifier) {
-  let i = identifier;
-  if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !isStableIdentifier(identifier)) {
-    // identifier may actually be an internalModel
-    // but during materialization we will get an identifier that
-    // has already been removed from the identifiers cache yet
-    // so it will not behave as if stable. This is a bug we should fix.
-    i = identifier.identifier || i;
-  }
+    let i = identifier;
+    if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !isStableIdentifier(identifier)) {
+      // identifier may actually be an internalModel
+      // but during materialization we will get an identifier that
+      // has already been removed from the identifiers cache yet
+      // so it will not behave as if stable. This is a bug we should fix.
+      i = identifier.identifier || i;
+    }
 
-  return i;
+    return i;
   }
 
   function peek(cache, identifier) {
-  if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
-    let im = IMFallback.get(identifier);
-    if (im === undefined) {
-      im = cache.peek(identifier);
-    }
+    if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+      let im = IMFallback.get(identifier);
+      if (im === undefined) {
+        im = cache.peek(identifier);
+      }
 
-    return im;
-  }
-  return cache.peek(identifier);
+      return im;
+    }
+    return cache.peek(identifier);
   }
 
   function shouldIncludeInRecordArrays(store, identifier) {
-  const cache = internalModelFactoryFor(store);
-  const internalModel = cache.peek(identifier);
+    const cache = internalModelFactoryFor(store);
+    const internalModel = cache.peek(identifier);
 
-  if (internalModel === null) {
-    return false;
-  }
-  return !internalModel.isHiddenFromRecordArrays();
+    if (internalModel === null) {
+      return false;
+    }
+    return !internalModel.isHiddenFromRecordArrays();
   }
 
   RecordArrayManager = class IdentifiersRecordArrayManager {
@@ -722,7 +718,7 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       this.isDestroying = true;
       emberRun.schedule('actions', this, this.willDestroy);
     }
-  }
+  };
 
   function remove(array, item) {
     let index = array.indexOf(item);
@@ -736,33 +732,33 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   }
 
   function updateLiveRecordArray(store, recordArray, identifiers) {
-  let identifiersToAdd = [];
-  let identifiersToRemove = [];
+    let identifiersToAdd = [];
+    let identifiersToRemove = [];
 
-  for (let i = 0; i < identifiers.length; i++) {
-    let identifier = identifiers[i];
-    let shouldInclude = shouldIncludeInRecordArrays(store, identifier);
-    let recordArrays = recordArraysForIdentifier(identifier);
+    for (let i = 0; i < identifiers.length; i++) {
+      let identifier = identifiers[i];
+      let shouldInclude = shouldIncludeInRecordArrays(store, identifier);
+      let recordArrays = recordArraysForIdentifier(identifier);
 
-    if (shouldInclude) {
-      if (!recordArrays.has(recordArray)) {
-        identifiersToAdd.push(identifier);
-        recordArrays.add(recordArray);
+      if (shouldInclude) {
+        if (!recordArrays.has(recordArray)) {
+          identifiersToAdd.push(identifier);
+          recordArrays.add(recordArray);
+        }
+      }
+
+      if (!shouldInclude) {
+        identifiersToRemove.push(identifier);
+        recordArrays.delete(recordArray);
       }
     }
 
-    if (!shouldInclude) {
-      identifiersToRemove.push(identifier);
-      recordArrays.delete(recordArray);
+    if (identifiersToAdd.length > 0) {
+      pushIdentifiers(recordArray, identifiersToAdd, internalModelFactoryFor(store));
     }
-  }
-
-  if (identifiersToAdd.length > 0) {
-    pushIdentifiers(recordArray, identifiersToAdd, internalModelFactoryFor(store));
-  }
-  if (identifiersToRemove.length > 0) {
-    removeIdentifiers(recordArray, identifiersToRemove, internalModelFactoryFor(store));
-  }
+    if (identifiersToRemove.length > 0) {
+      removeIdentifiers(recordArray, identifiersToRemove, internalModelFactoryFor(store));
+    }
   }
 
   function pushIdentifiers(recordArray, identifiers, cache) {
@@ -783,21 +779,21 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   }
 
   function removeFromAdapterPopulatedRecordArrays(store, identifiers) {
-  for (let i = 0; i < identifiers.length; i++) {
-    removeFromAll(store, identifiers[i]);
-  }
+    for (let i = 0; i < identifiers.length; i++) {
+      removeFromAll(store, identifiers[i]);
+    }
   }
 
   function removeFromAll(store, identifier) {
-  identifier = getIdentifier(identifier);
-  const recordArrays = recordArraysForIdentifier(identifier);
-  const cache = internalModelFactoryFor(store);
+    identifier = getIdentifier(identifier);
+    const recordArrays = recordArraysForIdentifier(identifier);
+    const cache = internalModelFactoryFor(store);
 
-  recordArrays.forEach(function(recordArray) {
-    removeIdentifiers(recordArray, [identifier], cache);
-  });
+    recordArrays.forEach(function(recordArray) {
+      removeIdentifiers(recordArray, [identifier], cache);
+    });
 
-  recordArrays.clear();
+    recordArrays.clear();
   }
 }
 

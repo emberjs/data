@@ -157,6 +157,7 @@ export default class InternalModel {
   _scheduledDestroy: any;
   _modelClass: any;
   __deferredTriggers: any;
+  __recordArrays: any;
   _references: any;
   _recordReference: any;
   _manyArrayCache: ConfidentDict<ManyArray> = Object.create(null);
@@ -201,6 +202,7 @@ export default class InternalModel {
     // caches for lazy getters
     this._modelClass = null;
     this.__deferredTriggers = null;
+    this.__recordArrays= null;
     this._references = null;
     this._recordReference = null;
   }
@@ -1578,10 +1580,19 @@ export default class InternalModel {
   }
 }
 
-if (!RECORD_ARRAY_MANAGER_IDENTIFIERS || RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   Object.defineProperty(InternalModel.prototype, '_recordArrays', {
     get() {
       return recordArraysForIdentifier(this.identifier);
+    },
+  });
+} else {
+  Object.defineProperty(InternalModel.prototype, '_recordArrays', {
+    get() {
+      if (this.__recordArrays === null) {
+        this.__recordArrays = new Set();
+      }
+      return this.__recordArrays;
     },
   });
 }

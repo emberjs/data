@@ -1,12 +1,14 @@
 /**
   @module @ember-data/store
 */
+import { A } from '@ember/array';
 import ArrayProxy from '@ember/array/proxy';
-import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { computed, get, set } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
+
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 
 import DeprecatedEvented from '../deprecated-evented';
 import { PromiseArray } from '../promise-proxies';
@@ -51,6 +53,7 @@ const RecordArray = ArrayProxy.extend(DeprecatedEvented, {
       @private
       @type Ember.Array
       */
+    this.set('content', this.content || null);
 
     /**
     The flag to signal a `RecordArray` is finished loading data.
@@ -205,16 +208,6 @@ const RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     return PromiseArray.create({ promise });
   },
 
-  _dissociateFromOwnRecords() {
-    this.get('content').forEach(identifier => {
-      let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
-
-      if (recordArrays) {
-        recordArrays.delete(this);
-      }
-    });
-  },
-
   /**
     @method _unregisterFromManager
     @private
@@ -247,16 +240,19 @@ const RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     return new SnapshotRecordArray(this, this.get('meta'), options);
   },
 
-  /*
-    @method _takeSnapshot
-    @private
-  */
-  _takeSnapshot() {
-    return get(this, 'content').map(identifier => internalModelForIdentifier(this.store, identifier).createSnapshot());
-  },
 });
 
 if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+  RecordArray.prototype._dissociateFromOwnRecords = function _dissociateFromOwnRecords() {
+    this.get('content').forEach(identifier => {
+      let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
+
+      if (recordArrays) {
+        recordArrays.delete(this);
+      }
+    });
+  };
+
   /**
     Adds identifiers to the `RecordArray` without duplicates
 
@@ -278,7 +274,25 @@ if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   RecordArray.prototype._removeIdentifiers = function _removeIdentifiers(identifiers) {
     get(this, 'content').removeObjects(identifiers);
   };
+
+  /*
+    @method _takeSnapshot
+    @private
+  */
+  RecordArray.prototype._takeSnapshot = function _takeSnapshot() {
+    return get(this, 'content').map(identifier => internalModelForIdentifier(this.store, identifier).createSnapshot());
+  };
 } else {
+  RecordArray.prototype._dissociateFromOwnRecords = function _dissociateFromOwnRecords() {
+    this.get('content').forEach(internalModel => {
+      let recordArrays = internalModel.__recordArrays;
+
+      if (recordArrays) {
+        recordArrays.delete(this);
+      }
+    });
+  };
+
   /**
     Adds an internal model to the `RecordArray` without duplicates
     @method _pushInternalModels
@@ -300,6 +314,14 @@ if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   */
   RecordArray.prototype._removeInternalModels = function _removeInternalModels(internalModels) {
     get(this, 'content').removeObjects(internalModels);
+  };
+
+  /*
+    @method _takeSnapshot
+    @private
+  */
+  RecordArray.prototype._takeSnapshot = function _takeSnapshot() {
+    return get(this, 'content').map(internalModel => internalModel.createSnapshot());
   };
 }
 

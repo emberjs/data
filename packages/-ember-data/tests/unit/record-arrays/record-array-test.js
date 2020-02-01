@@ -1,5 +1,6 @@
 import { A } from '@ember/array';
 import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -8,486 +9,922 @@ import RSVP, { resolve } from 'rsvp';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 
 const { RecordArray } = DS;
 
-class Tag extends Model {
-  @attr
-  name;
-}
+if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+  class Tag extends Model {
+    @attr
+    name;
+  }
 
-module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
-  setupTest(hooks);
+  module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
+    setupTest(hooks);
 
-  test('default initial state', async function(assert) {
-    let recordArray = RecordArray.create({ modelName: 'recordType' });
+    test('default initial state', async function(assert) {
+      let recordArray = RecordArray.create({ modelName: 'recordType' });
 
-    assert.equal(get(recordArray, 'isLoaded'), false, 'record is not loaded');
-    assert.equal(get(recordArray, 'isUpdating'), false, 'record is not updating');
-    assert.equal(get(recordArray, 'modelName'), 'recordType', 'has modelName');
-    assert.equal(get(recordArray, 'content'), undefined, 'content is not defined');
-    assert.strictEqual(get(recordArray, 'store'), null, 'no store with recordArray');
-  });
-
-  test('custom initial state', async function(assert) {
-    let content = A();
-    let store = {};
-    let recordArray = RecordArray.create({
-      modelName: 'apple',
-      isLoaded: true,
-      isUpdating: true,
-      content,
-      store,
+      assert.equal(get(recordArray, 'isLoaded'), false, 'record is not loaded');
+      assert.equal(get(recordArray, 'isUpdating'), false, 'record is not updating');
+      assert.equal(get(recordArray, 'modelName'), 'recordType', 'has modelName');
+      assert.equal(get(recordArray, 'content'), undefined, 'content is not defined');
+      assert.strictEqual(get(recordArray, 'store'), null, 'no store with recordArray');
     });
-    assert.equal(get(recordArray, 'isLoaded'), true);
-    assert.equal(get(recordArray, 'isUpdating'), false); // cannot set as default value:
-    assert.equal(get(recordArray, 'modelName'), 'apple');
-    assert.deepEqual(get(recordArray, 'content'), content);
-    assert.equal(get(recordArray, 'store'), store);
-  });
 
-  test('#replace() throws error', async function(assert) {
-    let recordArray = RecordArray.create({ modelName: 'recordType' });
+    test('custom initial state', async function(assert) {
+      let content = A();
+      let store = {};
+      let recordArray = RecordArray.create({
+        modelName: 'apple',
+        isLoaded: true,
+        isUpdating: true,
+        content,
+        store,
+      });
+      assert.equal(get(recordArray, 'isLoaded'), true);
+      assert.equal(get(recordArray, 'isUpdating'), false); // cannot set as default value:
+      assert.equal(get(recordArray, 'modelName'), 'apple');
+      assert.deepEqual(get(recordArray, 'content'), content);
+      assert.equal(get(recordArray, 'store'), store);
+    });
 
-    assert.throws(
-      () => {
-        recordArray.replace();
-      },
-      Error('The result of a server query (for all recordType types) is immutable. To modify contents, use toArray()'),
-      'throws error'
-    );
-  });
+    test('#replace() throws error', async function(assert) {
+      let recordArray = RecordArray.create({ modelName: 'recordType' });
 
-  test('#objectAtContent', async function(assert) {
-    this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
-
-    let records = store.push({
-      data: [
-        {
-          type: 'tag',
-          id: '1',
+      assert.throws(
+        () => {
+          recordArray.replace();
         },
-        {
-          type: 'tag',
-          id: '3',
+        Error(
+          'The result of a server query (for all recordType types) is immutable. To modify contents, use toArray()'
+        ),
+        'throws error'
+      );
+    });
+
+    test('#objectAtContent', async function(assert) {
+      this.owner.register('model:tag', Tag);
+      let store = this.owner.lookup('service:store');
+
+      let records = store.push({
+        data: [
+          {
+            type: 'tag',
+            id: '1',
+          },
+          {
+            type: 'tag',
+            id: '3',
+          },
+          {
+            type: 'tag',
+            id: '5',
+          },
+        ],
+      });
+
+      let recordArray = RecordArray.create({
+        modelName: 'recordType',
+        content: A(records.map(r => recordIdentifierFor(r))),
+        store,
+      });
+
+      assert.equal(get(recordArray, 'length'), 3);
+      assert.equal(recordArray.objectAtContent(0).id, '1');
+      assert.equal(recordArray.objectAtContent(1).id, '3');
+      assert.equal(recordArray.objectAtContent(2).id, '5');
+      assert.strictEqual(recordArray.objectAtContent(3), undefined);
+    });
+
+    test('#update', async function(assert) {
+      let findAllCalled = 0;
+      let deferred = RSVP.defer();
+
+      const store = {
+        findAll(modelName, options) {
+          findAllCalled++;
+          assert.equal(modelName, 'recordType');
+          assert.equal(options.reload, true, 'options should contain reload: true');
+          return deferred.promise;
         },
-        {
-          type: 'tag',
-          id: '5',
+      };
+
+      let recordArray = RecordArray.create({
+        modelName: 'recordType',
+        store,
+      });
+
+      assert.equal(get(recordArray, 'isUpdating'), false, 'should not yet be updating');
+
+      assert.equal(findAllCalled, 0);
+
+      let updateResult = recordArray.update();
+
+      assert.equal(findAllCalled, 1);
+
+      deferred.resolve('return value');
+
+      assert.equal(get(recordArray, 'isUpdating'), true, 'should be updating');
+
+      return updateResult.then(result => {
+        assert.equal(result, 'return value');
+        assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
+      });
+    });
+
+    test('#update while updating', async function(assert) {
+      let findAllCalled = 0;
+      let deferred = RSVP.defer();
+      const store = {
+        findAll(modelName, options) {
+          findAllCalled++;
+          return deferred.promise;
         },
-      ],
+      };
+
+      let recordArray = RecordArray.create({
+        modelName: { modelName: 'recordType' },
+        store,
+      });
+
+      assert.equal(get(recordArray, 'isUpdating'), false, 'should not be updating');
+      assert.equal(findAllCalled, 0);
+
+      let updateResult1 = recordArray.update();
+
+      assert.equal(findAllCalled, 1);
+
+      let updateResult2 = recordArray.update();
+
+      assert.equal(findAllCalled, 1);
+
+      assert.equal(updateResult1, updateResult2);
+
+      deferred.resolve('return value');
+
+      assert.equal(get(recordArray, 'isUpdating'), true, 'should be updating');
+
+      return updateResult1.then(result => {
+        assert.equal(result, 'return value');
+        assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
+      });
     });
 
-    let recordArray = RecordArray.create({
-      modelName: 'recordType',
-      content: A(records.map(r => recordIdentifierFor(r))),
-      store,
+    test('#_pushIdentifiers', async function(assert) {
+      let content = A();
+      let recordArray = RecordArray.create({
+        content,
+      });
+
+      let model1 = {
+        id: 1,
+        identifier: { lid: '@ember-data:lid-model-1' },
+        getRecord() {
+          return this;
+        },
+      };
+      let model2 = {
+        id: 2,
+        identifier: { lid: '@ember-data:lid-model-2' },
+        getRecord() {
+          return this;
+        },
+      };
+      let model3 = {
+        id: 3,
+        identifier: { lid: '@ember-data:lid-model-3' },
+        getRecord() {
+          return this;
+        },
+      };
+
+      assert.equal(
+        recordArray._pushIdentifiers([model1.identifier]),
+        undefined,
+        '_pushIdentifiers has no return value'
+      );
+      assert.deepEqual(recordArray.get('content'), [model1.identifier], 'now contains model1');
+
+      recordArray._pushIdentifiers([model1.identifier]);
+      assert.deepEqual(
+        recordArray.get('content'),
+        [model1.identifier, model1.identifier],
+        'allows duplicates, because record-array-manager ensures no duplicates, this layer should not double check'
+      );
+
+      recordArray._removeIdentifiers([model1.identifier]);
+      recordArray._pushIdentifiers([model1.identifier]);
+
+      // can add multiple models at once
+      recordArray._pushIdentifiers([model2.identifier, model3.identifier]);
+      assert.deepEqual(
+        recordArray.get('content'),
+        [model1.identifier, model2.identifier, model3.identifier],
+        'now contains model1, model2, model3'
+      );
     });
 
-    assert.equal(get(recordArray, 'length'), 3);
-    assert.equal(recordArray.objectAtContent(0).id, '1');
-    assert.equal(recordArray.objectAtContent(1).id, '3');
-    assert.equal(recordArray.objectAtContent(2).id, '5');
-    assert.strictEqual(recordArray.objectAtContent(3), undefined);
-  });
+    test('#_removeIdentifiers', async function(assert) {
+      let content = A();
+      let recordArray = RecordArray.create({
+        content,
+      });
 
-  test('#update', async function(assert) {
-    let findAllCalled = 0;
-    let deferred = RSVP.defer();
+      let model1 = {
+        id: 1,
+        identifier: { lid: '@ember-data:lid-model-1' },
+        getRecord() {
+          return 'model-1';
+        },
+      };
+      let model2 = {
+        id: 2,
+        identifier: { lid: '@ember-data:lid-model-2' },
+        getRecord() {
+          return 'model-2';
+        },
+      };
+      let model3 = {
+        id: 3,
+        identifier: { lid: '@ember-data:lid-model-3' },
+        getRecord() {
+          return 'model-3';
+        },
+      };
 
-    const store = {
-      findAll(modelName, options) {
-        findAllCalled++;
-        assert.equal(modelName, 'recordType');
-        assert.equal(options.reload, true, 'options should contain reload: true');
-        return deferred.promise;
-      },
-    };
+      assert.equal(recordArray.get('content').length, 0);
+      assert.equal(
+        recordArray._removeIdentifiers([model1.identifier]),
+        undefined,
+        '_removeIdentifiers has no return value'
+      );
+      assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
 
-    let recordArray = RecordArray.create({
-      modelName: 'recordType',
-      store,
+      recordArray._pushIdentifiers([model1.identifier, model2.identifier]);
+
+      assert.deepEqual(
+        recordArray.get('content'),
+        [model1.identifier, model2.identifier],
+        'now contains model1, model2,'
+      );
+      assert.equal(
+        recordArray._removeIdentifiers([model1.identifier]),
+        undefined,
+        '_removeIdentifiers has no return value'
+      );
+      assert.deepEqual(recordArray.get('content'), [model2.identifier], 'now only contains model2');
+      assert.equal(
+        recordArray._removeIdentifiers([model2.identifier]),
+        undefined,
+        '_removeIdentifiers has no return value'
+      );
+      assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
+
+      recordArray._pushIdentifiers([model1.identifier, model2.identifier, model3.identifier]);
+
+      assert.equal(
+        recordArray._removeIdentifiers([model1.identifier, model3.identifier]),
+        undefined,
+        '_removeIdentifiers has no return value'
+      );
+
+      assert.deepEqual(recordArray.get('content'), [model2.identifier], 'now contains model2');
+      assert.equal(
+        recordArray._removeIdentifiers([model2.identifier]),
+        undefined,
+        '_removeIdentifiers has no return value'
+      );
+      assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
     });
 
-    assert.equal(get(recordArray, 'isUpdating'), false, 'should not yet be updating');
+    test('#save', async function(assert) {
+      this.owner.register('model:tag', Tag);
+      let store = this.owner.lookup('service:store');
 
-    assert.equal(findAllCalled, 0);
+      let model1 = {
+        id: '1',
+        type: 'tag',
+      };
+      let model2 = {
+        id: '2',
+        type: 'tag',
+        save() {
+          model2Saved++;
+          return this;
+        },
+      };
 
-    let updateResult = recordArray.update();
-
-    assert.equal(findAllCalled, 1);
-
-    deferred.resolve('return value');
-
-    assert.equal(get(recordArray, 'isUpdating'), true, 'should be updating');
-
-    return updateResult.then(result => {
-      assert.equal(result, 'return value');
-      assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
-    });
-  });
-
-  test('#update while updating', async function(assert) {
-    let findAllCalled = 0;
-    let deferred = RSVP.defer();
-    const store = {
-      findAll(modelName, options) {
-        findAllCalled++;
-        return deferred.promise;
-      },
-    };
-
-    let recordArray = RecordArray.create({
-      modelName: { modelName: 'recordType' },
-      store,
-    });
-
-    assert.equal(get(recordArray, 'isUpdating'), false, 'should not be updating');
-    assert.equal(findAllCalled, 0);
-
-    let updateResult1 = recordArray.update();
-
-    assert.equal(findAllCalled, 1);
-
-    let updateResult2 = recordArray.update();
-
-    assert.equal(findAllCalled, 1);
-
-    assert.equal(updateResult1, updateResult2);
-
-    deferred.resolve('return value');
-
-    assert.equal(get(recordArray, 'isUpdating'), true, 'should be updating');
-
-    return updateResult1.then(result => {
-      assert.equal(result, 'return value');
-      assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
-    });
-  });
-
-  test('#_pushIdentifiers', async function(assert) {
-    let content = A();
-    let recordArray = RecordArray.create({
-      content,
-    });
-
-    let model1 = {
-      id: 1,
-      identifier: { lid: '@ember-data:lid-model-1' },
-      getRecord() {
-        return this;
-      },
-    };
-    let model2 = {
-      id: 2,
-      identifier: { lid: '@ember-data:lid-model-2' },
-      getRecord() {
-        return this;
-      },
-    };
-    let model3 = {
-      id: 3,
-      identifier: { lid: '@ember-data:lid-model-3' },
-      getRecord() {
-        return this;
-      },
-    };
-
-    assert.equal(recordArray._pushIdentifiers([model1.identifier]), undefined, '_pushIdentifiers has no return value');
-    assert.deepEqual(recordArray.get('content'), [model1.identifier], 'now contains model1');
-
-    recordArray._pushIdentifiers([model1.identifier]);
-    assert.deepEqual(
-      recordArray.get('content'),
-      [model1.identifier, model1.identifier],
-      'allows duplicates, because record-array-manager ensures no duplicates, this layer should not double check'
-    );
-
-    recordArray._removeIdentifiers([model1.identifier]);
-    recordArray._pushIdentifiers([model1.identifier]);
-
-    // can add multiple models at once
-    recordArray._pushIdentifiers([model2.identifier, model3.identifier]);
-    assert.deepEqual(
-      recordArray.get('content'),
-      [model1.identifier, model2.identifier, model3.identifier],
-      'now contains model1, model2, model3'
-    );
-  });
-
-  test('#_removeIdentifiers', async function(assert) {
-    let content = A();
-    let recordArray = RecordArray.create({
-      content,
-    });
-
-    let model1 = {
-      id: 1,
-      identifier: { lid: '@ember-data:lid-model-1' },
-      getRecord() {
-        return 'model-1';
-      },
-    };
-    let model2 = {
-      id: 2,
-      identifier: { lid: '@ember-data:lid-model-2' },
-      getRecord() {
-        return 'model-2';
-      },
-    };
-    let model3 = {
-      id: 3,
-      identifier: { lid: '@ember-data:lid-model-3' },
-      getRecord() {
-        return 'model-3';
-      },
-    };
-
-    assert.equal(recordArray.get('content').length, 0);
-    assert.equal(
-      recordArray._removeIdentifiers([model1.identifier]),
-      undefined,
-      '_removeIdentifiers has no return value'
-    );
-    assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
-
-    recordArray._pushIdentifiers([model1.identifier, model2.identifier]);
-
-    assert.deepEqual(
-      recordArray.get('content'),
-      [model1.identifier, model2.identifier],
-      'now contains model1, model2,'
-    );
-    assert.equal(
-      recordArray._removeIdentifiers([model1.identifier]),
-      undefined,
-      '_removeIdentifiers has no return value'
-    );
-    assert.deepEqual(recordArray.get('content'), [model2.identifier], 'now only contains model2');
-    assert.equal(
-      recordArray._removeIdentifiers([model2.identifier]),
-      undefined,
-      '_removeIdentifiers has no return value'
-    );
-    assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
-
-    recordArray._pushIdentifiers([model1.identifier, model2.identifier, model3.identifier]);
-
-    assert.equal(
-      recordArray._removeIdentifiers([model1.identifier, model3.identifier]),
-      undefined,
-      '_removeIdentifiers has no return value'
-    );
-
-    assert.deepEqual(recordArray.get('content'), [model2.identifier], 'now contains model2');
-    assert.equal(
-      recordArray._removeIdentifiers([model2.identifier]),
-      undefined,
-      '_removeIdentifiers has no return value'
-    );
-    assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
-  });
-
-  test('#save', async function(assert) {
-    this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
-
-    let model1 = {
-      id: '1',
-      type: 'tag',
-    };
-    let model2 = {
-      id: '2',
-      type: 'tag',
-      save() {
+      let [record1, record2] = store.push({
+        data: [model1, model2],
+      });
+      let identifiers = A([recordIdentifierFor(record1), recordIdentifierFor(record2)]);
+      let recordArray = RecordArray.create({
+        content: identifiers,
+        store,
+      });
+      record1._internalModel.save = () => {
+        model1Saved++;
+        return resolve(this);
+      };
+      record2._internalModel.save = () => {
         model2Saved++;
-        return this;
-      },
-    };
+        return resolve(this);
+      };
 
-    let [record1, record2] = store.push({
-      data: [model1, model2],
-    });
-    let identifiers = A([recordIdentifierFor(record1), recordIdentifierFor(record2)]);
-    let recordArray = RecordArray.create({
-      content: identifiers,
-      store,
-    });
-    record1._internalModel.save = () => {
-      model1Saved++;
-      return resolve(this);
-    };
-    record2._internalModel.save = () => {
-      model2Saved++;
-      return resolve(this);
-    };
+      let model1Saved = 0;
+      let model2Saved = 0;
 
-    let model1Saved = 0;
-    let model2Saved = 0;
+      assert.equal(model1Saved, 0, 'save not yet called');
+      assert.equal(model2Saved, 0, 'save not yet called');
 
-    assert.equal(model1Saved, 0, 'save not yet called');
-    assert.equal(model2Saved, 0, 'save not yet called');
+      let result = recordArray.save();
 
-    let result = recordArray.save();
+      assert.equal(model1Saved, 1, 'save was called for model1');
+      assert.equal(model2Saved, 1, 'save was called for mode2');
 
-    assert.equal(model1Saved, 1, 'save was called for model1');
-    assert.equal(model2Saved, 1, 'save was called for mode2');
-
-    const r = await result;
-    assert.equal(r.id, result.id, 'save promise should fulfill with the original recordArray');
-  });
-
-  test('#destroy', async function(assert) {
-    let didUnregisterRecordArray = 0;
-    let didDissociatieFromOwnRecords = 0;
-    this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
-
-    let model1 = {
-      id: 1,
-      type: 'tag',
-    };
-    let record = store.push({
-      data: model1,
+      const r = await result;
+      assert.equal(r.id, result.id, 'save promise should fulfill with the original recordArray');
     });
 
-    const set = new Set();
-    set.delete = array => {
-      didDissociatieFromOwnRecords++;
-      assert.equal(array, recordArray);
-    };
+    test('#destroy', async function(assert) {
+      let didUnregisterRecordArray = 0;
+      let didDissociatieFromOwnRecords = 0;
+      this.owner.register('model:tag', Tag);
+      let store = this.owner.lookup('service:store');
 
-    let recordArray = RecordArray.create({
-      content: A([recordIdentifierFor(record)]),
-      store,
-      manager: {
-        getRecordArraysForIdentifier() {
-          return set;
+      let model1 = {
+        id: 1,
+        type: 'tag',
+      };
+      let record = store.push({
+        data: model1,
+      });
+
+      const set = new Set();
+      set.delete = array => {
+        didDissociatieFromOwnRecords++;
+        assert.equal(array, recordArray);
+      };
+
+      let recordArray = RecordArray.create({
+        content: A([recordIdentifierFor(record)]),
+        store,
+        manager: {
+          getRecordArraysForIdentifier() {
+            return set;
+          },
+          unregisterRecordArray(_recordArray) {
+            didUnregisterRecordArray++;
+            assert.equal(recordArray, _recordArray);
+          },
         },
-        unregisterRecordArray(_recordArray) {
-          didUnregisterRecordArray++;
-          assert.equal(recordArray, _recordArray);
+      });
+
+      assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
+      assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
+
+      assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
+      assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
+      assert.equal(
+        didDissociatieFromOwnRecords,
+        0,
+        'before destroy, we should not yet have dissociated from own record array'
+      );
+      recordArray.destroy();
+      await settled();
+
+      assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
+      assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
+
+      assert.strictEqual(get(recordArray, 'content'), null);
+      assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
+      assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
+    });
+
+    test('#_createSnapshot', async function(assert) {
+      this.owner.register('model:tag', Tag);
+      let store = this.owner.lookup('service:store');
+
+      let model1 = {
+        id: 1,
+        type: 'tag',
+      };
+
+      let model2 = {
+        id: 2,
+        type: 'tag',
+      };
+      let records = store.push({
+        data: [model1, model2],
+      });
+
+      let recordArray = RecordArray.create({
+        content: A(records.map(r => recordIdentifierFor(r))),
+        store,
+      });
+
+      let snapshot = recordArray._createSnapshot();
+      let [snapshot1, snapshot2] = snapshot.snapshots();
+
+      assert.equal(
+        snapshot1.id,
+        model1.id,
+        'record array snapshot should contain the first internalModel.createSnapshot result'
+      );
+      assert.equal(
+        snapshot2.id,
+        model2.id,
+        'record array snapshot should contain the second internalModel.createSnapshot result'
+      );
+    });
+
+    test('#destroy second', async function(assert) {
+      let didUnregisterRecordArray = 0;
+      let didDissociatieFromOwnRecords = 0;
+
+      this.owner.register('model:tag', Tag);
+      let store = this.owner.lookup('service:store');
+
+      let model1 = {
+        id: 1,
+        type: 'tag',
+      };
+      let record = store.push({
+        data: model1,
+      });
+
+      // TODO: this will be removed once we fix ownership related memory leaks.
+      const set = new Set();
+      set.delete = array => {
+        didDissociatieFromOwnRecords++;
+        assert.equal(array, recordArray);
+      };
+      // end TODO:
+
+      let recordArray = RecordArray.create({
+        content: A([recordIdentifierFor(record)]),
+        manager: {
+          getRecordArraysForIdentifier() {
+            return set;
+          },
+          unregisterRecordArray(_recordArray) {
+            didUnregisterRecordArray++;
+            assert.equal(recordArray, _recordArray);
+          },
         },
-      },
+        store,
+      });
+
+      assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
+      assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
+
+      assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
+      assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
+      assert.equal(
+        didDissociatieFromOwnRecords,
+        0,
+        'before destroy, we should not yet have dissociated from own record array'
+      );
+      recordArray.destroy();
+      await settled();
+
+      assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
+      assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
+      recordArray.destroy();
+
+      assert.strictEqual(get(recordArray, 'content'), null);
+      assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
+      assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
     });
-
-    assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
-    assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
-
-    assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
-    assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
-    assert.equal(
-      didDissociatieFromOwnRecords,
-      0,
-      'before destroy, we should not yet have dissociated from own record array'
-    );
-    recordArray.destroy();
-    await settled();
-
-    assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
-    assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
-
-    assert.strictEqual(get(recordArray, 'content'), null);
-    assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
-    assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
   });
+} else {
+  module('unit/record-arrays/record-array - DS.RecordArray', function() {
+    test('default initial state', function(assert) {
+      let recordArray = RecordArray.create({ modelName: 'recordType' });
 
-  test('#_createSnapshot', async function(assert) {
-    this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
-
-    let model1 = {
-      id: 1,
-      type: 'tag',
-    };
-
-    let model2 = {
-      id: 2,
-      type: 'tag',
-    };
-    let records = store.push({
-      data: [model1, model2],
+      assert.equal(get(recordArray, 'isLoaded'), false);
+      assert.equal(get(recordArray, 'isUpdating'), false);
+      assert.equal(get(recordArray, 'modelName'), 'recordType');
+      assert.strictEqual(get(recordArray, 'content'), null);
+      assert.strictEqual(get(recordArray, 'store'), null);
     });
 
-    let recordArray = RecordArray.create({
-      content: A(records.map(r => recordIdentifierFor(r))),
-      store,
+    test('custom initial state', function(assert) {
+      let content = A();
+      let store = {};
+      let recordArray = RecordArray.create({
+        modelName: 'apple',
+        isLoaded: true,
+        isUpdating: true,
+        content,
+        store,
+      });
+      assert.equal(get(recordArray, 'isLoaded'), true);
+      assert.equal(get(recordArray, 'isUpdating'), false); // cannot set as default value:
+      assert.equal(get(recordArray, 'modelName'), 'apple');
+      assert.equal(get(recordArray, 'content'), content);
+      assert.equal(get(recordArray, 'store'), store);
     });
 
-    let snapshot = recordArray._createSnapshot();
-    let [snapshot1, snapshot2] = snapshot.snapshots();
+    test('#replace() throws error', function(assert) {
+      let recordArray = RecordArray.create({ modelName: 'recordType' });
 
-    assert.equal(
-      snapshot1.id,
-      model1.id,
-      'record array snapshot should contain the first internalModel.createSnapshot result'
-    );
-    assert.equal(
-      snapshot2.id,
-      model2.id,
-      'record array snapshot should contain the second internalModel.createSnapshot result'
-    );
-  });
-
-  test('#destroy second', async function(assert) {
-    let didUnregisterRecordArray = 0;
-    let didDissociatieFromOwnRecords = 0;
-
-    this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
-
-    let model1 = {
-      id: 1,
-      type: 'tag',
-    };
-    let record = store.push({
-      data: model1,
-    });
-
-    // TODO: this will be removed once we fix ownership related memory leaks.
-    const set = new Set();
-    set.delete = array => {
-      didDissociatieFromOwnRecords++;
-      assert.equal(array, recordArray);
-    };
-    // end TODO:
-
-    let recordArray = RecordArray.create({
-      content: A([recordIdentifierFor(record)]),
-      manager: {
-        getRecordArraysForIdentifier() {
-          return set;
+      assert.throws(
+        () => {
+          recordArray.replace();
         },
-        unregisterRecordArray(_recordArray) {
-          didUnregisterRecordArray++;
-          assert.equal(recordArray, _recordArray);
-        },
-      },
-      store,
+        Error(
+          'The result of a server query (for all recordType types) is immutable. To modify contents, use toArray()'
+        ),
+        'throws error'
+      );
     });
 
-    assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
-    assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
+    test('#objectAtContent', function(assert) {
+      let content = A([
+        {
+          getRecord() {
+            return 'foo';
+          },
+        },
+        {
+          getRecord() {
+            return 'bar';
+          },
+        },
+        {
+          getRecord() {
+            return 'baz';
+          },
+        },
+      ]);
 
-    assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
-    assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
-    assert.equal(
-      didDissociatieFromOwnRecords,
-      0,
-      'before destroy, we should not yet have dissociated from own record array'
-    );
-    recordArray.destroy();
-    await settled();
+      let recordArray = RecordArray.create({
+        modelName: 'recordType',
+        content,
+      });
 
-    assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
-    assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
-    recordArray.destroy();
+      assert.equal(get(recordArray, 'length'), 3);
+      assert.equal(recordArray.objectAtContent(0), 'foo');
+      assert.equal(recordArray.objectAtContent(1), 'bar');
+      assert.equal(recordArray.objectAtContent(2), 'baz');
+      assert.strictEqual(recordArray.objectAtContent(3), undefined);
+    });
 
-    assert.strictEqual(get(recordArray, 'content'), null);
-    assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
-    assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
+    test('#update', function(assert) {
+      let findAllCalled = 0;
+      let deferred = RSVP.defer();
+
+      const store = {
+        findAll(modelName, options) {
+          findAllCalled++;
+          assert.equal(modelName, 'recordType');
+          assert.equal(options.reload, true, 'options should contain reload: true');
+          return deferred.promise;
+        },
+      };
+
+      let recordArray = RecordArray.create({
+        modelName: 'recordType',
+        store,
+      });
+
+      assert.equal(get(recordArray, 'isUpdating'), false, 'should not yet be updating');
+
+      assert.equal(findAllCalled, 0);
+
+      let updateResult = recordArray.update();
+
+      assert.equal(findAllCalled, 1);
+
+      deferred.resolve('return value');
+
+      assert.equal(get(recordArray, 'isUpdating'), true, 'should be updating');
+
+      return updateResult.then(result => {
+        assert.equal(result, 'return value');
+        assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
+      });
+    });
+
+    test('#update while updating', function(assert) {
+      let findAllCalled = 0;
+      let deferred = RSVP.defer();
+      const store = {
+        findAll(modelName, options) {
+          findAllCalled++;
+          return deferred.promise;
+        },
+      };
+
+      let recordArray = RecordArray.create({
+        modelName: { modelName: 'recordType' },
+        store,
+      });
+
+      assert.equal(get(recordArray, 'isUpdating'), false, 'should not be updating');
+      assert.equal(findAllCalled, 0);
+
+      let updateResult1 = recordArray.update();
+
+      assert.equal(findAllCalled, 1);
+
+      let updateResult2 = recordArray.update();
+
+      assert.equal(findAllCalled, 1);
+
+      assert.equal(updateResult1, updateResult2);
+
+      deferred.resolve('return value');
+
+      assert.equal(get(recordArray, 'isUpdating'), true, 'should be updating');
+
+      return updateResult1.then(result => {
+        assert.equal(result, 'return value');
+        assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
+      });
+    });
+
+    test('#_pushInternalModels', function(assert) {
+      let content = A();
+      let recordArray = RecordArray.create({
+        content,
+      });
+
+      let model1 = {
+        id: 1,
+        getRecord() {
+          return 'model-1';
+        },
+      };
+      let model2 = {
+        id: 2,
+        getRecord() {
+          return 'model-2';
+        },
+      };
+      let model3 = {
+        id: 3,
+        getRecord() {
+          return 'model-3';
+        },
+      };
+
+      assert.equal(recordArray._pushInternalModels([model1]), undefined, '_pushInternalModels has no return value');
+      assert.deepEqual(content, [model1], 'now contains model1');
+
+      recordArray._pushInternalModels([model1]);
+      assert.deepEqual(
+        content,
+        [model1, model1],
+        'allows duplicates, because record-array-manager via internalModel._recordArrays ensures no duplicates, this layer should not double check'
+      );
+
+      recordArray._removeInternalModels([model1]);
+      recordArray._pushInternalModels([model1]);
+
+      // can add multiple models at once
+      recordArray._pushInternalModels([model2, model3]);
+      assert.deepEqual(content, [model1, model2, model3], 'now contains model1, model2, model3');
+    });
+
+    test('#_removeInternalModels', function(assert) {
+      let content = A();
+      let recordArray = RecordArray.create({
+        content,
+      });
+
+      let model1 = {
+        id: 1,
+        getRecord() {
+          return 'model-1';
+        },
+      };
+      let model2 = {
+        id: 2,
+        getRecord() {
+          return 'model-2';
+        },
+      };
+      let model3 = {
+        id: 3,
+        getRecord() {
+          return 'model-3';
+        },
+      };
+
+      assert.equal(content.length, 0);
+      assert.equal(recordArray._removeInternalModels([model1]), undefined, '_removeInternalModels has no return value');
+      assert.deepEqual(content, [], 'now contains no models');
+
+      recordArray._pushInternalModels([model1, model2]);
+
+      assert.deepEqual(content, [model1, model2], 'now contains model1, model2,');
+      assert.equal(recordArray._removeInternalModels([model1]), undefined, '_removeInternalModels has no return value');
+      assert.deepEqual(content, [model2], 'now only contains model2');
+      assert.equal(recordArray._removeInternalModels([model2]), undefined, '_removeInternalModels has no return value');
+      assert.deepEqual(content, [], 'now contains no models');
+
+      recordArray._pushInternalModels([model1, model2, model3]);
+
+      assert.equal(
+        recordArray._removeInternalModels([model1, model3]),
+        undefined,
+        '_removeInternalModels has no return value'
+      );
+
+      assert.deepEqual(content, [model2], 'now contains model2');
+      assert.equal(recordArray._removeInternalModels([model2]), undefined, '_removeInternalModels has no return value');
+      assert.deepEqual(content, [], 'now contains no models');
+    });
+
+    class FakeInternalModel {
+      constructor(record) {
+        this._record = record;
+        this.__recordArrays = null;
+      }
+
+      get _recordArrays() {
+        return this.__recordArrays;
+      }
+
+      getRecord() {
+        return this._record;
+      }
+
+      createSnapshot() {
+        return this._record;
+      }
+    }
+
+    function internalModelFor(record) {
+      return new FakeInternalModel(record);
+    }
+
+    test('#save', function(assert) {
+      let model1 = {
+        save() {
+          model1Saved++;
+          return this;
+        },
+      };
+      let model2 = {
+        save() {
+          model2Saved++;
+          return this;
+        },
+      };
+      let content = A([internalModelFor(model1), internalModelFor(model2)]);
+
+      let recordArray = RecordArray.create({
+        content,
+      });
+
+      let model1Saved = 0;
+      let model2Saved = 0;
+
+      assert.equal(model1Saved, 0);
+      assert.equal(model2Saved, 0);
+
+      let result = recordArray.save();
+
+      assert.equal(model1Saved, 1);
+      assert.equal(model2Saved, 1);
+
+      return result.then(result => {
+        assert.equal(result, result, 'save promise should fulfill with the original recordArray');
+      });
+    });
+
+    test('#destroy', function(assert) {
+      let didUnregisterRecordArray = 0;
+      let didDissociatieFromOwnRecords = 0;
+      let model1 = {};
+      let internalModel1 = internalModelFor(model1);
+
+      // TODO: this will be removed once we fix ownership related memory leaks.
+      internalModel1.__recordArrays = {
+        delete(array) {
+          didDissociatieFromOwnRecords++;
+          assert.equal(array, recordArray);
+        },
+      };
+      // end TODO:
+
+      let recordArray = RecordArray.create({
+        content: A([internalModel1]),
+        manager: {
+          unregisterRecordArray(_recordArray) {
+            didUnregisterRecordArray++;
+            assert.equal(recordArray, _recordArray);
+          },
+        },
+      });
+
+      assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
+      assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
+
+      run(() => {
+        assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
+        assert.equal(
+          didUnregisterRecordArray,
+          0,
+          'before destroy, we should not yet have unregisterd the record array'
+        );
+        assert.equal(
+          didDissociatieFromOwnRecords,
+          0,
+          'before destroy, we should not yet have dissociated from own record array'
+        );
+        recordArray.destroy();
+      });
+
+      assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
+      assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
+
+      assert.strictEqual(get(recordArray, 'content'), null);
+      assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
+      assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
+    });
+
+    test('#_createSnapshot', function(assert) {
+      let model1 = {
+        id: 1,
+      };
+
+      let model2 = {
+        id: 2,
+      };
+
+      let content = A([internalModelFor(model1), internalModelFor(model2)]);
+
+      let recordArray = RecordArray.create({
+        content,
+      });
+
+      let snapshot = recordArray._createSnapshot();
+      let snapshots = snapshot.snapshots();
+
+      assert.deepEqual(
+        snapshots,
+        [model1, model2],
+        'record array snapshot should contain the internalModel.createSnapshot result'
+      );
+    });
+
+    test('#destroy', function(assert) {
+      let didUnregisterRecordArray = 0;
+      let didDissociatieFromOwnRecords = 0;
+      let model1 = {};
+      let internalModel1 = internalModelFor(model1);
+
+      // TODO: this will be removed once we fix ownership related memory leaks.
+      internalModel1.__recordArrays = {
+        delete(array) {
+          didDissociatieFromOwnRecords++;
+          assert.equal(array, recordArray);
+        },
+      };
+      // end TODO:
+
+      let recordArray = RecordArray.create({
+        content: A([internalModel1]),
+        manager: {
+          unregisterRecordArray(_recordArray) {
+            didUnregisterRecordArray++;
+            assert.equal(recordArray, _recordArray);
+          },
+        },
+      });
+
+      assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
+      assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
+
+      run(() => {
+        assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
+        assert.equal(
+          didUnregisterRecordArray,
+          0,
+          'before destroy, we should not yet have unregisterd the record array'
+        );
+        assert.equal(
+          didDissociatieFromOwnRecords,
+          0,
+          'before destroy, we should not yet have dissociated from own record array'
+        );
+        recordArray.destroy();
+      });
+
+      assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
+      assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
+      recordArray.destroy();
+
+      assert.strictEqual(get(recordArray, 'content'), null);
+      assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
+      assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
+    });
   });
-});
+}

@@ -80,7 +80,6 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       );
     }
 
-
     assert.equal(recordArray.get('length'), 3, 'expected recordArray to contain exactly 3 records');
 
     recordArray.get('firstObject').destroyRecord();
@@ -124,11 +123,17 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     };
 
     let results = store.push(payload);
-    recordArray._setIdentifiers(
-      results.map(r => recordIdentifierFor(r)),
-      payload
-    );
-
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      recordArray._setIdentifiers(
+        results.map(r => recordIdentifierFor(r)),
+        payload
+      );
+    } else {
+      recordArray._setInternalModels(
+        results.map(r => r._internalModel),
+        payload
+      );
+    }
     assert.equal(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
   });
 
@@ -166,10 +171,17 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     };
 
     let results = store.push(payload);
-    recordArray._setIdentifiers(
-      results.map(r => recordIdentifierFor(r)),
-      payload
-    );
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      recordArray._setIdentifiers(
+        results.map(r => recordIdentifierFor(r)),
+        payload
+      );
+    } else {
+      recordArray._setInternalModels(
+        results.map(r => r._internalModel),
+        payload
+      );
+    }
 
     assert.equal(
       recordArray.get('links.first'),
