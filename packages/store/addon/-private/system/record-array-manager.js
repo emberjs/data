@@ -47,6 +47,11 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       this._adapterPopulatedRecordArrays = [];
     }
 
+    /**
+     * @method recordDidChange
+     * @public
+     * @param {InternalModel} internalModel
+     */
     recordDidChange(internalModel) {
       let modelName = internalModel.modelName;
 
@@ -227,6 +232,8 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       @method createAdapterPopulatedRecordArray
       @param {String} modelName
       @param {Object} query
+      @param {Array} internalModels
+      @param {Object} payload
       @return {AdapterPopulatedRecordArray}
     */
     createAdapterPopulatedRecordArray(modelName, query, internalModels, payload) {
@@ -425,7 +432,7 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
 
     /**
      * @method getRecordArraysForIdentifier
-     * @private
+     * @public
      * @param {StableIdentfier} param
      * @return {RecordArray} array
      */
@@ -678,6 +685,11 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       }
     }
 
+    /**
+     * @method recordDidChange
+     * @public
+     * @param {StableIdentfier} identifiers
+     */
     recordDidChange(identifier) {
       if (this.isDestroying || this.isDestroyed) {
         return;
