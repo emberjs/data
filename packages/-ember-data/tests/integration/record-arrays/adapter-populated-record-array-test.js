@@ -19,7 +19,7 @@ const Person = Model.extend({
   },
 });
 
-module('integration/record-arrays/adapter_populated_record_array - AdapterPopulatedRecordArray', function(hooks) {
+module('scott integration/record-arrays/adapter_populated_record_array - AdapterPopulatedRecordArray', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
@@ -137,7 +137,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     assert.equal(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
   });
 
-  test('stores the links off the payload', function(assert) {
+  test('stores the links off the payload', async function(assert) {
     let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
 
@@ -205,7 +205,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     );
   });
 
-  test('pass record array to adapter.query regardless of arity', function(assert) {
+  test('pass record array to adapter.query regardless of arity', async function(assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -218,20 +218,20 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     adapter.query = function(store, type, query) {
       // Due to #6232, we now expect 5 arguments regardless of arity
-      assert.equal(arguments.length, 5);
+      assert.equal(arguments.length, 5, 'expect 5 arguments in query');
       return payload;
     };
 
-    return store.query('person', {}).then(recordArray => {
-      adapter.query = function(store, type, query, _recordArray) {
-        assert.equal(arguments.length, 5);
-        return payload;
-      };
-      return store.query('person', {});
-    });
+    await store.query('person', {});
+
+    adapter.query = function(store, type, query, recordArray) {
+      assert.equal(arguments.length, 5);
+      return payload;
+    };
+    store.query('person', {});
   });
 
-  test('pass record array to adapter.query regardless of arity', function(assert) {
+  test('pass record array to adapter.query regardless of arity', async function(assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -262,25 +262,25 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       return payload;
     };
 
-    return store.query('person', actualQuery).then(recordArray => {
-      adapter.query = function(store, type, query, _recordArray) {
-        assert.equal(arguments.length, 5);
-        return payload;
-      };
+    await store.query('person', actualQuery);
 
-      store.recordArrayManager.createStore = function(modelName, query) {
-        assert.equal(arguments.length === 2);
+    adapter.query = function(store, type, query, _recordArray) {
+      assert.equal(arguments.length, 5);
+      return payload;
+    };
 
-        assert.equal(modelName, 'person');
-        assert.equal(query, actualQuery);
-        return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
-      };
+    store.recordArrayManager.createStore = function(modelName, query) {
+      assert.equal(arguments.length === 2);
 
-      return store.query('person', actualQuery);
-    });
+      assert.equal(modelName, 'person');
+      assert.equal(query, actualQuery);
+      return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
+    };
+
+    store.query('person', actualQuery);
   });
 
-  test('loadRecord re-syncs internalModels recordArrays', function(assert) {
+  test('loadRecord re-syncs internalModels recordArrays', async function(assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -295,29 +295,29 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       return payload;
     };
 
-    return store.query('person', {}).then(recordArray => {
-      return recordArray
-        .update()
-        .then(recordArray => {
-          assert.deepEqual(
-            recordArray.getEach('name'),
-            ['Scumbag Dale', 'Scumbag Katz'],
-            'expected query to contain specific records'
-          );
+    let recordArray = await store.query('person', {});
 
-          payload = {
-            data: [
-              { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
-              { id: '3', type: 'person', attributes: { name: 'Scumbag Penner' } },
-            ],
-          };
+    recordArray = await recordArray.update();
+    assert.deepEqual(
+      recordArray.getEach('name'),
+      ['Scumbag Dale', 'Scumbag Katz'],
+      'expected query to contain specific records'
+    );
 
-          return recordArray.update();
-        })
-        .then(recordArray => {
-          assert.deepEqual(recordArray.getEach('name'), ['Scumbag Dale', 'Scumbag Penner']);
-        });
-    });
+    payload = {
+      data: [
+        { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
+        { id: '3', type: 'person', attributes: { name: 'Scumbag Penner' } },
+      ],
+    };
+
+    recordArray = await recordArray.update();
+
+    assert.deepEqual(
+      recordArray.getEach('name'),
+      ['Scumbag Dale', 'Scumbag Penner'],
+      'expected query to still contain specific records'
+    );
   });
 
   test('when an adapter populated record gets updated the array contents are also updated', async function(assert) {
@@ -352,7 +352,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     assert.equal(queryArr.get('length'), 1, 'The new record is returned and added in adapter populated array');
     assert.equal(queryArr.get('isUpdating'), false, 'Record array isUpdating state updated');
-    assert.equal(findArray.get('length'), 2);
+    assert.equal(findArray.get('length'), 2, 'find returns 2 records');
 
     // element gets removed
     array.pop(0);
