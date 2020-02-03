@@ -145,6 +145,7 @@ export default class InternalModel {
   __recordData: RecordData | null;
   _isDestroyed: boolean;
   isError: boolean;
+  _pendingRecordArrayManagerFlush: boolean;
   _isDematerializing: boolean;
   isReloading: boolean;
   _doNotDestroy: boolean;
@@ -187,6 +188,7 @@ export default class InternalModel {
     this._record = null;
     this._isDestroyed = false;
     this.isError = false;
+    this._pendingRecordArrayManagerFlush = false; // used by the recordArrayManager
 
     // During dematerialization we don't want to rematerialize the record.  The
     // reason this might happen is that dematerialization removes records from

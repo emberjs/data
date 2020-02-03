@@ -4,7 +4,7 @@
 */
 
 import { A } from '@ember/array';
-import { assert /*, deprecate */ } from '@ember/debug';
+import { assert } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run as emberRunloop } from '@ember/runloop';
