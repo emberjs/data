@@ -822,7 +822,7 @@
   resolved "https://registry.npmjs.org/@ember-data/rfc395-data/-/rfc395-data-0.0.4.tgz#ecb86efdf5d7733a76ff14ea651a1b0ed1f8a843"
   integrity sha512-tGRdvgC9/QMQSuSuJV45xoyhI0Pzjm7A9o/MVVA3HakXIImJbbzx/k/6dO9CUEQXIyS2y0fW6C1XaYOG7rY0FQ==
 
-"@ember/edition-utils@^1.1.1", "@ember/edition-utils@^1.2.0":
+"@ember/edition-utils@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@ember/edition-utils/-/edition-utils-1.2.0.tgz#a039f542dc14c8e8299c81cd5abba95e2459cfa6"
   integrity sha512-VmVq/8saCaPdesQmftPqbFtxJWrzxNGSQ+e8x8LLe3Hjm36pJ04Q8LeORGZkAeOhldoUX9seLGmSaHeXkIqoog==
@@ -6813,15 +6813,15 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.15.0:
-  version "3.16.0"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.16.0.tgz#c899ccac6783e218f12774139b1e6c3d2fc4c16b"
-  integrity sha512-zotw+jrvlV/Fdq0fwL04jdFsxtHBo+0YtMKVvaNbSWeV97DrULSdnBQ91Sq1KZ+9ueBbClngHF4wXJmlIwqb8g==
+ember-source@^3.16.1:
+  version "3.16.1"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.16.1.tgz#997f51c2b74620906d2a8111089b6e894b6165e6"
+  integrity sha512-4cYfQ+DsqeSTqG0RztuTsh8d8p0XdeIaPWe9Ol229GhQjM1JgpjQNTXGJDTIB8FfbAxycPlCwIk2qXygA+pFsA==
   dependencies:
     "@babel/helper-module-imports" "^7.0.0"
     "@babel/plugin-transform-block-scoping" "^7.6.2"
     "@babel/plugin-transform-object-assign" "^7.2.0"
-    "@ember/edition-utils" "^1.1.1"
+    "@ember/edition-utils" "^1.2.0"
     babel-plugin-debug-macros "^0.3.3"
     babel-plugin-filter-imports "^3.0.0"
     broccoli-concat "^3.7.4"
