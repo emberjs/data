@@ -241,6 +241,10 @@ const RecordArray = ArrayProxy.extend(DeprecatedEvented, {
 });
 
 if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+  /**
+    @method _dissociateFromOwnRecords
+    @internal
+  */
   RecordArray.prototype._dissociateFromOwnRecords = function _dissociateFromOwnRecords() {
     this.get('content').forEach(identifier => {
       let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
@@ -273,14 +277,18 @@ if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     get(this, 'content').removeObjects(identifiers);
   };
 
-  /*
+  /**
     @method _takeSnapshot
-    @private
+    @internal
   */
   RecordArray.prototype._takeSnapshot = function _takeSnapshot() {
     return get(this, 'content').map(identifier => internalModelForIdentifier(this.store, identifier).createSnapshot());
   };
 } else {
+  /**
+    @method _dissociateFromOwnRecords
+    @internal
+  */
   RecordArray.prototype._dissociateFromOwnRecords = function _dissociateFromOwnRecords() {
     this.get('content').forEach(internalModel => {
       let recordArrays = internalModel.__recordArrays;
@@ -306,7 +314,7 @@ if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
 
   /**
     Removes an internalModel to the `RecordArray`.
-    @method removeInternalModel
+    @method _removeInternalModels
     @private
     @param {InternalModel} internalModel
   */
@@ -314,9 +322,9 @@ if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     get(this, 'content').removeObjects(internalModels);
   };
 
-  /*
+  /**
     @method _takeSnapshot
-    @private
+    @internal
   */
   RecordArray.prototype._takeSnapshot = function _takeSnapshot() {
     return get(this, 'content').map(internalModel => internalModel.createSnapshot());
