@@ -61,6 +61,7 @@ export function internalModelFactoryFor(store: CoreStore): InternalModelFactory 
   if (factory === undefined) {
     factory = new InternalModelFactory(store);
     FactoryCache.set(store, factory);
+    ((store as unknown) as any).__internalModelFactory = factory;
   }
 
   return factory;

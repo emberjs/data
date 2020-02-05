@@ -1,4 +1,3 @@
-/* eslint-disable no-inner-declarations */
 /**
   @module @ember-data/store
 */
@@ -88,12 +87,12 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       if (array) {
         // TODO: skip if it only changed
         // process liveRecordArrays
-        updateLiveRecordArray(array, internalModels);
+        updateInternalModelsForLiveRecordArray(array, internalModels);
       }
 
       // process adapterPopulatedRecordArrays
       if (modelsToRemove.length > 0) {
-        removeFromAdapterPopulatedRecordArrays(modelsToRemove);
+        removeInternalModelsFromAdapterPopulatedRecordArrays(modelsToRemove);
       }
     }
 
@@ -312,11 +311,11 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     }
   };
 
-  function destroy(entry) {
+  const destroy = function(entry) {
     entry.destroy();
-  }
+  };
 
-  function remove(array, item) {
+  const remove = function(array, item) {
     let index = array.indexOf(item);
 
     if (index !== -1) {
@@ -325,9 +324,9 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     }
 
     return false;
-  }
+  };
 
-  function updateLiveRecordArray(array, internalModels) {
+  const updateInternalModelsForLiveRecordArray = function(array, internalModels) {
     let modelsToAdd = [];
     let modelsToRemove = [];
 
@@ -355,15 +354,15 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     if (modelsToRemove.length > 0) {
       array._removeInternalModels(modelsToRemove);
     }
-  }
+  };
 
-  function removeFromAdapterPopulatedRecordArrays(internalModels) {
+  const removeInternalModelsFromAdapterPopulatedRecordArrays = function(internalModels) {
     for (let i = 0; i < internalModels.length; i++) {
-      removeFromAll(internalModels[i]);
+      removeInternalModelFromAll(internalModels[i]);
     }
-  }
+  };
 
-  function removeFromAll(internalModel) {
+  const removeInternalModelFromAll = function(internalModel) {
     const recordArrays = internalModel._recordArrays;
 
     recordArrays.forEach(function(recordArray) {
@@ -371,7 +370,7 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     });
 
     recordArrays.clear();
-  }
+  };
 
   associateWithRecordArray = function assocWithRecordArray(internalModels, array) {
     for (let i = 0, l = internalModels.length; i < l; i++) {
@@ -385,7 +384,7 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   const IMFallback = new WeakMap();
   // store StableIdentifier => Set[RecordArray[]]
 
-  function getIdentifier(identifier) {
+  const getIdentifier = function(identifier) {
     let i = identifier;
     if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !isStableIdentifier(identifier)) {
       // identifier may actually be an internalModel
@@ -396,9 +395,9 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     }
 
     return i;
-  }
+  };
 
-  function peek(cache, identifier) {
+  const peek = function(cache, identifier) {
     if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
       let im = IMFallback.get(identifier);
       if (im === undefined) {
@@ -408,9 +407,9 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       return im;
     }
     return cache.peek(identifier);
-  }
+  };
 
-  function shouldIncludeInRecordArrays(store, identifier) {
+  const shouldIncludeInRecordArrays = function(store, identifier) {
     const cache = internalModelFactoryFor(store);
     const internalModel = cache.peek(identifier);
 
@@ -418,7 +417,7 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       return false;
     }
     return !internalModel.isHiddenFromRecordArrays();
-  }
+  };
 
   RecordArrayManager = class IdentifiersRecordArrayManager {
     constructor(options) {
@@ -732,7 +731,7 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     }
   };
 
-  function remove(array, item) {
+  const remove = function(array, item) {
     let index = array.indexOf(item);
 
     if (index !== -1) {
@@ -741,9 +740,9 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     }
 
     return false;
-  }
+  };
 
-  function updateLiveRecordArray(store, recordArray, identifiers) {
+  const updateLiveRecordArray = function(store, recordArray, identifiers) {
     let identifiersToAdd = [];
     let identifiersToRemove = [];
 
@@ -771,32 +770,32 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     if (identifiersToRemove.length > 0) {
       removeIdentifiers(recordArray, identifiersToRemove, internalModelFactoryFor(store));
     }
-  }
+  };
 
-  function pushIdentifiers(recordArray, identifiers, cache) {
+  const pushIdentifiers = function(recordArray, identifiers, cache) {
     if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._pushIdentifiers) {
       // deprecate('not allowed to use this intimate api any more');
       recordArray._pushInternalModels(identifiers.map(i => peek(cache, i)));
     } else {
       recordArray._pushIdentifiers(identifiers);
     }
-  }
-  function removeIdentifiers(recordArray, identifiers, cache) {
+  };
+  const removeIdentifiers = function(recordArray, identifiers, cache) {
     if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._removeIdentifiers) {
       // deprecate('not allowed to use this intimate api any more');
       recordArray._removeInternalModels(identifiers.map(i => peek(cache, i)));
     } else {
       recordArray._removeIdentifiers(identifiers);
     }
-  }
+  };
 
-  function removeFromAdapterPopulatedRecordArrays(store, identifiers) {
+  const removeFromAdapterPopulatedRecordArrays = function(store, identifiers) {
     for (let i = 0; i < identifiers.length; i++) {
       removeFromAll(store, identifiers[i]);
     }
-  }
+  };
 
-  function removeFromAll(store, identifier) {
+  const removeFromAll = function(store, identifier) {
     identifier = getIdentifier(identifier);
     const recordArrays = recordArraysForIdentifier(identifier);
     const cache = internalModelFactoryFor(store);
@@ -806,7 +805,7 @@ if (!RECORD_ARRAY_MANAGER_IDENTIFIERS) {
     });
 
     recordArrays.clear();
-  }
+  };
 }
 
 export default RecordArrayManager;

@@ -1361,7 +1361,7 @@ export default class InternalModel {
     // TODO: do we want to maintain old API with this flag?
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       // @ts-ignore: Store is untyped and typescript does not detect instance props set in `init`
-      this.store.recordArrayManager.recordDidChange(this.identifier, this.modelName);
+      this.store.recordArrayManager.recordDidChange(this.identifier);
     } else {
       // @ts-ignore: Store is untyped and typescript does not detect instance props set in `init`
       this.store.recordArrayManager.recordDidChange(this);
