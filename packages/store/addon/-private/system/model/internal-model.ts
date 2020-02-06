@@ -17,6 +17,7 @@ import {
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
+  RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
 } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
@@ -1582,12 +1583,18 @@ export default class InternalModel {
 }
 
 if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-  Object.defineProperty(InternalModel.prototype, '_recordArrays', {
-    get() {
-      return recordArraysForIdentifier(this.identifier);
-    },
-  });
+  // in production code, this is only accesssed in `record-array-manager`
+  // if LEGACY_COMPAT is on
+  if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+    Object.defineProperty(InternalModel.prototype, '_recordArrays', {
+      get() {
+        return recordArraysForIdentifier(this.identifier);
+      },
+    });
+  }
 } else {
+  // TODO investigate removing this property since it will only be used in tests
+  // once RECORD_ARRAY_MANAGER_IDENTIFIERS is turned on
   Object.defineProperty(InternalModel.prototype, '_recordArrays', {
     get() {
       if (this.__recordArrays === null) {
