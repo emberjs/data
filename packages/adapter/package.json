@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/adapter",
-  "version": "3.12.4",
+  "version": "3.12.5",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
@@ -21,13 +21,13 @@
     "prepublishOnly": "ember build --environment=production"
   },
   "dependencies": {
-    "@ember-data/-build-infra": "3.12.4",
+    "@ember-data/-build-infra": "3.12.5",
     "ember-cli-babel": "^7.8.0",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-typescript": "^2.0.2"
   },
   "devDependencies": {
-    "@ember-data/-test-infra": "3.12.4",
+    "@ember-data/-test-infra": "3.12.5",
     "@ember/optional-features": "^0.7.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "^3.10.1",
