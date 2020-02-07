@@ -1583,8 +1583,8 @@ export default class InternalModel {
 }
 
 if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-  // in production code, this is only accesssed in `record-array-manager`
-  // if LEGACY_COMPAT is on
+  // in production code, this is accesssed in `record-array-manager`
+  // if LEGACY_COMPAT is also on
   if (RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
     Object.defineProperty(InternalModel.prototype, '_recordArrays', {
       get() {
