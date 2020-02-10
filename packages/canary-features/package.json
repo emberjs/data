@@ -34,7 +34,7 @@
     "glob": "^7.1.6",
     "mocha": "^7.0.1",
     "npm-git-info": "^1.0.3",
-    "rimraf": "^3.0.1",
+    "rimraf": "^3.0.2",
     "rsvp": "^4.8.5",
     "silent-error": "^1.1.1"
   },

@@ -36,7 +36,7 @@
     "git-repo-info": "^2.1.1",
     "glob": "^7.1.6",
     "npm-git-info": "^1.0.3",
-    "rimraf": "^3.0.1",
+    "rimraf": "^3.0.2",
     "rsvp": "^4.8.5",
     "semver": "^7.1.2",
     "silent-error": "^1.1.1"
