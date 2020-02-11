@@ -5,7 +5,7 @@
   Data for individual resources fetched from your API is presented
   to the UI via instances of the `Model`s you define.
 
-  An instantiated `Model` is refered to as a `record`.
+  An instantiated `Model` is referred to as a `record`.
 
   When we refer to the `ModelClass` we are referring to the class definition
   and the static schema methods present on it.
