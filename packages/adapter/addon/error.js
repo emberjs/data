@@ -191,20 +191,20 @@ InvalidError.prototype.code = 'InvalidError';
   ```app/routes/application.js
   import Route from '@ember/routing/route';
   import { TimeoutError } from '@ember-data/adapter/error';
+  import { action } from '@ember/object';
 
-  export default Route.extend({
-    actions: {
-      error(error, transition) {
-        if (error instanceof TimeoutError) {
-          // alert the user
-          alert('Are you still connected to the internet?');
-          return;
-        }
-
-        // ...other error handling logic
+  export default class ApplicationRoute extends Route {
+    @action
+    error(error, transition) {
+      if (error instanceof TimeoutError) {
+        // alert the user
+        alert('Are you still connected to the Internet?');
+        return;
       }
+
+      // ...other error handling logic
     }
-  });
+  }
   ```
 
   @class TimeoutError
