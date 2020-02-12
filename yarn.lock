@@ -1893,20 +1893,20 @@
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
   integrity sha512-ONhaKPIufzzrlNbqtWFFd+jlnemX6lJAgq9ZeiZtS7I1PIf/la7CW4m83rTXRnVnsMbW2k56pGYu7AUFJD9Pow==
 
-"@tracerbench/core@3.0.11":
-  version "3.0.11"
-  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-3.0.11.tgz#953e009250778f7e4f96cb3073896a1375d2521b"
-  integrity sha512-oeMY3uGzGtbQSXAj0iYNS2FNtf+ELIH+2eix3HmXbzsbluzqyN7fVyjszDxRmxuQnvYBgYQ8euXjWb91pufa7g==
+"@tracerbench/core@3.0.14":
+  version "3.0.14"
+  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-3.0.14.tgz#edb4a703008995e85bd8f8eef41ddbb4efdc74c4"
+  integrity sha512-I1LU8dPmyBQNqJUriXVjsLyEIC5H2RAfZalILExc9V4OiGwdpnQEwY+v/MZnf+IwIr21lYLC3l6YXUMqW+3rxw==
   dependencies:
     "@types/d3-hierarchy" "^1.1.6"
     "@types/node" "*"
     array-binsearch "^1.0.1"
-    chalk "^2.4.2"
-    chrome-debugging-client "^1.0.3"
-    d3-hierarchy "^1.1.8"
+    chalk "^3.0.0"
+    chrome-debugging-client "^1.2.0"
+    d3-hierarchy "^1.1.9"
     debug "^4.1.1"
-    devtools-protocol "0.0.665395"
-    handlebars "^4.4.3"
+    devtools-protocol "^0.0.737833"
+    handlebars "^4.7.2"
     lodash.clonedeep "^4.5.0"
     silent-error "^1.1.1"
     tslib "^1.10.0"
@@ -4990,7 +4990,7 @@ chownr@^1.1.1, chownr@^1.1.2:
   resolved "https://registry.npmjs.org/chownr/-/chownr-1.1.3.tgz#42d837d5239688d55f303003a508230fa6727142"
   integrity sha512-i70fVHhmV3DtTl6nqvZOnIjbY0Pe4kAUjwHj8z0zAdgBtYrJyYwLKCCuRBQ5ppkyL0AkN7HKRnETdmdp1zqNXw==
 
-chrome-debugging-client@^1.0.3:
+chrome-debugging-client@^1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/chrome-debugging-client/-/chrome-debugging-client-1.2.0.tgz#23efc68b75b57c2b8cbdbdb99997cae01f0a31ea"
   integrity sha512-GtC79nrKEUSZqwlzdFl1ULgYMqJmRcoI9pwLITDzQCzFHuvSDw3IFbAsMAnzSYyKo5AXa6C2uddkxG2oocu+xg==
@@ -5729,7 +5729,7 @@ cyclist@^1.0.1:
   resolved "https://registry.npmjs.org/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-d3-hierarchy@^1.1.8:
+d3-hierarchy@^1.1.9:
   version "1.1.9"
   resolved "https://registry.npmjs.org/d3-hierarchy/-/d3-hierarchy-1.1.9.tgz#2f6bee24caaea43f8dc37545fa01628559647a83"
   integrity sha512-j8tPxlqh1srJHAtxfvOUwKNYJkQuBFdM1+JAUfq6xqH5eAqf93L7oG1NVqDa4CpFZNvnNKtCYEUC8KY9yEn9lQ==
@@ -5955,10 +5955,10 @@ detect-newline@3.1.0:
   resolved "https://registry.npmjs.org/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
 
-devtools-protocol@0.0.665395:
-  version "0.0.665395"
-  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.665395.tgz#82f57f1e9393a605907d0260972d8b5a023df807"
-  integrity sha512-yuxo2OYq+RC1PCU7QOqhhHHKojvZvG1A0DoYnsHpIha3P8ZERpHuLkwAkPyFa2ZdLLk7Vq2BhOS2bkPeLZ1ySg==
+devtools-protocol@^0.0.737833:
+  version "0.0.737833"
+  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.737833.tgz#2fbeeca7874062160e4bde8ca85b0b2ebbebaa70"
+  integrity sha512-kFYx3vg7/Mmem5AbMiukfPatuCi+wc6dT9p+fkomoZnEKAG51TK36W348QM/TSeg97bXfFYzeq7McjfRVqWDvw==
 
 dezalgo@^1.0.0:
   version "1.0.3"
@@ -8648,10 +8648,10 @@ growly@^1.3.0:
   resolved "https://registry.npmjs.org/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
-handlebars@^4.0.11, handlebars@^4.0.4, handlebars@^4.3.1, handlebars@^4.4.0, handlebars@^4.4.3, handlebars@^4.5.1:
-  version "4.7.2"
-  resolved "https://registry.npmjs.org/handlebars/-/handlebars-4.7.2.tgz#01127b3840156a0927058779482031afe0e730d7"
-  integrity sha512-4PwqDL2laXtTWZghzzCtunQUTLbo31pcCJrd/B/9JP8XbhVzpS5ZXuKqlOzsd1rtcaLo4KqAn8nl8mkknS4MHw==
+handlebars@^4.0.11, handlebars@^4.0.4, handlebars@^4.3.1, handlebars@^4.4.0, handlebars@^4.5.1, handlebars@^4.7.2:
+  version "4.7.3"
+  resolved "https://registry.npmjs.org/handlebars/-/handlebars-4.7.3.tgz#8ece2797826886cf8082d1726ff21d2a022550ee"
+  integrity sha512-SRGwSYuNfx8DwHD/6InAPzD6RgeruWLT+B8e8a7gGs8FWgHzlExpTFMEq2IA6QpAfOClpKHy6+8IqTjeBCu6Kg==
   dependencies:
     neo-async "^2.6.0"
     optimist "^0.6.1"
