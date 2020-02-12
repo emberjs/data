@@ -237,20 +237,20 @@ AbortError.prototype.code = 'AbortError';
   ```app/routes/application.js
   import Route from '@ember/routing/route';
   import { UnauthorizedError } from '@ember-data/adapter/error';
+  import { action } from '@ember/object';
 
-  export default Route.extend({
-    actions: {
-      error(error, transition) {
-        if (error instanceof UnauthorizedError) {
-          // go to the sign in route
-          this.transitionTo('login');
-          return;
-        }
-
-        // ...other error handling logic
+  export default class ApplicationRoute extends Route {
+    @action
+    error(error, transition) {
+      if (error instanceof UnauthorizedError) {
+        // go to the login route
+        this.transitionTo('login');
+        return;
       }
+
+      // ...other error handling logic
     }
-  });
+  }
   ```
 
   @class UnauthorizedError
@@ -283,24 +283,25 @@ ForbiddenError.prototype.code = 'ForbiddenError';
   ```app/routes/post.js
   import Route from '@ember/routing/route';
   import { NotFoundError } from '@ember-data/adapter/error';
+  import { inject as service } from '@ember/service';
+  import { action } from '@ember/object';
 
-  export default Route.extend({
+  export default class PostRoute extends Route {
+    @service store;
     model(params) {
       return this.get('store').findRecord('post', params.post_id);
-    },
-
-    actions: {
-      error(error, transition) {
-        if (error instanceof NotFoundError) {
-          // redirect to a list of all posts instead
-          this.transitionTo('posts');
-        } else {
-          // otherwise let the error bubble
-          return true;
-        }
+    }
+    @action
+    error(error, transition) {
+      if (error instanceof NotFoundError) {
+        // redirect to a list of all posts instead
+        this.transitionTo('posts');
+      } else {
+        // otherwise let the error bubble
+        return true;
       }
     }
-  });
+  }
   ```
 
   @class NotFoundError
