@@ -7192,10 +7192,10 @@ eslint-module-utils@^2.4.1:
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
   version "3.18.0-alpha.0"
 
-eslint-plugin-ember@^7.8.0:
-  version "7.8.0"
-  resolved "https://registry.npmjs.org/eslint-plugin-ember/-/eslint-plugin-ember-7.8.0.tgz#cefdc5dfabb0969953fee43b0758cc6ed1020293"
-  integrity sha512-vT5VAAxWXAe/DQNNsmzOOy6TadSuFXf8pmnPUV3Il92eXCHXIGY+jtPRhdi0pJnao7HCCk4IKbOXvIatjkGsEw==
+eslint-plugin-ember@^7.8.1:
+  version "7.8.1"
+  resolved "https://registry.npmjs.org/eslint-plugin-ember/-/eslint-plugin-ember-7.8.1.tgz#9b2d0526bb6b697f3f18e5c7d3fcf64e447813af"
+  integrity sha512-74Whm5MHV+llWv0LA/4b4IaLQxMTj5Jc1zoK11gYEPQbPIAviTF4JsRuzPM/x7QMo5pQZyTdfGYF5zVMbgQ2RA==
   dependencies:
     "@ember-data/rfc395-data" "^0.0.4"
     ember-rfc176-data "^0.3.12"

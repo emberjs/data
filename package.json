@@ -106,7 +106,7 @@
     "ember-try": "^1.4.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
-    "eslint-plugin-ember": "^7.8.0",
+    "eslint-plugin-ember": "^7.8.1",
     "eslint-plugin-ember-data": "link:./packages/unpublished-eslint-rules",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-mocha": "^6.2.2",
