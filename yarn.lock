@@ -4120,6 +4120,22 @@ broccoli-funnel@^2.0.0, broccoli-funnel@^2.0.1, broccoli-funnel@^2.0.2:
     symlink-or-copy "^1.0.0"
     walk-sync "^0.3.1"
 
+broccoli-funnel@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.npmjs.org/broccoli-funnel/-/broccoli-funnel-3.0.1.tgz#21b00c2bc1c0b1b4c083e24139e2b321c4cf353f"
+  integrity sha512-G1LdSYpuVU7mxVq8KlOyLztsUv+posrHbe+6n/XymZpPd2bbLmQ4HL0v6YP1wWAnfCVTcTnUTpIkw9oYwy+tTw==
+  dependencies:
+    array-equal "^1.0.0"
+    blank-object "^1.0.1"
+    broccoli-plugin "^4.0.1"
+    debug "^4.1.1"
+    fast-ordered-set "^1.0.0"
+    fs-tree-diff "^2.0.1"
+    heimdalljs "^0.2.0"
+    minimatch "^3.0.0"
+    path-posix "^1.0.0"
+    walk-sync "^2.0.2"
+
 broccoli-kitchen-sink-helpers@^0.2.5:
   version "0.2.9"
   resolved "https://registry.npmjs.org/broccoli-kitchen-sink-helpers/-/broccoli-kitchen-sink-helpers-0.2.9.tgz#a5e0986ed8d76fb5984b68c3f0450d3a96e36ecc"
@@ -12087,13 +12103,13 @@ quick-temp@^0.1.2, quick-temp@^0.1.3, quick-temp@^0.1.5, quick-temp@^0.1.8:
     rimraf "^2.5.4"
     underscore.string "~3.3.4"
 
-qunit-dom@^0.9.2:
-  version "0.9.2"
-  resolved "https://registry.npmjs.org/qunit-dom/-/qunit-dom-0.9.2.tgz#cc7bb777e4f5faa749eca843f54e199755df8473"
-  integrity sha512-BPf7OZjhXo9ekgsViNjQVS9BWkm2yQsPvBoy0juvt5nOFlcBVVwHSYsgpsJOunWkI1IgA3eStAC9mQx3Zw734g==
+qunit-dom@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/qunit-dom/-/qunit-dom-1.0.0.tgz#0a2a42f7f0e44ee6ddb5b12bbf296dc2db7ee6dc"
+  integrity sha512-N4lpLP5zs59+01ZWHs73kgbglmUp6Z5TLZRB1GRlq+5H40NStjPU8ZQEVPlKsjYSbsR6xLkn2wlQURJnFArQag==
   dependencies:
-    broccoli-funnel "^2.0.2"
-    broccoli-merge-trees "^3.0.1"
+    broccoli-funnel "^3.0.1"
+    broccoli-merge-trees "^4.1.0"
 
 qunit@^2.9.3:
   version "2.9.3"
