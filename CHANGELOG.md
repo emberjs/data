@@ -1,6 +1,8 @@
 # Ember Data Changelog
 
 ### Master
+## Release 3.13.2 (February 20, 2020)
+- [c8087a17](https://github.com/emberjs/data/pull/7058/commits/c8087a17782242dfda2d3b6ed93c9da671c34f19) [BUGFIX] Strip feature flagged code in non canary (#7058)
 
 ## Release 3.13.1 (September 24, 2019)
 
