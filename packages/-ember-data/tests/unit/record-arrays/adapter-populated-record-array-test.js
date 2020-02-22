@@ -222,7 +222,7 @@ if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       manager.getRecordArraysForIdentifier = () => {
         return set;
       };
-      let recordArray = AdapterPopulatedRecordArray.create({
+      let recordArray = AdapterPopulatedRecordArray.extend(Evented).create({
         query: 'some-query',
         manager,
         content: A(),
@@ -323,7 +323,6 @@ if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       recordArray.one('@array:change', function(array, startIdx, removeAmt, addAmt) {
         arrayDidChange++;
 
-        // first time invoked
         assert.equal(array, recordArray, 'should be same recordArray as above');
         assert.equal(startIdx, 0, 'expected startIdx');
         assert.equal(removeAmt, 2, 'expected removeAmt');
