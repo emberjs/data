@@ -14,7 +14,10 @@ a great place to ask for help!
 
 #### Testing ember data source directly
 
-You can use package linking to test checkouts of ember-data.
+##### monolithic ember-data
+
+You can use package linking to test checkouts of ember-data. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data. You can link to divisions within ember-data as well.
+
 1. clone this repository or another fork
 1. run `yarn install`
 1. run `yarn workspace ember-data link`
