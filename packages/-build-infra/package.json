@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@babel/plugin-transform-block-scoping": "^7.5.5",
+    "@ember-data/canary-features": "3.12.5",
     "babel-plugin-debug-macros": "^0.3.2",
     "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^3.0.0",
