@@ -19,6 +19,8 @@ import { typeOf } from '@ember/utils';
 
   Note that embedded records will serialize with the serializer for their model instead of the serializer in which they are defined.
 
+  Note also that this mixin does not work with JSONAPISerializer because the JSON:API specification does not describe how to format embedded resources.
+
   Below is an example of a per-type serializer (`post` type).
 
   ```app/serializers/post.js
