@@ -1,6 +1,9 @@
 # Ember Data Changelog
 
 ### Master
+## Release 3.13.3 (February 27, 2020)
+- [a573bfa](https://github.com/emberjs/data/commit/a573bfa0c9593a1d8d12c41e7bc60867c06d094f) [BUGFIX] Add @canary-features as -build-infra dep (#7067)
+
 ## Release 3.13.2 (February 20, 2020)
 - [c8087a17](https://github.com/emberjs/data/pull/7058/commits/c8087a17782242dfda2d3b6ed93c9da671c34f19) [BUGFIX] Strip feature flagged code in non canary (#7058)
 
