@@ -12,6 +12,32 @@ We have provided an [issue template](.github/bug.md) what will help guide you th
 If you are unsure if something is a bug, the `#ember-data` channel on [Discord](https://discord.gg/zT3asNS) is
 a great place to ask for help!
 
+#### Testing ember data source directly
+
+##### monolithic ember-data
+
+You can use package linking to test checkouts of ember-data. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data. You can link to divisions within ember-data as well.
+
+1. clone this repository or another fork
+1. run `yarn install`
+1. run `yarn workspace ember-data link`
+1. `cd` into your application
+1. run `yarn link "ember-data"`. If you don't use yarn in your application, `npm link "ember-data"` may work.
+
+Then you can run `ember serve` as usual in your application. You should see something like the following printed to your terminal:
+```
+some-app $ ember serve
+
+Missing symlinked yarn packages:
+Package: ember-data
+  * Specified: ~3.15.0
+  * Symlinked: 3.17.0-alpha.1
+
+
+Build successful (41237ms) – Serving on http://localhost:4200/
+...
+```
+
 ### Discussion
 
 Before embarking on a fix, a new feature, or a refactor it is usually best to discuss the
@@ -88,6 +114,7 @@ the issue being fixed and test that the solution works.
 - `ember-data` is an `ember-addon` and uses `ember-cli`. To run tests locally
   use `yarn test` or `yarn test --serve`. For additional test commands see the list
   of commands in [./package.json](./package.json)
+
 
 #### Commit Tagging
 
