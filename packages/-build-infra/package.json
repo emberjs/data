@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/-build-infra",
-  "version": "3.13.3-alpha.0",
+  "version": "3.13.3",
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [],
   "repository": "",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@babel/plugin-transform-block-scoping": "^7.5.5",
-    "@ember-data/canary-features": "3.13.3-alpha.0",
+    "@ember-data/canary-features": "3.13.3",
     "@ember/edition-utils": "^1.1.1",
     "babel-plugin-debug-macros": "^0.3.2",
     "babel-plugin-feature-flags": "^0.3.1",

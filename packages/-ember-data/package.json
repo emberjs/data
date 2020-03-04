@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "3.13.3-alpha.0",
+  "version": "3.13.3",
   "description": "A data layer for your Ember applications.",
   "repository": "git://github.com/emberjs/data.git",
   "directories": {
@@ -21,11 +21,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@ember-data/-build-infra": "3.13.3-alpha.0",
-    "@ember-data/adapter": "3.13.3-alpha.0",
-    "@ember-data/model": "3.13.3-alpha.0",
-    "@ember-data/serializer": "3.13.3-alpha.0",
-    "@ember-data/store": "3.13.3-alpha.0",
+    "@ember-data/-build-infra": "3.13.3",
+    "@ember-data/adapter": "3.13.3",
+    "@ember-data/model": "3.13.3",
+    "@ember-data/serializer": "3.13.3",
+    "@ember-data/store": "3.13.3",
     "@ember/ordered-set": "^2.0.3",
     "@glimmer/env": "^0.1.7",
     "ember-cli-babel": "^7.8.0",
