@@ -1,9 +1,13 @@
 # Ember Data Changelog
 
-## Release 3.16.1 (February 27 2020)
+## Release 3.16.2 (February 27 2020)
 
 - [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
 - [#6941](https://github.com/emberjs/data/pull/6941) [BUGFIX] fix jsonapi error handling when not using jquery  (#6941)
+
+## Release 3.16.1 (February 27 2020)
+
+- Never published.
 
 ## Release 3.16.0 (January 24 2020)
 
