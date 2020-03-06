@@ -387,6 +387,42 @@ module('integration/snapshot - Snapshot', function(hooks) {
     });
   });
 
+  test('snapshot.belongsTo().changedAttributes() returns an empty object if belongsTo record in not instantiated #7015', function(assert) {
+    assert.expect(2);
+
+    store.push({
+      data: [
+        {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            body: 'This is comment',
+          },
+          relationships: {
+            post: {
+              data: { type: 'post', id: '1' },
+            },
+          },
+        },
+      ],
+      included: [
+        {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Hello World',
+          },
+        },
+      ],
+    });
+    let comment = store.peekRecord('comment', 2);
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post');
+
+    assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
+    assert.deepEqual(relationship.changedAttributes(), {}, 'changedAttributes are correct');
+  });
+
   test('snapshot.belongsTo() returns null if relationship is deleted', function(assert) {
     assert.expect(1);
 

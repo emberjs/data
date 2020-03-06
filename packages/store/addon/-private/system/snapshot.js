@@ -167,6 +167,11 @@ export default class Snapshot {
    */
   changedAttributes() {
     let changedAttributes = Object.create(null);
+
+    if (!this._changedAttributes) {
+      return changedAttributes;
+    }
+
     let changedAttributeKeys = Object.keys(this._changedAttributes);
 
     for (let i = 0, length = changedAttributeKeys.length; i < length; i++) {
