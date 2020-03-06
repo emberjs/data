@@ -119,7 +119,6 @@ export default class Snapshot implements Snapshot {
      @type {String}
      */
     this.modelName = internalModel.modelName;
-
     if (internalModel.hasRecord) {
       this._changedAttributes = recordDataFor(internalModel).changedAttributes();
     }
@@ -246,6 +245,10 @@ export default class Snapshot implements Snapshot {
    */
   changedAttributes(): ChangedAttributesHash {
     let changedAttributes = Object.create(null);
+    if (!this._changedAttributes) {
+      return changedAttributes;
+    }
+
     let changedAttributeKeys = Object.keys(this._changedAttributes);
 
     for (let i = 0, length = changedAttributeKeys.length; i < length; i++) {
