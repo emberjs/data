@@ -1083,7 +1083,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     );
 
     let headers = get(this, 'headers');
-    if (headers !== undefined) {
+    if (headers) {
       if (DEBUG) {
         options.headers = options.headers || {};
         let conflictingHeaders = Object.keys(headers).filter(key => options.headers[key] !== undefined);
