@@ -1,12 +1,18 @@
 # Ember Data Changelog
 
 ### Master
+
+## Release 3.12.6 (LTS) (March 9, 2020)
+- [3032e94c](https://github.com/emberjs/data/commit/3032e94cea8c2c3d19e643dfc071e63357277d4b) [BUGFIX] only allow feature flag alterations in canary (#6738)
+- [51b0572e](https://github.com/emberjs/data/commit/51b0572eb197e0757dea674fea478135e983e267) [BUGFIX] Fix headers precedence warning for null headers object
+- [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
+- [51b0572e](https://github.com/emberjs/data/commit/82cd91419b7c14c91fb10d9190b8534d7c84d4b4) [BUGFIX] Add @canary-features as -build-infra dep
+
 ## Release 3.12.5 (LTS) (November 21, 2019)
 - [#6524](https://github.com/emberjs/data/pull/6524) [DOCS] Docs updates for Packages to fix missing docs and broken links (#6524)
 - [b101be12](https://github.com/emberjs/data/commit/b101be12f6598b9f7ee9cbbcdff88762c074d3ee) [BUGFIX] ensure MandatorySetter does not trigger for modelName (#6749)
 - [c5f85800](https://github.com/emberjs/data/commit/c5f858008ee6eb2e01a57cfdf21005eb00452066) [BUGFIX] Set IDs on Record Data when mutating DS Model (#6775) (#6778)
 - [#6744](https://github.com/emberjs/data/pull/6744) [BUGFIX] ensure feature flagged code is stripped out
-
 
 ## Release 3.12.4 (LTS) (September 24, 2019)
 
