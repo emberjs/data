@@ -3,7 +3,6 @@ import { isNone } from '@ember/utils';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
-import OrderedSet from '../../ordered-set';
 import Relationship from './relationship';
 
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
@@ -156,24 +155,12 @@ export default class ManyRelationship extends Relationship {
   }
 
   computeChanges(recordDatas: RelationshipRecordData[] = []) {
-    let members = this.canonicalMembers;
-    let recordDatasToRemove: RelationshipRecordData[] = [];
-    let recordDatasSet = setForArray(recordDatas);
-
-    members.forEach(member => {
-      if (recordDatasSet.has(member)) {
-        return;
-      }
-
-      recordDatasToRemove.push(member);
-    });
-
-    this.removeCanonicalRecordDatas(recordDatasToRemove);
-
+    const members = this.canonicalMembers.toArray();
+    for (let i = members.length - 1; i >= 0; i--) {
+      this.removeCanonicalRecordData(members[i], i);
+    }
     for (let i = 0, l = recordDatas.length; i < l; i++) {
-      let recordData = recordDatas[i];
-      this.removeCanonicalRecordData(recordData);
-      this.addCanonicalRecordData(recordData, i);
+      this.addCanonicalRecordData(recordDatas[i], i);
     }
   }
 
@@ -254,16 +241,4 @@ export default class ManyRelationship extends Relationship {
       this.updateRecordDatasFromAdapter(recordDatas);
     }
   }
-}
-
-function setForArray(array) {
-  var set = new OrderedSet();
-
-  if (array) {
-    for (var i = 0, l = array.length; i < l; i++) {
-      set.add(array[i]);
-    }
-  }
-
-  return set;
 }
