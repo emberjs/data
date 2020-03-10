@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## Releqase 3.16.3 (March 10 2020)
+- [cef0ed5c](https://github.com/emberjs/data/commit/cef0ed5c73e35e14dd5c398f6126307922d51c95) [BUGFIX] Fix #7015 - calling changedAttributes for non instantiated relationships
+
 ## Release 3.16.2 (February 27 2020)
 
 - [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
