@@ -1,21 +1,18 @@
 # Ember Data Changelog
 
-## Release 3.17.0-beta.0 (January 24, 2020)
+## Release 3.17.0 (March 10, 2020)
 
+- [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
+- [#6941](https://github.com/emberjs/data/pull/6941) [BUGFIX] fix jsonapi error handling when not using jquery  (#6941)
+- [c36d42ae](https://github.com/emberjs/data/commit/c36d42aef7218fe2a34ab7cde6321fb08d7c9cca) [BUGFIX] Fix #7015 - calling changedAttributes for non instantiated relationshipsjj
 - [f7340c9b](https://github.com/emberjs/data/commit/f7340c9b5be1c0b58b0357581761ccafc91bf27a) [DOCS] MinimumAdapterInterface (#6643)
 - [e1822f96](https://github.com/emberjs/data/commit/e1822f96de83fb0b991d621007e3b866e618261d) [DOCS] Fix link for API Documentation (#6950)
-- [#6954](https://github.com/emberjs/data/pull/6954) validate perf related binaries are installed (#6954)
-- [#6949](https://github.com/emberjs/data/pull/6949) improve performance app documentation (#6949)
 - [3e3677f6](https://github.com/emberjs/data/commit/3e3677f6cfb3c8715697b302aed522d07926287f) [BUGFIX] fix importing from @ember-data/store
 - [#6944](https://github.com/emberjs/data/pull/6944) chore: refactor: Remove last usages of run in adapter find tests (#6944)
-- [#6895](https://github.com/emberjs/data/pull/6895) Enabled eslint-plugin-qunit (#6895)
 - [#6985](https://github.com/emberjs/data/pull/6985) [FIX] RecordData is not a constructor
-- [#6978](https://github.com/emberjs/data/pull/6978) remove leading whitespace per shellcheck (#6978)
 - [d776f1ec](https://github.com/emberjs/data/commit/d776f1ece2db0d3ec869f627d4e518c24e3f252a) [BUGFIX] findRecord should not resolve without id in production builds (#6561)
 - [#6968](https://github.com/emberjs/data/pull/6968) remove IDENTIFIERS off branches (#6968)
 - [#6927](https://github.com/emberjs/data/pull/6927) [FIX] groupRecordsForFindMany should be optional (#6927)
-- [#7001](https://github.com/emberjs/data/pull/7001) Disable known failure for 3.16.x
-- [#7007](https://github.com/emberjs/data/pull/7007) Bump ember-cli-typescript
 - [#7006](https://github.com/emberjs/data/pull/7006) Make execa use compatible with volta
 
 ## Release 3.16.0 (January 24 2020)

@@ -800,7 +800,7 @@
     globals "^11.1.0"
     lodash "^4.17.13"
 
-"@babel/types@^7.0.0", "@babel/types@^7.1.6", "@babel/types@^7.3.2", "@babel/types@^7.3.4", "@babel/types@^7.4.0", "@babel/types@^7.7.2", "@babel/types@^7.8.3":
+"@babel/types@^7.0.0", "@babel/types@^7.1.6", "@babel/types@^7.3.2", "@babel/types@^7.3.4", "@babel/types@^7.7.2", "@babel/types@^7.8.3":
   version "7.8.3"
   resolved "https://registry.npmjs.org/@babel/types/-/types-7.8.3.tgz#5a383dffa5416db1b73dedffd311ffd0788fb31c"
   integrity sha512-jBD+G8+LWpMBBWvVcdr4QysjUE4mU/syrhN17o1u3gx0/WzJB1kwiVZAXRtWbsIPOwW8pF/YJV5+nmetPzepXg==
@@ -822,7 +822,7 @@
   resolved "https://registry.npmjs.org/@ember-data/rfc395-data/-/rfc395-data-0.0.4.tgz#ecb86efdf5d7733a76ff14ea651a1b0ed1f8a843"
   integrity sha512-tGRdvgC9/QMQSuSuJV45xoyhI0Pzjm7A9o/MVVA3HakXIImJbbzx/k/6dO9CUEQXIyS2y0fW6C1XaYOG7rY0FQ==
 
-"@ember/edition-utils@^1.1.1", "@ember/edition-utils@^1.2.0":
+"@ember/edition-utils@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@ember/edition-utils/-/edition-utils-1.2.0.tgz#a039f542dc14c8e8299c81cd5abba95e2459cfa6"
   integrity sha512-VmVq/8saCaPdesQmftPqbFtxJWrzxNGSQ+e8x8LLe3Hjm36pJ04Q8LeORGZkAeOhldoUX9seLGmSaHeXkIqoog==
@@ -3172,14 +3172,6 @@ babel-plugin-ember-modules-api-polyfill@^2.12.0, babel-plugin-ember-modules-api-
   integrity sha512-ZQU4quX0TJ1yYyosPy5PFigKdCFEVHJ6H0b3hwjxekIP9CDwzk0OhQuKhCOPti+d52VWjjCjxu2BrXEih29mFw==
   dependencies:
     ember-rfc176-data "^0.3.12"
-
-babel-plugin-filter-imports@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/babel-plugin-filter-imports/-/babel-plugin-filter-imports-3.0.0.tgz#a849683837ad29960da17492fb32789ab6b09a11"
-  integrity sha512-p/chjzVTgCxUqyLM0q/pfWVZS7IJTwGQMwNg0LOvuQpKiTftQgZDtkGB8XvETnUw19rRcL7bJCTopSwibTN2tA==
-  dependencies:
-    "@babel/types" "^7.4.0"
-    lodash "^4.17.11"
 
 babel-plugin-filter-imports@^4.0.0:
   version "4.0.0"
@@ -6763,23 +6755,23 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.15.0:
-  version "3.16.0"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.16.0.tgz#c899ccac6783e218f12774139b1e6c3d2fc4c16b"
-  integrity sha512-zotw+jrvlV/Fdq0fwL04jdFsxtHBo+0YtMKVvaNbSWeV97DrULSdnBQ91Sq1KZ+9ueBbClngHF4wXJmlIwqb8g==
+ember-source@^3.17.0:
+  version "3.17.0"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.17.0.tgz#6365b8e43f72d552f62e5d7ee4e841595ae70579"
+  integrity sha512-CfOi00tYGdwR12FuBMuiBzyC4cmabHtkL+LpORWavCRHN0UfBpBTj64rmKMD2HNJhYZFVX+8ZFTO27FX8D6Glg==
   dependencies:
     "@babel/helper-module-imports" "^7.0.0"
     "@babel/plugin-transform-block-scoping" "^7.6.2"
     "@babel/plugin-transform-object-assign" "^7.2.0"
-    "@ember/edition-utils" "^1.1.1"
+    "@ember/edition-utils" "^1.2.0"
     babel-plugin-debug-macros "^0.3.3"
-    babel-plugin-filter-imports "^3.0.0"
+    babel-plugin-filter-imports "^4.0.0"
     broccoli-concat "^3.7.4"
     broccoli-debug "^0.6.4"
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.2"
-    chalk "^2.4.2"
-    ember-cli-babel "^7.11.0"
+    chalk "^3.0.0"
+    ember-cli-babel "^7.13.2"
     ember-cli-get-component-path-option "^1.0.0"
     ember-cli-is-package-missing "^1.0.0"
     ember-cli-normalize-entity-name "^1.0.0"
@@ -6789,7 +6781,7 @@ ember-source@^3.15.0:
     ember-router-generator "^2.0.0"
     inflection "^1.12.0"
     jquery "^3.4.1"
-    resolve "^1.11.1"
+    resolve "^1.14.2"
     semver "^6.1.1"
     silent-error "^1.1.1"
 
@@ -10074,7 +10066,7 @@ lodash.uniqby@^4.7.0:
   resolved "https://registry.npmjs.org/lodash.uniqby/-/lodash.uniqby-4.7.0.tgz#d99c07a669e9e6d24e1362dfe266c67616af1302"
   integrity sha1-2ZwHpmnp5tJOE2Lf4mbGdhavEwI=
 
-lodash@^4.0.0, lodash@^4.15.0, lodash@^4.16.1, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.4, lodash@^4.2.1, lodash@^4.6.1:
+lodash@^4.0.0, lodash@^4.15.0, lodash@^4.16.1, lodash@^4.17.10, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.4, lodash@^4.2.1, lodash@^4.6.1:
   version "4.17.15"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
