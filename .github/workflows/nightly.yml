@@ -2,7 +2,7 @@ name: 'Nightly'
 
 on:
   schedule:
-    - cron: '* 14 * * *' # 14:00 in UTC is 6am PST
+    - cron: '0 14 * * *' # 14:00 in UTC is 6am PST
 
 jobs:
   test-all-deprecations:
