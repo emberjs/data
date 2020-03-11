@@ -3970,10 +3970,10 @@ broccoli-concat@^3.7.1, broccoli-concat@^3.7.4:
     lodash.uniq "^4.2.0"
     walk-sync "^0.3.2"
 
-broccoli-concat@^4.2.2:
-  version "4.2.2"
-  resolved "https://registry.npmjs.org/broccoli-concat/-/broccoli-concat-4.2.2.tgz#9551c49fcb2fc40e966ef45e8caa6dfa1c7c59e0"
-  integrity sha512-kGvdeTf7coFqUYBohh1HpEMoGX3y42C6yGd80xfDkHlWspL//hmLNiq2FRBuMAeEv5F9KnSvN+TEFi+HAtPEPQ==
+broccoli-concat@^4.2.2, broccoli-concat@^4.2.3:
+  version "4.2.3"
+  resolved "https://registry.npmjs.org/broccoli-concat/-/broccoli-concat-4.2.3.tgz#9f995c86e843f74b42d12f8146b9f21cd80eac64"
+  integrity sha512-K6glsSJKuoC+ubbnOZ4+g0BCFWXfjkKiEQMx2NFLYMXuBxKZnaV/Lx2aq+My57j0yUspRUXC/bJbEUIj5uPWkQ==
   dependencies:
     broccoli-debug "^0.6.5"
     broccoli-kitchen-sink-helpers "^0.3.1"
