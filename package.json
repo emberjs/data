@@ -38,7 +38,7 @@
     "test-external:ember-data-relationship-tracker": "./bin/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
-    "@babel/plugin-transform-typescript": "^7.8.3",
+    "@babel/plugin-transform-typescript": "^7.8.7",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^1.3.0",
     "@glimmer/component": "^1.0.0",
