@@ -179,7 +179,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('hasMany + canonical vs currentState + destroyRecord  ', function(assert) {
-    assert.expect(6);
+    assert.expect(7);
 
     let store = this.owner.lookup('service:store');
 
@@ -265,6 +265,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       `user's contacts should have expected contacts`
     );
     assert.equal(contacts, user.get('contacts'));
+
+    assert.ok(!user.contacts.initialState || !user.contacts.initialState.find(model => model.id === '2'));
 
     run(() => {
       contacts.addObject(store.createRecord('user', { id: 8 }));
