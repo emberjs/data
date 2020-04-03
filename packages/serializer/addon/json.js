@@ -1194,7 +1194,6 @@ const JSONSerializer = Serializer.extend({
 
    ```app/serializers/post.js
    import JSONSerializer from '@ember-data/serializer/json';
-   import DS from 'ember-data';
 
    export default JSONSerializer.extend({
      serializeHasMany(snapshot, json, relationship) {
@@ -1366,7 +1365,7 @@ const JSONSerializer = Serializer.extend({
     behavior to deal with a different format of errors:
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import JSONSerializer from '@ember-data/serializer/json';
 
     export default JSONSerializer.extend({
       extractErrors(store, typeClass, payload, id) {
