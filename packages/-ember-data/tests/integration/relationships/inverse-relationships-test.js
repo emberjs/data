@@ -1,3 +1,5 @@
+import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -649,5 +651,44 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const comment = store.createRecord('comment');
 
     assert.equal(comment.inverseFor('user'), null, 'Defaults to a null inverse');
+  });
+
+  test('Unload a destroyed record should clean the relations', async function(assert) {
+    assert.expect(3);
+
+    class Post extends Model {
+      @hasMany('comment', { async: true })
+      comments;
+    }
+
+    class Comment extends Model {
+      @belongsTo('post', { async: true })
+      post;
+    }
+
+    register('model:Post', Post);
+    register('model:Comment', Comment);
+
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
+
+    post.get('comments').pushObject(comment);
+
+    await comment.destroyRecord();
+    comment.unloadRecord();
+
+    await settled();
+
+    assert.deepEqual(
+      comment._internalModel.__recordData.__relationships.initializedRelationships,
+      {},
+      'relationships are cleared'
+    );
+    assert.equal(
+      comment._internalModel.__recordData.__implicitRelationships,
+      null,
+      'implicitRelationships are cleared'
+    );
+    assert.ok(comment._internalModel.__recordData.isDestroyed, 'recordData is destroyed');
   });
 });
