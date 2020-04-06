@@ -136,6 +136,8 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     */
     this.currentState = [];
     this.flushCanonical(this.initialState, false);
+    // we don't need this anymore, it just prevents garbage collection the records in the initialState
+    this.initialState = undefined;
   },
 
   // TODO: if(DEBUG)
