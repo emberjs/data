@@ -303,7 +303,6 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
   });
 
   test('Records with an async hasMany can be pushed again after they were destroyed on client side', async function(assert) {
-    let company;
     let group;
     let employee;
 
@@ -357,7 +356,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
             data: [{ type: 'group', id: '1' }],
           },
         },
-      }
+      },
     };
 
     const jsonGroup = {
@@ -370,9 +369,9 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
               id: '1',
               type: 'company',
             },
-          }
+          },
         },
-      }
+      },
     };
 
     // Server push with the group and employee
@@ -380,7 +379,6 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
       store.push(jsonEmployee);
       store.push(jsonGroup);
 
-      company = store.peekRecord('company', '1');
       group = store.peekRecord('group', '1');
     });
 

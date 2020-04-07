@@ -2,11 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8fa7a5e7-1523-47e9-8009-baadbc165186" name="Default Changelist" comment="" />
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
   </component>
   <component name="JQLSearcherProjectManager">
     <selected>-1</selected>
@@ -22,11 +31,19 @@
     <option name="USE_PERFORCE_JOBS" value="true" />
   </component>
   <component name="ProjectId" id="1RjQWnqQlOxpgV2WTjskZrGmlmV" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="JavaScriptLanguageLevel" value="ES6" />
     <property name="JavaScriptWeakerCompletionTypeGuess" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$/Applications/Perforce/p4v.app/Contents/MacOS/p4v" />
     <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.standard" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.path.for.package.standard" value="project" />
     <property name="node.js.path.for.package.tslint" value="project" />
@@ -39,18 +56,6 @@
     <property name="prettierjs.PrettierConfiguration.Package" value="$PROJECT_DIR$/node_modules/prettier" />
     <property name="settings.editor.selected.configurable" value="settings.javascript.linters.tslint" />
     <property name="settings.editor.splitter.proportion" value="0.3119266" />
-  </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -66,10 +71,25 @@
       <workItem from="1570535501562" duration="8486000" />
       <workItem from="1570723727137" duration="1019000" />
       <workItem from="1571068932827" duration="7477000" />
+      <workItem from="1586268872942" duration="2639000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="544" y="259" key="#ESLint" timestamp="1586280287387">
+      <screen x="0" y="23" width="1920" height="1177" />
+    </state>
+    <state x="544" y="259" key="#ESLint/0.23.1920.1177@0.23.1920.1177" timestamp="1586280287387" />
+    <state x="549" y="350" width="639" height="486" key="find.popup" timestamp="1586277144905">
+      <screen x="0" y="23" width="1920" height="1177" />
+    </state>
+    <state x="549" y="350" width="639" height="486" key="find.popup/0.23.1920.1177@0.23.1920.1177" timestamp="1586277144905" />
+    <state x="609" y="279" width="670" height="676" key="search.everywhere.popup" timestamp="1586277166073">
+      <screen x="0" y="23" width="1920" height="1177" />
+    </state>
+    <state x="609" y="279" width="670" height="676" key="search.everywhere.popup/0.23.1920.1177@0.23.1920.1177" timestamp="1586277166073" />
   </component>
 </project>
