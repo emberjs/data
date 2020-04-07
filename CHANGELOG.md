@@ -225,11 +225,7 @@
 
 ## Release 3.12.0
 
-- [#6062](https://github.com/emberjs/data/pull/6062) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
-- [82743675](https://github.com/emberjs/data/commit/8274367556e4f23b2b8f8ac49c91e3d410a1f7bb) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
-- [545285f1](https://github.com/emberjs/data/commit/545285f1ca519a282272ccae6dfeb1c480f2e015) [BUGFIX release] Fix rollup warning for ember-inflector. (#6242)
-- [48dd8120](https://github.com/emberjs/data/commit/48dd812035f974c56447ddc0cf81c37a83ce1e02) [BUGFIX reload] fix sync belongsTo reload w/dematerialize (#6158)
-- [#6124](https://github.com/emberjs/data/pull/6124) chore: remove co usage (#6124)
+- [#6062](https://github.com/emberjs/data/pull/6062) [BUGFIX fetch] prevent Accept & Cont
 - [#6155](https://github.com/emberjs/data/pull/6155) Two small fixes to `fetch` (#6155)
 - [#6153](https://github.com/emberjs/data/pull/6153) Fix yuidoc setup to support the split packages (#6153)
 - [#6078](https://github.com/emberjs/data/pull/6078) Use HTML comments in PR template. (#6078)
@@ -272,10 +268,7 @@
 ## Release 3.11.0 (June 28, 2019)
  
 - [#6189](https://github.com/emberjs/data/pull/6189) Update model API docs to use the new packages import syntax (#6137)
-- [#6075](https://github.com/emberjs/data/pull/6075) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
-- [6c2ae3d4](https://github.com/emberjs/data/commit/6c2ae3d4eaae5c090d9b4bda6e5afc8f15f73d70) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
-- [88b37e2b](https://github.com/emberjs/data/commit/88b37e2bfdf749987aeca96636a203216c3d7ebf) [BUGFIX unloadRecord] Fix unloadRecord() when unloading a previous parent of a child record
-- [a4c47189](https://github.com/emberjs/data/commit/a4c471899c4c17dca2b7385e5c554506921db45f) [BUGFIX docs] Update 'navigator.connection' example to spec (#6060)
+- [#6075](https://github.com/emberjs/data/pull/6075) [BUGFIX fetch] prevent Accept & Cont
 - [fc69c462](https://github.com/emberjs/data/commit/fc69c4629747d20e9faa132d11edd2e7bf2892a1) [BUGFIX docs] Fix broken ArrayProxy link on api docs (#6057)
 - [00df008f](https://github.com/emberjs/data/commit/00df008f874c2719c1253c217ecd10243d5fdb21) [FEAT packages] introduce build-infra package
 - [e4a4368d](https://github.com/emberjs/data/commit/e4a4368d2278179410553aa8b601cd72dd7f7db6) [FIX recordArrayManager] removes an extraneous flush
@@ -296,12 +289,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 
 ## Release 3.9.2 (May 7, 2019)
 
-- [#6076](https://github.com/emberjs/data/pull/6076) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
-- [#6082](https://github.com/emberjs/data/pull/6082) [BUGFIX release] Remove ember-fetch dependency. (#6082)
-
-## Release 3.9.1 (April 19, 2019)
-
-- [7e3ca651](https://github.com/emberjs/data/commit/7e3ca651e0ce2525cfab666870e54fd16d23b57c) [BUGFIX jQuery] avoid jQuery deprecation notice for intentional use
+- [#6076](https://github.com/emberjs/data/pull/6076) [BUGFIX fetch] prevent Accept & Cont
 - [BUGFIX fastboot] ember-fetch fastboot passthrough
 
 ### Release 3.9.0 (April 8, 2019)
@@ -356,13 +344,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 - [#5491](https://github.com/emberjs/data/pull/5491) [Feature] Add MU support for model and model-test blueprints
 - [#5616](https://github.com/emberjs/data/pull/5616) [FEAT RecordData] turn on the build-flag by default
 - [#5608](https://github.com/emberjs/data/pull/5608) [BUGFIX] Add inverse relationship on payload when missing (#5608)
-- [#5489](https://github.com/emberjs/data/pull/5489) [BUGFIX] Lowercase header names in parseResponseHeaders
-- [#5494](https://github.com/emberjs/data/pull/5494) [Feature] Add MU support for serializer and serializer-test blueprints
-- [#5495](https://github.com/emberjs/data/pull/5495) [Feature] Add MU transform{,-test} blueprints
-- [#5657](https://github.com/emberjs/data/pull/5657) [BUGFIX blueprints] remove second string argument from transform tests
-- [#5652](https://github.com/emberjs/data/pull/5652) [Docs] Update buildUrl syntax in docs
-- [#5639](https://github.com/emberjs/data/pull/5639) Include request/response info with Abort error
-- [#5646](https://github.com/emberjs/data/pull/5646) [CHORE] update contribution guidelines
+- [#5489](https://github.com/emberjs/data/pull/5489) [BUGFIX] Lo
 - [#5623](https://github.com/emberjs/data/pull/5623) Added conditional check to extract polymorphic relationship for hasMany (#5623)
 - [#5650](https://github.com/emberjs/data/pull/5650) [FEAT transforms] makes the assertion for missing transforms clearer
 - [#5640](https://github.com/emberjs/data/pull/5640) [BUGFIX] fix deprecation for store entry methods
@@ -491,7 +473,6 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 - [#5416](https://github.com/emberjs/data/pull/5416) adds a more robust test around reload
 - [#5418](https://github.com/emberjs/data/pull/5418) Limit CI runs on branches to master, beta, release
 - [#5422](https://github.com/emberjs/data/pull/5422) [FEAT] Prevent async test leakage (feat. adds test waiters)
-- [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods and reject the (#4977)
 - [#5379](https://github.com/emberjs/data/pull/5379) minor typo
 - [#5382](https://github.com/emberjs/data/pull/5382) [FIX] update ember-cli-dependency-checker to avoid deprecation warning
 - [#5371](https://github.com/emberjs/data/pull/5371) Upgrade to ember-cli-qunit 4.0 and replace ember-dev with ember-qunit… (#5371)
@@ -557,13 +538,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 - [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
 - [#5330](https://github.com/emberjs/data/pull/5330) [CHORE] updates to benchmark harness
 - [#5322](https://github.com/emberjs/data/pull/5322) Clean up a bunch of invalid yuidoc blocks that were causing warnings …
-- [#5318](https://github.com/emberjs/data/pull/5318) Use Ember.computed in the headers examples to avoid ember eslint warning
-- [#5311](https://github.com/emberjs/data/pull/5311) Avoid bower usage in config/ember-try.js
-- [#5321](https://github.com/emberjs/data/pull/5321) Update some dependencies to clean up some noise when running yarn ins…
-- [#5317](https://github.com/emberjs/data/pull/5317) Dont serialize new belongsTo records (#5317)
-- [#5323](https://github.com/emberjs/data/pull/5323) Stop using deprecated vendor-prefix hook to inject enableoptionalfeat…
-- [#5326](https://github.com/emberjs/data/pull/5326) Remove usages of enumerable observers
-- [#5329](https://github.com/emberjs/data/pull/5329) bump rsvp
+- [#5318](https://github.com/emberjs/data/pull/5318) Use Ember.computed
 - [#5332](https://github.com/emberjs/data/pull/5332) [BUGFIX beta] Fix development build relationship caching.
 - [#5333](https://github.com/emberjs/data/pull/5333) [DEV-BUGFIX] Fix instrumentation when running in production (#5333)
 - [#5339](https://github.com/emberjs/data/pull/5339) Prevent build issues when linking ember-source.
@@ -681,13 +656,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 - [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
 - [#5089](https://github.com/emberjs/data/pull/5089) Bump `amd-name-resolver` version to enable parallel babel transpile
 - [#5030](https://github.com/emberjs/data/pull/5030) fix build
-- [#5029](https://github.com/emberjs/data/pull/5029) loosen header parsing slightly
-- [#5094](https://github.com/emberjs/data/pull/5094) {master} Unload fun
-- [#5038](https://github.com/emberjs/data/pull/5038) remove deprecated `idToRecord` and cleanup
-- [#5035](https://github.com/emberjs/data/pull/5035) [BUGFIX release] Fix global build (#5035)
-- [#5031](https://github.com/emberjs/data/pull/5031) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5031)
-- [#5101](https://github.com/emberjs/data/pull/5101) [DOC beta] fix instructions for build command
-- [#5047](https://github.com/emberjs/data/pull/5047) cleanup
+- [#5029](https://github.com/emberjs/data/pull/5029) cleanup
 - [#5039](https://github.com/emberjs/data/pull/5039) use prop destructor for Ember dependencies
 - [#5040](https://github.com/emberjs/data/pull/5040) tests for unload + resurrect + remote relationship state
 - [#5044](https://github.com/emberjs/data/pull/5044) update `ember-resolver` `loader.js` `rsvp`
@@ -750,13 +719,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 - [#5098](https://github.com/emberjs/data/pull/5098) {beta} Beta unload and create
 - [#5105](https://github.com/emberjs/data/pull/5105) {Beta} forward port
 - [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
-- [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
-- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta] Skip test which doesn't play nicely with the latest em…
-- [84041a5f](https://github.com/emberjs/data/commit/84041a5f73b5b2a8f6d6d6475f7aa71d5b83b939) Update RELEASE.md
-- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
-- [#4947](https://github.com/emberjs/data/pull/4947) remove needless change events when creating a recordArrays
-- [#5071](https://github.com/emberjs/data/pull/5071) [BACKPORT] Update doc for deprecated function.
-- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export
+- [#5033](https://github.com/emberjs/data/pull/5033) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export
 - [#4992](https://github.com/emberjs/data/pull/4992) Use https in references to emberjs website (#4992)
 - [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
 - [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
@@ -768,13 +731,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 - [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
 - [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
 - [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
-- [#5032](https://github.com/emberjs/data/pull/5032) loosen header parsing slightly
-- [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
-- [#4981](https://github.com/emberjs/data/pull/4981) [DOC release] Document DS.HasManyReference.ids
-- [#4964](https://github.com/emberjs/data/pull/4964) Fix typo: expect multiple s/methods/records back
-- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
-- [#4960](https://github.com/emberjs/data/pull/4960) ensure we don't compile typeof checks poorly
-- [#4962](https://github.com/emberjs/data/pull/4962) Update to use built-in debug code stripping functionality.
+- [#5032](https://github.com/emberjs/data/pull/5032) Update to use built-in debug code stripping functionality.
 - [#4947](https://github.com/emberjs/data/pull/4947) remove needless change events when creating a recordArrays
 - [#4984](https://github.com/emberjs/data/pull/4984) [DOC release] Fix doc for `diffArray`
 - [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
@@ -827,13 +784,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 
 ### Release 2.14.3 (June 22, 2017)
 
-- [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
-
-### Release 2.14.2 (June 19, 2017)
-
-- [#5022](https://github.com/emberjs/data/pull/5022) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5022)
-
-### Release 2.14.1 (June 19, 2017)
+- [#5033](https://github.com/emberjs/data/pull/5033)
 
 - [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
 - [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
@@ -850,13 +801,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 - [#4855](https://github.com/emberjs/data/pull/4855) Update the changelog for the Ember Data 2.12.0 release
 - [#4821](https://github.com/emberjs/data/pull/4821) Pay go setup relationships
 - [#4884](https://github.com/emberjs/data/pull/4884) Defer serializer loading
-- [#4863](https://github.com/emberjs/data/pull/4863) Tidy up parse-reponse-headers (#4863)
-- [#4861](https://github.com/emberjs/data/pull/4861) Update yarn.lock
-- [#4862](https://github.com/emberjs/data/pull/4862) Babel 6
-- [#4860](https://github.com/emberjs/data/pull/4860) Refactor the detection / warnings around ember-cli-shims. (#4860)
-- [#4913](https://github.com/emberjs/data/pull/4913) [BUGFIX canary] don't prematurely nullify props
-- [#4869](https://github.com/emberjs/data/pull/4869) Speed up triggering events
-- [#4864](https://github.com/emberjs/data/pull/4864) make ES6.Classes loose (#4864)
+- [#4863](https://github.com/emberjs/data/pull/4863) Tidy up parse-es loose (#4864)
 - [#4868](https://github.com/emberjs/data/pull/4868) [PERF] make filtered/liveRecord array storage a simple Object.create(…
 - [#4909](https://github.com/emberjs/data/pull/4909) Deprecate didUpdateAll, add \_didUpdateAll.
 - [#4870](https://github.com/emberjs/data/pull/4870) More record -> internalModel fixes
@@ -1388,13 +1333,7 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 
 - [#4125](https://github.com/emberjs/data/pull/4125) [BUGFIX beta] Export more public API's via modules
 - [#4135](https://github.com/emberjs/data/pull/4135) import require
-- [#4137](https://github.com/emberjs/data/pull/4137) [BUGFIX beta] Allow optional spaces when parsing response headers
-- [#4141](https://github.com/emberjs/data/pull/4141) [DOC] Document behavior of object level errors with JSON API
-- [#4147](https://github.com/emberjs/data/pull/4147) Fix key remapping for embedded belongsTo
-- [#4167](https://github.com/emberjs/data/pull/4167) Add blueprints from ember-cli-mocha
-- [#4082](https://github.com/emberjs/data/pull/4082) Move the date import to where it is used intead of the root module
-- [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
-- [#4088](https://github.com/emberjs/data/pull/4088) [BUFGIX release] Fix regression with missing initializers
+- [#4137](https://github.com/emberjs/data/pull/4137) [BUGFIX beta] Allow optional spaces when parsing ralizers
 - [#4066](https://github.com/emberjs/data/pull/4066) Use correct version number when used as an addon.
 - [#4072](https://github.com/emberjs/data/pull/4072) [BUGFIX release] Fix bundled source path for gem
 - [#4073](https://github.com/emberjs/data/pull/4073) [BUGFIX release] Add missing dist source to gem
@@ -2524,13 +2463,7 @@ var Post = DS.Model.extend({
 - remove unused variables and enforce in jshint
 - Updated docs to warn against use of async:true with EmbeddedRecodsMixin
 - Removed a duplicate explanation of preload
-- small perf, this map was unfortunately adding 5ms -> 8ms overhead for pushMany of N=1000. Removing it removed the overhead entirely.
-- modelFor was used constantly, the extra normalization and string splitting was causing measurable slowdown.
-- Don't use the DOM in the store tests
-- Added an example of how to use the preload arg
-- Added documentation for preload parameter
-- [Documentation] typo in `find` documentation
-
+- small perf, this map was unfortunately adding 5ms -> 
 ### Ember Data 1.0.0-beta.9 _(August 18, 2014)_
 
 **Important:** IE8 and other environments which don't support `Object.create`
@@ -2621,15 +2554,7 @@ correctly will need a shim for Object.create.
 - Fix incorrect documentation for isError.
 - Explicitly define a bower install directory
 - Import 'defaultRules', fixes missing Inflector.defaultRules
-- Add an example of sending cookie information in the header and updated confusing reopen example.
-- Expands isDeleted documentation
-- Clarify adapter header documentation
-- Documents invalid use of `attr` for attribute of `id`
-- Store#pushPayload should use the type's serializer for normalizing
-- Remove internal reliance on Ember.lookup.DS in favor of requireModule().
-- Remove reliance on global DS
-- Deprecate App.Store in favor of App.ApplicationStore.
-- Remove `window` references in favor of `Ember.lookup`.
+- Add an example of sending cookie informationwindow` references in favor of `Ember.lookup`.
 - Document the difference between Store push() vs. createRecord() ect.
 - Document the store#update method.
 - Make sure data adapter tests pass for Ember <= 1.4
@@ -2903,14 +2828,7 @@ correctly will need a shim for Object.create.
 - Update jQuery version for `rake test[all]`
 - Remove unnecessary inspector for `object`
 - Remove option to specify router
-- Declared `ajaxHeaders`.
-- Specify additional headers for RESTAdapter.
-- Update supported ruby version
-- Use `Ember.EnumerableUtils.map`
-- Use `Ember.EnumerableUtils.indexOf`
-- Use `Ember.EnumerableUtils.forEach`
-- Modify code indent
-- Bump ember-source to 1.0.0-rc.6
+- Declarsource to 1.0.0-rc.6
 - Include the version number in the javascript.
 - This expression makes my brain hurt, lets atleast expand this to two lines. (We need some sort of macro system to improve these assertions.
 - Improve variable naming consistency
