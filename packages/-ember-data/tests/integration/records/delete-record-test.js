@@ -389,7 +389,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     employee = group.get('employees').objectAt(0);
     assert.equal(employee.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
 
-    // Destroy group and employee on client side. The order of deletion seems to be important for the test to fail.
+    // Destroy group and employee on client side. The order of deletion was important for the test to fail.
     await group.destroyRecord().then(record => {
       return store.unloadRecord(record);
     });
@@ -411,7 +411,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
       group = store.peekRecord('group', '1');
     });
 
-    // This test fails, the group has two employees with identical id's
+    // Group should only have one employee. Note: this test used to fail: the group had two employees with identical id's
     assert.equal(group.get('employees.length'), 1, 'expected 1 related record after delete and restore');
   });
 });
