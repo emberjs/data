@@ -213,7 +213,7 @@ if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
     get() {
       deprecate('Accessing the internalModel property of Reference is deprecated', false, {
         id: 'ember-data:reference-internal-model',
-        until: '3.17',
+        until: '3.21',
       });
 
       return INTERNAL_MODELS.get(this.recordData);
