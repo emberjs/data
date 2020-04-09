@@ -1977,10 +1977,10 @@
     "@types/ember" "*"
     "@types/ember-test-helpers" "*"
 
-"@types/ember-test-helpers@*", "@types/ember-test-helpers@~1.0.6":
-  version "1.0.6"
-  resolved "https://registry.npmjs.org/@types/ember-test-helpers/-/ember-test-helpers-1.0.6.tgz#4d63faf26bae0511289c281fce019800b167f7fd"
-  integrity sha512-NhYw7NdY+l/R94ePq3FqGoejJDRrqU0wPLU1itZBLGS8z6BGOBPS0stip9oWnGs5kDgTVWD/m56gkY3mbSbz0Q==
+"@types/ember-test-helpers@*", "@types/ember-test-helpers@~1.0.7":
+  version "1.0.7"
+  resolved "https://registry.npmjs.org/@types/ember-test-helpers/-/ember-test-helpers-1.0.7.tgz#6a630257d07b1de10111e8012aec85c50db54a4b"
+  integrity sha512-qxBdoXv+cW4J907s9CftS6qrgkkXWROT6I1TV2yW5eErCMu9YvPU7X8z4qFQ/ZVZOgoT5lVnsgYX1a36RJE8xw==
   dependencies:
     "@types/ember" "*"
     "@types/htmlbars-inline-precompile" "*"
