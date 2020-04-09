@@ -1,10 +1,6 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
-import RSVP from 'rsvp';
-
-import Transform from '@ember-data/serializer/transform';
 import { setupTest } from 'ember-qunit';
+import Transform from '@ember-data/serializer/transform';
 
 module('integration/store/creation-recursion', function(hooks) {
   setupTest(hooks);
