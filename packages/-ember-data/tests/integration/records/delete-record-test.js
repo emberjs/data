@@ -182,7 +182,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     });
 
     assert.equal(all.get('length'), 0, 'expected 0 records');
-    assert.equal(all.objectAt(0), null, "can't get any records");
+    assert.equal(all.objectAt(0), null, 'can\'t get any records');
   });
 
   test('Deleting an invalid newly created record should remove it from the store', function(assert) {
