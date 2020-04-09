@@ -7,6 +7,8 @@ const Router = EmberRouter.extend({
   rootURL: config.rootURL,
 });
 
-Router.map(function() {});
+Router.map(function() {
+  this.route('materialization');
+});
 
 export default Router;

@@ -1,5 +1,7 @@
 import Route from '@ember/routing/route';
 
+import { endTrace } from '../utils/end-trace';
+
 export default Route.extend({
   model() {
     performance.mark('start-find-all');
@@ -15,26 +17,14 @@ export default Route.extend({
         };
       });
       performance.mark('stop-outer-materialization');
+      performance.measure('outer-materialization', 'start-outer-materialization', 'stop-outer-materialization');
       performance.mark('end-find-all');
+      performance.measure('find-all', 'start-find-all', 'end-find-all');
       return flattened;
     });
   },
+
   afterModel() {
-    if (
-      document.location.href.indexOf('?tracing') !== -1 ||
-      document.location.href.indexOf('?tracerbench=true') !== -1
-    ) {
-      endTrace();
-    }
+    endTrace();
   },
 });
-
-function endTrace() {
-  // just before paint
-  requestAnimationFrame(() => {
-    // after paint
-    requestAnimationFrame(() => {
-      document.location.href = 'about:blank';
-    });
-  });
-}
