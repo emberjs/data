@@ -331,15 +331,16 @@ abstract class CoreStore extends Service {
         };
         let shouldWarn = false;
 
+        let owner = getOwner(this);
         Object.keys(Mapping).forEach((attributeType: keyof typeof Mapping) => {
-          const transform = getOwner(this).lookup(`transform:${attributeType}`);
+          const transformFactory = owner.factoryFor(`transform:${attributeType}`);
 
-          if (!transform) {
+          if (!transformFactory) {
             // we don't deprecate this because the moduleFor style tests with the closed
             // resolver will be deprecated on their own. When that deprecation completes
             // we can drop this.
             const Transform = require(`@ember-data/serializer/-private`)[Mapping[attributeType]];
-            getOwner(this).register(`transform:${attributeType}`, Transform);
+            owner.register(`transform:${attributeType}`, Transform);
             shouldWarn = true;
           }
         });
