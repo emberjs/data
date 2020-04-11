@@ -73,14 +73,14 @@ export default class BelongsToReference extends Reference {
   id() {
     let id = null;
     let resource = this._resource();
-    if (resource && resource.data && resource.data.id) {
+    if (resource && resource.data) {
       id = resource.data.id;
     }
     return id;
   }
 
   _resource() {
-    return this.recordData.getBelongsTo(this.key);
+    return INTERNAL_MODELS.get(this)?._recordData.getBelongsTo(this.key);
   }
 
   /**
@@ -144,7 +144,7 @@ export default class BelongsToReference extends Reference {
       }
 
       assertPolymorphicType(
-        INTERNAL_MODELS.get(this.recordData),
+        INTERNAL_MODELS.get(this),
         this.belongsToRelationship.relationshipMeta,
         record._internalModel,
         this.store

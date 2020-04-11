@@ -1,6 +1,6 @@
 import RSVP, { resolve } from 'rsvp';
 
-import Reference from './reference';
+import Reference, { INTERNAL_MODELS } from './reference';
 
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
@@ -17,9 +17,12 @@ type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstan
    @extends Reference
 */
 export default class RecordReference extends Reference {
-  public type = this.recordData.modelName;
+  public get type() {
+    return INTERNAL_MODELS.get(this)!.modelName;
+  }
+
   private get _id() {
-    return this.recordData.id;
+    return INTERNAL_MODELS.get(this)!.id;
   }
 
   /**
@@ -125,7 +128,10 @@ export default class RecordReference extends Reference {
   */
   value(): RecordInstance | null {
     if (this._id !== null) {
-      return this.store.peekRecord(this.type, this._id);
+      let internalModel = INTERNAL_MODELS.get(this);
+      if (internalModel && internalModel.isLoaded()) {
+        return internalModel.getRecord();
+      }
     }
     return null;
   }

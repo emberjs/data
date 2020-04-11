@@ -3,8 +3,6 @@ import { deprecate } from '@ember/debug';
 import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
 import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
 
-import recordDataFor from '../record-data-for';
-
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
 type PaginationLinks = import('../../ts-interfaces/ember-data-json-api').PaginationLinks;
@@ -13,7 +11,6 @@ type CoreStore = import('../core-store').default;
 type JSONObject = import('json-typescript').Object;
 type JSONValue = import('json-typescript').Value;
 type InternalModel = import('../model/internal-model').default;
-type RecordData = InternalModel['_recordData'];
 
 /**
   @module @ember-data/store
@@ -32,7 +29,7 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-export const INTERNAL_MODELS = new WeakMap<RecordData, InternalModel>();
+export const INTERNAL_MODELS = new WeakMap<Reference, InternalModel>();
 
 /**
   This is the baseClass for the different References
@@ -46,8 +43,7 @@ interface Reference {
 abstract class Reference {
   public recordData: InternalModel['_recordData'];
   constructor(public store: CoreStore, internalModel: InternalModel) {
-    this.recordData = recordDataFor(internalModel);
-    INTERNAL_MODELS.set(this.recordData, internalModel);
+    INTERNAL_MODELS.set(this, internalModel);
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
@@ -216,7 +212,7 @@ if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
         until: '3.21',
       });
 
-      return INTERNAL_MODELS.get(this.recordData);
+      return INTERNAL_MODELS.get(this);
     },
   });
 }
