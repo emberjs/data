@@ -64,12 +64,8 @@ module.exports = function() {
         },
         {
           name: 'ember-lts-3.12',
-          env: {
-            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
-          },
           npm: {
             devDependencies: {
-              '@ember/jquery': '^1.1.0',
               'ember-source': '~3.12.0',
             },
           },
