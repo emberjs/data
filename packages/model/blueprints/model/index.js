@@ -67,8 +67,11 @@ module.exports = useEditionDetector({
     if (attrs.length) {
       let attrTransformer, attrSeparator;
 
-      let isOctane = has('octane');
-      if (isOctane) {
+      let hasOctane = has('octane');
+      if (hasOctane && process.env.EMBER_EDITION === 'classic') {
+        hasOctane = false; //forcible override
+      }
+      if (hasOctane) {
         attrTransformer = nativeAttr;
         attrSeparator = ';';
       } else {
@@ -78,7 +81,7 @@ module.exports = useEditionDetector({
 
       attrs = attrs.map(attrTransformer);
       attrs = '  ' + attrs.join(attrSeparator + EOL + '  ');
-      if (isOctane) {
+      if (hasOctane) {
         attrs = attrs + attrSeparator;
       }
     }

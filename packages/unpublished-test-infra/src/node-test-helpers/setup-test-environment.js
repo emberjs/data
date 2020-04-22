@@ -10,6 +10,17 @@ function enableOctane() {
   });
 }
 
+function enableClassic() {
+  beforeEach(function() {
+    setEdition('classic');
+  });
+
+  afterEach(function() {
+    clearEdition();
+  });
+}
+
 module.exports = {
   enableOctane,
+  enableClassic,
 };
