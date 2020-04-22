@@ -22,5 +22,5 @@ function enableClassic() {
 
 module.exports = {
   enableOctane,
-  enableClassic
+  enableClassic,
 };
