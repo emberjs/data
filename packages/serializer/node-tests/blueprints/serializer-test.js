@@ -14,11 +14,13 @@ const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
 const modifyPackages = blueprintHelpers.modifyPackages;
 const expect = chai.expect;
 const enableOctane = setupTestEnvironment.enableOctane;
+const enableClassic = setupTestEnvironment.enableClassic;
 
 describe('Acceptance: generate and destroy serializer blueprints', function() {
   setupTestHooks(this);
 
   describe('classic', function() {
+    enableClassic();
     beforeEach(function() {
       return emberNew();
     });
