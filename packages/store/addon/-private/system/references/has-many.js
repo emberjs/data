@@ -5,7 +5,7 @@ import { resolve } from 'rsvp';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import recordDataFor from '../record-data-for';
-import Reference from './reference';
+import Reference, { INTERNAL_MODELS } from './reference';
 
 /**
   @module @ember-data/store
@@ -31,7 +31,7 @@ export default class HasManyReference extends Reference {
   }
 
   _resource() {
-    return this.recordData.getHasMany(this.key);
+    return INTERNAL_MODELS.get(this)?._recordData.getHasMany(this.key);
   }
 
   /**
@@ -178,19 +178,21 @@ export default class HasManyReference extends Reference {
         array = payload.data;
       }
 
+      let internalModel = INTERNAL_MODELS.get(this);
+
       let internalModels = array.map(obj => {
         let record = this.store.push(obj);
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel, this.store);
+          assertPolymorphicType(internalModel, relationshipMeta, record._internalModel, this.store);
         }
         return recordDataFor(record);
       });
 
       this.hasManyRelationship.computeChanges(internalModels);
 
-      return this.internalModel.getHasMany(this.hasManyRelationship.key);
+      return internalModel.getHasMany(this.hasManyRelationship.key);
       // TODO IGOR it seems wrong that we were returning the many array here
       //return this.hasManyRelationship.manyArray;
     });
@@ -252,8 +254,9 @@ export default class HasManyReference extends Reference {
    @return {ManyArray}
    */
   value() {
+    let internalModel = INTERNAL_MODELS.get(this);
     if (this._isLoaded()) {
-      return this.internalModel.getManyArray(this.key);
+      return internalModel.getManyArray(this.key);
     }
 
     return null;
@@ -322,7 +325,8 @@ export default class HasManyReference extends Reference {
    this has-many relationship.
    */
   load(options) {
-    return this.internalModel.getHasMany(this.key, options);
+    let internalModel = INTERNAL_MODELS.get(this);
+    return internalModel.getHasMany(this.key, options);
   }
 
   /**
@@ -374,6 +378,7 @@ export default class HasManyReference extends Reference {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
   reload(options) {
-    return this.internalModel.reloadHasMany(this.key, options);
+    let internalModel = INTERNAL_MODELS.get(this);
+    return internalModel.reloadHasMany(this.key, options);
   }
 }

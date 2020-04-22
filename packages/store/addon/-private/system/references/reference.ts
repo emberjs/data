@@ -1,6 +1,7 @@
-import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { deprecate } from '@ember/debug';
 
-import recordDataFor from '../record-data-for';
+import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
 
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
@@ -28,6 +29,8 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
+export const INTERNAL_MODELS = new WeakMap<Reference, InternalModel>();
+
 /**
   This is the baseClass for the different References
   like RecordReference/HasManyReference/BelongsToReference
@@ -39,8 +42,8 @@ interface Reference {
 }
 abstract class Reference {
   public recordData: InternalModel['_recordData'];
-  constructor(public store: CoreStore, public internalModel: InternalModel) {
-    this.recordData = recordDataFor(this);
+  constructor(public store: CoreStore, internalModel: InternalModel) {
+    INTERNAL_MODELS.set(this, internalModel);
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
@@ -199,6 +202,19 @@ if (FULL_LINKS_ON_RELATIONSHIPS) {
 
     return resource && resource.links ? resource.links : null;
   };
+}
+
+if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
+  Object.defineProperty(Reference.prototype, 'internalModel', {
+    get() {
+      deprecate('Accessing the internalModel property of Reference is deprecated', false, {
+        id: 'ember-data:reference-internal-model',
+        until: '3.21',
+      });
+
+      return INTERNAL_MODELS.get(this);
+    },
+  });
 }
 
 export default Reference;

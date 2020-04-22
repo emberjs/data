@@ -13,6 +13,7 @@ export interface ChangedAttributesHash {
 }
 
 export interface RecordData {
+  getResourceIdentifier(): RecordIdentifier | undefined;
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;

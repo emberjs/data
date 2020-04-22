@@ -1,6 +1,6 @@
 import RSVP, { resolve } from 'rsvp';
 
-import Reference from './reference';
+import Reference, { INTERNAL_MODELS } from './reference';
 
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
@@ -17,9 +17,12 @@ type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstan
    @extends Reference
 */
 export default class RecordReference extends Reference {
-  public type = this.internalModel.modelName;
+  public get type() {
+    return INTERNAL_MODELS.get(this)!.modelName;
+  }
+
   private get _id() {
-    return this.internalModel.id;
+    return INTERNAL_MODELS.get(this)!.id;
   }
 
   /**
@@ -123,9 +126,12 @@ export default class RecordReference extends Reference {
      @method value
      @return {Model} the record for this RecordReference
   */
-  value() {
-    if (this.internalModel.hasRecord) {
-      return this.internalModel.getRecord();
+  value(): RecordInstance | null {
+    if (this._id !== null) {
+      let internalModel = INTERNAL_MODELS.get(this);
+      if (internalModel && internalModel.isLoaded()) {
+        return internalModel.getRecord();
+      }
     }
     return null;
   }
@@ -170,11 +176,9 @@ export default class RecordReference extends Reference {
      @return {Promise<record>} the record for this RecordReference
   */
   reload() {
-    let record = this.value();
-    if (record) {
-      return record.reload();
+    if (this._id !== null) {
+      return this.store.findRecord(this.type, this._id, { reload: true });
     }
-
-    return this.load();
+    throw new Error(`Unable to fetch record of type ${this.type} without an id`);
   }
 }

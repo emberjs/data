@@ -13,6 +13,7 @@ import { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
 type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
 type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
 
@@ -25,7 +26,21 @@ class Person extends Model {
   lastName;
 }
 
+class TestRecordIdentifier implements NewRecordIdentifier {
+  constructor(public id: string | null, public lid: string, public type: string) {}
+}
+
 class TestRecordData implements RecordData {
+  id: string | null = '1';
+  clientId: string | null = 'test-record-data-1';
+  modelName = 'tst';
+
+  getResourceIdentifier() {
+    if (this.clientId !== null) {
+      return new TestRecordIdentifier(this.id, this.clientId, this.modelName);
+    }
+  }
+
   commitWasRejected(recordIdentifier: RecordIdentifier, errors?: JsonApiValidationError[]): void {}
 
   // Use correct interface once imports have been fix
