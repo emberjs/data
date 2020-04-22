@@ -4,6 +4,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/emberjs/data.git"
+  },
   "pre-commit": [
     "lint:js:changed"
   ],
