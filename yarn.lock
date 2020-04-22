@@ -6662,7 +6662,7 @@ ember-cli-version-checker@^4.1.0:
     semver "^6.3.0"
     silent-error "^1.1.1"
 
-ember-cli-version-checker@^5.0.1:
+ember-cli-version-checker@^5.0.1, ember-cli-version-checker@^5.0.2:
   version "5.0.2"
   resolved "https://registry.npmjs.org/ember-cli-version-checker/-/ember-cli-version-checker-5.0.2.tgz#7e96157be4b13b083a68078b188820193275d8c4"
   integrity sha512-cqFrIg9++GKdpMv2DP8pryAhTcmCYUL2hzHatLwkcJe23s+ioZ0JQWte0avxZ5lJnwn5e3kzUKkLkDfHDFBMUw==
@@ -7217,8 +7217,7 @@ eslint-module-utils@^2.4.1:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "3.19.0-alpha.0"
 
 eslint-plugin-ember@^7.8.1:
   version "7.13.0"
