@@ -65,7 +65,7 @@
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^3.2.0",
     "calculate-cache-key-for-tree": "^2.0.0",
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "co": "^4.6.0",
     "command-line-args": "^5.1.1",
     "common-tags": "^1.8.0",
