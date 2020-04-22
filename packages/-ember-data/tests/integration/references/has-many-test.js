@@ -6,6 +6,7 @@ import { defer, resolve } from 'rsvp';
 
 import DS from 'ember-data';
 import { setupRenderingTest } from 'ember-qunit';
+import { gte } from 'ember-compatibility-helpers';
 
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -180,101 +181,103 @@ module('integration/references/has-many', function(hooks) {
     assert.deepEqual(personsReference.meta(), { foo: true });
   });
 
-  test('HasManyReference#value() does not create accidental autotracking errors', async function(assert) {
-    let store = this.owner.lookup('service:store');
-    let family = store.push({
-      data: {
-        type: 'family',
-        id: '1',
-      },
-    });
-
-    let personsReference = family.hasMany('persons');
-    let renderedValue;
-    let context = await createTrackingContext(this.owner, {
-      get value() {
-        renderedValue = personsReference.value();
-        return renderedValue;
-      },
-    });
-
-    await context.render();
-
-    assert.strictEqual(renderedValue, null, 'We have no value yet, we are not loaded');
-
-    store.push({
-      data: {
-        type: 'family',
-        id: '1',
-        relationships: {
-          persons: {
-            data: [{ type: 'person', id: '1' }],
-          },
+  if (gte('3.16.0')) {
+    test('HasManyReference#value() does not create accidental autotracking errors', async function(assert) {
+      let store = this.owner.lookup('service:store');
+      let family = store.push({
+        data: {
+          type: 'family',
+          id: '1',
         },
-      },
-    });
+      });
 
-    await context.render();
-
-    assert.strictEqual(renderedValue, null, 'We have no value yet, we are still not loaded');
-
-    let person1 = store.push({
-      data: {
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Chris',
+      let personsReference = family.hasMany('persons');
+      let renderedValue;
+      let context = await createTrackingContext(this.owner, {
+        get value() {
+          renderedValue = personsReference.value();
+          return renderedValue;
         },
-        relationships: {
-          family: {
-            data: { type: 'family', id: '1' },
-          },
-        },
-      },
-    });
+      });
 
-    await context.render();
+      await context.render();
 
-    assert.strictEqual(renderedValue.length, 1, 'We have a value');
-    assert.strictEqual(renderedValue.objectAt(0), person1, 'We have the right value');
+      assert.strictEqual(renderedValue, null, 'We have no value yet, we are not loaded');
 
-    store.push({
-      data: {
-        type: 'family',
-        id: '1',
-        relationships: {
-          persons: {
-            data: [
-              { type: 'person', id: '1' },
-              { type: 'person', id: '2' },
-            ],
-          },
-        },
-      },
-      included: [
-        {
-          type: 'person',
-          id: '2',
-          attributes: {
-            name: 'James',
-          },
+      store.push({
+        data: {
+          type: 'family',
+          id: '1',
           relationships: {
-            family: {
-              data: { type: 'family', id: '2' },
+            persons: {
+              data: [{ type: 'person', id: '1' }],
             },
           },
         },
-      ],
+      });
+
+      await context.render();
+
+      assert.strictEqual(renderedValue, null, 'We have no value yet, we are still not loaded');
+
+      let person1 = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Chris',
+          },
+          relationships: {
+            family: {
+              data: { type: 'family', id: '1' },
+            },
+          },
+        },
+      });
+
+      await context.render();
+
+      assert.strictEqual(renderedValue.length, 1, 'We have a value');
+      assert.strictEqual(renderedValue.objectAt(0), person1, 'We have the right value');
+
+      store.push({
+        data: {
+          type: 'family',
+          id: '1',
+          relationships: {
+            persons: {
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
+            },
+          },
+        },
+        included: [
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'James',
+            },
+            relationships: {
+              family: {
+                data: { type: 'family', id: '2' },
+              },
+            },
+          },
+        ],
+      });
+
+      await context.render();
+
+      let person2 = store.peekRecord('person', '2');
+      assert.notStrictEqual(person2, null, 'we have a person');
+      assert.strictEqual(renderedValue.length, 2, 'We have two values');
+      assert.strictEqual(renderedValue.objectAt(0), person1, 'We have the right value[0]');
+      assert.strictEqual(renderedValue.objectAt(1), person2, 'We have the right value[1]');
     });
-
-    await context.render();
-
-    let person2 = store.peekRecord('person', '2');
-    assert.notStrictEqual(person2, null, 'we have a person');
-    assert.strictEqual(renderedValue.length, 2, 'We have two values');
-    assert.strictEqual(renderedValue.objectAt(0), person1, 'We have the right value[0]');
-    assert.strictEqual(renderedValue.objectAt(1), person2, 'We have the right value[1]');
-  });
+  }
 
   testInDebug('push(array)', function(assert) {
     var done = assert.async();
