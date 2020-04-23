@@ -2141,19 +2141,10 @@
   dependencies:
     "@types/ember__object" "*"
 
-"@types/ember__debug@*":
+"@types/ember__debug@*", "@types/ember__debug@3.0.7":
   version "3.0.7"
   resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.0.7.tgz#775eb0ec94b143860151a8fa922b3f948e72cbd4"
   integrity sha512-GtS8vwt0t1KwzFvOllKCJ0k8gGzhohsCjlfeksmR1rnMuzb/tiuKKXWOP5UszTRg+OK68bSzZMuw1SQKFAZE4w==
-  dependencies:
-    "@types/ember__debug" "*"
-    "@types/ember__engine" "*"
-    "@types/ember__object" "*"
-
-"@types/ember__debug@3.0.6":
-  version "3.0.6"
-  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.0.6.tgz#fa8bbc58249d8bdeea9be5b4ab8e974b33c39b07"
-  integrity sha512-he07ArVIGzXw79NDEePawpkQSmiDc9C6Z/K6MkD2sUJdVSFaggGXBKvGh/QdenaP8hdYz36/umXGabq/Z862SA==
   dependencies:
     "@types/ember__debug" "*"
     "@types/ember__engine" "*"
@@ -7215,8 +7206,7 @@ eslint-module-utils@^2.4.1:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "3.19.0-alpha.0"
 
 eslint-plugin-ember@^7.8.1:
   version "7.13.0"
