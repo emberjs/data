@@ -6278,7 +6278,7 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.12.0, ember-cli-babel@^6.16.0,
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.11.0, ember-cli-babel@^7.11.1, ember-cli-babel@^7.12.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.18.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.11.0, ember-cli-babel@^7.12.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.18.0, ember-cli-babel@^7.19.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
   version "7.19.0"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.19.0.tgz#e6eddea18a867231fcf90a80689e92b98be9a63b"
   integrity sha512-HiWKuoyy35vGEr+iCw6gUnQ3pS5qslyTlKEDW8cVoMbvZNGYBgRxHed5nklVUh+BS74AwR9lsp25BTAagYAP9Q==
@@ -6389,7 +6389,7 @@ ember-cli-htmlbars-inline-precompile@^2.1.0:
     heimdalljs-logger "^0.1.9"
     silent-error "^1.1.0"
 
-ember-cli-htmlbars@^4.0.0, ember-cli-htmlbars@^4.2.3:
+ember-cli-htmlbars@^4.2.3, ember-cli-htmlbars@^4.3.1:
   version "4.3.1"
   resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-4.3.1.tgz#4af8adc21ab3c4953f768956b7f7d207782cb175"
   integrity sha512-CW6AY/yzjeVqoRtItOKj3hcYzc5dWPRETmeCzr2Iqjt5vxiVtpl0z5VTqHqIlT5fsFx6sGWBQXNHIe+ivYsxXQ==
@@ -6873,13 +6873,13 @@ ember-router-generator@^2.0.0:
     "@babel/traverse" "^7.4.5"
     recast "^0.18.1"
 
-ember-simple-tree@^0.7.2:
-  version "0.7.2"
-  resolved "https://registry.npmjs.org/ember-simple-tree/-/ember-simple-tree-0.7.2.tgz#62d2f74ecdaf42e809931ef193e5ffe5d210107e"
-  integrity sha512-MPRIQpLWjf0Bxi4UduNjHogyIDIQUAje+mIPB+FikC12R++5A+fqXK8mg9Hwx4EtiaSz/C8tu4q6WqY/DuJNYg==
+ember-simple-tree@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.npmjs.org/ember-simple-tree/-/ember-simple-tree-0.8.0.tgz#2eda8af859b130d53c7696f3d68937441415c728"
+  integrity sha512-UMrTI86I6cIdMz1d712tZrCD5nkuzo1iSP7GwmPCGLvBzq7Oo++AoAFa1NkhGRL0zaMpdH0EPLVXubGuQ00dtA==
   dependencies:
-    ember-cli-babel "^7.11.1"
-    ember-cli-htmlbars "^4.0.0"
+    ember-cli-babel "^7.19.0"
+    ember-cli-htmlbars "^4.3.1"
 
 ember-source-channel-url@^1.0.1:
   version "1.2.0"
