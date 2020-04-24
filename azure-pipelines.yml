@@ -313,6 +313,7 @@ jobs:
       - script: |
           CI=true yarn test-external:travis-web
         displayName: 'External: travis-web'
+        continueOnError: true
 
   - job: External_Partner_tests_ember_observer
     dependsOn: Basic_Ember_Data_tests
@@ -355,40 +356,42 @@ jobs:
           brew cask install firefox
           yarn
           node ./bin/packages-for-commit.js
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:storefront
         displayName: 'External: storefront'
-        condition: always()
+        condition: succeededOrFailed()
 
-      #  - script: |
-      #      yarn test-external:factory-guy
-      #    displayName: 'External: factory-guy'
+      - script: |
+          yarn test-external:factory-guy
+        displayName: 'External: factory-guy'
+        continueOnError: true
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:ember-resource-metadata
         displayName: 'External: ember-resource-metadata'
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:ember-data-relationship-tracker
         displayName: 'External: ember-data-relationship-tracker'
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:model-fragments
           exit 0
         displayName: 'External: model-fragments'
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:ember-data-change-tracker
           exit 0
         displayName: 'External: ember-data-change-tracker'
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:ember-m3
         displayName: 'External: ember-m3'
-        condition: always()
+        condition: succeededOrFailed()
