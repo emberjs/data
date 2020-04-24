@@ -1934,10 +1934,10 @@
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
   integrity sha512-ONhaKPIufzzrlNbqtWFFd+jlnemX6lJAgq9ZeiZtS7I1PIf/la7CW4m83rTXRnVnsMbW2k56pGYu7AUFJD9Pow==
 
-"@tracerbench/core@3.0.14":
-  version "3.0.14"
-  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-3.0.14.tgz#edb4a703008995e85bd8f8eef41ddbb4efdc74c4"
-  integrity sha512-I1LU8dPmyBQNqJUriXVjsLyEIC5H2RAfZalILExc9V4OiGwdpnQEwY+v/MZnf+IwIr21lYLC3l6YXUMqW+3rxw==
+"@tracerbench/core@3.0.15":
+  version "3.0.15"
+  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-3.0.15.tgz#a0b69c41b5610c57e739c971811fb5737688425b"
+  integrity sha512-Av3AFPDOFqlRNzWkRt2+RiPv9CS5eKZJLKc5IRewkL64xFeBmYbczd8KQyUbJb0KqCNQEOIURWh6RzT6BzsevQ==
   dependencies:
     "@types/d3-hierarchy" "^1.1.6"
     "@types/node" "*"
@@ -7215,8 +7215,7 @@ eslint-module-utils@^2.4.1:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "3.19.0-alpha.0"
 
 eslint-plugin-ember@^7.8.1:
   version "7.13.0"
