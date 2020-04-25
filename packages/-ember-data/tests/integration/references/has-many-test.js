@@ -4,9 +4,9 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
 
+import { gte } from 'ember-compatibility-helpers';
 import DS from 'ember-data';
 import { setupRenderingTest } from 'ember-qunit';
-import { gte } from 'ember-compatibility-helpers';
 
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
