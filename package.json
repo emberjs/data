@@ -113,7 +113,7 @@
     "eslint-plugin-simple-import-sort": "^5.0.3",
     "execa": "^4.0.0",
     "fromentries": "^1.2.0",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.0.0",
     "git-repo-info": "^2.1.1",
     "github": "^1.1.1",
     "glob": "^7.1.6",
