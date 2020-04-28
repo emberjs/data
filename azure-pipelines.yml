@@ -246,13 +246,13 @@ jobs:
 
       - script: |
           yarn install
-          yarn test:try-one ember-lts-3.8
-        displayName: 'Ember LTS test 3.8'
+          yarn test:try-one ember-lts-3.12
+        displayName: 'Ember LTS test 3.12'
 
       - script: |
           yarn install
-          yarn test:try-one ember-lts-3.12
-        displayName: 'Ember LTS test 3.12'
+          yarn test:try-one ember-lts-3.16
+        displayName: 'Ember LTS test 3.16'
 
       - script: |
           yarn install
