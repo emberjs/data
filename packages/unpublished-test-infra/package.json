@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/unpublished-test-infra",
-  "version": "3.19.0-alpha.0",
+  "version": "3.19.0-beta.0",
   "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
@@ -17,7 +17,7 @@
     "test": "ember test"
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "3.19.0-alpha.0",
+    "@ember-data/private-build-infra": "3.19.0-beta.0",
     "@ember/edition-utils": "^1.2.0",
     "ember-cli-babel": "^7.18.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
