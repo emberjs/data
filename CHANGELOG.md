@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## Release 3.16.5 (LTS) (April 28, 2020)
+
+- [#7144](https://github.com/emberjs/data/pull/7144) [BUGFIX] dont use Ember.get on internals (#7103)
+- [#7144](https://github.com/emberjs/data/pull/7144) chore: update lts tests (#7133)
+- [#7144](https://github.com/emberjs/data/pull/7144) clear relationships during delete (#7109)
+- [#7144](https://github.com/emberjs/data/pull/7144) clear initialState after construction (#7110)
+- [#7144](https://github.com/emberjs/data/pull/7144) fix creation recursion with ember-data-model-fragments (#7123)
+- [#7144](https://github.com/emberjs/data/pull/7144) fix: blueprint tests for classic (#7132)
+
 ## Release 3.16.4 (LTS) (March 10 2020)
 - Rerelease of 3.16.3
 
