@@ -1,4 +1,3 @@
-import { get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
@@ -198,7 +197,7 @@ export default class HasManyReference extends Reference {
   }
 
   _isLoaded() {
-    let hasRelationshipDataProperty = get(this.hasManyRelationship, 'hasAnyRelationshipData');
+    let hasRelationshipDataProperty = this.hasManyRelationship.hasAnyRelationshipData;
     if (!hasRelationshipDataProperty) {
       return false;
     }
