@@ -2,6 +2,17 @@
 
 ### Master
 
+## Release 3.18.0 (April 28, 2020)
+
+- [#6941](https://github.com/emberjs/data/pull/6941) [BUGFIX] fix jsonapi error handling when not using jquery  (#6941)
+- [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
+- [#7030](https://github.com/emberjs/data/pull/7030) Revert "Disable known failure for 3.16.x"
+- [#7038](https://github.com/emberjs/data/pull/7038) [DOC] fix minor typo in Model overview documentation
+- [#7043](https://github.com/emberjs/data/pull/7043) [DOC] modernize TimeoutError example code
+- [#6958](https://github.com/emberjs/data/pull/6958) [DOC] Update embedded-records-mixin.js
+- [#7019](https://github.com/emberjs/data/pull/7019) [DOC] create a howto for testing pull requests
+- [78e0b41d](https://github.com/emberjs/data/commit/78e0b41d8bc545a750925cfc57336904bb7d7b2c) [BUGFIX] Fix #7015 - calling changedAttributes for non instantiated relationships
+
 ## Release 3.17.1 (April 28, 2020)
 
 - [#7144](https://github.com/emberjs/data/pull/7144) [BUGFIX] dont use Ember.get on internals (#7103)
