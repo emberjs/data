@@ -42,7 +42,7 @@
     "ember-resolver": "^8.0.0",
     "ember-source": "^3.17.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.9.3",
+    "qunit": "^2.10.0",
     "rsvp": "^4.8.5"
   },
   "engines": {

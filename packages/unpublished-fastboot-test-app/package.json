@@ -54,7 +54,7 @@
     "eslint-plugin-ember": "^8.4.0",
     "eslint-plugin-node": "^11.0.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.9.3",
+    "qunit": "^2.10.0",
     "qunit-dom": "^1.2.0",
     "typescript": "~3.8.3"
   },
