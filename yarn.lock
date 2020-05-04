@@ -12159,10 +12159,10 @@ qunit-dom@^1.2.0:
     broccoli-funnel "^3.0.2"
     broccoli-merge-trees "^4.2.0"
 
-qunit@^2.9.3:
-  version "2.9.3"
-  resolved "https://registry.npmjs.org/qunit/-/qunit-2.9.3.tgz#9522a088e76f0782f70a45db92f2fd14db311bcc"
-  integrity sha512-RH4VYSaVsNRDthMFFboTJAJ8q4kJM5LvOqWponKUYPEAeOcmc/YFV1QsZ7ikknA3TjqliWFJYEV63vvVXaALmQ==
+qunit@^2.10.0, qunit@^2.9.3:
+  version "2.10.0"
+  resolved "https://registry.npmjs.org/qunit/-/qunit-2.10.0.tgz#c467b7d558928539a13f8461c4fe41922333ae7b"
+  integrity sha512-EP9Q9Kf45z4l/X02ZJtyTQU9DBc82pEWAncSNx7Weo/73BDpX71xqbsdDAQrtEeeilK70cib7CY/lniJV6Cwwg==
   dependencies:
     commander "2.12.2"
     js-reporters "1.2.1"
