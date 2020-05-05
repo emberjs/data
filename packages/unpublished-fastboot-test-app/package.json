@@ -48,7 +48,7 @@
     "ember-qunit": "^4.6.0",
     "ember-resolver": "^8.0.0",
     "ember-simple-tree": "^0.8.0",
-    "ember-source": "^3.17.0",
+    "ember-source": "^3.18.1",
     "ember-try": "^1.4.0",
     "eslint": "^6.8.0",
     "eslint-plugin-ember": "^8.4.0",

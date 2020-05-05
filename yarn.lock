@@ -6958,10 +6958,10 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.17.0:
-  version "3.18.0"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.18.0.tgz#a4c417bc74b3d1170eec1d56123006e6942af6d7"
-  integrity sha512-kacCWNhQF0zyZ7+C9/1eiqs7JvshwFdeoCxKYlCP4pW50PGYDN0cxAq6C7bzL8uFBqLCvmgvgz63Go8kgyTNow==
+ember-source@^3.18.1:
+  version "3.18.1"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.18.1.tgz#64ef40261ef1094e529ef6baabd907e6171a51f7"
+  integrity sha512-hfBkU2w+R7zquHpdMI+HCCt51OiBA4vkVd/czm+Xr17+qkxswh748l/VQe0N0IJLhrWlbmeOI6gtrB+Hsk8QAg==
   dependencies:
     "@babel/helper-module-imports" "^7.8.3"
     "@babel/plugin-transform-block-scoping" "^7.8.3"
