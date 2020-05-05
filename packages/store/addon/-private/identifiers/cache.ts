@@ -20,6 +20,15 @@ type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').R
 type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
+/**
+ * Peekable - (id && type) || lid
+ * - Identifiers are guaranteed to have a lid
+ * - ResourceIdentifierObject is Existing or New
+ *    - NewResources are guaranteed to have a lid
+ *    - ExistingResources are guaranteed to have an id AND type
+ */
+export type Peekable = RecordIdentifier | ResourceIdentifierObject;
+
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
     return Object.freeze(obj);
@@ -137,13 +146,10 @@ export class IdentifierCache {
   /**
    * @internal
    */
-  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
+  private _getRecordIdentifier(resource: Peekable, shouldGenerate: true): StableRecordIdentifier;
+  private _getRecordIdentifier(resource: Peekable, shouldGenerate: false): StableRecordIdentifier | undefined;
   private _getRecordIdentifier(
-    resource: ResourceIdentifierObject,
-    shouldGenerate: false
-  ): StableRecordIdentifier | undefined;
-  private _getRecordIdentifier(
-    resource: ResourceIdentifierObject,
+    resource: Peekable,
     shouldGenerate: boolean = false
   ): StableRecordIdentifier | undefined {
     // short circuit if we're already the stable version
@@ -157,18 +163,31 @@ export class IdentifierCache {
       return resource;
     }
 
+    let lid = coerceId(resource.lid);
+    let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids[lid] : undefined;
+
+    if (identifier !== undefined) {
+      return identifier;
+    }
+
+    const _resource = resource as ResourceIdentifierObject;
+    let type = normalizeModelName(_resource.type);
+    let id = coerceId(_resource.id);
+
+    if (shouldGenerate === false) {
+      if (!type || !id) {
+        return;
+      }
+    }
+
     // `type` must always be present
     if (DEBUG) {
-      if (!isNonEmptyString(resource.type)) {
+      if (!isNonEmptyString(_resource.type)) {
         throw new Error('resource.type needs to be a string');
       }
     }
 
-    let type = normalizeModelName(resource.type);
     let keyOptions = getTypeIndex(this._cache.types, type);
-    let identifier: StableRecordIdentifier | undefined;
-    let lid = coerceId(resource.lid);
-    let id = coerceId(resource.id);
 
     // go straight for the stable RecordIdentifier key'd to `lid`
     if (lid !== null) {
@@ -250,7 +269,7 @@ export class IdentifierCache {
    *
    * @internal
    */
-  peekRecordIdentifier(resource: ResourceIdentifierObject): StableRecordIdentifier | undefined {
+  peekRecordIdentifier(resource: Peekable): StableRecordIdentifier | undefined {
     return this._getRecordIdentifier(resource, false);
   }
 
@@ -325,7 +344,7 @@ export class IdentifierCache {
     let newId = coerceId(data.id);
 
     const keyOptions = getTypeIndex(this._cache.types, identifier.type);
-    let existingIdentifier = detectMerge(keyOptions, identifier, data, newId, this._cache.lids);
+    let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
 
     if (existingIdentifier) {
       identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
@@ -499,9 +518,12 @@ function performRecordIdentifierUpdate(
 
     // TODO consider just ignoring here to allow flexible polymorphic support
     if (type !== identifier.type) {
+      debugger
+      /*
       throw new Error(
         `The 'type' for a RecordIdentifier cannot be updated once it has been set. Attempted to set type for '${wrapper}' to '${type}'.`
       );
+      */
     }
 
     updateFn(wrapper, data, 'record');
@@ -519,7 +541,7 @@ function performRecordIdentifierUpdate(
 }
 
 function detectMerge(
-  keyOptions: KeyOptions,
+  typesCache: ConfidentDict<KeyOptions>,
   identifier: StableRecordIdentifier,
   data: ResourceIdentifierObject | ExistingResourceObject,
   newId: string | null,
@@ -527,7 +549,8 @@ function detectMerge(
 ): StableRecordIdentifier | false {
   const { id, type, lid } = identifier;
   if (id !== null && id !== newId && newId !== null) {
-    const existingIdentifier = keyOptions.id[newId];
+    let keyOptions = getTypeIndex(typesCache, identifier.type);
+    let existingIdentifier = keyOptions.id[newId];
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
@@ -536,6 +559,10 @@ function detectMerge(
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
       const existingIdentifier = lids[data.lid];
 
+      return existingIdentifier !== undefined ? existingIdentifier : false;
+    } else if (id !== null && id === newId && newType !== type && data.lid && data.lid === lid) {
+      let keyOptions = getTypeIndex(typesCache, newType);
+      let existingIdentifier = keyOptions.id[id];
       return existingIdentifier !== undefined ? existingIdentifier : false;
     }
   }
