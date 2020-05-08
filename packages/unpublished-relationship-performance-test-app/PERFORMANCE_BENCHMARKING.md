@@ -24,3 +24,12 @@ Note: This uses a HAR file (`bin/relationship-performance-tracking/src/trace.har
 - open the Network panel in Chrome Dev Tools
 - right click on any of loaded network assets such as vendor.css
 - select "Save all as HAR with content"
+
+## adding extra tests
+
+- create a new route
+- in the `model` hook add markers where appropriate `performance.mark`
+- you can add `performance.measure` calls to visualize some markers in chrome performance view
+- in the `afterModel` hook call `endTrace` to stop tracing
+- modify `../../bin/relationship-performance-tracking/src/tracerbench.js ` to include the new route and its markers
+  

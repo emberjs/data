@@ -15,6 +15,11 @@ const VENDOR_FILE = path.resolve(
   `../../../packages/unpublished-relationship-performance-test-app/dist-${HR_GROUP}/assets/vendor.js`
 );
 
+const RELATIONSHIP_PERFORMANCE_TEST_APP_FILE = path.resolve(
+  __dirname,
+  '../../../packages/unpublished-relationship-performance-test-app/dist-experiment/assets/relationship-performance-test-app.js'
+);
+
 const harRemix = new HARRemix({
   keyForArchiveEntry(entry) {
     let { request, response } = entry;
@@ -39,6 +44,10 @@ const harRemix = new HARRemix({
   textFor(entry, key, text) {
     if (key.includes('vendor.js')) {
       return fs.readFileSync(VENDOR_FILE, 'utf8');
+    }
+
+    if (key.includes('relationship-performance-test-app.js')) {
+      return fs.readFileSync(RELATIONSHIP_PERFORMANCE_TEST_APP_FILE, 'utf8');
     }
 
     return text;
