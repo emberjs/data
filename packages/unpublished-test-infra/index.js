@@ -14,6 +14,6 @@ module.exports = Object.assign({}, addonBaseConfig, {
     let compatVersion = options.compatWith;
     let tree = merge([existingTree, version(compatVersion)]);
 
-    return this.debugTree(this._super.treeForAddonTestSupport.call(this, tree), 'addon-output');
+    return this.debugTree(this._super.treeForAddonTestSupport.call(this, tree), 'test-support');
   },
 });
