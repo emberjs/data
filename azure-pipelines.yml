@@ -120,6 +120,10 @@ jobs:
         displayName: 'Max transpilation Tests'
 
       - script: |
+          TARGET_SAFARI=true yarn test
+        displayName: 'Safari Tests'
+
+      - script: |
           yarn test:node
         displayName: 'Node Tests'
 

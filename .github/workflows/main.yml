@@ -149,6 +149,31 @@ jobs:
         timeout-minutes: 4
         run: yarn test:fastboot ${{ matrix.scenario }}
 
+  basic-tests-safari:
+    needs: [lint]
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      TEST_SAFARI: true
+      TARGET_SAFARI: true
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Launcher Info
+        run: |
+          yarn run testem launchers
+      - name: Production tests with ${{ matrix.scenario }}
+        timeout-minutes: 6
+        env:
+          CI: true
+        run: yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
+
   basic-tests-ie11:
     needs: [lint]
     strategy:
