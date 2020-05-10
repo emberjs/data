@@ -156,8 +156,7 @@ jobs:
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
     env:
-      TEST_SAFARI: true
-      TARGET_SAFARI: true
+      TESTEM_CI_LAUNCHER: 'Safari'
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -181,8 +180,8 @@ jobs:
         scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
     runs-on: windows-latest
     env:
-      TEST_IE11: true
       TARGET_IE11: true
+      TESTEM_CI_LAUNCHER: 'IE'
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1

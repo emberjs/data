@@ -15,13 +15,6 @@ module.exports = function() {
           npm: {},
         },
         {
-          name: 'with-safari',
-          env: {
-            TARGET_SAFARI: true,
-          },
-          npm: {},
-        },
-        {
           name: 'with-ember-fetch-no-jquery',
           env: {
             EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': false }),
