@@ -1,5 +1,6 @@
 'use strict';
-
+// eslint-disable-next-line node/no-unpublished-require
+const merge = require('broccoli-merge-trees');
 const version = require('@ember-data/private-build-infra/src/create-version-module');
 const addonBuildConfigForDataPackage = require('@ember-data/private-build-infra/src/addon-build-config-for-data-package');
 
@@ -8,12 +9,11 @@ const name = require('./package').name;
 const addonBaseConfig = addonBuildConfigForDataPackage(name);
 
 module.exports = Object.assign({}, addonBaseConfig, {
-  treeForAddon() {
-    if (process.env.EMBER_CLI_TEST_COMMAND) {
-      const options = this.getEmberDataConfig();
-      let compatVersion = options.compatWith;
-      let tree = version(compatVersion);
-      return this.debugTree(this._super.treeForAddon.call(this, tree), 'addon-output');
-    }
+  treeForAddonTestSupport(existingTree) {
+    const options = this.getEmberDataConfig();
+    let compatVersion = options.compatWith;
+    let tree = merge([existingTree, version(compatVersion)]);
+
+    return this.debugTree(this._super.treeForAddonTestSupport.call(this, tree), 'test-support');
   },
 });
