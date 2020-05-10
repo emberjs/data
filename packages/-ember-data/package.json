@@ -10,7 +10,7 @@
   "scripts": {
     "build": "ember build",
     "build:production": "ember build --environment=production",
-    "start": "ember server",
+    "start": "ember serve",
     "docs": "mkdir -p dist && ember ember-cli-yuidoc",
     "test": "ember test",
     "test:all": "ember try:each",
