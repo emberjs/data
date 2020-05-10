@@ -153,7 +153,7 @@ jobs:
     needs: [lint]
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     env:
       TEST_SAFARI: true
