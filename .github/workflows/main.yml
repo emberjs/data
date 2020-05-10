@@ -155,8 +155,6 @@ jobs:
       matrix:
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
-    env:
-      TESTEM_CI_LAUNCHER: 'Safari'
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -167,10 +165,10 @@ jobs:
       - name: Launcher Info
         run: |
           yarn run testem launchers
-      - name: Safari Test on ${{ matrix.scenario }}
+      - name: Safari Test
         timeout-minutes: 6
         env:
-          CI: true
+          TESTEM_CI_LAUNCHER: 'Safari'
         run: yarn test
 
   basic-tests-ie11:
