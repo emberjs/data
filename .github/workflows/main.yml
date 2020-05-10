@@ -167,11 +167,11 @@ jobs:
       - name: Launcher Info
         run: |
           yarn run testem launchers
-      - name: Production tests with ${{ matrix.scenario }}
+      - name: Safari Test on ${{ matrix.scenario }}
         timeout-minutes: 6
         env:
           CI: true
-        run: yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
+        run: yarn test
 
   basic-tests-ie11:
     needs: [lint]
