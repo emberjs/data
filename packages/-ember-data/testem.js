@@ -9,7 +9,7 @@ module.exports = {
   disable_watching: true,
   reporter: customDotReporter,
   launch_in_ci: [BrowserLauncher],
-  launch_in_dev: [BrowserLauncher],
+  launch_in_dev: ['Chrome'],
   browser_start_timeout: 120,
   browser_args: {
     Chrome: {
