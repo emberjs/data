@@ -9,6 +9,8 @@ import isNonEmptyString from '../utils/is-non-empty-string';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
 
+type Identifier = import('../ts-interfaces/identifier').Identifier;
+
 type CoreStore = import('../system/core-store').default;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type GenerationMethod = import('../ts-interfaces/identifier').GenerationMethod;
@@ -137,7 +139,10 @@ export class IdentifierCache {
   /**
    * @internal
    */
-  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
+  private _getRecordIdentifier(
+    resource: ResourceIdentifierObject | Identifier,
+    shouldGenerate: true
+  ): StableRecordIdentifier;
   private _getRecordIdentifier(
     resource: ResourceIdentifierObject,
     shouldGenerate: false
@@ -157,6 +162,22 @@ export class IdentifierCache {
       return resource;
     }
 
+    let lid = coerceId(resource.lid);
+    let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids[lid] : undefined;
+
+    if (identifier !== undefined) {
+      return identifier;
+    }
+
+    let type = normalizeModelName(resource.type);
+    let id = coerceId(resource.id);
+
+    if (shouldGenerate === false) {
+      if (!type || !id) {
+        return;
+      }
+    }
+
     // `type` must always be present
     if (DEBUG) {
       if (!isNonEmptyString(resource.type)) {
@@ -164,11 +185,7 @@ export class IdentifierCache {
       }
     }
 
-    let type = normalizeModelName(resource.type);
     let keyOptions = getTypeIndex(this._cache.types, type);
-    let identifier: StableRecordIdentifier | undefined;
-    let lid = coerceId(resource.lid);
-    let id = coerceId(resource.id);
 
     // go straight for the stable RecordIdentifier key'd to `lid`
     if (lid !== null) {
@@ -264,7 +281,9 @@ export class IdentifierCache {
       `id` + `type` or `lid` will return the same `lid` value)
     - this referential stability of the object itself is guaranteed
   */
-  getOrCreateRecordIdentifier(resource: ResourceIdentifierObject | ExistingResourceObject): StableRecordIdentifier {
+  getOrCreateRecordIdentifier(
+    resource: ResourceIdentifierObject | ExistingResourceObject | Identifier
+  ): StableRecordIdentifier {
     return this._getRecordIdentifier(resource, true);
   }
 
@@ -325,7 +344,7 @@ export class IdentifierCache {
     let newId = coerceId(data.id);
 
     const keyOptions = getTypeIndex(this._cache.types, identifier.type);
-    let existingIdentifier = detectMerge(keyOptions, identifier, data, newId, this._cache.lids);
+    let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
 
     if (existingIdentifier) {
       identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
@@ -519,7 +538,7 @@ function performRecordIdentifierUpdate(
 }
 
 function detectMerge(
-  keyOptions: KeyOptions,
+  typesCache: ConfidentDict<KeyOptions>,
   identifier: StableRecordIdentifier,
   data: ResourceIdentifierObject | ExistingResourceObject,
   newId: string | null,
@@ -527,15 +546,21 @@ function detectMerge(
 ): StableRecordIdentifier | false {
   const { id, type, lid } = identifier;
   if (id !== null && id !== newId && newId !== null) {
-    const existingIdentifier = keyOptions.id[newId];
+    let keyOptions = getTypeIndex(typesCache, identifier.type);
+    let existingIdentifier = keyOptions.id[newId];
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
     let newType = normalizeModelName(data.type);
 
+    // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
-      const existingIdentifier = lids[data.lid];
-
+      let existingIdentifier = lids[data.lid];
+      return existingIdentifier !== undefined ? existingIdentifier : false;
+      // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
+    } else if (id !== null && id === newId && newType !== type && data.lid && data.lid === lid) {
+      let keyOptions = getTypeIndex(typesCache, newType);
+      let existingIdentifier = keyOptions.id[id];
       return existingIdentifier !== undefined ? existingIdentifier : false;
     }
   }

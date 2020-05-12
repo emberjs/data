@@ -57,5 +57,29 @@ if (IDENTIFIERS) {
         );
       });
     });
+
+    test('identifiers are cached by lid and can be looked up by lid', async function(assert) {
+      const houseHash = {
+        type: 'house',
+        id: '1',
+        attributes: {
+          name: 'Moomin',
+        },
+      };
+      const cache = identifierCacheFor(store);
+      const identifier = cache.getOrCreateRecordIdentifier(houseHash);
+
+      assert.strictEqual(
+        identifier,
+        cache.getOrCreateRecordIdentifier({ lid: identifier.lid }),
+        'getOrCreateRecordIdentifier() return identifier'
+      );
+
+      assert.strictEqual(
+        identifier,
+        cache.getOrCreateRecordIdentifier({ type: 'not house', lid: identifier.lid }),
+        'getOrCreateRecordIdentifier() return identifier'
+      );
+    });
   });
 }
