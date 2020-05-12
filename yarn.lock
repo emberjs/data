@@ -7332,10 +7332,10 @@ eslint-plugin-prettier@^3.1.2:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
-eslint-plugin-qunit@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.npmjs.org/eslint-plugin-qunit/-/eslint-plugin-qunit-4.1.0.tgz#d4cfd17fdd8560bc865f0160b0abe73aaf4b00fe"
-  integrity sha512-3vlVGYKYuxl9nvlZHWTmBEYCWMZO5p/MLn5/7JwpJhVXRswwLD7VarJ9yN9PLOdJRyC9m95A1VZnVmXGjF7Gcg==
+eslint-plugin-qunit@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.npmjs.org/eslint-plugin-qunit/-/eslint-plugin-qunit-4.2.0.tgz#d805c3eb28d26fb930fd6b7db3a8d295f25363ca"
+  integrity sha512-UibPK0fSshPTJauyitsHjACixpf+I5BEKqXi6WJ/WGhW31WwP7flSdBW8+Y9B46v05KYH6MJg/uZVIaiaHO5Cg==
 
 eslint-plugin-simple-import-sort@^5.0.3:
   version "5.0.3"
