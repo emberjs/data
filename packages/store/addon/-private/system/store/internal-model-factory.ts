@@ -81,8 +81,13 @@ export default class InternalModelFactory {
   constructor(public store: CoreStore) {
     this.identifierCache = identifierCacheFor(store);
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
-      const intendedIdentifier = identifier.id === resourceData.id ? identifier : matchedIdentifier;
-      const altIdentifier = identifier.id === resourceData.id ? matchedIdentifier : identifier;
+      let intendedIdentifier = identifier;
+      if (identifier.id !== matchedIdentifier.id) {
+        intendedIdentifier = identifier.id === resourceData.id ? identifier : matchedIdentifier;
+      } else if (identifier.type !== matchedIdentifier.type) {
+        intendedIdentifier = identifier.type === resourceData.type ? identifier : matchedIdentifier;
+      }
+      let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
 
       // check for duplicate InternalModel's
       const map = this.modelMapFor(identifier.type);
