@@ -3,7 +3,7 @@ import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
 import normalizeModelName from '../system/normalize-model-name';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
+import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET, Identifier } from '../ts-interfaces/identifier';
 import { addSymbol } from '../ts-interfaces/utils/symbol';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
@@ -137,7 +137,7 @@ export class IdentifierCache {
   /**
    * @internal
    */
-  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
+  private _getRecordIdentifier(resource: ResourceIdentifierObject | Identifier, shouldGenerate: true): StableRecordIdentifier;
   private _getRecordIdentifier(
     resource: ResourceIdentifierObject,
     shouldGenerate: false
@@ -157,18 +157,31 @@ export class IdentifierCache {
       return resource;
     }
 
+    let lid = coerceId(resource.lid);
+    let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids[lid] : undefined;
+
+    if (identifier !== undefined) {
+      return identifier;
+    }
+
+    const _resource = resource as ResourceIdentifierObject;
+    let type = normalizeModelName(_resource.type);
+    let id = coerceId(_resource.id);
+
+    if (shouldGenerate === false) {
+      if (!type || !id) {
+        return;
+      }
+    }
+
     // `type` must always be present
     if (DEBUG) {
-      if (!isNonEmptyString(resource.type)) {
+      if (!isNonEmptyString(_resource.type)) {
         throw new Error('resource.type needs to be a string');
       }
     }
 
-    let type = normalizeModelName(resource.type);
     let keyOptions = getTypeIndex(this._cache.types, type);
-    let identifier: StableRecordIdentifier | undefined;
-    let lid = coerceId(resource.lid);
-    let id = coerceId(resource.id);
 
     // go straight for the stable RecordIdentifier key'd to `lid`
     if (lid !== null) {
@@ -264,7 +277,7 @@ export class IdentifierCache {
       `id` + `type` or `lid` will return the same `lid` value)
     - this referential stability of the object itself is guaranteed
   */
-  getOrCreateRecordIdentifier(resource: ResourceIdentifierObject | ExistingResourceObject): StableRecordIdentifier {
+  getOrCreateRecordIdentifier(resource: ResourceIdentifierObject | ExistingResourceObject | Identifier): StableRecordIdentifier {
     return this._getRecordIdentifier(resource, true);
   }
 
@@ -325,7 +338,7 @@ export class IdentifierCache {
     let newId = coerceId(data.id);
 
     const keyOptions = getTypeIndex(this._cache.types, identifier.type);
-    let existingIdentifier = detectMerge(keyOptions, identifier, data, newId, this._cache.lids);
+    let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
 
     if (existingIdentifier) {
       identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
@@ -519,7 +532,7 @@ function performRecordIdentifierUpdate(
 }
 
 function detectMerge(
-  keyOptions: KeyOptions,
+  typesCache: ConfidentDict<KeyOptions>,
   identifier: StableRecordIdentifier,
   data: ResourceIdentifierObject | ExistingResourceObject,
   newId: string | null,
@@ -527,7 +540,8 @@ function detectMerge(
 ): StableRecordIdentifier | false {
   const { id, type, lid } = identifier;
   if (id !== null && id !== newId && newId !== null) {
-    const existingIdentifier = keyOptions.id[newId];
+    let keyOptions = getTypeIndex(typesCache, identifier.type);
+    let existingIdentifier = keyOptions.id[newId];
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
@@ -536,6 +550,10 @@ function detectMerge(
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
       const existingIdentifier = lids[data.lid];
 
+      return existingIdentifier !== undefined ? existingIdentifier : false;
+    } else if (id !== null && id === newId && newType !== type && data.lid && data.lid === lid) {
+      let keyOptions = getTypeIndex(typesCache, newType);
+      let existingIdentifier = keyOptions.id[id];
       return existingIdentifier !== undefined ? existingIdentifier : false;
     }
   }
