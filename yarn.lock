@@ -6712,13 +6712,13 @@ ember-cli-version-checker@^4.1.0:
     semver "^6.3.0"
     silent-error "^1.1.1"
 
-ember-cli-version-checker@^5.0.1, ember-cli-version-checker@^5.0.2:
-  version "5.0.2"
-  resolved "https://registry.npmjs.org/ember-cli-version-checker/-/ember-cli-version-checker-5.0.2.tgz#7e96157be4b13b083a68078b188820193275d8c4"
-  integrity sha512-cqFrIg9++GKdpMv2DP8pryAhTcmCYUL2hzHatLwkcJe23s+ioZ0JQWte0avxZ5lJnwn5e3kzUKkLkDfHDFBMUw==
+ember-cli-version-checker@^5.0.1, ember-cli-version-checker@^5.0.2, ember-cli-version-checker@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/ember-cli-version-checker/-/ember-cli-version-checker-5.1.0.tgz#a3e92986397a87ce8e0540ed74e7c87b3ecd568e"
+  integrity sha512-DzK4OIgYGaETBNFzlhqdK7/ywRuQZjgiRa/NxQApL8OGoRaaHQPn4p49iJeGJG5vmZTR8KOwX3BnQO1ZqdIUig==
   dependencies:
     resolve-package-path "^2.0.0"
-    semver "^7.1.3"
+    semver "^7.3.2"
     silent-error "^1.1.1"
 
 ember-cli-yuidoc@^0.9.1:
