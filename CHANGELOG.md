@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## Release 3.16.6 (LTS) (May 13, 2020)
+- [#7182](https://github.com/emberjs/data/pull/7182) [BUGFIX] Cached identifiers regardless of type, fixes polymorphism issues (#7182)
+
 ## Release 3.16.5 (LTS) (April 28, 2020)
 
 - [#7144](https://github.com/emberjs/data/pull/7144) [BUGFIX] dont use Ember.get on internals (#7103)
