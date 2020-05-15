@@ -559,6 +559,17 @@ const JSONAPISerializer = JSONSerializer.extend({
 
 if (DEBUG) {
   JSONAPISerializer.reopen({
+    init(...args) {
+      this._super(...args);
+
+      assert(
+        `You've used the EmbeddedRecordsMixin in ${this.toString()} which is not fully compatible with the JSON:API specification. Please confirm that this works for your specific API and add \`this.isEmbeddedRecordsMixinCompatible = true\` to your serializer.`,
+        !this.isEmbeddedRecordsMixin || this.isEmbeddedRecordsMixinCompatible === true,
+        {
+          id: 'ds.serializer.embedded-records-mixin-not-supported',
+        }
+      );
+    },
     willMergeMixin(props) {
       let constructor = this.constructor;
       warn(
@@ -566,13 +577,6 @@ if (DEBUG) {
         isNone(props.extractMeta) || props.extractMeta === JSONSerializer.prototype.extractMeta,
         {
           id: 'ds.serializer.json-api.extractMeta',
-        }
-      );
-      warn(
-        'The JSONAPISerializer does not work with the EmbeddedRecordsMixin because the JSON API spec does not describe how to format embedded resources.',
-        !props.isEmbeddedRecordsMixin,
-        {
-          id: 'ds.serializer.embedded-records-mixin-not-supported',
         }
       );
     },

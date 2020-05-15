@@ -38,6 +38,11 @@ fi
 HR_PORT=4200 HR_GROUP=control pm2 start $HAR_REMIX_SCRIPT --name control
 HR_PORT=4201 HR_GROUP=experiment pm2 start $HAR_REMIX_SCRIPT --name experiment
 node ./bin/relationship-performance-tracking/src/tracerbench.js
-tracerbench compare:analyze "$TEST_APP_PATH/tracerbench-results/trace-results.json"
+for result in "$TEST_APP_PATH"/tracerbench-results/*-trace-results.json; do
+  echo
+  echo ===============================================================================
+  echo Processing $(basename ${result} -trace-results.json)
+  tracerbench compare:analyze "${result}";
+done
 pm2 kill
 git checkout "$INITIAL_BRANCH"

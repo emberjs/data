@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/canary-features",
-  "version": "3.19.0-alpha.0",
+  "version": "3.20.0-alpha.0",
   "description": "Canary features",
   "keywords": [
     "ember-addon"
@@ -29,10 +29,10 @@
     "ember-cli-blueprint-test-helpers": "^0.19.1",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
-    "ember-cli-version-checker": "^5.0.2",
+    "ember-cli-version-checker": "^5.1.1",
     "git-repo-info": "^2.1.1",
     "glob": "^7.1.6",
-    "mocha": "^7.1.1",
+    "mocha": "^7.1.2",
     "npm-git-info": "^1.0.3",
     "rimraf": "^3.0.2",
     "rsvp": "^4.8.5",

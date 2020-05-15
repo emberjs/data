@@ -714,10 +714,18 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  testInDebug('JSON warns when combined with EmbeddedRecordsMixin', function(assert) {
-    assert.expectWarning(function() {
+  testInDebug('Asserts when combined with EmbeddedRecordsMixin', function(assert) {
+    assert.expectAssertion(function() {
       DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();
-    }, /The JSONAPISerializer does not work with the EmbeddedRecordsMixin/);
+    }, /You've used the EmbeddedRecordsMixin in/);
+  });
+
+  testInDebug('Allows EmbeddedRecordsMixin if isEmbeddedRecordsMixinCompatible is true', function(assert) {
+    assert.expectNoAssertion(function() {
+      DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin, {
+        isEmbeddedRecordsMixinCompatible: true,
+      }).create();
+    });
   });
 
   testInDebug('Asserts when normalized attribute key is not found in payload but original key is', function(assert) {
