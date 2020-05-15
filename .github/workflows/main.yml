@@ -168,8 +168,10 @@ jobs:
       - name: Safari Test
         timeout-minutes: 6
         env:
-          TESTEM_CI_LAUNCHER: 'Safari'
-        run: yarn test
+          TESTEM_CI_LAUNCHER: 'SafariDriver'
+        run: |
+          sudo safaridriver --enable
+          yarn test
 
   basic-tests-ie11:
     needs: [lint]
