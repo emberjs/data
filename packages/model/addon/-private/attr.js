@@ -42,7 +42,7 @@ function hasValue(internalModel, key) {
   supported options are:
 
   - `defaultValue`: Pass a string or a function to be called to set the attribute
-  to a default value if none is supplied.
+  to a default value if and only if the key is absent from the payload response.
 
   Example
 
