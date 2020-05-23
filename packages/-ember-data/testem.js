@@ -1,14 +1,15 @@
 const customDotReporter = require('@ember-data/unpublished-test-infra/src/testem/custom-dot-reporter');
 
-const BrowserLauncher = process.env.TESTEM_CI_LAUNCHER || 'Chrome';
-// eslint-disable-next-line no-console
-console.log(`\n\nLaunching with ${BrowserLauncher}\n\n`);
+console.log(`\n\nLaunching with ${process.env.TESTEM_CI_LAUNCHER || 'Chrome'}\n\n`);
 
 module.exports = {
   test_page: 'tests/index.html?hidepassed',
   disable_watching: true,
   reporter: customDotReporter,
-  launch_in_ci: [BrowserLauncher],
+  launchers: {
+    Safari: require('testem-safari-webdriver-launcher'),
+  },
+  launch_in_ci: [process.env.TESTEM_CI_LAUNCHER || 'Chrome'],
   launch_in_dev: ['Chrome'],
   browser_start_timeout: 120,
   browser_args: {
@@ -22,6 +23,12 @@ module.exports = {
         '--window-size=1440,900',
         '--no-sandbox',
       ],
+    },
+    Firefox: {
+      ci: ['-headless', '-width 1440', '-height 900'],
+    },
+    Safari: {
+      ci: [],
     },
   },
 };

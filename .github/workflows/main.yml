@@ -61,7 +61,6 @@ jobs:
           COMPAT_WITH: '99.0'
         run: yarn test:infra
 
-
   basic-tests:
     timeout-minutes: 15
     strategy:
@@ -149,54 +148,46 @@ jobs:
         timeout-minutes: 4
         run: yarn test:fastboot ${{ matrix.scenario }}
 
-  basic-tests-safari:
+  browser-tests:
     needs: [lint]
-    strategy:
-      matrix:
-        os: [macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-      - name: Install dependencies
-        run: yarn install
-      - name: Launcher Info
-        run: |
-          yarn run testem launchers
-      - name: Safari Test
-        timeout-minutes: 6
-        env:
-          TESTEM_CI_LAUNCHER: 'SafariDriver'
-        run: |
-          sudo safaridriver --enable
-          yarn test
-
-  basic-tests-ie11:
-    needs: [lint]
+    timeout-minutes: 6
     strategy:
       matrix:
         scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
-    runs-on: windows-latest
-    env:
-      TARGET_IE11: true
-      TESTEM_CI_LAUNCHER: 'IE'
+        launcher: [Chrome, IE, Firefox, Safari]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        exclude:
+          - os: macos-latest
+            launcher: IE
+          - os: windows-latest
+            launcher: Safari
+          - os: ubuntu-latest
+            launcher: IE
+          - os: ubuntu-latest
+            launcher: Safari
+    runs-on: ${{ matrix.os }}
+    name: ${{matrix.scenario}} ${{matrix.launcher}} on ${{matrix.os}}
     steps:
+      - if: matrix.os == 'macos-latest' && matrix.launcher == 'Chrome'
+        run: |
+          brew update
+          brew cask install google-chrome
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Launcher Info
         run: |
           yarn run testem launchers
-      - name: Production tests with ${{ matrix.scenario }}
-        timeout-minutes: 6
+      - name: Run Production Test
         env:
+          TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
-        run: yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
+        run: |
+          yarn test:try-one ${{ matrix.scenario }} --- ember test
+          yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
 
   floating-dependencies:
     timeout-minutes: 4
