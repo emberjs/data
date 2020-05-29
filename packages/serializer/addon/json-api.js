@@ -29,22 +29,22 @@ import { normalizeModelName } from '@ember-data/store';
   ```app/models/player.js
   import Model, { attr, belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    name: attr('string'),
-    skill: attr('string'),
-    gamesPlayed: attr('number'),
-    club: belongsTo('club')
-  });
+  export default class Player extends Model {
+    @attr('string') name;
+    @attr('string') skill;
+    @attr('number') gamesPlayed;
+    @belongsTo('club') club;
+  }
   ```
 
   ```app/models/club.js
   import Model, { attr, hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    name: attr('string'),
-    location: attr('string'),
-    players: hasMany('player')
-  });
+  export default class Club extends Model {
+    @attr('string') name;
+    @attr('string') location;
+    @hasMany('player') players;
+  }
   ```
 
   ```js
@@ -103,25 +103,25 @@ import { normalizeModelName } from '@ember-data/store';
   `extractRelationship`.
 
   ```app/serializers/application.js
-  export default JSONAPISerializer.extend({
+  export default class ApplicationSerializer extends JSONAPISerializer {
     normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
-      let normalizedDocument = this._super(...arguments);
+      let normalizedDocument = super.normalizeArrayResponse(...arguments);
 
       // Customize document meta
       normalizedDocument.meta = camelCaseKeys(normalizedDocument.meta);
 
       return normalizedDocument;
-    },
+    }
 
     extractRelationship(relationshipHash) {
-      let normalizedRelationship = this._super(...arguments);
+      let normalizedRelationship = super.extractRelationship(...arguments);
 
       // Customize relationship meta
       normalizedRelationship.meta = camelCaseKeys(normalizedRelationship.meta);
 
       return normalizedRelationship;
     }
-  });
+  }
   ```
 
   @since 1.13.0
@@ -413,11 +413,11 @@ const JSONAPISerializer = JSONSerializer.extend({
     import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { dasherize } from '@ember/string';
 
-    export default JSONAPISerializer.extend({
+    export default class ApplicationSerializer extends JSONAPISerializer {
       keyForAttribute(attr, method) {
         return dasherize(attr).toUpperCase();
       }
-    });
+    }
     ```
 
     @method keyForAttribute
@@ -444,11 +444,11 @@ const JSONAPISerializer = JSONSerializer.extend({
     import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { underscore } from '@ember/string';
 
-    export default JSONAPISerializer.extend({
+    export default class ApplicationSerializer extends JSONAPISerializer {
       keyForRelationship(key, relationship, method) {
         return underscore(key);
       }
-    });
+    }
     ```
    @method keyForRelationship
    @param {String} key
