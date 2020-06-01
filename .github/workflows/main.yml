@@ -152,6 +152,7 @@ jobs:
     needs: [lint]
     timeout-minutes: 6
     strategy:
+      fail-fast: false
       matrix:
         scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
         launcher: [Chrome, IE, Firefox, Safari]
