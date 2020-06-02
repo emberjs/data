@@ -7,8 +7,7 @@ module.exports = {
     '@ember-data/store',
     '@ember-data/deprecations',
     '@ember-data/record-data',
-    '@ember-data/serializer',
-    '@ember-data',
+    '@ember-data/serializer'
   ],
   classitems: [
     '(private) @ember-data/adapter BuildURLMixin#_buildURL',
