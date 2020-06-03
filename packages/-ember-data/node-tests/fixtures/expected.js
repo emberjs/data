@@ -99,7 +99,6 @@ module.exports = {
     '(private) @ember-data/store Store#scheduleSave',
     '(private) @ember-data/store Store#setRecordId',
     '(protected) Ember.Inflector#inflect',
-    '(public) @ember-data @ember-data#VERSION',
     '(public) @ember-data/adapter Adapter#coalesceFindRequests',
     '(public) @ember-data/adapter Adapter#createRecord',
     '(public) @ember-data/adapter Adapter#defaultSerializer',
