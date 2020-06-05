@@ -1983,23 +1983,26 @@
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
   integrity sha512-ONhaKPIufzzrlNbqtWFFd+jlnemX6lJAgq9ZeiZtS7I1PIf/la7CW4m83rTXRnVnsMbW2k56pGYu7AUFJD9Pow==
 
-"@tracerbench/core@3.0.15":
-  version "3.0.15"
-  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-3.0.15.tgz#a0b69c41b5610c57e739c971811fb5737688425b"
-  integrity sha512-Av3AFPDOFqlRNzWkRt2+RiPv9CS5eKZJLKc5IRewkL64xFeBmYbczd8KQyUbJb0KqCNQEOIURWh6RzT6BzsevQ==
+"@tracerbench/core@3.1.1":
+  version "3.1.1"
+  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-3.1.1.tgz#dec8683a2920f57f2492b1e513ac363ccf91c617"
+  integrity sha512-KPAM2JTfPNI7vkRo6OnXmT1KEzfXFEn7ue6OkPWESaI9HbHME5UiWMPQkvLGcPAL7P3oUDnLtReOezKn+tLxaw==
   dependencies:
     "@types/d3-hierarchy" "^1.1.6"
     "@types/node" "*"
     array-binsearch "^1.0.1"
-    chalk "^3.0.0"
+    chalk "^4.0.0"
     chrome-debugging-client "^1.2.0"
     d3-hierarchy "^1.1.9"
     debug "^4.1.1"
-    devtools-protocol "^0.0.737833"
-    handlebars "^4.7.2"
+    devtools-protocol "^0.0.762508"
+    fs-extra "^9.0.0"
+    handlebars "^4.7.6"
     lodash.clonedeep "^4.5.0"
+    race-cancellation "^0.4.1"
     silent-error "^1.1.1"
-    tslib "^1.10.0"
+    tmp "^0.1.0"
+    tslib "^1.11.1"
 
 "@tracerbench/find-chrome@^1.2.0":
   version "1.2.0"
@@ -6096,10 +6099,10 @@ detect-newline@3.1.0:
   resolved "https://registry.npmjs.org/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
 
-devtools-protocol@^0.0.737833:
-  version "0.0.737833"
-  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.737833.tgz#2fbeeca7874062160e4bde8ca85b0b2ebbebaa70"
-  integrity sha512-kFYx3vg7/Mmem5AbMiukfPatuCi+wc6dT9p+fkomoZnEKAG51TK36W348QM/TSeg97bXfFYzeq7McjfRVqWDvw==
+devtools-protocol@^0.0.762508:
+  version "0.0.762508"
+  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.762508.tgz#71c0eed9adcba15866e3d9ddce3dc5f0fcebab9e"
+  integrity sha512-izrsTMcPPiuGBCl+VP+tuNiZ5xaycuvvL3/kNJ83aytGC1ljWfXP2hzS3CrMWdDWZ/aNUYuKP7iIJCK1cGddQw==
 
 dezalgo@^1.0.0:
   version "1.0.3"
@@ -8780,7 +8783,7 @@ growly@^1.3.0:
   resolved "https://registry.npmjs.org/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
-handlebars@^4.0.11, handlebars@^4.0.4, handlebars@^4.3.1, handlebars@^4.4.0, handlebars@^4.7.2, handlebars@^4.7.3, handlebars@^4.7.4:
+handlebars@^4.0.11, handlebars@^4.0.4, handlebars@^4.3.1, handlebars@^4.4.0, handlebars@^4.7.3, handlebars@^4.7.4, handlebars@^4.7.6:
   version "4.7.6"
   resolved "https://registry.npmjs.org/handlebars/-/handlebars-4.7.6.tgz#d4c05c1baf90e9945f77aa68a7a219aa4a7df74e"
   integrity sha512-1f2BACcBfiwAfStCKZNrUCgqNZkGsAT7UM3kkYtXuLo0KnaVfjKOyf7PRzB6++aK9STyT1Pd2ZCPe3EGOXleXA==
@@ -14215,10 +14218,10 @@ trim-right@^1.0.1:
   resolved "https://registry.npmjs.org/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
   integrity sha1-yy4SAwZ+DI3h9hQJS5/kVwTqYAM=
 
-tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
-  version "1.11.1"
-  resolved "https://registry.npmjs.org/tslib/-/tslib-1.11.1.tgz#eb15d128827fbee2841549e171f45ed338ac7e35"
-  integrity sha512-aZW88SY8kQbU7gpV19lN24LtXh/yD4ZZg6qieAJDDg+YBsJcSmLGK9QpnUjAKVG/xefmvJGd1WUmfpT/g6AJGA==
+tslib@^1.10.0, tslib@^1.11.1, tslib@^1.8.1, tslib@^1.9.0:
+  version "1.13.0"
+  resolved "https://registry.npmjs.org/tslib/-/tslib-1.13.0.tgz#c881e13cc7015894ed914862d276436fa9a47043"
+  integrity sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==
 
 tsutils@^3.17.1:
   version "3.17.1"
