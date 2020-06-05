@@ -1,6 +1,7 @@
-import { camelize } from '@ember/string';
-import Mixin from '@ember/object/mixin';
 import { get } from '@ember/object';
+import Mixin from '@ember/object/mixin';
+import { camelize } from '@ember/string';
+
 import { pluralize } from 'ember-inflector';
 
 /**
@@ -8,9 +9,6 @@ import { pluralize } from 'ember-inflector';
 */
 
 /**
-
-  WARNING: This interface is likely to change in order to accommodate [RFC: Ember Data url templates](https://github.com/emberjs/rfcs/pull/4)
-
   ## Using BuildURLMixin
 
   To use URL building, include the mixin when extending an adapter, and call `buildURL` where needed.
@@ -41,7 +39,7 @@ export default Mixin.create({
 
     By default, it pluralizes the type's name (for example, 'post'
     becomes 'posts' and 'person' becomes 'people'). To override the
-    pluralization see [pathForType](#method_pathForType).
+    pluralization see [pathForType](BuildUrlMixin/methods/pathForType?anchor=pathForType).
 
     If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.
@@ -52,7 +50,7 @@ export default Mixin.create({
     @method buildURL
     @param {String} modelName
     @param {(String|Array|Object)} id single id or array of ids or query
-    @param {(DS.Snapshot|Array)} snapshot single snapshot or array of snapshots
+    @param {(Snapshot|SnapshotRecordArray)} snapshot single snapshot or array of snapshots
     @param {String} requestType
     @param {Object} query object of query parameters to send for query requests.
     @return {String} url
@@ -138,7 +136,7 @@ export default Mixin.create({
    @method urlForFindRecord
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
 
    */
@@ -156,14 +154,15 @@ export default Mixin.create({
 
    export default JSONAPIAdapter.extend({
      urlForFindAll(modelName, snapshot) {
-       return 'data/comments.json';
+       let baseUrl = this.buildURL(modelName);
+       return `${baseUrl}/data/comments.json`;
      }
    });
    ```
 
    @method urlForFindAll
    @param {String} modelName
-   @param {DS.SnapshotRecordArray} snapshot
+   @param {SnapshotRecordArray} snapshot
    @return {String} url
    */
   urlForFindAll(modelName, snapshot) {
@@ -273,7 +272,7 @@ export default Mixin.create({
    @method urlForFindHasMany
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForFindHasMany(id, modelName, snapshot) {
@@ -300,7 +299,7 @@ export default Mixin.create({
    @method urlForFindBelongsTo
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForFindBelongsTo(id, modelName, snapshot) {
@@ -325,7 +324,7 @@ export default Mixin.create({
 
    @method urlForCreateRecord
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForCreateRecord(modelName, snapshot) {
@@ -350,7 +349,7 @@ export default Mixin.create({
    @method urlForUpdateRecord
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForUpdateRecord(id, modelName, snapshot) {
@@ -375,7 +374,7 @@ export default Mixin.create({
    @method urlForDeleteRecord
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForDeleteRecord(id, modelName, snapshot) {

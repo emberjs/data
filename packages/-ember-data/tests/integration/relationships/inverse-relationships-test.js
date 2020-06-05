@@ -1,8 +1,11 @@
+import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import Model from '@ember-data/model';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/relationships/inverse_relationships - Inverse Relationships', function(hooks) {
   setupTest(hooks);
@@ -627,7 +630,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
       assert.expectAssertion(() => {
         store.createRecord('user', { post: null });
-      }, /No model was found for/);
+      }, /No model was found for 'post' and no schema handles the type/);
 
       // but don't error if the relationship is not used
       store.createRecord('user', {});
@@ -648,5 +651,44 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const comment = store.createRecord('comment');
 
     assert.equal(comment.inverseFor('user'), null, 'Defaults to a null inverse');
+  });
+
+  test('Unload a destroyed record should clean the relations', async function(assert) {
+    assert.expect(3);
+
+    class Post extends Model {
+      @hasMany('comment', { async: true })
+      comments;
+    }
+
+    class Comment extends Model {
+      @belongsTo('post', { async: true })
+      post;
+    }
+
+    register('model:Post', Post);
+    register('model:Comment', Comment);
+
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
+
+    post.get('comments').pushObject(comment);
+
+    await comment.destroyRecord();
+    comment.unloadRecord();
+
+    await settled();
+
+    assert.deepEqual(
+      comment._internalModel.__recordData.__relationships.initializedRelationships,
+      {},
+      'relationships are cleared'
+    );
+    assert.equal(
+      comment._internalModel.__recordData.__implicitRelationships,
+      null,
+      'implicitRelationships are cleared'
+    );
+    assert.ok(comment._internalModel.__recordData.isDestroyed, 'recordData is destroyed');
   });
 });

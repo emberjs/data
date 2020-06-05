@@ -2,85 +2,101 @@
   @module @ember-data/store
 */
 
-import { registerWaiter, unregisterWaiter } from '@ember/test';
-
-import { default as EmberArray, A } from '@ember/array';
-import EmberError from '@ember/error';
 import { getOwner } from '@ember/application';
-import { run as emberRunLoop } from '@ember/runloop';
-import { set, get, computed, defineProperty } from '@ember/object';
-import { assign } from '@ember/polyfills';
-import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
-import Service from '@ember/service';
-import { typeOf, isPresent, isNone } from '@ember/utils';
-
-import require, { has } from 'require';
-import Ember from 'ember';
-import { InvalidError } from '@ember-data/adapter/error';
-import { assert, warn, inspect } from '@ember/debug';
 import { deprecate } from '@ember/application/deprecations';
+import { A } from '@ember/array';
+import { assert, inspect, warn } from '@ember/debug';
+import { computed, defineProperty, get, set } from '@ember/object';
+import { assign } from '@ember/polyfills';
+import { run as emberRunLoop } from '@ember/runloop';
+import Service from '@ember/service';
+import { registerWaiter, unregisterWaiter } from '@ember/test';
+import { isNone, isPresent, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
-import Model from './model/model';
-import normalizeModelName from './normalize-model-name';
-import RecordDataStoreWrapper from './store/record-data-store-wrapper';
+import Ember from 'ember';
 
-import { promiseArray, promiseObject } from './promise-proxies';
+import require from 'require';
+import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
 
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
+import {
+  CUSTOM_MODEL_CLASS,
+  RECORD_DATA_ERRORS,
+  RECORD_DATA_STATE,
+  REQUEST_SERVICE,
+} from '@ember-data/canary-features';
+import {
+  HAS_ADAPTER_PACKAGE,
+  HAS_EMBER_DATA_PACKAGE,
+  HAS_MODEL_PACKAGE,
+  HAS_RECORD_DATA_PACKAGE,
+  HAS_SERIALIZER_PACKAGE,
+} from '@ember-data/private-build-infra';
+import {
+  DEPRECATE_DEFAULT_ADAPTER,
+  DEPRECATE_DEFAULT_SERIALIZER,
+  DEPRECATE_LEGACY_TEST_REGISTRATIONS,
+} from '@ember-data/private-build-infra/deprecations';
 
-import { normalizeResponseHelper } from './store/serializer-response';
-import { serializerForAdapter } from './store/serializers';
-import recordDataFor from './record-data-for';
-import FetchManager, { SaveOp } from './fetch-manager';
-
-import { _find, _findMany, _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
-
+import { identifierCacheFor } from '../identifiers/cache';
+// TODO this comes from ts-interfaces but it is a function we ship
+// so needs to be moved somewhere else
+import { addSymbol } from '../ts-interfaces/utils/symbol';
+import constructResource from '../utils/construct-resource';
+import promiseRecord from '../utils/promise-record';
+import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
-import RecordArrayManager from './record-array-manager';
-import InternalModel, {
+import { errorsArrayToHash } from './errors-utils';
+import FetchManager, { SaveOp } from './fetch-manager';
+import {
   assertRecordsPassedToHasMany,
   extractRecordDataFromRecord,
   extractRecordDatasFromRecords,
 } from './model/internal-model';
-import RecordDataDefault from './model/record-data';
-import edBackburner from './backburner';
-import {
-  IDENTIFIERS,
-  RECORD_DATA_ERRORS,
-  RECORD_DATA_STATE,
-  REQUEST_SERVICE,
-  CUSTOM_MODEL_CLASS,
-} from '@ember-data/canary-features';
-import { Record } from '../ts-interfaces/record';
-
-import promiseRecord from '../utils/promise-record';
-import { identifierCacheFor, IdentifierCache } from '../identifiers/cache';
-import { internalModelFactoryFor, setRecordIdentifier, recordIdentifierFor } from './store/internal-model-factory';
-import { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
-import RecordData from '../ts-interfaces/record-data';
-import { RecordReference, HasManyReference, BelongsToReference } from './references';
-import { Backburner } from '@ember/runloop/-private/backburner';
-import Snapshot from './snapshot';
-import Relationship from './relationships/state/relationship';
-import {
-  EmptyResourceDocument,
-  SingleResourceDocument,
-  CollectionResourceDocument,
-  JsonApiDocument,
-  ExistingResourceObject,
-} from '../ts-interfaces/ember-data-json-api';
-import { RequestPromise } from './request-cache';
-import { PromiseProxy } from '../ts-interfaces/promise-proxies';
-import { DSModel } from '../ts-interfaces/ds-model';
+import { getShimClass } from './model/shim-model-class';
+import normalizeModelName from './normalize-model-name';
+import { promiseArray, promiseObject } from './promise-proxies';
+import RecordArrayManager from './record-array-manager';
+import recordDataFor from './record-data-for';
 import NotificationManager from './record-notification-manager';
-import { RelationshipsSchema, AttributeSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
-import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
-import ShimModelClass from './model/shim-model-class';
-import RecordDataRecordWrapper from '../ts-interfaces/record-data-record-wrapper';
-import Reference from './references/reference';
-import { Dict } from '../ts-interfaces/utils';
+import { RequestPromise } from './request-cache';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
+import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
+import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
+import RecordDataStoreWrapper from './store/record-data-store-wrapper';
+import { normalizeResponseHelper } from './store/serializer-response';
 
-import constructResource from '../utils/construct-resource';
+type ShimModelClass = import('./model/shim-model-class').default;
+type Snapshot = import('./snapshot').default;
+type Backburner = import('@ember/runloop/-private/backburner').Backburner;
+type RecordReference = import('./references').RecordReference;
+type HasManyReference = import('./references').HasManyReference;
+type BelongsToReference = import('./references').BelongsToReference;
+type IdentifierCache = import('../identifiers/cache').IdentifierCache;
+type InternalModel = import('./model/internal-model').default;
+
+type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
+type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
+type EmptyResourceDocument = import('../ts-interfaces/ember-data-json-api').EmptyResourceDocument;
+type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
+type JsonApiDocument = import('../ts-interfaces/ember-data-json-api').JsonApiDocument;
+type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
+type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
+type RecordData = import('../ts-interfaces/record-data').RecordData;
+type DSModel = import('../ts-interfaces/ds-model').DSModel;
+type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
+type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
+type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
+type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
+type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
+type Relationship = import('@ember-data/record-data/-private').Relationship;
+type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
+
+let _RecordData: RecordDataClass | undefined;
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
@@ -97,13 +113,28 @@ type PendingSaveItem = {
   resolver: RSVP.Deferred<InternalModel | void>;
 };
 
-let globalClientIdCounter = 1;
+let _Model;
 
-const HAS_SERIALIZER_PACKAGE = has('@ember-data/serializer');
+function getModel() {
+  if (HAS_MODEL_PACKAGE) {
+    _Model = _Model || require('@ember-data/model').default;
+  }
+  return _Model;
+}
 
+function freeze<T>(obj: T): T {
+  if (typeof Object.freeze === 'function') {
+    return Object.freeze(obj);
+  }
+  return obj;
+}
+
+function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
 function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
-// TODO add adapter here and deprecate those registrations as well after refactoring them to re-exports
-function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void {
+function deprecateTestRegistration(
+  factoryType: 'serializer' | 'adapter',
+  factoryName: '-json-api' | '-rest' | '-default'
+): void {
   deprecate(
     `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
     false,
@@ -113,22 +144,6 @@ function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-jso
     }
   );
 }
-
-// Implementors Note:
-//
-//   The variables in this file are consistently named according to the following
-//   scheme:
-//
-//   * +id+ means an identifier managed by an external source, provided inside
-//     the data provided by that source. These are always coerced to be strings
-//     before being used internally.
-//   * +clientId+ means a transient numerical identifier generated at runtime by
-//     the data store. It is important primarily because newly created objects may
-//     not yet have an externally generated id.
-//   * +internalModel+ means a record internalModel object, which holds metadata about a
-//     record, even if it has not yet been fully materialized.
-//   * +type+ means a Model.
-
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `Model` that wrap
@@ -174,12 +189,12 @@ function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-jso
   The store provides multiple ways to create new record objects. They have
   some subtle differences in their use which are detailed below:
 
-  [createRecord](#method_createRecord) is used for creating new
+  [createRecord](Store/methods/createRecord?anchor=createRecord) is used for creating new
   records on the client side. This will return a new record in the
   `created.uncommitted` state. In order to persist this record to the
   backend, you will need to call `record.save()`.
 
-  [push](#method_push) is used to notify Ember Data's store of new or
+  [push](Store/methods/push?anchor=push) is used to notify Ember Data's store of new or
   updated records that exist in the backend. This will return a record
   in the `loaded.saved` state. The primary use-case for `store#push` is
   to notify Ember Data about record updates (full or partial) that happen
@@ -187,7 +202,7 @@ function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-jso
   [SSE](http://dev.w3.org/html5/eventsource/) or [Web
   Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
 
-  [pushPayload](#method_pushPayload) is a convenience wrapper for
+  [pushPayload](Store/methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
   `store#push` that will deserialize payloads if the
   Serializer implements a `pushPayload` method.
 
@@ -301,7 +316,7 @@ abstract class CoreStore extends Service {
     }
 
     if (DEBUG) {
-      if (HAS_SERIALIZER_PACKAGE) {
+      if (HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE) {
         // support for legacy moduleFor style unit tests
         // that did not include transforms in "needs"
         // or which were not set to integration:true
@@ -316,15 +331,16 @@ abstract class CoreStore extends Service {
         };
         let shouldWarn = false;
 
+        let owner = getOwner(this);
         Object.keys(Mapping).forEach((attributeType: keyof typeof Mapping) => {
-          const transform = getOwner(this).lookup(`transform:${attributeType}`);
+          const transformFactory = owner.factoryFor(`transform:${attributeType}`);
 
-          if (!transform) {
+          if (!transformFactory) {
             // we don't deprecate this because the moduleFor style tests with the closed
             // resolver will be deprecated on their own. When that deprecation completes
             // we can drop this.
             const Transform = require(`@ember-data/serializer/-private`)[Mapping[attributeType]];
-            getOwner(this).register(`transform:${attributeType}`, Transform);
+            owner.register(`transform:${attributeType}`, Transform);
             shouldWarn = true;
           }
         });
@@ -362,7 +378,7 @@ abstract class CoreStore extends Service {
           }
         }
 
-        let token = Object.freeze({
+        let token = freeze({
           label,
           trace,
         });
@@ -398,13 +414,11 @@ abstract class CoreStore extends Service {
     if (REQUEST_SERVICE) {
       return this._fetchManager.requestCache;
     }
-    throw new Error('RequestService is not available unless the feature flag is on and running on a canary build');
+
+    assertInDebug('RequestService is not available unless the feature flag is on and running on a canary build', false);
   }
 
   get identifierCache(): IdentifierCache {
-    if (!IDENTIFIERS) {
-      throw new Error(`Store.identifierCache is unavailable in this build of EmberData`);
-    }
     return identifierCacheFor(this);
   }
 
@@ -461,9 +475,9 @@ abstract class CoreStore extends Service {
       setRecordIdentifier(record, identifier);
       //recordToInternalModelMap.set(record, internalModel);
       return record;
-    } else {
-      throw new Error('should not be here, custom model class ff error');
     }
+
+    assertInDebug('should not be here, custom model class ff error', false);
   }
 
   abstract instantiateRecord(
@@ -471,21 +485,29 @@ abstract class CoreStore extends Service {
     createRecordArgs: { [key: string]: unknown }, // args passed in to store.createRecord() and processed by recordData to be set on creation
     recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): Record;
+  ): RecordInstance;
 
-  abstract teardownRecord(record: Record): void;
+  abstract teardownRecord(record: RecordInstance): void;
 
   _internalDeleteRecord(internalModel: InternalModel) {
     internalModel.deleteRecord();
   }
 
   // FeatureFlagged in the DSModelStore claas
-  _attributesDefinitionFor(modelName: string, id?: string | null): AttributesSchema {
-    return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+  _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): AttributesSchema {
+    if (identifier) {
+      return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+    } else {
+      return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+    }
   }
 
-  _relationshipsDefinitionFor(modelName: string, id?: string | null) {
-    return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
+    if (identifier) {
+      return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+    } else {
+      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+    }
   }
 
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {
@@ -495,9 +517,9 @@ abstract class CoreStore extends Service {
   getSchemaDefinitionService(): SchemaDefinitionService {
     if (CUSTOM_MODEL_CLASS) {
       return this._schemaDefinitionService;
-    } else {
-      throw new Error('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
     }
+
+    assertInDebug('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService', false);
   }
 
   // TODO Double check this return value is correct
@@ -510,7 +532,7 @@ abstract class CoreStore extends Service {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
 
-    return new ShimModelClass(this, modelName);
+    return getShimClass(this, modelName);
   }
 
   // Feature Flagged in DSModelStore
@@ -656,7 +678,7 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'deleteRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (record instanceof Model) {
+      if (HAS_MODEL_PACKAGE && record instanceof getModel()) {
         return record.deleteRecord();
       } else {
         let identifier = recordIdentifierFor(record);
@@ -688,7 +710,7 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'unloadRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (record instanceof Model) {
+      if (HAS_MODEL_PACKAGE && record instanceof getModel()) {
         return record.unloadRecord();
       } else {
         let identifier = recordIdentifierFor(record);
@@ -913,12 +935,12 @@ abstract class CoreStore extends Service {
     });
     ```
 
-    See [peekRecord](#method_peekRecord) to get the cached version of a record.
+    See [peekRecord](Store/methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
 
     ### Retrieving Related Model Records
 
     If you use an adapter such as Ember's default
-    [`JSONAPIAdapter`](https://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html)
+    [`JSONAPIAdapter`](/ember-data/release/classes/JSONAPIAdapter)
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
@@ -1001,7 +1023,11 @@ abstract class CoreStore extends Service {
     let adapter = this.adapterFor(internalModel.modelName);
 
     // Refetch the record if the adapter thinks the record is stale
-    if (adapter.shouldReloadRecord(this, snapshot)) {
+    if (
+      typeof options.reload === 'undefined' &&
+      adapter.shouldReloadRecord &&
+      adapter.shouldReloadRecord(this, snapshot)
+    ) {
       return this._scheduleFetch(internalModel, options);
     }
 
@@ -1010,7 +1036,11 @@ abstract class CoreStore extends Service {
     }
 
     // Trigger the background refetch if backgroundReload option is passed
-    if (options.backgroundReload || adapter.shouldBackgroundReloadRecord(this, snapshot)) {
+    if (
+      options.backgroundReload ||
+      !adapter.shouldBackgroundReloadRecord ||
+      adapter.shouldBackgroundReloadRecord(this, snapshot)
+    ) {
       this._scheduleFetch(internalModel, options);
     }
 
@@ -1119,14 +1149,15 @@ abstract class CoreStore extends Service {
     // TODO  remove this once we dont rely on state machine
     internalModel.loadingData();
     let identifier = internalModel.identifier;
-    let promise = this._fetchManager.scheduleFetch(internalModel.identifier, options, generateStackTrace);
+
+    assertIdentifierHasId(identifier);
+
+    let promise = this._fetchManager.scheduleFetch(identifier, options, generateStackTrace);
     return promise.then(
       payload => {
-        if (IDENTIFIERS) {
-          // ensure that regardless of id returned we assign to the correct record
-          if (payload.data && !Array.isArray(payload.data)) {
-            payload.data.lid = identifier.lid;
-          }
+        // ensure that regardless of id returned we assign to the correct record
+        if (payload.data && !Array.isArray(payload.data)) {
+          payload.data.lid = identifier.lid;
         }
 
         // Returning this._push here, breaks typing but not any tests, invesstigate potential missing tests
@@ -1322,7 +1353,12 @@ abstract class CoreStore extends Service {
         snapshots[i] = internalModels[i].createSnapshot(optionsMap.get(internalModel));
       }
 
-      let groups = adapter.groupRecordsForFindMany(this, snapshots);
+      let groups;
+      if (adapter.groupRecordsForFindMany) {
+        groups = adapter.groupRecordsForFindMany(this, snapshots);
+      } else {
+        groups = [snapshots];
+      }
 
       for (var i = 0, l = groups.length; i < l; i++) {
         var group = groups[i];
@@ -1416,7 +1452,7 @@ abstract class CoreStore extends Service {
     otherwise it will return `null`. A record is available if it has been fetched earlier, or
     pushed manually into the store.
 
-    See [findRecord](#method_findRecord) if you would like to request this record from the backend.
+    See [findRecord](Store/methods/findRecord?anchor=findRecord) if you would like to request this record from the backend.
 
     _Note: This is a synchronous method and does not return a promise._
 
@@ -1432,7 +1468,7 @@ abstract class CoreStore extends Service {
     @param {String|Integer} id
     @return {Model|null} record
   */
-  peekRecord(modelName: string, id: string | number): Record | null {
+  peekRecord(modelName: string, id: string | number): RecordInstance | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekRecord');
     }
@@ -1533,7 +1569,7 @@ abstract class CoreStore extends Service {
     @param {(String|Integer)} id
     @return {Model} record
   */
-  recordForId(modelName: string, id: string | number): Record {
+  recordForId(modelName: string, id: string | number): RecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordForId');
     }
@@ -1609,19 +1645,21 @@ abstract class CoreStore extends Service {
     if (!resource) {
       return resolve([]);
     }
+    let adapter = this.adapterFor(relationshipMeta.type);
 
     let {
       relationshipIsStale,
-      allInverseRecordsAreLoaded,
       hasDematerializedInverse,
       hasAnyRelationshipData,
       relationshipIsEmpty,
       shouldForceReload,
     } = resource._relationship;
+    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
 
     let shouldFindViaLink =
       resource.links &&
       resource.links.related &&
+      (typeof adapter.findHasMany === 'function' || typeof resource.data === 'undefined') &&
       (shouldForceReload ||
         hasDematerializedInverse ||
         relationshipIsStale ||
@@ -1629,18 +1667,7 @@ abstract class CoreStore extends Service {
 
     // fetch via link
     if (shouldFindViaLink) {
-      return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options).then(
-        internalModels => {
-          let payload: { data: any[]; meta?: any } = {
-            data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()),
-          };
-          if (internalModels.meta !== undefined) {
-            payload.meta = internalModels.meta;
-          }
-          parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, payload);
-          return internalModels;
-        }
-      );
+      return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options);
     }
 
     let preferLocalCache = hasAnyRelationshipData && !relationshipIsEmpty;
@@ -1710,13 +1737,7 @@ abstract class CoreStore extends Service {
     }
     return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
       internalModel => {
-        let response = internalModel && recordDataFor(internalModel).getResourceIdentifier();
-        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
-        if (internalModel === null) {
-          return null;
-        }
-        // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
-        return internalModel.getRecord();
+        return internalModel ? internalModel.getRecord() : null;
       }
     );
   }
@@ -1729,12 +1750,12 @@ abstract class CoreStore extends Service {
     const internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
     let {
       relationshipIsStale,
-      allInverseRecordsAreLoaded,
       hasDematerializedInverse,
       hasAnyRelationshipData,
       relationshipIsEmpty,
       shouldForceReload,
     } = resource._relationship;
+    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
 
     let shouldFindViaLink =
       resource.links &&
@@ -1844,7 +1865,7 @@ abstract class CoreStore extends Service {
     ```
 
     This method returns a promise, which is resolved with an
-    [`AdapterPopulatedRecordArray`](https://emberjs.com/api/data/classes/DS.AdapterPopulatedRecordArray.html)
+    [`AdapterPopulatedRecordArray`](/ember-data/release/classes/AdapterPopulatedRecordArray)
     once the server returns.
 
     @since 1.13.0
@@ -1896,7 +1917,7 @@ abstract class CoreStore extends Service {
 
   /**
     This method makes a request for one record, where the `id` is not known
-    beforehand (if the `id` is known, use [`findRecord`](#method_findRecord)
+    beforehand (if the `id` is known, use [`findRecord`](Store/methods/findRecord?anchor=findRecord)
     instead).
 
     This method can be used when it is certain that the server will return a
@@ -2019,7 +2040,7 @@ abstract class CoreStore extends Service {
     return promiseObject(
       _queryRecord(adapter, this, normalizedModelName, query, adapterOptionsWrapper).then(internalModel => {
         // the promise returned by store.queryRecord is expected to resolve with
-        // an instance of DS.Model
+        // an instance of Model
         if (internalModel) {
           return internalModel.getRecord();
         }
@@ -2166,13 +2187,13 @@ abstract class CoreStore extends Service {
     });
     ```
 
-    See [peekAll](#method_peekAll) to get an array of current records in the
+    See [peekAll](Store/methods/peekAll?anchor=peekAll) to get an array of current records in the
     store, without waiting until a reload is finished.
 
     ### Retrieving Related Model Records
 
     If you use an adapter such as Ember's default
-    [`JSONAPIAdapter`](https://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html)
+    [`JSONAPIAdapter`](/ember-data/release/classes/JSONAPIAdapter)
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
@@ -2209,7 +2230,7 @@ abstract class CoreStore extends Service {
 
     ```
 
-    See [query](#method_query) to only get a subset of records from the server.
+    See [query](Store/methods/query?anchor=query) to only get a subset of records from the server.
 
     @since 1.13.0
     @method findAll
@@ -2256,16 +2277,25 @@ abstract class CoreStore extends Service {
 
     let snapshotArray = array._createSnapshot(options);
 
-    if (adapter.shouldReloadAll(this, snapshotArray)) {
-      set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, options));
+    if (options.reload !== false) {
+      if (
+        (adapter.shouldReloadAll && adapter.shouldReloadAll(this, snapshotArray)) ||
+        (!adapter.shouldReloadAll && snapshotArray.length === 0)
+      ) {
+        set(array, 'isUpdating', true);
+        return promiseArray(_findAll(adapter, this, modelName, options));
+      }
     }
 
     if (options.backgroundReload === false) {
       return promiseArray(Promise.resolve(array));
     }
 
-    if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
+    if (
+      options.backgroundReload ||
+      !adapter.shouldBackgroundReloadAll ||
+      adapter.shouldBackgroundReloadAll(this, snapshotArray)
+    ) {
       set(array, 'isUpdating', true);
       _findAll(adapter, this, modelName, options);
     }
@@ -2290,7 +2320,7 @@ abstract class CoreStore extends Service {
     locally created records of the type, however, it will not make a
     request to the backend to retrieve additional records. If you
     would like to request all the records from the backend please use
-    [store.findAll](#method_findAll).
+    [store.findAll](Store/methods/findAll?anchor=findAll).
 
     Also note that multiple calls to `peekAll` for a given type will always
     return the same `RecordArray`.
@@ -2400,7 +2430,8 @@ abstract class CoreStore extends Service {
       } else if (recordData.isDeleted && recordData.isDeleted()) {
         operation = 'deleteRecord';
       }
-      options[SaveOp] = operation;
+
+      addSymbol(options, SaveOp, operation);
 
       let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
       let promise = fetchManagerPromise.then(
@@ -2457,7 +2488,9 @@ abstract class CoreStore extends Service {
       let pendingItem = pending[i];
       let snapshot = pendingItem.snapshot;
       let resolver = pendingItem.resolver;
-      let internalModel = snapshot._internalModel;
+      // TODO We have to cast due to our reliance on this private property
+      // this will be refactored away once we change our pending API to be identifier based
+      let internalModel = ((snapshot as unknown) as PrivateSnapshot)._internalModel;
       let adapter = this.adapterFor(internalModel.modelName);
       let operation;
 
@@ -2516,13 +2549,11 @@ abstract class CoreStore extends Service {
       );
     }
 
-    if (IDENTIFIERS) {
-      const cache = identifierCacheFor(this);
-      const identifier = internalModel.identifier;
+    const cache = identifierCacheFor(this);
+    const identifier = internalModel.identifier;
 
-      if (op !== 'deleteRecord' && data) {
-        cache.updateRecordIdentifier(identifier, data);
-      }
+    if (op !== 'deleteRecord' && data) {
+      cache.updateRecordIdentifier(identifier, data);
     }
 
     //We first make sure the primary data has been updated
@@ -2607,30 +2638,26 @@ abstract class CoreStore extends Service {
     const isLoading = internalModel.currentState.stateName === 'root.loading';
     const isUpdate = internalModel.currentState.isEmpty === false && !isLoading;
 
-    if (IDENTIFIERS) {
-      // exclude store.push (root.empty) case
-      if (isUpdate || isLoading) {
-        let identifier = internalModel.identifier;
-        let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
+    // exclude store.push (root.empty) case
+    if (isUpdate || isLoading) {
+      let identifier = internalModel.identifier;
+      let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
 
-        if (updatedIdentifier !== identifier) {
-          // we encountered a merge of identifiers in which
-          // two identifiers (and likely two internalModels)
-          // existed for the same resource. Now that we have
-          // determined the correct identifier to use, make sure
-          // that we also use the correct internalModel.
-          identifier = updatedIdentifier;
-          internalModel = internalModelFactoryFor(this).lookup(identifier);
-        }
+      if (updatedIdentifier !== identifier) {
+        // we encountered a merge of identifiers in which
+        // two identifiers (and likely two internalModels)
+        // existed for the same resource. Now that we have
+        // determined the correct identifier to use, make sure
+        // that we also use the correct internalModel.
+        identifier = updatedIdentifier;
+        internalModel = internalModelFactoryFor(this).lookup(identifier);
       }
     }
 
     internalModel.setupData(data);
 
-    if (isUpdate) {
+    if (!isUpdate) {
       this.recordArrayManager.recordDidChange(internalModel);
-    } else {
-      this.recordArrayManager.recordWasLoaded(internalModel);
     }
 
     return internalModel;
@@ -2692,7 +2719,7 @@ abstract class CoreStore extends Service {
     There are some typical properties for `JSONAPI` payload:
     * `id` - mandatory, unique record's key
     * `type` - mandatory string which matches `model`'s dasherized name in singular form
-    * `attributes` - object which holds data for record attributes - `DS.attr`'s declared in model
+    * `attributes` - object which holds data for record attributes - `attr`'s declared in model
     * `relationships` - object which must contain any of the following properties under each relationships' respective key (example path is `relationships.achievements.data`):
       - [`links`](http://jsonapi.org/format/#document-links)
       - [`data`](http://jsonapi.org/format/#document-resource-object-linkage) - place for primary data
@@ -2770,7 +2797,7 @@ abstract class CoreStore extends Service {
 
     If you're streaming data or implementing an adapter, make sure
     that you have converted the incoming data into this form. The
-    store's [normalize](#method_normalize) method is a convenience
+    store's [normalize](Store/methods/normalize?anchor=normalize) method is a convenience
     helper for converting a json payload into the form Ember Data
     expects.
 
@@ -2787,9 +2814,9 @@ abstract class CoreStore extends Service {
       updated.
   */
   push(data: EmptyResourceDocument): null;
-  push(data: SingleResourceDocument): Record;
-  push(data: CollectionResourceDocument): Record[];
-  push(data: JsonApiDocument): Record | Record[] | null {
+  push(data: SingleResourceDocument): RecordInstance;
+  push(data: CollectionResourceDocument): RecordInstance[];
+  push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
@@ -2997,6 +3024,10 @@ abstract class CoreStore extends Service {
       let normalizedModelName = normalizeModelName(modelName);
       serializer = this.serializerFor(normalizedModelName);
     }
+    assert(
+      `You must define a pushPayload method in your serializer in order to call store.pushPayload`,
+      serializer.pushPayload
+    );
     serializer.pushPayload(this, payload);
   }
 
@@ -3008,7 +3039,7 @@ abstract class CoreStore extends Service {
     return internalModel.reloadBelongsTo(key, options);
   }
 
-  _internalModelForResource(resource: RecordIdentifier): InternalModel {
+  _internalModelForResource(resource: ResourceIdentifierObject): InternalModel {
     return internalModelFactoryFor(this).getByResource(resource);
   }
 
@@ -3022,18 +3053,18 @@ abstract class CoreStore extends Service {
     return internalModelFactoryFor(this).lookup(resource);
   }
 
-  serializeRecord(record: Record, options?: Dict<string, unknown>): unknown {
+  serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);
       // TODO we used to check if the record was destroyed here
       return internalModel!.createSnapshot(options).serialize(options);
-    } else {
-      throw new Error('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on');
     }
+
+    assertInDebug('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
-  saveRecord(record: Record, options?: Dict<string, unknown>): RSVP.Promise<Record> {
+  saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);
@@ -3041,9 +3072,9 @@ abstract class CoreStore extends Service {
       // Casting can be removed once REQUEST_SERVICE ff is turned on
       // because a `Record` is provided there will always be a matching internalModel
       return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
-    } else {
-      throw new Error('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
     }
+
+    assertInDebug('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
@@ -3052,9 +3083,9 @@ abstract class CoreStore extends Service {
       let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
       // TODO we used to check if the record was destroyed here
       return internalModel!.referenceFor(null, key);
-    } else {
-      throw new Error('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on');
     }
+
+    assertInDebug('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   /**
@@ -3079,16 +3110,25 @@ abstract class CoreStore extends Service {
     clientId: string,
     storeWrapper: RecordDataStoreWrapper
   ): RecordData {
-    if (IDENTIFIERS) {
+    if (HAS_RECORD_DATA_PACKAGE) {
+      // we can't greedily use require as this causes
+      // a cycle we can't easily fix (or clearly pin point) at present.
+      //
+      // it can be reproduced in partner tests by running
+      // node ./bin/packages-for-commit.js && yarn test-external:ember-observer
+      if (_RecordData === undefined) {
+        _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataClass;
+      }
+
       let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
         type: modelName,
         id,
         lid: clientId,
       });
-      return new RecordDataDefault(identifier, storeWrapper);
-    } else {
-      return new RecordDataDefault(modelName, id, clientId, storeWrapper);
+      return new _RecordData(identifier, storeWrapper);
     }
+
+    assertInDebug(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
   }
 
   /**
@@ -3117,7 +3157,7 @@ abstract class CoreStore extends Service {
 
   /**
     `normalize` converts a json payload into the normalized form that
-    [push](#method_push) expects.
+    [push](Store/methods/push?anchor=push) expects.
 
     Example
 
@@ -3148,22 +3188,15 @@ abstract class CoreStore extends Service {
     let normalizedModelName = normalizeModelName(modelName);
     let serializer = this.serializerFor(normalizedModelName);
     let model = this.modelFor(normalizedModelName);
+    assert(
+      `You must define a normalize method in your serializer in order to call store.normalize`,
+      serializer.normalize
+    );
     return serializer.normalize(model, payload);
   }
 
   newClientId() {
-    if (IDENTIFIERS) {
-      throw new Error(`Private API Removed`);
-    }
-    return globalClientIdCounter++;
-  }
-
-  //Called by the state machine to notify the store that the record is ready to be interacted with
-  recordWasLoaded(record) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'recordWasLoaded');
-    }
-    this.recordArrayManager.recordWasLoaded(record);
+    assertInDebug(`Private API Removed`, false);
   }
 
   // ...............
@@ -3220,6 +3253,17 @@ abstract class CoreStore extends Service {
     let owner = getOwner(this);
 
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
+
+    // in production this is handled by the re-export
+    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
+      if (normalizedModelName === '-json-api') {
+        const Adapter = require('@ember-data/adapter/json-api').default;
+        owner.register(`adapter:-json-api`, Adapter);
+        adapter = owner.lookup(`adapter:-json-api`);
+        deprecateTestRegistration('adapter', '-json-api');
+      }
+    }
+
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
@@ -3239,6 +3283,17 @@ abstract class CoreStore extends Service {
     // property defined on the store
     let adapterName = this.adapter || '-json-api';
     adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
+
+    // in production this is handled by the re-export
+    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
+      if (adapterName === '-json-api') {
+        const Adapter = require('@ember-data/adapter/json-api').default;
+        owner.register(`adapter:-json-api`, Adapter);
+        adapter = owner.lookup(`adapter:-json-api`);
+        deprecateTestRegistration('adapter', '-json-api');
+      }
+    }
+
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
@@ -3250,7 +3305,7 @@ abstract class CoreStore extends Service {
     // `adapter` property on store: use json-api adapter
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
     assert(
-      `No adapter was found for '${modelName}' and no 'application', store.adapter = 'adapter-fallback-name', or '-json-api' adapter were found as fallbacks.`,
+      `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
       adapter !== undefined
     );
     set(adapter, 'store', this);
@@ -3305,23 +3360,25 @@ abstract class CoreStore extends Service {
 
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
 
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-      if (normalizedModelName === '-json-api') {
-        const Serializer = require('@ember-data/serializer/json-api').default;
-        owner.register(`serializer:-json-api`, Serializer);
-        serializer = owner.lookup(`serializer:-json-api`);
-        deprecateTestRegistration('serializer', '-json-api');
-      } else if (normalizedModelName === '-rest') {
-        const Serializer = require('@ember-data/serializer/rest').default;
-        owner.register(`serializer:-rest`, Serializer);
-        serializer = owner.lookup(`serializer:-rest`);
-        deprecateTestRegistration('serializer', '-rest');
-      } else if (normalizedModelName === '-default') {
-        const Serializer = require('@ember-data/serializer/json').default;
-        owner.register(`serializer:-default`, Serializer);
-        serializer = owner.lookup(`serializer:-default`);
-        serializer && deprecateTestRegistration('serializer', '-default');
+    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
+      // in production this is handled by the re-export
+      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+        if (normalizedModelName === '-json-api') {
+          const Serializer = require('@ember-data/serializer/json-api').default;
+          owner.register(`serializer:-json-api`, Serializer);
+          serializer = owner.lookup(`serializer:-json-api`);
+          deprecateTestRegistration('serializer', '-json-api');
+        } else if (normalizedModelName === '-rest') {
+          const Serializer = require('@ember-data/serializer/rest').default;
+          owner.register(`serializer:-rest`, Serializer);
+          serializer = owner.lookup(`serializer:-rest`);
+          deprecateTestRegistration('serializer', '-rest');
+        } else if (normalizedModelName === '-default') {
+          const Serializer = require('@ember-data/serializer/json').default;
+          owner.register(`serializer:-default`, Serializer);
+          serializer = owner.lookup(`serializer:-default`);
+          serializer && deprecateTestRegistration('serializer', '-default');
+        }
       }
     }
 
@@ -3340,71 +3397,119 @@ abstract class CoreStore extends Service {
       return serializer;
     }
 
-    // no model specific serializer or application serializer, check for the `defaultSerializer`
-    // property defined on the adapter
-    let adapter = this.adapterFor(modelName);
-    let serializerName = get(adapter, 'defaultSerializer');
-    serializer = serializerName
-      ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
-      : undefined;
+    let serializerName;
+    if (DEPRECATE_DEFAULT_SERIALIZER) {
+      // no model specific serializer or application serializer, check for the `defaultSerializer`
+      // property defined on the adapter
+      let adapter = this.adapterFor(modelName);
+      serializerName = get(adapter, 'defaultSerializer');
 
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-      if (serializerName === '-json-api') {
-        const Serializer = require('@ember-data/serializer/json-api').default;
-        owner.register(`serializer:-json-api`, Serializer);
-        serializer = owner.lookup(`serializer:-json-api`);
-        deprecateTestRegistration('serializer', '-json-api');
-      } else if (serializerName === '-rest') {
-        const Serializer = require('@ember-data/serializer/rest').default;
-        owner.register(`serializer:-rest`, Serializer);
-        serializer = owner.lookup(`serializer:-rest`);
-        deprecateTestRegistration('serializer', '-rest');
-      } else if (serializerName === '-default') {
-        const Serializer = require('@ember-data/serializer/json').default;
-        owner.register(`serializer:-default`, Serializer);
-        serializer = owner.lookup(`serializer:-default`);
-        serializer && deprecateTestRegistration('serializer', '-default');
+      deprecate(
+        `store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
+        !serializerName,
+        {
+          id: 'ember-data:default-serializer',
+          until: '4.0',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+        }
+      );
+
+      serializer = serializerName
+        ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
+        : undefined;
+    }
+
+    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
+      // in production this is handled by the re-export
+      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+        if (serializerName === '-json-api') {
+          const Serializer = require('@ember-data/serializer/json-api').default;
+          owner.register(`serializer:-json-api`, Serializer);
+          serializer = owner.lookup(`serializer:-json-api`);
+          deprecateTestRegistration('serializer', '-json-api');
+        } else if (serializerName === '-rest') {
+          const Serializer = require('@ember-data/serializer/rest').default;
+          owner.register(`serializer:-rest`, Serializer);
+          serializer = owner.lookup(`serializer:-rest`);
+          deprecateTestRegistration('serializer', '-rest');
+        } else if (serializerName === '-default') {
+          const Serializer = require('@ember-data/serializer/json').default;
+          owner.register(`serializer:-default`, Serializer);
+          serializer = owner.lookup(`serializer:-default`);
+          serializer && deprecateTestRegistration('serializer', '-default');
+        }
+      }
+
+      if (serializer !== undefined) {
+        set(serializer, 'store', this);
+        _serializerCache[normalizedModelName] = serializer;
+        _serializerCache[serializerName] = serializer;
+        return serializer;
       }
     }
 
-    if (serializer !== undefined) {
+    if (DEPRECATE_DEFAULT_SERIALIZER) {
+      // final fallback, no model specific serializer, no application serializer, no
+      // `serializer` property on store: use the convenience JSONSerializer
+      serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
+      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
+        const JSONSerializer = require('@ember-data/serializer/json').default;
+        owner.register('serializer:-default', JSONSerializer);
+        serializer = owner.lookup('serializer:-default');
+
+        serializer && deprecateTestRegistration('serializer', '-default');
+      }
+
+      deprecate(
+        `store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`,
+        !serializer,
+        {
+          id: 'ember-data:default-serializer',
+          until: '4.0',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+        }
+      );
+
+      assert(
+        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
+        serializer !== undefined
+      );
+
       set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
-      _serializerCache[serializerName] = serializer;
+      _serializerCache['-default'] = serializer;
+
       return serializer;
+    } else {
+      assert(
+        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
+        serializer !== undefined
+      );
+    }
+  }
+
+  destroy() {
+    // enqueue destruction of any adapters/serializers we have created
+    for (let adapterName in this._adapterCache) {
+      let adapter = this._adapterCache[adapterName];
+      if (typeof adapter.destroy === 'function') {
+        adapter.destroy();
+      }
     }
 
-    // final fallback, no model specific serializer, no application serializer, no
-    // `serializer` property on store: use JSON serializer
-    serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
-    if (DEBUG && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-      const JSONSerializer = require('@ember-data/serializer/json').default;
-      owner.register('serializer:-default', JSONSerializer);
-      serializer = owner.lookup('serializer:-default');
-
-      serializer && deprecateTestRegistration('serializer', '-default');
+    for (let serializerName in this._serializerCache) {
+      let serializer = this._serializerCache[serializerName];
+      if (typeof serializer.destroy === 'function') {
+        serializer.destroy();
+      }
     }
 
-    assert(
-      `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
-      serializer !== undefined
-    );
-
-    set(serializer, 'store', this);
-    _serializerCache[normalizedModelName] = serializer;
-    _serializerCache['-default'] = serializer;
-
-    return serializer;
+    return super.destroy();
   }
 
   willDestroy() {
     super.willDestroy();
     this.recordArrayManager.destroy();
-
-    // Check if we need to null this out
-    // this._adapterCache = null;
-    // this._serializerCache = null;
 
     identifierCacheFor(this).destroy();
 
@@ -3475,20 +3580,32 @@ abstract class CoreStore extends Service {
   }
 }
 
-defineProperty(
-  CoreStore.prototype,
-  'defaultAdapter',
-  computed('adapter', function() {
-    let adapter = this.adapter || '-json-api';
+if (DEPRECATE_DEFAULT_ADAPTER) {
+  defineProperty(
+    CoreStore.prototype,
+    'defaultAdapter',
+    computed('adapter', function() {
+      deprecate(
+        `store.adapterFor(modelName) resolved the ("${this.adapter ||
+          '-json-api'}") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
+        false,
+        {
+          id: 'ember-data:default-adapter',
+          until: '4.0',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-adapter',
+        }
+      );
+      let adapter = this.adapter || '-json-api';
 
-    assert(
-      'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
-      typeof adapter === 'string'
-    );
+      assert(
+        'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
+        typeof adapter === 'string'
+      );
 
-    return this.adapterFor(adapter);
-  })
-);
+      return this.adapterFor(adapter);
+    })
+  );
+}
 
 export default CoreStore;
 
@@ -3503,7 +3620,7 @@ function _commit(adapter, store, operation, snapshot) {
   );
 
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-  let serializer = serializerForAdapter(store, adapter, modelName);
+  let serializer = store.serializerFor(modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
   assert(
@@ -3544,8 +3661,15 @@ function _commit(adapter, store, operation, snapshot) {
       return internalModel;
     },
     function(error) {
-      if (error instanceof InvalidError) {
-        let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+      if (error && error.isAdapterError === true && error.code === 'InvalidError') {
+        let parsedErrors;
+
+        if (typeof serializer.extractErrors === 'function') {
+          parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        } else {
+          parsedErrors = errorsArrayToHash(error.errors);
+        }
+
         store.recordWasInvalid(internalModel, parsedErrors, error);
       } else {
         store.recordWasError(internalModel, error);
@@ -3555,86 +3679,6 @@ function _commit(adapter, store, operation, snapshot) {
     },
     label
   );
-}
-
-/**
- *
- * @param store
- * @param cache modelFactoryCache
- * @param normalizedModelName already normalized modelName
- * @return {*}
- */
-function getModelFactory(store, cache, normalizedModelName) {
-  let factory = cache[normalizedModelName];
-
-  if (!factory) {
-    factory = _lookupModelFactory(store, normalizedModelName);
-
-    if (!factory) {
-      //Support looking up mixins as base types for polymorphic relationships
-      factory = _modelForMixin(store, normalizedModelName);
-    }
-
-    if (!factory) {
-      // we don't cache misses in case someone wants to register a missing model
-      return null;
-    }
-
-    let klass = factory.class;
-    assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
-
-    // TODO: deprecate this
-    let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
-    if (!hasOwnModelNameSet) {
-      klass.modelName = normalizedModelName;
-    }
-
-    cache[normalizedModelName] = factory;
-  }
-
-  return factory;
-}
-
-function _lookupModelFactory(store, normalizedModelName) {
-  let owner = getOwner(store);
-
-  return owner.factoryFor(`model:${normalizedModelName}`);
-}
-
-/*
-  In case someone defined a relationship to a mixin, for example:
-  ```
-    import Model, { belongsTo, hasMany } from '@ember-data/model';
-
-    let Comment = Model.extend({
-      owner: belongsTo('commentable'. { polymorphic: true })
-    });
-    let Commentable = Ember.Mixin.create({
-      comments: hasMany('comment')
-    });
-  ```
-  we want to look up a Commentable class which has all the necessary
-  relationship metadata. Thus, we look up the mixin and create a mock
-  Model, so we can access the relationship CPs of the mixin (`comments`)
-  in this case
-*/
-function _modelForMixin(store, normalizedModelName) {
-  let owner = getOwner(store);
-  let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-  let mixin = MaybeMixin && MaybeMixin.class;
-
-  if (mixin) {
-    let ModelForMixin = Model.extend(mixin);
-    ModelForMixin.reopenClass({
-      __isMixin: true,
-      __mixin: mixin,
-    });
-
-    //Cache the class as a model
-    owner.register('model:' + normalizedModelName, ModelForMixin);
-  }
-
-  return _lookupModelFactory(store, normalizedModelName);
 }
 
 let assertDestroyingStore: Function;
@@ -3675,4 +3719,56 @@ if (DEBUG) {
       );
     }
   };
+}
+
+/**
+ * Flag indicating whether all inverse records are available
+ *
+ * true if the inverse exists and is loaded (not empty)
+ * true if there is no inverse
+ * false if the inverse exists and is not loaded (empty)
+ *
+ * @return {boolean}
+ */
+function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelationship): boolean {
+  const cache = identifierCacheFor(store);
+
+  if (Array.isArray(resource.data)) {
+    // treat as collection
+    // check for unloaded records
+    let hasEmptyRecords = resource.data.reduce((hasEmptyModel, resourceIdentifier) => {
+      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).isEmpty();
+    }, false);
+
+    return !hasEmptyRecords;
+  } else {
+    // treat as single resource
+    if (!resource.data) {
+      return true;
+    } else {
+      const internalModel = internalModelForRelatedResource(store, cache, resource.data);
+      return !internalModel.isEmpty();
+    }
+  }
+}
+
+function internalModelForRelatedResource(
+  store: CoreStore,
+  cache: IdentifierCache,
+  resource: ResourceIdentifierObject
+): InternalModel {
+  const identifier = cache.getOrCreateRecordIdentifier(resource);
+  return store._internalModelForResource(identifier);
+}
+
+function assertInDebug(msg: string, cond: boolean = false): asserts cond is true {
+  if (DEBUG && cond) {
+    throw new Error(msg);
+  }
+}
+
+function assertIdentifierHasId(
+  identifier: StableRecordIdentifier
+): asserts identifier is StableExistingRecordIdentifier {
+  assertInDebug(`Attempted to schedule a fetch for a record without an id.`, identifier.id === null);
 }

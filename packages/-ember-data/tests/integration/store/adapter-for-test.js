@@ -1,10 +1,14 @@
-import { setupTest } from 'ember-qunit';
+import { assign } from '@ember/polyfills';
+import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
+
 import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
 
 class TestAdapter {
   constructor(args) {
-    Object.assign(this, args);
+    assign(this, args);
     this.didInit();
   }
 
@@ -27,21 +31,24 @@ module('integration/store - adapterFor', function(hooks) {
   test('when no adapter is available we throw an error', async function(assert) {
     let { owner } = this;
     /*
-      ensure our store instance does not specify a fallback
-      we use an empty string as that would cause `owner.lookup` to blow up if not guarded properly
-      whereas `null` `undefined` `false` would not.
-     */
-    store.adapter = '';
-    /*
       adapter:-json-api is the "last chance" fallback and is
-      registered automatically.
-      unregistering it will cause adapterFor to return `undefined`.
+      the json-api adapter which is re-exported as app/adapters/-json-api.
+      here we override to ensure adapterFor will return `undefined`.
      */
-    owner.unregister('adapter:-json-api');
+    const lookup = owner.lookup;
+    owner.lookup = registrationName => {
+      if (registrationName === 'adapter:-json-api') {
+        return undefined;
+      }
+      return lookup.call(owner, registrationName);
+    };
 
     assert.expectAssertion(() => {
       store.adapterFor('person');
-    }, /No adapter was found for 'person' and no 'application', store\.adapter = 'adapter-fallback-name', or '-json-api' adapter were found as fallbacks\./);
+    }, /Assertion Failed: No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
+    assert.expectDeprecation({
+      id: 'ember-data:-legacy-test-registrations',
+    });
   });
 
   test('we find and instantiate the application adapter', async function(assert) {
@@ -271,5 +278,32 @@ module('integration/store - adapterFor', function(hooks) {
       'We fell back to the -json-api adapter instance for the fallback -not-a-real-adapter'
     );
     assert.ok(jsonApiAdapter === adapter, 'We fell back to the -json-api adapter instance for the per-type adapter');
+  });
+
+  test('adapters are destroyed', async function(assert) {
+    let { owner } = this;
+    let didInstantiate = false;
+    let didDestroy = false;
+
+    class AppAdapter extends TestAdapter {
+      didInit() {
+        didInstantiate = true;
+      }
+
+      destroy() {
+        didDestroy = true;
+      }
+    }
+
+    owner.register('adapter:application', AppAdapter);
+
+    let adapter = store.adapterFor('application');
+
+    assert.ok(adapter instanceof AppAdapter, 'precond - We found the correct adapter');
+    assert.ok(didInstantiate, 'precond - We instantiated the adapter');
+
+    run(store, 'destroy');
+
+    assert.ok(didDestroy, 'adapter was destroyed');
   });
 });

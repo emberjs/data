@@ -1,15 +1,25 @@
 /**
   @module @ember-data/store
 */
-export const IS_IDENTIFIER = Symbol('is-identifier');
+import { symbol } from '../ts-interfaces/utils/symbol';
 
 // provided for additional debuggability
-export const DEBUG_CLIENT_ORIGINATED = Symbol('record-originated-on-client');
-export const DEBUG_IDENTIFIER_BUCKET = Symbol('identifier-bucket');
+export const DEBUG_CLIENT_ORIGINATED: unique symbol = symbol('record-originated-on-client');
+export const DEBUG_IDENTIFIER_BUCKET: unique symbol = symbol('identifier-bucket');
 
 export interface Identifier {
   lid: string;
   clientId?: string;
+}
+
+export interface ExistingRecordIdentifier extends Identifier {
+  id: string;
+  type: string;
+}
+
+export interface NewRecordIdentifier extends Identifier {
+  id: string | null;
+  type: string;
 }
 
 /**
@@ -21,10 +31,7 @@ export interface Identifier {
  * may also indicate that it was generated for a secondary
  * index and the primary `id` index is not yet known.
  */
-export interface RecordIdentifier extends Identifier {
-  id: string | null;
-  type: string;
-}
+export type RecordIdentifier = ExistingRecordIdentifier | NewRecordIdentifier;
 
 /**
  * Used when an Identifier is known to be the stable version
@@ -32,20 +39,42 @@ export interface RecordIdentifier extends Identifier {
  * @internal
  */
 export interface StableIdentifier extends Identifier {
-  [IS_IDENTIFIER]: true;
   [DEBUG_IDENTIFIER_BUCKET]?: string;
 }
 
 /**
- * Used when a RecordIdentifier is known to be the stable version
+ * Used when a StableRecordIdentifier was not created locally as part
+ * of a call to store.createRecord
+ *
+ * Distinguishing between this Identifier and one for a client created
+ * record that was created with an ID is generally speaking not possible
+ * at runtime, so anything with an ID typically narrows to this.
  *
  * @internal
  */
-export interface StableRecordIdentifier extends StableIdentifier {
+export interface StableExistingRecordIdentifier extends StableIdentifier {
+  id: string;
+  type: string;
+  [DEBUG_CLIENT_ORIGINATED]?: boolean;
+}
+/**
+ * Used when a StableRecordIdentifier was created locally
+ * (by a call to store.createRecord).
+ *
+ * It is possible in rare circumstances to have a StableRecordIdentifier
+ * that is not for a new record but does not have an ID. This would
+ * happen if a user intentionally created one for use with a secondary-index
+ * prior to the record having been fully loaded.
+ *
+ * @internal
+ */
+export interface StableNewRecordIdentifier extends StableIdentifier {
   id: string | null;
   type: string;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
 }
+
+export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewRecordIdentifier;
 
 /**
   A method which can expect to receive various data as its first argument

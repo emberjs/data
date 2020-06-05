@@ -1,18 +1,20 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import RSVP, { resolve } from 'rsvp';
-import { module, test } from 'qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { setupTest } from 'ember-qunit';
-import Store from '@ember-data/store';
-import Model from '@ember-data/model';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import DS from 'ember-data';
-import { RecordData, recordDataFor, relationshipsFor, relationshipStateFor } from '@ember-data/store/-private';
-import { identifierCacheFor } from '@ember-data/store/-private';
-import { IDENTIFIERS } from '@ember-data/canary-features';
 import { setupContext, teardownContext } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import RSVP, { resolve } from 'rsvp';
+
+import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model from '@ember-data/model';
+import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
+import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
@@ -1092,7 +1094,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
     assert.expectAssertion(() => {
       message.get('user');
-    }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.belongsTo\({ async: true }\)`\)/);
+    }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`belongsTo\({ async: true }\)`\)/);
   });
 
   test('Rollbacking attributes for a deleted record restores implicit relationship - async', function(assert) {
@@ -1461,7 +1463,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     });
   });
 
-  test('Related link should take precedence over relationship data if no local record data is available', function(assert) {
+  test('Related link should take precedence over relationship data if no local record data is available', async function(assert) {
     assert.expect(2);
 
     Book.reopen({
@@ -1486,26 +1488,24 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    return run(() => {
-      let book = store.push({
-        data: {
-          type: 'book',
-          id: '1',
-          relationships: {
-            author: {
-              links: {
-                related: 'author',
-              },
-              data: { type: 'author', id: '1' },
+    let book = store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author',
             },
+            data: { type: 'author', id: '1' },
           },
         },
-      });
-
-      return book.get('author').then(author => {
-        assert.equal(author.get('name'), 'This is author', 'author name is correct');
-      });
+      },
     });
+
+    const author = await book.get('author');
+
+    assert.equal(author.get('name'), 'This is author', 'author name is correct');
   });
 
   test('Relationship data should take precedence over related link when local record data is available', function(assert) {
@@ -2046,16 +2046,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     const createRecordDataFor = store.createRecordDataFor;
     store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
       if (modelName === 'book1' || modelName === 'section') {
-        if (IDENTIFIERS) {
-          let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
-            type: modelName,
-            id,
-            lid,
-          });
-          return new TestRecordData(identifier, storeWrapper);
-        } else {
-          return new TestRecordData(modelName, id, lid, storeWrapper);
-        }
+        let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+          type: modelName,
+          id,
+          lid,
+        });
+        return new TestRecordData(identifier, storeWrapper);
       }
       return createRecordDataFor.call(this, modelName, id, lid, storeWrapper);
     };

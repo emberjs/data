@@ -1,12 +1,14 @@
-import { setupTest } from 'ember-qunit';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import Model from '@ember-data/model';
-import Adapter from '@ember-data/adapter';
-import { DebugAdapter } from 'ember-data/-private';
-import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
-import { attr } from '@ember-data/model';
+
+import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
+import Adapter from '@ember-data/adapter';
+import DebugAdapter from '@ember-data/debug';
+import Model, { attr } from '@ember-data/model';
 
 class Post extends Model {
   @attr()

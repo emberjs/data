@@ -2,18 +2,19 @@
   @module @ember-data/serializer
 */
 
-import { typeOf, isNone } from '@ember/utils';
-
 import { makeArray } from '@ember/array';
-import { camelize } from '@ember/string';
-import { singularize } from 'ember-inflector';
 import { assert, deprecate, warn } from '@ember/debug';
+import { camelize } from '@ember/string';
+import { isNone, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
+import { singularize } from 'ember-inflector';
+
 import JSONSerializer from '@ember-data/serializer/json';
-import { coerceId } from '@ember-data/store/-private';
-import { modelHasAttributeOrRelationshipNamedType } from './-private';
 import { normalizeModelName } from '@ember-data/store';
+import { coerceId } from '@ember-data/store/-private';
+
+import { modelHasAttributeOrRelationshipNamedType } from './-private';
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -150,7 +151,7 @@ const RESTSerializer = JSONSerializer.extend({
     normalization as `normalizeResponse`.
 
     @method normalize
-    @param {DS.Model} modelClass
+    @param {Model} modelClass
     @param {Object} resourceHash
     @param {String} prop
     @return {Object}
@@ -161,7 +162,7 @@ const RESTSerializer = JSONSerializer.extend({
     with primary data and, if any, included data as `{ data, included }`.
 
     @method _normalizeArray
-    @param {DS.Store} store
+    @param {Store} store
     @param {String} modelName
     @param {Object} arrayHash
     @param {String} prop
@@ -209,8 +210,8 @@ const RESTSerializer = JSONSerializer.extend({
 
   /*
     @method _normalizeResponse
-    @param {DS.Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Store} store
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -288,6 +289,8 @@ const RESTSerializer = JSONSerializer.extend({
         deprecate(message, !isQueryRecordAnArray, {
           id: 'ds.serializer.rest.queryRecord-array-response',
           until: '3.0',
+          url:
+            'https://deprecations.emberjs.com/ember-data/v2.x/#toc_store-queryrecord-array-response-with-restserializer',
         });
       }
 
@@ -351,8 +354,8 @@ const RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  isPrimaryType(store, typeName, primaryTypeClass) {
-    return store.modelFor(typeName) === primaryTypeClass;
+  isPrimaryType(store, modelName, primaryModelClass) {
+    return normalizeModelName(modelName) === primaryModelClass.modelName;
   },
 
   /**
@@ -383,7 +386,7 @@ const RESTSerializer = JSONSerializer.extend({
     that fetches and saves are structured.
 
     @method pushPayload
-    @param {DS.Store} store
+    @param {Store} store
     @param {Object} payload
   */
   pushPayload(store, payload) {
@@ -627,7 +630,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} options
     @return {Object} json
   */
@@ -657,8 +660,8 @@ const RESTSerializer = JSONSerializer.extend({
 
     @method serializeIntoHash
     @param {Object} hash
-    @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {Model} typeClass
+    @param {Snapshot} snapshot
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
@@ -722,7 +725,7 @@ const RESTSerializer = JSONSerializer.extend({
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */

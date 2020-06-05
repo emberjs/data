@@ -1,12 +1,17 @@
-import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import EmberObject, { get } from '@ember/object';
+import { settled } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import { Promise } from 'rsvp';
+
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
-import { module, test } from 'qunit';
-import { settled } from '@ember/test-helpers';
-import EmberObject from '@ember/object';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -135,7 +140,10 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
     owner.register('model:person', Person);
     owner.register('model:house', House);
+    owner.unregister('service:store');
     owner.register('service:store', CustomStore);
+    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
   test('A RecordData implementation that has the required spec methods should not error out', async function(assert) {
@@ -184,7 +192,6 @@ module('integration/record-data - Custom RecordData Implementations', function(h
   test('Record Data push, create and save lifecycle', async function(assert) {
     assert.expect(17);
     let called = 0;
-    let createCalled = 0;
     const personHash = {
       type: 'person',
       id: '1',
@@ -403,8 +410,6 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
   test('Record Data controls belongsTo notifications', async function(assert) {
     assert.expect(6);
-    let called = 0;
-    let createCalled = 0;
 
     let { owner } = this;
     let belongsToReturnValue = { data: { id: '1', type: 'person' } };
@@ -454,11 +459,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     assert.equal(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
 
     house.set('landlord', runspired);
-    assert.equal(
-      house.get('landlord.name'),
-      'David',
-      'belongsTo does not change if RD did not notify'
-    );
+    assert.equal(house.get('landlord.name'), 'David', 'belongsTo does not change if RD did not notify');
   });
 
   test('Record Data custom belongsTo', async function(assert) {
@@ -518,8 +519,6 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
   test('Record Data controls hasMany notifications', async function(assert) {
     assert.expect(10);
-    let called = 0;
-    let createCalled = 0;
 
     let { owner } = this;
 
@@ -599,11 +598,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     assert.deepEqual(people.toArray(), [david], 'has many doesnt change if RD did not notify');
 
     people.removeObject(david);
-    assert.deepEqual(
-      people.toArray(),
-      [david],
-      'hasMany removal doesnt apply the change unless notified'
-    );
+    assert.deepEqual(people.toArray(), [david], 'hasMany removal doesnt apply the change unless notified');
 
     house.set('tenants', [igor]);
     assert.deepEqual(people.toArray(), [david], 'setDirtyHasMany doesnt apply unless notified');
@@ -615,7 +610,6 @@ module('integration/record-data - Custom RecordData Implementations', function(h
 
     let calledAddToHasMany = 0;
     let calledRemoveFromHasMany = 0;
-    let calledSetDirtyHasMany = 0;
     let hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
 
     class RelationshipRecordData extends TestRecordData {
@@ -638,7 +632,12 @@ module('integration/record-data - Custom RecordData Implementations', function(h
         assert.equal(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
         calledAddToHasMany++;
 
-        hasManyReturnValue = { data: [{ id: '3', type: 'person' }, { id: '2', type: 'person' }] };
+        hasManyReturnValue = {
+          data: [
+            { id: '3', type: 'person' },
+            { id: '2', type: 'person' },
+          ],
+        };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
 
@@ -657,7 +656,12 @@ module('integration/record-data - Custom RecordData Implementations', function(h
       setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
         assert.equal(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
-        hasManyReturnValue = { data: [{ id: '1', type: 'person' }, { id: '2', type: 'person' }] };
+        hasManyReturnValue = {
+          data: [
+            { id: '1', type: 'person' },
+            { id: '2', type: 'person' },
+          ],
+        };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
     }

@@ -1,17 +1,14 @@
-import { RecordIdentifier } from '../ts-interfaces/identifier';
-import {
-  FindRecordQuery,
-  SaveRecordMutation,
-  Request,
-  RequestState,
-  Operation,
-  RequestStateEnum,
-} from '../ts-interfaces/fetch-manager';
-import { symbol } from '../ts-interfaces/utils/symbol';
+import { RequestStateEnum } from '../ts-interfaces/fetch-manager';
+import { addSymbol, symbol } from '../ts-interfaces/utils/symbol';
 
-import { _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
+type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
+type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
+type Request = import('../ts-interfaces/fetch-manager').Request;
+type RequestState = import('../ts-interfaces/fetch-manager').RequestState;
+type Operation = import('../ts-interfaces/fetch-manager').Operation;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 
-export const Touching: unique symbol = symbol('touching');
+const Touching: unique symbol = symbol('touching');
 export const RequestPromise: unique symbol = symbol('promise');
 
 interface InternalRequest extends RequestState {
@@ -42,9 +39,9 @@ export default class RequestCache {
         state: RequestStateEnum.pending,
         request: queryRequest,
         type,
-        [Touching]: [query.recordIdentifier],
-        [RequestPromise]: promise,
-      };
+      } as InternalRequest;
+      addSymbol(request, Touching, [query.recordIdentifier]);
+      addSymbol(request, RequestPromise, promise);
       this._pending[lid].push(request);
       this._triggerSubscriptions(request);
       promise.then(
@@ -54,9 +51,9 @@ export default class RequestCache {
             state: RequestStateEnum.fulfilled,
             request: queryRequest,
             type,
-            [Touching]: request[Touching],
             response: { data: result },
-          };
+          } as InternalRequest;
+          addSymbol(finalizedRequest, Touching, request[Touching]);
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
         },
@@ -66,9 +63,9 @@ export default class RequestCache {
             state: RequestStateEnum.rejected,
             request: queryRequest,
             type,
-            [Touching]: request[Touching],
             response: { data: error && error.error },
-          };
+          } as InternalRequest;
+          addSymbol(finalizedRequest, Touching, request[Touching]);
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
         }

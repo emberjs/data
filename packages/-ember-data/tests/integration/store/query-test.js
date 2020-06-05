@@ -1,11 +1,12 @@
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import RSVP from 'rsvp';
 
 import { module, test } from 'qunit';
+import RSVP from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/store/query', function(hooks) {
   setupTest(hooks);

@@ -1,12 +1,13 @@
 /**
   @module @ember-data/store
 */
-import DeprecatedEvented from '../deprecated-evented';
-
 import ArrayProxy from '@ember/array/proxy';
-import { set, get, computed } from '@ember/object';
-import { Promise } from 'rsvp';
+import { computed, get, set } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
+
+import { Promise } from 'rsvp';
+
+import DeprecatedEvented from '../deprecated-evented';
 import { PromiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
 

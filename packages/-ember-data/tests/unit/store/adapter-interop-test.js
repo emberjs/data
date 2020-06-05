@@ -1,44 +1,60 @@
 import { A } from '@ember/array';
-import { resolve, all, Promise as EmberPromise } from 'rsvp';
-import { set, get } from '@ember/object';
+import { get, set } from '@ember/object';
 import { run } from '@ember/runloop';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
+import { all, Promise as EmberPromise, resolve } from 'rsvp';
+
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import JSONSerializer from '@ember-data/serializer/json';
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONSerializer from '@ember-data/serializer/json';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/store/adapter-interop - Store working with a Adapter', function(hooks) {
   setupTest(hooks);
 
-  test('Adapter can be set as a name', function(assert) {
-    this.owner.register('service:store', Store.extend({ adapter: 'application' }));
+  deprecatedTest(
+    'Adapter can be set as a name',
+    {
+      id: 'ember-data:default-adapter',
+      until: '4.0',
+    },
+    function(assert) {
+      this.owner.register('service:store', Store.extend({ adapter: 'application' }));
 
-    let store = this.owner.lookup('service:store');
+      let store = this.owner.lookup('service:store');
 
-    assert.ok(store.get('defaultAdapter') instanceof RESTAdapter);
-  });
+      assert.ok(store.get('defaultAdapter') instanceof RESTAdapter);
+    }
+  );
 
-  testInDebug('Adapter can not be set as an instance', function(assert) {
-    assert.expect(1);
+  deprecatedTest(
+    'Adapter can not be set as an instance',
+    {
+      id: 'ember-data:default-adapter',
+      until: '4.0',
+    },
+    function(assert) {
+      assert.expect(1);
 
-    const BadStore = Store.extend({
-      adapter: Adapter.create(),
-    });
+      const BadStore = Store.extend({
+        adapter: Adapter.create(),
+      });
 
-    const { owner } = this;
+      const { owner } = this;
 
-    owner.unregister('service:store');
-    owner.register('service:store', BadStore);
-    const store = owner.lookup('service:store');
-    assert.expectAssertion(() => store.get('defaultAdapter'));
-  });
+      owner.unregister('service:store');
+      owner.register('service:store', BadStore);
+      const store = owner.lookup('service:store');
+      assert.expectAssertion(() => store.get('defaultAdapter'));
+    }
+  );
 
   test('Calling Store#find invokes its adapter#find', function(assert) {
     assert.expect(5);
@@ -79,7 +95,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
       findMany(store, type, ids, snapshots) {
         assert.ok(true, 'Adapter#findMany was called');
         assert.deepEqual(ids, ['1', '2'], 'Correct ids were passed in to findMany');
-        return resolve({ data: [{ id: 1, type: 'test' }, { id: 2, type: 'test' }] });
+        return resolve({
+          data: [
+            { id: 1, type: 'test' },
+            { id: 2, type: 'test' },
+          ],
+        });
       },
       coalesceFindRequests: true,
     });

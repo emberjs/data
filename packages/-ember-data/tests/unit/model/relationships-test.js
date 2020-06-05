@@ -1,9 +1,11 @@
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
-import Model from '@ember-data/model';
-import { hasMany, belongsTo } from '@ember-data/model';
 import { get } from '@ember/object';
+
+import { module, test } from 'qunit';
+
 import { gte } from 'ember-compatibility-helpers';
+import { setupTest } from 'ember-qunit';
+
+import Model, { belongsTo, hasMany } from '@ember-data/model';
 
 class Person extends Model {
   @hasMany('occupation', { async: false }) occupations;

@@ -1,22 +1,21 @@
-import { resolve } from 'rsvp';
-import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
 
+import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/adapter/store-adapter - client-side delete', function(hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  test('client-side deleted records can be added back from an inverse', async function(assert) {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
-  });
 
-  test('client-side deleted records can be added back from an inverse', async function(assert) {
     const Bookstore = Model.extend({
       books: hasMany('book', { async: false, inverse: 'bookstore' }),
     });
@@ -31,7 +30,7 @@ module('integration/adapter/store-adapter - client-side delete', function(hooks)
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.deleteRecord = function(store, modelClass, snapshot) {
+    adapter.deleteRecord = function(_store, _modelClass, snapshot) {
       if (snapshot.adapterOptions.clientSideDelete) {
         return resolve();
       }
@@ -76,7 +75,7 @@ module('integration/adapter/store-adapter - client-side delete', function(hooks)
 
     await book2.destroyRecord({ adapterOptions: { clientSideDelete: true } });
 
-    run(() => book2.unloadRecord());
+    book2.unloadRecord();
 
     await settled();
 

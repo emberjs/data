@@ -1,12 +1,13 @@
 import { A } from '@ember/array';
-import { setupTest } from 'ember-qunit';
 import OrderedSet from '@ember/ordered-set';
 import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 
-import Model from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
-import { attr, belongsTo, hasMany } from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 let store, manager;
 

@@ -23,15 +23,38 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
       - script: |
-          yarn
+          yarn --frozen-lockfile
           yarn lint:features
       - script: |
-          yarn lint:prettier
+          yarn lint:js
       - script: |
           yarn problems
         displayName: 'Lint'
+
+  - job: Performance
+    dependsOn: Lint
+    condition: |
+      in(variables['System.PullRequest.TargetBranch'], 'master')
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '12.x' # The version we're installing
+      - script: |
+          npm install -g tracerbench@2.3.0
+        displayName: TracerBench CLI Install
+      - script: |
+          npm install -g pm2
+        displayName: PM2 CLI Install
+      - script: |
+          ./bin/relationship-performance-tracking/head-vs-master.sh
+        displayName: TracerBench Compare
 
   - job: Basic_Ember_Data_tests
     dependsOn: Lint
@@ -44,7 +67,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           yarn
@@ -54,6 +77,10 @@ jobs:
       - script: |
           yarn test
         displayName: 'Basic Tests'
+
+      - script: |
+          yarn test:encapsulation
+        displayName: 'Encapsulation Tests'
 
   - job: Ember_Data_builds_tests
     dependsOn: Basic_Ember_Data_tests
@@ -65,7 +92,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -73,10 +100,16 @@ jobs:
           yarn
 
       - script: |
-          yarn test:enabled-in-progress-features
+          yarn test
         env:
           EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
-          displayName: 'In progress features'
+          displayName: 'Enable All In progress features'
+
+      - script: |
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
+          displayName: 'Disable All In progress features'
 
       - script: |
           yarn test:production
@@ -95,8 +128,14 @@ jobs:
         displayName: 'Docs Tests'
 
       - script: |
-          yarn test:try-one with-ember-fetch
-        displayName: 'Basic Tests with ember-fetch'
+          yarn install
+          yarn test:fastboot fastboot-with-ember-fetch
+        displayName: 'Fastboot Tests with ember-fetch'
+
+      - script: |
+          yarn install
+          yarn test:fastboot fastboot-with-jquery
+        displayName: 'Fastboot Tests with jquery'
 
   - job: Windows_tests
     dependsOn: Basic_Ember_Data_tests
@@ -108,7 +147,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           yarn
@@ -119,8 +158,16 @@ jobs:
         displayName: 'Basic Tests'
 
       - script: |
-          yarn test:enabled-in-progress-features
-        displayName: 'In progress features'
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
+          displayName: 'Enable All In progress features'
+
+      - script: |
+          yarn test
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
+          displayName: 'Disable All In progress features'
 
       - script: |
           yarn test:production
@@ -136,7 +183,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -144,12 +191,20 @@ jobs:
           yarn install --no-lockfile --non-interactive
 
       - script: |
-          yarn test:try-one default-with-jquery
+          yarn test:try-one with-jquery
         displayName: 'Basic Tests with jQuery'
 
       - script: |
-          yarn test:try-one ember-release-with-jquery
-        displayName: 'Ember Release Channel Tests with jQuery'
+          yarn test:try-one with-native-fetch
+        displayName: 'Basic Tests with Native fetch'
+
+      - script: |
+          yarn test:try-one with-ember-fetch-and-jquery
+        displayName: 'Basic Tests with both ember-fetch and jQuery present'
+
+      - script: |
+          yarn test:try-one with-ember-fetch-no-jquery
+        displayName: 'Basic Tests with ember-fetch but not jQuery'
 
   - job: Floating_dependencies
     dependsOn: Basic_Ember_Data_tests
@@ -161,7 +216,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -182,7 +237,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -191,8 +246,13 @@ jobs:
 
       - script: |
           yarn install
-          yarn test:try-one ember-lts-3.8
-        displayName: 'Ember LTS test 3.8'
+          yarn test:try-one ember-lts-3.12
+        displayName: 'Ember LTS test 3.12'
+
+      - script: |
+          yarn install
+          yarn test:try-one ember-lts-3.16
+        displayName: 'Ember LTS test 3.16'
 
       - script: |
           yarn install
@@ -219,7 +279,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -241,7 +301,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -253,6 +313,7 @@ jobs:
       - script: |
           CI=true yarn test-external:travis-web
         displayName: 'External: travis-web'
+        continueOnError: true
 
   - job: External_Partner_tests_ember_observer
     dependsOn: Basic_Ember_Data_tests
@@ -264,7 +325,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -287,7 +348,7 @@ jobs:
       - task: NodeTool@0
         displayName: Node install
         inputs:
-          versionSpec: '10.x' # The version we're installing
+          versionSpec: '12.x' # The version we're installing
 
       - script: |
           brew update
@@ -295,40 +356,42 @@ jobs:
           brew cask install firefox
           yarn
           node ./bin/packages-for-commit.js
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:storefront
         displayName: 'External: storefront'
-        condition: always()
+        condition: succeededOrFailed()
 
-      #  - script: |
-      #      yarn test-external:factory-guy
-      #    displayName: 'External: factory-guy'
+      - script: |
+          yarn test-external:factory-guy
+        displayName: 'External: factory-guy'
+        continueOnError: true
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:ember-resource-metadata
         displayName: 'External: ember-resource-metadata'
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:ember-data-relationship-tracker
         displayName: 'External: ember-data-relationship-tracker'
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:model-fragments
           exit 0
         displayName: 'External: model-fragments'
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:ember-data-change-tracker
           exit 0
         displayName: 'External: ember-data-change-tracker'
-        condition: always()
+        condition: succeededOrFailed()
 
       - script: |
           yarn test-external:ember-m3
         displayName: 'External: ember-m3'
-        condition: always()
+        condition: succeededOrFailed()

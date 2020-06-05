@@ -2,6 +2,7 @@
   @module @ember-data/store
 */
 import { assert } from '@ember/debug';
+
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
 /*
   This file encapsulates the various states that a record can transition
@@ -159,14 +160,14 @@ import { REQUEST_SERVICE } from '@ember-data/canary-features';
   `Model` class.
 
 
-   * [isEmpty](DS.Model.html#property_isEmpty)
-   * [isLoading](DS.Model.html#property_isLoading)
-   * [isLoaded](DS.Model.html#property_isLoaded)
-   * [hasDirtyAttributes](DS.Model.html#property_hasDirtyAttributes)
-   * [isSaving](DS.Model.html#property_isSaving)
-   * [isDeleted](DS.Model.html#property_isDeleted)
-   * [isNew](DS.Model.html#property_isNew)
-   * [isValid](DS.Model.html#property_isValid)
+   * [isEmpty](Model/properties/isEmpty?anchor=isEmpty)
+   * [isLoading](Model/properties/isLoading?anchor=isLoading)
+   * [isLoaded](Model/properties/isLoaded?anchor=isLoaded)
+   * [hasDirtyAttributes](Model/properties/hasDirtyAttributes?anchor=hasDirtyAttributes)
+   * [isSaving](Model/properties/isSaving?anchor=isSaving)
+   * [isDeleted](Model/properties/isDeleted?anchor=isDeleted)
+   * [isNew](Model/properties/isNew?anchor=isNew)
+   * [isValid](Model/properties/isValid?anchor=isValid)
 
   @class RootState
 */
@@ -177,8 +178,6 @@ function didSetProperty(internalModel, context) {
   } else {
     internalModel.send('propertyWasReset');
   }
-
-  internalModel.updateRecordArrays();
 }
 
 // Implementation notes:
@@ -396,6 +395,10 @@ const createdState = dirtyState({
   dirtyType: 'created',
   // FLAGS
   isNew: true,
+
+  setup(internalModel) {
+    internalModel.updateRecordArrays();
+  },
 });
 
 createdState.invalid.rolledBack = function(internalModel) {
@@ -506,6 +509,10 @@ const RootState = {
       internalModel.triggerLater('didLoad');
       internalModel.triggerLater('ready');
     },
+
+    // Record is already in an empty state, triggering transition to empty here
+    // produce an error.
+    notFound() {},
   },
 
   // A record enters this state when the store asks
@@ -752,7 +759,7 @@ function wireState(object, parent, name) {
   object.stateName = name;
 
   for (let prop in object) {
-    if (!object.hasOwnProperty(prop) || prop === 'parentState' || prop === 'stateName') {
+    if (!Object.prototype.hasOwnProperty.call(object, prop) || prop === 'parentState' || prop === 'stateName') {
       continue;
     }
     if (typeof object[prop] === 'object') {

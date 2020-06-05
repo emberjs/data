@@ -1,14 +1,19 @@
-import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import EmberObject from '@ember/object';
+import Ember from 'ember';
+
+import { module, test } from 'qunit';
+import { Promise } from 'rsvp';
+
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
-import { module, test } from 'qunit';
-import { settled } from '@ember/test-helpers';
-import EmberObject from '@ember/object';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
-import Ember from 'ember';
-import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
+import { setupTest } from 'ember-qunit';
+
 import { RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+
+type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
+type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -19,7 +24,21 @@ class Person extends Model {
   lastName;
 }
 
+class TestRecordIdentifier implements NewRecordIdentifier {
+  constructor(public id: string | null, public lid: string, public type: string) {}
+}
+
 class TestRecordData implements RecordData {
+  id: string | null = '1';
+  clientId: string | null = 'test-record-data-1';
+  modelName = 'tst';
+
+  getResourceIdentifier() {
+    if (this.clientId !== null) {
+      return new TestRecordIdentifier(this.id, this.clientId, this.modelName);
+    }
+  }
+
   commitWasRejected(): void {}
 
   // Use correct interface once imports have been fix
@@ -105,16 +124,18 @@ module('integration/record-data - Record Data State', function(hooks) {
     let { owner } = this;
 
     owner.register('model:person', Person);
+    owner.unregister('service:store');
     owner.register('service:store', CustomStore);
+    owner.register('serializer:application', JSONAPISerializer);
   });
 
   test('Record Data state saving', async function(assert) {
     assert.expect(3);
+
     let isDeleted, isNew, isDeletionCommitted;
     let calledDelete = false;
     let calledUpdate = false;
     let calledCreate = false;
-    let storeWrapper;
 
     const personHash = {
       type: 'person',
@@ -126,11 +147,6 @@ module('integration/record-data - Record Data State', function(hooks) {
     let { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
-      constructor(sw) {
-        super();
-        storeWrapper = sw;
-      }
-
       isNew(): boolean {
         return isNew;
       }
@@ -148,7 +164,7 @@ module('integration/record-data - Record Data State', function(hooks) {
 
     let TestStore = Store.extend({
       createRecordDataFor(modelName, id, clientId, storeWrapper) {
-        return new LifecycleRecordData(storeWrapper);
+        return new LifecycleRecordData();
       },
     });
 

@@ -1,11 +1,10 @@
-import RSVP from 'rsvp';
-import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-
 import { module, test } from 'qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import { resolve } from 'rsvp';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, adapter;
 let passedUrl, passedVerb, passedHash;
@@ -92,11 +91,11 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       passedVerb[index] = verb;
       passedHash[index] = hash;
 
-      return run(RSVP, 'resolve', responses[index]);
+      return resolve(responses[index]);
     };
   }
 
-  test('find a single record', function(assert) {
+  test('find a single record', async function(assert) {
     assert.expect(3);
 
     ajaxResponse([
@@ -111,17 +110,14 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('post', 1).then(post => {
-        assert.equal(passedUrl[0], '/posts/1');
+    let post = await store.findRecord('post', '1');
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('title'), 'Ember.js rocks');
-      });
-    });
+    assert.equal(passedUrl[0], '/posts/1', 'Builds URL correctly');
+    assert.equal(post.get('id'), '1', 'Stores record with correct id');
+    assert.equal(post.get('title'), 'Ember.js rocks', 'Title for record is correct');
   });
 
-  test('find all records with sideloaded relationships', function(assert) {
+  test('find all records with sideloaded relationships', async function(assert) {
     assert.expect(9);
 
     ajaxResponse([
@@ -150,7 +146,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
                 data: { type: 'users', id: '3' },
               },
               comments: {
-                data: [{ type: 'comments', id: '4' }, { type: 'comments', id: '5' }],
+                data: [
+                  { type: 'comments', id: '4' },
+                  { type: 'comments', id: '5' },
+                ],
               },
             },
           },
@@ -182,26 +181,40 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findAll('post').then(posts => {
-        assert.equal(passedUrl[0], '/posts');
+    let posts = await store.findAll('post');
 
-        assert.equal(posts.get('length'), '2');
-        assert.equal(posts.get('firstObject.title'), 'Ember.js rocks');
-        assert.equal(posts.get('lastObject.title'), 'Tomster rules');
+    assert.equal(passedUrl[0], '/posts');
 
-        assert.equal(posts.get('firstObject.author.firstName'), 'Yehuda');
-        assert.equal(posts.get('lastObject.author.lastName'), 'Katz');
+    assert.equal(posts.get('length'), 2, 'Returns two post records');
+    assert.equal(posts.get('firstObject.title'), 'Ember.js rocks', 'The title for the first post is correct');
+    assert.equal(posts.get('lastObject.title'), 'Tomster rules', 'The title for the second post is correct');
 
-        assert.equal(posts.get('firstObject.comments.length'), 0);
+    assert.equal(
+      posts.get('firstObject.author.firstName'),
+      'Yehuda',
+      'The author for the first post is loaded and has the correct first name'
+    );
+    assert.equal(
+      posts.get('lastObject.author.lastName'),
+      'Katz',
+      'The author for the last post is loaded and has the correct last name'
+    );
 
-        assert.equal(posts.get('lastObject.comments.firstObject.text'), 'This is the first comment');
-        assert.equal(posts.get('lastObject.comments.lastObject.text'), 'This is the second comment');
-      });
-    });
+    assert.equal(posts.get('firstObject.comments.length'), 0, 'First post doesnt have comments');
+
+    assert.equal(
+      posts.get('lastObject.comments.firstObject.text'),
+      'This is the first comment',
+      'Loads first comment for second post'
+    );
+    assert.equal(
+      posts.get('lastObject.comments.lastObject.text'),
+      'This is the second comment',
+      'Loads second comment for second post'
+    );
   });
 
-  test('find many records', function(assert) {
+  test('find many records', async function(assert) {
     assert.expect(4);
 
     ajaxResponse([
@@ -218,18 +231,16 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.query('post', { filter: { id: 1 } }).then(posts => {
-        assert.equal(passedUrl[0], '/posts');
-        assert.deepEqual(passedHash[0], { data: { filter: { id: 1 } } });
+    let posts = await store.query('post', { filter: { id: 1 } });
 
-        assert.equal(posts.get('length'), '1');
-        assert.equal(posts.get('firstObject.title'), 'Ember.js rocks');
-      });
-    });
+    assert.equal(passedUrl[0], '/posts', 'Builds correct URL');
+    assert.deepEqual(passedHash[0], { data: { filter: { id: 1 } } }, 'Sends correct params to adapter');
+
+    assert.equal(posts.get('length'), 1, 'Returns the correct number of records');
+    assert.equal(posts.get('firstObject.title'), 'Ember.js rocks', 'Sets correct title to record');
   });
 
-  test('queryRecord - primary data being a single record', function(assert) {
+  test('queryRecord - primary data being a single record', async function(assert) {
     ajaxResponse([
       {
         data: {
@@ -242,32 +253,26 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.queryRecord('post', {}).then(post => {
-        assert.equal(passedUrl[0], '/posts');
+    let post = await store.queryRecord('post', {});
 
-        assert.equal(post.get('title'), 'Ember.js rocks');
-      });
-    });
+    assert.equal(passedUrl[0], '/posts', 'Builds correc URL');
+    assert.equal(post.get('title'), 'Ember.js rocks', 'Sets correct title to record');
   });
 
-  test('queryRecord - primary data being null', function(assert) {
+  test('queryRecord - primary data being null', async function(assert) {
     ajaxResponse([
       {
         data: null,
       },
     ]);
 
-    return run(() => {
-      return store.queryRecord('post', {}).then(post => {
-        assert.equal(passedUrl[0], '/posts');
+    let post = await store.queryRecord('post', {});
 
-        assert.strictEqual(post, null);
-      });
-    });
+    assert.equal(passedUrl[0], '/posts', 'Builds correct URL');
+    assert.strictEqual(post, null, 'Returns null when adapter response is null');
   });
 
-  testInDebug('queryRecord - primary data being an array throws an assertion', function(assert) {
+  testInDebug('queryRecord - primary data being an array throws an assertion', async function(assert) {
     ajaxResponse([
       {
         data: [
@@ -279,12 +284,12 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    assert.expectAssertion(() => {
-      run(() => store.queryRecord('post', {}));
+    await assert.expectAssertion(async () => {
+      await store.queryRecord('post', {});
     }, 'Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.');
   });
 
-  test('find a single record with belongsTo link as object { related }', function(assert) {
+  test('find a single record with belongsTo link as object { related }', async function(assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -316,29 +321,23 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('post', 1).then(post => {
-        assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
+    let post = await store.findRecord('post', '1');
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('title'), 'Ember.js rocks');
+    assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
-        return post.get('author').then(author => {
-          assert.equal(
-            passedUrl[1],
-            'http://example.com/user/2',
-            'The relationship user:2 was fetched by the correct url'
-          );
+    assert.equal(post.id, '1', 'Stores record using the correct id');
+    assert.equal(post.title, 'Ember.js rocks', 'Sets correct title to record');
 
-          assert.equal(author.get('id'), '2');
-          assert.equal(author.get('firstName'), 'Yehuda');
-          assert.equal(author.get('lastName'), 'Katz');
-        });
-      });
-    });
+    let author = await post.get('author');
+
+    assert.equal(passedUrl[1], 'http://example.com/user/2', 'The relationship user:2 was fetched by the correct url');
+
+    assert.equal(author.id, '2', 'Record has correct id');
+    assert.equal(author.firstName, 'Yehuda', 'Sets correct firstName to record');
+    assert.equal(author.lastName, 'Katz', 'Sets correct lastName to record');
   });
 
-  test('find a single record with belongsTo link as object { data }', function(assert) {
+  test('find a single record with belongsTo link as object { data }', async function(assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -368,25 +367,22 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('post', 1).then(post => {
-        assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
+    let post = await store.findRecord('post', '1');
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('title'), 'Ember.js rocks');
+    assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
-        return post.get('author').then(author => {
-          assert.equal(passedUrl[1], '/users/2', 'The relationship user:2 was fetched by the correct url');
+    assert.equal(post.id, '1', 'Stores record using the correct id');
+    assert.equal(post.title, 'Ember.js rocks', 'Sets correct title to record');
 
-          assert.equal(author.get('id'), '2');
-          assert.equal(author.get('firstName'), 'Yehuda');
-          assert.equal(author.get('lastName'), 'Katz');
-        });
-      });
-    });
+    let author = await post.get('author');
+
+    assert.equal(passedUrl[1], '/users/2', 'The relationship user:2 was fetched by the correct url');
+    assert.equal(author.id, '2', 'Record has correct id');
+    assert.equal(author.firstName, 'Yehuda', 'Sets correct firstName to record');
+    assert.equal(author.lastName, 'Katz', 'Sets correct lastName to record');
   });
 
-  test('find a single record with belongsTo link as object { data } (polymorphic)', function(assert) {
+  test('find a single record with belongsTo link as object { data } (polymorphic)', async function(assert) {
     assert.expect(8);
 
     ajaxResponse([
@@ -417,26 +413,28 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('user', 1).then(user => {
-        assert.equal(passedUrl[0], '/users/1');
+    let user = await store.findRecord('user', '1');
 
-        assert.equal(user.get('id'), '1');
-        assert.equal(user.get('firstName'), 'Yehuda');
-        assert.equal(user.get('lastName'), 'Katz');
+    assert.equal(passedUrl[0], '/users/1', 'The primary record user:1 was fetched by the correct url');
 
-        return user.get('company').then(company => {
-          assert.equal(passedUrl[1], '/development-shops/2');
+    assert.equal(user.id, '1', 'Record has correct id');
+    assert.equal(user.firstName, 'Yehuda', 'Sets correct firstName to record');
+    assert.equal(user.lastName, 'Katz', 'Sets correct lastName to record');
 
-          assert.equal(company.get('id'), '2');
-          assert.equal(company.get('name'), 'Tilde');
-          assert.equal(company.get('coffee'), true);
-        });
-      });
-    });
+    let company = await user.get('company');
+
+    assert.equal(
+      passedUrl[1],
+      '/development-shops/2',
+      'The relationship development-shops:2 was fetched by the correct url'
+    );
+
+    assert.equal(company.id, '2', 'Record has correct id');
+    assert.equal(company.name, 'Tilde', 'Sets correct name to record');
+    assert.equal(company.coffee, true, 'Sets correct value for coffee attribute');
   });
 
-  test('find a single record with sideloaded belongsTo link as object { data }', function(assert) {
+  test('find a single record with sideloaded belongsTo link as object { data }', async function(assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -466,25 +464,23 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('post', 1).then(post => {
-        assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
+    let post = await store.findRecord('post', '1');
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('title'), 'Ember.js rocks');
+    assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
-        return post.get('author').then(author => {
-          assert.equal(passedUrl.length, 1);
+    assert.equal(post.id, '1', 'Record has correct id');
+    assert.equal(post.title, 'Ember.js rocks', 'Title is set correctly');
 
-          assert.equal(author.get('id'), '2');
-          assert.equal(author.get('firstName'), 'Yehuda');
-          assert.equal(author.get('lastName'), 'Katz');
-        });
-      });
-    });
+    let author = await post.get('author');
+
+    assert.equal(passedUrl.length, 1);
+
+    assert.equal(author.id, '2', 'Record has correct id');
+    assert.equal(author.firstName, 'Yehuda', 'Record firstName is correct');
+    assert.equal(author.lastName, 'Katz', 'Record lastName is correct');
   });
 
-  test('find a single record with hasMany link as object { related }', function(assert) {
+  test('find a single record with hasMany link as object { related }', async function(assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -524,25 +520,21 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('post', 1).then(post => {
-        assert.equal(passedUrl[0], '/posts/1');
+    let post = await store.findRecord('post', '1');
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('title'), 'Ember.js rocks');
+    assert.equal(passedUrl[0], '/posts/1');
+    assert.equal(post.id, '1');
+    assert.equal(post.title, 'Ember.js rocks');
 
-        return post.get('comments').then(comments => {
-          assert.equal(passedUrl[1], 'http://example.com/post/1/comments');
+    let comments = await post.get('comments');
 
-          assert.equal(comments.get('length'), 2);
-          assert.equal(comments.get('firstObject.text'), 'This is the first comment');
-          assert.equal(comments.get('lastObject.text'), 'This is the second comment');
-        });
-      });
-    });
+    assert.equal(passedUrl[1], 'http://example.com/post/1/comments', 'The related records comments using correct url');
+    assert.equal(comments.length, 2, 'Loads the correct number of comments from response');
+    assert.equal(comments.get('firstObject.text'), 'This is the first comment', 'First comment text is correct');
+    assert.equal(comments.get('lastObject.text'), 'This is the second comment', 'Second comment text is correct');
   });
 
-  test('find a single record with hasMany link as object { data }', function(assert) {
+  test('find a single record with hasMany link as object { data }', async function(assert) {
     assert.expect(8);
 
     ajaxResponse([
@@ -555,7 +547,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -580,26 +575,22 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('post', 1).then(post => {
-        assert.equal(passedUrl[0], '/posts/1');
+    let post = await store.findRecord('post', '1');
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('title'), 'Ember.js rocks');
+    assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
+    assert.equal(post.id, '1', 'Record id is correct');
+    assert.equal(post.title, 'Ember.js rocks', 'Record title is correct');
 
-        return post.get('comments').then(comments => {
-          assert.equal(passedUrl[1], '/comments/2');
-          assert.equal(passedUrl[2], '/comments/3');
+    let comments = await post.get('comments');
 
-          assert.equal(comments.get('length'), 2);
-          assert.equal(comments.get('firstObject.text'), 'This is the first comment');
-          assert.equal(comments.get('lastObject.text'), 'This is the second comment');
-        });
-      });
-    });
+    assert.equal(passedUrl[1], '/comments/2', 'Builds correct URL to fetch related record');
+    assert.equal(passedUrl[2], '/comments/3', 'Builds correct URL to fetch related record');
+    assert.equal(comments.length, 2);
+    assert.equal(comments.get('firstObject.text'), 'This is the first comment', 'First comment text is correct');
+    assert.equal(comments.get('lastObject.text'), 'This is the second comment', 'Second comment text is correct');
   });
 
-  test('find a single record with hasMany link as object { data } (polymorphic)', function(assert) {
+  test('find a single record with hasMany link as object { data } (polymorphic)', async function(assert) {
     assert.expect(9);
 
     ajaxResponse([
@@ -613,7 +604,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
           },
           relationships: {
             handles: {
-              data: [{ type: 'github-handle', id: '2' }, { type: 'twitter-handle', id: '3' }],
+              data: [
+                { type: 'github-handle', id: '2' },
+                { type: 'twitter-handle', id: '3' },
+              ],
             },
           },
         },
@@ -638,27 +632,25 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('user', 1).then(user => {
-        assert.equal(passedUrl[0], '/users/1');
+    let user = await store.findRecord('user', '1');
 
-        assert.equal(user.get('id'), '1');
-        assert.equal(user.get('firstName'), 'Yehuda');
-        assert.equal(user.get('lastName'), 'Katz');
+    assert.equal(passedUrl[0], '/users/1', 'The primary record users:1 was fetched by the correct url');
 
-        return user.get('handles').then(handles => {
-          assert.equal(passedUrl[1], '/github-handles/2');
-          assert.equal(passedUrl[2], '/twitter-handles/3');
+    assert.equal(user.id, '1', 'Record id is correct');
+    assert.equal(user.firstName, 'Yehuda', 'Record firstName is loaded');
+    assert.equal(user.lastName, 'Katz', 'Record lastName is loaded');
 
-          assert.equal(handles.get('length'), 2);
-          assert.equal(handles.get('firstObject.username'), 'wycats');
-          assert.equal(handles.get('lastObject.nickname'), '@wycats');
-        });
-      });
-    });
+    let handles = await user.get('handles');
+
+    assert.equal(passedUrl[1], '/github-handles/2', 'Builds correct URL to fetch related record');
+    assert.equal(passedUrl[2], '/twitter-handles/3', 'Builds correct URL to fetch related record');
+
+    assert.equal(handles.get('length'), 2);
+    assert.equal(handles.get('firstObject.username'), 'wycats', 'First handle username is correct');
+    assert.equal(handles.get('lastObject.nickname'), '@wycats', 'Second handle nickname is correct');
   });
 
-  test('find a single record with sideloaded hasMany link as object { data }', function(assert) {
+  test('find a single record with sideloaded hasMany link as object { data }', async function(assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -671,7 +663,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -694,25 +689,22 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('post', 1).then(post => {
-        assert.equal(passedUrl[0], '/posts/1');
+    let post = await store.findRecord('post', '1');
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('title'), 'Ember.js rocks');
+    assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
+    assert.equal(post.id, '1', 'Record id is loaded');
+    assert.equal(post.title, 'Ember.js rocks', 'Record title is loaded');
 
-        return post.get('comments').then(comments => {
-          assert.equal(passedUrl.length, 1);
+    let comments = await post.get('comments');
 
-          assert.equal(comments.get('length'), 2);
-          assert.equal(comments.get('firstObject.text'), 'This is the first comment');
-          assert.equal(comments.get('lastObject.text'), 'This is the second comment');
-        });
-      });
-    });
+    assert.equal(passedUrl.length, 1, 'Do not call extra end points because related records are included');
+
+    assert.equal(comments.get('length'), 2, 'Loads related records');
+    assert.equal(comments.get('firstObject.text'), 'This is the first comment', 'First comment text is correct');
+    assert.equal(comments.get('lastObject.text'), 'This is the second comment', 'Second comment text is correct');
   });
 
-  test('find a single record with sideloaded hasMany link as object { data } (polymorphic)', function(assert) {
+  test('find a single record with sideloaded hasMany link as object { data } (polymorphic)', async function(assert) {
     assert.expect(8);
 
     ajaxResponse([
@@ -726,7 +718,10 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
           },
           relationships: {
             handles: {
-              data: [{ type: 'github-handle', id: '2' }, { type: 'twitter-handle', id: '3' }],
+              data: [
+                { type: 'github-handle', id: '2' },
+                { type: 'twitter-handle', id: '3' },
+              ],
             },
           },
         },
@@ -749,26 +744,24 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store.findRecord('user', 1).then(user => {
-        assert.equal(passedUrl[0], '/users/1');
+    let user = await store.findRecord('user', '1');
 
-        assert.equal(user.get('id'), '1');
-        assert.equal(user.get('firstName'), 'Yehuda');
-        assert.equal(user.get('lastName'), 'Katz');
+    assert.equal(passedUrl[0], '/users/1');
 
-        return user.get('handles').then(handles => {
-          assert.equal(passedUrl.length, 1);
+    assert.equal(user.get('id'), '1');
+    assert.equal(user.get('firstName'), 'Yehuda');
+    assert.equal(user.get('lastName'), 'Katz');
 
-          assert.equal(handles.get('length'), 2);
-          assert.equal(handles.get('firstObject.username'), 'wycats');
-          assert.equal(handles.get('lastObject.nickname'), '@wycats');
-        });
-      });
-    });
+    let handles = await user.get('handles');
+
+    assert.equal(passedUrl.length, 1, 'Do not call extra end points because related records are included');
+
+    assert.equal(handles.get('length'), 2);
+    assert.equal(handles.get('firstObject.username'), 'wycats');
+    assert.equal(handles.get('lastObject.nickname'), '@wycats');
   });
 
-  test('create record', function(assert) {
+  test('create record', async function(assert) {
     assert.expect(3);
 
     ajaxResponse([
@@ -780,59 +773,57 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      let company = store.push({
-        data: {
-          type: 'company',
-          id: '1',
-          attributes: {
-            name: 'Tilde Inc.',
-          },
+    let company = store.push({
+      data: {
+        type: 'company',
+        id: '1',
+        attributes: {
+          name: 'Tilde Inc.',
         },
-      });
+      },
+    });
 
-      let githubHandle = store.push({
-        data: {
-          type: 'github-handle',
-          id: '2',
-          attributes: {
-            username: 'wycats',
-          },
+    let githubHandle = store.push({
+      data: {
+        type: 'github-handle',
+        id: '2',
+        attributes: {
+          username: 'wycats',
         },
-      });
+      },
+    });
 
-      let user = store.createRecord('user', {
-        firstName: 'Yehuda',
-        lastName: 'Katz',
-        company: company,
-      });
+    let user = store.createRecord('user', {
+      firstName: 'Yehuda',
+      lastName: 'Katz',
+      company: company,
+    });
 
-      return user.get('handles').then(handles => {
-        handles.addObject(githubHandle);
+    let handles = await user.get('handles');
 
-        return user.save().then(() => {
-          assert.equal(passedUrl[0], '/users');
-          assert.equal(passedVerb[0], 'POST');
+    handles.addObject(githubHandle);
 
-          // TODO @runspired seems mega-bad that we expect an extra `data` key
-          assert.deepEqual(passedHash[0], {
-            data: {
-              data: {
-                type: 'users',
-                attributes: {
-                  'first-name': 'Yehuda',
-                  'last-name': 'Katz',
-                },
-                relationships: {
-                  company: {
-                    data: { type: 'companies', id: '1' },
-                  },
-                },
-              },
+    await user.save();
+
+    assert.equal(passedUrl[0], '/users');
+    assert.equal(passedVerb[0], 'POST');
+
+    // TODO @runspired seems mega-bad that we expect an extra `data` key
+    assert.deepEqual(passedHash[0], {
+      data: {
+        data: {
+          type: 'users',
+          attributes: {
+            'first-name': 'Yehuda',
+            'last-name': 'Katz',
+          },
+          relationships: {
+            company: {
+              data: { type: 'companies', id: '1' },
             },
-          });
-        });
-      });
+          },
+        },
+      },
     });
   });
 
@@ -910,7 +901,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     });
   });
 
-  test('update record - serialize hasMany', function(assert) {
+  test('update record - serialize hasMany', async function(assert) {
     assert.expect(3);
 
     ajaxResponse([
@@ -931,71 +922,72 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       })
     );
 
-    return run(() => {
-      let user = store.push({
+    let user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+      },
+    });
+
+    let githubHandle = store.push({
+      data: {
+        type: 'github-handle',
+        id: '2',
+        attributes: {
+          username: 'wycats',
+        },
+      },
+    });
+
+    let twitterHandle = store.push({
+      data: {
+        type: 'twitter-handle',
+        id: '3',
+        attributes: {
+          nickname: '@wycats',
+        },
+      },
+    });
+
+    user.set('firstName', 'Yehuda!');
+
+    let handles = await user.get('handles');
+
+    handles.addObject(githubHandle);
+    handles.addObject(twitterHandle);
+
+    await user.save();
+
+    assert.equal(passedUrl[0], '/users/1');
+    assert.equal(passedVerb[0], 'PATCH');
+    // TODO @runspired seems mega-bad that we expect an extra `data` key
+    assert.deepEqual(passedHash[0], {
+      data: {
         data: {
-          type: 'user',
+          type: 'users',
           id: '1',
           attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
+            'first-name': 'Yehuda!',
+            'last-name': 'Katz',
           },
-        },
-      });
-
-      let githubHandle = store.push({
-        data: {
-          type: 'github-handle',
-          id: '2',
-          attributes: {
-            username: 'wycats',
-          },
-        },
-      });
-
-      let twitterHandle = store.push({
-        data: {
-          type: 'twitter-handle',
-          id: '3',
-          attributes: {
-            nickname: '@wycats',
-          },
-        },
-      });
-
-      user.set('firstName', 'Yehuda!');
-
-      return user.get('handles').then(handles => {
-        handles.addObject(githubHandle);
-        handles.addObject(twitterHandle);
-
-        return user.save().then(() => {
-          assert.equal(passedUrl[0], '/users/1');
-          assert.equal(passedVerb[0], 'PATCH');
-          // TODO @runspired seems mega-bad that we expect an extra `data` key
-          assert.deepEqual(passedHash[0], {
-            data: {
-              data: {
-                type: 'users',
-                id: '1',
-                attributes: {
-                  'first-name': 'Yehuda!',
-                  'last-name': 'Katz',
-                },
-                relationships: {
-                  handles: {
-                    data: [{ type: 'github-handles', id: '2' }, { type: 'twitter-handles', id: '3' }],
-                  },
-                },
-              },
+          relationships: {
+            handles: {
+              data: [
+                { type: 'github-handles', id: '2' },
+                { type: 'twitter-handles', id: '3' },
+              ],
             },
-          });
-        });
-      });
+          },
+        },
+      },
     });
   });
 
-  test('fetching a belongsTo relationship link that returns null', function(assert) {
+  test('fetching a belongsTo relationship link that returns null', async function(assert) {
     assert.expect(3);
 
     ajaxResponse([
@@ -1020,17 +1012,13 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    return run(() => {
-      return store
-        .findRecord('post', 1)
-        .then(post => {
-          assert.equal(passedUrl[0], '/posts/1');
-          return post.get('author');
-        })
-        .then(author => {
-          assert.equal(passedUrl[1], 'http://example.com/post/1/author');
-          assert.strictEqual(author, null);
-        });
-    });
+    let post = await store.findRecord('post', '1');
+
+    assert.equal(passedUrl[0], '/posts/1');
+
+    let author = await post.get('author');
+
+    assert.equal(passedUrl[1], 'http://example.com/post/1/author');
+    assert.strictEqual(author, null);
   });
 });

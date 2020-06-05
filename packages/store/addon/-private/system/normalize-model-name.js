@@ -11,8 +11,8 @@ import { dasherize } from '@ember/string';
  This method normalizes a modelName into the format Ember Data uses
  internally.
 
-  @method normalizeModelName
-  @public
+  @function normalizeModelName
+  @for @ember-data/store
   @param {String} modelName
   @return {String} normalizedModelName
 */

@@ -1,8 +1,9 @@
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
+
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
-import Model from '@ember-data/model';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
@@ -204,7 +205,10 @@ module('Editing a Record', function(hooks) {
             attributes: { name: 'Chris' },
             relationships: {
               pets: {
-                data: [{ type: 'pet', id: '3' }, { type: 'pet', id: '4' }],
+                data: [
+                  { type: 'pet', id: '3' },
+                  { type: 'pet', id: '4' },
+                ],
               },
             },
           },

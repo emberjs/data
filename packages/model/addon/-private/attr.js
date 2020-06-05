@@ -1,8 +1,10 @@
-import { computed } from '@ember/object';
 import { assert } from '@ember/debug';
+import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
-import { recordDataFor } from '@ember-data/store/-private';
+
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { recordDataFor } from '@ember-data/store/-private';
+
 import { computedMacroWithOptionalParams } from './util';
 
 /**
@@ -27,12 +29,12 @@ function hasValue(internalModel, key) {
 }
 
 /**
-  `attr` defines an attribute on a [Model](/api/data/classes/DS.Model.html).
+  `attr` defines an attribute on a [Model](/ember-data/release/classes/Model).
   By default, attributes are passed through as-is, however you can specify an
   optional type to have the value automatically transformed.
   Ember Data ships with four basic transform types: `string`, `number`,
   `boolean` and `date`. You can define your own transforms by subclassing
-  [Transform](/api/data/classes/DS.Transform.html).
+  [Transform](/ember-data/release/classes/Transform).
 
   Note that you cannot use `attr` to define an attribute of `id`.
 
@@ -40,7 +42,7 @@ function hasValue(internalModel, key) {
   supported options are:
 
   - `defaultValue`: Pass a string or a function to be called to set the attribute
-  to a default value if none is supplied.
+  to a default value if and only if the key is absent from the payload response.
 
   Example
 
@@ -104,6 +106,9 @@ function hasValue(internalModel, key) {
   ```
 
   @method attr
+  @public
+  @static
+  @for @ember-data/model
   @param {String|Object} type the attribute type
   @param {Object} options a hash of options
   @return {Attribute}

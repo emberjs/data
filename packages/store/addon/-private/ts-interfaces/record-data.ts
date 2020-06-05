@@ -1,11 +1,8 @@
-import {
-  JsonApiResource,
-  JsonApiHasManyRelationship,
-  JsonApiBelongsToRelationship,
-  JsonApiValidationError,
-} from './record-data-json-api';
-
-import { RecordIdentifier } from './identifier';
+type RecordIdentifier = import('./identifier').RecordIdentifier;
+type SingleResourceRelationship = import('./ember-data-json-api').SingleResourceRelationship;
+type CollectionResourceRelationship = import('./ember-data-json-api').CollectionResourceRelationship;
+type JsonApiResource = import('./record-data-json-api').JsonApiResource;
+type JsonApiValidationError = import('./record-data-json-api').JsonApiValidationError;
 
 /**
   @module @ember-data/store
@@ -15,7 +12,8 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string];
 }
 
-export default interface RecordData {
+export interface RecordData {
+  getResourceIdentifier(): RecordIdentifier | undefined;
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;
@@ -33,13 +31,13 @@ export default interface RecordData {
   setDirtyAttribute(key: string, value: any): void;
 
   getAttr(key: string): any;
-  getHasMany(key: string): JsonApiHasManyRelationship;
+  getHasMany(key: string): CollectionResourceRelationship;
 
   addToHasMany(key: string, recordDatas: RecordData[], idx?: number): void;
   removeFromHasMany(key: string, recordDatas: RecordData[]): void;
   setDirtyHasMany(key: string, recordDatas: RecordData[]): void;
 
-  getBelongsTo(key: string): JsonApiBelongsToRelationship;
+  getBelongsTo(key: string): SingleResourceRelationship;
 
   setDirtyBelongsTo(name: string, recordData: RecordData | null): void;
   didCommit(data: JsonApiResource | null): void;
@@ -57,7 +55,7 @@ export default interface RecordData {
   /**
    * @deprecated
    */
-  getErrors?({}): JsonApiValidationError[];
+  getErrors?({}): JsonApiValidationError[]; // eslint-disable-line no-empty-pattern
 
   isNew?(): boolean;
   isDeleted?(): boolean;
@@ -65,4 +63,7 @@ export default interface RecordData {
   isDeletionCommitted?(): boolean;
 
   setIsDeleted?(isDeleted: boolean): void;
+
+  // Private and experimental
+  __setId?(id: string): void;
 }

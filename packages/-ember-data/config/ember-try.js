@@ -8,33 +8,73 @@ module.exports = function() {
       useYarn: true,
       scenarios: [
         {
-          name: 'default',
+          name: 'with-max-transpilation',
+          env: {
+            TARGET_IE11: true,
+          },
           npm: {},
         },
         {
-          name: 'with-ember-fetch',
+          name: 'with-ember-fetch-no-jquery',
+          env: {
+            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': false }),
+          },
           npm: {
             devDependencies: {
               'ember-fetch': '^6.5.1',
+              '@ember/jquery': null,
             },
           },
         },
         {
-          name: 'default-with-jquery',
-          env: {
-            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
-          },
-          npm: {},
-        },
-        {
-          name: 'ember-lts-3.8',
+          name: 'with-ember-fetch-and-jquery',
           env: {
             EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
           },
           npm: {
             devDependencies: {
-              '@ember/jquery': '^0.6.0',
-              'ember-source': '~3.8.0',
+              'ember-fetch': '^6.5.1',
+              '@ember/jquery': '^1.1.0',
+            },
+          },
+        },
+        {
+          name: 'with-native-fetch',
+          env: {
+            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': false }),
+          },
+          npm: {
+            devDependencies: {
+              'ember-fetch': null,
+              '@ember/jquery': null,
+            },
+          },
+        },
+        {
+          name: 'with-jquery',
+          env: {
+            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
+          },
+          npm: {
+            devDependencies: {
+              'ember-fetch': null,
+              '@ember/jquery': '^1.1.0',
+            },
+          },
+        },
+        {
+          name: 'ember-lts-3.12',
+          npm: {
+            devDependencies: {
+              'ember-source': '~3.12.0',
+            },
+          },
+        },
+        {
+          name: 'ember-lts-3.16',
+          npm: {
+            devDependencies: {
+              'ember-source': '~3.16.0',
             },
           },
         },
@@ -42,18 +82,6 @@ module.exports = function() {
           name: 'ember-release',
           npm: {
             devDependencies: {
-              'ember-source': urls[0],
-            },
-          },
-        },
-        {
-          name: 'ember-release-with-jquery',
-          env: {
-            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
-          },
-          npm: {
-            devDependencies: {
-              '@ember/jquery': '^0.6.0',
               'ember-source': urls[0],
             },
           },

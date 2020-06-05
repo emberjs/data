@@ -1,21 +1,16 @@
 import { module, test } from 'qunit';
 
-import Transform from '@ember-data/serializer/transform';
-
 import Adapter from '@ember-data/adapter';
+import AdapterError, { AbortError, InvalidError, TimeoutError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
-
-import Store from '@ember-data/store';
-
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-
 import Serializer from '@ember-data/serializer';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
-
-import AdapterError, { InvalidError, TimeoutError, AbortError } from '@ember-data/adapter/error';
+import Transform from '@ember-data/serializer/transform';
+import Store from '@ember-data/store';
 
 module('unit/modules - public modules', function() {
   test('ember-data/transform', function(assert) {

@@ -4,27 +4,29 @@
   @module @ember-data/adapter
 */
 
-import RSVP, { Promise as EmberPromise } from 'rsvp';
-import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
-import { run } from '@ember/runloop';
-import Adapter, { BuildURLMixin } from '@ember-data/adapter';
-import { assign } from '@ember/polyfills';
-import { determineBodyPromise, fetch, parseResponseHeaders, serializeQueryParams } from './-private';
-import AdapterError, {
-  InvalidError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  ConflictError,
-  ServerError,
-  TimeoutError,
-  AbortError,
-} from '@ember-data/adapter/error';
 import { warn } from '@ember/debug';
+import { computed, get } from '@ember/object';
+import { assign } from '@ember/polyfills';
+import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-const Promise = EmberPromise;
+import { Promise } from 'rsvp';
+
+import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+import AdapterError, {
+  AbortError,
+  ConflictError,
+  ForbiddenError,
+  InvalidError,
+  NotFoundError,
+  ServerError,
+  TimeoutError,
+  UnauthorizedError,
+} from '@ember-data/adapter/error';
+
+import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
+
 const hasJQuery = typeof jQuery !== 'undefined';
 const hasNajax = typeof najax !== 'undefined';
 
@@ -264,7 +266,7 @@ const hasNajax = typeof najax !== 'undefined';
   In some cases, your dynamic headers may require data from some
   object outside of Ember's observer system (for example
   `document.cookie`). You can use the
-  [volatile](/api/classes/Ember.ComputedProperty.html#method_volatile)
+  [volatile](/api/classes/Ember.ComputedProperty.html?anchor=volatile)
   function to set the property into a non-cached mode causing the headers to
   be recomputed with every request.
 
@@ -293,8 +295,18 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   _defaultContentType: 'application/json; charset=utf-8',
 
-  fastboot: computed(function() {
-    return getOwner(this).lookup('service:fastboot');
+  fastboot: computed({
+    // Avoid computed property override deprecation in fastboot as suggested by:
+    // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
+    get() {
+      if (this._fastboot) {
+        return this._fastboot;
+      }
+      return (this._fastboot = getOwner(this).lookup('service:fastboot'));
+    },
+    set(key, value) {
+      return (this._fastboot = value);
+    },
   }),
 
   useFetch: computed(function() {
@@ -457,7 +469,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     key. Arbitrary headers can be set as key/value pairs on the
     `RESTAdapter`'s `headers` object and Ember Data will send them
     along with each ajax request. For dynamic headers see [headers
-    customization](/api/data/classes/DS.RESTAdapter.html).
+    customization](/ember-data/release/classes/RESTAdapter).
 
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
@@ -488,10 +500,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     @since 1.13.0
     @method findRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {String} id
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   findRecord(store, type, id, snapshot) {
@@ -509,10 +521,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     promise for the resulting payload.
 
     @method findAll
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {undefined} neverSet a value is never provided to this argument
-    @param {DS.SnapshotRecordArray} snapshotRecordArray
+    @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
   findAll(store, type, sinceToken, snapshotRecordArray) {
@@ -538,8 +550,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     to the server as parameters.
 
     @method query
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {Object} query
     @return {Promise} promise
   */
@@ -566,8 +578,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     @since 1.13.0
     @method queryRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {Object} query
     @return {Promise} promise
   */
@@ -608,8 +620,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     promise for the resulting payload.
 
     @method findMany
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {Array} ids
     @param {Array} snapshots
     @return {Promise} promise
@@ -649,8 +661,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @method findHasMany
-    @param {DS.Store} store
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Snapshot} snapshot
     @param {String} url
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
@@ -694,8 +706,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @method findBelongsTo
-    @param {DS.Store} store
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Snapshot} snapshot
     @param {String} url
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
@@ -719,19 +731,17 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     of a record.
 
     @method createRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Model} type
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   createRecord(store, type, snapshot) {
-    let data = {};
-    let serializer = store.serializerFor(type.modelName);
     let url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
-    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+    const data = serializeIntoHash(store, type, snapshot);
 
-    return this.ajax(url, 'POST', { data: data });
+    return this.ajax(url, 'POST', { data });
   },
 
   /**
@@ -745,21 +755,18 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     of a record.
 
     @method updateRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Model} type
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   updateRecord(store, type, snapshot) {
-    let data = {};
-    let serializer = store.serializerFor(type.modelName);
-
-    serializer.serializeIntoHash(data, type, snapshot);
+    const data = serializeIntoHash(store, type, snapshot, {});
 
     let id = snapshot.id;
     let url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
 
-    return this.ajax(url, 'PUT', { data: data });
+    return this.ajax(url, 'PUT', { data });
   },
 
   /**
@@ -768,9 +775,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     The `deleteRecord` method  makes an Ajax (HTTP DELETE) request to a URL computed by `buildURL`.
 
     @method deleteRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Model} type
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   deleteRecord(store, type, snapshot) {
@@ -820,7 +827,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     and `/posts/2/comments/3`
 
     @method groupRecordsForFindMany
-    @param {DS.Store} store
+    @param {Store} store
     @param {Array} snapshots
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
@@ -898,7 +905,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param  {Object} headers
     @param  {Object} payload
     @param  {Object} requestData - the original request information
-    @return {Object | DS.AdapterError} response
+    @return {Object | AdapterError} response
   */
   handleResponse(status, headers, payload, requestData) {
     if (this.isSuccess(status, headers, payload)) {
@@ -993,18 +1000,17 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let hash = adapter.ajaxOptions(url, type, options);
 
     if (useFetch) {
+      let _response;
       return this._fetchRequest(hash)
         .then(response => {
-          return RSVP.hash({
-            response,
-            payload: determineBodyPromise(response, requestData),
-          });
+          _response = response;
+          return determineBodyPromise(response, requestData);
         })
-        .then(({ response, payload }) => {
-          if (response.ok) {
-            return fetchSuccessHandler(adapter, payload, response, requestData);
+        .then(payload => {
+          if (_response.ok && !(payload instanceof Error)) {
+            return fetchSuccessHandler(adapter, payload, _response, requestData);
           } else {
-            throw fetchErrorHandler(adapter, payload, response, null, requestData);
+            throw fetchErrorHandler(adapter, payload, _response, null, requestData);
           }
         });
     }
@@ -1090,7 +1096,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
-      options.headers = assign({}, options.headers, headers);
+      options.headers = assign({}, headers, options.headers);
     } else if (!options.headers) {
       options.headers = {};
     }
@@ -1248,7 +1254,7 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 function ajaxError(adapter, payload, requestData, responseData) {
   let error;
 
-  if (responseData.errorThrown instanceof Error) {
+  if (responseData.errorThrown instanceof Error && payload !== '') {
     error = responseData.errorThrown;
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
@@ -1295,7 +1301,14 @@ function fetchSuccessHandler(adapter, payload, response, requestData) {
 
 function fetchErrorHandler(adapter, payload, response, errorThrown, requestData) {
   let responseData = fetchResponseData(response);
-  responseData.errorThrown = errorThrown;
+
+  if (responseData.status === 200 && payload instanceof Error) {
+    responseData.errorThrown = payload;
+    payload = responseData.errorThrown.payload;
+  } else {
+    responseData.errorThrown = errorThrown;
+    payload = adapter.parseErrorResponse(payload);
+  }
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
@@ -1349,7 +1362,7 @@ function headersToObject(headers) {
 /**
  * Helper function that translates the options passed to `jQuery.ajax` into a format that `fetch` expects.
  * @param {Object} _options
- * @param {DS.Adapter} adapter
+ * @param {Adapter} adapter
  * @returns {Object}
  */
 export function fetchOptions(options, adapter) {
@@ -1367,7 +1380,19 @@ export function fetchOptions(options, adapter) {
     } else {
       // NOTE: a request's body cannot be an object, so we stringify it if it is.
       // JSON.stringify removes keys with values of `undefined` (mimics jQuery.ajax).
-      options.body = JSON.stringify(options.data);
+      // If the data is not a POJO (it's a String, FormData, etc), we just set it.
+      // If the data is a string, we assume it's a stringified object.
+
+      /* We check for Objects this way because we want the logic inside the consequent to run
+       * if `options.data` is a POJO, not if it is a data structure whose `typeof` returns "object"
+       * when it's not (Array, FormData, etc). The reason we don't use `options.data.constructor`
+       * to check is in case `data` is an object with no prototype (e.g. created with null).
+       */
+      if (Object.prototype.toString.call(options.data) === '[object Object]') {
+        options.body = JSON.stringify(options.data);
+      } else {
+        options.body = options.data;
+      }
     }
   }
 

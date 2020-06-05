@@ -1,14 +1,17 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
-import { resolve, Promise as EmberPromise } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
+
 import { module, test } from 'qunit';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
-import { recordDataFor } from 'ember-data/-private';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordDataFor } from '@ember-data/store/-private';
 
 function idsFromOrderedSet(set) {
   return set.list.map(i => i.id);
@@ -594,8 +597,16 @@ module('integration/unload - Unloading Records', function(hooks) {
     let knownBoats = store._internalModelsFor('boat');
 
     // ensure we loaded the people and boats
-    assert.deepEqual(knownPeople.models.map(m => m.id), ['1'], 'one person record is loaded');
-    assert.deepEqual(knownBoats.models.map(m => m.id), ['1'], 'one boat record is loaded');
+    assert.deepEqual(
+      knownPeople.models.map(m => m.id),
+      ['1'],
+      'one person record is loaded'
+    );
+    assert.deepEqual(
+      knownBoats.models.map(m => m.id),
+      ['1'],
+      'one boat record is loaded'
+    );
     assert.equal(store.hasRecordForId('person', '1'), true);
     assert.equal(store.hasRecordForId('boat', '1'), true);
 
@@ -612,8 +623,16 @@ module('integration/unload - Unloading Records', function(hooks) {
     run(() => boat.unloadRecord());
 
     // ensure that our new state is correct
-    assert.deepEqual(knownPeople.models.map(m => m.id), ['1'], 'one person record is loaded');
-    assert.deepEqual(knownBoats.models.map(m => m.id), ['1'], 'one boat record is known');
+    assert.deepEqual(
+      knownPeople.models.map(m => m.id),
+      ['1'],
+      'one person record is loaded'
+    );
+    assert.deepEqual(
+      knownBoats.models.map(m => m.id),
+      ['1'],
+      'one boat record is known'
+    );
     assert.ok(knownBoats.models[0] === initialBoatInternalModel, 'We still have our boat');
     assert.equal(initialBoatInternalModel.isEmpty(), true, 'Model is in the empty state');
     assert.deepEqual(
@@ -675,7 +694,10 @@ module('integration/unload - Unloading Records', function(hooks) {
           },
           relationships: {
             boats: {
-              data: [{ type: 'boat', id: '1' }, { type: 'boat', id: '2' }],
+              data: [
+                { type: 'boat', id: '1' },
+                { type: 'boat', id: '2' },
+              ],
             },
           },
         },
@@ -1902,7 +1924,10 @@ module('integration/unload - Unloading Records', function(hooks) {
 
           assert.deepEqual(
             refetchedFriends.map(p => p.hasMany('friends').ids()),
-            [['1', '2'], ['1', '2']],
+            [
+              ['1', '2'],
+              ['1', '2'],
+            ],
             'unload async is not treated as delete'
           );
 

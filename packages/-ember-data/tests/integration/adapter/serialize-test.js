@@ -1,8 +1,10 @@
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/adapter/serialize - DS.Adapter integration test', function(hooks) {
   setupTest(hooks);

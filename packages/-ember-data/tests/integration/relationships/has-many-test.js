@@ -1,20 +1,22 @@
 /*eslint no-unused-vars: ["error", { "args": "none", "varsIgnorePattern": "(page)" }]*/
 
 import { A } from '@ember/array';
-import { resolve, Promise as EmberPromise, all, reject, hash } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
+
 import { module, test } from 'qunit';
-import { relationshipStateFor, relationshipsFor } from 'ember-data/-private';
+import { all, hash, Promise as EmberPromise, reject, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
-import RESTSerializer from '@ember-data/serializer/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import RESTSerializer from '@ember-data/serializer/rest';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/relationships/has_many - Has-Many Relationships', function(hooks) {
   setupTest(hooks);
@@ -177,7 +179,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
   });
 
   test('hasMany + canonical vs currentState + destroyRecord  ', function(assert) {
-    assert.expect(6);
+    assert.expect(7);
 
     let store = this.owner.lookup('service:store');
 
@@ -234,7 +236,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       return { data: { type: 'user', id: 2 } };
     };
 
-    assert.deepEqual(contacts.map(c => c.get('id')), ['2', '3', '4'], 'user should have expected contacts');
+    assert.deepEqual(
+      contacts.map(c => c.get('id')),
+      ['2', '3', '4'],
+      'user should have expected contacts'
+    );
 
     run(() => {
       contacts.addObject(store.createRecord('user', { id: 5 }));
@@ -259,6 +265,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       `user's contacts should have expected contacts`
     );
     assert.equal(contacts, user.get('contacts'));
+
+    assert.ok(!user.contacts.initialState || !user.contacts.initialState.find(model => model.id === '2'));
 
     run(() => {
       contacts.addObject(store.createRecord('user', { id: 8 }));
@@ -330,7 +338,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       return { data: { type: 'user', id: 2 } };
     };
 
-    assert.deepEqual(contacts.map(c => c.get('id')), ['2', '3', '4'], 'user should have expected contacts');
+    assert.deepEqual(
+      contacts.map(c => c.get('id')),
+      ['2', '3', '4'],
+      'user should have expected contacts'
+    );
 
     run(() => {
       contacts.addObject(store.createRecord('user', { id: 5 }));
@@ -380,7 +392,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       id: '1',
       relationships: {
         chapters: {
-          data: [{ type: 'chapter', id: '2' }, { type: 'chapter', id: '3' }, { type: 'chapter', id: '3' }],
+          data: [
+            { type: 'chapter', id: '2' },
+            { type: 'chapter', id: '3' },
+            { type: 'chapter', id: '3' },
+          ],
         },
       },
     };
@@ -866,7 +882,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           type: 'post',
           relationships: {
             comments: {
-              data: [{ id: 1, type: 'comment' }, { id: 2, type: 'comment' }],
+              data: [
+                { id: 1, type: 'comment' },
+                { id: 2, type: 'comment' },
+              ],
             },
           },
         },
@@ -937,7 +956,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           type: 'post',
           relationships: {
             comments: {
-              data: [{ id: 1, type: 'comment' }, { id: 2, type: 'comment' }],
+              data: [
+                { id: 1, type: 'comment' },
+                { id: 2, type: 'comment' },
+              ],
             },
           },
         },
@@ -1168,7 +1190,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           type: 'post',
           relationships: {
             comments: {
-              data: [{ id: 1, type: 'comment' }, { id: 2, type: 'comment' }],
+              data: [
+                { id: 1, type: 'comment' },
+                { id: 2, type: 'comment' },
+              ],
             },
           },
         },
@@ -1217,7 +1242,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           type: 'post',
           relationships: {
             comments: {
-              data: [{ id: 1, type: 'comment' }, { id: 2, type: 'comment' }],
+              data: [
+                { id: 1, type: 'comment' },
+                { id: 2, type: 'comment' },
+              ],
             },
           },
         },
@@ -1300,6 +1328,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     'PromiseArray proxies evented methods to its ManyArray',
     {
       id: 'ember-data:evented-api-usage',
+      count: 3,
       until: '4.0',
     },
     function(assert) {
@@ -1456,7 +1485,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       id: '1',
       relationships: {
         messages: {
-          data: [{ type: 'post', id: '1' }, { type: 'comment', id: '3' }],
+          data: [
+            { type: 'post', id: '1' },
+            { type: 'comment', id: '3' },
+          ],
         },
       },
     };
@@ -1520,7 +1552,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           id: '1',
           relationships: {
             messages: {
-              data: [{ type: 'post', id: '1' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'post', id: '1' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1683,7 +1718,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           id: '1',
           relationships: {
             contacts: {
-              data: [{ type: 'email', id: '1' }, { type: 'phone', id: '2' }],
+              data: [
+                { type: 'email', id: '1' },
+                { type: 'phone', id: '2' },
+              ],
             },
           },
         },
@@ -2162,7 +2200,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         id: '1',
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+            ],
           },
         },
       },
@@ -2179,7 +2220,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         id: '1',
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
       },
@@ -2200,7 +2245,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         id: '1',
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+            ],
           },
         },
       },
@@ -2286,7 +2334,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           id: '1',
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
         },
@@ -2303,7 +2354,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           id: '1',
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '1' }],
+              data: [
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '1' },
+              ],
             },
           },
         },
@@ -2357,7 +2411,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           id: '1',
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '4' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '4' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -2603,7 +2660,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             },
             relationships: {
               pages: {
-                data: [{ type: 'page', id: '1' }, { type: 'page', id: '2' }],
+                data: [
+                  { type: 'page', id: '1' },
+                  { type: 'page', id: '2' },
+                ],
               },
             },
           },
@@ -2734,7 +2794,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             },
             relationships: {
               comments: {
-                data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+                data: [
+                  { type: 'comment', id: '1' },
+                  { type: 'comment', id: '2' },
+                ],
               },
             },
           },
@@ -2800,7 +2863,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             },
             relationships: {
               comments: {
-                data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+                data: [
+                  { type: 'comment', id: '1' },
+                  { type: 'comment', id: '2' },
+                ],
               },
             },
           },
@@ -2894,7 +2960,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             id: '1',
             relationships: {
               comments: {
-                data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+                data: [
+                  { type: 'comment', id: '1' },
+                  { type: 'comment', id: '2' },
+                  { type: 'comment', id: '3' },
+                ],
               },
             },
           },
@@ -2969,7 +3039,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           attributes: { title: 'The Story Begins' },
           relationships: {
             pages: {
-              data: [{ id: 2, type: 'page' }, { id: 3, type: 'page' }],
+              data: [
+                { id: 2, type: 'page' },
+                { id: 3, type: 'page' },
+              ],
             },
           },
         },
@@ -2998,7 +3071,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           attributes: { title: 'The Story Begins' },
           relationships: {
             pages: {
-              data: [{ id: 2, type: 'page' }, { id: 3, type: 'page' }],
+              data: [
+                { id: 2, type: 'page' },
+                { id: 3, type: 'page' },
+              ],
             },
           },
         },
@@ -3715,7 +3791,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
         return { data: null };
       };
 
-      assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-2', 'post-3', 'post-4', 'post-5']);
+      assert.deepEqual(
+        posts.map(x => x.get('id')),
+        ['post-1', 'post-2', 'post-3', 'post-4', 'post-5']
+      );
 
       return run(() => {
         return store
@@ -3726,7 +3805,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
           });
       })
         .then(() => {
-          assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-3', 'post-4', 'post-5']);
+          assert.deepEqual(
+            posts.map(x => x.get('id')),
+            ['post-1', 'post-3', 'post-4', 'post-5']
+          );
           return store
             .peekRecord('post', 'post-3')
             .destroyRecord()
@@ -3735,7 +3817,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             });
         })
         .then(() => {
-          assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-4', 'post-5']);
+          assert.deepEqual(
+            posts.map(x => x.get('id')),
+            ['post-1', 'post-4', 'post-5']
+          );
           return store
             .peekRecord('post', 'post-4')
             .destroyRecord()
@@ -3744,7 +3829,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             });
         })
         .then(() => {
-          assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-5']);
+          assert.deepEqual(
+            posts.map(x => x.get('id')),
+            ['post-1', 'post-5']
+          );
         });
     });
   });
@@ -3835,7 +3923,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
             },
             relationships: {
               messages: {
-                data: [{ type: 'message', id: 'message-1' }, { type: 'message', id: 'message-2' }],
+                data: [
+                  { type: 'message', id: 'message-1' },
+                  { type: 'message', id: 'message-2' },
+                ],
               },
             },
           },

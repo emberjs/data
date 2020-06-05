@@ -1,69 +1,53 @@
-import { DebugAdapter } from './-private';
+import { deprecate } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
+
 import Store from '@ember-data/store';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-function hasRegistration(application, registrationName) {
-  // fallback our ember-data tests necessary
-  // until we kill-off setupStore
-  // see https://github.com/emberjs/data/issues/6357
-  // or @ember/test-helpers kills off it's
-  // legacy support that calls our initializer with registry
-  // instead of application
-  if (typeof application.hasRegistration !== 'function') {
-    return application.has(registrationName);
-  }
-  return application.hasRegistration(registrationName);
-}
-/*
- Configures a registry for use with an Ember-Data
- store. Accepts an optional namespace argument.
-
- @method initializeStore
- @param {Ember.Registry} registry
- */
 function initializeStore(application) {
-  // we can just use registerOptionsForType when setupStore is killed
-  // see https://github.com/emberjs/data/issues/6357
-  let registerOptionsForType = application.registerOptionsForType || application.optionsForType;
-  registerOptionsForType.call(application, 'serializer', { singleton: false });
-  registerOptionsForType.call(application, 'adapter', { singleton: false });
+  // we can just use registerOptionsForType when we no longer
+  // support (deprecated) versions of @ember/test-helpers
+  // We're issuing a "private-api" deprecation for users of the
+  // deprecated @ember/test-helpers versions, but will keep
+  // this for as long as until 4.0 as needed
+  if (DEBUG && !application.registerOptionsForType) {
+    deprecate(
+      `Deprecated test syntax usage detected!\n\n\t` +
+        `This test relies on a deprecated test setup that is no longer supported by EmberData.` +
+        ` To resolve this you will need to be on a recent version of @ember/test-helpers` +
+        ` AND your tests must use \`setApplication()\` instead of \`setResolver()\` and` +
+        ` \`module()\` with \`setup*Test()\`instead of \`moduleFor*()\`.`,
+      false,
+      {
+        id: 'ember-data:legacy-test-helper-support',
+        until: '3.17',
+      }
+    );
 
-  application.register('adapter:-json-api', JSONAPIAdapter);
+    application.optionsForType('serializer', { singleton: false });
+    application.optionsForType('adapter', { singleton: false });
 
-  if (!hasRegistration(application, 'service:store')) {
+    if (!application.has('service:store')) {
+      application.register('service:store', Store);
+    }
+
+    return;
+  }
+
+  application.registerOptionsForType('serializer', { singleton: false });
+  application.registerOptionsForType('adapter', { singleton: false });
+
+  if (!application.hasRegistration('service:store')) {
     application.register('service:store', Store);
   }
 }
 
-/*
- Configures a registry with injections on Ember applications
- for the Ember-Data store. Accepts an optional namespace argument.
-
- @method initializeDebugAdapter
- @param {Ember.Registry} registry
- */
-function initializeDataAdapter(registry) {
-  registry.register('data-adapter:main', DebugAdapter);
-}
-
-/*
- Configures a registry with injections on Ember applications
- for the Ember-Data store. Accepts an optional namespace argument.
-
- @method initializeStoreInjections
- @param {Ember.Registry} registry
- */
-function initializeStoreInjections(registry) {
-  // registry.injection for Ember < 2.1.0
-  // application.inject for Ember 2.1.0+
-  let inject = registry.inject || registry.injection;
-  inject.call(registry, 'controller', 'store', 'service:store');
-  inject.call(registry, 'route', 'store', 'service:store');
-  inject.call(registry, 'data-adapter', 'store', 'service:store');
+function initializeStoreInjections(application) {
+  let inject = application.inject || application.injection;
+  inject.call(application, 'controller', 'store', 'service:store');
+  inject.call(application, 'route', 'store', 'service:store');
 }
 
 export default function setupContainer(application) {
-  initializeDataAdapter(application);
   initializeStoreInjections(application);
   initializeStore(application);
 }

@@ -1,8 +1,13 @@
+import { deprecate } from '@ember/debug';
+
 import { resolve } from 'rsvp';
-import { assertPolymorphicType } from 'ember-data/-debug';
-import Model from '../model/model';
-import Reference from './reference';
+
+import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
+
 import recordDataFor from '../record-data-for';
+import { peekRecordIdentifier } from '../store/internal-model-factory';
+import Reference, { INTERNAL_MODELS } from './reference';
 
 /**
   @module @ember-data/store
@@ -68,14 +73,14 @@ export default class BelongsToReference extends Reference {
   id() {
     let id = null;
     let resource = this._resource();
-    if (resource && resource.data && resource.data.id) {
+    if (resource && resource.data) {
       id = resource.data.id;
     }
     return id;
   }
 
   _resource() {
-    return this.recordData.getBelongsTo(this.key);
+    return INTERNAL_MODELS.get(this)?._recordData.getBelongsTo(this.key);
   }
 
   /**
@@ -124,18 +129,22 @@ export default class BelongsToReference extends Reference {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
   push(objectOrPromise) {
+    // TODO deprecate thenable support
     return resolve(objectOrPromise).then(data => {
       let record;
 
-      // TODO deprecate data as Model
-      if (data instanceof Model) {
+      if (DEPRECATE_BELONGS_TO_REFERENCE_PUSH && peekRecordIdentifier(data)) {
+        deprecate('Pushing a record into a BelongsToReference is deprecated', false, {
+          id: 'ember-data:belongs-to-reference-push-record',
+          until: '4.0',
+        });
         record = data;
       } else {
         record = this.store.push(data);
       }
 
       assertPolymorphicType(
-        this.internalModel,
+        INTERNAL_MODELS.get(this),
         this.belongsToRelationship.relationshipMeta,
         record._internalModel,
         this.store

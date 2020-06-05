@@ -9,12 +9,34 @@ declare global {
   }
 }
 
-const CRYPTO =
-  typeof window !== 'undefined' &&
-  window.msCrypto &&
-  typeof window.msCrypto.getRandomValues === 'function'
-    ? window.msCrypto
-    : window.crypto;
+const CRYPTO = (() => {
+  const hasWindow = typeof window !== 'undefined';
+  const isFastBoot = typeof FastBoot !== 'undefined';
+
+  if (isFastBoot) {
+    return {
+      getRandomValues(buffer: Uint8Array) {
+        try {
+          return (FastBoot as FastBoot).require('crypto').randomFillSync(buffer);
+        } catch (err) {
+          throw new Error(
+            'Using createRecord in Fastboot requires you to add the "crypto" package to "fastbootDependencies" in your package.json'
+          );
+        }
+      },
+    };
+  } else if (hasWindow && typeof window.crypto !== 'undefined') {
+    return window.crypto;
+  } else if (
+    hasWindow &&
+    typeof window.msCrypto !== 'undefined' &&
+    typeof window.msCrypto.getRandomValues === 'function'
+  ) {
+    return window.msCrypto;
+  } else {
+    throw new Error('ember-data: Cannot find a valid way to generate local identifiers');
+  }
+})();
 
 // we might be able to optimize this by requesting more bytes than we need at a time
 function rng() {

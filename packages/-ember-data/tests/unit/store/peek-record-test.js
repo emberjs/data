@@ -1,11 +1,12 @@
 import EmberObject from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/store/peekRecord - Store peekRecord', function(hooks) {
   setupTest(hooks);
@@ -50,7 +51,7 @@ module('unit/store/peekRecord - Store peekRecord', function(hooks) {
     run(() => {
       assert.expectAssertion(() => {
         store.peekRecord('my-id');
-      }, /Expected id to be a string or number, recieved undefined/);
+      }, /Expected id to be a string or number, received undefined/);
     });
   });
 

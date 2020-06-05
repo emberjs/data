@@ -1,11 +1,14 @@
-import { camelize, decamelize, dasherize } from '@ember/string';
-import Inflector, { singularize } from 'ember-inflector';
-import { run, bind } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import { bind, run } from '@ember/runloop';
+import { camelize, dasherize, decamelize } from '@ember/string';
+
 import { module, test } from 'qunit';
+
 import DS from 'ember-data';
+import Inflector, { singularize } from 'ember-inflector';
+import { setupTest } from 'ember-qunit';
+
 import RESTSerializer from '@ember-data/serializer/rest';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let HomePlanet, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container;
 
@@ -749,7 +752,10 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
   test('normalizeResponse can load secondary records of the same type without affecting the query count', function(assert) {
     var jsonHash = {
       comments: [{ id: '1', body: 'Parent Comment', root: true, children: [2, 3] }],
-      _comments: [{ id: '2', body: 'Child Comment 1', root: false }, { id: '3', body: 'Child Comment 2', root: false }],
+      _comments: [
+        { id: '2', body: 'Child Comment 1', root: false },
+        { id: '3', body: 'Child Comment 2', root: false },
+      ],
     };
     var array;
     this.owner.register('serializer:comment', DS.JSONSerializer);
@@ -771,7 +777,10 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
         },
         relationships: {
           children: {
-            data: [{ id: '2', type: 'comment' }, { id: '3', type: 'comment' }],
+            data: [
+              { id: '2', type: 'comment' },
+              { id: '3', type: 'comment' },
+            ],
           },
         },
       },
@@ -805,7 +814,10 @@ module('integration/serializer/rest - RESTSerializer', function(hooks) {
     run(function() {
       store.push(
         serializer.normalizeArrayResponse(store, Basket, {
-          basket: [{ type: 'bamboo', size: 10, id: '1' }, { type: 'yellowMinion', size: 10, id: '65536' }],
+          basket: [
+            { type: 'bamboo', size: 10, id: '1' },
+            { type: 'yellowMinion', size: 10, id: '65536' },
+          ],
         })
       );
     });

@@ -1,8 +1,14 @@
 import { A } from '@ember/array';
-import RSVP from 'rsvp';
+import Evented from '@ember/object/evented';
 import { run } from '@ember/runloop';
-import DS from 'ember-data';
+
 import { module, test } from 'qunit';
+import RSVP from 'rsvp';
+
+import DS from 'ember-data';
+
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
+
 const { AdapterPopulatedRecordArray, RecordArrayManager } = DS;
 
 module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray', function() {
@@ -125,9 +131,11 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(didAddRecord, 0, 'no records should have been added yet');
 
     let didLoad = 0;
-    recordArray.on('didLoad', function() {
-      didLoad++;
-    });
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      recordArray.on('didLoad', function() {
+        didLoad++;
+      });
+    }
 
     let links = { foo: 1 };
     let meta = { bar: 2 };
@@ -150,15 +158,22 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
         'should now contain the loaded records'
       );
 
-      assert.equal(didLoad, 0, 'didLoad event should not have fired');
+      if (DEPRECATE_EVENTED_API_USAGE) {
+        assert.equal(didLoad, 0, 'didLoad event should not have fired');
+      }
       assert.equal(recordArray.get('links').foo, 1);
       assert.equal(recordArray.get('meta').bar, 2);
     });
-    assert.equal(didLoad, 1, 'didLoad event should have fired once');
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      assert.equal(didLoad, 1, 'didLoad event should have fired once');
+    }
+    assert.expectDeprecation({
+      id: 'ember-data:evented-api-usage',
+    });
   });
 
   test('change events when receiving a new query payload', function(assert) {
-    assert.expect(37);
+    assert.expect(38);
 
     let arrayDidChange = 0;
     let contentDidChange = 0;
@@ -173,7 +188,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       assert.equal(array, recordArray);
     }
 
-    let recordArray = AdapterPopulatedRecordArray.create({
+    // we need Evented to gain access to the @array:change event
+    let recordArray = AdapterPopulatedRecordArray.extend(Evented).create({
       query: 'some-query',
       manager: new RecordArrayManager({}),
     });
@@ -189,7 +205,10 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     });
 
     assert.equal(didAddRecord, 2, 'expected 2 didAddRecords');
-    assert.deepEqual(recordArray.map(x => x.name), ['Scumbag Dale', 'Scumbag Katz']);
+    assert.deepEqual(
+      recordArray.map(x => x.name),
+      ['Scumbag Dale', 'Scumbag Katz']
+    );
 
     assert.equal(arrayDidChange, 0, 'array should not yet have emitted a change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
@@ -236,7 +255,10 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(arrayDidChange, 1, 'record array should have omitted ONE change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
-    assert.deepEqual(recordArray.map(x => x.name), ['Scumbag Penner', 'Scumbag Hamilton']);
+    assert.deepEqual(
+      recordArray.map(x => x.name),
+      ['Scumbag Penner', 'Scumbag Hamilton']
+    );
 
     arrayDidChange = 0; // reset change event counter
     contentDidChange = 0; // reset change event counter
@@ -275,6 +297,13 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(arrayDidChange, 1, 'record array should have emitted one change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
-    assert.deepEqual(recordArray.map(x => x.name), ['Scumbag Penner']);
+    assert.deepEqual(
+      recordArray.map(x => x.name),
+      ['Scumbag Penner']
+    );
+    assert.expectDeprecation({
+      id: 'ember-data:evented-api-usage',
+      count: 1,
+    });
   });
 });

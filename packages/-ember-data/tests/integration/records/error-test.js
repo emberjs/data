@@ -1,18 +1,18 @@
-import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import RSVP from 'rsvp';
 
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Model, { attr } from '@ember-data/model';
 import { InvalidError } from '@ember-data/adapter/error';
+import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/records/error', function(hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  testInDebug('adding errors during root.loaded.created.invalid works', function(assert) {
     const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -21,45 +21,63 @@ module('integration/records/error', function(hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
-  });
 
-  testInDebug('adding errors during root.loaded.created.invalid works', function(assert) {
     let store = this.owner.lookup('service:store');
 
-    var person = run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
         },
-      });
-      return store.peekRecord('person', 'wat');
+      },
     });
 
-    run(() => {
-      person.set('firstName', null);
-      person.set('lastName', null);
+    let person = store.peekRecord('person', 'wat');
+
+    person.setProperties({
+      firstName: null,
+      lastName: null,
     });
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.uncommitted');
+    assert.equal(
+      person._internalModel.currentState.stateName,
+      'root.loaded.updated.uncommitted',
+      'Model state is root.loaded.updated.uncommitted'
+    );
 
-    person.get('errors').add('firstName', 'is invalid');
+    person.errors.add('firstName', 'is invalid');
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.invalid');
+    assert.equal(
+      person._internalModel.currentState.stateName,
+      'root.loaded.updated.invalid',
+      'Model state is updated to root.loaded.updated.invalid after an error is manually added'
+    );
 
-    person.get('errors').add('lastName', 'is invalid');
+    person.errors.add('lastName', 'is invalid');
 
-    assert.deepEqual(person.get('errors').toArray(), [
-      { attribute: 'firstName', message: 'is invalid' },
-      { attribute: 'lastName', message: 'is invalid' },
-    ]);
+    assert.deepEqual(
+      person.errors.toArray(),
+      [
+        { attribute: 'firstName', message: 'is invalid' },
+        { attribute: 'lastName', message: 'is invalid' },
+      ],
+      'Manually added errors appear in errors with their respective messages'
+    );
   });
 
   testInDebug('adding errors root.loaded.created.invalid works', function(assert) {
+    const Person = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
     let store = this.owner.lookup('service:store');
 
     let person = store.createRecord('person', {
@@ -68,26 +86,47 @@ module('integration/records/error', function(hooks) {
       lastName: 'Katz',
     });
 
-    run(() => {
-      person.set('firstName', null);
-      person.set('lastName', null);
+    person.setProperties({
+      firstName: null,
+      lastName: null,
     });
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
+    assert.equal(
+      person._internalModel.currentState.stateName,
+      'root.loaded.created.uncommitted',
+      'Model state is root.loaded.updated.uncommitted'
+    );
 
-    person.get('errors').add('firstName', 'is invalid');
+    person.errors.add('firstName', 'is invalid');
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+    assert.equal(
+      person._internalModel.currentState.stateName,
+      'root.loaded.created.invalid',
+      'Model state is updated to root.loaded.updated.invalid after an error is manually added'
+    );
 
-    person.get('errors').add('lastName', 'is invalid');
+    person.errors.add('lastName', 'is invalid');
 
-    assert.deepEqual(person.get('errors').toArray(), [
-      { attribute: 'firstName', message: 'is invalid' },
-      { attribute: 'lastName', message: 'is invalid' },
-    ]);
+    assert.deepEqual(
+      person.errors.toArray(),
+      [
+        { attribute: 'firstName', message: 'is invalid' },
+        { attribute: 'lastName', message: 'is invalid' },
+      ],
+      'Manually added errors appear in errors with their respective messages'
+    );
   });
 
   testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function(assert) {
+    const Person = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
     let store = this.owner.lookup('service:store');
 
     let person = store.createRecord('person', {
@@ -95,26 +134,33 @@ module('integration/records/error', function(hooks) {
       firstName: 'Yehuda',
     });
 
-    run(() => {
-      person.set('firstName', null);
-    });
+    person.set('firstName', null);
 
     assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
-    person.get('errors').add('firstName', 'is invalid');
+    person.errors.add('firstName', 'is invalid');
 
     assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
-    person.get('errors').remove('firstName');
+    person.errors.remove('firstName');
 
-    assert.deepEqual(person.get('errors').toArray(), []);
+    assert.deepEqual(person.errors.toArray(), []);
 
-    person.get('errors').add('firstName', 'is invalid');
+    person.errors.add('firstName', 'is invalid');
 
-    assert.deepEqual(person.get('errors').toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
+    assert.deepEqual(person.errors.toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
 
   testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(assert) {
+    const Person = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
     let store = this.owner.lookup('service:store');
 
     let person = store.createRecord('person', {
@@ -122,29 +168,32 @@ module('integration/records/error', function(hooks) {
       firstName: 'Yehuda',
     });
 
-    run(() => {
-      person.set('firstName', null);
-    });
+    person.set('firstName', null);
 
     assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
-    {
-      person.get('errors').add('firstName', 'is invalid');
-    }
+    person.errors.add('firstName', 'is invalid');
 
     assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
-    {
-      person.get('errors').remove('firstName');
-      person.get('errors').add('firstName', 'is invalid');
-    }
+    person.errors.remove('firstName');
+    person.errors.add('firstName', 'is invalid');
 
     assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
-    assert.deepEqual(person.get('errors').toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
+    assert.deepEqual(person.errors.toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
 
-  test('using setProperties to clear errors', function(assert) {
+  test('using setProperties to clear errors', async function(assert) {
+    const Person = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -165,25 +214,23 @@ module('integration/records/error', function(hooks) {
       },
     });
 
-    return run(() => {
-      let person = store.createRecord('person');
+    let person = store.createRecord('person');
 
-      return person.save().then(null, function() {
-        let errors = person.get('errors');
+    try {
+      person = await person.save();
+    } catch (_error) {
+      let errors = person.errors;
 
-        assert.equal(errors.get('length'), 2);
-        assert.ok(errors.has('firstName'));
-        assert.ok(errors.has('lastName'));
+      assert.equal(errors.length, 2, 'Adds two errors to the model');
+      assert.equal(errors.has('firstName'), true, 'firstName is included in the errors object');
+      assert.equal(errors.has('lastName'), true, 'lastName is included in the errors object');
 
-        person.setProperties({
-          firstName: 'updated',
-          lastName: 'updated',
-        });
-
-        assert.equal(errors.get('length'), 0);
-        assert.notOk(errors.has('firstName'));
-        assert.notOk(errors.has('lastName'));
+      person.setProperties({
+        firstName: 'updated',
+        lastName: 'updated',
       });
-    });
+
+      assert.equal(errors.length, 0, 'Clears errors after the attributes are updated');
+    }
   });
 });

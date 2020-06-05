@@ -1,20 +1,21 @@
 /* globals jQuery */
 
-import { underscore } from '@ember/string';
-import { resolve, reject } from 'rsvp';
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
-import { singularize } from 'ember-inflector';
-import deepCopy from 'dummy/tests/helpers/deep-copy';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { module, test } from 'qunit';
-import RESTAdapter from '@ember-data/adapter/rest';
-import RESTSerializer from '@ember-data/serializer/rest';
+import { run } from '@ember/runloop';
+import { underscore } from '@ember/string';
 
 import Pretender from 'pretender';
+import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
 
 import DS from 'ember-data';
+import { singularize } from 'ember-inflector';
+import { setupTest } from 'ember-qunit';
+
+import RESTAdapter from '@ember-data/adapter/rest';
+import RESTSerializer from '@ember-data/serializer/rest';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const hasJQuery = typeof jQuery !== 'undefined';
 
@@ -175,7 +176,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test('findRecord - payload with sideloaded records of the same type', function(assert) {
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is omakase' }, { id: 2, name: 'The Parley Letter' }],
+      posts: [
+        { id: 1, name: 'Rails is omakase' },
+        { id: 2, name: 'The Parley Letter' },
+      ],
     });
 
     return run(() =>
@@ -1144,7 +1148,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test('findAll - returning an array populates the array', function(assert) {
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is omakase' }, { id: 2, name: 'The Parley Letter' }],
+      posts: [
+        { id: 1, name: 'Rails is omakase' },
+        { id: 2, name: 'The Parley Letter' },
+      ],
     });
 
     return store.findAll('post').then(posts => {
@@ -1174,7 +1181,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     };
 
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is omakase' }, { id: 2, name: 'The Parley Letter' }],
+      posts: [
+        { id: 1, name: 'Rails is omakase' },
+        { id: 2, name: 'The Parley Letter' },
+      ],
     });
 
     return store.findAll('post', { adapterOptions: adapterOptionsStub }).then(posts => {
@@ -1194,7 +1204,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test('findAll - returning sideloaded data loads the data', function(assert) {
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is omakase' }, { id: 2, name: 'The Parley Letter' }],
+      posts: [
+        { id: 1, name: 'Rails is omakase' },
+        { id: 2, name: 'The Parley Letter' },
+      ],
       comments: [{ id: 1, name: 'FIRST' }],
     });
 
@@ -1215,7 +1228,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     );
 
     ajaxResponse({
-      posts: [{ _ID_: 1, _NAME_: 'Rails is omakase' }, { _ID_: 2, _NAME_: 'The Parley Letter' }],
+      posts: [
+        { _ID_: 1, _NAME_: 'Rails is omakase' },
+        { _ID_: 2, _NAME_: 'The Parley Letter' },
+      ],
     });
 
     return store.findAll('post').then(posts => {
@@ -1335,7 +1351,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test('query - returning an array populates the array', function(assert) {
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is omakase' }, { id: 2, name: 'The Parley Letter' }],
+      posts: [
+        { id: 1, name: 'Rails is omakase' },
+        { id: 2, name: 'The Parley Letter' },
+      ],
     });
 
     return store.query('post', { page: 1 }).then(posts => {
@@ -1357,7 +1376,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   test('query - returning sideloaded data loads the data', function(assert) {
     ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is omakase' }, { id: 2, name: 'The Parley Letter' }],
+      posts: [
+        { id: 1, name: 'Rails is omakase' },
+        { id: 2, name: 'The Parley Letter' },
+      ],
       comments: [{ id: 1, name: 'FIRST' }],
     });
 
@@ -1378,7 +1400,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     );
 
     ajaxResponse({
-      posts: [{ _ID_: 1, _NAME_: 'Rails is omakase' }, { _ID_: 2, _NAME_: 'The Parley Letter' }],
+      posts: [
+        { _ID_: 1, _NAME_: 'Rails is omakase' },
+        { _ID_: 2, _NAME_: 'The Parley Letter' },
+      ],
     });
 
     return store.query('post', { page: 1 }).then(posts => {
@@ -1443,7 +1468,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     assert
   ) {
     ajaxResponse({
-      post: [{ id: 1, name: 'Rails is omakase' }, { id: 2, name: 'Ember is js' }],
+      post: [
+        { id: 1, name: 'Rails is omakase' },
+        { id: 2, name: 'Ember is js' },
+      ],
     });
 
     assert.expectDeprecation(
@@ -1466,7 +1494,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
   testInDebug('queryRecord - returning an array is deprecated', function(assert) {
     ajaxResponse({
-      post: [{ id: 1, name: 'Rails is omakase' }, { id: 2, name: 'Ember is js' }],
+      post: [
+        { id: 1, name: 'Rails is omakase' },
+        { id: 2, name: 'Ember is js' },
+      ],
     });
 
     assert.expectDeprecation(
@@ -1521,7 +1552,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1530,7 +1565,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
     let post = store.peekRecord('post', 1);
     ajaxResponse({
-      comments: [{ id: 1, name: 'FIRST' }, { id: 2, name: 'Rails is unagi' }, { id: 3, name: 'What is omakase?' }],
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+      ],
     });
 
     return run(() =>
@@ -1559,7 +1598,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1568,7 +1611,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
     let post = store.peekRecord('post', 1);
     ajaxResponse({
-      comments: [{ id: 1, name: 'FIRST' }, { id: 2, name: 'Rails is unagi' }, { id: 3, name: 'What is omakase?' }],
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+      ],
     });
 
     return run(post, 'get', 'comments').then(comments => {
@@ -1589,7 +1636,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1599,7 +1650,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     let post = store.peekRecord('post', 1);
     //It's still ok to return this even without coalescing  because RESTSerializer supports sideloading
     ajaxResponse({
-      comments: [{ id: 1, name: 'FIRST' }, { id: 2, name: 'Rails is unagi' }, { id: 3, name: 'What is omakase?' }],
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+      ],
     });
 
     return run(() =>
@@ -1625,7 +1680,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1636,7 +1695,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       .findRecord('post', 1)
       .then(post => {
         ajaxResponse({
-          comments: [{ id: 1, name: 'FIRST' }, { id: 2, name: 'Rails is unagi' }, { id: 3, name: 'What is omakase?' }],
+          comments: [
+            { id: 1, name: 'FIRST' },
+            { id: 2, name: 'Rails is unagi' },
+            { id: 3, name: 'What is omakase?' },
+          ],
         });
 
         return post.get('comments');
@@ -1672,7 +1735,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1742,7 +1809,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1871,7 +1942,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     return run(() =>
       store.findRecord('post', '1').then(post => {
         ajaxResponse({
-          comments: [{ id: 1, name: 'FIRST' }, { id: 2, name: 'Rails is unagi' }, { id: 3, name: 'What is omakase?' }],
+          comments: [
+            { id: 1, name: 'FIRST' },
+            { id: 2, name: 'Rails is unagi' },
+            { id: 3, name: 'What is omakase?' },
+          ],
         });
 
         return post.get('comments');
@@ -1907,7 +1982,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       .findRecord('post', 1)
       .then(post => {
         ajaxResponse({
-          comments: [{ id: 1, name: 'FIRST' }, { id: 2, name: 'Rails is unagi' }, { id: 3, name: 'What is omakase?' }],
+          comments: [
+            { id: 1, name: 'FIRST' },
+            { id: 2, name: 'Rails is unagi' },
+            { id: 3, name: 'What is omakase?' },
+          ],
           posts: [{ id: 2, name: 'The Parley Letter' }],
         });
 
@@ -2049,7 +2128,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
             id: '2',
             relationships: {
               comments: {
-                data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+                data: [
+                  { type: 'comment', id: '1' },
+                  { type: 'comment', id: '2' },
+                  { type: 'comment', id: '3' },
+                ],
               },
             },
           },
@@ -2100,7 +2183,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           id: '2',
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -2142,7 +2229,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           id: '2',
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -2260,7 +2351,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           id: '1',
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: a2000 }, { type: 'comment', id: b2000 }],
+              data: [
+                { type: 'comment', id: a2000 },
+                { type: 'comment', id: b2000 },
+              ],
             },
           },
         },
@@ -2307,7 +2401,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
           id: '1',
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: a100 }, { type: 'comment', id: b100 }],
+              data: [
+                { type: 'comment', id: a100 },
+                { type: 'comment', id: b100 },
+              ],
             },
           },
         },

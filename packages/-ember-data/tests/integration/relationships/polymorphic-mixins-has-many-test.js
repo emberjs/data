@@ -1,18 +1,21 @@
 import Mixin from '@ember/object/mixin';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module(
   'integration/relationships/polymorphic_mixins_has_many_test - Polymorphic hasMany relationships with mixins',
   function(hooks) {
     setupTest(hooks);
+
+    let Message;
 
     hooks.beforeEach(function() {
       const User = Model.extend({
@@ -20,7 +23,7 @@ module(
         messages: hasMany('message', { async: true, polymorphic: true }),
       });
 
-      const Message = Mixin.create({
+      Message = Mixin.create({
         title: attr('string'),
         user: belongsTo('user', { async: true }),
       });
@@ -90,6 +93,52 @@ module(
     Local edits
   */
     test('Pushing to the hasMany reflects the change on the belongsTo side - async', function(assert) {
+      let store = this.owner.lookup('service:store');
+
+      var user, video;
+      run(function() {
+        store.push({
+          data: [
+            {
+              type: 'user',
+              id: '1',
+              attributes: {
+                name: 'Stanley',
+              },
+              relationships: {
+                messages: {
+                  data: [],
+                },
+              },
+            },
+            {
+              type: 'video',
+              id: '2',
+              attributes: {
+                video: 'Here comes Youtube',
+              },
+            },
+          ],
+        });
+        user = store.peekRecord('user', 1);
+        video = store.peekRecord('video', 2);
+      });
+
+      run(function() {
+        user.get('messages').then(function(fetchedMessages) {
+          fetchedMessages.pushObject(video);
+          video.get('user').then(function(fetchedUser) {
+            assert.equal(fetchedUser, user, 'user got set correctly');
+          });
+        });
+      });
+    });
+
+    test('NATIVE CLASSES: Pushing to the hasMany reflects the change on the belongsTo side - async', function(assert) {
+      class Video extends Model.extend(Message) {}
+
+      this.owner.register('model:video', Video);
+
       let store = this.owner.lookup('service:store');
 
       var user, video;

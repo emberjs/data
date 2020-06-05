@@ -1,17 +1,21 @@
-import RSVP from 'rsvp';
 import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
+import RSVP from 'rsvp';
+
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
-import { Snapshot } from 'ember-data/-private';
 import Store from 'ember-data/store';
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import CoreStore from '@ember-data/store/-private/system/core-store';
-import { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
-import RecordDataRecordWrapper from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
+import { setupTest } from 'ember-qunit';
 
-let CustomStore, store, adapter, schemaDefinition;
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
+type RecordDataRecordWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
+type NotificationManager = import('@ember-data/store/-private/system/record-notification-manager').default;
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type Snapshot = import('ember-data/-private').Snapshot;
+
+let CustomStore, store, schemaDefinition;
 if (CUSTOM_MODEL_CLASS) {
   module('unit/model - Custom Class Model', function(hooks) {
     setupTest(hooks);
@@ -54,7 +58,6 @@ if (CUSTOM_MODEL_CLASS) {
         teardownRecord(record) {},
       });
 
-      owner.register('model:person', Person);
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
@@ -62,7 +65,8 @@ if (CUSTOM_MODEL_CLASS) {
           createRecord: () => RSVP.reject(),
         })
       );
-      owner.register('serializer:-default', JSONAPISerializer);
+      owner.register('serializer:application', JSONAPISerializer);
+      owner.unregister('service:store');
     });
 
     test('notification manager', function(assert) {
@@ -101,7 +105,7 @@ if (CUSTOM_MODEL_CLASS) {
       });
       this.owner.register('service:store', CreationStore);
       store = this.owner.lookup('service:store');
-      let person = store.push({ data: { id: '1', type: 'person', name: 'chris' } });
+      store.push({ data: { id: '1', type: 'person', name: 'chris' } });
       recordData.storeWrapper.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, 'key');
       recordData.storeWrapper.notifyBelongsToChange(identifier.type, identifier.id, identifier.lid, 'key');
       recordData.storeWrapper.notifyStateChange(identifier.type, identifier.id, identifier.lid, 'key');
@@ -162,7 +166,7 @@ if (CUSTOM_MODEL_CLASS) {
       };
       store.registerSchemaDefinitionService(schema);
 
-      let person = store.createRecord('person', { name: 'chris' });
+      store.createRecord('person', { name: 'chris' });
     });
 
     test('attribute and relationship with custom schema definition', async function(assert) {
@@ -215,8 +219,12 @@ if (CUSTOM_MODEL_CLASS) {
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
       let schema = {
-        attributesDefinitionFor(modelName: string) {
-          assert.equal(modelName, 'person', 'type passed in to the schema hooks');
+        attributesDefinitionFor(identifier: string | RecordIdentifier) {
+          if (typeof identifier === 'string') {
+            assert.equal(identifier, 'person', 'type passed in to the schema hooks');
+          } else {
+            assert.equal(identifier.type, 'person', 'type passed in to the schema hooks');
+          }
           return {
             name: {
               type: 'string',
@@ -230,8 +238,12 @@ if (CUSTOM_MODEL_CLASS) {
             },
           };
         },
-        relationshipsDefinitionFor(modelName: string) {
-          assert.equal(modelName, 'person', 'type passed in to the schema hooks');
+        relationshipsDefinitionFor(identifier: string | RecordIdentifier) {
+          if (typeof identifier === 'string') {
+            assert.equal(identifier, 'person', 'type passed in to the schema hooks');
+          } else {
+            assert.equal(identifier.type, 'person', 'type passed in to the schema hooks');
+          }
           return {
             boats: {
               type: 'ship',
@@ -336,7 +348,7 @@ if (CUSTOM_MODEL_CLASS) {
       let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
       store.deleteRecord(person);
       assert.equal(rd!.isDeleted!(), true, 'record has been marked as deleted');
-      let promisePerson = await store.saveRecord(person);
+      await store.saveRecord(person);
       assert.equal(rd!.isDeletionCommitted!(), true, 'deletion has been commited');
     });
 
@@ -354,7 +366,8 @@ if (CUSTOM_MODEL_CLASS) {
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
       let schema = {
-        attributesDefinitionFor(modelName: string) {
+        attributesDefinitionFor(identifier: string | RecordIdentifier) {
+          let modelName = (identifier as RecordIdentifier).type || identifier;
           if (modelName === 'person') {
             return {
               name: {
@@ -371,7 +384,8 @@ if (CUSTOM_MODEL_CLASS) {
             };
           }
         },
-        relationshipsDefinitionFor(modelName: string) {
+        relationshipsDefinitionFor(identifier: string | RecordIdentifier) {
+          let modelName = (identifier as RecordIdentifier).type || identifier;
           if (modelName === 'person') {
             return {
               house: {
@@ -454,7 +468,7 @@ if (CUSTOM_MODEL_CLASS) {
                 kind: 'belongsTo',
                 inverse: null,
                 options: {},
-                key: 'house'
+                key: 'house',
               },
             };
           } else {
@@ -470,7 +484,7 @@ if (CUSTOM_MODEL_CLASS) {
         data: {
           type: 'house',
           id: '1',
-          attributes: { address: 'boat' }
+          attributes: { address: 'boat' },
         },
       });
       store.push({
@@ -517,7 +531,7 @@ if (CUSTOM_MODEL_CLASS) {
                 kind: 'hasMany',
                 inverse: null,
                 options: {},
-                key: 'house'
+                key: 'house',
               },
             };
           } else {
@@ -533,7 +547,7 @@ if (CUSTOM_MODEL_CLASS) {
         data: {
           type: 'house',
           id: '1',
-          attributes: { address: 'boat' }
+          attributes: { address: 'boat' },
         },
       });
       store.push({
@@ -545,11 +559,11 @@ if (CUSTOM_MODEL_CLASS) {
             house: {
               data: [
                 { type: 'house', id: '1' },
-                { type: 'house', id: '2' }
-              ]
-            }
-          }
-        }
+                { type: 'house', id: '2' },
+              ],
+            },
+          },
+        },
       });
       let relationship = store.relationshipReferenceFor({ type: 'person', id: '7' }, 'house');
       assert.deepEqual(relationship.ids(), ['1', '2'], 'relationship found');

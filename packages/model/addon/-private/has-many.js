@@ -1,21 +1,24 @@
 /**
   @module @ember-data/model
 */
-import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
-import { normalizeModelName } from '@ember-data/store';
+import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
+
+import { normalizeModelName } from '@ember-data/store';
+
 import { computedMacroWithOptionalParams } from './util';
 
 /**
   `hasMany` is used to define One-To-Many and Many-To-Many
-  relationships on a [Model](/api/data/classes/DS.Model.html).
+  relationships on a [Model](/ember-data/release/classes/Model).
 
   `hasMany` takes an optional hash as a second parameter, currently
   supported options are:
 
   - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
   - `inverse`: A string used to identify the inverse property on a related model.
+  - `polymorphic` A boolean value to mark the relationship as polymorphic
 
   #### One-To-Many
   To declare a one-to-many relationship between two models, use
@@ -123,7 +126,7 @@ import { computedMacroWithOptionalParams } from './util';
   ```
 
   In contrast to async relationship, accessing a sync relationship
-  will always return a [ManyArray](/api/data/classes/DS.ManyArray.html) instance
+  will always return a [ManyArray](/ember-data/release/classes/ManyArray) instance
   containing the existing local resources. But it will error on access
   when any of the known related resources have not been loaded.
 
@@ -138,6 +141,9 @@ import { computedMacroWithOptionalParams } from './util';
   `ref.reload` to fetch the resources.
 
   @method hasMany
+  @public
+  @static
+  @for @ember-data/model
   @param {String} type (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship

@@ -1,0 +1,48 @@
+name: 'Nightly'
+
+on:
+  schedule:
+    - cron: '0 14 * * *' # 14:00 in UTC is 6am PST
+
+jobs:
+  test-all-deprecations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies for master
+        run: yarn install
+      - name: Basic Tests
+        env:
+          CI: true
+          ASSERT_ALL_DEPRECATIONS: true
+        run: yarn test
+      - name: Encapsulation tests
+        env:
+          CI: true
+          ASSERT_ALL_DEPRECATIONS: true
+        run: yarn test:encapsulation
+
+  test-all-deprecations-releases:
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [ember-beta, ember-canary]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies for master
+        run: yarn install
+      - name: Basic Tests
+        env:
+          CI: true
+          ASSERT_ALL_DEPRECATIONS: true
+        run: yarn test:try-one ${{ matrix.scenario }}
+

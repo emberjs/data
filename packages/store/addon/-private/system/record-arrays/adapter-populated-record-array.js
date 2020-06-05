@@ -1,9 +1,12 @@
-import { once } from '@ember/runloop';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import RecordArray from './record-array';
-import cloneNull from '../clone-null';
+import { assign } from '@ember/polyfills';
+import { once } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
+
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
+
+import RecordArray from './record-array';
 
 /**
   @module @ember-data/store
@@ -18,7 +21,7 @@ import { DEBUG } from '@glimmer/env';
   ---
 
   If you want to update the array and get the latest records from the
-  adapter, you can invoke [`update()`](#method_update):
+  adapter, you can invoke [`update()`](AdapterPopulatedRecordArray/methods/update?anchor=update):
 
   Example
 
@@ -87,16 +90,18 @@ export default RecordArray.extend({
     this.setProperties({
       isLoaded: true,
       isUpdating: false,
-      meta: cloneNull(payload.meta),
-      links: cloneNull(payload.links),
+      meta: assign({}, payload.meta),
+      links: assign({}, payload.links),
     });
 
     this.manager._associateWithRecordArray(internalModels, this);
 
-    const _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
-    if (_hasDidLoad) {
-      // TODO: should triggering didLoad event be the last action of the runLoop?
-      once(this, 'trigger', 'didLoad');
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      const _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
+      if (_hasDidLoad) {
+        // TODO: should triggering didLoad event be the last action of the runLoop?
+        once(this, 'trigger', 'didLoad');
+      }
     }
   },
 });
