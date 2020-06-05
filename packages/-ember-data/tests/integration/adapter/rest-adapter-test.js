@@ -1130,20 +1130,18 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       });
   });
 
-  test('deleteRecord - deleting a newly created record should not throw an error', function(assert) {
+  test('deleteRecord - deleting a newly created record should not throw an error', async function(assert) {
     let post = store.createRecord('post');
+    let internalModel = post._internalModel;
 
-    return run(() => {
-      post.deleteRecord();
-      return post.save().then(post => {
-        assert.equal(passedUrl, null, 'There is no ajax call to delete a record that has never been saved.');
-        assert.equal(passedVerb, null, 'There is no ajax call to delete a record that has never been saved.');
-        assert.equal(passedHash, null, 'There is no ajax call to delete a record that has never been saved.');
+    post.deleteRecord();
+    await post.save();
 
-        assert.equal(post.get('isDeleted'), true, 'the post is now deleted');
-        assert.equal(post.get('isError'), false, 'the post is not an error');
-      });
-    });
+    assert.equal(passedUrl, null, 'There is no ajax call to delete a record that has never been saved.');
+    assert.equal(passedVerb, null, 'There is no ajax call to delete a record that has never been saved.');
+    assert.equal(passedHash, null, 'There is no ajax call to delete a record that has never been saved.');
+
+    assert.equal(internalModel.currentState.isEmpty, true, 'the post is now deleted');
   });
 
   test('findAll - returning an array populates the array', function(assert) {

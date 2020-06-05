@@ -141,6 +141,7 @@ function extractPivotName(name) {
 export default class InternalModel {
   _id: string | null;
   _tag: number = 0;
+  _deletedRecordWasNew: boolean;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;
@@ -507,10 +508,23 @@ export default class InternalModel {
         this._recordData.setIsDeleted(true);
       }
     }
-    this.send('deleteRecord');
+
+    if (this.isNew()) {
+      this._deletedRecordWasNew = true;
+      run(() => {
+        this.send('deleteRecord');
+        this._triggerDeferredTriggers();
+        this.unloadRecord();
+      });
+    } else {
+      this.send('deleteRecord');
+    }
   }
 
   save(options) {
+    if (this._deletedRecordWasNew) {
+      return Promise.resolve();
+    }
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<InternalModel>(promiseLabel);
 

@@ -278,11 +278,13 @@ module('async belongs-to rendering tests', function(hooks) {
       petOwner = await tweety.get('petOwner');
       assert.equal(petOwner.get('name'), 'Pete');
 
+      let goofyInternalModel = goofy._internalModel;
       await goofy.destroyRecord();
-      assert.ok(goofy.isDeleted);
+      assert.ok(goofyInternalModel.isDeleted, 'record is deleted');
 
+      let tweetyInternalModel = tweety._internalModel;
       await tweety.destroyRecord();
-      assert.ok(tweety.isDeleted);
+      assert.ok(tweetyInternalModel.isDeleted, 'record is deleted');
 
       assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 0);
 
