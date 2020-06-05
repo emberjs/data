@@ -87,7 +87,8 @@ module('unit/model - Model', function(hooks) {
         },
       });
 
-      await record.destroyRecord();
+      record.deleteRecord();
+      await record.save();
 
       let currentState = record._internalModel.currentState;
 
@@ -130,7 +131,8 @@ module('unit/model - Model', function(hooks) {
         },
       });
 
-      await record.destroyRecord();
+      record.deleteRecord();
+      await record.save();
 
       let currentState = record._internalModel.currentState;
 
