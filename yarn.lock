@@ -6886,10 +6886,10 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.17.0:
-  version "3.18.0"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.18.0.tgz#a4c417bc74b3d1170eec1d56123006e6942af6d7"
-  integrity sha512-kacCWNhQF0zyZ7+C9/1eiqs7JvshwFdeoCxKYlCP4pW50PGYDN0cxAq6C7bzL8uFBqLCvmgvgz63Go8kgyTNow==
+ember-source@~3.19.0:
+  version "3.19.0"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.19.0.tgz#ea156953d177374baf4911eb95d73625c7f8cbbb"
+  integrity sha512-WUL8FojIGNJDtCSxI5SjNguMb6axPPm9p/nskRwox9omj6W+hjbzLzl+pZcMbqRePkQtjCbUTAclVMBdBNaRYg==
   dependencies:
     "@babel/helper-module-imports" "^7.8.3"
     "@babel/plugin-transform-block-scoping" "^7.8.3"
@@ -7206,7 +7206,8 @@ eslint-module-utils@^2.4.1:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "3.19.0-alpha.0"
+  version "0.0.0"
+  uid ""
 
 eslint-plugin-ember@^8.4.0:
   version "8.4.0"
