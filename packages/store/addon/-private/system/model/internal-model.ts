@@ -141,7 +141,6 @@ function extractPivotName(name) {
 export default class InternalModel {
   _id: string | null;
   _tag: number = 0;
-  _deletedRecordWasNew: boolean;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;
@@ -150,6 +149,7 @@ export default class InternalModel {
   _pendingRecordArrayManagerFlush: boolean;
   _isDematerializing: boolean;
   isReloading: boolean;
+  _deletedRecordWasNew: boolean;
   _doNotDestroy: boolean;
   isDestroying: boolean;
 
@@ -510,6 +510,7 @@ export default class InternalModel {
     }
 
     if (this.isNew()) {
+      // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
       this._deletedRecordWasNew = true;
       run(() => {
         this.send('deleteRecord');
