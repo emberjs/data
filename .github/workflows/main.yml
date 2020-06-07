@@ -150,7 +150,7 @@ jobs:
 
   browser-tests:
     needs: [lint]
-    timeout-minutes: 6
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
