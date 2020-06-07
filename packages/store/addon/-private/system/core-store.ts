@@ -1532,7 +1532,7 @@ abstract class CoreStore extends Service {
       identifier.id &&
       identifier.type
     ) {
-      const _identifier = identifierCacheFor(this).peekRecordIdentifier(identifier as Peekable);
+      let _identifier = identifierCacheFor(this).peekRecordIdentifier(identifier as Peekable);
       if (_identifier) {
         return internalModelFactoryFor(this).peek(_identifier);
       }

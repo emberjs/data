@@ -179,7 +179,7 @@ export class IdentifierCache {
       return identifier;
     }
 
-    const _resource = resource as ResourceIdentifierObject;
+    let _resource = resource as ResourceIdentifierObject;
     let type = normalizeModelName(_resource.type);
     let id = coerceId(_resource.id);
 
