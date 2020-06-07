@@ -1522,7 +1522,7 @@ abstract class CoreStore extends Service {
     @param {String|Integer} id
     @return {Model|null} record
   */
-  peekRecord(modelName: string, id: string | number): RecordInstance | null;
+  peekRecord(identifier: string, id: string | number): RecordInstance | null;
   peekRecord(identifier: Peekable): RecordInstance | null;
   peekRecord(identifier: Peekable | string, id?: string | number): RecordInstance | null {
     if (
@@ -1539,16 +1539,15 @@ abstract class CoreStore extends Service {
       return null;
     }
 
-    const modelName = identifier as string;
     if (DEBUG) {
       assertDestroyingStore(this, 'peekRecord');
     }
-    assert(`You need to pass a model name to the store's peekRecord method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's peekRecord method`, isPresent(identifier));
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${identifier}`,
+      typeof identifier === 'string'
     );
-    const type = normalizeModelName(modelName);
+    const type = normalizeModelName(identifier);
     const normalizedId = ensureStringId(id);
 
     if (this.hasRecordForId(type, normalizedId)) {
