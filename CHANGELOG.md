@@ -2,6 +2,15 @@
 
 ### Master
 
+## Release 3.19.0 (June 5, 2020)
+- [76768a2f](https://github.com/emberjs/data/commit/76768a2fe85aacc8a6ea6006f2a8295bb11618bf) [BUGFIX] dont use Ember.get on internals (#7103)
+- [6404a2db](https://github.com/emberjs/data/commit/6404a2db5c7b6a286f2a10926e508f93ea3b8371) [DOC] fix import path in JSON serializer documentation (#7111)
+- [#6889](https://github.com/emberjs/data/pull/6889) [DEPRECATION] deprecate intimate Reference.internalModel (#6889)
+- [#7146](https://github.com/emberjs/data/pull/7146) [BUGFIX]: Fix errors while running yarn start (#7146)
+- [#7198](https://github.com/emberjs/data/pull/7198) [DOC] Update documentation around behavior of attr (#7198)
+- [82d6f586](https://github.com/emberjs/data/commit/82d6f5860b9ac8f8a1590d9f136417165533740a) [DOC] Use native syntax in JSONAPISerializer documentation (#7200)
+- [#7182](https://github.com/emberjs/data/pull/7182) [BUGFIX] Cache identifers globally, not just per type
+
 ## Release 3.18.0 (April 28, 2020)
 
 - [#6941](https://github.com/emberjs/data/pull/6941) [BUGFIX] fix jsonapi error handling when not using jquery  (#6941)
