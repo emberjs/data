@@ -158,6 +158,9 @@ jobs:
         exclude:
           - os: macos-latest
             launcher: IE
+          - os: macos-latest
+            scenario: with-ember-fetch-and-jquery
+            launcher: Chrome
           - os: ubuntu-latest
             launcher: IE
     runs-on: ${{ matrix.os }}
