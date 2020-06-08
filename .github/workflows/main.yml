@@ -154,6 +154,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
         launcher: [Chrome]
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
@@ -177,8 +178,7 @@ jobs:
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
-        run: |
-          yarn test:try-one ${{ matrix.scenario }} --- ember test
+        run: yarn test:try-one ${{ matrix.scenario }} --- ember test
 
   floating-dependencies:
     timeout-minutes: 6
