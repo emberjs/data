@@ -184,7 +184,7 @@ jobs:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
         run:
-          yarn test
+          yarn test:production
         # run:
         #   yarn test:try-one ${{ matrix.scenario }} --- ember test
         #   yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
