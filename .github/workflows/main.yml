@@ -155,7 +155,7 @@ jobs:
       fail-fast: false
       matrix:
         # scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
-        launcher: [Chrome]
+        launcher: [Chrome, Firefox]
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
     name: ${{matrix.scenario}} ${{matrix.launcher}} on ${{matrix.os}}
