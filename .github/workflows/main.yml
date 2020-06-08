@@ -178,7 +178,7 @@ jobs:
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
-        run: yarn test:try-one ${{ matrix.scenario }} --- ember test
+        run: yarn test
 
   floating-dependencies:
     timeout-minutes: 6
