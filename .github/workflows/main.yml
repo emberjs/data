@@ -83,8 +83,6 @@ jobs:
           yarn run testem launchers
       - name: Basic tests
         run: yarn test
-      - name: Production build
-        run: yarn test:production
       - name: Docs tests
         run: yarn test:docs
       - if: matrix.os != 'windows-latest'
