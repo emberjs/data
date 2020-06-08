@@ -156,7 +156,12 @@ jobs:
       matrix:
         # scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
         launcher: [Chrome, Firefox]
-        os: [macos-latest]
+        os: [macos-latest, ubuntu-latest]
+        # exclude:
+        #   - os: macos-latest
+        #     launcher: IE
+        #   - os: ubuntu-latest
+        #     launcher: IE
     runs-on: ${{ matrix.os }}
     name: ${{matrix.scenario}} ${{matrix.launcher}} on ${{matrix.os}}
     steps:
@@ -178,7 +183,11 @@ jobs:
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
-        run: yarn test
+        run:
+          yarn test
+        # run:
+        #   yarn test:try-one ${{ matrix.scenario }} --- ember test
+        #   yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
 
   floating-dependencies:
     timeout-minutes: 6
