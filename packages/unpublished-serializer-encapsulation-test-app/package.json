@@ -1,6 +1,6 @@
 {
   "name": "serializer-encapsulation-test-app",
-  "version": "3.16.6",
+  "version": "3.16.7",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": "",
@@ -18,14 +18,14 @@
     "test": "ember test --test-port=0"
   },
   "dependencies": {
-    "@ember-data/adapter": "3.16.6",
-    "@ember-data/model": "3.16.6",
-    "@ember-data/record-data": "3.16.6",
-    "@ember-data/store": "3.16.6",
+    "@ember-data/adapter": "3.16.7",
+    "@ember-data/model": "3.16.7",
+    "@ember-data/record-data": "3.16.7",
+    "@ember-data/store": "3.16.7",
     "ember-inflector": "^3.0.1"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "3.16.6",
+    "@ember-data/unpublished-test-infra": "3.16.7",
     "@ember/optional-features": "^1.2.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~3.17.0",
