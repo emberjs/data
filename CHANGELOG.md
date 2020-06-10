@@ -1,7 +1,10 @@
 # Ember Data Changelog
 
+## Release 3.16.7 (LTS) (June 10, 2020)
+- [#7220](https://github.com/emberjs/data/pull/7220) [BUGFIX] Update ember-cli-babel to prevent errors with newer TS syntax (#7220)
+
 ## Release 3.16.6 (LTS) (May 13, 2020)
-- [#7182](https://github.com/emberjs/data/pull/7182) [BUGFIX] Cached identifiers regardless of type, fixes polymorphism issues (#7182)
+- [#7182](https://github.com/emberjs/data/pull/7182) [BUGFIX] Cache identifiers regardless of type, fixes polymorphism issues (#7182)
 
 ## Release 3.16.5 (LTS) (April 28, 2020)
 
