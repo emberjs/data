@@ -31,7 +31,7 @@ jobs:
         run: yarn problems
 
   test-infra:
-    timeout-minutes: 4
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
