@@ -22,6 +22,11 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
     return payload;
   }
 
+  const status = response.status;
+  if (response.ok && (status === 204 || status === 205 || requestData.method === 'HEAD' || (status === 200 && payload === ''))) {
+    return;
+  }
+
   try {
     ret = JSON.parse(payload as string);
   } catch (e) {
@@ -32,10 +37,6 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
     error = e;
   }
 
-  const status = response.status;
-  if (response.ok && (status === 204 || status === 205 || requestData.method === 'HEAD')) {
-    return;
-  }
 
   if (DEBUG) {
     let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;

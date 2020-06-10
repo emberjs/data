@@ -122,6 +122,27 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
+
+  test('igor handleResponse is called on empty string response', async function(assert) {
+    let handleResponseCalled = 0;
+
+    this.server.patch('/people/1', function() {
+      return [200, { 'Content-Type': 'application/json' }, ''];
+    });
+
+    class TestAdapter extends JSONAPIAdapter {
+      handleResponse(status, headers, payload, requestData) {
+        handleResponseCalled++;
+        return super.handleResponse(status, headers, payload, requestData);
+      }
+    }
+
+    this.owner.register('adapter:application', TestAdapter);
+    let person = this.store.push({ data: {type: 'person', id: '1'}});
+    await person.save();
+    assert.equal(handleResponseCalled, 1, 'handle response is called');
+  });
+
   test('handleResponse is not called on invalid response', async function(assert) {
     let handleResponseCalled = 0;
 
