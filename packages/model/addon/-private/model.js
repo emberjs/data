@@ -1,10 +1,10 @@
 import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
 import EmberObject, { computed, get } from '@ember/object';
+import { run } from '@ember/runloop';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
-import { run } from '@ember/runloop';
 
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import {
