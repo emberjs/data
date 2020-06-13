@@ -11,11 +11,8 @@ type CoreStore = import('@ember-data/store/-private/system/core-store').default;
   @module @ember-data/store
 */
 
-export function typeForRelationshipMeta(meta) {
-  let modelName;
-
-  modelName = meta.type || meta.key;
-  modelName = normalizeModelName(modelName);
+function typeForRelationshipMeta(meta) {
+  let modelName = normalizeModelName(meta.type);
 
   if (meta.kind === 'hasMany') {
     modelName = singularize(modelName);

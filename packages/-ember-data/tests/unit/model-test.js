@@ -373,21 +373,31 @@ module('unit/model - Model', function(hooks) {
 
     test('ID mutation (complicated)', async function(assert) {
       let idChange = 0;
+      let compChange = 0;
       const OddPerson = Model.extend({
         name: DSattr('string'),
-        idComputed: computed('id', function() {}),
-        idDidChange: observer('id', () => idChange++),
+        idComputed: computed('id', function() {
+          // we intentionally don't access the id here
+          return 'not-the-id:' + compChange++;
+        }),
+        idDidChange: observer('id', function() {
+          idChange++;
+        }),
       });
       this.owner.register('model:odd-person', OddPerson);
 
       let person = store.createRecord('odd-person');
-      person.get('idComputed');
-      assert.equal(idChange, 0);
+      assert.strictEqual(person.get('idComputed'), 'not-the-id:0');
+      assert.equal(idChange, 0, 'we have had no changes initially');
 
-      assert.equal(person.get('id'), null, 'initial created model id should be null');
-      assert.equal(idChange, 0);
+      let personId = person.get('id');
+      assert.strictEqual(personId, null, 'initial created model id should be null');
+      assert.equal(idChange, 0, 'we should still have no id changes');
+
+      // simulate an update from the store or RecordData that doesn't
+      // go through the internalModelFactory
       person._internalModel.setId('john');
-      assert.equal(idChange, 1);
+      assert.equal(idChange, 1, 'we should have one change after updating id');
       let recordData = recordDataFor(person);
       assert.equal(
         recordData.getResourceIdentifier().id,
@@ -729,7 +739,7 @@ module('unit/model - Model', function(hooks) {
 
       assert.expectAssertion(() => {
         record.set('isLoaded', true);
-      }, /Cannot set read-only property "isLoaded"/);
+      }, /Cannot set property isLoaded of \[object Object\] which has only a getter/);
     });
 
     class NativePostWithInternalModel extends Model {

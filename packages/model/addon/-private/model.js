@@ -19,16 +19,31 @@ import {
   PromiseObject,
   recordDataFor,
   recordIdentifierFor,
-  RootState,
 } from '@ember-data/store/-private';
 
 import Errors from './errors';
-import {
-  relatedTypesDescriptor,
-  relationshipsByNameDescriptor,
-  relationshipsDescriptor,
-  relationshipsObjectDescriptor,
-} from './system/relationships/ext';
+import { relationshipFromMeta } from './system/relationships/relationship-meta';
+
+const RecordMeta = new WeakMap();
+function getRecordMeta(record) {
+  let meta = RecordMeta.get(record);
+  if (meta === undefined) {
+    meta = Object.create(null);
+    RecordMeta.set(record, meta);
+    if (DEBUG) {
+      record.____recordMetaCache = meta;
+    }
+  }
+  return meta;
+}
+
+function getWithDefault(meta, prop, value) {
+  let v = meta[prop];
+  if (v === undefined) {
+    return value;
+  }
+  return v;
+}
 
 const { changeProperties } = Ember;
 
@@ -39,7 +54,7 @@ function isInvalidError(error) {
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
 
-  let relationshipMap = get(inverseType, 'relationships');
+  let relationshipMap = inverseType.relationships;
   if (!relationshipMap) {
     return possibleRelationships;
   }
@@ -69,88 +84,25 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   return possibleRelationships;
 }
 
-const retrieveFromCurrentState = computed('currentState', function(key) {
-  return get(this._internalModel.currentState, key);
-}).readOnly();
+function computeOnce(target, key, desc) {
+  const cache = new WeakMap();
+  let getter = desc.get;
+  desc.get = function() {
+    let meta = cache.get(this);
 
-const isValidRecordData = computed('errors.length', function(key) {
-  return !(this.get('errors.length') > 0);
-}).readOnly();
-
-const isValid = RECORD_DATA_ERRORS ? isValidRecordData : retrieveFromCurrentState;
-
-let isDeletedCP;
-if (RECORD_DATA_STATE) {
-  isDeletedCP = computed('currentState', function() {
-    let rd = recordDataFor(this);
-    if (rd.isDeleted) {
-      return rd.isDeleted();
-    } else {
-      return get(this._internalModel.currentState, 'isDeleted');
+    if (!meta) {
+      meta = { hasComputed: false, value: undefined };
+      cache.set(this, meta);
     }
-  }).readOnly();
-} else {
-  isDeletedCP = retrieveFromCurrentState;
-}
 
-let isNewCP;
-if (RECORD_DATA_STATE) {
-  isNewCP = computed('currentState', function() {
-    let rd = recordDataFor(this);
-    if (rd.isNew) {
-      return rd.isNew();
-    } else {
-      return get(this._internalModel.currentState, 'isNew');
+    if (!meta.hasComputed) {
+      meta.value = getter.call(this);
+      meta.hasComputed = true;
     }
-  }).readOnly();
-} else {
-  isNewCP = retrieveFromCurrentState;
-}
 
-let adapterError;
-if (REQUEST_SERVICE) {
-  adapterError = computed(function() {
-    let request = this._lastError;
-    if (!request) {
-      return null;
-    }
-    return request.state === 'rejected' && request.response.data;
-  });
-} else {
-  adapterError = null;
-}
-
-let isError;
-if (REQUEST_SERVICE) {
-  isError = computed(function() {
-    let errorReq = this._errorRequests[this._errorRequests.length - 1];
-    if (!errorReq) {
-      return false;
-    } else {
-      return true;
-    }
-  });
-} else {
-  isError = false;
-}
-
-let isReloading;
-if (REQUEST_SERVICE) {
-  isReloading = computed({
-    get() {
-      if (this._isReloading === undefined) {
-        let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
-        let value = !!requests.find(req => req.request.data[0].options.isReloading);
-        return (this._isReloading = value);
-      }
-      return this._isReloading;
-    },
-    set(_, value) {
-      return (this._isReloading = value);
-    },
-  });
-} else {
-  isReloading = false;
+    return meta.value;
+  };
+  return desc;
 }
 
 /**
@@ -159,9 +111,9 @@ if (REQUEST_SERVICE) {
   @extends EmberObject
   @uses EmberData.DeprecatedEvented
 */
-const Model = EmberObject.extend(DeprecatedEvented, {
+class Model extends EmberObject {
   init() {
-    this._super(...arguments);
+    super.init(...arguments);
 
     if (DEBUG) {
       if (!this._internalModel) {
@@ -195,15 +147,15 @@ const Model = EmberObject.extend(DeprecatedEvented, {
       this._errorRequests = [];
       this._lastError = null;
     }
-  },
+  }
 
-  _notifyNetworkChanges: function() {
+  _notifyNetworkChanges() {
     if (REQUEST_SERVICE) {
       ['isSaving', 'isValid', 'isError', 'adapterError', 'isReloading'].forEach(key => this.notifyPropertyChange(key));
     } else {
       ['isValid'].forEach(key => this.notifyPropertyChange(key));
     }
-  },
+  }
 
   /**
     If this property is `true` the record is in the `empty`
@@ -218,7 +170,10 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isEmpty: retrieveFromCurrentState,
+  get isEmpty() {
+    return this._internalModel.currentState.isEmpty;
+  }
+
   /**
     If this property is `true` the record is in the `loading` state. A
     record enters this state when the store asks the adapter for its
@@ -229,7 +184,9 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isLoading: retrieveFromCurrentState,
+  get isLoading() {
+    return this._internalModel.currentState.isLoading;
+  }
   /**
     If this property is `true` the record is in the `loaded` state. A
     record enters this state when its data is populated. Most of a
@@ -251,7 +208,11 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isLoaded: retrieveFromCurrentState,
+
+  get isLoaded() {
+    return this._internalModel.currentState.isLoaded;
+  }
+
   /**
     If this property is `true` the record is in the `dirty` state. The
     record has local changes that have not yet been saved by the
@@ -276,9 +237,10 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  hasDirtyAttributes: computed('currentState.isDirty', function() {
-    return this.get('currentState.isDirty');
-  }),
+  get hasDirtyAttributes() {
+    return this._internalModel.currentState.isDirty;
+  }
+
   /**
     If this property is `true` the record is in the `saving` state. A
     record enters the saving state when `save` is called, but the
@@ -301,7 +263,10 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isSaving: retrieveFromCurrentState,
+  get isSaving() {
+    return this._internalModel.currentState.isSaving;
+  }
+
   /**
     If this property is `true` the record is in the `deleted` state
     and has been marked for deletion. When `isDeleted` is true and
@@ -339,7 +304,21 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isDeleted: isDeletedCP,
+  get isDeleted() {
+    if (RECORD_DATA_STATE) {
+      // currently we call notifyPropertyChange from
+      // the notification manager but probably
+      // we should consume a tag here which the manager
+      // would dirty.
+      let rd = recordDataFor(this);
+      if (rd.isDeleted) {
+        return rd.isDeleted();
+      }
+    }
+
+    return this._internalModel.currentState.isDeleted;
+  }
+
   /**
     If this property is `true` the record is in the `new` state. A
     record will be in the `new` state when it has been created on the
@@ -361,7 +340,21 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isNew: isNewCP,
+  get isNew() {
+    if (RECORD_DATA_STATE) {
+      // currently we call notifyPropertyChange from
+      // the notification manager but probably
+      // we should consume a tag here which the manager
+      // would dirty.
+      let rd = recordDataFor(this);
+      if (rd.isNew) {
+        return rd.isNew();
+      }
+    }
+
+    return this._internalModel.currentState.isNew;
+  }
+
   /**
     If this property is `true` the record is in the `valid` state.
 
@@ -372,14 +365,20 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isValid: isValid,
+  get isValid() {
+    if (RECORD_DATA_ERRORS) {
+      return !(this.errors.length > 0);
+    }
+
+    return this._internalModel.currentState.isValid;
+  }
 
   _markInvalidRequestAsClean() {
     if (RECORD_DATA_ERRORS) {
       this._invalidRequests = [];
       this._notifyNetworkChanges();
     }
-  },
+  }
 
   /**
     If the record is in the dirty state this property will report what
@@ -401,7 +400,9 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {String}
     @readOnly
   */
-  dirtyType: retrieveFromCurrentState,
+  get dirtyType() {
+    return this._internalModel.currentState.dirtyType;
+  }
 
   /**
     If `true` the adapter reported that it was unable to save local
@@ -422,13 +423,32 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isError: isError,
+  get isError() {
+    if (REQUEST_SERVICE) {
+      let errorReq = this._errorRequests[this._errorRequests.length - 1];
+      if (!errorReq) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+    let meta = getRecordMeta(this);
+    return getWithDefault(meta, 'isError', false);
+  }
+  set isError(v) {
+    if (REQUEST_SERVICE && DEBUG) {
+      throw new Error(`isError is not directly settable when REQUEST_SERVICE is enabled`);
+    } else {
+      let meta = getRecordMeta(this);
+      meta.isError = v;
+    }
+  }
 
   _markErrorRequestAsClean() {
     this._errorRequests = [];
     this._lastError = null;
     this._notifyNetworkChanges();
-  },
+  }
 
   /**
     If `true` the store is attempting to reload the record from the adapter.
@@ -445,7 +465,25 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @type {Boolean}
     @readOnly
   */
-  isReloading: isReloading,
+  @computed()
+  get isReloading() {
+    let meta = getRecordMeta(this);
+    let isReloading = meta.isReloading;
+
+    if (REQUEST_SERVICE) {
+      if (isReloading === undefined) {
+        let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
+        let value = !!requests.find(req => req.request.data[0].options.isReloading);
+        meta.isReloading = value;
+        return value;
+      }
+    }
+    return isReloading || false;
+  }
+  set isReloading(v) {
+    let meta = getRecordMeta(this);
+    meta.isReloading = v;
+  }
 
   /**
     All ember models have an id property. This is an identifier
@@ -472,26 +510,16 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @private
     @type {Object}
   */
-  currentState: RootState.empty, // defined here to avoid triggering setUnknownProperty
 
   /**
    @property _internalModel
    @private
    @type {Object}
    */
-  _internalModel: null, // defined here to avoid triggering setUnknownProperty
-
-  /**
-   @property recordData
-   @private
-   @type undefined (reserved)
-   */
-  // will be defined here to avoid triggering setUnknownProperty
 
   /**
    @property store
    */
-  store: null, // defined here to avoid triggering setUnknownProperty
 
   /**
     When the record is in the `invalid` state this object will contain
@@ -544,7 +572,8 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @property errors
     @type {Errors}
   */
-  errors: computed(function() {
+  @computeOnce
+  get errors() {
     let errors = Errors.create();
 
     errors._registerHandlers(
@@ -571,7 +600,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
       }
     }
     return errors;
-  }).readOnly(),
+  }
 
   invalidErrorsChanged(jsonApiErrors) {
     if (RECORD_DATA_ERRORS) {
@@ -584,7 +613,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
         errors._add(errorKeys[i], newErrors[errorKeys[i]]);
       }
     }
-  },
+  }
 
   /**
     This property holds the `AdapterError` object with which
@@ -593,7 +622,25 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     @property adapterError
     @type {AdapterError}
   */
-  adapterError: adapterError,
+  get adapterError() {
+    if (REQUEST_SERVICE) {
+      let request = this._lastError;
+      if (!request) {
+        return null;
+      }
+      return request.state === 'rejected' && request.response.data;
+    }
+    let meta = getRecordMeta(this);
+    return getWithDefault(meta, 'adapterError', null);
+  }
+  set adapterError(v) {
+    if (REQUEST_SERVICE && DEBUG) {
+      throw new Error(`adapterError is not directly settable when REQUEST_SERVICE is enabled`);
+    } else {
+      let meta = getRecordMeta(this);
+      meta.adapterError = v;
+    }
+  }
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -611,7 +658,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   serialize(options) {
     return this._internalModel.createSnapshot().serialize(options);
-  },
+  }
 
   /**
     Fired when the record is ready to be interacted with,
@@ -619,56 +666,48 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
     @event ready
   */
-  ready: null,
 
   /**
     Fired when the record is loaded from the server.
 
     @event didLoad
   */
-  didLoad: null,
 
   /**
     Fired when the record is updated.
 
     @event didUpdate
   */
-  didUpdate: null,
 
   /**
     Fired when a new record is commited to the server.
 
     @event didCreate
   */
-  didCreate: null,
 
   /**
     Fired when the record is deleted.
 
     @event didDelete
   */
-  didDelete: null,
 
   /**
     Fired when the record becomes invalid.
 
     @event becameInvalid
   */
-  becameInvalid: null,
 
   /**
     Fired when the record enters the error state.
 
     @event becameError
   */
-  becameError: null,
 
   /**
     Fired when the record is rolled back.
 
     @event rolledBack
   */
-  rolledBack: null,
 
   //TODO Do we want to deprecate these?
   /**
@@ -679,7 +718,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   send(name, context) {
     return this._internalModel.send(name, context);
-  },
+  }
 
   /**
     @method transitionTo
@@ -688,7 +727,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   transitionTo(name) {
     return this._internalModel.transitionTo(name);
-  },
+  }
 
   /**
     Marks the record as deleted but does not save it. You must call
@@ -724,7 +763,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   deleteRecord() {
     this._internalModel.deleteRecord();
-  },
+  }
 
   /**
     Same as `deleteRecord`, but saves the record immediately.
@@ -773,7 +812,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   destroyRecord(options) {
     this.deleteRecord();
     return this.save(options);
-  },
+  }
 
   /**
     Unloads the record from the store. This will not send a delete request
@@ -786,7 +825,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
       return;
     }
     this._internalModel.unloadRecord();
-  },
+  }
 
   /**
     @method _notifyProperties
@@ -803,7 +842,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
         this.notifyPropertyChange(key);
       }
     });
-  },
+  }
 
   /**
     Returns an object, whose keys are changed properties, and value is
@@ -852,7 +891,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   changedAttributes() {
     return this._internalModel.changedAttributes();
-  },
+  }
 
   /**
     If the model `hasDirtyAttributes` this function will discard any unsaved
@@ -879,7 +918,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     if (REQUEST_SERVICE) {
       this._markErrorRequestAsClean();
     }
-  },
+  }
 
   /*
     @method _createSnapshot
@@ -887,14 +926,14 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   _createSnapshot() {
     return this._internalModel.createSnapshot();
-  },
+  }
 
   toStringExtension() {
     // the _internalModel guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
     return this._internalModel && this._internalModel.id;
-  },
+  }
 
   /**
     Save the record and persist any changes to the record to an
@@ -940,7 +979,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     return PromiseObject.create({
       promise: this._internalModel.save(options).then(() => this),
     });
-  },
+  }
 
   /**
     Reload the record from the adapter.
@@ -982,14 +1021,14 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     return PromiseObject.create({
       promise: this._internalModel.reload(wrappedAdapterOptions).then(() => this),
     });
-  },
+  }
 
   attr() {
     assert(
       'The `attr` method is not available on Model, a Snapshot was probably expected. Are you passing a Model instead of a Snapshot to your serializer?',
       false
     );
-  },
+  }
 
   /**
     Get the reference for the specified belongsTo relationship.
@@ -1056,7 +1095,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   belongsTo(name) {
     return this._internalModel.referenceFor('belongsTo', name);
-  },
+  }
 
   /**
     Get the reference for the specified hasMany relationship.
@@ -1118,7 +1157,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
   */
   hasMany(name) {
     return this._internalModel.referenceFor('hasMany', name);
-  },
+  }
 
   /**
    Provides info about the model for debugging purposes
@@ -1180,11 +1219,11 @@ const Model = EmberObject.extend(DeprecatedEvented, {
         expensiveProperties: expensiveProperties,
       },
     };
-  },
+  }
 
   notifyBelongsToChange(key) {
     this.notifyPropertyChange(key);
-  },
+  }
   /**
    Given a callback, iterates over each of the relationships in the model,
    invoking the callback with the name of each relationship and its relationship
@@ -1239,238 +1278,28 @@ const Model = EmberObject.extend(DeprecatedEvented, {
    */
   eachRelationship(callback, binding) {
     this.constructor.eachRelationship(callback, binding);
-  },
+  }
 
   relationshipFor(name) {
-    return get(this.constructor, 'relationshipsByName').get(name);
-  },
+    return this.constructor.relationshipsByName.get(name);
+  }
 
   inverseFor(key) {
     return this.constructor.inverseFor(key, this._internalModel.store);
-  },
+  }
 
   notifyHasManyAdded(key) {
     //We need to notifyPropertyChange in the adding case because we need to make sure
     //we fetch the newly added record in case it is unloaded
     //TODO(Igor): Consider whether we could do this only if the record state is unloaded
     this.notifyPropertyChange(key);
-  },
+  }
 
   eachAttribute(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
-  },
-});
-
-if (DEPRECATE_EVENTED_API_USAGE) {
-  /**
-  Override the default event firing from Ember.Evented to
-  also call methods with the given name.
-
-  @method trigger
-  @private
-  @param {String} name
-*/
-  Model.reopen({
-    trigger(name) {
-      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-        let fn = this[name];
-        if (typeof fn === 'function') {
-          let length = arguments.length;
-          let args = new Array(length - 1);
-
-          for (let i = 1; i < length; i++) {
-            args[i - 1] = arguments[i];
-          }
-          fn.apply(this, args);
-        }
-      }
-
-      const _hasEvent = DEBUG ? this._has(name) : this.has(name);
-      if (_hasEvent) {
-        this._super(...arguments);
-      }
-    },
-  });
-}
-
-if (DEPRECATE_MODEL_TOJSON) {
-  /**
-    Use [JSONSerializer](JSONSerializer.html) to
-    get the JSON representation of a record.
-
-    `toJSON` takes an optional hash as a parameter, currently
-    supported options are:
-
-    - `includeId`: `true` if the record's ID should be included in the
-      JSON representation.
-
-    @method toJSON
-    @param {Object} options
-    @return {Object} A JSON representation of the object.
-  */
-  Model.reopen({
-    toJSON(options) {
-      // container is for lazy transform lookups
-      deprecate(
-        `Called the built-in \`toJSON\` on the record "${this.constructor.modelName}:${this.id}". The built-in \`toJSON\` method on instances of classes extending \`Model\` is deprecated. For more information see the link below.`,
-        false,
-        {
-          id: 'ember-data:model.toJSON',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-toJSON',
-          for: '@ember-data/model',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-      let serializer = this._internalModel.store.serializerFor('-default');
-      let snapshot = this._internalModel.createSnapshot();
-
-      return serializer.serialize(snapshot, options);
-    },
-  });
-}
-
-const ID_DESCRIPTOR = {
-  configurable: false,
-  set(id) {
-    const normalizedId = coerceId(id);
-
-    if (normalizedId !== null) {
-      this._internalModel.setId(normalizedId);
-    }
-  },
-
-  get() {
-    // the _internalModel guard exists, because some dev-only deprecation code
-    // (addListener via validatePropertyInjections) invokes toString before the
-    // object is real.
-    if (DEBUG) {
-      if (!this._internalModel) {
-        return;
-      }
-    }
-    get(this._internalModel, '_tag');
-    return this._internalModel.id;
-  },
-};
-
-Object.defineProperty(Model.prototype, 'id', ID_DESCRIPTOR);
-
-if (DEBUG) {
-  let lookupDescriptor = function lookupDescriptor(obj, keyName) {
-    let current = obj;
-    do {
-      let descriptor = Object.getOwnPropertyDescriptor(current, keyName);
-      if (descriptor !== undefined) {
-        return descriptor;
-      }
-      current = Object.getPrototypeOf(current);
-    } while (current !== null);
-    return null;
-  };
-  let isBasicDesc = function isBasicDesc(desc) {
-    return (
-      !desc ||
-      (!desc.get && !desc.set && desc.enumerable === true && desc.writable === true && desc.configurable === true)
-    );
-  };
-  let isDefaultEmptyDescriptor = function isDefaultEmptyDescriptor(obj, keyName) {
-    let instanceDesc = lookupDescriptor(obj, keyName);
-    return isBasicDesc(instanceDesc) && lookupDescriptor(obj.constructor, keyName) === null;
-  };
-
-  let lookupDeprecations;
-  let _deprecatedLifecycleMethods;
-
-  if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-    const INSTANCE_DEPRECATIONS = new WeakMap();
-    _deprecatedLifecycleMethods = [
-      'becameError',
-      'becameInvalid',
-      'didCreate',
-      'didDelete',
-      'didLoad',
-      'didUpdate',
-      'ready',
-      'rolledBack',
-    ];
-
-    lookupDeprecations = function lookupInstanceDeprecations(instance) {
-      let deprecations = INSTANCE_DEPRECATIONS.get(instance);
-
-      if (!deprecations) {
-        deprecations = new Set();
-        INSTANCE_DEPRECATIONS.set(instance, deprecations);
-      }
-
-      return deprecations;
-    };
   }
 
-  Model.reopen({
-    init() {
-      this._super(...arguments);
-
-      if (DEPRECATE_EVENTED_API_USAGE) {
-        this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
-      }
-
-      if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
-        throw new Error(
-          `'_internalModel' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
-        );
-      }
-
-      if (
-        !isDefaultEmptyDescriptor(this, 'currentState') ||
-        this.get('currentState') !== this._internalModel.currentState
-      ) {
-        throw new Error(
-          `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
-        );
-      }
-
-      let idDesc = lookupDescriptor(this, 'id');
-
-      if (idDesc.get !== ID_DESCRIPTOR.get) {
-        throw new EmberError(
-          `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: attr('<type>')\` from ${this.constructor.toString()}`
-        );
-      }
-
-      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-        let lifecycleDeprecations = lookupDeprecations(this.constructor);
-
-        _deprecatedLifecycleMethods.forEach(methodName => {
-          if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
-            deprecate(
-              `You defined a \`${methodName}\` method for ${this.constructor.toString()} but lifecycle events for models have been deprecated.`,
-              false,
-              {
-                id: 'ember-data:record-lifecycle-event-methods',
-                until: '4.0',
-                url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-lifecycle-event-methods',
-                for: '@ember-data/model',
-                since: {
-                  available: '3.12',
-                  enabled: '3.12',
-                },
-              }
-            );
-
-            lifecycleDeprecations.add(methodName);
-          }
-        });
-      }
-    },
-  });
-}
-
-Model.reopenClass({
-  isModel: true,
+  static isModel = true;
 
   /**
     Create should only ever be called by the store. To create an instance of a
@@ -1513,7 +1342,7 @@ Model.reopenClass({
    @readonly
    @static
   */
-  modelName: null,
+  static modelName = null;
 
   /*
    These class methods below provide relationship
@@ -1553,14 +1382,15 @@ Model.reopenClass({
    @param {store} store an instance of Store
    @return {Model} the type of the relationship, or undefined
    */
-  typeForRelationship(name, store) {
-    let relationship = get(this, 'relationshipsByName').get(name);
+  static typeForRelationship(name, store) {
+    let relationship = this.relationshipsByName.get(name);
     return relationship && store.modelFor(relationship.type);
-  },
+  }
 
-  inverseMap: computed(function() {
+  @computeOnce
+  static get inverseMap() {
     return Object.create(null);
-  }),
+  }
 
   /**
    Find the relationship which is the inverse of the one asked for.
@@ -1595,8 +1425,8 @@ Model.reopenClass({
    @param {Store} store
    @return {Object} the inverse relationship, or null
    */
-  inverseFor(name, store) {
-    let inverseMap = get(this, 'inverseMap');
+  static inverseFor(name, store) {
+    let inverseMap = this.inverseMap;
     if (inverseMap[name]) {
       return inverseMap[name];
     } else {
@@ -1604,10 +1434,10 @@ Model.reopenClass({
       inverseMap[name] = inverse;
       return inverse;
     }
-  },
+  }
 
   //Calculate the inverse, ignoring the cache
-  _findInverseFor(name, store) {
+  static _findInverseFor(name, store) {
     let inverseType = this.typeForRelationship(name, store);
     if (!inverseType) {
       return null;
@@ -1625,7 +1455,7 @@ Model.reopenClass({
     //If inverse is specified manually, return the inverse
     if (options.inverse) {
       inverseName = options.inverse;
-      inverse = get(inverseType, 'relationshipsByName').get(inverseName);
+      inverse = inverseType.relationshipsByName.get(inverseName);
 
       assert(
         "We found no inverse relationships by the name of '" +
@@ -1706,7 +1536,7 @@ Model.reopenClass({
       kind: inverseKind,
       options: inverseOptions,
     };
-  },
+  }
 
   /**
    The model's relationships as a map, keyed on the type of the
@@ -1735,7 +1565,7 @@ Model.reopenClass({
    import User from 'app/models/user';
    import Post from 'app/models/post';
 
-   let relationships = get(Blog, 'relationships');
+   let relationships = Blog.relationships;
    relationships.get('user');
    //=> [ { name: 'users', kind: 'hasMany' },
    //     { name: 'owner', kind: 'belongsTo' } ]
@@ -1749,7 +1579,24 @@ Model.reopenClass({
    @readOnly
    */
 
-  relationships: relationshipsDescriptor,
+  @computeOnce
+  static get relationships() {
+    let map = new Map();
+    let relationshipsByName = this.relationshipsByName;
+
+    // Loop through each computed property on the class
+    relationshipsByName.forEach(desc => {
+      let { type } = desc;
+
+      if (!map.has(type)) {
+        map.set(type, []);
+      }
+
+      map.get(type).push(desc);
+    });
+
+    return map;
+  }
 
   /**
    A hash containing lists of the model's relationships, grouped
@@ -1773,7 +1620,7 @@ Model.reopenClass({
    import { get } from '@ember/object';
    import Blog from 'app/models/blog';
 
-   let relationshipNames = get(Blog, 'relationshipNames');
+   let relationshipNames = Blog.relationshipNames;
    relationshipNames.hasMany;
    //=> ['users', 'posts']
    relationshipNames.belongsTo;
@@ -1785,7 +1632,8 @@ Model.reopenClass({
    @type Object
    @readOnly
    */
-  relationshipNames: computed(function() {
+  @computeOnce
+  static get relationshipNames() {
     let names = {
       hasMany: [],
       belongsTo: [],
@@ -1798,7 +1646,7 @@ Model.reopenClass({
     });
 
     return names;
-  }),
+  }
 
   /**
    An array of types directly related to a model. Each type will be
@@ -1824,7 +1672,7 @@ Model.reopenClass({
    import { get } from '@ember/object';
    import Blog from 'app/models/blog';
 
-   let relatedTypes = get(Blog, 'relatedTypes');
+   let relatedTypes = Blog.relatedTypes');
    //=> [ User, Post ]
    ```
 
@@ -1833,7 +1681,27 @@ Model.reopenClass({
    @type Ember.Array
    @readOnly
    */
-  relatedTypes: relatedTypesDescriptor,
+  @computeOnce
+  static get relatedTypes() {
+    let types = [];
+
+    let rels = this.relationshipsObject;
+    let relationships = Object.keys(rels);
+
+    // create an array of the unique types involved
+    // in relationships
+    for (let i = 0; i < relationships.length; i++) {
+      let name = relationships[i];
+      let meta = rels[name];
+      let modelName = meta.type;
+
+      if (types.indexOf(modelName) === -1) {
+        types.push(modelName);
+      }
+    }
+
+    return types;
+  }
 
   /**
    A map whose keys are the relationships of a model and whose values are
@@ -1859,7 +1727,7 @@ Model.reopenClass({
    import { get } from '@ember/object';
    import Blog from 'app/models/blog';
 
-   let relationshipsByName = get(Blog, 'relationshipsByName');
+   let relationshipsByName = Blog.relationshipsByName;
    relationshipsByName.get('users');
    //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
    relationshipsByName.get('owner');
@@ -1871,9 +1739,36 @@ Model.reopenClass({
    @type Map
    @readOnly
    */
-  relationshipsByName: relationshipsByNameDescriptor,
+  @computeOnce
+  static get relationshipsByName() {
+    let map = new Map();
+    let rels = this.relationshipsObject;
+    let relationships = Object.keys(rels);
 
-  relationshipsObject: relationshipsObjectDescriptor,
+    for (let i = 0; i < relationships.length; i++) {
+      let key = relationships[i];
+      let value = rels[key];
+
+      map.set(value.key, value);
+    }
+
+    return map;
+  }
+
+  @computeOnce
+  static get relationshipsObject() {
+    let relationships = Object.create(null);
+    let modelName = this.modelName;
+    this.eachComputedProperty((name, meta) => {
+      if (meta.isRelationship) {
+        meta.key = name;
+        meta.name = name;
+        meta.parentModelName = modelName;
+        relationships[name] = relationshipFromMeta(meta);
+      }
+    });
+    return relationships;
+  }
 
   /**
    A map whose keys are the fields of the model and whose values are strings
@@ -1899,7 +1794,7 @@ Model.reopenClass({
    import { get } from '@ember/object';
    import Blog from 'app/models/blog'
 
-   let fields = get(Blog, 'fields');
+   let fields = Blog.fields;
    fields.forEach(function(kind, field) {
       console.log(field, kind);
     });
@@ -1916,7 +1811,8 @@ Model.reopenClass({
    @type Map
    @readOnly
    */
-  fields: computed(function() {
+  @computeOnce
+  static get fields() {
     let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
@@ -1928,7 +1824,7 @@ Model.reopenClass({
     });
 
     return map;
-  }).readOnly(),
+  }
 
   /**
    Given a callback, iterates over each of the relationships in the model,
@@ -1940,11 +1836,11 @@ Model.reopenClass({
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
-  eachRelationship(callback, binding) {
-    get(this, 'relationshipsByName').forEach((relationship, name) => {
+  static eachRelationship(callback, binding) {
+    this.relationshipsByName.forEach((relationship, name) => {
       callback.call(binding, name, relationship);
     });
-  },
+  }
 
   /**
    Given a callback, iterates over each of the types related to a model,
@@ -1957,16 +1853,16 @@ Model.reopenClass({
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
-  eachRelatedType(callback, binding) {
-    let relationshipTypes = get(this, 'relatedTypes');
+  static eachRelatedType(callback, binding) {
+    let relationshipTypes = this.relatedTypes;
 
     for (let i = 0; i < relationshipTypes.length; i++) {
       let type = relationshipTypes[i];
       callback.call(binding, type);
     }
-  },
+  }
 
-  determineRelationshipType(knownSide, store) {
+  static determineRelationshipType(knownSide, store) {
     let knownKey = knownSide.key;
     let knownKind = knownSide.kind;
     let inverse = this.inverseFor(knownKey, store);
@@ -1985,7 +1881,7 @@ Model.reopenClass({
     } else {
       return knownKind === 'belongsTo' ? 'oneToMany' : 'manyToMany';
     }
-  },
+  }
 
   /**
    A map whose keys are the attributes of the model (properties
@@ -2008,7 +1904,7 @@ Model.reopenClass({
    import { get } from '@ember/object';
    import Blog from 'app/models/blog'
 
-   let attributes = get(Person, 'attributes')
+   let attributes = Person.attributes
 
    attributes.forEach(function(meta, name) {
       console.log(name, meta);
@@ -2025,7 +1921,8 @@ Model.reopenClass({
    @type {Map}
    @readOnly
    */
-  attributes: computed(function() {
+  @computeOnce
+  static get attributes() {
     let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
@@ -2042,7 +1939,7 @@ Model.reopenClass({
     });
 
     return map;
-  }).readOnly(),
+  }
 
   /**
    A map whose keys are the attributes of the model (properties
@@ -2066,7 +1963,7 @@ Model.reopenClass({
    import { get } from '@ember/object';
    import Person from 'app/models/person';
 
-   let transformedAttributes = get(Person, 'transformedAttributes')
+   let transformedAttributes = Person.transformedAttributes
 
    transformedAttributes.forEach(function(field, type) {
       console.log(field, type);
@@ -2082,7 +1979,8 @@ Model.reopenClass({
    @type {Map}
    @readOnly
    */
-  transformedAttributes: computed(function() {
+  @computeOnce
+  static get transformedAttributes() {
     let map = new Map();
 
     this.eachAttribute((key, meta) => {
@@ -2092,7 +1990,7 @@ Model.reopenClass({
     });
 
     return map;
-  }).readOnly(),
+  }
 
   /**
    Iterates through the attributes of the model, calling the passed function on each
@@ -2137,11 +2035,11 @@ Model.reopenClass({
    @param {Object} [binding] the value to which the callback's `this` should be bound
    @static
    */
-  eachAttribute(callback, binding) {
-    get(this, 'attributes').forEach((meta, name) => {
+  static eachAttribute(callback, binding) {
+    this.attributes.forEach((meta, name) => {
       callback.call(binding, name, meta);
     });
-  },
+  }
 
   /**
    Iterates through the transformedAttributes of the model, calling
@@ -2187,11 +2085,11 @@ Model.reopenClass({
    @param {Object} [binding] the value to which the callback's `this` should be bound
    @static
    */
-  eachTransformedAttribute(callback, binding) {
-    get(this, 'transformedAttributes').forEach((type, name) => {
+  static eachTransformedAttribute(callback, binding) {
+    this.transformedAttributes.forEach((type, name) => {
       callback.call(binding, name, type);
     });
-  },
+  }
 
   /**
    Returns the name of the model class.
@@ -2199,9 +2097,217 @@ Model.reopenClass({
    @method toString
    @static
    */
-  toString() {
+  static toString() {
     return `model:${get(this, 'modelName')}`;
+  }
+}
+Model.prototype._internalModel = null;
+Model.prototype.currentState = null;
+Model.prototype.store = null;
+
+const ID_DESCRIPTOR = {
+  configurable: false,
+  set(id) {
+    const normalizedId = coerceId(id);
+
+    if (normalizedId !== null) {
+      this._internalModel.setId(normalizedId);
+    }
   },
-});
+
+  get() {
+    // the _internalModel guard exists, because some dev-only deprecation code
+    // (addListener via validatePropertyInjections) invokes toString before the
+    // object is real.
+    if (DEBUG) {
+      if (!this._internalModel) {
+        return;
+      }
+    }
+    get(this._internalModel, '_tag');
+    return this._internalModel.id;
+  },
+};
+
+Object.defineProperty(Model.prototype, 'id', ID_DESCRIPTOR);
+
+if (DEPRECATE_EVENTED_API_USAGE) {
+  /**
+  Override the default event firing from Ember.Evented to
+  also call methods with the given name.
+
+  @method trigger
+  @private
+  @param {String} name
+*/
+  Model.reopen(DeprecatedEvented, {
+    trigger(name) {
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        let fn = this[name];
+        if (typeof fn === 'function') {
+          let length = arguments.length;
+          let args = new Array(length - 1);
+
+          for (let i = 1; i < length; i++) {
+            args[i - 1] = arguments[i];
+          }
+          fn.apply(this, args);
+        }
+      }
+
+      const _hasEvent = DEBUG ? this._has(name) : this.has(name);
+      if (_hasEvent) {
+        this._super(...arguments);
+      }
+    },
+  });
+}
+
+if (DEPRECATE_MODEL_TOJSON) {
+  /**
+    Use [JSONSerializer](JSONSerializer.html) to
+    get the JSON representation of a record.
+
+    `toJSON` takes an optional hash as a parameter, currently
+    supported options are:
+
+    - `includeId`: `true` if the record's ID should be included in the
+      JSON representation.
+
+    @method toJSON
+    @param {Object} options
+    @return {Object} A JSON representation of the object.
+  */
+  Model.reopen({
+    toJSON(options) {
+      // container is for lazy transform lookups
+      deprecate(
+        `Called the built-in \`toJSON\` on the record "${this.constructor.modelName}:${this.id}". The built-in \`toJSON\` method on instances of classes extending \`Model\` is deprecated. For more information see the link below.`,
+        false,
+        {
+          id: 'ember-data:model.toJSON',
+          until: '4.0',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-toJSON',
+          for: '@ember-data/model',
+          since: {
+            available: '3.15',
+            enabled: '3.15',
+          },
+        }
+      );
+      let serializer = this._internalModel.store.serializerFor('-default');
+      let snapshot = this._internalModel.createSnapshot();
+
+      return serializer.serialize(snapshot, options);
+    },
+  });
+}
+
+if (DEBUG) {
+  let lookupDescriptor = function lookupDescriptor(obj, keyName) {
+    let current = obj;
+    do {
+      let descriptor = Object.getOwnPropertyDescriptor(current, keyName);
+      if (descriptor !== undefined) {
+        return descriptor;
+      }
+      current = Object.getPrototypeOf(current);
+    } while (current !== null);
+    return null;
+  };
+  let isBasicDesc = function isBasicDesc(desc) {
+    return (
+      !desc ||
+      (!desc.get && !desc.set && desc.enumerable === true && desc.writable === true && desc.configurable === true)
+    );
+  };
+  let isDefaultEmptyDescriptor = function isDefaultEmptyDescriptor(obj, keyName) {
+    let instanceDesc = lookupDescriptor(obj, keyName);
+    return isBasicDesc(instanceDesc) && lookupDescriptor(obj.constructor, keyName) === null;
+  };
+
+  let lookupDeprecations;
+  let _deprecatedLifecycleMethods;
+
+  if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+    const INSTANCE_DEPRECATIONS = new WeakMap();
+    _deprecatedLifecycleMethods = [
+      'becameError',
+      'becameInvalid',
+      'didCreate',
+      'didDelete',
+      'didLoad',
+      'didUpdate',
+      'ready',
+      'rolledBack',
+    ];
+
+    lookupDeprecations = function lookupInstanceDeprecations(instance) {
+      let deprecations = INSTANCE_DEPRECATIONS.get(instance);
+
+      if (!deprecations) {
+        deprecations = new Set();
+        INSTANCE_DEPRECATIONS.set(instance, deprecations);
+      }
+
+      return deprecations;
+    };
+  }
+
+  Model.reopen({
+    init() {
+      this._super(...arguments);
+
+      if (DEPRECATE_EVENTED_API_USAGE) {
+        this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
+      }
+
+      if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
+        throw new Error(
+          `'_internalModel' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
+        );
+      }
+
+      if (!isDefaultEmptyDescriptor(this, 'currentState') || this.currentState !== this._internalModel.currentState) {
+        throw new Error(
+          `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
+        );
+      }
+
+      let idDesc = lookupDescriptor(this, 'id');
+
+      if (idDesc.get !== ID_DESCRIPTOR.get) {
+        throw new EmberError(
+          `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: attr('<type>')\` from ${this.constructor.toString()}`
+        );
+      }
+
+      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
+        let lifecycleDeprecations = lookupDeprecations(this.constructor);
+
+        _deprecatedLifecycleMethods.forEach(methodName => {
+          if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
+            deprecate(
+              `You defined a \`${methodName}\` method for ${this.constructor.toString()} but lifecycle events for models have been deprecated.`,
+              false,
+              {
+                id: 'ember-data:record-lifecycle-event-methods',
+                until: '4.0',
+                url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-lifecycle-event-methods',
+                for: '@ember-data/model',
+                since: {
+                  available: '3.12',
+                  enabled: '3.12',
+                },
+              }
+            );
+
+            lifecycleDeprecations.add(methodName);
+          }
+        });
+      }
+    },
+  });
+}
 
 export default Model;

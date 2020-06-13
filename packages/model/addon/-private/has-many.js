@@ -5,6 +5,8 @@ import { assert, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
+import { singularize } from 'ember-inflector';
+
 import { normalizeModelName } from '@ember-data/store';
 
 import { computedMacroWithOptionalParams } from './util';
@@ -152,23 +154,15 @@ import { computedMacroWithOptionalParams } from './util';
   @return {Ember.computed} relationship
 */
 function hasMany(type, options) {
-  if (typeof type === 'object') {
-    options = type;
-    type = undefined;
-  }
-
   assert(
     `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
       type
     )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
-    typeof type === 'string' || typeof type === 'undefined'
+    typeof type !== 'string'
   );
 
   options = options || {};
-
-  if (typeof type === 'string') {
-    type = normalizeModelName(type);
-  }
+  type = singularize(normalizeModelName(type));
 
   // Metadata about relationships is stored on the meta of
   // the relationship. This is used for introspection and

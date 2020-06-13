@@ -235,7 +235,7 @@ export default class InternalModelFactory {
       this.identifierCache.updateRecordIdentifier(identifier, { type, id });
     }
 
-    internalModel.setId(id);
+    internalModel.setId(id, true);
   }
 
   peekById(type: string, id: string): InternalModel | null {

@@ -6,6 +6,7 @@ import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
+import { tracked } from '@glimmer/tracking';
 
 import RSVP, { Promise } from 'rsvp';
 
@@ -147,6 +148,7 @@ export default class InternalModel {
   declare isReloading: boolean;
   declare _doNotDestroy: boolean;
   declare isDestroying: boolean;
+  declare _isUpdatingId: boolean;
 
   // Not typed yet
   declare _promiseProxy: any;
@@ -165,15 +167,15 @@ export default class InternalModel {
   declare _retainedManyArrayCache: ConfidentDict<ManyArray>;
   declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
   declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
-  declare currentState: any;
   declare error: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
-    this._tag = 0;
     this._id = identifier.id;
+    this._tag = 0;
+    this._isUpdatingId = false;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
 
@@ -194,6 +196,10 @@ export default class InternalModel {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
 
+    this._record = null;
+    this.isReloading = false;
+    this.error = null;
+
     // caches for lazy getters
     this._modelClass = null;
     this.__recordArrays = null;
@@ -202,7 +208,6 @@ export default class InternalModel {
 
     this.isReloading = false;
     this.error = null;
-    this.currentState = RootState.empty;
 
     // other caches
     // class fields have [[DEFINE]] semantics which are significantly slower than [[SET]] semantics here
@@ -213,6 +218,8 @@ export default class InternalModel {
     this.references = Object.create(null);
     this._deferredTriggers = [];
   }
+
+  @tracked currentState: any = RootState.empty;
 
   get id(): string | null {
     return this.identifier.id;
@@ -1251,14 +1258,18 @@ export default class InternalModel {
     return { type: internalModel.modelName, id: internalModel.id };
   }
 
-  setId(id: string) {
+  setId(id: string, fromCache: boolean = false) {
+    if (this._isUpdatingId === true) {
+      return;
+    }
+    this._isUpdatingId = true;
     let didChange = id !== this._id;
-
     this._id = id;
-    set(this, '_tag', this._tag + 1);
 
     if (didChange && id !== null) {
-      this.store.setRecordId(this.modelName, id, this.clientId);
+      if (!fromCache) {
+        this.store.setRecordId(this.modelName, id, this.clientId);
+      }
       // internal set of ID to get it to RecordData from DS.Model
       // if we are within create we may not have a recordData yet.
       if (this.__recordData && this._recordData.__setId) {
@@ -1270,9 +1281,11 @@ export default class InternalModel {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'identity');
       } else {
+        set(this, '_tag', this._tag + 1);
         this.notifyPropertyChange('id');
       }
     }
+    this._isUpdatingId = false;
   }
 
   didError(error) {
