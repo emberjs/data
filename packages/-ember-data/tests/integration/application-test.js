@@ -5,7 +5,6 @@ import Service, { inject as service } from '@ember/service';
 
 import { module, test } from 'qunit';
 
-import initializeStoreService from 'ember-data/initialize-store-service';
 import initializeEmberData from 'ember-data/setup-container';
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
@@ -105,10 +104,7 @@ module('integration/application - Attaching initializer', function(hooks) {
       name: 'ember-data',
       initialize: initializeEmberData,
     });
-    this.TestApplication.instanceInitializer({
-      name: 'ember-data',
-      initialize: initializeStoreService,
-    });
+
     this.application = null;
     this.owner = null;
   });
