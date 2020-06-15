@@ -6,9 +6,13 @@ export default class WeakCache<K extends object, V> {
   private _cache = new WeakMap<K, V>();
   private _symbol?: Symbol | string;
 
-  constructor(private _fieldName: string, private _generator?: (key: K) => V, private _expectMsg?: (key: K) => string) {
+  constructor(
+    private _fieldName?: string,
+    private _generator?: (key: K) => V,
+    private _expectMsg?: (key: K) => string
+  ) {
     if (DEBUG) {
-      this._symbol = symbol(_fieldName);
+      this._symbol = symbol(_fieldName || '');
     }
   }
 
