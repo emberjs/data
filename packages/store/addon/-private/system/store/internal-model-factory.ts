@@ -45,7 +45,7 @@ if (DEBUG) {
 }
 
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
-  return RecordCache.expect(record);
+  return RecordCache.getWithError(record);
 }
 
 export function internalModelFactoryFor(store: CoreStore): InternalModelFactory {

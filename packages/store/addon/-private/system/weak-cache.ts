@@ -38,7 +38,7 @@ export default class WeakCache<K extends object, V> {
     this._cache.set(obj, value);
   }
 
-  expect(obj: K): V {
+  getWithError(obj: K): V {
     let v = this.get(obj);
 
     if (DEBUG && v === undefined) {
