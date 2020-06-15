@@ -13,10 +13,8 @@
  *
  * @internal
  */
-export const symbol =
-  typeof Symbol !== 'undefined'
-    ? Symbol
-    : (key: string) => `__${key}${Math.floor(Math.random() * Date.now())}__` as any;
+const rand = Math.floor(Math.random() * Date.now());
+export const symbol = typeof Symbol !== 'undefined' ? Symbol : (key: string) => `__${key}_${rand}__` as any;
 
 export function addSymbol(obj: object, symbol: Symbol | string, value: any): void {
   if (typeof symbol === 'string') {

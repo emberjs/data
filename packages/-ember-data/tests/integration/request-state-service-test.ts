@@ -9,7 +9,6 @@ import { setupTest } from 'ember-qunit';
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
 import { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
-import { identifierCacheFor } from '@ember-data/store/-private';
 
 type RequestStateEnum = import('@ember-data/store/-private/ts-interfaces/fetch-manager').RequestStateEnum;
 type Store = import('ember-data/store').default;
@@ -85,7 +84,7 @@ if (REQUEST_SERVICE) {
       let requestService = store.getRequestStateService();
 
       // Relying on sequential lids until identifiers land
-      let identifier = identifierCacheFor(store).getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+      let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
       normalizedHash.data.lid = identifier.lid;
       let request = requestService.getPendingRequestsForRecord(identifier)[0];
 
@@ -187,7 +186,7 @@ if (REQUEST_SERVICE) {
 
       let requestService = store.getRequestStateService();
       // Relying on sequential lids until identifiers land
-      let identifier = identifierCacheFor(store).getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+      let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
       let count = 0;
       let requestOp = {
         op: 'findRecord',

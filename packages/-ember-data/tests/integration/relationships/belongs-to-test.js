@@ -13,7 +13,7 @@ import Model from '@ember-data/model';
 import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';
+import { recordDataFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
@@ -2046,7 +2046,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     const createRecordDataFor = store.createRecordDataFor;
     store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
       if (modelName === 'book1' || modelName === 'section') {
-        let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+        let identifier = this.identifierCache.getOrCreateRecordIdentifier({
           type: modelName,
           id,
           lid,

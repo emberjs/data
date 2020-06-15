@@ -2,10 +2,10 @@ import { assert, warn } from '@ember/debug';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
-import { identifierCacheFor } from '../../identifiers/cache';
 import constructResource from '../../utils/construct-resource';
 import IdentityMap from '../identity-map';
 import InternalModel from '../model/internal-model';
+import WeakCache from '../weak-cache';
 
 type CoreStore = import('../core-store').default;
 type ResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
@@ -20,50 +20,28 @@ type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
   @module @ember-data/store
 */
 
-const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
+const FactoryCache = new WeakCache<CoreStore, InternalModelFactory>(
+  DEBUG ? 'internal-model-factory' : '',
+  (store: CoreStore) => {
+    return new InternalModelFactory(store);
+  }
+);
 type NewResourceInfo = { type: string; id: string | null };
 
-const RecordCache = new WeakMap<RecordInstance, StableRecordIdentifier>();
-
-export function peekRecordIdentifier(record: any): StableRecordIdentifier | undefined {
-  return RecordCache.get(record);
-}
+export const RecordCache = DEBUG
+  ? new WeakCache<RecordInstance, StableRecordIdentifier>(
+      'identifier',
+      undefined,
+      key => `${key} is not a record instantiated by @ember-data/store`
+    )
+  : new WeakCache<RecordInstance, StableRecordIdentifier>('');
 
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
-  let identifier = RecordCache.get(record);
-
-  if (DEBUG && identifier === undefined) {
-    throw new Error(`${record} is not a record instantiated by @ember-data/store`);
-  }
-
-  return identifier as StableRecordIdentifier;
-}
-
-export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
-  if (DEBUG && RecordCache.has(record)) {
-    throw new Error(`${record} was already assigned an identifier`);
-  }
-
-  /*
-  It would be nice to do a reverse check here that an identifier has not
-  previously been assigned a record; however, unload + rematerialization
-  prevents us from having a great way of doing so when CustomRecordClasses
-  don't necessarily give us access to a `isDestroyed` for dematerialized
-  instance.
-  */
-
-  RecordCache.set(record, identifier);
+  return RecordCache.expect(record);
 }
 
 export function internalModelFactoryFor(store: CoreStore): InternalModelFactory {
-  let factory = FactoryCache.get(store);
-
-  if (factory === undefined) {
-    factory = new InternalModelFactory(store);
-    FactoryCache.set(store, factory);
-  }
-
-  return factory;
+  return FactoryCache.lookup(store);
 }
 
 /**
@@ -79,7 +57,7 @@ export default class InternalModelFactory {
   public identifierCache: IdentifierCache;
 
   constructor(public store: CoreStore) {
-    this.identifierCache = identifierCacheFor(store);
+    this.identifierCache = store.identifierCache;
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
       let intendedIdentifier = identifier;
       if (identifier.id !== matchedIdentifier.id) {

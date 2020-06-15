@@ -104,7 +104,6 @@ module('integration/application - Attaching initializer', function(hooks) {
       name: 'ember-data',
       initialize: initializeEmberData,
     });
-
     this.application = null;
     this.owner = null;
   });

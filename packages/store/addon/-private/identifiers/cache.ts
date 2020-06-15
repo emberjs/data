@@ -3,15 +3,14 @@ import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
 import normalizeModelName from '../system/normalize-model-name';
+import WeakCache from '../system/weak-cache';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
 import { addSymbol } from '../ts-interfaces/utils/symbol';
 import isNonEmptyString from '../utils/is-non-empty-string';
-import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
 
 type Identifier = import('../ts-interfaces/identifier').Identifier;
 
-type CoreStore = import('../system/core-store').default;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type GenerationMethod = import('../ts-interfaces/identifier').GenerationMethod;
 type UpdateMethod = import('../ts-interfaces/identifier').UpdateMethod;
@@ -21,6 +20,8 @@ type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
 type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
+
+const IDENTIFIERS = new WeakCache<StableRecordIdentifier, true>(DEBUG ? 'isIdentifier' : '');
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
@@ -79,24 +80,11 @@ function defaultGenerationMethod(data: ResourceIdentifierObject, bucket: string)
   return uuidv4();
 }
 
-const IdentifierCaches = new WeakMap<CoreStore, IdentifierCache>();
-
-export function identifierCacheFor(store: CoreStore): IdentifierCache {
-  let cache = IdentifierCaches.get(store);
-
-  if (cache === undefined) {
-    cache = new IdentifierCache();
-    IdentifierCaches.set(store, cache);
-  }
-
-  return cache;
-}
-
 function defaultEmptyCallback(...args: any[]): any {}
 
 let DEBUG_MAP;
 if (DEBUG) {
-  DEBUG_MAP = new WeakMap<StableRecordIdentifier, StableRecordIdentifier>();
+  DEBUG_MAP = new WeakCache<StableRecordIdentifier, StableRecordIdentifier>('target');
 }
 
 export class IdentifierCache {
@@ -152,7 +140,7 @@ export class IdentifierCache {
     shouldGenerate: boolean = false
   ): StableRecordIdentifier | undefined {
     // short circuit if we're already the stable version
-    if (isStableIdentifier(resource)) {
+    if (IDENTIFIERS.has(resource)) {
       if (DEBUG) {
         // TODO should we instead just treat this case as a new generation skipping the short circuit?
         if (!(resource.lid in this._cache.lids) || this._cache.lids[resource.lid] !== resource) {
@@ -413,7 +401,7 @@ export class IdentifierCache {
     let index = keyOptions._allIdentifiers.indexOf(identifier);
     keyOptions._allIdentifiers.splice(index, 1);
 
-    unmarkStableIdentifier(identifierObject);
+    IDENTIFIERS.delete(identifierObject);
     this._forget(identifier, 'record');
   }
 
@@ -449,7 +437,7 @@ function makeStableRecordIdentifier(
     id,
     type,
   };
-  markStableIdentifier(recordIdentifier);
+  IDENTIFIERS.set(recordIdentifier, true);
 
   if (DEBUG) {
     // we enforce immutability in dev
@@ -471,9 +459,9 @@ function makeStableRecordIdentifier(
     };
     addSymbol(wrapper, DEBUG_CLIENT_ORIGINATED, clientOriginated);
     addSymbol(wrapper, DEBUG_IDENTIFIER_BUCKET, bucket);
-    wrapper = freeze(wrapper);
-    markStableIdentifier(wrapper);
+    IDENTIFIERS.set(wrapper, true);
     DEBUG_MAP.set(wrapper, recordIdentifier);
+    wrapper = freeze(wrapper);
     return wrapper;
   }
 

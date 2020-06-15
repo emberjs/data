@@ -1,7 +1,10 @@
 import { deprecate } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
 import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
 import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
+
+import WeakCache from '../weak-cache';
 
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
@@ -29,7 +32,7 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-export const INTERNAL_MODELS = new WeakMap<Reference, InternalModel>();
+export const INTERNAL_MODELS = new WeakCache<Reference, InternalModel>(DEBUG ? 'internal-model' : '');
 
 /**
   This is the baseClass for the different References

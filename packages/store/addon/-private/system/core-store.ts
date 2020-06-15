@@ -37,7 +37,7 @@ import {
   DEPRECATE_LEGACY_TEST_REGISTRATIONS,
 } from '@ember-data/private-build-infra/deprecations';
 
-import { identifierCacheFor } from '../identifiers/cache';
+import { IdentifierCache } from '../identifiers/cache';
 // TODO this comes from ts-interfaces but it is a function we ship
 // so needs to be moved somewhere else
 import { addSymbol } from '../ts-interfaces/utils/symbol';
@@ -61,7 +61,7 @@ import NotificationManager from './record-notification-manager';
 import { RequestPromise } from './request-cache';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
-import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
+import { internalModelFactoryFor, RecordCache, recordIdentifierFor } from './store/internal-model-factory';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
@@ -71,7 +71,6 @@ type Backburner = import('@ember/runloop/-private/backburner').Backburner;
 type RecordReference = import('./references').RecordReference;
 type HasManyReference = import('./references').HasManyReference;
 type BelongsToReference = import('./references').BelongsToReference;
-type IdentifierCache = import('../identifiers/cache').IdentifierCache;
 type InternalModel = import('./model/internal-model').default;
 
 type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
@@ -245,6 +244,7 @@ abstract class CoreStore extends Service {
   private _updatedRelationships: Relationship[] = [];
   // used for coalescing internal model updates
   private _updatedInternalModels: InternalModel[] = [];
+  public identifierCache: IdentifierCache = new IdentifierCache();
 
   // used to keep track of all the find requests that need to be coalesced
   private _pendingFetch = new Map<string, PendingFetchItem[]>();
@@ -418,10 +418,6 @@ abstract class CoreStore extends Service {
     assertInDebug('RequestService is not available unless the feature flag is on and running on a canary build', false);
   }
 
-  get identifierCache(): IdentifierCache {
-    return identifierCacheFor(this);
-  }
-
   _instantiateRecord(
     internalModel: InternalModel,
     modelName: string,
@@ -472,7 +468,7 @@ abstract class CoreStore extends Service {
       let createOptions = recordData._initRecordCreateOptions(properties);
       //TODO Igor pass a wrapper instead of RD
       let record = this.instantiateRecord(identifier, createOptions, this.__recordDataFor, this._notificationManager);
-      setRecordIdentifier(record, identifier);
+      RecordCache.set(record, identifier);
       //recordToInternalModelMap.set(record, internalModel);
       return record;
     }
@@ -1553,7 +1549,7 @@ abstract class CoreStore extends Service {
     const trueId = ensureStringId(id);
     const resource = { type, id: trueId };
 
-    const identifier = identifierCacheFor(this).peekRecordIdentifier(resource);
+    const identifier = this.identifierCache.peekRecordIdentifier(resource);
     const internalModel = identifier && internalModelFactoryFor(this).peek(identifier);
 
     return !!internalModel && internalModel.isLoaded();
@@ -2549,7 +2545,7 @@ abstract class CoreStore extends Service {
       );
     }
 
-    const cache = identifierCacheFor(this);
+    const cache = this.identifierCache;
     const identifier = internalModel.identifier;
 
     if (op !== 'deleteRecord' && data) {
@@ -2641,7 +2637,7 @@ abstract class CoreStore extends Service {
     // exclude store.push (root.empty) case
     if (isUpdate || isLoading) {
       let identifier = internalModel.identifier;
-      let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
+      let updatedIdentifier = this.identifierCache.updateRecordIdentifier(identifier, data);
 
       if (updatedIdentifier !== identifier) {
         // we encountered a merge of identifiers in which
@@ -3079,7 +3075,7 @@ abstract class CoreStore extends Service {
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
     if (CUSTOM_MODEL_CLASS) {
-      let stableIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(identifier);
+      let stableIdentifier = this.identifierCache.getOrCreateRecordIdentifier(identifier);
       let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
       // TODO we used to check if the record was destroyed here
       return internalModel!.referenceFor(null, key);
@@ -3120,7 +3116,7 @@ abstract class CoreStore extends Service {
         _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataClass;
       }
 
-      let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+      let identifier = this.identifierCache.getOrCreateRecordIdentifier({
         type: modelName,
         id,
         lid: clientId,
@@ -3135,7 +3131,7 @@ abstract class CoreStore extends Service {
    * @internal
    */
   __recordDataFor(resource: RecordIdentifier) {
-    const identifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     return this.recordDataFor(identifier, false);
   }
 
@@ -3511,7 +3507,7 @@ abstract class CoreStore extends Service {
     super.willDestroy();
     this.recordArrayManager.destroy();
 
-    identifierCacheFor(this).destroy();
+    this.identifierCache.destroy();
 
     this.unloadAll();
 
@@ -3731,7 +3727,7 @@ if (DEBUG) {
  * @return {boolean}
  */
 function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelationship): boolean {
-  const cache = identifierCacheFor(store);
+  const cache = store.identifierCache;
 
   if (Array.isArray(resource.data)) {
     // treat as collection

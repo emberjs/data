@@ -1,6 +1,5 @@
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
-import { identifierCacheFor } from '../../identifiers/cache';
 import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
 import { BRAND_SYMBOL } from '../../ts-interfaces/utils/brand';
 import constructResource from '../../utils/construct-resource';
@@ -31,7 +30,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   }
 
   get identifierCache(): IdentifierCache {
-    return identifierCacheFor(this._store);
+    return this._store.identifierCache;
   }
 
   /**
@@ -67,7 +66,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   notifyErrorsChange(type: string, id: string | null, lid: string): void;
   notifyErrorsChange(type: string, id: string | null, lid: string | null): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
@@ -144,7 +143,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   notifyPropertyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
   notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
@@ -156,7 +155,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   notifyHasManyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
   notifyHasManyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     this._scheduleManyArrayUpdate(identifier, key);
   }
 
@@ -164,7 +163,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   notifyBelongsToChange(type: string, id: string, lid: string | null | undefined, key: string): void;
   notifyBelongsToChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
@@ -176,7 +175,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   notifyStateChange(type: string, id: string | null, lid: string, key?: string): void;
   notifyStateChange(type: string, id: string | null, lid: string | null, key?: string): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
@@ -195,7 +194,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
       identifier = { type };
     } else {
       const resource = constructResource(type, id, lid);
-      identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+      identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     }
 
     return this._store.recordDataFor(identifier, isCreate);
@@ -209,7 +208,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   isRecordInUse(type: string, id: string, lid?: string | null): boolean;
   isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
     if (!internalModel) {
       return false;
@@ -221,7 +220,7 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   disconnectRecord(type: string, id: string, lid?: string | null): void;
   disconnectRecord(type: string, id: string | null, lid?: string | null): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
     if (internalModel) {
       internalModel.destroyFromRecordData();

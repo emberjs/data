@@ -19,13 +19,12 @@ import {
 } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
-import { identifierCacheFor } from '../../identifiers/cache';
 import coerceId from '../coerce-id';
 import { errorsHashToArray } from '../errors-utils';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
-import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
+import { internalModelFactoryFor, RecordCache } from '../store/internal-model-factory';
 import RootState from './states';
 
 type CoreStore = import('../core-store').default;
@@ -213,7 +212,7 @@ export default class InternalModel {
   set id(value: string | null) {
     if (value !== this._id) {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
-      identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
+      this.store.identifierCache.updateRecordIdentifier(this.identifier, newIdentifier);
       set(this, '_tag', this._tag + 1);
       // TODO Show deprecation for private api
     }
@@ -446,7 +445,7 @@ export default class InternalModel {
           setOwner(createOptions, getOwner(store));
 
           this._record = store._modelFactoryFor(this.modelName).create(createOptions);
-          setRecordIdentifier(this._record, this.identifier);
+          RecordCache.set(this._record, this.identifier);
         }
       }
       this._triggerDeferredTriggers();
@@ -676,7 +675,7 @@ export default class InternalModel {
   getBelongsTo(key, options) {
     let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     let identifier =
-      resource && resource.data ? identifierCacheFor(this.store).getOrCreateRecordIdentifier(resource.data) : null;
+      resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
     let parentInternalModel = this;
