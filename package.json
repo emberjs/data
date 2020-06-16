@@ -116,7 +116,6 @@
     "fromentries": "^1.2.0",
     "fs-extra": "^9.0.0",
     "git-repo-info": "^2.1.1",
-    "github": "^1.1.1",
     "glob": "^7.1.6",
     "json-typescript": "^1.1.2",
     "lerna": "^4.0.0",
