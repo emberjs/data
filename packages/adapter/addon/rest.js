@@ -5,12 +5,14 @@
 */
 
 import { getOwner } from '@ember/application';
+import { deprecate } from '@ember/application/deprecations';
 import { warn } from '@ember/debug';
 import { computed, get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
+import { has } from 'require';
 import { Promise } from 'rsvp';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
@@ -991,7 +993,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   ajax(url, type, options) {
     let adapter = this;
-    let useFetch = get(this, 'useFetch');
 
     let requestData = {
       url: url,
@@ -999,7 +1000,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
-    if (useFetch) {
+    if (this.useFetch) {
       let _response;
       return this._fetchRequest(hash)
         .then(response => {
@@ -1067,9 +1068,19 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   _ajax(options) {
-    if (get(this, 'useFetch')) {
+    if (this.useFetch) {
       this._fetchRequest(options);
     } else if (get(this, 'fastboot.isFastBoot')) {
+      if (has('fetch')) {
+        deprecate(
+          'You have ember-fetch and jquery installed. To use ember-fetch, set `useFetch: true` in your adapter.  In 4.0, ember-data will fallback to ember-fetch instead of najax when both of these are installed.',
+          false,
+          {
+            id: 'ember-data:najax-fallback',
+            until: '4.0',
+          }
+        );
+      }
       this._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
@@ -1103,7 +1114,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let contentType = options.contentType || this._defaultContentType;
 
-    if (get(this, 'useFetch')) {
+    if (this.useFetch) {
       if (options.data && options.type !== 'GET') {
         if (!options.headers['Content-Type'] && !options.headers['content-type']) {
           options.headers['content-type'] = contentType;
