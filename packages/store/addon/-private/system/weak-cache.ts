@@ -2,17 +2,23 @@ import { DEBUG } from '@glimmer/env';
 
 import { addSymbol, symbol } from '../ts-interfaces/utils/symbol';
 
-export default class WeakCache<K extends object, V> {
-  private _cache = new WeakMap<K, V>();
-  private _symbol?: Symbol | string;
+interface WeakCache<K extends object, V> {
+  _symbol?: Symbol | string;
+  _fieldName?: string;
+  _generator?: (key: K) => V;
+  _expectMsg?: (key: K) => string;
+}
 
-  constructor(
-    private _fieldName?: string,
-    private _generator?: (key: K) => V,
-    private _expectMsg?: (key: K) => string
-  ) {
+class WeakCache<K extends object, V> {
+  private _cache = new WeakMap<K, V>();
+
+  constructor(_fieldName?: string, _generator?: (key: K) => V, _expectMsg?: (key: K) => string) {
+    this._generator = _generator;
+
     if (DEBUG) {
+      this._fieldName = _fieldName;
       this._symbol = symbol(_fieldName || '');
+      this._expectMsg = _expectMsg;
     }
   }
 
@@ -63,3 +69,5 @@ export default class WeakCache<K extends object, V> {
     return v;
   }
 }
+
+export default WeakCache;
