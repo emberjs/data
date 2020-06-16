@@ -12,13 +12,10 @@ interface WeakCache<K extends object, V> {
 class WeakCache<K extends object, V> {
   private _cache = new WeakMap<K, V>();
 
-  constructor(_fieldName?: string, _generator?: (key: K) => V, _expectMsg?: (key: K) => string) {
-    this._generator = _generator;
-
+  constructor(_fieldName?: string) {
     if (DEBUG) {
       this._fieldName = _fieldName;
       this._symbol = symbol(_fieldName || '');
-      this._expectMsg = _expectMsg;
     }
   }
 

@@ -44,7 +44,6 @@ interface Reference {
   links(): PaginationLinks | null;
 }
 abstract class Reference {
-  public recordData: InternalModel['_recordData'];
   constructor(public store: CoreStore, internalModel: InternalModel) {
     INTERNAL_MODELS.set(this, internalModel);
   }

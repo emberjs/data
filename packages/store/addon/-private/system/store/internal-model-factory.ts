@@ -22,24 +22,16 @@ type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 
 type NewResourceInfo = { type: string; id: string | null };
 
-let FactoryCache;
-if (DEBUG) {
-  FactoryCache = new WeakCache<CoreStore, InternalModelFactory>('internal-model-factory', (store: CoreStore) => {
-    return new InternalModelFactory(store);
-  });
-} else {
-  FactoryCache = new WeakCache<CoreStore, InternalModelFactory>('', (store: CoreStore) => {
-    return new InternalModelFactory(store);
-  });
-}
+let FactoryCache = new WeakCache<CoreStore, InternalModelFactory>(DEBUG ? 'internal-model-factory' : '');
+
+FactoryCache._generator = (store: CoreStore) => {
+  return new InternalModelFactory(store);
+};
 
 export let RecordCache;
 if (DEBUG) {
-  RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>(
-    'identifier',
-    undefined,
-    key => `${key} is not a record instantiated by @ember-data/store`
-  );
+  RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>('identifier');
+  RecordCache._expectMsg = (key: RecordInstance) => `${key} is not a record instantiated by @ember-data/store`;
 } else {
   RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>();
 }
