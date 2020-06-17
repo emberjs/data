@@ -908,7 +908,7 @@ abstract class CoreStore extends Service {
     ```
 
     If you pass an object on the `adapterOptions` property of the options
-    argument it will be passed to you adapter via the snapshot
+    argument it will be passed to your adapter via the snapshot
 
     ```app/routes/post/edit.js
     import Route from '@ember/routing/route';
