@@ -9,6 +9,9 @@ const Router = EmberRouter.extend({
 
 Router.map(function() {
   this.route('materialization');
+  this.route('add-children');
+  this.route('unload');
+  this.route('destroy');
 });
 
 export default Router;

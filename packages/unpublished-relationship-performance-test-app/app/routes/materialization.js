@@ -18,8 +18,10 @@ export default Route.extend({
       });
       performance.mark('stop-outer-materialization');
       performance.measure('outer-materialization', 'start-outer-materialization', 'stop-outer-materialization');
+
       performance.mark('end-find-all');
       performance.measure('find-all', 'start-find-all', 'end-find-all');
+
       return flattened;
     });
   },

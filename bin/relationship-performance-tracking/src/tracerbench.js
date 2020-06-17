@@ -29,6 +29,69 @@ const routes = [
       },
     ],
   },
+  {
+    routeName: 'add-children',
+    markers: [
+      {
+        start: 'start-push-initial-payload',
+        label: 'start-push-initial-payload',
+      },
+      {
+        start: 'end-push-initial-payload',
+        label: 'end-push-initial-payload',
+      },
+      {
+        start: 'start-push-update-payload',
+        label: 'start-push-update-payload',
+      },
+      {
+        start: 'end-push-update-payload',
+        label: 'end-push-update-payload',
+      },
+    ],
+  },
+  {
+    routeName: 'unload',
+    markers: [
+      {
+        start: 'start-push-payload',
+        label: 'start-push-payload',
+      },
+      {
+        start: 'end-push-payload',
+        label: 'end-push-payload',
+      },
+      {
+        start: 'start-unloadRecord',
+        label: 'start-unloadRecord',
+      },
+      {
+        start: 'end-unloadRecord',
+        label: 'end-unloadRecord',
+      },
+    ],
+  },
+  {
+    routeName: 'destroy',
+    markers: [
+      {
+        start: 'start-push-payload',
+        label: 'start-push-payload',
+      },
+      {
+        start: 'end-push-payload',
+        label: 'end-push-payload',
+      },
+      {
+        start: 'start-destroyRecord',
+        label: 'start-destroyRecord',
+      },
+      {
+        start: 'end-destroyRecord',
+        label: 'end-destroyRecord',
+      },
+    ],
+  },
 ];
 
 const browser = {
