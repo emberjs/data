@@ -43,11 +43,11 @@ import { modelHasAttributeOrRelationshipNamedType } from './-private';
   import RESTSerializer from '@ember-data/serializer/rest';
   import { underscore } from '@ember/string';
 
-  export default RESTSerializer.extend({
+  export default class ApplicationSerializer extends RESTSerializer {
     keyForAttribute(attr, method) {
       return underscore(attr).toUpperCase();
     }
-  });
+  }
   ```
 
   You can also implement `keyForRelationship`, which takes the name
@@ -69,13 +69,13 @@ const RESTSerializer = JSONSerializer.extend({
     ```app/serializers/post.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       keyForPolymorphicType(key, relationship) {
         var relationshipKey = this.keyForRelationship(key);
 
         return 'type-' + relationshipKey;
       }
-    });
+    }
     ```
 
    @method keyForPolymorphicType
@@ -134,16 +134,16 @@ const RESTSerializer = JSONSerializer.extend({
     ```app/serializers/post.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       normalize(model, hash, prop) {
         if (prop === 'comments') {
           hash.id = hash._id;
           delete hash._id;
         }
 
-        return this._super(...arguments);
+        return super.normalize(...arguments);
       }
-    });
+    }
     ```
 
     On each call to the `normalize` method, the third parameter (`prop`) is always
@@ -430,8 +430,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```app/models/post.js
     import Model from '@ember-data/model';
 
-    export default Model.extend({
-    });
+    export default class Post extends Model {}
     ```
 
     ```javascript
@@ -453,15 +452,15 @@ const RESTSerializer = JSONSerializer.extend({
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       modelNameFromPayloadKey(payloadKey) {
         if (payloadKey === 'blog/post') {
-          return this._super(payloadKey.replace('blog/', ''));
+          return super.modelNameFromPayloadKey(payloadKey.replace('blog/', ''));
         } else {
-         return this._super(payloadKey);
+         return super.modelNameFromPayloadKey(payloadKey);
         }
       }
-    });
+    }
     ```
 
     After refreshing, Ember Data will appropriately look up the "post" model.
@@ -494,12 +493,12 @@ const RESTSerializer = JSONSerializer.extend({
     ```app/models/comment.js
     import Model, { attr, belongsTo } from '@ember-data/model';
 
-    export default Model.extend({
-      title: attr(),
-      body: attr(),
+    export default class Comment extends Model {
+      @attr title
+      @attr body
 
-      author: belongsTo('user')
-    });
+      @belongsTo('user') author
+    }
     ```
 
     The default serialization would create a JSON object like:
@@ -540,7 +539,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```app/serializers/post.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
@@ -554,7 +553,7 @@ const RESTSerializer = JSONSerializer.extend({
 
         return json;
       }
-    });
+    }
     ```
 
     ## Customizing an App-Wide Serializer
@@ -567,7 +566,7 @@ const RESTSerializer = JSONSerializer.extend({
     import RESTSerializer from '@ember-data/serializer/rest';
     import { pluralize } from 'ember-inflector';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
         var json = {};
 
@@ -587,7 +586,7 @@ const RESTSerializer = JSONSerializer.extend({
 
         return json;
       }
-    });
+    }
 
     function serverAttributeName(attribute) {
       return attribute.underscore().toUpperCase();
@@ -617,16 +616,16 @@ const RESTSerializer = JSONSerializer.extend({
     ```app/serializers/post.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
-        var json = this._super(snapshot, options);
+        var json = super.serialize(snapshot, options);
 
         json.subject = json.title;
         delete json.title;
 
         return json;
       }
-    });
+    }
     ```
 
     @method serialize
@@ -650,12 +649,12 @@ const RESTSerializer = JSONSerializer.extend({
     import RESTSerializer from '@ember-data/serializer/rest';
     import { decamelize } from '@ember/string';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, record, options) {
         var root = decamelize(type.modelName);
         data[root] = this.serialize(record, options);
       }
-    });
+    }
     ```
 
     @method serializeIntoHash
@@ -692,11 +691,11 @@ const RESTSerializer = JSONSerializer.extend({
     import RESTSerializer from '@ember-data/serializer/rest';
     import { dasherize } from '@ember/string';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       payloadKeyFromModelName(modelName) {
         return dasherize(modelName);
       }
-    });
+    }
     ```
 
     Given a `TacoParty` model, calling `save` on it would produce an outgoing
