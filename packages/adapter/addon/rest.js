@@ -293,7 +293,7 @@ const hasNajax = typeof najax !== 'undefined';
   @extends Adapter
   @uses BuildURLMixin
 */
-const RESTAdapter = Adapter.extend(BuildURLMixin, {
+let RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
 
   _defaultContentType: 'application/json; charset=utf-8',
@@ -314,7 +314,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   useFetch: computed({
     get() {
-      if (this._useFetch) {
+      if (this._useFetch !== undefined) {
         return this._useFetch;
       }
       let ENV = getOwner(this).resolveRegistration('config:environment');
@@ -1064,7 +1064,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   _ajax(options) {
     if (this.useFetch) {
       this._fetchRequest(options);
-    } else if (get(this, 'fastboot.isFastBoot') && DEPRECATE_NAJAX) {
+    } else if (DEPRECATE_NAJAX && get(this, 'fastboot.isFastBoot')) {
       if (has('fetch')) {
         deprecate(
           'You have ember-fetch and jquery installed. To use ember-fetch, set `useFetch: true` in your adapter.  In 4.0, ember-data will fallback to ember-fetch instead of najax when both of these are installed.',
@@ -1420,7 +1420,7 @@ function ajaxOptions(options, adapter) {
 }
 
 if (DEPRECATE_NAJAX) {
-  RESTAdapter.reopen({
+  RESTAdapter = RESTAdapter.extend({
     /**
       @method _najaxRequest
       @private

@@ -1,7 +1,7 @@
 /**
  * ## Deprecations
  *
- * EmberData allows users to remove code that exists to support deprecated
+ * EmberData allows users to opt-in and remove code that exists to support deprecated
  * behaviors.
  *
  * If your app has resolved all deprecations present in a given version,
@@ -51,5 +51,5 @@ export default {
   DEPRECATE_SERIALIZER_QUERY_RECORD_ARRAY_RESPONSE: '3.4',
   DEPRECATE_BELONGS_TO_REFERENCE_PUSH: '3.16',
   DEPRECATE_REFERENCE_INTERNAL_MODEL: '3.19',
-  DEPRECATE_NAJAX: '4.0',
+  DEPRECATE_NAJAX: '3.21',
 };
