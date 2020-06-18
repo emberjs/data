@@ -26,6 +26,7 @@ import AdapterError, {
   TimeoutError,
   UnauthorizedError,
 } from '@ember-data/adapter/error';
+import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
@@ -311,18 +312,26 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     },
   }),
 
-  useFetch: computed(function() {
-    let ENV = getOwner(this).resolveRegistration('config:environment');
-    // TODO: https://github.com/emberjs/data/issues/6093
-    let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
+  useFetch: computed({
+    get() {
+      if (this._useFetch) {
+        return this._useFetch;
+      }
+      let ENV = getOwner(this).resolveRegistration('config:environment');
+      // TODO: https://github.com/emberjs/data/issues/6093
+      let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
 
-    if (jQueryIntegrationDisabled) {
-      return true;
-    } else if (hasNajax || hasJQuery) {
-      return false;
-    } else {
-      return true;
-    }
+      if (jQueryIntegrationDisabled) {
+        return true;
+      } else if (hasNajax || hasJQuery) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+    set(key, value) {
+      return (this._useFetch = value);
+    },
   }),
 
   /**
@@ -1040,21 +1049,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     jQuery.ajax(options);
   },
 
-  /**
-    @method _najaxRequest
-    @private
-    @param {Object} options jQuery ajax options to be used for the najax request
-  */
-  _najaxRequest(options) {
-    if (hasNajax) {
-      najax(options);
-    } else {
-      throw new Error(
-        'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
-      );
-    }
-  },
-
   _fetchRequest(options) {
     let fetchFunction = fetch();
 
@@ -1070,7 +1064,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   _ajax(options) {
     if (this.useFetch) {
       this._fetchRequest(options);
-    } else if (get(this, 'fastboot.isFastBoot')) {
+    } else if (get(this, 'fastboot.isFastBoot') && DEPRECATE_NAJAX) {
       if (has('fetch')) {
         deprecate(
           'You have ember-fetch and jquery installed. To use ember-fetch, set `useFetch: true` in your adapter.  In 4.0, ember-data will fallback to ember-fetch instead of najax when both of these are installed.',
@@ -1423,6 +1417,25 @@ function ajaxOptions(options, adapter) {
   };
 
   return options;
+}
+
+if (DEPRECATE_NAJAX) {
+  RESTAdapter.reopen({
+    /**
+      @method _najaxRequest
+      @private
+      @param {Object} options jQuery ajax options to be used for the najax request
+    */
+    _najaxRequest(options) {
+      if (hasNajax) {
+        najax(options);
+      } else {
+        throw new Error(
+          'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
+        );
+      }
+    },
+  });
 }
 
 export default RESTAdapter;
