@@ -302,7 +302,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     // Avoid computed property override deprecation in fastboot as suggested by:
     // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
     get() {
-      if (this._fastboot) {
+      if (this._fastboot !== undefined) {
         return this._fastboot;
       }
       return (this._fastboot = getOwner(this).lookup('service:fastboot'));
@@ -326,7 +326,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
       } else if (hasNajax || hasJQuery) {
         return false;
       } else {
-        return true;
+        return (this._useFetch = true);
       }
     },
     set(key, value) {
