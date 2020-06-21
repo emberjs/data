@@ -21,6 +21,7 @@ export default class SnapshotRecordArray {
   public meta?: Dict<any>;
   public adapterOptions: Dict<any>;
   public include?: string;
+  public fields?: string;
 
   constructor(recordArray: RecordArray, meta?: Dict<any>, options: Dict<any> = {}) {
     /**
@@ -127,6 +128,14 @@ export default class SnapshotRecordArray {
       @type {String|Array}
     */
     this.include = options.include;
+
+    /**
+      The specific fields per type to return in a request
+
+      @property fields
+      @type {String}
+    */
+    this.fields = options.fields;
   }
 
   /**

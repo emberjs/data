@@ -1571,6 +1571,20 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     run(() => store.findRecord('person', 1, { include: 'books' }));
   });
 
+  test("store.findRecord should pass 'fields' to adapter.findRecord", function(assert) {
+    assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = (store, type, id, snapshot) => {
+      assert.equal(snapshot.fields, '[person]=name', 'fields passed to adapter.findRecord');
+      return resolve({ data: { id: 1, type: 'person' } });
+    };
+
+    run(() => store.findRecord('person', 1, { fields: '[person]=name' }));
+  });
+
   test('store.findAll should pass adapterOptions to the adapter.findAll method', function(assert) {
     assert.expect(1);
 
@@ -1600,6 +1614,20 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     run(() => store.findAll('person', { include: 'books' }));
+  });
+
+  test("store.findAll should pass 'fields' to adapter.findAll", function(assert) {
+    assert.expect(1);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findAll = function(store, type, sinceToken, arraySnapshot) {
+      assert.equal(arraySnapshot.fields, '[person]=name', 'fields passed to adapter.findAll');
+      return resolve({ data: [{ id: 1, type: 'person' }] });
+    };
+
+    run(() => store.findAll('person', { fields: '[person]=name' }));
   });
 
   test('An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord', function(assert) {

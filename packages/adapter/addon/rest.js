@@ -1225,10 +1225,13 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let query = {};
 
     if (snapshot) {
-      let { include } = snapshot;
+      let { fields, include } = snapshot;
 
       if (include) {
         query.include = include;
+      }
+      if (fields) {
+        query.fields = fields;
       }
     }
 

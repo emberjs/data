@@ -69,6 +69,7 @@ export default class Snapshot implements Snapshot {
   public modelName: string;
   public id: string | null;
   public include?: unknown;
+  public fields?: unknown;
   public adapterOptions: Dict<unknown>;
 
   constructor(options: Dict<any>, identifier: StableRecordIdentifier, private _store: Store) {
@@ -110,7 +111,16 @@ export default class Snapshot implements Snapshot {
      @type {Object}
      */
     this.adapterOptions = options.adapterOptions;
+    /**
+     @property include
+     @type {String|Array}
+     */
     this.include = options.include;
+    /**
+     @property fields
+     @type {String}
+     */
+    this.fields = options.fields;
 
     /**
      The name of the type of the underlying record for this snapshot, as a string.
