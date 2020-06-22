@@ -980,6 +980,39 @@ abstract class CoreStore extends Service {
 
     ```
 
+    ### Retrieving Specific Fields by Type
+
+    If your server endpoint supports the use of an ['fields' query parameter](https://jsonapi.org/format/#fetching-sparse-fieldsets),
+    you can use `findRecord()` to automatically retrieve a specific set of attributes
+    by supplying a `fields` parameter in the `options` object.
+
+    Given a `post` model, we can retrieve a filtered list of attributes for a post.
+
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+
+    export default Route.extend({
+      model(params) {
+        return this.store.findRecord('post', params.post_id, { fields: '[post]=body,title' });
+      }
+    });
+
+    ```
+
+    Moreover, if a `post` has a belongsTo relationship, you can filter attributes on related models as well
+    by appending an `&` along with the relationship type and fields.
+
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+
+    export default Route.extend({
+      model(params) {
+        return this.store.findRecord('post', params.post_id, { fields: '[post]=body,title&[user]=name,email' });
+      }
+    });
+
+    ```
+
     @since 1.13.0
     @method findRecord
     @param {String} modelName
