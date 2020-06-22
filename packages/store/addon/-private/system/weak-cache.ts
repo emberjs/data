@@ -2,10 +2,15 @@ import { DEBUG } from '@glimmer/env';
 
 import { addSymbol, symbol } from '../ts-interfaces/utils/symbol';
 
+/*
+  DEBUG only fields. Keeping this in a separate interface
+  which Typescript then merges with the class definition allow us to
+  have a DEBUG only property without paying the cost of that field being
+  present and initialized (usually to void 0) in production.
+*/
 interface WeakCache<K extends object, V> extends WeakMap<K, V> {
   _symbol?: Symbol | string;
   _fieldName?: string;
-  _generator?: (key: K) => V;
   _expectMsg?: (key: K) => string;
   /*
     The default Typescript Signature for WeakMap expects obj: K and
@@ -18,6 +23,15 @@ interface WeakCache<K extends object, V> extends WeakMap<K, V> {
     a Record.
   */
   has(obj: unknown): obj is K;
+
+  /*
+    This is an exception to the interface being used for
+    DEBUG ony fields. In this case, only a few WeakCache's
+    will utilize the lookup behavior, so paying the cost in
+    the constructor signature / field initialization seemed
+    off.
+  */
+  _generator?: (key: K) => V;
 }
 
 class WeakCache<K extends object, V> extends WeakMap<K, V> {
