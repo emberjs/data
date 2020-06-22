@@ -944,7 +944,7 @@ abstract class CoreStore extends Service {
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
-    you can use `findRecord()` to automatically retrieve additional records related to
+    you can use `findRecord()` or `findAll()` to automatically retrieve additional records related to
     the one you request by supplying an `include` parameter in the `options` object.
 
     For example, given a `post` model that has a `hasMany` relationship with a `comment`
@@ -982,11 +982,11 @@ abstract class CoreStore extends Service {
 
     ### Retrieving Specific Fields by Type
 
-    If your server endpoint supports the use of an ['fields' query parameter](https://jsonapi.org/format/#fetching-sparse-fieldsets),
-    you can use `findRecord()` to automatically retrieve a specific set of attributes
+    If your server endpoint supports the use of a ['fields' query parameter](https://jsonapi.org/format/#fetching-sparse-fieldsets),
+    you can use `findRecord()` or `findAll()` to automatically retrieve a specific set of attributes
     by supplying a `fields` parameter in the `options` object.
 
-    Given a `post` model, we can retrieve a filtered list of attributes for a post.
+    Given a `post` model with attributes body, title, meta, you can retrieve a filtered list of attributes.
 
     ```app/routes/post.js
     import Route from '@ember/routing/route';
@@ -999,7 +999,7 @@ abstract class CoreStore extends Service {
 
     ```
 
-    Moreover, if a `post` has a belongsTo relationship, you can filter attributes on related models as well
+    Moreover, if a `post` has a `belongsTo` relationship, you can filter attributes on related models as well
     by appending an `&` along with the relationship type and fields.
 
     ```app/routes/post.js
