@@ -7,6 +7,17 @@ interface WeakCache<K extends object, V> extends WeakMap<K, V> {
   _fieldName?: string;
   _generator?: (key: K) => V;
   _expectMsg?: (key: K) => string;
+  /*
+    The default Typescript Signature for WeakMap expects obj: K and
+    returns a boolean. This behavior isn't useful in our common case
+    where we want to use `has` to narrow by determining whether a
+    particular object is a key.
+
+    For instance, we use WeakMap key check to determine in some cases
+    whether an object given to us by a user is a RecordIdentifier or
+    a Record.
+  */
+  has(obj: unknown): obj is K;
 }
 
 class WeakCache<K extends object, V> extends WeakMap<K, V> {
@@ -16,10 +27,6 @@ class WeakCache<K extends object, V> extends WeakMap<K, V> {
       this._fieldName = _fieldName;
       this._symbol = symbol(_fieldName || '');
     }
-  }
-
-  has(obj: unknown): obj is K {
-    return super.has(obj as K);
   }
 
   set(obj: K, value: V): this {
