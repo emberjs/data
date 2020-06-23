@@ -999,8 +999,8 @@ abstract class CoreStore extends Service {
 
     ```
 
-    Moreover, if a `post` has a `belongsTo` relationship, you can filter attributes on related models as well
-    by appending an `&` along with the relationship type and fields.
+    Moreover, you can filter attributes on related models as well. If a `post` has a `belongsTo` relationship to a user,
+    just include the relationship key and attributes.
 
     ```app/routes/post.js
     import Route from '@ember/routing/route';
