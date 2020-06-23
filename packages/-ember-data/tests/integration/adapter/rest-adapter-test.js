@@ -290,8 +290,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
 
     return run(() =>
-      store.findRecord('post', 1, { fields: '[post]=title,body' }).then(() => {
-        assert.deepEqual(passedHash.data, { fields: '[post]=title,body' }, '`fields` parameter sent to adapter.ajax');
+      store.findRecord('post', 1, { fields: { post: 'title,body' } }).then(() => {
+        assert.deepEqual(
+          passedHash.data,
+          { fields: { post: 'title,body' } },
+          '`fields` parameter sent to adapter.ajax'
+        );
       })
     );
   });
@@ -302,10 +306,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
 
     return run(() =>
-      store.findRecord('post', 1, { fields: '[post]=title,body', include: 'comments' }).then(() => {
+      store.findRecord('post', 1, { fields: { post: 'title,body' }, include: 'comments' }).then(() => {
         assert.deepEqual(
           passedHash.data,
-          { fields: '[post]=title,body', include: 'comments' },
+          { fields: { post: 'title,body' }, include: 'comments' },
           '`fields` parameter sent to adapter.ajax'
         );
       })

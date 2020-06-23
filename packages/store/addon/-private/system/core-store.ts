@@ -993,7 +993,7 @@ abstract class CoreStore extends Service {
 
     export default Route.extend({
       model(params) {
-        return this.store.findRecord('post', params.post_id, { fields: '[post]=body,title' });
+        return this.store.findRecord('post', params.post_id, { fields: { post: 'body,title' });
       }
     });
 
@@ -1007,7 +1007,7 @@ abstract class CoreStore extends Service {
 
     export default Route.extend({
       model(params) {
-        return this.store.findRecord('post', params.post_id, { fields: '[post]=body,title&[user]=name,email' });
+        return this.store.findRecord('post', params.post_id, { fields: { post: 'body,title', user: 'name,email' });
       }
     });
 

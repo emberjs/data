@@ -1578,11 +1578,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     adapter.findRecord = (store, type, id, snapshot) => {
-      assert.equal(snapshot.fields, '[person]=name', 'fields passed to adapter.findRecord');
+      assert.deepEqual(snapshot.fields, { person: 'name' }, 'fields passed to adapter.findRecord');
       return resolve({ data: { id: 1, type: 'person' } });
     };
 
-    run(() => store.findRecord('person', 1, { fields: '[person]=name' }));
+    run(() => store.findRecord('person', 1, { fields: { person: 'name' } }));
   });
 
   test('store.findAll should pass adapterOptions to the adapter.findAll method', function(assert) {
@@ -1623,11 +1623,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     adapter.findAll = function(store, type, sinceToken, arraySnapshot) {
-      assert.equal(arraySnapshot.fields, '[person]=name', 'fields passed to adapter.findAll');
+      assert.deepEqual(arraySnapshot.fields, { person: 'name' }, 'fields passed to adapter.findAll');
       return resolve({ data: [{ id: 1, type: 'person' }] });
     };
 
-    run(() => store.findAll('person', { fields: '[person]=name' }));
+    run(() => store.findAll('person', { fields: { person: 'name' } }));
   });
 
   test('An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord', function(assert) {
