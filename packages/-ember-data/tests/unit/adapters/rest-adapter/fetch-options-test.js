@@ -146,4 +146,26 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     const postOptions = fetchOptions(postData);
     assert.equal(postOptions.body, stringBody, "'options.body' is the String passed in");
   });
+
+  test('fetchOptions serializes query params to the url', function(assert) {
+    assert.expect(1);
+
+    const postData = {
+      url: 'https://emberjs.com',
+      method: 'GET',
+      data: {
+        fields: {
+          post: 'title,email',
+          comments: 'body',
+        },
+      },
+    };
+
+    const postOptions = fetchOptions(postData);
+    assert.equal(
+      postOptions.url,
+      'https://emberjs.com?fields%5Bpost%5D=title%2Cemail&fields%5Bcomments%5D=body',
+      "'options.url' is serialized"
+    );
+  });
 });
