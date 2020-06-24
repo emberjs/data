@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## Release 3.16.8 (LTS) (June 24, 2020)
+- [#7236](https://github.com/emberjs/data/pull/7236) [BUGFIX] Allow createRecord responses without a type (#7236)
+
 ## Release 3.16.7 (LTS) (June 10, 2020)
 - [#7220](https://github.com/emberjs/data/pull/7220) [BUGFIX] Update ember-cli-babel to prevent errors with newer TS syntax (#7220)
 
