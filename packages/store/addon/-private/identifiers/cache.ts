@@ -486,7 +486,7 @@ function performRecordIdentifierUpdate(
   updateFn: UpdateMethod
 ) {
   let { id, lid } = data;
-  let type = normalizeModelName(data.type);
+  let type = data.type && normalizeModelName(data.type);
 
   if (DEBUG) {
     // get the mutable instance behind our proxy wrapper
@@ -517,7 +517,7 @@ function performRecordIdentifierUpdate(
     }
 
     // TODO consider just ignoring here to allow flexible polymorphic support
-    if (type !== identifier.type) {
+    if (type && type !== identifier.type) {
       throw new Error(
         `The 'type' for a RecordIdentifier cannot be updated once it has been set. Attempted to set type for '${wrapper}' to '${type}'.`
       );
@@ -551,14 +551,14 @@ function detectMerge(
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
-    let newType = normalizeModelName(data.type);
+    let newType = data.type && normalizeModelName(data.type);
 
     // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
       let existingIdentifier = lids[data.lid];
       return existingIdentifier !== undefined ? existingIdentifier : false;
       // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
-    } else if (id !== null && id === newId && newType !== type && data.lid && data.lid === lid) {
+    } else if (id !== null && id === newId && newType && newType !== type && data.lid && data.lid === lid) {
       let keyOptions = getTypeIndex(typesCache, newType);
       let existingIdentifier = keyOptions.id[id];
       return existingIdentifier !== undefined ? existingIdentifier : false;
