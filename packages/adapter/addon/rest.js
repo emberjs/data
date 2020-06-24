@@ -31,7 +31,6 @@ import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
 const hasJQuery = typeof jQuery !== 'undefined';
-const hasNajax = typeof najax !== 'undefined';
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -302,7 +301,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     // Avoid computed property override deprecation in fastboot as suggested by:
     // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
     get() {
-      if (this._fastboot !== undefined) {
+      if (this._fastboot) {
         return this._fastboot;
       }
       return (this._fastboot = getOwner(this).lookup('service:fastboot'));
@@ -323,7 +322,9 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
 
       if (jQueryIntegrationDisabled) {
         return true;
-      } else if (hasNajax || hasJQuery) {
+      } else if (DEPRECATE_NAJAX && typeof najax !== 'undefined') {
+        return false;
+      } else if (hasJQuery) {
         return false;
       } else {
         return (this._useFetch = true);
@@ -1067,7 +1068,16 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     } else if (DEPRECATE_NAJAX && get(this, 'fastboot.isFastBoot')) {
       if (has('fetch')) {
         deprecate(
-          'You have ember-fetch and jquery installed. To use ember-fetch, set `useFetch: true` in your adapter.  In 4.0, ember-data will fallback to ember-fetch instead of najax when both of these are installed.',
+          'You have ember-fetch and jquery installed. To use ember-fetch, set `useFetch: true` in your adapter.  In 4.0, ember-data will fallback to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
+          false,
+          {
+            id: 'ember-data:najax-fallback',
+            until: '4.0',
+          }
+        );
+      } else {
+        deprecate(
+          'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar as a fetch polyfill in FastBoot.',
           false,
           {
             id: 'ember-data:najax-fallback',
@@ -1427,7 +1437,7 @@ if (DEPRECATE_NAJAX) {
       @param {Object} options jQuery ajax options to be used for the najax request
     */
     _najaxRequest(options) {
-      if (hasNajax) {
+      if (typeof najax !== 'undefined') {
         najax(options);
       } else {
         throw new Error(
