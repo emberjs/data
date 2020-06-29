@@ -321,11 +321,11 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
       let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
 
       if (jQueryIntegrationDisabled) {
-        return true;
+        return (this._useFetch = true);
       } else if (DEPRECATE_NAJAX && typeof najax !== 'undefined') {
-        return false;
+        return (this._useFetch = false);
       } else if (hasJQuery) {
-        return false;
+        return (this._useFetch = false);
       } else {
         return (this._useFetch = true);
       }
