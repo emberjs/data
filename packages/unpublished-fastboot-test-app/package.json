@@ -50,7 +50,7 @@
     "ember-simple-tree": "^0.8.0",
     "ember-source": "^3.18.1",
     "ember-try": "^1.4.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.3.1",
     "eslint-plugin-ember": "^8.5.1",
     "eslint-plugin-node": "^11.0.0",
     "loader.js": "^4.7.0",
