@@ -221,6 +221,20 @@ const JSONAPIAdapter = RESTAdapter.extend({
   */
   coalesceFindRequests: false,
 
+  buildQuery(snapshot) {
+    let query = this._super(...arguments);
+
+    if (snapshot) {
+      let { fields } = snapshot;
+
+      if (fields) {
+        query.fields = fields;
+      }
+    }
+
+    return query;
+  },
+
   findMany(store, type, ids, snapshots) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });

@@ -284,38 +284,6 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     );
   });
 
-  test('findRecord - passes `fields` as a query parameter to ajax', function(assert) {
-    ajaxResponse({
-      post: { id: 1, name: 'Rails is very expensive sushi' },
-    });
-
-    return run(() =>
-      store.findRecord('post', 1, { fields: { post: 'title,body' } }).then(() => {
-        assert.deepEqual(
-          passedHash.data,
-          { fields: { post: 'title,body' } },
-          '`fields` parameter sent to adapter.ajax'
-        );
-      })
-    );
-  });
-
-  test('findRecord - passes `fields` and `includes` as a query parameter to ajax', function(assert) {
-    ajaxResponse({
-      post: { id: 1, name: 'Rails is very expensive sushi' },
-    });
-
-    return run(() =>
-      store.findRecord('post', 1, { fields: { post: 'title,body' }, include: 'comments' }).then(() => {
-        assert.deepEqual(
-          passedHash.data,
-          { fields: { post: 'title,body' }, include: 'comments' },
-          '`fields` parameter sent to adapter.ajax'
-        );
-      })
-    );
-  });
-
   test('createRecord - an empty payload is a basic success if an id was specified', function(assert) {
     ajaxResponse();
 
@@ -1231,30 +1199,6 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
     return run(store, 'findAll', 'post', { include: 'comments' }).then(() => {
       assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` params sent to adapter.ajax');
-    });
-  });
-
-  test('findAll - passed `fields` as a query parameter to ajax', function(assert) {
-    ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
-    });
-
-    return run(store, 'findAll', 'post', { fields: '[post]=name' }).then(() => {
-      assert.deepEqual(passedHash.data, { fields: '[post]=name' }, '`fields` params sent to adapter.ajax');
-    });
-  });
-
-  test('findAll - passed `fields` and `include` as a query parameter to ajax', function(assert) {
-    ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
-    });
-
-    return run(store, 'findAll', 'post', { fields: '[post]=name', include: 'comments' }).then(() => {
-      assert.deepEqual(
-        passedHash.data,
-        { fields: '[post]=name', include: 'comments' },
-        '`fields` and `include` params sent to adapter.ajax'
-      );
     });
   });
 

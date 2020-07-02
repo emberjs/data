@@ -147,6 +147,7 @@ module.exports = {
     '(public) @ember-data/adapter MinimumAdapterInterface#shouldReloadRecord [OPTIONAL]',
     '(public) @ember-data/adapter MinimumAdapterInterface#updateRecord',
     '(public) @ember-data/adapter MinimumAdapterInterface#destroy [OPTIONAL]',
+    '(public) @ember-data/adapter RESTAdapter#buildQuery',
     '(public) @ember-data/adapter RESTAdapter#coalesceFindRequests',
     '(public) @ember-data/adapter RESTAdapter#createRecord',
     '(public) @ember-data/adapter RESTAdapter#deleteRecord',
