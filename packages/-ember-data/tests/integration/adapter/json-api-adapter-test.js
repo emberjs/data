@@ -1035,7 +1035,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    await store.findRecord('post', 1, { fields: { post: 'title,body' } })
+    await store.findRecord('post', 1, { fields: { post: 'title,body' } });
 
     assert.deepEqual(passedHash[0].data, { fields: { post: 'title,body' } }, '`fields` parameter sent to adapter.ajax');
     assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
