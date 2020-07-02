@@ -2013,13 +2013,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
       _destroyRelationships() {}
 
-      _allRelatedRecordDatas() {}
+      _allRelatedRecordDatas() {
+        return [this];
+      }
 
       _cleanupOrphanedRecordDatas() {}
-
-      _directlyRelatedRecordDatas() {
-        return [];
-      }
 
       destroy() {
         this.isDestroyed = true;
