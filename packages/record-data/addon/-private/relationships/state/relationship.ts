@@ -392,7 +392,7 @@ export default class Relationship {
 
   removeCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
     if (this.canonicalMembers.has(recordData)) {
-      this.removeCanonicalRecordDataFromOwn(recordData);
+      this.removeCanonicalRecordDataFromOwn(recordData, idx);
       if (this.inverseKey) {
         this.removeCanonicalRecordDataFromInverse(recordData);
       } else {
@@ -478,7 +478,7 @@ export default class Relationship {
   }
 
   removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData | null, idx?: number) {
-    this.canonicalMembers.delete(recordData);
+    this.canonicalMembers.deleteWithIndex(recordData, idx);
     this.flushCanonicalLater();
   }
 
