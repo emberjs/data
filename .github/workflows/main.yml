@@ -152,21 +152,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
-        launcher: [Chrome, Firefox, IE, Safari]
+        scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
+        launcher: [Chrome, Firefox, IE]
         os: [macos-latest, windows-latest, ubuntu-latest]
         exclude:
           - os: macos-latest
             launcher: IE
-          # - os: macos-latest
-          #   scenario: with-ember-fetch-and-jquery
-          #   launcher: Chrome
+          - os: macos-latest
+            scenario: with-ember-fetch-and-jquery
+            launcher: Chrome
           - os: ubuntu-latest
             launcher: IE
-          - os: windows-latest
-            launcher: Safari
-          - os: ubuntu-latest
-            launcher: Safari
     runs-on: ${{ matrix.os }}
     name: ${{matrix.scenario}} ${{matrix.launcher}} on ${{matrix.os}}
     steps:
@@ -189,7 +185,7 @@ jobs:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
         run:
-          yarn test:production
+          yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
         # run:
         #   yarn test:try-one ${{ matrix.scenario }} --- ember test
         #   yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
