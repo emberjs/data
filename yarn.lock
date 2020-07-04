@@ -9198,11 +9198,6 @@ ignore@^5.1.1, ignore@^5.1.4:
   resolved "https://registry.npmjs.org/ignore/-/ignore-5.1.6.tgz#643194ad4bf2712f37852e386b6998eff0db2106"
   integrity sha512-cgXgkypZBcCnOgSihyeqbo6gjIaIyDqPQB7Ra4vhE9m6kigdGoQDMHjviFhRZo3IMlRy6yElosoviMs5YxZXUA==
 
-immediate@~3.0.5:
-  version "3.0.6"
-  resolved "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz#9db1dbd0faf8de6fbe0f5dd5e56bb606280de69b"
-  integrity sha1-nbHb0Pr43m++D13V5Wu2BigN5ps=
-
 import-fresh@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/import-fresh/-/import-fresh-2.0.0.tgz#d81355c15612d386c61f9ddd3922d4304822a546"
@@ -9968,16 +9963,6 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-jszip@^3.2.2:
-  version "3.4.0"
-  resolved "https://registry.npmjs.org/jszip/-/jszip-3.4.0.tgz#1a69421fa5f0bb9bc222a46bca88182fba075350"
-  integrity sha512-gZAOYuPl4EhPTXT0GjhI3o+ZAz3su6EhLrKUoAivcKqyqC7laS5JEv4XWZND9BgcDcF83vI85yGbDmDR6UhrIg==
-  dependencies:
-    lie "~3.3.0"
-    pako "~1.0.2"
-    readable-stream "~2.3.6"
-    set-immediate-shim "~1.0.1"
-
 keyv@3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/keyv/-/keyv-3.0.0.tgz#44923ba39e68b12a7cec7df6c3268c031f2ef373"
@@ -10068,13 +10053,6 @@ levn@^0.3.0, levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
-
-lie@~3.3.0:
-  version "3.3.0"
-  resolved "https://registry.npmjs.org/lie/-/lie-3.3.0.tgz#dcf82dee545f46074daf200c7c1c5a08e0f40f6a"
-  integrity sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==
-  dependencies:
-    immediate "~3.0.5"
 
 lighthouse-logger@^1.0.0:
   version "1.2.0"
@@ -11729,7 +11707,7 @@ package-json@^4.0.1:
     registry-url "^3.0.3"
     semver "^5.1.0"
 
-pako@~1.0.2, pako@~1.0.5:
+pako@~1.0.5:
   version "1.0.11"
   resolved "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
@@ -12976,7 +12954,7 @@ rimraf@2.6.3, rimraf@~2.6.2:
   dependencies:
     glob "^7.1.3"
 
-rimraf@^2.1.4, rimraf@^2.2.8, rimraf@^2.3.4, rimraf@^2.4.1, rimraf@^2.4.3, rimraf@^2.4.4, rimraf@^2.5.3, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@^2.6.3, rimraf@^2.7.1:
+rimraf@^2.1.4, rimraf@^2.2.8, rimraf@^2.3.4, rimraf@^2.4.1, rimraf@^2.4.3, rimraf@^2.4.4, rimraf@^2.5.3, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@^2.6.3:
   version "2.7.1"
   resolved "https://registry.npmjs.org/rimraf/-/rimraf-2.7.1.tgz#35797f13a7fdadc566142c29d4f07ccad483e3ec"
   integrity sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==
@@ -13137,15 +13115,6 @@ schema-utils@^2.6.5:
     ajv "^6.12.0"
     ajv-keywords "^3.4.1"
 
-selenium-webdriver@^4.0.0-alpha.7:
-  version "4.0.0-alpha.7"
-  resolved "https://registry.npmjs.org/selenium-webdriver/-/selenium-webdriver-4.0.0-alpha.7.tgz#e3879d8457fd7ad8e4424094b7dc0540d99e6797"
-  integrity sha512-D4qnTsyTr91jT8f7MfN+OwY0IlU5+5FmlO5xlgRUV6hDEV8JyYx2NerdTEqDDkNq7RZDYc4VoPALk8l578RBHw==
-  dependencies:
-    jszip "^3.2.2"
-    rimraf "^2.7.1"
-    tmp "0.0.30"
-
 "semver@2 || 3 || 4 || 5", "semver@2.x || 3.x || 4 || 5", semver@^5.1.0, semver@^5.3.0, semver@^5.4.1, semver@^5.5.0, semver@^5.5.1, semver@^5.6.0, semver@^5.7.0, semver@^5.7.1:
   version "5.7.1"
   resolved "https://registry.npmjs.org/semver/-/semver-5.7.1.tgz#a954f931aeba508d307bbf069eff0c01c96116f7"
@@ -13209,11 +13178,6 @@ set-blocking@^2.0.0, set-blocking@~2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/set-blocking/-/set-blocking-2.0.0.tgz#045f9782d011ae9a6803ddd382b24392b3d890f7"
   integrity sha1-BF+XgtARrppoA93TgrJDkrPYkPc=
-
-set-immediate-shim@~1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/set-immediate-shim/-/set-immediate-shim-1.0.1.tgz#4b2b1b27eb808a9f8dcc481a58e5e56f599f3f61"
-  integrity sha1-SysbJ+uAip+NzEgaWOXlb1mfP2E=
 
 set-value@^2.0.0, set-value@^2.0.1:
   version "2.0.1"
@@ -14078,13 +14042,6 @@ testdouble@^3.2.6:
     stringify-object-es5 "^2.5.0"
     theredoc "^1.0.0"
 
-testem-safari-webdriver-launcher@^0.0.1-alpha.2:
-  version "0.0.1-alpha.2"
-  resolved "https://registry.npmjs.org/testem-safari-webdriver-launcher/-/testem-safari-webdriver-launcher-0.0.1-alpha.2.tgz#5781c943a1c2cc8aac08811888c22d0c871405f3"
-  integrity sha512-Q7V01JthaIr8vRznuwQvsnwyXFsSFiIWT7P5z0A1FGciVsHbYqjqm30fmEIFjICAq8FAoWgQ5C5AQYkf5NHm2g==
-  dependencies:
-    selenium-webdriver "^4.0.0-alpha.7"
-
 testem@^3.0.2, testem@^3.0.3:
   version "3.1.0"
   resolved "https://registry.npmjs.org/testem/-/testem-3.1.0.tgz#d27ec0b5593706c5cb005d8829b5abd329c86c16"
@@ -14215,13 +14172,6 @@ tmp@0.0.28:
   version "0.0.28"
   resolved "https://registry.npmjs.org/tmp/-/tmp-0.0.28.tgz#172735b7f614ea7af39664fa84cf0de4e515d120"
   integrity sha1-Fyc1t/YU6nrzlmT6hM8N5OUV0SA=
-  dependencies:
-    os-tmpdir "~1.0.1"
-
-tmp@0.0.30:
-  version "0.0.30"
-  resolved "https://registry.npmjs.org/tmp/-/tmp-0.0.30.tgz#72419d4a8be7d6ce75148fd8b324e593a711c2ed"
-  integrity sha1-ckGdSovn1s51FI/YsyTlk6cRwu0=
   dependencies:
     os-tmpdir "~1.0.1"
 

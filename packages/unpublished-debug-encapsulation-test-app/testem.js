@@ -8,10 +8,6 @@ module.exports = {
   test_page: 'tests/index.html?hidepassed',
   disable_watching: true,
   reporter: customDotReporter,
-  launchers: {
-    // eslint-disable-next-line node/no-unpublished-require
-    Safari: require('testem-safari-webdriver-launcher'),
-  },
   launch_in_ci: [process.env.TESTEM_CI_LAUNCHER || 'Chrome'],
   launch_in_dev: ['Chrome'],
   browser_start_timeout: 120,

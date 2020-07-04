@@ -46,8 +46,7 @@
     "eslint-plugin-ember": "^8.5.1",
     "eslint-plugin-node": "^11.0.0",
     "loader.js": "^4.7.0",
-    "qunit-dom": "^1.2.0",
-    "testem-safari-webdriver-launcher": "^0.0.1-alpha.2"
+    "qunit-dom": "^1.2.0"
   },
   "engines": {
     "node": "10.* || >= 12.*"
