@@ -186,9 +186,6 @@ jobs:
           CI: true
         run:
           yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
-        # run:
-        #   yarn test:try-one ${{ matrix.scenario }} --- ember test
-        #   yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
 
   floating-dependencies:
     timeout-minutes: 6
