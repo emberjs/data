@@ -25,8 +25,5 @@ module.exports = {
     Firefox: {
       ci: ['-headless', '-width 1440', '-height 900'],
     },
-    Safari: {
-      ci: [],
-    },
   },
 };
