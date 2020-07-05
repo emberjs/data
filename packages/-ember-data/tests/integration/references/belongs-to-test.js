@@ -492,6 +492,34 @@ module('integration/references/belongs-to', function(hooks) {
     });
   });
 
+  test('load() fetches an unset record', async function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function(store, type, id, snapshot) {
+      return resolve({ data: null });
+    };
+
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        relationships: {
+          family: {
+            links: {},
+          },
+        },
+      },
+    });
+
+    var familyReference = person.belongsTo('family');
+
+    let record = await familyReference.load();
+    assert.equal(record, null, 'relationship is null');
+
+    assert.equal(person._createSnapshot().belongsTo('family'), null, 'relationship is null off the snapshot');
+  });
+
   test('load() fetches link when remoteType is link', function(assert) {
     var done = assert.async();
 
