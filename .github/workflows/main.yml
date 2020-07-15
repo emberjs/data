@@ -261,6 +261,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   node-version-test:
+    name: Use Node.js ${{ matrix.node-version }}
     timeout-minutes: 6
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
@@ -274,7 +275,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies w/o lockfile
         run: yarn install --no-lockfile --non-interactive
-      - name: Basic Tests with Node.js ${{ matrix.node-version }}
+      - name: Basic Tests
         run: yarn test
 
   external-partners:
