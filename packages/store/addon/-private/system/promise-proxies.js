@@ -49,7 +49,7 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   be updated when the promise resolves.
 
   For more information see the [Ember.PromiseProxyMixin
-  documentation](/api/classes/PromiseProxyMixin.html).
+  documentation](/ember/release/classes/PromiseProxyMixin.html).
 
   Example
 
