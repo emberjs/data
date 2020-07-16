@@ -17,7 +17,7 @@ import { Promise } from 'rsvp';
   updated when the promise resolves.
 
   For more information see the [Ember.PromiseProxyMixin
-  documentation](/api/classes/PromiseProxyMixin.html).
+  documentation](/ember/release/classes/PromiseProxyMixin).
 
   Example
 
