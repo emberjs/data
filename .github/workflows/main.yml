@@ -141,30 +141,43 @@ jobs:
         timeout-minutes: 6
         run: yarn test:fastboot ${{ matrix.scenario }}
 
-  basic-tests-ie11:
+  browser-tests:
     needs: [lint]
+    timeout-minutes: 20
     strategy:
+      fail-fast: false
       matrix:
         scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
-    runs-on: windows-latest
-    env:
-      TEST_IE11: true
-      TARGET_IE11: true
+        launcher: [Chrome, Firefox, IE]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        exclude:
+          - os: macos-latest
+            launcher: IE
+          - os: ubuntu-latest
+            launcher: IE
+          - os: ubuntu-latest
+            launcher: Firefox
+          - os: windows-latest
+            launcher: Firefox
+    runs-on: ${{ matrix.os }}
+    name: ${{matrix.scenario}} ${{matrix.launcher}} on ${{matrix.os}}
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Launcher Info
         run: |
           yarn run testem launchers
-      - name: Production tests with ${{ matrix.scenario }}
+      - name: Run Production Test
         timeout-minutes: 8
         env:
+          TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
-        run: yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
+        run:
+          yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
 
   floating-dependencies:
     timeout-minutes: 6
