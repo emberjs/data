@@ -69,10 +69,6 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - if: matrix.os == 'macos-latest'
-        run: |
-          brew update
-          brew cask install google-chrome
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
@@ -135,10 +131,6 @@ jobs:
         scenario: [fastboot-with-ember-fetch, fastboot-with-jquery]
     runs-on: ${{ matrix.os }}
     steps:
-      - if: matrix.os == 'macos-latest'
-        run: |
-          brew update
-          brew cask install google-chrome
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
