@@ -124,7 +124,7 @@
     "mocha": "^7.1.2",
     "npm-git-info": "^1.0.3",
     "pre-commit": "^1.2.2",
-    "prettier": "~1.19.1",
+    "prettier": "~2.0.5",
     "qunit": "^2.10.0",
     "qunit-dom": "^1.2.0",
     "rimraf": "^3.0.2",
