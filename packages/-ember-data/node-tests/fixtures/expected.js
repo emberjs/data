@@ -7,8 +7,7 @@ module.exports = {
     '@ember-data/store',
     '@ember-data/deprecations',
     '@ember-data/record-data',
-    '@ember-data/serializer',
-    '@ember-data',
+    '@ember-data/serializer'
   ],
   classitems: [
     '(private) @ember-data/adapter BuildURLMixin#_buildURL',
@@ -100,7 +99,6 @@ module.exports = {
     '(private) @ember-data/store Store#scheduleSave',
     '(private) @ember-data/store Store#setRecordId',
     '(protected) Ember.Inflector#inflect',
-    '(public) @ember-data @ember-data#VERSION',
     '(public) @ember-data/adapter Adapter#coalesceFindRequests',
     '(public) @ember-data/adapter Adapter#createRecord',
     '(public) @ember-data/adapter Adapter#defaultSerializer',

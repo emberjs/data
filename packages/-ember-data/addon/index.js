@@ -43,7 +43,6 @@ import {
   RootState,
   Snapshot,
 } from './-private';
-import initializeStoreService from './initialize-store-service';
 import setupContainer from './setup-container';
 
 if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
@@ -117,7 +116,6 @@ DS.hasMany = hasMany;
 DS.Relationship = Relationship;
 
 DS._setupContainer = setupContainer;
-DS._initializeStoreService = initializeStoreService;
 
 Object.defineProperty(DS, 'normalizeModelName', {
   enumerable: true,

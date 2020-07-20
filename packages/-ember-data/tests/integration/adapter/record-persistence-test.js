@@ -318,4 +318,46 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     assert.strictEqual(tom.isDeleted, true, 'Tom is marked as deleted');
     assert.strictEqual(yehuda.isDeleted, true, 'Yehuda is marked as deleted');
   });
+
+  test('Create record response does not have to include the type property', async function(assert) {
+    assert.expect(2);
+
+    const Person = Model.extend({
+      updatedAt: attr('string'),
+      name: attr('string'),
+      firstName: attr('string'),
+      lastName: attr('string'),
+    });
+
+    const ApplicationAdapter = Adapter.extend({
+      shouldBackgroundReloadRecord: () => false,
+    });
+
+    this.owner.register('model:person', Person);
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register(
+      'serializer:application',
+      JSONAPISerializer.extend({
+        normalizeResponse: (store, primaryModelClass, payload, id, requestType) => {
+          return payload;
+        },
+      })
+    );
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    let tom;
+
+    adapter.createRecord = function(_store, type, snapshot) {
+      assert.strictEqual(type, Person, "The type of the record is 'Person'");
+      assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
+
+      return resolve({ data: { id: '1' } });
+    };
+
+    tom = store.createRecord('person', { name: 'Tom Dale' });
+
+    return await tom.save();
+  });
 });

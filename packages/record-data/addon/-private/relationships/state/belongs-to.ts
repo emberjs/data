@@ -154,14 +154,14 @@ export default class BelongsToRelationship extends Relationship {
     storeWrapper.notifyBelongsToChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
   }
 
-  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData) {
+  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
     if (!this.canonicalMembers.has(recordData)) {
       return;
     }
     this.canonicalState = null;
     this.setHasAnyRelationshipData(true);
     this.setRelationshipIsEmpty(true);
-    super.removeCanonicalRecordDataFromOwn(recordData);
+    super.removeCanonicalRecordDataFromOwn(recordData, idx);
   }
 
   removeAllCanonicalRecordDatasFromOwn() {

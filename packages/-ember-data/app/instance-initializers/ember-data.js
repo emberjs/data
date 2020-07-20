@@ -1,6 +1,5 @@
-import initializeStoreService from 'ember-data/initialize-store-service';
-
+/* exists only for things that historically used "after" or "before" */
 export default {
   name: 'ember-data',
-  initialize: initializeStoreService,
+  initialize() {},
 };

@@ -14,7 +14,7 @@ on:
 
 jobs:
   lint:
-    timeout-minutes: 4
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -31,7 +31,7 @@ jobs:
         run: yarn problems
 
   test-infra:
-    timeout-minutes: 4
+    timeout-minutes: 8
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -63,7 +63,7 @@ jobs:
 
 
   basic-tests:
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
@@ -146,7 +146,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Fastboot Test ${{ matrix.scenario }}
-        timeout-minutes: 4
+        timeout-minutes: 6
         run: yarn test:fastboot ${{ matrix.scenario }}
 
   basic-tests-ie11:
@@ -169,13 +169,13 @@ jobs:
         run: |
           yarn run testem launchers
       - name: Production tests with ${{ matrix.scenario }}
-        timeout-minutes: 6
+        timeout-minutes: 8
         env:
           CI: true
         run: yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
 
   floating-dependencies:
-    timeout-minutes: 4
+    timeout-minutes: 6
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
@@ -203,13 +203,13 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
-        timeout-minutes: 4
+        timeout-minutes: 6
         env:
           CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
 
   releases:
-    timeout-minutes: 4
+    timeout-minutes: 6
     needs: [lint, basic-tests]
     if: |
       github.event_name == 'pull_request' && (
@@ -235,7 +235,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   additional-scenarios:
-    timeout-minutes: 5
+    timeout-minutes: 7
     needs: [lint, basic-tests]
     strategy:
       matrix:
@@ -259,6 +259,24 @@ jobs:
         env:
           CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
+
+  node-version-test:
+    name: Use Node.js ${{ matrix.node-version }}
+    timeout-minutes: 6
+    needs: [lint, basic-tests]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 14.x]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies w/o lockfile
+        run: yarn install --no-lockfile --non-interactive
+      - name: Basic Tests
+        run: yarn test
 
   external-partners:
     needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
@@ -304,7 +322,7 @@ jobs:
       - name: Generate package tarballs
         run: node ./bin/packages-for-commit.js
       - name: Run Tests
-        timeout-minutes: 12
+        timeout-minutes: 16
         env:
           CI: true
         run: yarn test-external:${{ matrix.partner }}
