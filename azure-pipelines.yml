@@ -71,8 +71,6 @@ jobs:
 
       - script: |
           yarn
-          brew update
-          brew cask install google-chrome
 
       - script: |
           yarn test
@@ -95,8 +93,6 @@ jobs:
           versionSpec: '12.x' # The version we're installing
 
       - script: |
-          brew update
-          brew cask install google-chrome
           yarn
 
       - script: |
@@ -186,8 +182,6 @@ jobs:
           versionSpec: '12.x' # The version we're installing
 
       - script: |
-          brew update
-          brew cask install google-chrome
           yarn install --no-lockfile --non-interactive
 
       - script: |
@@ -219,8 +213,6 @@ jobs:
           versionSpec: '12.x' # The version we're installing
 
       - script: |
-          brew update
-          brew cask install google-chrome
           yarn install --no-lockfile --non-interactive
 
       - script: |
@@ -240,8 +232,6 @@ jobs:
           versionSpec: '12.x' # The version we're installing
 
       - script: |
-          brew update
-          brew cask install google-chrome
           yarn
 
       - script: |
@@ -282,8 +272,6 @@ jobs:
           versionSpec: '12.x' # The version we're installing
 
       - script: |
-          brew update
-          brew cask install firefox
           yarn
           node ./bin/packages-for-commit.js
 
@@ -304,9 +292,6 @@ jobs:
           versionSpec: '12.x' # The version we're installing
 
       - script: |
-          brew update
-          brew cask install google-chrome
-          brew cask install firefox
           yarn
           node ./bin/packages-for-commit.js
 
@@ -328,9 +313,6 @@ jobs:
           versionSpec: '12.x' # The version we're installing
 
       - script: |
-          brew update
-          brew cask install google-chrome
-          brew cask install firefox
           yarn
           node ./bin/packages-for-commit.js
 
@@ -351,9 +333,6 @@ jobs:
           versionSpec: '12.x' # The version we're installing
 
       - script: |
-          brew update
-          brew cask install google-chrome
-          brew cask install firefox
           yarn
           node ./bin/packages-for-commit.js
         condition: succeededOrFailed()
