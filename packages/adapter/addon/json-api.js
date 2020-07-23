@@ -221,11 +221,18 @@ const JSONAPIAdapter = RESTAdapter.extend({
   */
   coalesceFindRequests: false,
 
+  /**
+    @method buildQuery
+    @since 2.5.0
+    @public
+    @param  {Snapshot} snapshot
+    @return {Object}
+  */
   buildQuery(snapshot) {
     let query = this._super(...arguments);
 
-    if (snapshot) {
-      let { fields } = snapshot;
+    if (snapshot.adapterOptions) {
+      let { fields } = snapshot.adapterOptions;
 
       if (fields) {
         query.fields = fields;

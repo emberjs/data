@@ -1035,7 +1035,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    await store.findRecord('post', 1, { fields: { post: 'title,body' } });
+    await store.findRecord('post', 1, { adapterOptions: { fields: { post: 'title,body' } } });
 
     assert.deepEqual(passedHash[0].data, { fields: { post: 'title,body' } }, '`fields` parameter sent to adapter.ajax');
     assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
@@ -1054,7 +1054,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    await store.findRecord('post', 1, { fields: { post: 'title,body' }, include: 'comments' });
+    await store.findRecord('post', 1, { adapterOptions: { fields: { post: 'title,body' } }, include: 'comments' });
 
     assert.deepEqual(
       passedHash[0].data,
@@ -1078,7 +1078,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    await store.findAll('post', { fields: '[post]=name' });
+    await store.findAll('post', { adapterOptions: { fields: '[post]=name' } });
 
     assert.deepEqual(passedHash[0].data, { fields: '[post]=name' }, '`fields` params sent to adapter.ajax');
   });
@@ -1098,7 +1098,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    await store.findAll('post', { fields: '[post]=name', include: 'comments' });
+    await store.findAll('post', { adapterOptions: { fields: '[post]=name' }, include: 'comments' });
 
     assert.deepEqual(
       passedHash[0].data,
