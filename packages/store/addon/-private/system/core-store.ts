@@ -984,7 +984,7 @@ abstract class CoreStore extends Service {
 
     If your server endpoint supports the use of a ['fields' query parameter](https://jsonapi.org/format/#fetching-sparse-fieldsets),
     you can use `findRecord()` or `findAll()` to automatically retrieve a specific set of attributes
-    by supplying a `fields` parameter in the `options` object.
+    by supplying a `fields` parameter on the `adapterOptions` object.
 
     Given a `post` model with attributes body, title, meta, you can retrieve a filtered list of attributes.
 
@@ -993,7 +993,7 @@ abstract class CoreStore extends Service {
 
     export default Route.extend({
       model(params) {
-        return this.store.findRecord('post', params.post_id, { fields: { post: 'body,title' });
+        return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title' } });
       }
     });
 
@@ -1007,7 +1007,7 @@ abstract class CoreStore extends Service {
 
     export default Route.extend({
       model(params) {
-        return this.store.findRecord('post', params.post_id, { fields: { post: 'body,title', user: 'name,email' });
+        return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title', user: 'name,email' } });
       }
     });
 
