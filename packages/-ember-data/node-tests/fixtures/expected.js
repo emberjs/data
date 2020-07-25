@@ -129,6 +129,8 @@ module.exports = {
     '(public) @ember-data/adapter BuildURLMixin#urlForQueryRecord',
     '(public) @ember-data/adapter BuildURLMixin#urlForUpdateRecord',
     '(public) @ember-data/adapter JSONAPIAdapter#buildQuery',
+    '(public) @ember-data/adapter JSONAPIAdapter#findRecord',
+    '(public) @ember-data/adapter JSONAPIAdapter#shouldReloadRecord',
     '(public) @ember-data/adapter JSONAPIAdapter#coalesceFindRequests',
     '(public) @ember-data/adapter MinimumAdapterInterface#coalesceFindRequests [OPTIONAL]',
     '(public) @ember-data/adapter MinimumAdapterInterface#createRecord',

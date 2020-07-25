@@ -59,7 +59,13 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       hipsters: DS.attr('number'),
     });
 
-    this.owner.register('adapter:application', DS.JSONAPIAdapter.extend());
+    const JSONAPIAdapter = DS.JSONAPIAdapter.extend({
+      // background requests will fail test
+      shouldBackgroundReloadRecord() {
+        return false;
+      },
+    });
+    this.adapter = this.owner.register('adapter:application', JSONAPIAdapter);
     this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
 
     this.owner.register('model:user', User);
@@ -1041,6 +1047,31 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
   });
 
+  test('findRecord - does not fetch again after successive calls', async function(assert) {
+    ajaxResponse([
+      {
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Ember.js rocks',
+          },
+        },
+      },
+    ]);
+
+    await store.findRecord('post', 1, { adapterOptions: { fields: { post: 'title,body' } } });
+
+    assert.deepEqual(passedHash[0].data, { fields: { post: 'title,body' } }, '`fields` parameter sent to adapter.ajax');
+    assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
+
+    // if fields are different, this test will fail b/c it will initiate a request
+    await store.findRecord('post', 1, { adapterOptions: { fields: { post: 'title,body' } } });
+
+    assert.deepEqual(passedHash[0].data, { fields: { post: 'title,body' } }, '`fields` parameter sent to adapter.ajax');
+    assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
+  });
+
   test('findRecord - passes `fields` and `includes` as a query parameter to ajax', async function(assert) {
     ajaxResponse([
       {
@@ -1078,9 +1109,9 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    await store.findAll('post', { adapterOptions: { fields: '[post]=name' } });
+    await store.findAll('post', { adapterOptions: { fields: { post: 'name' } } });
 
-    assert.deepEqual(passedHash[0].data, { fields: '[post]=name' }, '`fields` params sent to adapter.ajax');
+    assert.deepEqual(passedHash[0].data, { fields: { post: 'name' } }, '`fields` params sent to adapter.ajax');
   });
 
   test('findAll - passed `fields` and `include` as a query parameter to ajax', async function(assert) {
@@ -1098,11 +1129,11 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       },
     ]);
 
-    await store.findAll('post', { adapterOptions: { fields: '[post]=name' }, include: 'comments' });
+    await store.findAll('post', { adapterOptions: { fields: { post: 'name' } }, include: 'comments' });
 
     assert.deepEqual(
       passedHash[0].data,
-      { fields: '[post]=name', include: 'comments' },
+      { fields: { post: 'name' }, include: 'comments' },
       '`fields` and `include` params sent to adapter.ajax'
     );
     assert.equal(passedUrl[0], '/posts', 'The posts were fetched');

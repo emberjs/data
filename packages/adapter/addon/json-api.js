@@ -5,8 +5,10 @@ import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
-import { serializeIntoHash } from './-private';
+import { serializeIntoHash, serializeQueryParams } from './-private';
 import RESTAdapter from './rest';
+
+const FieldsForRecord = new WeakMap();
 
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It
@@ -223,7 +225,6 @@ const JSONAPIAdapter = RESTAdapter.extend({
 
   /**
     @method buildQuery
-    @since 2.5.0
     @public
     @param  {Snapshot} snapshot
     @return {Object}
@@ -242,6 +243,26 @@ const JSONAPIAdapter = RESTAdapter.extend({
     return query;
   },
 
+  /**
+    In order to provide proper should reload tracking, we need to track if `fields`
+    was passed through adapterOptions.
+
+    @method findRecord
+    @param {Store} store
+    @param {Model} type
+    @param {String} id
+    @param {Snapshot} snapshot
+    @return {Promise} promise
+  */
+  findRecord(store, type, id, snapshot) {
+    let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
+    if (snapshotFields) {
+      captureFields(snapshot.record, snapshotFields);
+    }
+
+    return this._super(...arguments);
+  },
+
   findMany(store, type, ids, snapshots) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
@@ -252,6 +273,24 @@ const JSONAPIAdapter = RESTAdapter.extend({
     return pluralize(dasherized);
   },
 
+  /**
+    The same snapshot might be requested multiple times. If you request a same snapshot with different fields, the
+    record will be fetched and will block user interaction.
+
+    @method shouldReloadRecord
+    @param {Store} store
+    @param {Snapshot} snapshot
+    @return {Boolean}
+  */
+  shouldReloadRecord(store, snapshot) {
+    let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
+    if (snapshotFields) {
+      return captureFields(snapshot.record, snapshotFields);
+    }
+
+    return false;
+  },
+
   updateRecord(store, type, snapshot) {
     const data = serializeIntoHash(store, type, snapshot);
 
@@ -260,5 +299,24 @@ const JSONAPIAdapter = RESTAdapter.extend({
     return this.ajax(url, 'PATCH', { data: data });
   },
 });
+
+function captureFields(record, snapshotFields) {
+  let cachedFields = FieldsForRecord.get(record);
+  if (cachedFields && cachedFields.length) {
+    // have seen this record with these fields before
+    if (cachedFields.indexOf(serializeQueryParams(snapshotFields)) > -1) {
+      return false;
+    }
+
+    // have seen this record but not these fields
+    cachedFields.push(serializeQueryParams(snapshotFields));
+    FieldsForRecord.set(record, cachedFields);
+    return true;
+  } else {
+    // never seen this record yet
+    FieldsForRecord.set(record, [serializeQueryParams(snapshotFields)]);
+    return false;
+  }
+}
 
 export default JSONAPIAdapter;
