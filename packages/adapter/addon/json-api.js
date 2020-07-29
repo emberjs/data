@@ -5,7 +5,7 @@ import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
-import { serializeIntoHash, serializeQueryParams } from './-private';
+import { serializeIntoHash } from './-private';
 import RESTAdapter from './rest';
 
 const FieldsForRecord = new WeakMap();
@@ -300,22 +300,53 @@ const JSONAPIAdapter = RESTAdapter.extend({
   },
 });
 
+function hasSomeFields(cachedFields, snapshotFields) {
+  const listOfCachedFields = cachedFields.split(',');
+  const listOfSnapshotFields = snapshotFields.split(',');
+
+  return (
+    listOfCachedFields.every(i => listOfSnapshotFields.indexOf(i) > -1) ||
+    (listOfSnapshotFields.length < listOfCachedFields.length &&
+      listOfSnapshotFields.every(i => listOfCachedFields.indexOf(i) > -1))
+  );
+}
+
+function equalFields(cachedFields, snapshotFields) {
+  return cachedFields.some(entry => {
+    let isEqual;
+
+    for (let key in snapshotFields) {
+      if (entry[key]) {
+        // we found a potential match
+        isEqual = hasSomeFields(entry[key], snapshotFields[key]);
+      } else {
+        // if entry doesn't have it, lets move onto the other cached fields
+        break;
+      }
+    }
+
+    return isEqual;
+  });
+}
+
 function captureFields(record, snapshotFields) {
   let cachedFields = FieldsForRecord.get(record);
   if (cachedFields && cachedFields.length) {
-    // have seen this record with these fields before
-    if (cachedFields.indexOf(serializeQueryParams(snapshotFields)) > -1) {
+    // have seen this record with these fields before - don't fetch
+    if (equalFields(cachedFields, snapshotFields)) {
       return false;
     }
 
-    // have seen this record but not these fields
-    cachedFields.push(serializeQueryParams(snapshotFields));
+    // have seen this record but not these fields - fetch new record
+    cachedFields.push(snapshotFields);
     FieldsForRecord.set(record, cachedFields);
     return true;
   } else {
-    // never seen this record yet
-    FieldsForRecord.set(record, [serializeQueryParams(snapshotFields)]);
-    return false;
+    // never seen this record yet - fetch new record
+    // TODO: Since we capture fields in the initial requests, I don't think tis is possible.  However,
+    // if we are missing something, then should we reload or not? Or just delete this block and warn
+    FieldsForRecord.set(record, [snapshotFields]);
+    return true;
   }
 }
 
