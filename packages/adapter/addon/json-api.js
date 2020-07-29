@@ -320,11 +320,11 @@ function equalFields(cachedFields, snapshotFields) {
         // we found a potential match
         isEqual = hasSomeFields(entry[key], snapshotFields[key]);
       } else {
-        // if entry doesn't have it, lets move onto the other cached fields
         isEqual = false;
       }
 
       if (isEqual === false) {
+        // if entry doesn't have it, lets move onto the other cached fields
         break;
       }
     }
