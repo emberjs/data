@@ -346,10 +346,10 @@ function captureFields(record, snapshotFields) {
     FieldsForRecord.set(record, cachedFields);
     return true;
   } else {
-    // never seen this record yet - fetch new record
-    // TODO: Since we capture fields in the initial requests, I don't think tis is possible.  However,
-    // if we are missing something, then should we reload or not? Or just delete this block and warn
+    // never seen this record yet
     FieldsForRecord.set(record, [snapshotFields]);
+    // TODO: Since we capture fields in the initial requests, I don't think this is possible.  However,
+    // if we are missing a piece of the puzzle, then should we reload or not? Or just return undefined?
     return true;
   }
 }
