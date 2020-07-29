@@ -22,6 +22,21 @@ module('unit/adapters/json-api-adapter/should-reload-record', function() {
     assert.equal(result, true, 'is true with different snapshot id but same fields');
   });
 
+  test('shouldReloadRecord() with same fields with space in between', function(assert) {
+    const adapter = JSONAPIAdapter.create();
+
+    const record = new RecordStub('1');
+    let snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama,category' }, record);
+    let result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, true, 'is true with initial call');
+
+    snapshotStub = createSnapshotStub('1', { post: 'name, date', category: 'drama, category' }, record);
+    result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, false, 'is false with same fields formatted differently');
+  });
+
   test('shouldReloadRecord() with different fields', function(assert) {
     const adapter = JSONAPIAdapter.create();
 
@@ -35,6 +50,11 @@ module('unit/adapters/json-api-adapter/should-reload-record', function() {
     result = adapter.shouldReloadRecord({}, snapshotStub);
 
     assert.equal(result, true, 'is true with different fields');
+
+    snapshotStub = createSnapshotStub('1', { comment: 'title' }, record);
+    result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, false, 'is false with less fields than existing query');
 
     snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama' }, record);
     result = adapter.shouldReloadRecord({}, snapshotStub);
@@ -50,6 +70,11 @@ module('unit/adapters/json-api-adapter/should-reload-record', function() {
     result = adapter.shouldReloadRecord({}, snapshotStub);
 
     assert.equal(result, false, 'is false if requery with same fields as initial');
+
+    snapshotStub = createSnapshotStub('1', { post: 'name,date,id', category: 'drama' }, record);
+    result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, true, 'is true if requery with more fields as initial');
   });
 
   test('shouldReloadRecord() with less fields', function(assert) {
@@ -85,6 +110,31 @@ module('unit/adapters/json-api-adapter/should-reload-record', function() {
     result = adapter.shouldReloadRecord({}, snapshotStub);
 
     assert.equal(result, false, 'is false with same fields as initial');
+  });
+
+  test('shouldReloadRecord() with more fields', function(assert) {
+    const adapter = JSONAPIAdapter.create();
+
+    const record = new RecordStub('1');
+    let snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama,comedy' }, record);
+    let result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, true, 'is true with initial call');
+
+    snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama,comedy', author: 'name' }, record);
+    result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, true, 'is true with more fields');
+
+    snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama,comedy' }, record);
+    result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, false, 'is false if same as initial call');
+
+    snapshotStub = createSnapshotStub('1', { author: 'name', post: 'name,date', category: 'drama,comedy' }, record);
+    result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, false, 'is false if requery snapshot with author field');
   });
 });
 

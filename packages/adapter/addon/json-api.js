@@ -301,11 +301,11 @@ const JSONAPIAdapter = RESTAdapter.extend({
 });
 
 function hasSomeFields(cachedFields, snapshotFields) {
-  const listOfCachedFields = cachedFields.split(',');
-  const listOfSnapshotFields = snapshotFields.split(',');
+  const listOfCachedFields = cachedFields.split(',').map(field => field.trim());
+  const listOfSnapshotFields = snapshotFields.split(',').map(field => field.trim());
 
   return (
-    listOfCachedFields.every(i => listOfSnapshotFields.indexOf(i) > -1) ||
+    listOfSnapshotFields.every(i => listOfCachedFields.indexOf(i) > -1) ||
     (listOfSnapshotFields.length < listOfCachedFields.length &&
       listOfSnapshotFields.every(i => listOfCachedFields.indexOf(i) > -1))
   );
@@ -321,6 +321,10 @@ function equalFields(cachedFields, snapshotFields) {
         isEqual = hasSomeFields(entry[key], snapshotFields[key]);
       } else {
         // if entry doesn't have it, lets move onto the other cached fields
+        isEqual = false;
+      }
+
+      if (isEqual === false) {
         break;
       }
     }
