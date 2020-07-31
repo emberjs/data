@@ -1170,7 +1170,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
     assert.expectDeprecation(
-      /You provided a list of \"fields\" in Snapshot adapterOptions. {2}ember-data added support for JSONAPI fields, including adding them to the request url and managing shouldReloadRecord state. {2}To opt-in to this feature, please set "supportsJSONAPIFields: true" on your JSON-API adapter./
+      /You provided a list of "fields" in Snapshot adapterOptions. {2}ember-data added support for JSONAPI fields, including adding them to the request url and managing shouldReloadRecord state. {2}To opt-in to this feature, please set "supportsJSONAPIFields: true" on your JSON-API adapter./
     );
   });
 });
