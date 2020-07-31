@@ -1,6 +1,7 @@
 /**
   @module @ember-data/adapter
 */
+import { deprecate } from '@ember/application/deprecations';
 import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
@@ -150,6 +151,8 @@ const JSONAPIAdapter = RESTAdapter.extend({
 
   _defaultContentType: 'application/vnd.api+json',
 
+  supportsJSONAPIFields: false,
+
   /**
     @method ajaxOptions
     @private
@@ -257,7 +260,18 @@ const JSONAPIAdapter = RESTAdapter.extend({
   findRecord(store, type, id, snapshot) {
     let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
     if (snapshotFields) {
-      captureFields(snapshot.record, snapshotFields);
+      if (this.supportsJSONAPIFields) {
+        captureFields(snapshot.record, snapshotFields);
+      } else {
+        deprecate(
+          `You provided a list of "fields" in Snapshot adapterOptions.  ember-data added support for JSONAPI fields, including adding them to the request url and managing shouldReloadRecord state.  To opt-in to this feature, please set \`supportsJSONAPIFields: true\` on your JSON-API adapter.`,
+          false,
+          {
+            id: 'ember-data:-built-in-fields-support',
+            until: '4.0',
+          }
+        );
+      }
     }
 
     return this._super(...arguments);
@@ -283,9 +297,11 @@ const JSONAPIAdapter = RESTAdapter.extend({
     @return {Boolean}
   */
   shouldReloadRecord(store, snapshot) {
-    let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
-    if (snapshotFields) {
-      return captureFields(snapshot.record, snapshotFields);
+    if (this.supportsJSONAPIFields) {
+      let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
+      if (snapshotFields) {
+        return captureFields(snapshot.record, snapshotFields);
+      }
     }
 
     return false;

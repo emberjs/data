@@ -65,7 +65,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
         return false;
       },
     });
-    this.adapter = this.owner.register('adapter:application', JSONAPIAdapter);
+    this.owner.register('adapter:application', JSONAPIAdapter);
     this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
 
     this.owner.register('model:user', User);
@@ -1029,6 +1029,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
   });
 
   test('findRecord - passes `fields` as a query parameter to ajax', async function(assert) {
+    adapter.supportsJSONAPIFields = true;
+
     ajaxResponse([
       {
         data: {
@@ -1048,6 +1050,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
   });
 
   test('findRecord - does not fetch again after successive calls', async function(assert) {
+    adapter.supportsJSONAPIFields = true;
+
     ajaxResponse([
       {
         data: {
@@ -1073,6 +1077,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
   });
 
   test('findRecord - passes `fields` and `includes` as a query parameter to ajax', async function(assert) {
+    adapter.supportsJSONAPIFields = true;
+
     ajaxResponse([
       {
         data: {
@@ -1095,6 +1101,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
   });
 
   test('findAll - passed `fields` as a query parameter to ajax', async function(assert) {
+    adapter.supportsJSONAPIFields = true;
+
     ajaxResponse([
       {
         data: [
@@ -1115,6 +1123,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
   });
 
   test('findAll - passed `fields` and `include` as a query parameter to ajax', async function(assert) {
+    adapter.supportsJSONAPIFields = true;
+
     ajaxResponse([
       {
         data: [
@@ -1137,5 +1147,30 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
       '`fields` and `include` params sent to adapter.ajax'
     );
     assert.equal(passedUrl[0], '/posts', 'The posts were fetched');
+  });
+
+  test('findRecord - registers deprecation if `fields` are passed to adapterOptions without supportFields flag set', async function(assert) {
+    adapter.supportsJSONAPIFields = false;
+
+    ajaxResponse([
+      {
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Ember.js rocks',
+          },
+        },
+      },
+    ]);
+
+    await store.findRecord('post', 1, { adapterOptions: { fields: { post: 'title,body' } } });
+
+    assert.deepEqual(passedHash[0].data, { fields: { post: 'title,body' } }, '`fields` parameter sent to adapter.ajax');
+    assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
+
+    assert.expectDeprecation(
+      /You provided a list of \"fields\" in Snapshot adapterOptions. {2}ember-data added support for JSONAPI fields, including adding them to the request url and managing shouldReloadRecord state. {2}To opt-in to this feature, please set `supportsJSONAPIFields: true` on your JSON-API adapter./
+    );
   });
 });

@@ -3,8 +3,18 @@ import { module, test } from 'qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 module('unit/adapters/json-api-adapter/should-reload-record', function() {
+  test('shouldReloadRecord() with no support for fields', function(assert) {
+    const adapter = JSONAPIAdapter.create({ supportsJSONAPIFields: false });
+
+    const record = new RecordStub('1');
+    let snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama' }, record);
+    let result = adapter.shouldReloadRecord({}, snapshotStub);
+
+    assert.equal(result, false, 'is false by default');
+  });
+
   test('shouldReloadRecord() with same fields', function(assert) {
-    const adapter = JSONAPIAdapter.create();
+    const adapter = JSONAPIAdapter.create({ supportsJSONAPIFields: true });
 
     const record = new RecordStub('1');
     let snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama' }, record);
@@ -23,7 +33,7 @@ module('unit/adapters/json-api-adapter/should-reload-record', function() {
   });
 
   test('shouldReloadRecord() with same fields with space in between', function(assert) {
-    const adapter = JSONAPIAdapter.create();
+    const adapter = JSONAPIAdapter.create({ supportsJSONAPIFields: true });
 
     const record = new RecordStub('1');
     let snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama,category' }, record);
@@ -38,7 +48,7 @@ module('unit/adapters/json-api-adapter/should-reload-record', function() {
   });
 
   test('shouldReloadRecord() with different fields', function(assert) {
-    const adapter = JSONAPIAdapter.create();
+    const adapter = JSONAPIAdapter.create({ supportsJSONAPIFields: true });
 
     const record = new RecordStub('1');
     let snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama' }, record);
@@ -78,7 +88,7 @@ module('unit/adapters/json-api-adapter/should-reload-record', function() {
   });
 
   test('shouldReloadRecord() with less fields', function(assert) {
-    const adapter = JSONAPIAdapter.create();
+    const adapter = JSONAPIAdapter.create({ supportsJSONAPIFields: true });
 
     const record = new RecordStub('1');
     let snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama,comedy' }, record);
@@ -113,7 +123,7 @@ module('unit/adapters/json-api-adapter/should-reload-record', function() {
   });
 
   test('shouldReloadRecord() with more fields', function(assert) {
-    const adapter = JSONAPIAdapter.create();
+    const adapter = JSONAPIAdapter.create({ supportsJSONAPIFields: true });
 
     const record = new RecordStub('1');
     let snapshotStub = createSnapshotStub('1', { post: 'name,date', category: 'drama,comedy' }, record);
