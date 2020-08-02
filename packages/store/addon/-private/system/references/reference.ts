@@ -34,10 +34,6 @@ function isResourceIdentiferWithRelatedLinks(
 
 export const INTERNAL_MODELS = new WeakMap<Reference, InternalModel>();
 
-export function internalModelForIdentifier(store: CoreStore, identifier: StableRecordIdentifier): InternalModel | null {
-  return internalModelFactoryFor(store).peek(identifier);
-}
-
 export function internalModelForReference(reference: Reference): InternalModel | undefined {
   return INTERNAL_MODELS.get(reference);
 }
@@ -55,7 +51,7 @@ abstract class Reference {
   public recordData: InternalModel['_recordData'];
   constructor(public store: CoreStore, identifierOrInternalModel: InternalModel | StableRecordIdentifier) {
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let internalModel = internalModelForIdentifier(this.store, identifierOrInternalModel as StableRecordIdentifier);
+      let internalModel = internalModelFactoryFor(this.store).peek(identifierOrInternalModel as StableRecordIdentifier);
       if (internalModel) {
         INTERNAL_MODELS.set(this, internalModel);
       }

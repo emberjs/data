@@ -7,8 +7,8 @@ import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-i
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import recordDataFor from '../record-data-for';
-import { peekRecordIdentifier } from '../store/internal-model-factory';
-import Reference, { internalModelForIdentifier, internalModelForReference } from './reference';
+import { internalModelFactoryFor, peekRecordIdentifier } from '../store/internal-model-factory';
+import Reference, { internalModelForReference } from './reference';
 
 /**
   @module @ember-data/store
@@ -29,8 +29,8 @@ export default class BelongsToReference extends Reference {
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.relationshipMeta.type;
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      this.parent = internalModelForIdentifier(store, parentIMOrIdentifier).recordReference;
-      this.parentInternalModel = internalModelForIdentifier(store, parentIMOrIdentifier);
+      this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
+      this.parentInternalModel = internalModelFactoryFor(store).peek(parentIMOrIdentifier);
     } else {
       this.parent = parentIMOrIdentifier.recordReference;
       this.parentInternalModel = parentIMOrIdentifier;
