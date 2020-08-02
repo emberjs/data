@@ -152,7 +152,7 @@ export default class InternalModelFactory {
       this.identifierCache.getOrCreateRecordIdentifier(data);
     }
 
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+    const identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     const internalModel = this.peek(identifier);
 
     if (internalModel) {
