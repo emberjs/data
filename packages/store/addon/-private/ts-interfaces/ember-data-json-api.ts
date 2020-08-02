@@ -33,7 +33,6 @@ export interface ExistingResourceIdentifierObject {
   type: string;
 
   /**
-   * While not officially part of the `JSON:API` spec,
    * `ember-data` allows the use of `lid` as a local
    * identifier for a `Resource`.
    *
