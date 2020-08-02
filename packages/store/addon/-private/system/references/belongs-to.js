@@ -2,12 +2,13 @@ import { deprecate } from '@ember/debug';
 
 import { resolve } from 'rsvp';
 
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import recordDataFor from '../record-data-for';
 import { peekRecordIdentifier } from '../store/internal-model-factory';
-import Reference, { INTERNAL_MODELS } from './reference';
+import Reference, { internalModelForIdentifier, internalModelForReference } from './reference';
 
 /**
   @module @ember-data/store
@@ -22,13 +23,18 @@ import Reference, { INTERNAL_MODELS } from './reference';
  @extends Reference
  */
 export default class BelongsToReference extends Reference {
-  constructor(store, parentInternalModel, belongsToRelationship, key) {
-    super(store, parentInternalModel);
+  constructor(store, parentIMOrIdentifier, belongsToRelationship, key) {
+    super(store, parentIMOrIdentifier);
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.relationshipMeta.type;
-    this.parent = parentInternalModel.recordReference;
-    this.parentInternalModel = parentInternalModel;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      this.parent = internalModelForIdentifier(store, parentIMOrIdentifier).recordReference;
+      this.parentInternalModel = internalModelForIdentifier(store, parentIMOrIdentifier);
+    } else {
+      this.parent = parentIMOrIdentifier.recordReference;
+      this.parentInternalModel = parentIMOrIdentifier;
+    }
 
     // TODO inverse
   }
@@ -82,7 +88,7 @@ export default class BelongsToReference extends Reference {
   }
 
   _resource() {
-    return INTERNAL_MODELS.get(this)?._recordData.getBelongsTo(this.key);
+    return internalModelForReference(this)?._recordData.getBelongsTo(this.key);
   }
 
   /**
@@ -146,7 +152,7 @@ export default class BelongsToReference extends Reference {
       }
 
       assertPolymorphicType(
-        INTERNAL_MODELS.get(this),
+        internalModelForReference(this),
         this.belongsToRelationship.relationshipMeta,
         record._internalModel,
         this.store

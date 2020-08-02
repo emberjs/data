@@ -1,7 +1,9 @@
 import { deprecate } from '@ember/debug';
 
-import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { FULL_LINKS_ON_RELATIONSHIPS, RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
+
+import { internalModelFactoryFor } from '../store/internal-model-factory';
 
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
@@ -11,6 +13,7 @@ type CoreStore = import('../core-store').default;
 type JSONObject = import('json-typescript').Object;
 type JSONValue = import('json-typescript').Value;
 type InternalModel = import('../model/internal-model').default;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store
@@ -31,6 +34,14 @@ function isResourceIdentiferWithRelatedLinks(
 
 export const INTERNAL_MODELS = new WeakMap<Reference, InternalModel>();
 
+export function internalModelForIdentifier(store: CoreStore, identifier: StableRecordIdentifier): InternalModel | null {
+  return internalModelFactoryFor(store).peek(identifier);
+}
+
+export function internalModelForReference(reference: Reference): InternalModel | undefined {
+  return INTERNAL_MODELS.get(reference);
+}
+
 /**
   This is the baseClass for the different References
   like RecordReference/HasManyReference/BelongsToReference
@@ -42,8 +53,15 @@ interface Reference {
 }
 abstract class Reference {
   public recordData: InternalModel['_recordData'];
-  constructor(public store: CoreStore, internalModel: InternalModel) {
-    INTERNAL_MODELS.set(this, internalModel);
+  constructor(public store: CoreStore, identifierOrInternalModel: InternalModel | StableRecordIdentifier) {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      let internalModel = internalModelForIdentifier(this.store, identifierOrInternalModel as StableRecordIdentifier);
+      if (internalModel) {
+        INTERNAL_MODELS.set(this, internalModel);
+      }
+    } else {
+      INTERNAL_MODELS.set(this, identifierOrInternalModel as InternalModel);
+    }
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
