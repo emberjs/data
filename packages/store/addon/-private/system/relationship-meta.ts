@@ -3,7 +3,7 @@ import { DEBUG } from '@glimmer/env';
 import { singularize } from 'ember-inflector';
 
 import { RelationshipSchema } from '../ts-interfaces/record-data-schemas';
-import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
+import { BRAND_SYMBOL } from '../utils/brand';
 import normalizeModelName from './normalize-model-name';
 
 type CoreStore = import('./core-store').default;

@@ -1,5 +1,5 @@
 import { RequestStateEnum } from '../ts-interfaces/fetch-manager';
-import { addSymbol, symbol } from '../ts-interfaces/utils/symbol';
+import { addSymbol, symbol } from '../utils/symbol';
 
 type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
 type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;

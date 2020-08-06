@@ -4,8 +4,8 @@ import { DEBUG } from '@glimmer/env';
 import coerceId from '../system/coerce-id';
 import normalizeModelName from '../system/normalize-model-name';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
-import { addSymbol } from '../ts-interfaces/utils/symbol';
 import isNonEmptyString from '../utils/is-non-empty-string';
+import { addSymbol } from '../utils/symbol';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
 
