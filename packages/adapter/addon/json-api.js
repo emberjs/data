@@ -261,7 +261,8 @@ const JSONAPIAdapter = RESTAdapter.extend({
     let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
     if (snapshotFields) {
       if (this.supportsJSONAPIFields) {
-        captureFields(snapshot.record, snapshotFields);
+        let { identifier } = snapshot._internalModel;
+        captureFields(identifier, snapshotFields);
       } else {
         deprecate(
           `You provided a list of "fields" in Snapshot adapterOptions.  ember-data added support for JSONAPI fields, including adding them to the request url and managing shouldReloadRecord state.  To opt-in to this feature, please set "supportsJSONAPIFields: true" on your JSON-API adapter.`,
@@ -300,7 +301,8 @@ const JSONAPIAdapter = RESTAdapter.extend({
     if (this.supportsJSONAPIFields) {
       let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
       if (snapshotFields) {
-        return captureFields(snapshot.record, snapshotFields);
+        let { identifier } = snapshot._internalModel;
+        return captureFields(identifier, snapshotFields);
       }
     }
 
@@ -349,8 +351,8 @@ function equalFields(cachedFields, snapshotFields) {
   });
 }
 
-function captureFields(record, snapshotFields) {
-  let cachedFields = FieldsForRecord.get(record);
+function captureFields(identifier, snapshotFields) {
+  let cachedFields = FieldsForRecord.get(identifier);
   if (cachedFields && cachedFields.length) {
     // have seen this record with these fields before - don't fetch
     if (equalFields(cachedFields, snapshotFields)) {
@@ -359,11 +361,11 @@ function captureFields(record, snapshotFields) {
 
     // have seen this record but not these fields - fetch new record
     cachedFields.push(snapshotFields);
-    FieldsForRecord.set(record, cachedFields);
+    FieldsForRecord.set(identifier, cachedFields);
     return true;
   } else {
     // never seen this record yet
-    FieldsForRecord.set(record, [snapshotFields]);
+    FieldsForRecord.set(identifier, [snapshotFields]);
     // TODO: Since we capture fields in the initial requests, I don't think this is possible.  However,
     // if we are missing a piece of the puzzle, then should we reload or not? Or just return undefined?
     return true;

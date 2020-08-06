@@ -156,8 +156,8 @@ class RecordStub {
 
 function createSnapshotStub(id, fields, record) {
   return {
-    get record() {
-      return record;
+    _internalModel: {
+      identifier: record,
     },
     id,
     adapterOptions: {
