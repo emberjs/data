@@ -39,11 +39,9 @@ import {
 } from '@ember-data/private-build-infra/deprecations';
 
 import { identifierCacheFor } from '../identifiers/cache';
-// TODO this comes from ts-interfaces but it is a function we ship
-// so needs to be moved somewhere else
-import { addSymbol } from '../ts-interfaces/utils/symbol';
 import constructResource from '../utils/construct-resource';
 import promiseRecord from '../utils/promise-record';
+import { addSymbol } from '../utils/symbol';
 import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
 import { errorsArrayToHash } from './errors-utils';

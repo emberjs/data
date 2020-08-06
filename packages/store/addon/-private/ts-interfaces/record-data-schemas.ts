@@ -1,4 +1,4 @@
-import { BRAND_SYMBOL } from './utils/brand';
+import { BRAND_SYMBOL } from '../utils/brand';
 
 /**
   @module @ember-data/store

@@ -1,4 +1,4 @@
-import { BRAND_SYMBOL } from './utils/brand';
+import { BRAND_SYMBOL } from '../utils/brand';
 
 type RelationshipsSchema = import('./record-data-schemas').RelationshipsSchema;
 type AttributesSchema = import('./record-data-schemas').AttributesSchema;

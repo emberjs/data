@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { symbol } from '../ts-interfaces/utils/symbol';
+import { symbol } from '../utils/symbol';
 
 // provided for additional debuggability
 export const DEBUG_CLIENT_ORIGINATED: unique symbol = symbol('record-originated-on-client');

@@ -5,9 +5,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { default as RSVP, Promise } from 'rsvp';
 
-// TODO @runspired symbol shouldn't be in ts-interfaces
-// as it is runtime code
-import { symbol } from '../ts-interfaces/utils/symbol';
+import { symbol } from '../utils/symbol';
 import coerceId from './coerce-id';
 import { errorsArrayToHash } from './errors-utils';
 import RequestCache from './request-cache';
