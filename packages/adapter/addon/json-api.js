@@ -235,7 +235,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
   buildQuery(snapshot) {
     let query = this._super(...arguments);
 
-    if (snapshot.adapterOptions) {
+    if (this.supportsJSONAPIFields && snapshot.adapterOptions) {
       let { fields } = snapshot.adapterOptions;
 
       if (fields) {

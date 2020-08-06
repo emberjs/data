@@ -1149,7 +1149,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(passedUrl[0], '/posts', 'The posts were fetched');
   });
 
-  test('findRecord - registers deprecation if `fields` are passed to adapterOptions without supportFields flag set', async function(assert) {
+  test('findRecord - registers deprecation if `fields` are passed to adapterOptions without supportJSONAPIFields flag set', async function(assert) {
     adapter.supportsJSONAPIFields = false;
 
     ajaxResponse([
@@ -1166,7 +1166,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
 
     await store.findRecord('post', 1, { adapterOptions: { fields: { post: 'title,body' } } });
 
-    assert.deepEqual(passedHash[0].data, { fields: { post: 'title,body' } }, '`fields` parameter sent to adapter.ajax');
+    assert.deepEqual(passedHash[0].data, {}, '`fields` parameter not sent to adapter.ajax');
     assert.equal(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
     assert.expectDeprecation(
