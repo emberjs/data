@@ -32,10 +32,14 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-export const INTERNAL_MODELS = new WeakMap<Reference, InternalModel>();
+const REFERENCE_CACHE = new WeakMap<Reference, InternalModel | StableRecordIdentifier>();
 
-export function internalModelForReference(reference: Reference): InternalModel | undefined {
-  return INTERNAL_MODELS.get(reference);
+export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
+  if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+    return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
+  } else {
+    return REFERENCE_CACHE.get(reference) as InternalModel;
+  }
 }
 
 /**
@@ -51,12 +55,9 @@ abstract class Reference {
   public recordData: InternalModel['_recordData'];
   constructor(public store: CoreStore, identifierOrInternalModel: InternalModel | StableRecordIdentifier) {
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let internalModel = internalModelFactoryFor(this.store).peek(identifierOrInternalModel as StableRecordIdentifier);
-      if (internalModel) {
-        INTERNAL_MODELS.set(this, internalModel);
-      }
+      REFERENCE_CACHE.set(this, identifierOrInternalModel as StableRecordIdentifier);
     } else {
-      INTERNAL_MODELS.set(this, identifierOrInternalModel as InternalModel);
+      REFERENCE_CACHE.set(this, identifierOrInternalModel as InternalModel);
     }
   }
 
@@ -226,7 +227,7 @@ if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
         until: '3.21',
       });
 
-      return INTERNAL_MODELS.get(this);
+      return REFERENCE_CACHE.get(this);
     },
   });
 }
