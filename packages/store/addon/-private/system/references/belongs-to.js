@@ -30,7 +30,7 @@ export default class BelongsToReference extends Reference {
     this.type = belongsToRelationship.relationshipMeta.type;
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
-      this.parentInternalModel = internalModelFactoryFor(store).peek(parentIMOrIdentifier);
+      this.parentIdentifier = parentIMOrIdentifier;
     } else {
       this.parent = parentIMOrIdentifier.recordReference;
       this.parentInternalModel = parentIMOrIdentifier;
@@ -215,10 +215,9 @@ export default class BelongsToReference extends Reference {
    @return {Model} the record in this relationship
    */
   value() {
-    let store = this.parentInternalModel.store;
     let resource = this._resource();
     if (resource && resource.data) {
-      let inverseInternalModel = store._internalModelForResource(resource.data);
+      let inverseInternalModel = this.store._internalModelForResource(resource.data);
       if (inverseInternalModel && inverseInternalModel.isLoaded()) {
         return inverseInternalModel.getRecord();
       }
@@ -289,7 +288,12 @@ export default class BelongsToReference extends Reference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
   load(options) {
-    return this.parentInternalModel.getBelongsTo(this.key, options);
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
+      return parentInternalModel.getBelongsTo(this.key, options);
+    } else {
+      return this.parentInternalModel.getBelongsTo(this.key, options);
+    }
   }
 
   /**
@@ -342,7 +346,13 @@ export default class BelongsToReference extends Reference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
   reload(options) {
-    return this.parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
+    let parentInternalModel;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
+    } else {
+      parentInternalModel = this.parentInternalModel;
+    }
+    return parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
       return this.value();
     });
   }

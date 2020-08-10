@@ -26,12 +26,11 @@ export default class HasManyReference extends Reference {
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.relationshipMeta.type;
+
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
-      this.parentInternalModel = internalModelFactoryFor(store).peek(parentIMOrIdentifier);
     } else {
       this.parent = parentIMOrIdentifier.recordReference;
-      this.parentInternalModel = parentIMOrIdentifier;
     }
 
     // TODO inverse
@@ -218,8 +217,7 @@ export default class HasManyReference extends Reference {
 
     //TODO Igor cleanup
     return members.every(recordData => {
-      let store = this.parentInternalModel.store;
-      let internalModel = store._internalModelForResource(recordData.getResourceIdentifier());
+      let internalModel = this.store._internalModelForResource(recordData.getResourceIdentifier());
       return internalModel.isLoaded() === true;
     });
   }
