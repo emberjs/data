@@ -260,25 +260,22 @@ const JSONAPIAdapter = RESTAdapter.extend({
   findRecord(store, type, id, snapshot) {
     let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
     if (snapshotFields) {
-      if (this.supportsJSONAPIFields) {
-        let { identifier } = snapshot._internalModel;
-        captureFields(identifier, snapshotFields);
-      } else {
-        deprecate(
-          `You provided a list of "fields" in Snapshot adapterOptions.  ember-data added support for JSONAPI fields, including adding them to the request url and managing shouldReloadRecord state.  To opt-in to this feature, please set "supportsJSONAPIFields: true" on your JSON-API adapter.`,
-          false,
-          {
-            id: 'ember-data:-built-in-fields-support',
-            until: '4.0',
-          }
-        );
-      }
+      let { identifier } = snapshot._internalModel;
+      handleSnapshotFields(identifier, snapshotFields, this.supportsJSONAPIFields);
     }
 
     return this._super(...arguments);
   },
 
   findMany(store, type, ids, snapshots) {
+    snapshots.snapshots().forEach(snapshot => {
+      let snapshotFields = snapshot.adapterOptions && snapshot.adapterOptions.fields;
+      if (snapshotFields) {
+        let { identifier } = snapshot._internalModel;
+        handleSnapshotFields(identifier, snapshotFields, this.supportsJSONAPIFields);
+      }
+    });
+
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   },
@@ -369,6 +366,21 @@ function captureFields(identifier, snapshotFields) {
     // TODO: Since we capture fields in the initial requests, I don't think this is possible.  However,
     // if we are missing a piece of the puzzle, then should we reload or not? Or just return undefined?
     return true;
+  }
+}
+
+function handleSnapshotFields(identifier, snapshotFields, supportsJSONAPIFields) {
+  if (supportsJSONAPIFields) {
+    captureFields(identifier, snapshotFields);
+  } else {
+    deprecate(
+      `You provided a list of "fields" in Snapshot adapterOptions.  ember-data added support for JSONAPI fields, including adding them to the request url and managing shouldReloadRecord state.  To opt-in to this feature, please set "supportsJSONAPIFields: true" on your JSON-API adapter.`,
+      false,
+      {
+        id: 'ember-data:-built-in-fields-support',
+        until: '4.0',
+      }
+    );
   }
 }
 
