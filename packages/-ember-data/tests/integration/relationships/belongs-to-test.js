@@ -22,6 +22,13 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
   let store;
   setupTest(hooks);
 
+  class Company extends Model {
+    @belongsTo('company', { inverse: null, async: true })
+    parentCompany;
+    @attr()
+    name;
+  };
+
   class Person extends Model {
     @belongsTo('pet', { inverse: 'bestHuman', async: true })
     bestDog;
@@ -41,6 +48,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
     owner.register('service:store', Store);
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
+    owner.register('model:company', Company);
     owner.register(
       'serializer:application',
       JSONAPISerializer.extend({
@@ -178,6 +186,34 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
     assert.ok(shen.get('bestHuman') === null, "scene 3 - Chris remains no longer Shen's best human");
     assert.ok(pirate.get('bestHuman') === null, 'scene 3 - pirate no longer has Chris as best human');
     assert.ok(bestDog === null, 'scene 3 - Chris has no best dog');
+  });
+
+  test("belongsTo saving with relationship that references yourself doesn't blow up", async function(assert) {
+	this.owner.register(
+		'adapter:company',
+		JSONAPIAdapter.extend({
+		  createRecord(store,type,snapshot) {
+			return resolve({
+				data: {
+				  type: 'company',
+				  id: '123',
+				  attributes: { name: 'Acme Corporation' },
+				  relationships: {
+					parentCompany: {
+					  data: { type: 'company', id: '123' }
+					},
+				  },
+				},
+			  });
+		  }
+		})
+	  );
+
+	let company = store.createRecord('company');
+	company.set('name','Acme Corporation');
+	company = await company.save();
+	assert.ok(company.id);
+	assert.equal(company.belongsTo('parentCompany').id(),company.id);
   });
 });
 

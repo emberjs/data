@@ -316,14 +316,14 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._isNew = false;
     let newCanonicalAttributes: AttributesHash | null = null;
     if (data) {
-      // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
-      if (data.relationships) {
-        this._setupRelationships(data);
-      }
       if (data.id) {
         // didCommit provided an ID, notify the store of it
         this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
         this.id = coerceId(data.id);
+      }
+      // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
+      if (data.relationships) {
+        this._setupRelationships(data);
       }
       newCanonicalAttributes = data.attributes || null;
     }
