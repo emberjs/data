@@ -17,7 +17,7 @@ import { Promise } from 'rsvp';
   updated when the promise resolves.
 
   For more information see the [Ember.PromiseProxyMixin
-  documentation](/api/classes/Ember.PromiseProxyMixin.html).
+  documentation](/ember/release/classes/PromiseProxyMixin).
 
   Example
 
@@ -49,7 +49,7 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   be updated when the promise resolves.
 
   For more information see the [Ember.PromiseProxyMixin
-  documentation](/api/classes/Ember.PromiseProxyMixin.html).
+  documentation](/ember/release/classes/PromiseProxyMixin.html).
 
   Example
 
