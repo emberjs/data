@@ -99,7 +99,7 @@ abstract class Reference {
 
   /**
    The link Ember Data will use to fetch or reload this belongs-to
-   relationship.
+   relationship. By default it uses only the "related" resource linkage.
 
    Example
 
