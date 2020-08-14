@@ -559,18 +559,20 @@ const JSONAPISerializer = JSONSerializer.extend({
 
 if (DEBUG) {
   JSONAPISerializer.reopen({
-    willMergeMixin(props) {
+    init(...args) {
+      this._super(...args);
+
       let constructor = this.constructor;
       warn(
         `You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at https://api.emberjs.com/ember-data/release/classes/JSONAPISerializer on how to customize meta when using JSON API.`,
-        isNone(props.extractMeta) || props.extractMeta === JSONSerializer.prototype.extractMeta,
+        this.extractMeta === JSONSerializer.prototype.extractMeta,
         {
           id: 'ds.serializer.json-api.extractMeta',
         }
       );
       warn(
         'The JSONAPISerializer does not work with the EmbeddedRecordsMixin because the JSON API spec does not describe how to format embedded resources.',
-        !props.isEmbeddedRecordsMixin,
+        !this.isEmbeddedRecordsMixin,
         {
           id: 'ds.serializer.embedded-records-mixin-not-supported',
         }
