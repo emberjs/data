@@ -127,11 +127,20 @@ export default ArrayProxy.extend(DeprecatedEvented, {
   errorsFor(attribute) {
     let map = get(this, 'errorsByAttributeName');
 
-    if (!map.has(attribute)) {
-      map.set(attribute, A());
+    let errors = map.get(attribute);
+
+    if (errors === undefined) {
+      errors = A();
+      map.set(attribute, errors);
     }
 
-    return map.get(attribute);
+    // Errors may be a native array with extensions turned on. Since we access
+    // the array via a method, and not a computed or using `Ember.get`, it does
+    // not entangle properly with autotracking, so we entangle manually by
+    // getting the `[]` property.
+    get(errors, '[]');
+
+    return errors;
   },
 
   /**
