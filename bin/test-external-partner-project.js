@@ -123,7 +123,7 @@ try {
 
 try {
   debug('Preparing Package To Run Tests Against Commit');
-  insertTarballsToPackageJson(packageJsonLocation);
+  // insertTarballsToPackageJson(packageJsonLocation);
 
   // clear node_modules installed for the smoke-test
   execExternal(`rm -rf node_modules`);
