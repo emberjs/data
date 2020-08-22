@@ -37,7 +37,7 @@ const { skipSmokeTest, skipClone, skipTest, noLockFile, useCache } = cliOptions;
 const cachePath = '../__external-test-cache';
 const tempDir = path.join(projectRoot, cachePath);
 const projectTempDir = path.join(tempDir, externalProjectName);
-const insertTarballsToPackageJson = require('./-tarball-info').insertTarballsToPackageJson;
+// const insertTarballsToPackageJson = require('./-tarball-info').insertTarballsToPackageJson;
 
 if (!gitUrl) {
   throw new Error('No git url provided to `test-external-partner`. An https git url should be the first argument.');
