@@ -96,7 +96,7 @@ try {
 }
 
 const useYarn = fs.existsSync(path.join(projectTempDir, 'yarn.lock'));
-const packageJsonLocation = path.join(projectTempDir, 'package.json');
+// const packageJsonLocation = path.join(projectTempDir, 'package.json');
 
 // run project tests
 console.log(`Running tests for ${externalProjectName}`);
