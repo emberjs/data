@@ -22,6 +22,8 @@ class Person extends Model {
   parent;
   @belongsTo('pet', { inverse: 'bestHuman', async: true })
   bestDog;
+  @belongsTo('address', { async: false })
+  address;
 }
 
 class Pet extends Model {
@@ -32,6 +34,11 @@ class Pet extends Model {
   petOwner;
   @attr()
   name;
+}
+
+class Address extends Model {
+  @attr('string')
+  lineOne;
 }
 
 class TestAdapter extends JSONAPIAdapter {
@@ -94,6 +101,57 @@ class TestAdapter extends JSONAPIAdapter {
   deleteRecord() {
     return resolve({ data: null });
   }
+}
+
+function makePeopleWithAddressRelationshipData(limit = 200, offset = 0) {
+  let addresses = [];
+  let people = [];
+  for (let count = 1; count <= limit; count++) {
+    let id = count + offset;
+    addresses.push({
+      type: 'address',
+      id: count,
+      attributes: {
+        lineOne: `${id} place way`,
+      },
+    });
+
+    people.push({
+      type: 'person',
+      id: count,
+      attributes: {
+        name: `Person ${id}`,
+      },
+      relationships: {
+        address: {
+          data: { type: 'address', id: id },
+        },
+      },
+    });
+  }
+
+  let dataHash = {
+    data: people.concat(addresses),
+  };
+
+  let peopleHash = {};
+  let addressHash = {};
+
+  people.forEach(person => {
+    peopleHash[person.id] = person;
+  });
+
+  addresses.forEach(addr => {
+    addressHash[addr.id] = addr;
+  });
+
+  return {
+    peopleHash: peopleHash,
+    people: people,
+    addresses: addresses,
+    addressHash: addressHash,
+    dataHash: dataHash,
+  };
 }
 
 function makePeopleWithRelationshipData() {
@@ -212,6 +270,7 @@ module('async belongs-to rendering tests', function(hooks) {
     let { owner } = this;
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
+    owner.register('model:address', Address);
     owner.register('adapter:application', TestAdapter);
     owner.register(
       'serializer:application',
@@ -556,5 +615,31 @@ module('async belongs-to rendering tests', function(hooks) {
         assert.equal(e.message, error, `should have rejected with '${error}'`);
       }
     });
+  });
+
+  test('We can render synchronous belongs-to immediately', async function(assert) {
+    let people = store.peekAll('person');
+    this.set('people', people);
+
+    let factory = makePeopleWithAddressRelationshipData(200);
+
+    store.push(factory.dataHash);
+
+    await render(hbs`
+      <ul>
+        {{#each this.people as |person|}}
+          <li class="person">{{person.name}} @ {{person.address.lineOne}}</li>
+        {{/each}}
+      </ul>
+    `);
+
+    assert.dom('li').exists({ count: 200 }, 'list has first fetched results');
+
+    let factory2 = makePeopleWithAddressRelationshipData(200, 200);
+
+    store.push(factory2.dataHash);
+    await settled();
+
+    assert.dom('li').exists({ count: 400 }, 'collection is updated');
   });
 });
