@@ -5,8 +5,7 @@
 */
 
 import { getOwner } from '@ember/application';
-import { deprecate } from '@ember/application/deprecations';
-import { warn } from '@ember/debug';
+import { deprecate, warn } from '@ember/debug';
 import { computed, get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
@@ -323,6 +322,25 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
       if (jQueryIntegrationDisabled) {
         return (this._useFetch = true);
       } else if (DEPRECATE_NAJAX && typeof najax !== 'undefined') {
+        if (has('fetch')) {
+          deprecate(
+            'You have ember-fetch and jquery installed. To use ember-fetch, set `useFetch: true` in your adapter.  In 4.0, ember-data will fallback to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
+            false,
+            {
+              id: 'ember-data:najax-fallback',
+              until: '4.0',
+            }
+          );
+        } else {
+          deprecate(
+            'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar as a fetch polyfill in FastBoot.',
+            false,
+            {
+              id: 'ember-data:najax-fallback',
+              until: '4.0',
+            }
+          );
+        }
         return (this._useFetch = false);
       } else if (hasJQuery) {
         return (this._useFetch = false);
@@ -1066,25 +1084,6 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     if (this.useFetch) {
       this._fetchRequest(options);
     } else if (DEPRECATE_NAJAX && get(this, 'fastboot.isFastBoot')) {
-      if (has('fetch')) {
-        deprecate(
-          'You have ember-fetch and jquery installed. To use ember-fetch, set `useFetch: true` in your adapter.  In 4.0, ember-data will fallback to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
-          false,
-          {
-            id: 'ember-data:najax-fallback',
-            until: '4.0',
-          }
-        );
-      } else {
-        deprecate(
-          'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar as a fetch polyfill in FastBoot.',
-          false,
-          {
-            id: 'ember-data:najax-fallback',
-            until: '4.0',
-          }
-        );
-      }
       this._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
