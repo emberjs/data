@@ -2,8 +2,7 @@
   @module @ember-data/store
 */
 import { getOwner, setOwner } from '@ember/application';
-import { deprecate } from '@ember/application/deprecations';
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';

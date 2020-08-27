@@ -3,9 +3,8 @@
 */
 
 import { getOwner } from '@ember/application';
-import { deprecate } from '@ember/application/deprecations';
 import { A } from '@ember/array';
-import { assert, inspect, warn } from '@ember/debug';
+import { assert, deprecate, inspect, warn } from '@ember/debug';
 import { computed, defineProperty, get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run as emberRunLoop } from '@ember/runloop';
