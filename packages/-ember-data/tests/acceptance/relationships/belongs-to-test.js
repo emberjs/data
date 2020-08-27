@@ -110,7 +110,7 @@ function makePeopleWithAddressRelationshipData(limit = 200, offset = 0) {
     let id = count + offset;
     addresses.push({
       type: 'address',
-      id: count,
+      id: id,
       attributes: {
         lineOne: `${id} place way`,
       },
@@ -118,7 +118,7 @@ function makePeopleWithAddressRelationshipData(limit = 200, offset = 0) {
 
     people.push({
       type: 'person',
-      id: count,
+      id: id,
       attributes: {
         name: `Person ${id}`,
       },
