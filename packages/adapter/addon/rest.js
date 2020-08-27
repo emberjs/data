@@ -324,7 +324,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
       } else if (DEPRECATE_NAJAX && typeof najax !== 'undefined') {
         if (has('fetch')) {
           deprecate(
-            'You have ember-fetch and jquery installed. To use ember-fetch, set `useFetch: true` in your adapter.  In 4.0, ember-data will fallback to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
+            'You have ember-fetch and jquery installed. To use ember-fetch instead of najax, set `useFetch: true` in your adapter.  In 4.0, ember-data will default to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
             false,
             {
               id: 'ember-data:najax-fallback',
@@ -333,7 +333,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
           );
         } else {
           deprecate(
-            'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar as a fetch polyfill in FastBoot.',
+            'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar fetch polyfill in FastBoot.',
             false,
             {
               id: 'ember-data:najax-fallback',
