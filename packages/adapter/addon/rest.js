@@ -206,9 +206,9 @@ const hasNajax = typeof najax !== 'undefined';
   ```app/adapters/application.js
   import RESTAdapter from '@ember-data/adapter/rest';
 
-  export default RESTAdapter.extend({
-    namespace: 'api/1'
-  });
+  export default class ApplicationAdapter extends RESTAdapter {
+    namespace = 'api/1';
+  }
   ```
   Requests for the `Person` model would now target `/api/1/people/1`.
 
@@ -219,9 +219,9 @@ const hasNajax = typeof najax !== 'undefined';
   ```app/adapters/application.js
   import RESTAdapter from '@ember-data/adapter/rest';
 
-  export default RESTAdapter.extend({
-    host: 'https://api.example.com'
-  });
+  export default class ApplicationAdapter extends RESTAdapter {
+    host = 'https://api.example.com';
+  }
   ```
 
   ### Headers customization
@@ -235,14 +235,14 @@ const hasNajax = typeof najax !== 'undefined';
   import RESTAdapter from '@ember-data/adapter/rest';
   import { computed } from '@ember/object';
 
-  export default RESTAdapter.extend({
+  export default class ApplicationAdapter extends RESTAdapter {
     headers: computed(function() {
       return {
         'API_KEY': 'secret key',
         'ANOTHER_HEADER': 'Some header value'
       };
     }
-  });
+  }
   ```
 
   `headers` can also be used as a computed property to support dynamic
@@ -253,14 +253,14 @@ const hasNajax = typeof najax !== 'undefined';
   import RESTAdapter from '@ember-data/adapter/rest';
   import { computed } from '@ember/object';
 
-  export default RESTAdapter.extend({
+  export default class ApplicationAdapter extends RESTAdapter {
     headers: computed('session.authToken', function() {
       return {
         'API_KEY': this.get('session.authToken'),
         'ANOTHER_HEADER': 'Some header value'
       };
     })
-  });
+  }
   ```
 
   In some cases, your dynamic headers may require data from some
@@ -275,14 +275,14 @@ const hasNajax = typeof najax !== 'undefined';
   import { get } from '@ember/object';
   import { computed } from '@ember/object';
 
-  export default RESTAdapter.extend({
+  export default class ApplicationAdapter extends RESTAdapter {
     headers: computed(function() {
       return {
         'API_KEY': get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
         'ANOTHER_HEADER': 'Some header value'
       };
     }).volatile()
-  });
+  }
   ```
 
   @class RESTAdapter
@@ -347,7 +347,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default RESTAdapter.extend({
+    export default class ApplicationAdapter extends RESTAdapter {
       sortQueryParams(params) {
         let sortedKeys = Object.keys(params).sort().reverse();
         let len = sortedKeys.length, newParams = {};
@@ -358,7 +358,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
         return newParams;
       }
-    });
+    }
     ```
 
     @method sortQueryParams
@@ -436,9 +436,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default RESTAdapter.extend({
-      namespace: 'api/1'
-    });
+    export default class ApplicationAdapter extends RESTAdapter {
+      namespace = 'api/1';
+    }
     ```
 
     Requests for the `Post` model would now target `/api/1/post/`.
@@ -453,9 +453,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default RESTAdapter.extend({
-      host: 'https://api.example.com'
-    });
+    export default class ApplicationAdapter extends RESTAdapter {
+      host = 'https://api.example.com';
+    }
     ```
 
     Requests for the `Post` model would now target `https://api.example.com/post/`.
@@ -475,14 +475,14 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     import RESTAdapter from '@ember-data/adapter/rest';
     import { computed } from '@ember/object';
 
-    export default RESTAdapter.extend({
+    export default class ApplicationAdapter extends RESTAdapter {
       headers: computed(function() {
         return {
           'API_KEY': 'secret key',
           'ANOTHER_HEADER': 'Some header value'
         };
       })
-    });
+    }
     ```
 
     @property headers

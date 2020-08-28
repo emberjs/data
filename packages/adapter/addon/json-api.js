@@ -117,9 +117,9 @@ import RESTAdapter from './rest';
   ```app/adapters/application.js
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-  export default JSONAPIAdapter.extend({
-    namespace: 'api/1'
-  });
+  export default class ApplicationAdapter extends JSONAPIAdapter {
+    namespace = 'api/1';
+  }
   ```
   Requests for the `person` model would now target `/api/1/people/1`.
 
@@ -130,9 +130,9 @@ import RESTAdapter from './rest';
   ```app/adapters/application.js
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-  export default JSONAPIAdapter.extend({
-    host: 'https://api.example.com'
-  });
+  export default class ApplicationAdapter extends JSONAPIAdapter {
+    host = 'https://api.example.com';
+  }
   ```
 
   Requests for the `person` model would now target
