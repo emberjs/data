@@ -168,7 +168,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
       url: 'https://emberjs.com',
       method: 'POST',
       data: {},
-      credentials : credentials,
+      credentials: credentials,
     };
 
     const postOptions = fetchOptions(postData);
