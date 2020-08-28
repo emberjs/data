@@ -1036,6 +1036,43 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     assert.equal(post.get('comments.length'), 0, 'the post has the no comments');
   });
 
+  test('updateRecord - hasMany relationships set locally will be removed with empty response', async function(assert) {
+    Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
+    Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Not everyone uses Rails',
+        },
+      },
+    });
+
+    store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+      },
+    });
+
+    ajaxResponse({
+      posts: { id: 1, name: 'Everyone uses Rails', comments: [] },
+    });
+
+    let post = await store.peekRecord('post', 1);
+    let comment = await store.peekRecord('comment', 1);
+    post.comments = [comment];
+    assert.equal(post.get('comments.length'), 1, 'the post has one comment');
+    post.set('name', 'Everyone uses Rails');
+    post = await post.save();
+    assert.equal(post.get('comments.length'), 0, 'the post has the no comments');
+  });
+
   test('deleteRecord - an empty payload is a basic success', function(assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     run(() => {
