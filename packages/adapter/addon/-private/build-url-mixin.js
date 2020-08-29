@@ -20,7 +20,7 @@ import { pluralize } from 'ember-inflector';
   import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 
   export default class ApplicationAdapter extends Adapter.extend(BuildURLMixin) {
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       var url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
       return this.ajax(url, 'GET');
     }
@@ -439,7 +439,7 @@ export default Mixin.create({
     import { pluralize } from 'ember-inflector';
 
     export default class ApplicationAdapter extends RESTAdapter {
-      pathForType: function(modelName) {
+      pathForType(modelName) {
         var decamelized = decamelize(modelName);
         return pluralize(decamelized);
       }
