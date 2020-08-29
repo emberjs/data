@@ -512,18 +512,18 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     });
     ```
 
-    The `errors` property us useful for displaying error messages to
+    The `errors` property is useful for displaying error messages to
     the user.
-
+TODO: model username??
     ```handlebars
-    <label>Username: {{input value=username}} </label>
-    {{#each model.errors.username as |error|}}
+    <label>Username: <Input @value={{this.model.username}} /> </label>
+    {{#each this.model.errors.username as |error|}}
       <div class="error">
         {{error.message}}
       </div>
     {{/each}}
-    <label>Email: {{input value=email}} </label>
-    {{#each model.errors.email as |error|}}
+    <label>Email: <Input @value={{this.model.email}} /> </label>
+    {{#each this.model.errors.email as |error|}}
       <div class="error">
         {{error.message}}
       </div>
@@ -535,7 +535,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     object to get an array of all the error strings.
 
     ```handlebars
-    {{#each model.errors.messages as |message|}}
+    {{#each this.model.errors.messages as |message|}}
       <div class="error">
         {{message}}
       </div>
@@ -708,20 +708,24 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
     ```app/routes/model/delete.js
     import Route from '@ember/routing/route';
+    import { action } from '@ember/object';
 
-    export default Route.extend({
-      actions: {
-        softDelete() {
-          this.get('controller.model').deleteRecord();
-        },
-        confirm() {
-          this.get('controller.model').save();
-        },
-        undo() {
-          this.get('controller.model').rollbackAttributes();
-        }
+    export default class ModelDeleteRoute extends Route {
+      @action
+      softDelete() {
+        this.controller.get('model').deleteRecord();
       }
-    });
+
+      @action
+      confirm() {
+        this.controller.get('model').save();
+      }
+
+      @action
+      undo() {
+        this.controller.get('model').rollbackAttributes();
+      }
+    }
     ```
 
     @method deleteRecord
@@ -737,16 +741,16 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
     ```app/routes/model/delete.js
     import Route from '@ember/routing/route';
+    import { action } from '@ember/object';
 
-    export default Route.extend({
-      actions: {
-        delete() {
-          this.get('controller.model').destroyRecord().then(function() {
-            controller.transitionToRoute('model.index');
-          });
-        }
-      }
-    });
+    export default class ModelDeleteRoute extends Route {
+      @action
+      delete() {
+        this.controller.get('model').destroyRecord().then(function() {
+          this.controller.transitionToRoute('model.index');
+        });
+      } 
+    }
     ```
 
     If you pass an object on the `adapterOptions` property of the options
@@ -759,14 +763,14 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     ```app/adapters/post.js
     import MyCustomAdapter from './custom-adapter';
 
-    export default MyCustomAdapter.extend({
+    export default class PostAdapter extends MyCustomAdapter {
       deleteRecord(store, type, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
         // ...
       }
-    });
+    }
     ```
 
     @method destroyRecord
@@ -822,12 +826,13 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     ```app/models/mascot.js
     import Model, { attr } from '@ember-data/model';
 
-    export default Model.extend({
-      name: attr('string'),
-      isAdmin: attr('boolean', {
+    export default class MascotModel extends Model {
+      @attr('string') name;
+      @attr('boolean', {
         defaultValue: false
       })
-    });
+      isAdmin;
+    }
     ```
 
     ```javascript
@@ -924,14 +929,14 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     ```app/adapters/post.js
     import MyCustomAdapter from './custom-adapter';
 
-    export default MyCustomAdapter.extend({
+    export default class PostAdapter extends MyCustomAdapter {
       updateRecord(store, type, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
         // ...
       }
-    });
+    }
     ```
 
     @method save
@@ -954,16 +959,16 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
     ```app/routes/model/view.js
     import Route from '@ember/routing/route';
+    import { action } from '@ember/object';
 
-    export default Route.extend({
-      actions: {
-        reload() {
-          this.controller.get('model').reload().then(function(model) {
-            // do something with the reloaded model
-          });
-        }
+    export default class ViewRoute extends Route {
+      @action
+      reload() {
+        this.controller.get('model').reload().then(function(model) {
+        // do something with the reloaded model
+        });
       }
-    });
+    }
     ```
 
     @method reload
@@ -1002,9 +1007,9 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     ```app/models/blog.js
     import Model, { belongsTo } from '@ember-data/model';
 
-    export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+    export default class BlogModel extends Model {
+      @belongsTo({ async: true }) user;
+    }
     ```
 
     ```javascript
@@ -1069,9 +1074,9 @@ const Model = EmberObject.extend(DeprecatedEvented, {
     ```app/models/blog.js
     import Model, { hasMany } from '@ember-data/model';
 
-    export default Model.extend({
-      comments: hasMany({ async: true })
-    });
+    export default class BlogModel extends Model {
+      @hasMany({ async: true }) comments;
+    }
 
     let blog = store.push({
       data: {
@@ -1220,8 +1225,8 @@ const Model = EmberObject.extend(DeprecatedEvented, {
    ```app/serializers/application.js
    import JSONSerializer from '@ember-data/serializer/json';
 
-   export default JSONSerializer.extend({
-    serialize: function(record, options) {
+   export default class ApplicationSerializer extends JSONSerializer {
+      serialize(record, options) {
       let json = {};
 
       record.eachRelationship(function(name, descriptor) {
@@ -1233,7 +1238,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
       return json;
     }
-  });
+  }
    ```
 
    @method eachRelationship
@@ -1499,6 +1504,7 @@ Model.reopenClass({
     @static
   */
 
+  // TODO refactor for native classes/octane??
   /**
    Represents the model's class name as a string. This can be used to look up the model's class name through
    `Store`'s modelFor method.
@@ -1556,9 +1562,9 @@ Model.reopenClass({
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
 
-   export default Model.extend({
-      comments: hasMany('comment')
-    });
+   export default class PostModel extends Model {
+     @hasMany('comment') comments;
+   }
    ```
 
    Calling `store.modelFor('post').typeForRelationship('comments', store)` will return `Comment`.
@@ -1586,17 +1592,18 @@ Model.reopenClass({
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
 
-   export default Model.extend({
-      comments: hasMany('message')
-    });
+   export default class PostModel extends Model {
+    @hasMany('message') comments;
+   }
    ```
 
    ```app/models/message.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import Model from '@ember-data/model';
+   import { belongsTo } from '@ember-decorators/data';
 
-   export default Model.extend({
-      owner: belongsTo('post')
-    });
+   export default class MessageModel extends Model {
+    @belongsTo('post') owner;
+   }
    ```
 
    ``` js
@@ -1734,11 +1741,11 @@ Model.reopenClass({
    ```app/models/blog.js
    import Model, { belongsTo, hasMany } from '@ember-data/model';
 
-   export default Model.extend({
-      users: hasMany('user'),
-      owner: belongsTo('user'),
-      posts: hasMany('post')
-    });
+   export default class BlogModel extends Model {
+      @hasMany('user') users;
+      @belongsTo('user') owner;
+      @hasMany('post') posts;
+    }
    ```
 
    This computed property would return a map describing these
@@ -1774,12 +1781,12 @@ Model.reopenClass({
    ```app/models/blog.js
    import Model, { belongsTo, hasMany } from '@ember-data/model';
 
-   export default Model.extend({
-      users: hasMany('user'),
-      owner: belongsTo('user'),
+   export default class BlogModel extends Model {
+      @hasMany('user') users;
+      @belongsTo('user') owner;
 
-      posts: hasMany('post')
-    });
+      @hasMany('post') posts;
+    }
    ```
 
    This property would contain the following:
@@ -1825,12 +1832,12 @@ Model.reopenClass({
    ```app/models/blog.js
    import Model, { belongsTo, hasMany } from '@ember-data/model';
 
-   export default Model.extend({
-      users: hasMany('user'),
-      owner: belongsTo('user'),
+   export default class BlogModel extends Model {
+      @hasMany('user') users;
+      @belongsTo('user') owner;
 
-      posts: hasMany('post')
-    });
+      @hasMany('post') posts;
+    }
    ```
 
    This property would contain the following:
@@ -1860,12 +1867,12 @@ Model.reopenClass({
    ```app/models/blog.js
    import Model, { belongsTo, hasMany } from '@ember-data/model';
 
-   export default Model.extend({
-      users: hasMany('user'),
-      owner: belongsTo('user'),
+   export default class BlogModel extends Model {
+      @hasMany('user') users;
+      @belongsTo('user') owner;
 
-      posts: hasMany('post')
-    });
+      @hasMany('post') posts;
+    }
    ```
 
    This property would contain the following:
@@ -1900,14 +1907,14 @@ Model.reopenClass({
    ```app/models/blog.js
    import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-   export default Model.extend({
-      users: hasMany('user'),
-      owner: belongsTo('user'),
+   export default class BlogModel extends Model {
+      @hasMany('user') users;
+      @belongsTo('user') owner;
 
-      posts: hasMany('post'),
+      @hasMany('post') posts;
 
-      title: attr('string')
-    });
+      @attr('string') title;
+    }
    ```
 
    ```js
@@ -2012,11 +2019,11 @@ Model.reopenClass({
    ```app/models/person.js
    import Model, { attr } from '@ember-data/model';
 
-   export default Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      birthday: attr('date')
-    });
+   export default class PersonModel extends Model {
+      @attr('string') firstName;
+      @attr('string') lastName;
+      @attr('date') birthday;
+    }
    ```
 
    ```javascript
@@ -2070,11 +2077,11 @@ Model.reopenClass({
    ```app/models/person.js
    import Model, { attr } from '@ember-data/model';
 
-   export default Model.extend({
-      firstName: attr(),
-      lastName: attr('string'),
-      birthday: attr('date')
-    });
+   export default class PersonModel extends Model {
+      @attr firstName;
+      @attr('string') lastName;
+      @attr('date') birthday;
+    }
    ```
 
    ```javascript
@@ -2108,7 +2115,7 @@ Model.reopenClass({
 
     return map;
   }).readOnly(),
-
+  // TODO refactor for native classes/octane??
   /**
    Iterates through the attributes of the model, calling the passed function on each
    attribute.
@@ -2157,7 +2164,7 @@ Model.reopenClass({
       callback.call(binding, name, meta);
     });
   },
-
+  // TODO refactor for native classes/octane??
   /**
    Iterates through the transformedAttributes of the model, calling
    the passed function on each attribute. Note the callback will not be

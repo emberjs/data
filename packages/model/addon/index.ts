@@ -18,13 +18,13 @@
   ```app/models/person.js
   import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    name: attr(),
+  export default class PersonModel extends Model {
+    @attr name;
 
-    dog: belongsTo('pet', { inverse: 'owners', async: false }),
+    @belongsTo('pet', { inverse: 'owners', async: false }) dog;
 
-    friends: hasMany('person', { inverse: 'friends', async: true }),
-  });
+    @hasMany('person', { inverse: 'friends', async: true }) friends;
+  }
   ```
 
   ### modelName convention

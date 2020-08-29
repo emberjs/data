@@ -22,10 +22,10 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
   ```app/models/user.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    username: attr('string'),
-    email: attr('string')
-  });
+  export default class UserModel extends Model {
+    @attr('string') username;
+    @attr('string') email;
+  }
   ```
   And you attempted to save a record that did not validate on the backend:
 
@@ -53,15 +53,15 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
   - `attribute` The name of the property associated with this error message
 
   ```handlebars
-  <label>Username: {{input value=username}} </label>
-  {{#each model.errors.username as |error|}}
+  <label>Username: <Input @value={{this.model.username}} /> </label>
+  {{#each this.model.errors.username as |error|}}
     <div class="error">
       {{error.message}}
     </div>
   {{/each}}
 
-  <label>Email: {{input value=email}} </label>
-  {{#each model.errors.email as |error|}}
+  <label>Email: <Input @value={{this.model.email}} /> </label>
+  {{#each this.model.errors.email as |error|}}
     <div class="error">
       {{error.message}}
     </div>
@@ -72,7 +72,7 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
   object to get an array of all the error strings.
 
   ```handlebars
-  {{#each model.errors.messages as |message|}}
+  {{#each this.model.errors.messages as |message|}}
     <div class="error">
       {{message}}
     </div>
@@ -148,7 +148,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     record. This is useful for displaying all errors to the user.
 
     ```handlebars
-    {{#each model.errors.messages as |message|}}
+    {{#each this.model.errors.messages as |message|}}
       <div class="error">
         {{message}}
       </div>
@@ -427,17 +427,17 @@ export default ArrayProxy.extend(DeprecatedEvented, {
 
     ```app/routes/user/edit.js
     import Route from '@ember/routing/route';
+    import { action } from '@ember/object';
 
-    export default Route.extend({
-      actions: {
-        save: function(user) {
-          if (user.get('errors').has('email')) {
-            return alert('Please update your email before attempting to save.');
-          }
-          user.save();
+    export default class UserEditRoute extends Route {
+      @action
+      save(user) {
+        if (user.get('errors').has('email')) {
+          return alert('Please update your email before attempting to save.');
         }
+        user.save();
       }
-    });
+    }
     ```
 
     @method has

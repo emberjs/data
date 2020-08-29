@@ -30,17 +30,17 @@ import { computedMacroWithOptionalParams } from './util';
   ```app/models/user.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    profile: belongsTo('profile')
-  });
+  export default class UserModel extends Model {
+    @belongsTo('profile') profile;
+  }
   ```
 
   ```app/models/profile.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    user: belongsTo('user')
-  });
+  export default class ProfileModel extends Model {
+    @belongsTo('user') user;
+  }
   ```
 
   #### One-To-Many
@@ -50,17 +50,17 @@ import { computedMacroWithOptionalParams } from './util';
   ```app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    comments: hasMany('comment')
-  });
+  export default class PostModel extends Model {
+    @hasMany('comment') comments;
+  }
   ```
 
   ```app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    post: belongsTo('post')
-  });
+  export default class CommentModel extends Model {
+    @belongsTo('post') post;
+  }
   ```
 
   You can avoid passing a string as the first parameter. In that case Ember Data
@@ -69,9 +69,9 @@ import { computedMacroWithOptionalParams } from './util';
   ```app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    post: belongsTo()
-  });
+  export default class CommentModel extends Model {
+    @belongsTo post;
+  }
   ```
 
   will lookup for a Post type.
@@ -85,11 +85,12 @@ import { computedMacroWithOptionalParams } from './util';
   ```app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    post: belongsTo('post', {
+  export default class CommentModel extends Model {
+    @belongsTo('post', {
       async: false
     })
-  });
+    post;
+  }
   ```
 
   In contrast to async relationship, accessing a sync relationship

@@ -28,17 +28,17 @@ import { _objectIsAlive, DeprecatedEvented, diffArray, PromiseArray, recordDataF
   ```app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    comments: hasMany('comment')
-  });
+  export default class PostModel extends Model {
+    @hasMany('comment') comments;
+  }
   ```
 
   ```app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    post: belongsTo('post')
-  });
+  export default class CommentModel extends Model {
+    @belongsTo('post') post;
+  }
   ```
 
   If you created a new instance of `Post` and added

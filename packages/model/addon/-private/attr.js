@@ -49,11 +49,11 @@ function hasValue(internalModel, key) {
   ```app/models/user.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    username: attr('string'),
-    email: attr('string'),
-    verified: attr('boolean', { defaultValue: false })
-  });
+  export default class UserModel extends Model {
+    @attr('string') username;
+    @attr('string') email;
+    @attr('boolean', { defaultValue: false }) verified; 
+  }
   ```
 
   Default value can also be a function. This is useful it you want to return
@@ -62,15 +62,17 @@ function hasValue(internalModel, key) {
   ```app/models/user.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    username: attr('string'),
-    email: attr('string'),
-    settings: attr({
+  export default class UserModel extends Model {
+    @attr('string') username;
+    @attr('string') email;
+
+    @attr({
       defaultValue() {
         return {};
       }
     })
-  });
+    settings;
+  }
   ```
 
   The `options` hash is passed as second argument to a transforms'
@@ -80,11 +82,12 @@ function hasValue(internalModel, key) {
   ```app/models/post.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    text: attr('text', {
+  export default class PostModel extends Model {
+    @attr('text', {
       uppercase: true
     })
-  });
+    text;
+  }
   ```
 
   ```app/transforms/text.js

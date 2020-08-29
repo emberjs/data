@@ -3,8 +3,8 @@ import { getOwner } from '@ember/application';
 import Model from '../model';
 
 type Store = import('@ember-data/store').default;
-
-/*
+// TODO refactor for native classes/octane??
+/* 
     In case someone defined a relationship to a mixin, for example:
     ```
       let Comment = Model.extend({
