@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## Release 3.16.9 (LTS) (August 29, 2020)
+- [d22499d0](https://github.com/emberjs/data/pull/7291) [BUGFIX] Entangle Errors.errorsFor properly
+
 ## Release 3.16.8 (LTS) (June 24, 2020)
 - [#7236](https://github.com/emberjs/data/pull/7236) [BUGFIX] Allow createRecord responses without a type (#7236)
 
