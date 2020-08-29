@@ -2,6 +2,9 @@
 
 ### Master
 
+## Release 3.20.1 (August 29, 2020)
+- [#7273](https://github.com/emberjs/data/pull/7273) [BUGFIX] Entangle Errors.errorsFor properly
+
 ## Release 3.20.0 (July 16, 2020)
 
 - [#7167](https://github.com/emberjs/data/pull/7167) [FEATURE] JSONAPI Serializer asserts instead of warning when passed EmbeddedRecordsMixin, opt out with `isEmbeddedRecordsMixinCompatible: true`
