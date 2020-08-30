@@ -53,15 +53,15 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
   - `attribute` The name of the property associated with this error message
 
   ```handlebars
-  <label>Username: <Input @value={{this.model.username}} /> </label>
-  {{#each this.model.errors.username as |error|}}
+  <label>Username: <Input @value={{@model.username}} /> </label>
+  {{#each @model.errors.username as |error|}}
     <div class="error">
       {{error.message}}
     </div>
   {{/each}}
 
-  <label>Email: <Input @value={{this.model.email}} /> </label>
-  {{#each this.model.errors.email as |error|}}
+  <label>Email: <Input @value={{@model.email}} /> </label>
+  {{#each @model.errors.email as |error|}}
     <div class="error">
       {{error.message}}
     </div>
@@ -72,7 +72,7 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
   object to get an array of all the error strings.
 
   ```handlebars
-  {{#each this.model.errors.messages as |message|}}
+  {{#each @model.errors.messages as |message|}}
     <div class="error">
       {{message}}
     </div>
@@ -148,7 +148,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     record. This is useful for displaying all errors to the user.
 
     ```handlebars
-    {{#each this.model.errors.messages as |message|}}
+    {{#each @model.errors.messages as |message|}}
       <div class="error">
         {{message}}
       </div>

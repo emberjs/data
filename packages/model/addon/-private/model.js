@@ -514,16 +514,16 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
     The `errors` property is useful for displaying error messages to
     the user.
-TODO: model username??
+
     ```handlebars
-    <label>Username: <Input @value={{this.model.username}} /> </label>
-    {{#each this.model.errors.username as |error|}}
+    <label>Username: <Input @value={{@model.username}} /> </label>
+    {{#each @model.errors.username as |error|}}
       <div class="error">
         {{error.message}}
       </div>
     {{/each}}
-    <label>Email: <Input @value={{this.model.email}} /> </label>
-    {{#each this.model.errors.email as |error|}}
+    <label>Email: <Input @value={{@model.email}} /> </label>
+    {{#each @model.errors.email as |error|}}
       <div class="error">
         {{error.message}}
       </div>
@@ -535,7 +535,7 @@ TODO: model username??
     object to get an array of all the error strings.
 
     ```handlebars
-    {{#each this.model.errors.messages as |message|}}
+    {{#each @model.errors.messages as |message|}}
       <div class="error">
         {{message}}
       </div>
@@ -706,24 +706,24 @@ TODO: model username??
 
     Example
 
-    ```app/routes/model/delete.js
-    import Route from '@ember/routing/route';
+    ```app/controllers/model/delete.js
+    import Controller from '@ember/controller';
     import { action } from '@ember/object';
 
-    export default class ModelDeleteRoute extends Route {
+    export default class ModelDeleteController extends Controller {
       @action
       softDelete() {
-        this.controller.get('model').deleteRecord();
+        this.model.deleteRecord();
       }
 
       @action
       confirm() {
-        this.controller.get('model').save();
+        this.model').save();
       }
 
       @action
       undo() {
-        this.controller.get('model').rollbackAttributes();
+        this.model.rollbackAttributes();
       }
     }
     ```
@@ -739,15 +739,15 @@ TODO: model username??
 
     Example
 
-    ```app/routes/model/delete.js
-    import Route from '@ember/routing/route';
+    ```app/controllers/model/delete.js
+    import Controller from '@ember/controller';
     import { action } from '@ember/object';
 
-    export default class ModelDeleteRoute extends Route {
+    export default class ModelDeleteController extends Controller {
       @action
       delete() {
-        this.controller.get('model').destroyRecord().then(function() {
-          this.controller.transitionToRoute('model.index');
+        this.model.destroyRecord().then(function() {
+          this.transitionToRoute('model.index');
         });
       } 
     }
@@ -957,14 +957,14 @@ TODO: model username??
 
     Example
 
-    ```app/routes/model/view.js
-    import Route from '@ember/routing/route';
+    ```app/controllers/model/view.js
+    import Controller from '@ember/controller';
     import { action } from '@ember/object';
 
-    export default class ViewRoute extends Route {
+    export default class ViewController extends Controller {
       @action
       reload() {
-        this.controller.get('model').reload().then(function(model) {
+        this.model.reload().then(function(model) {
         // do something with the reloaded model
         });
       }
@@ -1504,7 +1504,6 @@ Model.reopenClass({
     @static
   */
 
-  // TODO refactor for native classes/octane??
   /**
    Represents the model's class name as a string. This can be used to look up the model's class name through
    `Store`'s modelFor method.
@@ -1752,12 +1751,12 @@ Model.reopenClass({
    relationships, like this:
 
    ```javascript
-   import Ember from 'ember';
+   import { get } from '@ember/object';
    import Blog from 'app/models/blog';
    import User from 'app/models/user';
    import Post from 'app/models/post';
 
-   let relationships = Ember.get(Blog, 'relationships');
+   let relationships = get(Blog, 'relationships');
    relationships.get('user');
    //=> [ { name: 'users', kind: 'hasMany' },
    //     { name: 'owner', kind: 'belongsTo' } ]
@@ -1792,10 +1791,10 @@ Model.reopenClass({
    This property would contain the following:
 
    ```javascript
-   import Ember from 'ember';
+   import { get } from '@ember/object';
    import Blog from 'app/models/blog';
 
-   let relationshipNames = Ember.get(Blog, 'relationshipNames');
+   let relationshipNames = get(Blog, 'relationshipNames');
    relationshipNames.hasMany;
    //=> ['users', 'posts']
    relationshipNames.belongsTo;
@@ -1843,10 +1842,10 @@ Model.reopenClass({
    This property would contain the following:
 
    ```javascript
-   import Ember from 'ember';
+   import { get } from '@ember/object';
    import Blog from 'app/models/blog';
 
-   let relatedTypes = Ember.get(Blog, 'relatedTypes');
+   let relatedTypes = get(Blog, 'relatedTypes');
    //=> [ User, Post ]
    ```
 
@@ -1878,10 +1877,10 @@ Model.reopenClass({
    This property would contain the following:
 
    ```javascript
-   import Ember from 'ember';
+   import { get } from '@ember/object';
    import Blog from 'app/models/blog';
 
-   let relationshipsByName = Ember.get(Blog, 'relationshipsByName');
+   let relationshipsByName = get(Blog, 'relationshipsByName');
    relationshipsByName.get('users');
    //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
    relationshipsByName.get('owner');
@@ -1918,10 +1917,10 @@ Model.reopenClass({
    ```
 
    ```js
-   import Ember from 'ember';
-   import Blog from 'app/models/blog';
+   import { get } from '@ember/object';
+   import Blog from 'app/models/blog'
 
-   let fields = Ember.get(Blog, 'fields');
+   let fields = get(Blog, 'fields');
    fields.forEach(function(kind, field) {
       console.log(field, kind);
     });
@@ -2027,10 +2026,10 @@ Model.reopenClass({
    ```
 
    ```javascript
-   import Ember from 'ember';
-   import Person from 'app/models/person';
+   import { get } from '@ember/object';
+   import Blog from 'app/models/blog'
 
-   let attributes = Ember.get(Person, 'attributes')
+   let attributes = get(Person, 'attributes')
 
    attributes.forEach(function(meta, name) {
       console.log(name, meta);
@@ -2085,10 +2084,10 @@ Model.reopenClass({
    ```
 
    ```javascript
-   import Ember from 'ember';
+   import { get } from '@ember/object';
    import Person from 'app/models/person';
 
-   let transformedAttributes = Ember.get(Person, 'transformedAttributes')
+   let transformedAttributes = get(Person, 'transformedAttributes')
 
    transformedAttributes.forEach(function(field, type) {
       console.log(field, type);
@@ -2115,7 +2114,7 @@ Model.reopenClass({
 
     return map;
   }).readOnly(),
-  // TODO refactor for native classes/octane??
+
   /**
    Iterates through the attributes of the model, calling the passed function on each
    attribute.
@@ -2164,7 +2163,7 @@ Model.reopenClass({
       callback.call(binding, name, meta);
     });
   },
-  // TODO refactor for native classes/octane??
+  
   /**
    Iterates through the transformedAttributes of the model, calling
    the passed function on each attribute. Note the callback will not be
