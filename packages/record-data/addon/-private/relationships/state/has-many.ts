@@ -110,6 +110,9 @@ export default class ManyRelationship extends Relationship {
     this.removeRecordDataFromOwn(recordData);
   }
 
+  /*
+    sync client and persisted state
+  */
   flushCanonical() {
     let toSet = this.canonicalState;
 
@@ -156,6 +159,9 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
+  /*
+    Handle add/removal from adapter
+  */
   computeChanges(recordDatas: RelationshipRecordData[] = []) {
     const members = this.canonicalMembers.toArray();
     for (let i = members.length - 1; i >= 0; i--) {
@@ -164,6 +170,9 @@ export default class ManyRelationship extends Relationship {
     for (let i = 0, l = recordDatas.length; i < l; i++) {
       this.addCanonicalRecordData(recordDatas[i], i);
     }
+
+    // sync with local state
+    this.flushCanonicalLater();
   }
 
   /*
