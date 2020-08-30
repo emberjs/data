@@ -2,7 +2,6 @@
   @module @ember-data/store
 */
 import EmberArray from '@ember/array';
-//import Evented from '@ember/object/evented';
 import MutableArray from '@ember/array/mutable';
 import { assert } from '@ember/debug';
 import EmberObject, { get } from '@ember/object';

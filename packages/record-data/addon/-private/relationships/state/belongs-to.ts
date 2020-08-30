@@ -50,20 +50,6 @@ export default class BelongsToRelationship extends Relationship {
     this.flushCanonicalLater();
   }
 
-  setInitialCanonicalRecordData(recordData: RelationshipRecordData) {
-    if (!recordData) {
-      return;
-    }
-
-    // When we initialize a belongsTo relationship, we want to avoid work like
-    // notifying our internalModel that we've "changed" and excessive thrash on
-    // setting up inverse relationships
-    this.canonicalMembers.add(recordData);
-    this.members.add(recordData);
-    this.inverseRecordData = this.canonicalState = recordData;
-    this.setupInverseRelationship(recordData);
-  }
-
   addCanonicalRecordData(recordData: RelationshipRecordData) {
     if (this.canonicalMembers.has(recordData)) {
       return;
@@ -192,7 +178,7 @@ export default class BelongsToRelationship extends Relationship {
     return payload;
   }
 
-  updateData(data: ExistingResourceIdentifierObject, initial: boolean) {
+  updateData(data: ExistingResourceIdentifierObject) {
     let recordData;
     if (isNone(data)) {
       recordData = null;
@@ -209,10 +195,6 @@ export default class BelongsToRelationship extends Relationship {
     if (recordData !== null) {
       recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id);
     }
-    if (initial) {
-      this.setInitialCanonicalRecordData(recordData);
-    } else {
-      this.setCanonicalRecordData(recordData);
-    }
+    this.setCanonicalRecordData(recordData);
   }
 }
