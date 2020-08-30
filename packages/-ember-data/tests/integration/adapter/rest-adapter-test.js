@@ -1066,9 +1066,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
     let post = await store.peekRecord('post', 1);
     let comment = await store.peekRecord('comment', 1);
-    post.comments = [comment];
+    let comments = post.comments;
+    comments.pushObject(comment);
     assert.equal(post.get('comments.length'), 1, 'the post has one comment');
-    post.set('name', 'Everyone uses Rails');
     post = await post.save();
     assert.equal(post.get('comments.length'), 0, 'the post has the no comments');
   });
