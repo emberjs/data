@@ -103,6 +103,8 @@ import { normalizeModelName } from '@ember-data/store';
   `extractRelationship`.
 
   ```app/serializers/application.js
+  import JSONAPISerializer from '@ember-data/serializer/json';
+
   export default class ApplicationSerializer extends JSONAPISerializer {
     normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
       let normalizedDocument = super.normalizeArrayResponse(...arguments);

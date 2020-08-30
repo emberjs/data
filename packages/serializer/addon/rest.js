@@ -71,7 +71,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     export default class ApplicationSerializer extends RESTSerializer {
       keyForPolymorphicType(key, relationship) {
-        var relationshipKey = this.keyForRelationship(key);
+        let relationshipKey = this.keyForRelationship(key);
 
         return 'type-' + relationshipKey;
       }
@@ -541,7 +541,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
-        var json = {
+        let json = {
           POST_TTL: snapshot.attr('title'),
           POST_BDY: snapshot.attr('body'),
           POST_CMS: snapshot.hasMany('comments', { ids: true })
@@ -568,7 +568,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
-        var json = {};
+        let json = {};
 
         snapshot.eachAttribute(function(name) {
           json[serverAttributeName(name)] = snapshot.attr(name);
@@ -618,7 +618,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
-        var json = super.serialize(snapshot, options);
+        let json = super.serialize(snapshot, options);
 
         json.subject = json.title;
         delete json.title;
@@ -651,7 +651,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, record, options) {
-        var root = decamelize(type.modelName);
+        let root = decamelize(type.modelName);
         data[root] = this.serialize(record, options);
       }
     }

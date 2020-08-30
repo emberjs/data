@@ -26,12 +26,12 @@ import { typeOf } from '@ember/utils';
   ```app/serializers/post.js
   import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-  export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-    attrs: {
+  export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+    attrs = {
       author: { embedded: 'always' },
       comments: { serialize: 'ids' }
     }
-  });
+  }
   ```
   Note that this use of `{ embedded: 'always' }` is unrelated to
   the `{ embedded: 'always' }` that is defined as an option on `attr` as part of
@@ -171,11 +171,11 @@ export default Mixin.create({
     ```app/serializers/post.js
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-      attrs: {
+    export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+      attrs = {
         author: { embedded: 'always' }
       }
-    })
+    }
     ```
 
     A payload with an attribute configured for embedded records can serialize
@@ -272,11 +272,11 @@ export default Mixin.create({
     ```app/serializers/post.js
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-      attrs: {
+    export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+      attrs = {
         comments: { embedded: 'always' }
       }
-    })
+    }
     ```
 
     A payload with an attribute configured for embedded records can serialize
@@ -311,11 +311,11 @@ export default Mixin.create({
     ```app/serializers/post.js
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-      attrs: {
+    export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+      attrs = {
         comments: { serialize: 'ids', deserialize: 'records' }
       }
-    })
+    }
     ```
 
     ```js
@@ -359,11 +359,11 @@ export default Mixin.create({
     ```app/serializers/user.js
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-      attrs: {
+    export default class UserSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+      attrs = {
         pets: { serialize: 'ids-and-types', deserialize: 'records' }
       }
-    });
+    }
     ```
 
     ```js
@@ -421,7 +421,7 @@ export default Mixin.create({
 
     json[serializedKey] = A(hasMany).map(function(recordSnapshot) {
       //
-      // I'm sure I'm being utterly naive here. Propably id is a configurate property and
+      // I'm sure I'm being utterly naive here. Probably id is a configurable property and
       // type too, and the modelName has to be normalized somehow.
       //
       return { id: recordSnapshot.id, type: recordSnapshot.modelName };

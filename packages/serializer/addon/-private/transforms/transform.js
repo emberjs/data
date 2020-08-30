@@ -17,15 +17,15 @@ import EmberObject from '@ember/object';
   import Transform from '@ember-data/serializer/transform';
 
   // Converts centigrade in the JSON to fahrenheit in the app
-  export default Transform.extend({
+  export default class TemperatureTransform extends Transform {
     deserialize(serialized, options) {
       return (serialized *  1.8) + 32;
-    },
+    }
 
     serialize(deserialized, options) {
       return (deserialized - 32) / 1.8;
     }
-  });
+  }
   ```
 
   Usage
@@ -33,10 +33,10 @@ import EmberObject from '@ember/object';
   ```app/models/requirement.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    name: attr('string'),
-    temperature: attr('temperature')
-  });
+  export default class RequirementModel extends Model {
+    @attr('string') name;
+    @attr('temperature') temperature;
+  }
   ```
 
   The options passed into the `attr` function when the attribute is
@@ -45,31 +45,32 @@ import EmberObject from '@ember/object';
   ```app/models/post.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    title: attr('string'),
-    markdown: attr('markdown', {
+  export default class PostModel extends Model {
+    @attr('string') title;
+    @attr('markdown', {
       markdown: {
         gfm: false,
         sanitize: true
       }
     })
+    markdown;
   });
   ```
 
   ```app/transforms/markdown.js
   import Transform from '@ember-data/serializer/transform';
 
-  export default Transform.extend({
+  export default class MarkdownTransform extends Transform {
     serialize(deserialized, options) {
       return deserialized.raw;
-    },
+    }
 
     deserialize(serialized, options) {
-      var markdownOptions = options.markdown || {};
+      let markdownOptions = options.markdown || {};
 
       return marked(serialized, markdownOptions);
     }
-  });
+  }
   ```
 
   @class Transform

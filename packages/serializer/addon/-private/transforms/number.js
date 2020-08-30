@@ -19,11 +19,11 @@ function isNumber(value) {
   ```app/models/score.js
   import Model, { attr, belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    value: attr('number'),
-    player: belongsTo('player'),
-    date: attr('date')
-  });
+  export default class ScoreModel extends Model {
+    @attr('number') value;
+    @belongsTo('player') player;
+    @attr('date') date;
+  }
   ```
 
   @class NumberTransform

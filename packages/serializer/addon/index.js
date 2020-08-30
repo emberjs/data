@@ -34,8 +34,8 @@ export default EmberObject.extend({
     ```js
     Serializer.extend({
       extractRelationship(relationshipModelName, relationshipHash) {
-        var modelClass = this.store.modelFor(relationshipModelName);
-        var relationshipSerializer = this.store.serializerFor(relationshipModelName);
+        let modelClass = this.store.modelFor(relationshipModelName);
+        let relationshipSerializer = this.store.serializerFor(relationshipModelName);
         return relationshipSerializer.normalize(modelClass, relationshipHash);
       }
     });
@@ -96,7 +96,7 @@ export default EmberObject.extend({
     ```js
     Serializer.extend({
       serialize(snapshot, options) {
-        var json = {
+        let json = {
           id: snapshot.id
         };
 
@@ -135,7 +135,7 @@ export default EmberObject.extend({
     ```js
     Serializer.extend({
       normalize(modelClass, resourceHash) {
-        var data = {
+        let data = {
           id:            resourceHash.id,
           type:          modelClass.modelName,
           attributes:    resourceHash

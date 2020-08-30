@@ -17,11 +17,11 @@ import Transform from './transform';
   ```app/models/user.js
   import Model, { attr, belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    isAdmin: attr('boolean'),
-    name: attr('string'),
-    email: attr('string')
-  });
+  export default class UserModel extends Model {
+    @attr('boolean') isAdmin;
+    @attr('string') name;
+    @attr('string') email;
+  }
   ```
 
   @class StringTransform
