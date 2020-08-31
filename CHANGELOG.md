@@ -4,8 +4,7 @@
 - [#7224](https://github.com/emberjs/data/pull/7224) [DOCS] fix links on @ember-data/store package intro
 - [#7228](https://github.com/emberjs/data/pull/7228) chore: remove instance initializer (#7228)
 - [#7232](https://github.com/emberjs/data/pull/7232) [DOC] Fix minor typo in findRecord documentation
-- [fd9ffb8f](https://github.com/emberjs/data/commit/fd9ffb8feeb03d67bbf8bf09072719b03fbb470c) [DOC] Use native syntax in RESTSerializer documentation (#7231)
-- [#7247](https://github.com/emberjs/data/pull/7247) [CI]: remove erroneous `name` without `run` in node-version-test (#7247)
+- [#7231](https://github.com/emberjs/data/pull/7231) [DOC] Use native syntax in RESTSerializer documentation (#7231)
 
 ## Release 3.20.2 (LTS) (August 30, 2020)
 - Rerelease of 3.20.1
@@ -66,6 +65,12 @@
 - [#6968](https://github.com/emberjs/data/pull/6968) remove IDENTIFIERS off branches (#6968)
 - [#6927](https://github.com/emberjs/data/pull/6927) [FIX] groupRecordsForFindMany should be optional (#6927)
 - [#7006](https://github.com/emberjs/data/pull/7006) Make execa use compatible with volta
+
+## Release 3.16.9 (LTS) (August 29, 2020)
+- [d22499d0](https://github.com/emberjs/data/pull/7291) [BUGFIX] Entangle Errors.errorsFor properly
+
+## Release 3.16.8 (LTS) (June 24, 2020)
+- [#7236](https://github.com/emberjs/data/pull/7236) [BUGFIX] Allow createRecord responses without a type (#7236)
 
 ## Release 3.16.7 (LTS) (June 10, 2020)
 
