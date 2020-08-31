@@ -6976,10 +6976,10 @@ ember-source-channel-url@^2.0.1:
   dependencies:
     got "^8.0.1"
 
-ember-source@^3.18.1:
-  version "3.18.1"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.18.1.tgz#64ef40261ef1094e529ef6baabd907e6171a51f7"
-  integrity sha512-hfBkU2w+R7zquHpdMI+HCCt51OiBA4vkVd/czm+Xr17+qkxswh748l/VQe0N0IJLhrWlbmeOI6gtrB+Hsk8QAg==
+ember-source@^3.20.1:
+  version "3.21.1"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.21.1.tgz#e1bfb20a3db91c21415256e5949a32085a2c23ab"
+  integrity sha512-zG3FCd++91/OQgYeMeGJequ1u0uLFK3xeilHYL4CNrwgQAit0vju/s8x7H4fVnVxOxYhsFUXAsTMSsvgqbaqpQ==
   dependencies:
     "@babel/helper-module-imports" "^7.8.3"
     "@babel/plugin-transform-block-scoping" "^7.8.3"
@@ -6987,22 +6987,22 @@ ember-source@^3.18.1:
     "@ember/edition-utils" "^1.2.0"
     babel-plugin-debug-macros "^0.3.3"
     babel-plugin-filter-imports "^4.0.0"
-    broccoli-concat "^3.7.4"
+    broccoli-concat "^4.2.4"
     broccoli-debug "^0.6.4"
     broccoli-funnel "^2.0.2"
-    broccoli-merge-trees "^3.0.2"
-    chalk "^3.0.0"
-    ember-cli-babel "^7.18.0"
+    broccoli-merge-trees "^4.2.0"
+    chalk "^4.0.0"
+    ember-cli-babel "^7.19.0"
     ember-cli-get-component-path-option "^1.0.0"
     ember-cli-is-package-missing "^1.0.0"
     ember-cli-normalize-entity-name "^1.0.0"
     ember-cli-path-utils "^1.0.0"
     ember-cli-string-utils "^1.1.0"
-    ember-cli-version-checker "^3.1.3"
+    ember-cli-version-checker "^5.1.1"
     ember-router-generator "^2.0.0"
     inflection "^1.12.0"
-    jquery "^3.4.1"
-    resolve "^1.14.2"
+    jquery "^3.5.0"
+    resolve "^1.17.0"
     semver "^6.1.1"
     silent-error "^1.1.1"
 
@@ -7296,7 +7296,8 @@ eslint-module-utils@^2.6.0:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "3.21.0-alpha.0"
+  version "0.0.0"
+  uid ""
 
 eslint-plugin-ember@^8.5.1:
   version "8.6.0"
@@ -9738,10 +9739,10 @@ jquery-deferred@^0.3.0:
   resolved "https://registry.npmjs.org/jquery-deferred/-/jquery-deferred-0.3.1.tgz#596eca1caaff54f61b110962b23cafea74c35355"
   integrity sha1-WW7KHKr/VPYbEQlisjyv6nTDU1U=
 
-jquery@^3.4.1:
-  version "3.5.0"
-  resolved "https://registry.npmjs.org/jquery/-/jquery-3.5.0.tgz#9980b97d9e4194611c36530e7dc46a58d7340fc9"
-  integrity sha512-Xb7SVYMvygPxbFMpTFQiHh1J7HClEaThguL15N/Gg37Lri/qKyhRGZYzHRyLH8Stq3Aow0LsHO2O2ci86fCrNQ==
+jquery@^3.5.0:
+  version "3.5.1"
+  resolved "https://registry.npmjs.org/jquery/-/jquery-3.5.1.tgz#d7b4d08e1bfdb86ad2f1a3d039ea17304717abb5"
+  integrity sha512-XwIBPqcMn57FxfT+Go5pzySnm4KWkT1Tv7gjrpT1srtf8Weynl6R273VJ5GjkRb51IzMp5nbaPjJXMWeju2MKg==
 
 js-reporters@1.2.1:
   version "1.2.1"
@@ -12806,7 +12807,7 @@ resolve@1.9.0:
   dependencies:
     path-parse "^1.0.6"
 
-resolve@^1.10.0, resolve@^1.10.1, resolve@^1.11.1, resolve@^1.12.0, resolve@^1.13.1, resolve@^1.14.2, resolve@^1.15.1, resolve@^1.17.0, resolve@^1.3.2, resolve@^1.3.3, resolve@^1.4.0, resolve@^1.5.0, resolve@^1.7.1, resolve@^1.8.1:
+resolve@^1.10.0, resolve@^1.10.1, resolve@^1.11.1, resolve@^1.12.0, resolve@^1.13.1, resolve@^1.15.1, resolve@^1.17.0, resolve@^1.3.2, resolve@^1.3.3, resolve@^1.4.0, resolve@^1.5.0, resolve@^1.7.1, resolve@^1.8.1:
   version "1.17.0"
   resolved "https://registry.npmjs.org/resolve/-/resolve-1.17.0.tgz#b25941b54968231cc2d1bb76a79cb7f2c0bf8444"
   integrity sha512-ic+7JYiV8Vi2yzQGFWOkiZD5Z9z7O2Zhm9XMaTxdJExKasieFCr+yXZ/WmXsckHiKl12ar0y6XiXDx3m4RHn1w==
