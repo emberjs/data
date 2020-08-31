@@ -153,8 +153,7 @@ function deprecateTestRegistration(
   ```app/services/store.js
   import Store from '@ember-data/store';
 
-  export default Store.extend({
-  });
+  export default class MyStore extends Store {}
   ```
 
   Most Ember.js applications will only have a single `Store` that is
@@ -175,8 +174,8 @@ function deprecateTestRegistration(
   ```app/adapters/application.js
   import Adapter from '@ember-data/adapter';
 
-  export default Adapter.extend({
-  });
+  export default class ApplicationAdapter extends Adapter {
+  }
   ```
 
   You can learn more about writing a custom adapter by reading the `Adapter`
@@ -269,12 +268,12 @@ abstract class CoreStore extends Service {
     ```js
     import Store from '@ember-data/store';
 
-    export default Store.extend({
+    export default class MyStore extends Store {
       init() {
         this._super(...arguments);
         this.adapter = 'custom';
       }
-    });
+    }
     ```
 
     @property adapter
@@ -778,11 +777,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id);
       }
-    });
+    }
     ```
 
     If the record is not yet available, the store will ask the adapter's `find`
@@ -855,6 +854,7 @@ abstract class CoreStore extends Service {
     // app/adapters/post.js
     import ApplicationAdapter from "./application";
 
+    export default class PostAdapter extends ApplicationAdapter {
     export default ApplicationAdapter.extend({
       shouldReloadRecord(store, snapshot) {
         return false;
@@ -898,11 +898,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post/edit.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { backgroundReload: false });
       }
-    });
+    }
     ```
 
     If you pass an object on the `adapterOptions` property of the options
@@ -911,26 +911,26 @@ abstract class CoreStore extends Service {
     ```app/routes/post/edit.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, {
           adapterOptions: { subscribe: false }
         });
       }
-    });
+    }
     ```
 
     ```app/adapters/post.js
     import MyCustomAdapter from './custom-adapter';
 
-    export default MyCustomAdapter.extend({
+    export default class PostAdapter extends MyCustomAdapter {
       findRecord(store, type, id, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
         // ...
       }
-    });
+    }
     ```
 
     See [peekRecord](../classes/Store/methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
@@ -952,11 +952,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { include: 'comments' });
       }
-    });
+    }
 
     ```
     In this case, the post's comments would then be available in your template as
@@ -970,12 +970,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
       }
-    });
-
+    }
     ```
 
     @since 1.13.0
@@ -1144,7 +1143,7 @@ abstract class CoreStore extends Service {
 
   _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
-    // TODO  remove this once we dont rely on state machine
+    // TODO  remove this once we don't rely on state machine
     internalModel.loadingData();
     let identifier = internalModel.identifier;
 
@@ -1158,7 +1157,7 @@ abstract class CoreStore extends Service {
           payload.data.lid = identifier.lid;
         }
 
-        // Returning this._push here, breaks typing but not any tests, invesstigate potential missing tests
+        // Returning this._push here, breaks typing but not any tests, investigate potential missing tests
         let potentiallyNewIm = this._push(payload);
         if (potentiallyNewIm && !Array.isArray(potentiallyNewIm)) {
           return potentiallyNewIm;
@@ -1167,7 +1166,7 @@ abstract class CoreStore extends Service {
         }
       },
       error => {
-        // TODO  remove this once we dont rely on state machine
+        // TODO  remove this once we don't rely on state machine
         internalModel.notFound();
         if (internalModel.isEmpty()) {
           internalModel.unloadRecord();
@@ -1949,14 +1948,14 @@ abstract class CoreStore extends Service {
     The request is made through the adapters' `queryRecord`:
 
     ```app/adapters/user.js
-    import $ from 'jquery';
     import Adapter from '@ember-data/adapter';
+    import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class UserAdapter extends Adapter {
       queryRecord(modelName, query) {
         return $.getJSON('/api/current_user');
       }
-    });
+    }
     ```
 
     Note: the primary use case for `store.queryRecord` is when a single record
@@ -2057,11 +2056,11 @@ abstract class CoreStore extends Service {
     ```app/routes/authors.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class AuthorsRoute extends Route {
       model(params) {
         return this.store.findAll('author');
       }
-    });
+    }
     ```
 
     _When_ the returned promise resolves depends on the reload behavior,
@@ -2106,7 +2105,8 @@ abstract class CoreStore extends Service {
 
     ```app/adapters/application.js
     import Adapter from '@ember-data/adapter';
-    export default Adapter.extend({
+
+    export default class ApplicationAdapter extends Adapter {
       shouldReloadAll(store, snapshotsArray) {
         return false;
       },
@@ -2150,11 +2150,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post/edit.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostEditRoute extends Route {
       model() {
         return this.store.findAll('post', { backgroundReload: false });
       }
-    });
+    }
     ```
 
     If you pass an object on the `adapterOptions` property of the options
@@ -2163,26 +2163,26 @@ abstract class CoreStore extends Service {
     ```app/routes/posts.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostsRoute extends Route {
       model(params) {
         return this.store.findAll('post', {
           adapterOptions: { subscribe: false }
         });
       }
-    });
+    }
     ```
 
     ```app/adapters/post.js
     import MyCustomAdapter from './custom-adapter';
 
-    export default MyCustomAdapter.extend({
+    export default class UserAdapter extends MyCustomAdapter {
       findAll(store, type, sinceToken, snapshotRecordArray) {
         if (snapshotRecordArray.adapterOptions.subscribe) {
           // ...
         }
         // ...
       }
-    });
+    }
     ```
 
     See [peekAll](../classes/Store/methods/peekAll?anchor=peekAll) to get an array of current records in the
@@ -2205,12 +2205,11 @@ abstract class CoreStore extends Service {
     ```app/routes/posts.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostsRoute extends Route {
       model() {
         return this.store.findAll('post', { include: 'comments' });
       }
-    });
-
+    }
     ```
     Multiple relationships can be requested using an `include` parameter consisting of a
     comma-separated list (without white-space) while nested relationships can be specified
@@ -2220,12 +2219,11 @@ abstract class CoreStore extends Service {
     ```app/routes/posts.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostsRoute extends Route {
       model() {
         return this.store.findAll('post', { include: 'comments,comments.author' });
       }
-    });
-
+    }
     ```
 
     See [query](../classes/Store/methods/query?anchor=query) to only get a subset of records from the server.
@@ -2732,12 +2730,12 @@ abstract class CoreStore extends Service {
     ```app/models/person.js
     import Model, { attr, hasMany } from '@ember-data/model';
 
-    export default Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
+    export default class PersonRoute extends Route {
+      @attr('string') firstName;
+      @attr('string') lastName;
 
-      children: hasMany('person')
-    });
+      @hasMany('person') children;
+    }
     ```
 
     To represent the children as IDs:
@@ -2961,7 +2959,7 @@ abstract class CoreStore extends Service {
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer;
+    export default class ApplicationSerializer extends RESTSerializer;
     ```
 
     ```js
@@ -2986,7 +2984,7 @@ abstract class CoreStore extends Service {
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer;
+     export default class ApplicationSerializer extends RESTSerializer;
     ```
 
     ```app/serializers/post.js

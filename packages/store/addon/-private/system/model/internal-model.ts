@@ -461,7 +461,7 @@ export default class InternalModel {
   dematerializeRecord() {
     this._isDematerializing = true;
 
-    // TODO IGOR add a test that fails when this is missing, something that involves canceliing a destroy
+    // TODO IGOR add a test that fails when this is missing, something that involves canceling a destroy
     // and the destroy not happening, and then later on trying to destroy
     this._doNotDestroy = false;
 
@@ -1092,7 +1092,7 @@ export default class InternalModel {
           //  probably we don't want to retrieve latest eagerly when notifyhasmany changed
           //  but rather lazily when someone actually asks for a manyarray
           //
-          //  that said, also not clear why we haven't moved this to retainedmanyarray so maybe that's the bit that's just not workign
+          //  that said, also not clear why we haven't moved this to retainedmanyarray so maybe that's the bit that's just not working
           manyArray.retrieveLatest();
         }
       }
@@ -1580,7 +1580,7 @@ export default class InternalModel {
 }
 
 if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-  // in production code, this is only accesssed in `record-array-manager`
+  // in production code, this is only accessed in `record-array-manager`
   // if LEGACY_COMPAT is also on
   if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
     Object.defineProperty(InternalModel.prototype, '_recordArrays', {
