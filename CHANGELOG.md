@@ -2,6 +2,9 @@
 
 ### Master
 
+## Release 3.20.2 (LTS) (August 30, 2020)
+- Rerelease of 3.20.1
+
 ## Release 3.20.1 (August 29, 2020)
 - [#7273](https://github.com/emberjs/data/pull/7273) [BUGFIX] Entangle Errors.errorsFor properly
 
