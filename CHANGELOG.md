@@ -1,5 +1,27 @@
 # Ember Data Changelog
 
+## Release 3.21.0 (August 30, 2020)
+- [#7224](https://github.com/emberjs/data/pull/7224) [DOCS] fix links on @ember-data/store package intro
+- [#7228](https://github.com/emberjs/data/pull/7228) chore: remove instance initializer (#7228)
+- [#7232](https://github.com/emberjs/data/pull/7232) [DOC] Fix minor typo in findRecord documentation
+- [fd9ffb8f](https://github.com/emberjs/data/commit/fd9ffb8feeb03d67bbf8bf09072719b03fbb470c) [DOC] Use native syntax in RESTSerializer documentation (#7231)
+- [#7247](https://github.com/emberjs/data/pull/7247) [CI]: remove erroneous `name` without `run` in node-version-test (#7247)
+
+## Release 3.20.2 (LTS) (August 30, 2020)
+- Rerelease of 3.20.1
+
+## Release 3.20.1 (August 29, 2020)
+- [#7273](https://github.com/emberjs/data/pull/7273) [BUGFIX] Entangle Errors.errorsFor properly
+
+## Release 3.20.0 (July 16, 2020)
+
+- [#7167](https://github.com/emberjs/data/pull/7167) [FEATURE] JSONAPI Serializer asserts instead of warning when passed EmbeddedRecordsMixin, opt out with `isEmbeddedRecordsMixinCompatible: true`
+- [#7198](https://github.com/emberjs/data/pull/7198) [DOC] Update documentation around behavior of attr (#7198)
+- [#7200](https://github.com/emberjs/data/commit/7d7e38ebdcfebbf368d31f1ccd53066fcd5d48b3) [DOC] Use native syntax in JSONAPISerializer documentation (#7200)
+- [#7096](https://github.com/emberjs/data/pull/7096) [PERFORMANCE] Optimize visiting the relating records
+- [#7090](https://github.com/emberjs/data/pull/7090) [PERFORMANCE] Optimize the update of a has-many relationship
+- [#7235](https://github.com/emberjs/data/pull/7235) [BUGFIX] Allow createRecord responses without a type
+
 ## Release 3.19.0 (June 5, 2020)
 
 - [76768a2f](https://github.com/emberjs/data/commit/76768a2fe85aacc8a6ea6006f2a8295bb11618bf) [BUGFIX] dont use Ember.get on internals (#7103)
@@ -317,7 +339,7 @@
 - [fa67c329](https://github.com/emberjs/data/commit/fa67c329f4a11c2ea16d374684239d1a89869cc6) [BUGFIX release] Add blueprints to ember-data package.
 
 ## Release 3.11.0 (June 28, 2019)
- 
+
 - [#6189](https://github.com/emberjs/data/pull/6189) Update model API docs to use the new packages import syntax (#6137)
 - [#6075](https://github.com/emberjs/data/pull/6075) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
 - [6c2ae3d4](https://github.com/emberjs/data/commit/6c2ae3d4eaae5c090d9b4bda6e5afc8f15f73d70) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
