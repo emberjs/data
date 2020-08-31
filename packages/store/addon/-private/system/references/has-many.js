@@ -43,9 +43,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -90,9 +91,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -136,9 +138,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```
@@ -225,9 +228,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -272,9 +276,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -337,9 +342,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript

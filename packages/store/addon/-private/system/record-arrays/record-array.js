@@ -58,7 +58,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     Example
 
     ```javascript
-    var people = store.peekAll('person');
+    let people = store.peekAll('person');
     people.get('isLoaded'); // true
     ```
 
@@ -72,7 +72,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     Example
 
     ```javascript
-    var people = store.peekAll('person');
+    let people = store.peekAll('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
@@ -138,7 +138,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     Example
 
     ```javascript
-    var people = store.peekAll('person');
+    let people = store.peekAll('person');
     people.get('isUpdating'); // false
 
     people.update().then(function() {
@@ -184,7 +184,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     Example
 
     ```javascript
-    var messages = store.peekAll('message');
+    let messages = store.peekAll('message');
     messages.forEach(function(message) {
       message.set('hasBeenSeen', true);
     });
