@@ -83,7 +83,7 @@ if (gte('3.13.0') && has('@glimmer/component')) {
       `);
       await settled();
 
-      assert.dom('ul>li+li+li').exists;
+      assert.dom('ul>li+li+li').exists();
       assert.dom('ul>li.widget0>div.name').containsText('Gizmo');
       assert.dom('ul>li.widget1>div.name').containsText('Gadget');
       assert.dom('ul>li.widget2>div.name').containsText('Doodad');
@@ -92,7 +92,7 @@ if (gte('3.13.0') && has('@glimmer/component')) {
       await contraption.save();
       await settled();
 
-      assert.dom('ul>li+li+li+li').exists;
+      assert.dom('ul>li+li+li+li').exists();
       assert.dom('ul>li.widget0>div.name').containsText('Contraption');
       assert.dom('ul>li.widget1>div.name').containsText('Gizmo');
       assert.dom('ul>li.widget2>div.name').containsText('Gadget');
