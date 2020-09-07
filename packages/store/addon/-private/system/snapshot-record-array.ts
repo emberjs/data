@@ -50,8 +50,8 @@ export default class SnapshotRecordArray {
       export default class PostAdapter extends JSONAPIAdapter {
         shouldReloadAll(store, snapshotRecordArray) {
           return !snapshotRecordArray.length;
-        },
-      }
+        }
+      });
       ```
 
       @property length
@@ -74,8 +74,8 @@ export default class SnapshotRecordArray {
           let lastRequestTime = snapshotRecordArray.meta.lastRequestTime;
           let twentyMinutes = 20 * 60 * 1000;
           return Date.now() > lastRequestTime + twentyMinutes;
-        },
-      }
+        }
+      });
       ```
 
       @property meta
