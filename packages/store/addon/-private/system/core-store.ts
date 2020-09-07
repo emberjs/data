@@ -268,9 +268,9 @@ abstract class CoreStore extends Service {
     ```js
     import Store from '@ember-data/store';
 
-    export default class MyStore extends Store {
-      init() {
-        this._super(...arguments);
+    export default Store.extend({
+      constructor() {
+        super(...arguments);
         this.adapter = 'custom';
       }
     }
