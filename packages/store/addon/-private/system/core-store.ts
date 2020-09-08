@@ -853,7 +853,7 @@ abstract class CoreStore extends Service {
 
     ```js
     // app/adapters/post.js
-    import ApplicationAdapter from - "./application";
+    import ApplicationAdapter from "./application";
 
     export default class PostAdapter extends ApplicationAdapter {
       shouldReloadRecord(store, snapshot) {
