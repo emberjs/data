@@ -16,11 +16,11 @@ would result in the following model:
 ```js
 import Model, { belongsTo, hasMany, attr } from '@ember-data/model';
 
-export default Model.extend({
-  filling: belongsTo('protein'),
-  toppings: hasMany('topping'),
-  name: attr('string'),
-  price: attr('number'),
-  misc: attr(),
-});
+export default class TacoModel extends Model {
+  @belongsTo('protein') filling;
+  @hasMany('topping') toppings;
+  @attr('string') name;
+  @attr('number') price;
+  @attr misc;
+}
 ```
