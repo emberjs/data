@@ -1,6 +1,6 @@
 'use strict';
 
-const requireEsm = require('esm')(module);
+const requireEsm = require('esm')(module, { cache: false });
 const semver = require('semver');
 
 function deprecationIsResolved(deprecatedSince, compatVersion) {
