@@ -341,5 +341,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.partner }}-dist
-          path: ../../data/__external-test-cache/${{ matrix.partner }}/dist/assets
+          path: ${{ github.workspace }}/__external-test-cache/${{ matrix.partner }}/dist/assets
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
