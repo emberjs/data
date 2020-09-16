@@ -61,7 +61,31 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       store = owner.lookup('service:store');
     });
 
-    test(`Identity of polymorphic relations can change type`, async function(assert) {
+    test(`Identity of polymorphic relations can change type on first load`, async function(assert) {
+      const { owner } = this;
+      class TestAdapter extends Adapter {
+        shouldBackgroundReloadRecord() {
+          return false;
+        }
+        findRecord(_, __, id) {
+          return resolve({
+            data: {
+              id,
+              type: 'ferrari',
+              attributes: {
+                color: 'red',
+              },
+            },
+          });
+        }
+      }
+      owner.register('adapter:application', TestAdapter);
+
+      const foundFerrari = await store.findRecord('car', '1');
+      assert.strictEqual(foundFerrari.constructor.modelName, 'ferrari', 'We found the right type');
+    });
+
+    test(`Identity of polymorphic relations can change type when in cache`, async function(assert) {
       const { owner } = this;
       const requests: RID[] = [];
       const expectedRequests = [
