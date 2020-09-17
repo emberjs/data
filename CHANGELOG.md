@@ -2,6 +2,9 @@
 
 ### Master
 
+## Release 3.20.3 (LTS) (September 16, 2020)
+- [#7322](https://github.com/emberjs/data/pull/7322) [Build]: disable esm cache (#7322)
+
 ## Release 3.20.2 (LTS) (August 30, 2020)
 - Rerelease of 3.20.1
 
@@ -14,7 +17,7 @@
 - [#7198](https://github.com/emberjs/data/pull/7198) [DOC] Update documentation around behavior of attr (#7198)
 - [#7200](https://github.com/emberjs/data/commit/7d7e38ebdcfebbf368d31f1ccd53066fcd5d48b3) [DOC] Use native syntax in JSONAPISerializer documentation (#7200)
 - [#7096](https://github.com/emberjs/data/pull/7096) [PERFORMANCE] Optimize visiting the relating records
-- [#7090](https://github.com/emberjs/data/pull/7090) [PERFORMANCE] Optimize the update of a has-many relationship 
+- [#7090](https://github.com/emberjs/data/pull/7090) [PERFORMANCE] Optimize the update of a has-many relationship
 - [#7235](https://github.com/emberjs/data/pull/7235) [BUGFIX] Allow createRecord responses without a type
 
 ## Release 3.19.0 (June 5, 2020)
@@ -316,7 +319,7 @@
 - [fa67c329](https://github.com/emberjs/data/commit/fa67c329f4a11c2ea16d374684239d1a89869cc6) [BUGFIX release] Add blueprints to ember-data package.
 
 ## Release 3.11.0 (June 28, 2019)
- 
+
 - [#6189](https://github.com/emberjs/data/pull/6189) Update model API docs to use the new packages import syntax (#6137)
 - [#6075](https://github.com/emberjs/data/pull/6075) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
 - [6c2ae3d4](https://github.com/emberjs/data/commit/6c2ae3d4eaae5c090d9b4bda6e5afc8f15f73d70) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
