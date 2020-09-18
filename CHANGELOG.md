@@ -1,5 +1,9 @@
 # Ember Data Changelog
 
+
+## Release 3.21.1 (September 18, 2020)
+- [#7322](https://github.com/emberjs/data/pull/7322) [Build]: disable esm cache (#7322)
+
 ## Release 3.21.0 (August 30, 2020)
 - [#7224](https://github.com/emberjs/data/pull/7224) [DOCS] fix links on @ember-data/store package intro
 - [#7228](https://github.com/emberjs/data/pull/7228) chore: remove instance initializer (#7228)
