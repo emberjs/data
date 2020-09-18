@@ -1,7 +1,9 @@
 # Ember Data Changelog
 
-## Release 3.22.0-beta.0 (August 31, 2020)
+## Release 3.22.0-beta.1 (September 18, 2020)
+- [#7322](https://github.com/emberjs/data/pull/7322) [Build]: disable esm cache (#7322)
 
+## Release 3.22.0-beta.0 (August 31, 2020)
 - [#7263](https://github.com/emberjs/data/pull/7263) [CHORE]: Move symbols out of /ts-interfaces and into -private/utils
 - [#6715](https://github.com/emberjs/data/pull/6715) [CHORE]: Extract internalModel access to identifiers in RecordArray modules
 
