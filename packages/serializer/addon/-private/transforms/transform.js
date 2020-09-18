@@ -54,7 +54,7 @@ import EmberObject from '@ember/object';
       }
     })
     markdown;
-  });
+  }
   ```
 
   ```app/transforms/markdown.js

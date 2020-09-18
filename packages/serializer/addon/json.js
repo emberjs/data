@@ -36,8 +36,8 @@ import { modelHasAttributeOrRelationshipNamedType } from './-private';
     @hasMany('user') friends;
     @belongsTo('location') house;
 
-    name: attr('string')
-  });
+    @attr('string') name;
+  }
   ```
 
   ```js
@@ -895,7 +895,7 @@ const JSONSerializer = Serializer.extend({
       @attr body;
 
       @belongsTo('user') author;
-    });
+    }
     ```
 
     The default serialization would create a JSON object like:
