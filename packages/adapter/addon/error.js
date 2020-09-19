@@ -37,7 +37,7 @@ import EmberError from '@ember/error';
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
   import MaintenanceError from './maintenance-error';
 
-  export default JSONAPIAdapter.extend({
+  export default class ApplicationAdapter extends JSONAPIAdapter {
     handleResponse(status) {
       if (503 === status) {
         return new MaintenanceError();
@@ -45,7 +45,7 @@ import EmberError from '@ember/error';
 
       return this._super(...arguments);
     }
-  });
+  }
   ```
 
   And can then be detected in an application and used to send the user to an
@@ -55,7 +55,7 @@ import EmberError from '@ember/error';
   import Route from '@ember/routing/route';
   import MaintenanceError from '../adapters/maintenance-error';
 
-  export default Route.extend({
+  export default class ApplicationRoute extends Route {
     actions: {
       error(error, transition) {
         if (error instanceof MaintenanceError) {
@@ -66,7 +66,7 @@ import EmberError from '@ember/error';
         // ...other error handling logic
       }
     }
-  });
+  }
   ```
 
   @class AdapterError
@@ -136,10 +136,10 @@ AdapterError.extend = extendFn(AdapterError);
   ```app/models/post.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    title: attr('string'),
-    content: attr('string')
-  });
+  export default class PostModel extends Model {
+    @attr('string') title;
+    @attr('string') content;
+  }
   ```
 
   To show an error from the server related to the `title` and
@@ -151,7 +151,7 @@ AdapterError.extend = extendFn(AdapterError);
   import RESTAdapter from '@ember-data/adapter/rest';
   import { InvalidError } from '@ember-data/adapter/error';
 
-  export default RESTAdapter.extend({
+  export default class ApplicationAdapter extends RESTAdapter {
     updateRecord() {
       // Fictional adapter that always rejects
       return RSVP.reject(new InvalidError([
@@ -165,7 +165,7 @@ AdapterError.extend = extendFn(AdapterError);
         }
       ]));
     }
-  });
+  }
   ```
 
   Your backend may use different property names for your records the

@@ -19,12 +19,12 @@ import { pluralize } from 'ember-inflector';
   ```javascript
   import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 
-  export default Adapter.extend(BuildURLMixin, {
-    findRecord: function(store, type, id, snapshot) {
+  export default class ApplicationAdapter extends Adapter.extend(BuildURLMixin) {
+    findRecord(store, type, id, snapshot) {
       var url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
       return this.ajax(url, 'GET');
     }
-  });
+  }
   ```
 
   ### Attributes
@@ -125,12 +125,12 @@ export default Mixin.create({
    ```app/adapters/user.js
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default JSONAPIAdapter.extend({
+   export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindRecord(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id, snapshot);
        return `${baseUrl}/users/${snapshot.adapterOptions.user_id}/playlists/${id}`;
      }
-   });
+   }
    ```
 
    @method urlForFindRecord
@@ -152,12 +152,12 @@ export default Mixin.create({
    ```app/adapters/comment.js
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default JSONAPIAdapter.extend({
+   export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindAll(modelName, snapshot) {
        let baseUrl = this.buildURL(modelName);
        return `${baseUrl}/data/comments.json`;
      }
-   });
+   }
    ```
 
    @method urlForFindAll
@@ -177,8 +177,8 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
-     host: 'https://api.github.com',
+   export default class ApplicationAdapter extends RESTAdapter {
+     host = 'https://api.github.com';
      urlForQuery (query, modelName) {
        switch(modelName) {
          case 'repo':
@@ -187,7 +187,7 @@ export default Mixin.create({
            return this._super(...arguments);
        }
      }
-   });
+   }
    ```
 
    @method urlForQuery
@@ -207,12 +207,12 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForQueryRecord({ slug }, modelName) {
        let baseUrl = this.buildURL();
        return `${baseUrl}/${encodeURIComponent(slug)}`;
      }
-   });
+   }
    ```
 
    @method urlForQueryRecord
@@ -234,12 +234,12 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForFindMany(ids, modelName) {
        let baseUrl = this.buildURL();
        return `${baseUrl}/coalesce`;
      }
-   });
+   }
    ```
 
    @method urlForFindMany
@@ -261,12 +261,12 @@ export default Mixin.create({
    ```app/adapters/application.js
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default JSONAPIAdapter.extend({
+   export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindHasMany(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
      }
-   });
+   }
    ```
 
    @method urlForFindHasMany
@@ -288,12 +288,12 @@ export default Mixin.create({
    ```app/adapters/application.js
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default JSONAPIAdapter.extend({
+   export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindBelongsTo(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
      }
-   });
+   }
    ```
 
    @method urlForFindBelongsTo
@@ -315,11 +315,11 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForCreateRecord(modelName, snapshot) {
        return this._super(...arguments) + '/new';
      }
-   });
+   }
    ```
 
    @method urlForCreateRecord
@@ -339,11 +339,11 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForUpdateRecord(id, modelName, snapshot) {
        return `/${id}/feed?access_token=${snapshot.adapterOptions.token}`;
      }
-   });
+   }
    ```
 
    @method urlForUpdateRecord
@@ -364,11 +364,11 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForDeleteRecord(id, modelName, snapshot) {
        return this._super(...arguments) + '/destroy';
      }
-   });
+   }
    ```
 
    @method urlForDeleteRecord
@@ -438,12 +438,12 @@ export default Mixin.create({
     import { decamelize } from '@ember/string';
     import { pluralize } from 'ember-inflector';
 
-    export default RESTAdapter.extend({
-      pathForType: function(modelName) {
+    export default class ApplicationAdapter extends RESTAdapter {
+      pathForType(modelName) {
         var decamelized = decamelize(modelName);
         return pluralize(decamelized);
       }
-    });
+    }
     ```
 
     @method pathForType

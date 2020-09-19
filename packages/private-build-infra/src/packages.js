@@ -1,6 +1,6 @@
 'use strict';
 
-const requireEsm = require('esm')(module);
+const requireEsm = require('esm')(module, { cache: false });
 
 function detectPackage(dep, packageName, seen) {
   let isFirst = !seen;

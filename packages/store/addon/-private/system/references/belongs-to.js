@@ -85,7 +85,7 @@ export default class BelongsToReference extends Reference {
 
   /**
    `push` can be used to update the data in the relationship and Ember
-   Data will treat the new data as the conanical value of this
+   Data will treat the new data as the canonical value of this
    relationship on the backend.
 
    Example

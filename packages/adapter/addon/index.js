@@ -93,7 +93,7 @@ export default EmberObject.extend({
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       findRecord(store, type, id, snapshot) {
         return new RSVP.Promise(function(resolve, reject) {
           $.getJSON(`/${type.modelName}/${id}`).then(function(data) {
@@ -103,7 +103,7 @@ export default EmberObject.extend({
           });
         });
       }
-    });
+    }
     ```
 
     @method findRecord
@@ -125,7 +125,7 @@ export default EmberObject.extend({
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       findAll(store, type) {
         return new RSVP.Promise(function(resolve, reject) {
           $.getJSON(`/${type.modelName}`).then(function(data) {
@@ -135,7 +135,7 @@ export default EmberObject.extend({
           });
         });
       }
-    });
+    }
     ```
 
     @method findAll
@@ -157,7 +157,7 @@ export default EmberObject.extend({
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       query(store, type, query) {
         return new RSVP.Promise(function(resolve, reject) {
           $.getJSON(`/${type.modelName}`, query).then(function(data) {
@@ -167,7 +167,7 @@ export default EmberObject.extend({
           });
         });
       }
-    });
+    }
     ```
 
     @method query
@@ -196,7 +196,7 @@ export default EmberObject.extend({
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default Adapter.extend(BuildURLMixin, {
+    export default class ApplicationAdapter extends Adapter.extend(BuildURLMixin) {
       queryRecord(store, type, query) {
         return new RSVP.Promise(function(resolve, reject) {
           $.getJSON(`/${type.modelName}`, query).then(function(data) {
@@ -206,7 +206,7 @@ export default EmberObject.extend({
           });
         });
       }
-    });
+    }
     ```
 
     @method queryRecord
@@ -235,11 +235,11 @@ export default EmberObject.extend({
     import Adapter from '@ember-data/adapter';
     import { v4 } from 'uuid';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       generateIdForRecord(store, type, inputProperties) {
         return v4();
       }
-    });
+    }
     ```
 
     @method generateIdForRecord
@@ -259,14 +259,14 @@ export default EmberObject.extend({
     ```app/adapters/application.js
     import Adapter from '@ember-data/adapter';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       createRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let url = `/${type.modelName}`;
 
         // ...
       }
-    });
+    }
     ```
 
     @method serialize
@@ -292,25 +292,25 @@ export default EmberObject.extend({
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       createRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
 
-        return new RSVP.Promise(function(resolve, reject) {
+        return new RSVP.Promise(function (resolve, reject) {
           $.ajax({
             type: 'POST',
             url: `/${type.modelName}`,
             dataType: 'json',
             data: data
-          }).then(function(data) {
+          }).then(function (data) {
             run(null, resolve, data);
-          }, function(jqXHR) {
+          }, function (jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
             run(null, reject, jqXHR);
           });
         });
       }
-    });
+    }
     ```
 
     @method createRecord
@@ -343,7 +343,7 @@ export default EmberObject.extend({
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       updateRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let id = snapshot.id;
@@ -362,7 +362,7 @@ export default EmberObject.extend({
           });
         });
       }
-    });
+    }
     ```
 
     @method updateRecord
@@ -387,7 +387,7 @@ export default EmberObject.extend({
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       deleteRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let id = snapshot.id;
@@ -406,7 +406,7 @@ export default EmberObject.extend({
           });
         });
       }
-    });
+    }
     ```
 
     @method deleteRecord
@@ -439,7 +439,7 @@ export default EmberObject.extend({
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class ApplicationAdapter extends Adapter {
       findMany(store, type, ids, snapshots) {
         return new RSVP.Promise(function(resolve, reject) {
           $.ajax({
@@ -455,7 +455,7 @@ export default EmberObject.extend({
           });
         });
       }
-    });
+    }
     ```
 
     @method findMany
