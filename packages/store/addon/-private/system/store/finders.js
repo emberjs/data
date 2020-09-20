@@ -59,7 +59,10 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
       );
 
       // ensure that regardless of id returned we assign to the correct record
-      payload.data.lid = identifier.lid;
+      // for polymorphic, if type does not match, we'll need a new identifier
+      if (payload.data.type === identifier.type) {
+        payload.data.lid = identifier.lid;
+      }
 
       return store._push(payload);
     },
