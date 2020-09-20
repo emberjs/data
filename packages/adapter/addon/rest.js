@@ -1366,7 +1366,7 @@ function headersToObject(headers) {
  * @returns {Object}
  */
 export function fetchOptions(options, adapter) {
-  options.credentials = 'same-origin';
+  options.credentials = options.credentials || 'same-origin';
 
   if (options.data) {
     // GET and HEAD requests can't have a `body`
