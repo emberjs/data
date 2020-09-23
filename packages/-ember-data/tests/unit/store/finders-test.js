@@ -1,44 +1,45 @@
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
 import { defer } from 'rsvp';
 
-import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import Adapter from '@ember-data/adapter';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('unit/store/finders', function(hooks) {
+class Person extends Model {
+  @attr('string') updatedAt;
+  @attr('string') name;
+  @attr('string') firstName;
+  @attr('string') lastName;
+  @hasMany('dog', { async: true }) dogs;
+  @belongsTo('dog', { async: true }) favoriteDog;
+}
+
+class Dog extends Model {
+  @attr('string') name;
+}
+
+module('unit/store/finders', async function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
-    this.Person = DS.Model.extend({
-      updatedAt: DS.attr('string'),
-      name: DS.attr('string'),
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-    });
-
-    this.Dog = DS.Model.extend({
-      name: DS.attr('string'),
-    });
-
-    this.owner.register('model:person', this.Person);
-    this.owner.register('model:dog', this.Dog);
+    this.owner.register('model:person', Person);
+    this.owner.register('model:dog', Dog);
     this.owner.register('serializer:application', JSONAPISerializer.extend());
 
     this.store = this.owner.lookup('service:store');
     this.adapter = this.store.adapterFor('application');
   });
 
-  test('findRecord does not load a serializer until the adapter promise resolves', function(assert) {
+  test('findRecord does not load a serializer until the adapter promise resolves', async function(assert) {
     assert.expect(2);
 
     let deferedFind = defer();
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findRecord: () => deferedFind.promise,
       })
     );
@@ -52,27 +53,26 @@ module('unit/store/finders', function(hooks) {
       return serializerFor.call(this.store, modelName);
     };
 
-    let storePromise = run(() => this.store.findRecord('person', 1));
+    let storePromise = this.store.findRecord('person', 1);
     assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
-    return run(() => {
-      deferedFind.resolve({
-        data: { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
-      });
-      return storePromise.then(() => {
-        assert.equal(true, serializerLoaded, 'serializer is loaded');
-      });
+    deferedFind.resolve({
+      data: { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
     });
+
+    await storePromise;
+
+    assert.equal(true, serializerLoaded, 'serializer is loaded');
   });
 
-  test('findMany does not load a serializer until the adapter promise resolves', function(assert) {
+  test('findMany does not load a serializer until the adapter promise resolves', async function(assert) {
     assert.expect(2);
 
     let deferedFind = defer();
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findMany: () => deferedFind.promise,
       })
     );
@@ -86,41 +86,35 @@ module('unit/store/finders', function(hooks) {
       return serializerFor.call(this.store, modelName);
     };
 
-    let storePromise = run(() => {
-      this.store.findRecord('person', 1);
-      return this.store.findRecord('person', 2);
-    });
+    this.store.findRecord('person', 1);
+    let storePromise = this.store.findRecord('person', 2);
+
     assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
-    return run(() => {
-      deferedFind.resolve({
-        data: [
-          { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
-          { id: 2, type: 'person', attributes: { name: 'Louis Joseph' } },
-        ],
-      });
-      return storePromise.then(() => {
-        assert.equal(true, serializerLoaded, 'serializer is loaded');
-      });
+    deferedFind.resolve({
+      data: [
+        { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
+        { id: 2, type: 'person', attributes: { name: 'Louis Joseph' } },
+      ],
     });
+
+    await storePromise;
+
+    assert.equal(true, serializerLoaded, 'serializer is loaded');
   });
 
-  test('findHasMany does not load a serializer until the adapter promise resolves', function(assert) {
+  test('findHasMany does not load a serializer until the adapter promise resolves', async function(assert) {
     assert.expect(2);
 
     let deferedFind = defer();
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findHasMany: () => deferedFind.promise,
       })
     );
 
-    this.Person.reopen({
-      dogs: DS.hasMany('dog', { async: true }),
-    });
-
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
     this.store.serializerFor = modelName => {
@@ -130,57 +124,50 @@ module('unit/store/finders', function(hooks) {
       return serializerFor.call(this.store, modelName);
     };
 
-    let storePromise = run(() => {
-      this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'John Churchill',
-          },
-          relationships: {
-            dogs: {
-              links: {
-                related: 'http://exmaple.com/person/1/dogs',
-              },
+    this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'John Churchill',
+        },
+        relationships: {
+          dogs: {
+            links: {
+              related: 'http://exmaple.com/person/1/dogs',
             },
           },
         },
-      });
-
-      return this.store.peekRecord('person', 1).get('dogs');
+      },
     });
+
+    let storePromise = this.store.peekRecord('person', 1).get('dogs');
     assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
-    return run(() => {
-      deferedFind.resolve({
-        data: [
-          { id: 1, type: 'dog', attributes: { name: 'Scooby' } },
-          { id: 2, type: 'dog', attributes: { name: 'Scrappy' } },
-        ],
-      });
-      return storePromise.then(() => {
-        assert.equal(true, serializerLoaded, 'serializer is loaded');
-      });
+    deferedFind.resolve({
+      data: [
+        { id: 1, type: 'dog', attributes: { name: 'Scooby' } },
+        { id: 2, type: 'dog', attributes: { name: 'Scrappy' } },
+      ],
     });
+
+    await storePromise;
+
+    assert.equal(true, serializerLoaded, 'serializer is loaded');
   });
 
-  test('findBelongsTo does not load a serializer until the adapter promise resolves', function(assert) {
+  test('findBelongsTo does not load a serializer until the adapter promise resolves', async function(assert) {
     assert.expect(2);
 
     let deferedFind = defer();
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findBelongsTo: () => deferedFind.promise,
       })
     );
 
-    this.Person.reopen({
-      favoriteDog: DS.belongsTo('dog', { async: true }),
-    });
-
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
     this.store.serializerFor = modelName => {
@@ -190,44 +177,42 @@ module('unit/store/finders', function(hooks) {
       return serializerFor.call(this.store, modelName);
     };
 
-    let storePromise = run(() => {
-      this.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'John Churchill',
-          },
-          relationships: {
-            favoriteDog: {
-              links: {
-                related: 'http://exmaple.com/person/1/favorite-dog',
-              },
+    this.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'John Churchill',
+        },
+        relationships: {
+          favoriteDog: {
+            links: {
+              related: 'http://exmaple.com/person/1/favorite-dog',
             },
           },
         },
-      });
-
-      return this.store.peekRecord('person', 1).get('favoriteDog');
+      },
     });
+
+    let storePromise = this.store.peekRecord('person', 1).get('favoriteDog');
+
     assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
-    return run(() => {
-      deferedFind.resolve({ data: { id: 1, type: 'dog', attributes: { name: 'Scooby' } } });
-      return storePromise.then(() => {
-        assert.equal(true, serializerLoaded, 'serializer is loaded');
-      });
-    });
+    deferedFind.resolve({ data: { id: 1, type: 'dog', attributes: { name: 'Scooby' } } });
+
+    await storePromise;
+
+    assert.equal(true, serializerLoaded, 'serializer is loaded');
   });
 
-  test('findAll does not load a serializer until the adapter promise resolves', function(assert) {
+  test('findAll does not load a serializer until the adapter promise resolves', async function(assert) {
     assert.expect(2);
 
     let deferedFind = defer();
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         findAll: () => deferedFind.promise,
       })
     );
@@ -241,27 +226,26 @@ module('unit/store/finders', function(hooks) {
       return serializerFor.call(this.store, modelName);
     };
 
-    let storePromise = run(() => this.store.findAll('person'));
+    let storePromise = this.store.findAll('person');
     assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
-    return run(() => {
-      deferedFind.resolve({
-        data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }],
-      });
-      return storePromise.then(() => {
-        assert.equal(true, serializerLoaded, 'serializer is loaded');
-      });
+    deferedFind.resolve({
+      data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }],
     });
+
+    await storePromise;
+
+    assert.equal(true, serializerLoaded, 'serializer is loaded');
   });
 
-  test('query does not load a serializer until the adapter promise resolves', function(assert) {
+  test('query does not load a serializer until the adapter promise resolves', async function(assert) {
     assert.expect(2);
 
     let deferedFind = defer();
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         query: () => deferedFind.promise,
       })
     );
@@ -275,27 +259,26 @@ module('unit/store/finders', function(hooks) {
       return serializerFor.call(this.store, modelName);
     };
 
-    let storePromise = run(() => this.store.query('person', { first_duke_of_marlborough: true }));
+    let storePromise = this.store.query('person', { first_duke_of_marlborough: true });
     assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
-    return run(() => {
-      deferedFind.resolve({
-        data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }],
-      });
-      return storePromise.then(() => {
-        assert.equal(true, serializerLoaded, 'serializer is loaded');
-      });
+    deferedFind.resolve({
+      data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }],
     });
+
+    await storePromise;
+
+    assert.equal(true, serializerLoaded, 'serializer is loaded');
   });
 
-  test('queryRecord does not load a serializer until the adapter promise resolves', function(assert) {
+  test('queryRecord does not load a serializer until the adapter promise resolves', async function(assert) {
     assert.expect(2);
 
     let deferedFind = defer();
 
     this.owner.register(
       'adapter:person',
-      DS.Adapter.extend({
+      Adapter.extend({
         queryRecord: () => deferedFind.promise,
       })
     );
@@ -309,16 +292,15 @@ module('unit/store/finders', function(hooks) {
       return serializerFor.call(this.store, modelName);
     };
 
-    let storePromise = run(() => this.store.queryRecord('person', { first_duke_of_marlborough: true }));
+    let storePromise = this.store.queryRecord('person', { first_duke_of_marlborough: true });
     assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
-    return run(() => {
-      deferedFind.resolve({
-        data: { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
-      });
-      return storePromise.then(() => {
-        assert.equal(true, serializerLoaded, 'serializer is loaded');
-      });
+    deferedFind.resolve({
+      data: { id: 1, type: 'person', attributes: { name: 'John Churchill' } },
     });
+
+    await storePromise;
+
+    assert.equal(true, serializerLoaded, 'serializer is loaded');
   });
 });
