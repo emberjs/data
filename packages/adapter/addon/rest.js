@@ -1220,7 +1220,13 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     ].join('\n');
   },
 
-  // @since 2.5.0
+  /**
+    @method buildQuery
+    @since 2.5.0
+    @public
+    @param  {Snapshot} snapshot
+    @return {Object}
+  */
   buildQuery(snapshot) {
     let query = {};
 

@@ -941,7 +941,7 @@ abstract class CoreStore extends Service {
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
-    you can use `findRecord()` to automatically retrieve additional records related to
+    you can use `findRecord()` or `findAll()` to automatically retrieve additional records related to
     the one you request by supplying an `include` parameter in the `options` object.
 
     For example, given a `post` model that has a `hasMany` relationship with a `comment`
@@ -974,6 +974,52 @@ abstract class CoreStore extends Service {
         return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
       }
     }
+    ```
+
+    ### Retrieving Specific Fields by Type
+
+    If your server endpoint supports the use of a ['fields' query parameter](https://jsonapi.org/format/#fetching-sparse-fieldsets),
+    you can use pass those fields through to your server.  At this point in time, this requires a few manual steps on your part.
+
+    1. Implement `buildQuery` in your adapter.
+
+    ```app/adapters/application.js
+    buildQuery(snapshot) {
+      let query = this._super(...arguments);
+
+      let { fields } = snapshot.adapterOptions;
+
+      if (fields) {
+        query.fields = fields;
+      }
+
+      return query;
+    }
+    ```
+
+    2. Then pass through the applicable fields to your `findRecord` request.
+
+    Given a `post` model with attributes body, title, publishDate and meta, you can retrieve a filtered list of attributes.
+
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+    export default Route.extend({
+      model(params) {
+        return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title' } });
+      }
+    });
+    ```
+
+    Moreover, you can filter attributes on related models as well. If a `post` has a `belongsTo` relationship to a user,
+    just include the relationship key and attributes.
+
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+    export default Route.extend({
+      model(params) {
+        return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title', user: 'name,email' } });
+      }
+    });
     ```
 
     @since 1.13.0
