@@ -8,7 +8,6 @@ import Ember from 'ember';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import {
   DEPRECATE_EVENTED_API_USAGE,
-  DEPRECATE_MODEL_DATA,
   DEPRECATE_MODEL_TOJSON,
   DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
 } from '@ember-data/private-build-infra/deprecations';
@@ -1292,29 +1291,6 @@ if (DEPRECATE_EVENTED_API_USAGE) {
       if (_hasEvent) {
         this._super(...arguments);
       }
-    },
-  });
-}
-
-if (DEPRECATE_MODEL_DATA) {
-  /**
- @property data
- @private
- @deprecated
- @type {Object}
- */
-  Object.defineProperty(Model.prototype, 'data', {
-    configurable: false,
-    get() {
-      deprecate(
-        `Model.data was private and it's use has been deprecated. For public access, use the RecordData API or iterate attributes`,
-        false,
-        {
-          id: 'ember-data:Model.data',
-          until: '3.9',
-        }
-      );
-      return recordDataFor(this)._data;
     },
   });
 }
