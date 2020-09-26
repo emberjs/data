@@ -32,7 +32,7 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-const REFERENCE_CACHE = new WeakMap<Reference, InternalModel | StableRecordIdentifier>();
+export const REFERENCE_CACHE = new WeakMap<Reference, InternalModel | StableRecordIdentifier>();
 
 export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
   if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {

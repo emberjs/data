@@ -56,6 +56,7 @@ import { promiseArray, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
 import recordDataFor from './record-data-for';
 import NotificationManager from './record-notification-manager';
+import { RecordReference } from './references';
 import { RequestPromise } from './request-cache';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
@@ -112,6 +113,8 @@ type PendingSaveItem = {
 };
 
 let _Model;
+
+const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
 
 function getModel() {
   if (HAS_MODEL_PACKAGE) {
@@ -1484,7 +1487,18 @@ abstract class CoreStore extends Service {
     const normalizedId = ensureStringId(id);
     const resource: ResourceIdentifierObject = constructResource(type, normalizedId);
 
-    return internalModelFactoryFor(this).lookup(resource).recordReference;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      const identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
+      if (RECORD_REFERENCES.has(identifier)) {
+        return RECORD_REFERENCES.get(identifier);
+      }
+
+      const reference = new RecordReference(this, identifier);
+      RECORD_REFERENCES.set(identifier, reference);
+      return reference;
+    } else {
+      return internalModelFactoryFor(this).lookup(resource).recordReference;
+    }
   }
 
   /**
