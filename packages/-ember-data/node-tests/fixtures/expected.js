@@ -32,7 +32,6 @@ module.exports = {
     '(private) @ember-data/model Model#_notifyProperties',
     '(private) @ember-data/model Model#create',
     '(private) @ember-data/model Model#currentState',
-    '(private) @ember-data/model Model#data',
     '(private) @ember-data/model Model#recordData',
     '(private) @ember-data/model Model#send',
     '(private) @ember-data/model Model#transitionTo',
