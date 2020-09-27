@@ -2,6 +2,9 @@
 
 ### Master
 
+## Release 3.20.4 (LTS) (September 27, 2020)
+- [#7335](https://github.com/emberjs/data/pull/7335) [Bug]: errors `remove` to accurately update in template
+
 ## Release 3.20.3 (LTS) (September 16, 2020)
 - [#7322](https://github.com/emberjs/data/pull/7322) [Build]: disable esm cache (#7322)
 
