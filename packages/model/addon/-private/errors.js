@@ -339,6 +339,16 @@ export default ArrayProxy.extend(DeprecatedEvented, {
 
     let content = this.rejectBy('attribute', attribute);
     get(this, 'content').setObjects(content);
+
+    // Although errorsByAttributeName.delete is technically enough to sync errors state, we also
+    // must mutate the array as well for autotracking
+    let errors = this.errorsFor(attribute);
+    for (let i = 0; i < errors.length; i++) {
+      if (errors[i].attribute === attribute) {
+        // .replace from Ember.NativeArray is necessary. JS splice will not work.
+        errors.replace(i, 1);
+      }
+    }
     get(this, 'errorsByAttributeName').delete(attribute);
 
     this.notifyPropertyChange(attribute);
