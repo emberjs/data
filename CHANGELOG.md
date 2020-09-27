@@ -1,6 +1,9 @@
 # Ember Data Changelog
 
 
+## Release 3.21.2 (September 27, 2020)
+- [#7335](https://github.com/emberjs/data/pull/7335) [Bug]: errors remove to accurately update in template
+
 ## Release 3.21.1 (September 18, 2020)
 - [#7322](https://github.com/emberjs/data/pull/7322) [Build]: disable esm cache (#7322)
 
