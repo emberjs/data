@@ -110,6 +110,11 @@ export default class Snapshot implements Snapshot {
      @type {Object}
      */
     this.adapterOptions = options.adapterOptions;
+
+    /**
+     @property include
+     @type {String|Array}
+     */
     this.include = options.include;
 
     /**
