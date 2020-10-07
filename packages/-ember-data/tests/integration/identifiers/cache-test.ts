@@ -79,4 +79,71 @@ module('Integration | Identifiers - cache', function(hooks) {
       );
     });
   });
+
+  module('createIdentifierForNewRecord()', function() {
+    test('returns new identifier', async function(assert) {
+      const runspiredHash = {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'runspired',
+        },
+      };
+      const identifier = cache.createIdentifierForNewRecord(runspiredHash);
+
+      assert.equal(identifier.id, '1', 'identifier has id');
+      assert.equal(identifier.type, 'person', 'identifier has type');
+      assert.ok(identifier.lid, 'identifier has lid');
+    });
+  });
+
+  module('updateRecordIdentifier()', function() {
+    test('returns same identifier', async function(assert) {
+      const runspiredHash = {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'runspired',
+        },
+      };
+      let identifier = cache.createIdentifierForNewRecord(runspiredHash);
+
+      let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '1' });
+
+      assert.equal(mergedIdentifier.id, identifier.id, 'merged identifier has same id');
+      assert.equal(mergedIdentifier.type, identifier.type, 'merged identifier has same type');
+    });
+
+    test('returns new identifier with different id', async function(assert) {
+      const runspiredHash = {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'runspired',
+        },
+      };
+      let identifier = cache.createIdentifierForNewRecord(runspiredHash);
+
+      let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '2' });
+
+      assert.equal(mergedIdentifier.id, '2', 'merged identifier has new id');
+      assert.equal(mergedIdentifier.type, 'person', 'merged identifier has same type');
+    });
+
+    test('id is null', async function(assert) {
+      const runspiredHash = {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'runspired',
+        },
+      };
+      let identifier = cache.createIdentifierForNewRecord(runspiredHash);
+
+      let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: null });
+
+      assert.equal(mergedIdentifier.id, null, 'merged identifier has null id');
+      assert.equal(mergedIdentifier.type, identifier.type, 'merged identifier has same type');
+    });
+  });
 });

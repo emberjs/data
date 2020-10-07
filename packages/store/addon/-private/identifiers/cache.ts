@@ -340,17 +340,15 @@ export class IdentifierCache {
   ): StableRecordIdentifier {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
-    let id = identifier.id;
     let newId = coerceId(data.id);
-
-    const keyOptions = getTypeIndex(this._cache.types, identifier.type);
     let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
 
     if (existingIdentifier) {
+      let keyOptions = getTypeIndex(this._cache.types, identifier.type);
       identifier = this._mergeRecordIdentifiers(keyOptions, identifier, existingIdentifier, data, newId as string);
     }
 
-    id = identifier.id;
+    let id = identifier.id;
     performRecordIdentifierUpdate(identifier, data, this._update);
     newId = identifier.id;
 
