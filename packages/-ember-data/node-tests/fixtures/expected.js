@@ -166,6 +166,7 @@ module.exports = {
     '(public) @ember-data/adapter RESTAdapter#queryRecord',
     '(public) @ember-data/adapter RESTAdapter#sortQueryParams',
     '(public) @ember-data/adapter RESTAdapter#updateRecord',
+    '(public) @ember-data/adapter RESTAdapter#useFetch',
     '(public) @ember-data/debug InspectorDataAdapter#watchModelTypes',
     '(public) @ember-data/model @ember-data/model#attr',
     '(public) @ember-data/model @ember-data/model#belongsTo',
