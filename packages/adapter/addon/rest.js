@@ -5,12 +5,13 @@
 */
 
 import { getOwner } from '@ember/application';
-import { warn } from '@ember/debug';
+import { deprecate, warn } from '@ember/debug';
 import { computed, get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
+import { has } from 'require';
 import { Promise } from 'rsvp';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
@@ -24,11 +25,13 @@ import AdapterError, {
   TimeoutError,
   UnauthorizedError,
 } from '@ember-data/adapter/error';
+import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
+import { addSymbol, symbol } from '@ember-data/store/-private';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
+const UseFetch = symbol('useFetch');
 const hasJQuery = typeof jQuery !== 'undefined';
-const hasNajax = typeof najax !== 'undefined';
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -290,7 +293,7 @@ const hasNajax = typeof najax !== 'undefined';
   @extends Adapter
   @uses BuildURLMixin
 */
-const RESTAdapter = Adapter.extend(BuildURLMixin, {
+let RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
 
   _defaultContentType: 'application/json; charset=utf-8',
@@ -309,19 +312,12 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     },
   }),
 
-  useFetch: computed(function() {
-    let ENV = getOwner(this).resolveRegistration('config:environment');
-    // TODO: https://github.com/emberjs/data/issues/6093
-    let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
-
-    if (jQueryIntegrationDisabled) {
-      return true;
-    } else if (hasNajax || hasJQuery) {
-      return false;
-    } else {
-      return true;
-    }
-  }),
+  /**
+    @property useFetch
+    @type {Boolean}
+    @public
+  */
+  useFetch: true,
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -991,7 +987,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   ajax(url, type, options) {
     let adapter = this;
-    let useFetch = get(this, 'useFetch');
 
     let requestData = {
       url: url,
@@ -999,7 +994,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
-    if (useFetch) {
+    if (this.useFetch) {
       let _response;
       return this._fetchRequest(hash)
         .then(response => {
@@ -1039,21 +1034,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     jQuery.ajax(options);
   },
 
-  /**
-    @method _najaxRequest
-    @private
-    @param {Object} options jQuery ajax options to be used for the najax request
-  */
-  _najaxRequest(options) {
-    if (hasNajax) {
-      najax(options);
-    } else {
-      throw new Error(
-        'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
-      );
-    }
-  },
-
   _fetchRequest(options) {
     let fetchFunction = fetch();
 
@@ -1067,9 +1047,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   _ajax(options) {
-    if (get(this, 'useFetch')) {
+    if (this.useFetch) {
       this._fetchRequest(options);
-    } else if (get(this, 'fastboot.isFastBoot')) {
+    } else if (DEPRECATE_NAJAX && get(this, 'fastboot.isFastBoot')) {
       this._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
@@ -1103,7 +1083,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let contentType = options.contentType || this._defaultContentType;
 
-    if (get(this, 'useFetch')) {
+    if (this.useFetch) {
       if (options.data && options.type !== 'GET') {
         if (!options.headers['Content-Type'] && !options.headers['content-type']) {
           options.headers['content-type'] = contentType;
@@ -1412,6 +1392,76 @@ function ajaxOptions(options, adapter) {
   };
 
   return options;
+}
+
+if (DEPRECATE_NAJAX) {
+  RESTAdapter = RESTAdapter.extend({
+    /**
+      @method _najaxRequest
+      @private
+      @param {Object} options jQuery ajax options to be used for the najax request
+    */
+    _najaxRequest(options) {
+      if (typeof najax !== 'undefined') {
+        najax(options);
+      } else {
+        throw new Error(
+          'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
+        );
+      }
+    },
+
+    useFetch: computed({
+      get() {
+        if (this[UseFetch]) {
+          return this[UseFetch];
+        }
+
+        let ENV = getOwner(this).resolveRegistration('config:environment');
+        // TODO: https://github.com/emberjs/data/issues/6093
+        let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
+
+        let shouldUseFetch;
+        if (jQueryIntegrationDisabled) {
+          shouldUseFetch = true;
+        } else if (typeof najax !== 'undefined') {
+          if (has('fetch')) {
+            deprecate(
+              'You have ember-fetch and jquery installed. To use ember-fetch instead of najax, set `useFetch = true` in your adapter.  In 4.0, ember-data will default to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
+              false,
+              {
+                id: 'ember-data:najax-fallback',
+                until: '4.0',
+              }
+            );
+          } else {
+            deprecate(
+              'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar fetch polyfill in FastBoot and set `useFetch = true` in your adapter.',
+              false,
+              {
+                id: 'ember-data:najax-fallback',
+                until: '4.0',
+              }
+            );
+          }
+
+          shouldUseFetch = false;
+        } else if (hasJQuery) {
+          shouldUseFetch = false;
+        } else {
+          shouldUseFetch = true;
+        }
+
+        addSymbol(this, UseFetch, shouldUseFetch);
+
+        return shouldUseFetch;
+      },
+      set(key, value) {
+        addSymbol(this, UseFetch, value);
+        return value;
+      },
+    }),
+  });
 }
 
 export default RESTAdapter;

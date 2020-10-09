@@ -232,7 +232,11 @@ export default class ManyRelationship extends Relationship {
     } else {
       recordDatas = new Array(data.length);
       for (let i = 0; i < data.length; i++) {
-        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(data[i].type, data[i].id) as RelationshipRecordData;
+        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(
+          data[i].type,
+          data[i].id,
+          data[i].lid
+        ) as RelationshipRecordData;
       }
     }
     if (initial) {
