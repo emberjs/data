@@ -293,31 +293,31 @@ const hasJQuery = typeof jQuery !== 'undefined';
   @extends Adapter
   @uses BuildURLMixin
 */
-let RESTAdapter = Adapter.extend(BuildURLMixin, {
-  defaultSerializer: '-rest',
+class RESTAdapter extends Adapter.extend(BuildURLMixin) {
+  defaultSerializer = '-rest';
 
-  _defaultContentType: 'application/json; charset=utf-8',
+  _defaultContentType = 'application/json; charset=utf-8';
 
-  fastboot: computed({
+  @computed
+  get fastboot() {
     // Avoid computed property override deprecation in fastboot as suggested by:
     // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
-    get() {
-      if (this._fastboot) {
-        return this._fastboot;
-      }
-      return (this._fastboot = getOwner(this).lookup('service:fastboot'));
-    },
-    set(key, value) {
-      return (this._fastboot = value);
-    },
-  }),
+    if (this._fastboot) {
+      return this._fastboot;
+    }
+    return (this._fastboot = getOwner(this).lookup('service:fastboot'));
+  }
+
+  set fastboot(value) {
+    return (this._fastboot = value);
+  }
 
   /**
     @property useFetch
     @type {Boolean}
     @public
   */
-  useFetch: true,
+  useFetch = true;
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -374,7 +374,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
       newQueryParams[sortedKeys[i]] = obj[sortedKeys[i]];
     }
     return newQueryParams;
-  },
+  }
 
   /**
     By default the RESTAdapter will send each find request coming from a `store.find`
@@ -423,7 +423,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests: false,
+  coalesceFindRequests = false;
 
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
@@ -507,7 +507,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     let query = this.buildQuery(snapshot);
 
     return this.ajax(url, 'GET', { data: query });
-  },
+  }
 
   /**
     Called by the store in order to fetch a JSON array for all
@@ -532,7 +532,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return this.ajax(url, 'GET', { data: query });
-  },
+  }
 
   /**
     Called by the store in order to fetch a JSON array for
@@ -559,7 +559,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return this.ajax(url, 'GET', { data: query });
-  },
+  }
 
   /**
     Called by the store in order to fetch a JSON object for
@@ -587,7 +587,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return this.ajax(url, 'GET', { data: query });
-  },
+  }
 
   /**
     Called by the store in order to fetch several records together if `coalesceFindRequests` is true
@@ -625,7 +625,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
   findMany(store, type, ids, snapshots) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
-  },
+  }
 
   /**
     Called by the store in order to fetch a JSON array for
@@ -670,7 +670,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findHasMany'));
 
     return this.ajax(url, 'GET');
-  },
+  }
 
   /**
     Called by the store in order to fetch the JSON for the unloaded record in a
@@ -714,7 +714,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findBelongsTo'));
     return this.ajax(url, 'GET');
-  },
+  }
 
   /**
     Called by the store when a newly created record is
@@ -738,7 +738,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     const data = serializeIntoHash(store, type, snapshot);
 
     return this.ajax(url, 'POST', { data });
-  },
+  }
 
   /**
     Called by the store when an existing record is saved
@@ -763,7 +763,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     let url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PUT', { data });
-  },
+  }
 
   /**
     Called by the store when a record is deleted.
@@ -780,7 +780,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     let id = snapshot.id;
 
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), 'DELETE');
-  },
+  }
 
   _stripIDFromURL(store, snapshot) {
     let url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
@@ -801,10 +801,10 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return expandedURL.join('/');
-  },
+  }
 
   // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
-  maxURLLength: 2048,
+  maxURLLength = 2048;
 
   /**
     Organize records into groups, each of which is to be passed to separate
@@ -872,7 +872,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     });
 
     return groupsArray;
-  },
+  }
 
   /**
     Takes an ajax response, and returns the json payload or an error.
@@ -929,7 +929,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return new AdapterError(errors, detailedMessage);
-  },
+  }
 
   /**
     Default `handleResponse` implementation uses this hook to decide if the
@@ -944,7 +944,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   isSuccess(status, headers, payload) {
     return (status >= 200 && status < 300) || status === 304;
-  },
+  }
 
   /**
     Default `handleResponse` implementation uses this hook to decide if the
@@ -959,7 +959,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   isInvalid(status, headers, payload) {
     return status === 422;
-  },
+  }
 
   /**
     Takes a URL, an HTTP method and a hash of data, and makes an
@@ -1023,7 +1023,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
 
       adapter._ajax(hash);
     }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
-  },
+  }
 
   /**
     @method _ajaxRequest
@@ -1032,7 +1032,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   _ajaxRequest(options) {
     jQuery.ajax(options);
-  },
+  }
 
   _fetchRequest(options) {
     let fetchFunction = fetch();
@@ -1044,7 +1044,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
         'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
       );
     }
-  },
+  }
 
   _ajax(options) {
     if (this.useFetch) {
@@ -1054,7 +1054,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     } else {
       this._ajaxRequest(options);
     }
-  },
+  }
 
   /**
     @method ajaxOptions
@@ -1102,7 +1102,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     options.url = this._ajaxURL(options.url);
 
     return options;
-  },
+  }
 
   _ajaxURL(url) {
     if (get(this, 'fastboot.isFastBoot')) {
@@ -1126,7 +1126,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return url;
-  },
+  }
 
   /**
     @method parseErrorResponse
@@ -1144,7 +1144,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return json;
-  },
+  }
 
   /**
     @method normalizeErrorResponse
@@ -1166,7 +1166,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
         },
       ];
     }
-  },
+  }
 
   /**
     Generates a detailed ("friendly") error message, with plenty
@@ -1180,7 +1180,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param  {Object} requestData
     @return {String} detailed error message
   */
-  generatedDetailedMessage: function(status, headers, payload, requestData) {
+  generatedDetailedMessage(status, headers, payload, requestData) {
     let shortenedPayload;
     let payloadContentType = headers['content-type'] || 'Empty Content-Type';
 
@@ -1198,7 +1198,7 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
       payloadDescription,
       shortenedPayload,
     ].join('\n');
-  },
+  }
 
   /**
     @method buildQuery
@@ -1219,8 +1219,8 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return query;
-  },
-});
+  }
+}
 
 function ajaxSuccess(adapter, payload, requestData, responseData) {
   let response;
@@ -1401,72 +1401,71 @@ function ajaxOptions(options, adapter) {
 }
 
 if (DEPRECATE_NAJAX) {
-  RESTAdapter = RESTAdapter.extend({
-    /**
-      @method _najaxRequest
-      @private
-      @param {Object} options jQuery ajax options to be used for the najax request
-    */
-    _najaxRequest(options) {
-      if (typeof najax !== 'undefined') {
-        najax(options);
-      } else {
-        throw new Error(
-          'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
-        );
+  /**
+    @method _najaxRequest
+    @private
+    @param {Object} options jQuery ajax options to be used for the najax request
+  */
+  RESTAdapter.prototype._najaxRequest = function(options) {
+    if (typeof najax !== 'undefined') {
+      najax(options);
+    } else {
+      throw new Error(
+        'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
+      );
+    }
+  };
+
+  Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
+    get() {
+      if (this[UseFetch]) {
+        return this[UseFetch];
       }
+
+      let ENV = getOwner(this).resolveRegistration('config:environment');
+      // TODO: https://github.com/emberjs/data/issues/6093
+      let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
+
+      let shouldUseFetch;
+      if (jQueryIntegrationDisabled) {
+        shouldUseFetch = true;
+      } else if (typeof najax !== 'undefined') {
+        if (has('fetch')) {
+          deprecate(
+            'You have ember-fetch and jquery installed. To use ember-fetch instead of najax, set `useFetch = true` in your adapter.  In 4.0, ember-data will default to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
+            false,
+            {
+              id: 'ember-data:najax-fallback',
+              until: '4.0',
+            }
+          );
+        } else {
+          deprecate(
+            'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar fetch polyfill in FastBoot and set `useFetch = true` in your adapter.',
+            false,
+            {
+              id: 'ember-data:najax-fallback',
+              until: '4.0',
+            }
+          );
+        }
+
+        shouldUseFetch = false;
+      } else if (hasJQuery) {
+        shouldUseFetch = false;
+      } else {
+        shouldUseFetch = true;
+      }
+
+      addSymbol(this, UseFetch, shouldUseFetch);
+
+      return shouldUseFetch;
     },
 
-    useFetch: computed({
-      get() {
-        if (this[UseFetch]) {
-          return this[UseFetch];
-        }
-
-        let ENV = getOwner(this).resolveRegistration('config:environment');
-        // TODO: https://github.com/emberjs/data/issues/6093
-        let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
-
-        let shouldUseFetch;
-        if (jQueryIntegrationDisabled) {
-          shouldUseFetch = true;
-        } else if (typeof najax !== 'undefined') {
-          if (has('fetch')) {
-            deprecate(
-              'You have ember-fetch and jquery installed. To use ember-fetch instead of najax, set `useFetch = true` in your adapter.  In 4.0, ember-data will default to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
-              false,
-              {
-                id: 'ember-data:najax-fallback',
-                until: '4.0',
-              }
-            );
-          } else {
-            deprecate(
-              'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar fetch polyfill in FastBoot and set `useFetch = true` in your adapter.',
-              false,
-              {
-                id: 'ember-data:najax-fallback',
-                until: '4.0',
-              }
-            );
-          }
-
-          shouldUseFetch = false;
-        } else if (hasJQuery) {
-          shouldUseFetch = false;
-        } else {
-          shouldUseFetch = true;
-        }
-
-        addSymbol(this, UseFetch, shouldUseFetch);
-
-        return shouldUseFetch;
-      },
-      set(key, value) {
-        addSymbol(this, UseFetch, value);
-        return value;
-      },
-    }),
+    set(value) {
+      addSymbol(this, UseFetch, value);
+      return value;
+    },
   });
 }
 
