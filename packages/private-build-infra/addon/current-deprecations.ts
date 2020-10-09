@@ -1,7 +1,7 @@
 /**
  * ## Deprecations
  *
- * EmberData allows users to remove code that exists to support deprecated
+ * EmberData allows users to opt-in and remove code that exists to support deprecated
  * behaviors.
  *
  * If your app has resolved all deprecations present in a given version,
@@ -40,7 +40,6 @@ export default {
   DEPRECATE_CATCH_ALL: '99.0',
   DEPRECATE_EVENTED_API_USAGE: '3.12',
   DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS: '3.12',
-  DEPRECATE_MODEL_DATA: '3.8',
   DEPRECATE_MODEL_TOJSON: '3.15',
   DEPRECATE_LEGACY_TEST_HELPER_SUPPORT: '3.15',
   DEPRECATE_LEGACY_TEST_REGISTRATIONS: '3.15',
@@ -48,7 +47,7 @@ export default {
   DEPRECATE_DEFAULT_ADAPTER: '3.15',
   DEPRECATE_METHOD_CALLS_ON_DESTROY_STORE: '3.15',
   DEPRECATE_MISMATCHED_INVERSE_RELATIONSHIP_DATA: '3.12',
-  DEPRECATE_SERIALIZER_QUERY_RECORD_ARRAY_RESPONSE: '3.4',
   DEPRECATE_BELONGS_TO_REFERENCE_PUSH: '3.16',
   DEPRECATE_REFERENCE_INTERNAL_MODEL: '3.19',
+  DEPRECATE_NAJAX: '3.22',
 };

@@ -98,7 +98,7 @@ export default class InternalModelFactory {
       // (this may not be strictly true, we could probably swap the internalModel the record points at)
       if (im && otherIm && im.hasRecord && otherIm.hasRecord) {
         throw new Error(
-          `Failed to update the 'id' for the RecordIdentifier '${identifier}' to '${resourceData.id}', because that id is already in use by '${matchedIdentifier}'`
+          `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to '${resourceData.id}', because that id is already in use by '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
         );
       }
 

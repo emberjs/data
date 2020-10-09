@@ -175,6 +175,7 @@ export default EmberObject.extend({
     @param {Model} type
     @param {Object} query
     @param {AdapterPopulatedRecordArray} recordArray
+    @param {Object} adapterOptions
     @return {Promise} promise
   */
   query: null,
@@ -213,6 +214,7 @@ export default EmberObject.extend({
     @param {Store} store
     @param {subclass of Model} type
     @param {Object} query
+    @param {Object} adapterOptions
     @return {Promise} promise
   */
   queryRecord: null,

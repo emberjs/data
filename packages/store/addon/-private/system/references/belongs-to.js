@@ -44,9 +44,11 @@ export default class BelongsToReference extends Reference {
 
    ```javascript
    // models/blog.js
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+   import Model, { belongsTo } from '@ember-data/model';
+
+   export default class BlogModel extends Model {
+    @belongsTo({ async: true }) user;
+   }
 
    let blog = store.push({
       data: {
@@ -85,7 +87,7 @@ export default class BelongsToReference extends Reference {
 
   /**
    `push` can be used to update the data in the relationship and Ember
-   Data will treat the new data as the conanical value of this
+   Data will treat the new data as the canonical value of this
    relationship on the backend.
 
    Example
@@ -93,9 +95,9 @@ export default class BelongsToReference extends Reference {
    ```app/models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
 
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+   export default class BlogModel extends Model {
+      @belongsTo({ async: true }) user;
+    }
 
    let blog = store.push({
       data: {
@@ -170,9 +172,9 @@ export default class BelongsToReference extends Reference {
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
 
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+   export default class BlogModel extends Model {
+     @belongsTo({ async: true }) user;
+   }
 
    let blog = store.push({
       data: {
@@ -230,9 +232,9 @@ export default class BelongsToReference extends Reference {
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
 
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+   export default class BlogModel extends Model {
+     @belongsTo({ async: true }) user;
+   }
 
    let blog = store.push({
       data: {
@@ -265,9 +267,10 @@ export default class BelongsToReference extends Reference {
      userRef.value() === user;
    });
    ```
-
    ```app/adapters/user.js
-   export default ApplicationAdapter.extend({
+   import Adapter from '@ember-data/adapter';
+
+   export default class UserAdapter extends Adapter {
      findRecord(store, type, id, snapshot) {
        // In the adapter you will have access to adapterOptions.
        let adapterOptions = snapshot.adapterOptions;
@@ -294,9 +297,10 @@ export default class BelongsToReference extends Reference {
    ```javascript
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+
+   export default class BlogModel extends Model {
+     @belongsTo({ async: true }) user;
+   }
 
    let blog = store.push({
       data: {

@@ -17,8 +17,8 @@ jobs:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Yarn install
@@ -34,8 +34,8 @@ jobs:
     timeout-minutes: 8
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Yarn install
@@ -69,8 +69,8 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Install dependencies
@@ -131,8 +131,8 @@ jobs:
         scenario: [fastboot-with-ember-fetch, fastboot-with-jquery]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Install dependencies
@@ -166,8 +166,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: ${{matrix.scenario}} ${{matrix.launcher}} on ${{matrix.os}}
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Install dependencies
@@ -188,8 +188,8 @@ jobs:
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Install dependencies w/o lockfile
@@ -205,8 +205,8 @@ jobs:
         scenario: [ember-lts-3.16, ember-lts-3.20]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Install dependencies
@@ -232,8 +232,8 @@ jobs:
         scenario: [ember-release, ember-beta, ember-canary]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Install dependencies
@@ -258,8 +258,8 @@ jobs:
           ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Install dependencies
@@ -278,8 +278,8 @@ jobs:
       matrix:
         node-version: [10.x, 14.x]
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies w/o lockfile
@@ -322,8 +322,8 @@ jobs:
           - partner: travis-web
             continue-on-error: true
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
       - name: Install dependencies
@@ -338,8 +338,8 @@ jobs:
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
       - name: upload built assets
         if: failure() || success()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.partner }}-dist
-          path: ../../data/__external-test-cache/${{ matrix.partner }}/dist/assets
+          path: ${{ github.workspace }}/__external-test-cache/${{ matrix.partner }}/dist/assets
         continue-on-error: ${{ matrix['continue-on-error'] == true }}

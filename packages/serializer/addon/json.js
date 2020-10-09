@@ -32,12 +32,12 @@ import { modelHasAttributeOrRelationshipNamedType } from './-private';
   ```app/models/user.js
   import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    friends: hasMany('user'),
-    house: belongsTo('location'),
+  export default class UserModel extends Model {
+    @hasMany('user') friends;
+    @belongsTo('location') house;
 
-    name: attr('string')
-  });
+    @attr('string') name;
+  }
   ```
 
   ```js
@@ -93,9 +93,9 @@ const JSONSerializer = Serializer.extend({
     ```app/serializers/application.js
     import JSONSerializer from '@ember-data/serializer/json';
 
-    export default JSONSerializer.extend({
-      primaryKey: '_id'
-    });
+    export default class ApplicationSerializer extends JSONSerializer {
+      primaryKey = '_id'
+    }
     ```
 
     @property primaryKey
@@ -116,23 +116,23 @@ const JSONSerializer = Serializer.extend({
     ```app/models/person.js
     import Model, { attr } from '@ember-data/model';
 
-    export default Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      occupation: attr('string'),
-      admin: attr('boolean')
-    });
+    export default class PersonModel extends Model {
+      @attr('string') firstName;
+      @attr('string') lastName;
+      @attr('string') occupation;
+      @attr('boolean') admin;
+    }
     ```
 
     ```app/serializers/person.js
     import JSONSerializer from '@ember-data/serializer/json';
 
-    export default JSONSerializer.extend({
-      attrs: {
+    export default class PersonSerializer extends JSONSerializer {
+      attrs = {
         admin: 'is_admin',
         occupation: { key: 'career' }
       }
-    });
+    }
     ```
 
     You can also remove attributes and relationships by setting the `serialize`
@@ -143,12 +143,12 @@ const JSONSerializer = Serializer.extend({
     ```app/serializers/person.js
     import JSONSerializer from '@ember-data/serializer/json';
 
-    export default JSONSerializer.extend({
-      attrs: {
+    export default class PostSerializer extends JSONSerializer {
+      attrs = {
         admin: { serialize: false },
         occupation: { key: 'career' }
       }
-    });
+    }
     ```
 
     When serialized:
@@ -218,10 +218,10 @@ const JSONSerializer = Serializer.extend({
 
     ```javascript
     socket.on('message', function(message) {
-      var data = message.data;
-      var modelClass = store.modelFor(data.modelName);
-      var serializer = store.serializerFor(data.modelName);
-      var normalized = serializer.normalizeSingleResponse(store, modelClass, data, data.id);
+      let data = message.data;
+      let modelClass = store.modelFor(data.modelName);
+      let serializer = store.serializerFor(data.modelName);
+      let normalized = serializer.normalizeSingleResponse(store, modelClass, data, data.id);
 
       store.push(normalized);
     });
@@ -511,12 +511,12 @@ const JSONSerializer = Serializer.extend({
     import { underscore } from '@ember/string';
     import { get } from '@ember/object';
 
-    export default JSONSerializer.extend({
+    export default class ApplicationSerializer extends JSONSerializer {
       normalize(typeClass, hash) {
-        var fields = get(typeClass, 'fields');
+        let fields = get(typeClass, 'fields');
 
         fields.forEach(function(type, field) {
-          var payloadField = underscore(field);
+          let payloadField = underscore(field);
           if (field === payloadField) { return; }
 
           hash[field] = hash[payloadField];
@@ -525,7 +525,7 @@ const JSONSerializer = Serializer.extend({
 
         return this._super.apply(this, arguments);
       }
-    });
+    }
     ```
 
     @method normalize
@@ -890,12 +890,12 @@ const JSONSerializer = Serializer.extend({
     ```app/models/comment.js
     import Model, { attr, belongsTo } from '@ember-data/model';
 
-    export default Model.extend({
-      title: attr(),
-      body: attr(),
+    export default class CommentModel extends Model {
+      @attr title;
+      @attr body;
 
-      author: belongsTo('user')
-    });
+      @belongsTo('user') author;
+    }
     ```
 
     The default serialization would create a JSON object like:
@@ -936,9 +936,9 @@ const JSONSerializer = Serializer.extend({
     ```app/serializers/post.js
     import JSONSerializer from '@ember-data/serializer/json';
 
-    export default JSONSerializer.extend({
+    export default class PostSerializer extends JSONSerializer {
       serialize(snapshot, options) {
-        var json = {
+        let json = {
           POST_TTL: snapshot.attr('title'),
           POST_BDY: snapshot.attr('body'),
           POST_CMS: snapshot.hasMany('comments', { ids: true })
@@ -950,7 +950,7 @@ const JSONSerializer = Serializer.extend({
 
         return json;
       }
-    });
+    }
     ```
 
     ## Customizing an App-Wide Serializer
@@ -963,9 +963,9 @@ const JSONSerializer = Serializer.extend({
     import JSONSerializer from '@ember-data/serializer/json';
     import { singularize } from 'ember-inflector';
 
-    export default JSONSerializer.extend({
+    export default class PostSerializer extends JSONSerializer {
       serialize(snapshot, options) {
-        var json = {};
+        let json = {};
 
         snapshot.eachAttribute(function(name) {
           json[serverAttributeName(name)] = snapshot.attr(name);
@@ -983,7 +983,7 @@ const JSONSerializer = Serializer.extend({
 
         return json;
       }
-    });
+    }
 
     function serverAttributeName(attribute) {
       return attribute.underscore().toUpperCase();
@@ -1013,16 +1013,16 @@ const JSONSerializer = Serializer.extend({
     ```app/serializers/post.js
     import JSONSerializer from '@ember-data/serializer/json';
 
-    export default JSONSerializer.extend({
+    export default class PostSerializer extends JSONSerializer {
       serialize(snapshot, options) {
-        var json = this._super(...arguments);
+        let json = this._super(...arguments);
 
         json.subject = json.title;
         delete json.title;
 
         return json;
       }
-    });
+    }
     ```
 
     @method serialize
@@ -1069,12 +1069,12 @@ const JSONSerializer = Serializer.extend({
     import RESTSerializer from '@ember-data/serializer/rest';
     import { decamelize } from '@ember/string';
 
-    export default RESTSerializer.extend({
+    export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, snapshot, options) {
-        var root = decamelize(type.modelName);
+        let root = decamelize(type.modelName);
         data[root] = this.serialize(snapshot, options);
       }
-    });
+    }
     ```
 
     @method serializeIntoHash
@@ -1098,12 +1098,12 @@ const JSONSerializer = Serializer.extend({
     ```app/serializers/application.js
     import JSONSerializer from '@ember-data/serializer/json';
 
-    export default JSONSerializer.extend({
+    export default class ApplicationSerializer extends JSONSerializer {
       serializeAttribute(snapshot, json, key, attributes) {
         json.attributes = json.attributes || {};
         this._super(snapshot, json.attributes, key, attributes);
       }
-    });
+    }
     ```
 
     @method serializeAttribute
@@ -1143,16 +1143,16 @@ const JSONSerializer = Serializer.extend({
     import JSONSerializer from '@ember-data/serializer/json';
     import { isNone } from '@ember/utils';
 
-    export default JSONSerializer.extend({
+    export default class PostSerializer extends JSONSerializer {
       serializeBelongsTo(snapshot, json, relationship) {
-        var key = relationship.key;
-        var belongsTo = snapshot.belongsTo(key);
+        let key = relationship.key;
+        let belongsTo = snapshot.belongsTo(key);
 
         key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
 
         json[key] = isNone(belongsTo) ? belongsTo : belongsTo.record.toJSON();
       }
-    });
+    }
     ```
 
     @method serializeBelongsTo
@@ -1195,16 +1195,16 @@ const JSONSerializer = Serializer.extend({
    ```app/serializers/post.js
    import JSONSerializer from '@ember-data/serializer/json';
 
-   export default JSONSerializer.extend({
+   export default class PostSerializer extends JSONSerializer {
      serializeHasMany(snapshot, json, relationship) {
-       var key = relationship.key;
+       let key = relationship.key;
        if (key === 'comments') {
          return;
        } else {
          this._super(...arguments);
        }
      }
-   });
+   }
    ```
 
    @method serializeHasMany
@@ -1243,10 +1243,10 @@ const JSONSerializer = Serializer.extend({
     import JSONSerializer from '@ember-data/serializer/json';
     import { isNone } from '@ember/utils';
 
-    export default JSONSerializer.extend({
+    export default class CommentSerializer extends JSONSerializer {
       serializePolymorphicType(snapshot, json, relationship) {
-        var key = relationship.key;
-        var belongsTo = snapshot.belongsTo(key);
+        let key = relationship.key;
+        let belongsTo = snapshot.belongsTo(key);
 
         key = this.keyForAttribute ? this.keyForAttribute(key, 'serialize') : key;
 
@@ -1256,7 +1256,7 @@ const JSONSerializer = Serializer.extend({
           json[key + '_type'] = belongsTo.modelName;
         }
       }
-    });
+    }
     ```
 
     @method serializePolymorphicType
@@ -1276,7 +1276,7 @@ const JSONSerializer = Serializer.extend({
     ```app/serializers/post.js
     import JSONSerializer from '@ember-data/serializer/json';
 
-    export default JSONSerializer.extend({
+    export default class PostSerializer extends JSONSerializer {
       extractMeta(store, typeClass, payload) {
         if (payload && payload.hasOwnProperty('_pagination')) {
           let meta = payload._pagination;
@@ -1284,7 +1284,7 @@ const JSONSerializer = Serializer.extend({
           return meta;
         }
       }
-    });
+    }
     ```
 
     @method extractMeta
@@ -1354,7 +1354,7 @@ const JSONSerializer = Serializer.extend({
     through the property `base`:
 
     ```handlebars
-    {{#each model.errors.base as |error|}}
+    {{#each @model.errors.base as |error|}}
       <div class="error">
         {{error.message}}
       </div>
@@ -1367,7 +1367,7 @@ const JSONSerializer = Serializer.extend({
     ```app/serializers/post.js
     import JSONSerializer from '@ember-data/serializer/json';
 
-    export default JSONSerializer.extend({
+    export default class PostSerializer extends JSONSerializer {
       extractErrors(store, typeClass, payload, id) {
         if (payload && typeof payload === 'object' && payload._problems) {
           payload = payload._problems;
@@ -1375,7 +1375,7 @@ const JSONSerializer = Serializer.extend({
         }
         return payload;
       }
-    });
+    }
     ```
 
     @method extractErrors
@@ -1421,11 +1421,11 @@ const JSONSerializer = Serializer.extend({
     import JSONSerializer from '@ember-data/serializer/json';
     import { underscore } from '@ember/string';
 
-    export default JSONSerializer.extend({
+    export default class ApplicationSerializer extends JSONSerializer {
       keyForAttribute(attr, method) {
         return underscore(attr).toUpperCase();
       }
-    });
+    }
     ```
 
     @method keyForAttribute
@@ -1448,11 +1448,11 @@ const JSONSerializer = Serializer.extend({
       import JSONSerializer from '@ember-data/serializer/json';
       import { underscore } from '@ember/string';
 
-      export default JSONSerializer.extend({
+      export default class PostSerializer extends JSONSerializer {
         keyForRelationship(key, relationship, method) {
           return `rel_${underscore(key)}`;
         }
-      });
+      }
       ```
 
     @method keyForRelationship

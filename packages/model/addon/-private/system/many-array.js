@@ -2,7 +2,6 @@
   @module @ember-data/store
 */
 import EmberArray from '@ember/array';
-//import Evented from '@ember/object/evented';
 import MutableArray from '@ember/array/mutable';
 import { assert } from '@ember/debug';
 import EmberObject, { get } from '@ember/object';
@@ -68,7 +67,9 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     @property {Boolean} isLoaded
     */
     this.isLoaded = this.isLoaded || false;
-    this.length = 0;
+
+    // async has-many rendering tests
+    this._length = 0;
 
     /**
     Used for async `hasMany` arrays
@@ -165,6 +166,17 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       }
     }
     return false;
+  },
+
+  get length() {
+    // By using `get()`, the tracking system knows to pay attention to changes that occur.
+    get(this, '[]');
+
+    return this._length;
+  },
+
+  set length(value) {
+    return (this._length = value);
   },
 
   objectAt(index) {

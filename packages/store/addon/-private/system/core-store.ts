@@ -153,8 +153,7 @@ function deprecateTestRegistration(
   ```app/services/store.js
   import Store from '@ember-data/store';
 
-  export default Store.extend({
-  });
+  export default class MyStore extends Store {}
   ```
 
   Most Ember.js applications will only have a single `Store` that is
@@ -175,8 +174,8 @@ function deprecateTestRegistration(
   ```app/adapters/application.js
   import Adapter from '@ember-data/adapter';
 
-  export default Adapter.extend({
-  });
+  export default class ApplicationAdapter extends Adapter {
+  }
   ```
 
   You can learn more about writing a custom adapter by reading the `Adapter`
@@ -270,11 +269,11 @@ abstract class CoreStore extends Service {
     import Store from '@ember-data/store';
 
     export default Store.extend({
-      init() {
-        this._super(...arguments);
+      constructor() {
+        super(...arguments);
         this.adapter = 'custom';
       }
-    });
+    }
     ```
 
     @property adapter
@@ -778,11 +777,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id);
       }
-    });
+    }
     ```
 
     If the record is not yet available, the store will ask the adapter's `find`
@@ -855,7 +854,7 @@ abstract class CoreStore extends Service {
     // app/adapters/post.js
     import ApplicationAdapter from "./application";
 
-    export default ApplicationAdapter.extend({
+    export default class PostAdapter extends ApplicationAdapter {
       shouldReloadRecord(store, snapshot) {
         return false;
       },
@@ -898,11 +897,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post/edit.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { backgroundReload: false });
       }
-    });
+    }
     ```
 
     If you pass an object on the `adapterOptions` property of the options
@@ -911,26 +910,26 @@ abstract class CoreStore extends Service {
     ```app/routes/post/edit.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, {
           adapterOptions: { subscribe: false }
         });
       }
-    });
+    }
     ```
 
     ```app/adapters/post.js
     import MyCustomAdapter from './custom-adapter';
 
-    export default MyCustomAdapter.extend({
+    export default class PostAdapter extends MyCustomAdapter {
       findRecord(store, type, id, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
         // ...
       }
-    });
+    }
     ```
 
     See [peekRecord](../classes/Store/methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
@@ -942,7 +941,7 @@ abstract class CoreStore extends Service {
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
-    you can use `findRecord()` to automatically retrieve additional records related to
+    you can use `findRecord()` or `findAll()` to automatically retrieve additional records related to
     the one you request by supplying an `include` parameter in the `options` object.
 
     For example, given a `post` model that has a `hasMany` relationship with a `comment`
@@ -952,11 +951,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { include: 'comments' });
       }
-    });
+    }
 
     ```
     In this case, the post's comments would then be available in your template as
@@ -970,12 +969,57 @@ abstract class CoreStore extends Service {
     ```app/routes/post.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
       }
-    });
+    }
+    ```
 
+    ### Retrieving Specific Fields by Type
+
+    If your server endpoint supports the use of a ['fields' query parameter](https://jsonapi.org/format/#fetching-sparse-fieldsets),
+    you can use pass those fields through to your server.  At this point in time, this requires a few manual steps on your part.
+
+    1. Implement `buildQuery` in your adapter.
+
+    ```app/adapters/application.js
+    buildQuery(snapshot) {
+      let query = this._super(...arguments);
+
+      let { fields } = snapshot.adapterOptions;
+
+      if (fields) {
+        query.fields = fields;
+      }
+
+      return query;
+    }
+    ```
+
+    2. Then pass through the applicable fields to your `findRecord` request.
+
+    Given a `post` model with attributes body, title, publishDate and meta, you can retrieve a filtered list of attributes.
+
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+    export default Route.extend({
+      model(params) {
+        return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title' } });
+      }
+    });
+    ```
+
+    Moreover, you can filter attributes on related models as well. If a `post` has a `belongsTo` relationship to a user,
+    just include the relationship key and attributes.
+
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+    export default Route.extend({
+      model(params) {
+        return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title', user: 'name,email' } });
+      }
+    });
     ```
 
     @since 1.13.0
@@ -1144,7 +1188,7 @@ abstract class CoreStore extends Service {
 
   _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
-    // TODO  remove this once we dont rely on state machine
+    // TODO  remove this once we don't rely on state machine
     internalModel.loadingData();
     let identifier = internalModel.identifier;
 
@@ -1159,7 +1203,7 @@ abstract class CoreStore extends Service {
           payload.data.lid = identifier.lid;
         }
 
-        // Returning this._push here, breaks typing but not any tests, invesstigate potential missing tests
+        // Returning this._push here, breaks typing but not any tests, investigate potential missing tests
         let potentiallyNewIm = this._push(payload);
         if (potentiallyNewIm && !Array.isArray(potentiallyNewIm)) {
           return potentiallyNewIm;
@@ -1168,7 +1212,7 @@ abstract class CoreStore extends Service {
         }
       },
       error => {
-        // TODO  remove this once we dont rely on state machine
+        // TODO  remove this once we don't rely on state machine
         internalModel.notFound();
         if (internalModel.isEmpty()) {
           internalModel.unloadRecord();
@@ -1950,14 +1994,14 @@ abstract class CoreStore extends Service {
     The request is made through the adapters' `queryRecord`:
 
     ```app/adapters/user.js
-    import $ from 'jquery';
     import Adapter from '@ember-data/adapter';
+    import $ from 'jquery';
 
-    export default Adapter.extend({
+    export default class UserAdapter extends Adapter {
       queryRecord(modelName, query) {
         return $.getJSON('/api/current_user');
       }
-    });
+    }
     ```
 
     Note: the primary use case for `store.queryRecord` is when a single record
@@ -2058,11 +2102,11 @@ abstract class CoreStore extends Service {
     ```app/routes/authors.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class AuthorsRoute extends Route {
       model(params) {
         return this.store.findAll('author');
       }
-    });
+    }
     ```
 
     _When_ the returned promise resolves depends on the reload behavior,
@@ -2107,7 +2151,8 @@ abstract class CoreStore extends Service {
 
     ```app/adapters/application.js
     import Adapter from '@ember-data/adapter';
-    export default Adapter.extend({
+
+    export default class ApplicationAdapter extends Adapter {
       shouldReloadAll(store, snapshotsArray) {
         return false;
       },
@@ -2151,11 +2196,11 @@ abstract class CoreStore extends Service {
     ```app/routes/post/edit.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostEditRoute extends Route {
       model() {
         return this.store.findAll('post', { backgroundReload: false });
       }
-    });
+    }
     ```
 
     If you pass an object on the `adapterOptions` property of the options
@@ -2164,26 +2209,26 @@ abstract class CoreStore extends Service {
     ```app/routes/posts.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostsRoute extends Route {
       model(params) {
         return this.store.findAll('post', {
           adapterOptions: { subscribe: false }
         });
       }
-    });
+    }
     ```
 
     ```app/adapters/post.js
     import MyCustomAdapter from './custom-adapter';
 
-    export default MyCustomAdapter.extend({
+    export default class UserAdapter extends MyCustomAdapter {
       findAll(store, type, sinceToken, snapshotRecordArray) {
         if (snapshotRecordArray.adapterOptions.subscribe) {
           // ...
         }
         // ...
       }
-    });
+    }
     ```
 
     See [peekAll](../classes/Store/methods/peekAll?anchor=peekAll) to get an array of current records in the
@@ -2206,12 +2251,11 @@ abstract class CoreStore extends Service {
     ```app/routes/posts.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostsRoute extends Route {
       model() {
         return this.store.findAll('post', { include: 'comments' });
       }
-    });
-
+    }
     ```
     Multiple relationships can be requested using an `include` parameter consisting of a
     comma-separated list (without white-space) while nested relationships can be specified
@@ -2221,12 +2265,11 @@ abstract class CoreStore extends Service {
     ```app/routes/posts.js
     import Route from '@ember/routing/route';
 
-    export default Route.extend({
+    export default class PostsRoute extends Route {
       model() {
         return this.store.findAll('post', { include: 'comments,comments.author' });
       }
-    });
-
+    }
     ```
 
     See [query](../classes/Store/methods/query?anchor=query) to only get a subset of records from the server.
@@ -2733,12 +2776,12 @@ abstract class CoreStore extends Service {
     ```app/models/person.js
     import Model, { attr, hasMany } from '@ember-data/model';
 
-    export default Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
+    export default class PersonRoute extends Route {
+      @attr('string') firstName;
+      @attr('string') lastName;
 
-      children: hasMany('person')
-    });
+      @hasMany('person') children;
+    }
     ```
 
     To represent the children as IDs:
@@ -2962,7 +3005,7 @@ abstract class CoreStore extends Service {
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer;
+    export default class ApplicationSerializer extends RESTSerializer;
     ```
 
     ```js
@@ -2987,7 +3030,7 @@ abstract class CoreStore extends Service {
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
 
-    export default RESTSerializer;
+     export default class ApplicationSerializer extends RESTSerializer;
     ```
 
     ```app/serializers/post.js

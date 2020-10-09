@@ -110,6 +110,11 @@ export default class Snapshot implements Snapshot {
      @type {Object}
      */
     this.adapterOptions = options.adapterOptions;
+
+    /**
+     @property include
+     @type {String|Array}
+     */
     this.include = options.include;
 
     /**
@@ -497,8 +502,8 @@ export default class Snapshot implements Snapshot {
 
     export default Adapter.extend({
       createRecord(store, type, snapshot) {
-        var data = snapshot.serialize({ includeId: true });
-        var url = `/${type.modelName}`;
+        let data = snapshot.serialize({ includeId: true });
+        let url = `/${type.modelName}`;
 
         return fetch(url, {
           method: 'POST',

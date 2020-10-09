@@ -47,10 +47,10 @@ export default class SnapshotRecordArray {
       ```app/adapters/post.js
       import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-      export default JSONAPIAdapter.extend({
+      export default class PostAdapter extends JSONAPIAdapter {
         shouldReloadAll(store, snapshotRecordArray) {
           return !snapshotRecordArray.length;
-        },
+        }
       });
       ```
 
@@ -69,12 +69,12 @@ export default class SnapshotRecordArray {
       ```app/adapters/post.js
       import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-      export default JSONAPIAdapter.extend({
+      export default class PostAdapter extends JSONAPIAdapter {
         shouldReloadAll(store, snapshotRecordArray) {
-          var lastRequestTime = snapshotRecordArray.meta.lastRequestTime;
-          var twentyMinutes = 20 * 60 * 1000;
+          let lastRequestTime = snapshotRecordArray.meta.lastRequestTime;
+          let twentyMinutes = 20 * 60 * 1000;
           return Date.now() > lastRequestTime + twentyMinutes;
-        },
+        }
       });
       ```
 
@@ -91,14 +91,14 @@ export default class SnapshotRecordArray {
       ```app/adapters/post.js
       import MyCustomAdapter from './custom-adapter';
 
-      export default MyCustomAdapter.extend({
+      export default class PostAdapter extends MyCustomAdapter {
         findAll(store, type, sinceToken, snapshotRecordArray) {
           if (snapshotRecordArray.adapterOptions.subscribe) {
             // ...
           }
           // ...
         }
-      });
+      }
       ```
 
       @property adapterOptions
@@ -114,13 +114,13 @@ export default class SnapshotRecordArray {
       ```app/adapters/application.js
       import Adapter from '@ember-data/adapter';
 
-      export default Adapter.extend({
+      export default class ApplicationAdapter extends Adapter {
         findAll(store, type, snapshotRecordArray) {
-          var url = `/${type.modelName}?include=${encodeURIComponent(snapshotRecordArray.include)}`;
+          let url = `/${type.modelName}?include=${encodeURIComponent(snapshotRecordArray.include)}`;
 
           return fetch(url).then((response) => response.json())
         }
-      });
+      }
       ```
 
       @property include
@@ -154,12 +154,12 @@ export default class SnapshotRecordArray {
     ```app/adapters/post.js
     import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-    export default JSONAPIAdapter.extend({
+    export default class PostAdapter extends JSONAPIAdapter {
       shouldReloadAll(store, snapshotArray) {
-        var snapshots = snapshotArray.snapshots();
+        let snapshots = snapshotArray.snapshots();
 
         return snapshots.any(function(ticketSnapshot) {
-          var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
+          let timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
           if (timeDiff > 20) {
             return true;
           } else {
@@ -167,7 +167,7 @@ export default class SnapshotRecordArray {
           }
         });
       }
-    });
+    }
     ```
 
     @method snapshots
