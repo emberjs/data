@@ -1,5 +1,20 @@
 # Ember Data Changelog
 
+## Release 3.23.0-beta.0 (August 30, 2020)
+- [#7285](https://github.com/emberjs/data/pull/7285) [FEATURE]: Allow fetch to accept credentials (#7285)
+- [#7342](https://github.com/emberjs/data/pull/7342) [Debug]: improved identifier debug msg instead of [object Object]
+- [#7338](https://github.com/emberjs/data/pull/7338) [Chore]: remove deprecation for DEPRECATE_MODEL_DATA
+
+## Release 3.22.0 (October 09, 2020)
+- [#7126](https://github.com/emberjs/data/pull/7126) Bugfix for wrong hasMany relationship state in scenario of sideposting with lid
+- [#7230](https://github.com/emberjs/data/pull/7230) [CHORE] najax deprecation when ember-fetch is also installed
+- [#7330](https://github.com/emberjs/data/pull/7330) [BUG]: Consume array access to autotrack hasMany
+- [#7273](https://github.com/emberjs/data/pull/7273) [BUGFIX] Entangle Errors.errorsFor properly
+- [#7335](https://github.com/emberjs/data/pull/7335) [Bug]: errors `remove` to accurately update in template
+- [#7322](https://github.com/emberjs/data/pull/7322) [Build]: disable esm cache (#7322)
+- [#7263](https://github.com/emberjs/data/pull/7263) [CHORE]: Move symbols out of /ts-interfaces and into -private/utils
+- [#6715](https://github.com/emberjs/data/pull/6715) [CHORE]: Extract internalModel access to identifiers in RecordArray modules
+
 ## Release 3.21.0 (August 30, 2020)
 - [#7224](https://github.com/emberjs/data/pull/7224) [DOCS] fix links on @ember-data/store package intro
 - [#7228](https://github.com/emberjs/data/pull/7228) chore: remove instance initializer (#7228)
