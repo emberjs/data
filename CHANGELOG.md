@@ -1,17 +1,12 @@
 # Ember Data Changelog
 
-## Release 3.22.0-beta.3 (October 09, 2020)
+## Release 3.22.0 (October 09, 2020)
 - [#7126](https://github.com/emberjs/data/pull/7126) Bugfix for wrong hasMany relationship state in scenario of sideposting with lid
 - [#7230](https://github.com/emberjs/data/pull/7230) [CHORE] najax deprecation when ember-fetch is also installed
 - [#7330](https://github.com/emberjs/data/pull/7330) [BUG]: Consume array access to autotrack hasMany
-
-## Release 3.22.0-beta.2 (September 30, 2020)
+- [#7273](https://github.com/emberjs/data/pull/7273) [BUGFIX] Entangle Errors.errorsFor properly
 - [#7335](https://github.com/emberjs/data/pull/7335) [Bug]: errors `remove` to accurately update in template
-
-## Release 3.22.0-beta.1 (September 18, 2020)
 - [#7322](https://github.com/emberjs/data/pull/7322) [Build]: disable esm cache (#7322)
-
-## Release 3.22.0-beta.0 (August 31, 2020)
 - [#7263](https://github.com/emberjs/data/pull/7263) [CHORE]: Move symbols out of /ts-interfaces and into -private/utils
 - [#6715](https://github.com/emberjs/data/pull/6715) [CHORE]: Extract internalModel access to identifiers in RecordArray modules
 
