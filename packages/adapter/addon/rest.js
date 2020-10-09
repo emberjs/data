@@ -26,9 +26,11 @@ import AdapterError, {
   UnauthorizedError,
 } from '@ember-data/adapter/error';
 import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
+import { addSymbol, symbol } from '@ember-data/store/-private';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
+const UseFetch = symbol('useFetch');
 const hasJQuery = typeof jQuery !== 'undefined';
 
 /**
@@ -310,48 +312,12 @@ let RESTAdapter = Adapter.extend(BuildURLMixin, {
     },
   }),
 
-  useFetch: computed({
-    get() {
-      if (this._useFetch !== undefined) {
-        return this._useFetch;
-      }
-      let ENV = getOwner(this).resolveRegistration('config:environment');
-      // TODO: https://github.com/emberjs/data/issues/6093
-      let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
-
-      if (jQueryIntegrationDisabled) {
-        return (this._useFetch = true);
-      } else if (DEPRECATE_NAJAX && typeof najax !== 'undefined') {
-        if (has('fetch')) {
-          deprecate(
-            'You have ember-fetch and jquery installed. To use ember-fetch instead of najax, set `useFetch: true` in your adapter.  In 4.0, ember-data will default to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
-            false,
-            {
-              id: 'ember-data:najax-fallback',
-              until: '4.0',
-            }
-          );
-        } else {
-          deprecate(
-            'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar fetch polyfill in FastBoot.',
-            false,
-            {
-              id: 'ember-data:najax-fallback',
-              until: '4.0',
-            }
-          );
-        }
-        return (this._useFetch = false);
-      } else if (hasJQuery) {
-        return (this._useFetch = false);
-      } else {
-        return (this._useFetch = true);
-      }
-    },
-    set(key, value) {
-      return (this._useFetch = value);
-    },
-  }),
+  /**
+    @property useFetch
+    @type {Boolean}
+    @public
+  */
+  useFetch: true,
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -1444,6 +1410,57 @@ if (DEPRECATE_NAJAX) {
         );
       }
     },
+
+    useFetch: computed({
+      get() {
+        if (this[UseFetch]) {
+          return this[UseFetch];
+        }
+
+        let ENV = getOwner(this).resolveRegistration('config:environment');
+        // TODO: https://github.com/emberjs/data/issues/6093
+        let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
+
+        let shouldUseFetch;
+        if (jQueryIntegrationDisabled) {
+          shouldUseFetch = true;
+        } else if (typeof najax !== 'undefined') {
+          if (has('fetch')) {
+            deprecate(
+              'You have ember-fetch and jquery installed. To use ember-fetch instead of najax, set `useFetch = true` in your adapter.  In 4.0, ember-data will default to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
+              false,
+              {
+                id: 'ember-data:najax-fallback',
+                until: '4.0',
+              }
+            );
+          } else {
+            deprecate(
+              'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar fetch polyfill in FastBoot and set `useFetch = true` in your adapter.',
+              false,
+              {
+                id: 'ember-data:najax-fallback',
+                until: '4.0',
+              }
+            );
+          }
+
+          shouldUseFetch = false;
+        } else if (hasJQuery) {
+          shouldUseFetch = false;
+        } else {
+          shouldUseFetch = true;
+        }
+
+        addSymbol(this, UseFetch, shouldUseFetch);
+
+        return shouldUseFetch;
+      },
+      set(key, value) {
+        addSymbol(this, UseFetch, value);
+        return value;
+      },
+    }),
   });
 }
 
