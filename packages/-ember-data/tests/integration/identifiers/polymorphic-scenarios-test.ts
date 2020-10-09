@@ -83,6 +83,9 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
 
       const foundFerrari = await store.findRecord('car', '1');
       assert.strictEqual(foundFerrari.constructor.modelName, 'ferrari', 'We found the right type');
+
+      const cachedFerrari = await store.peekRecord('ferrari', '1');
+      assert.strictEqual(cachedFerrari.constructor.modelName, 'ferrari', 'We cached the right type');
     });
 
     test(`Identity of polymorphic relations can change type when in cache`, async function(assert) {
