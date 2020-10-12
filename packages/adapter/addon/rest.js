@@ -1422,7 +1422,8 @@ if (DEPRECATE_NAJAX) {
         return this[UseFetch];
       }
 
-      let ENV = getOwner(this).resolveRegistration('config:environment');
+      // Mixin validates all properties. Might not have it in the container yet
+      let ENV = getOwner(this) ? getOwner(this).resolveRegistration('config:environment') : {};
       // TODO: https://github.com/emberjs/data/issues/6093
       let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
 
