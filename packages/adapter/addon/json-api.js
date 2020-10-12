@@ -143,10 +143,10 @@ import RESTAdapter from './rest';
   @constructor
   @extends RESTAdapter
 */
-const JSONAPIAdapter = RESTAdapter.extend({
-  defaultSerializer: '-json-api',
+class JSONAPIAdapter extends RESTAdapter {
+  defaultSerializer = '-json-api';
 
-  _defaultContentType: 'application/vnd.api+json',
+  _defaultContentType = 'application/vnd.api+json';
 
   /**
     @method ajaxOptions
@@ -157,12 +157,12 @@ const JSONAPIAdapter = RESTAdapter.extend({
     @return {Object}
   */
   ajaxOptions(url, type, options = {}) {
-    let hash = this._super(url, type, options);
+    let hash = super.ajaxOptions(url, type, options);
 
     hash.headers['Accept'] = hash.headers['Accept'] || 'application/vnd.api+json';
 
     return hash;
-  },
+  }
 
   /**
     By default the JSONAPIAdapter will send each find request coming from a `store.find`
@@ -219,17 +219,17 @@ const JSONAPIAdapter = RESTAdapter.extend({
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests: false,
+  coalesceFindRequests = false;
 
   findMany(store, type, ids, snapshots) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
-  },
+  }
 
   pathForType(modelName) {
     let dasherized = dasherize(modelName);
     return pluralize(dasherized);
-  },
+  }
 
   updateRecord(store, type, snapshot) {
     const data = serializeIntoHash(store, type, snapshot);
@@ -237,7 +237,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
     let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PATCH', { data: data });
-  },
-});
+  }
+}
 
 export default JSONAPIAdapter;
