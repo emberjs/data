@@ -23,12 +23,12 @@ module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
     requests = [];
     lengths = [];
 
-    const ApplicationAdapter = RESTAdapter.extend({
-      coalesceFindRequests: true,
+    class ApplicationAdapter extends RESTAdapter {
+      coalesceFindRequests = true;
 
       findRecord(store, type, id, snapshot) {
         return { id };
-      },
+      }
 
       ajax(url, type, options) {
         requests.push({
@@ -48,8 +48,8 @@ module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
 
         let testRecords = options.data.ids.map(id => ({ id }));
         return EmberPromise.resolve({ testRecords: testRecords });
-      },
-    });
+      }
+    }
 
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', RESTSerializer.extend());
