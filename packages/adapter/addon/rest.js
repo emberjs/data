@@ -313,6 +313,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   /**
+    @property useFetch
+    @type {Boolean}
+    @public
+  */
+
+  /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
     server.
 
