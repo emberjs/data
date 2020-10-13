@@ -1472,6 +1472,7 @@ if (DEPRECATE_NAJAX) {
     value() {
       return true;
     },
+    configurable: true,
   });
 }
 

@@ -248,7 +248,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
 
   module('ajax-options - ajax', function(hooks) {
     hooks.beforeEach(function() {
-      this.owner.register('adapter:application', RESTAdapter.extend({ useFetch: false }));
+      this.owner.register(
+        'adapter:application',
+        class extends RESTAdapter {
+          useFetch = false;
+        }
+      );
     });
 
     test('ajaxOptions() Content-Type is not set with ajax GET', function(assert) {
