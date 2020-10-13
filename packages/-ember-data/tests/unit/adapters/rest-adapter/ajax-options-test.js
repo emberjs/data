@@ -290,8 +290,14 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       assert.equal(ajaxOptions.contentType, 'application/json; charset=utf-8', 'contentType is set with POST');
     });
 
-    test('ajaxOptions() Content-Type is set with ajax POST with data', function(assert) {
+    test('ajaxOptions() Content-Type is set with ajax POST with data if useFetch', function(assert) {
       let store = this.owner.lookup('service:store');
+      this.owner.register(
+        'adapter:application',
+        class extends RESTAdapter {
+          useFetch = true;
+        }
+      );
       let adapter = store.adapterFor('application');
 
       let url = 'example.com';

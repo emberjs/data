@@ -2561,7 +2561,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   if (hasJQuery) {
-    test('on error appends errorThrown for sanity', function(assert) {
+    test('on error appends errorThrown for sanity', async function(assert) {
       assert.expect(2);
 
       let jqXHR = {
@@ -2581,12 +2581,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.ok(false);
       };
 
-      return run(() => {
-        return store.findRecord('post', '1').catch(err => {
-          assert.equal(err, errorThrown);
-          assert.ok(err, 'promise rejected');
-        });
-      });
+      try {
+        await store.findRecord('post', '1');
+      } catch (err) {
+        assert.equal(err, errorThrown);
+        assert.ok(err, 'promise rejected');
+      }
     });
 
     test('on error wraps the error string in an DS.AdapterError object', function(assert) {

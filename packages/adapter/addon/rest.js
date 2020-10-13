@@ -313,13 +313,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   /**
-    @property useFetch
-    @type {Boolean}
-    @public
-  */
-  useFetch = true;
-
-  /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
     server.
 
@@ -1418,7 +1411,7 @@ if (DEPRECATE_NAJAX) {
 
   Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
     get() {
-      if (this[UseFetch]) {
+      if (typeof this[UseFetch] === 'boolean') {
         return this[UseFetch];
       }
 
@@ -1466,6 +1459,12 @@ if (DEPRECATE_NAJAX) {
     set(value) {
       addSymbol(this, UseFetch, value);
       return value;
+    },
+  });
+} else {
+  Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
+    value() {
+      return true;
     },
   });
 }
