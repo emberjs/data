@@ -1488,14 +1488,16 @@ abstract class CoreStore extends Service {
     const resource: ResourceIdentifierObject = constructResource(type, normalizedId);
 
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
-      if (RECORD_REFERENCES.has(identifier)) {
-        return RECORD_REFERENCES.get(identifier);
-      }
+      let identifier: StableRecordIdentifier | undefined = identifierCacheFor(this).peekRecordIdentifier(resource);
+      if (identifier) {
+        if (RECORD_REFERENCES.has(identifier)) {
+          return RECORD_REFERENCES.get(identifier);
+        }
 
-      let reference = new RecordReference(this, identifier);
-      RECORD_REFERENCES.set(identifier, reference);
-      return reference;
+        let reference = new RecordReference(this, identifier);
+        RECORD_REFERENCES.set(identifier, reference);
+        return reference;
+      }
     } else {
       return internalModelFactoryFor(this).lookup(resource).recordReference;
     }
