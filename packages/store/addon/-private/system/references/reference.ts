@@ -55,9 +55,9 @@ abstract class Reference {
   public recordData: InternalModel['_recordData'];
   constructor(public store: CoreStore, identifierOrInternalModel: InternalModel | StableRecordIdentifier) {
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      REFERENCE_CACHE.set(this, identifierOrInternalModel as StableRecordIdentifier);
+      REFERENCE_CACHE.set(this, identifierOrInternalModel);
     } else {
-      REFERENCE_CACHE.set(this, identifierOrInternalModel as InternalModel);
+      REFERENCE_CACHE.set(this, identifierOrInternalModel);
     }
   }
 
