@@ -9,7 +9,12 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   setupTest(hooks);
 
   hooks.beforeEach(function() {
-    this.owner.register('adapter:application', JSONAPIAdapter.extend({ useFetch: true }));
+    this.owner.register(
+      'adapter:application',
+      class extends JSONAPIAdapter {
+        useFetch = true;
+      }
+    );
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 

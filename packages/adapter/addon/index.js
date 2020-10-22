@@ -55,7 +55,7 @@ import EmberObject from '@ember/object';
   @class Adapter
   @extends EmberObject
 */
-export default EmberObject.extend({
+export default class Adapter extends EmberObject {
   /**
     If you would like your adapter to use a custom serializer you can
     set the `defaultSerializer` property to be the name of the custom
@@ -77,7 +77,7 @@ export default EmberObject.extend({
     @property defaultSerializer
     @type {String}
   */
-  defaultSerializer: '-default',
+  defaultSerializer = '-default';
 
   /**
     The `findRecord()` method is invoked when the store is asked for a record that
@@ -113,7 +113,6 @@ export default EmberObject.extend({
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  findRecord: null,
 
   /**
     The `findAll()` method is used to retrieve all records for a given type.
@@ -145,7 +144,6 @@ export default EmberObject.extend({
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  findAll: null,
 
   /**
     This method is called when you call `query` on the store.
@@ -178,7 +176,6 @@ export default EmberObject.extend({
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  query: null,
 
   /**
     The `queryRecord()` method is invoked when the store is asked for a single
@@ -217,7 +214,6 @@ export default EmberObject.extend({
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  queryRecord: null,
 
   /**
     If the globally unique IDs for your records should be generated on the client,
@@ -251,7 +247,6 @@ export default EmberObject.extend({
       newly created record.
     @return {(String|Number)} id
   */
-  generateIdForRecord: null,
 
   /**
     Proxies to the serializer's `serialize` method.
@@ -278,7 +273,7 @@ export default EmberObject.extend({
   */
   serialize(snapshot, options) {
     return snapshot.serialize(options);
-  },
+  }
 
   /**
     Implement this method in a subclass to handle the creation of
@@ -321,7 +316,6 @@ export default EmberObject.extend({
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord: null,
 
   /**
     Implement this method in a subclass to handle the updating of
@@ -373,7 +367,6 @@ export default EmberObject.extend({
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord: null,
 
   /**
     Implement this method in a subclass to handle the deletion of
@@ -417,7 +410,6 @@ export default EmberObject.extend({
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord: null,
 
   /**
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop
@@ -428,7 +420,7 @@ export default EmberObject.extend({
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests: true,
+  coalesceFindRequests = true;
 
   /**
     The store will call `findMany` instead of multiple `findRecord`
@@ -467,7 +459,6 @@ export default EmberObject.extend({
     @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany: null,
 
   /**
     Organize records into groups, each of which is to be passed to separate
@@ -486,7 +477,7 @@ export default EmberObject.extend({
   */
   groupRecordsForFindMany(store, snapshots) {
     return [snapshots];
-  },
+  }
 
   /**
     This method is used by the store to determine if the store should
@@ -536,7 +527,7 @@ export default EmberObject.extend({
   */
   shouldReloadRecord(store, snapshot) {
     return false;
-  },
+  }
 
   /**
     This method is used by the store to determine if the store should
@@ -591,7 +582,7 @@ export default EmberObject.extend({
   */
   shouldReloadAll(store, snapshotRecordArray) {
     return !snapshotRecordArray.length;
-  },
+  }
 
   /**
     This method is used by the store to determine if the store should
@@ -627,7 +618,7 @@ export default EmberObject.extend({
   */
   shouldBackgroundReloadRecord(store, snapshot) {
     return true;
-  },
+  }
 
   /**
     This method is used by the store to determine if the store should
@@ -663,7 +654,7 @@ export default EmberObject.extend({
   */
   shouldBackgroundReloadAll(store, snapshotRecordArray) {
     return true;
-  },
-});
+  }
+}
 
 export { BuildURLMixin } from './-private';
