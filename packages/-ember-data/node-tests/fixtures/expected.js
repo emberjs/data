@@ -328,6 +328,7 @@ module.exports = {
     '(public) @ember-data/store RecordArrayManager#liveRecordArrayFor',
     '(public) @ember-data/store RecordArrayManager#unregisterRecordArray',
     '(public) @ember-data/store RecordReference#id',
+    '(public) @ember-data/store RecordReference#identifier',
     '(public) @ember-data/store RecordReference#load',
     '(public) @ember-data/store RecordReference#push',
     '(public) @ember-data/store RecordReference#reload',
