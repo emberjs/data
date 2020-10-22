@@ -22,8 +22,7 @@ type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRec
 export default class RecordReference extends Reference {
   public get type(): string {
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let identifier = REFERENCE_CACHE.get(this) as StableRecordIdentifier;
-      return identifier.type;
+      return this.identifier().type;
     } else {
       return internalModelForReference(this)!.modelName;
     }
@@ -31,9 +30,9 @@ export default class RecordReference extends Reference {
 
   private get _id(): string | null {
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let identifier = REFERENCE_CACHE.get(this) as StableRecordIdentifier;
+      let identifier = this.identifier;
       if (identifier) {
-        return identifier.id;
+        return identifier().id;
       }
 
       return null;
@@ -61,6 +60,27 @@ export default class RecordReference extends Reference {
   */
   id() {
     return this._id;
+  }
+
+  /**
+     The `identifier` of the record that this reference refers to.
+
+     Together, the `type` and `id` properties form a composite key for
+     the identity map.
+
+     Example
+
+     ```javascript
+     let userRef = store.getReference('user', 1);
+
+     userRef.identifier(); // '1'
+     ```
+
+     @method identifier
+     @return {String} The identifier of the record.
+  */
+  identifier(): StableRecordIdentifier {
+    return REFERENCE_CACHE.get(this) as StableRecordIdentifier;
   }
 
   /**
