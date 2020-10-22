@@ -30,9 +30,9 @@ export default class RecordReference extends Reference {
 
   private get _id(): string | null {
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let identifier = this.identifier;
+      let identifier = this.identifier();
       if (identifier) {
-        return identifier().id;
+        return identifier.id;
       }
 
       return null;
