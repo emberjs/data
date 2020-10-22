@@ -425,11 +425,11 @@ export default ArrayProxy.extend(DeprecatedEvented, {
   /**
     Checks if there are error messages for the given attribute.
 
-    ```app/routes/user/edit.js
-    import Route from '@ember/routing/route';
+    ```app/controllers/user/edit.js
+    import Controller from '@ember/controller';
     import { action } from '@ember/object';
 
-    export default class UserEditRoute extends Route {
+    export default class UserEditController extends Controller {
       @action
       save(user) {
         if (user.get('errors').has('email')) {

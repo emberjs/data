@@ -718,7 +718,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
       @action
       confirm() {
-        this.model').save();
+        this.model.save();
       }
 
       @action
@@ -1592,8 +1592,8 @@ Model.reopenClass({
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
-    @hasMany('message') comments;
-   }
+      @hasMany('message') comments;
+    }
    ```
 
    ```app/models/message.js
@@ -1601,8 +1601,8 @@ Model.reopenClass({
    import { belongsTo } from '@ember-decorators/data';
 
    export default class MessageModel extends Model {
-    @belongsTo('post') owner;
-   }
+      @belongsTo('post') owner;
+    }
    ```
 
    ``` js
@@ -2137,13 +2137,13 @@ Model.reopenClass({
    ```javascript
    import Model, { attr } from '@ember-data/model';
 
-   let Person = Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      birthday: attr('date')
-    });
+   const person = class PersonModel extends Model {
+      @attr('string') firstName;
+      @attr('string') lastName;
+      @attr('date') birthday;
+    }
 
-   Person.eachAttribute(function(name, meta) {
+   person.eachAttribute(function(name, meta) {
       console.log(name, meta);
     });
 
