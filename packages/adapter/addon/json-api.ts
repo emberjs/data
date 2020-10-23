@@ -8,6 +8,10 @@ import { pluralize } from 'ember-inflector';
 import { serializeIntoHash } from './-private';
 import RESTAdapter from './rest';
 
+type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
+type Store = import('@ember-data/store/-private/system/core-store').default;
+type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
+
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It
   is responsible for transforming the store's requests into HTTP
@@ -156,7 +160,7 @@ class JSONAPIAdapter extends RESTAdapter {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url, type, options = {}) {
+  ajaxOptions(url: string, type: string, options = {}) {
     let hash = super.ajaxOptions(url, type, options);
 
     hash.headers['Accept'] = hash.headers['Accept'] || 'application/vnd.api+json';
@@ -221,7 +225,7 @@ class JSONAPIAdapter extends RESTAdapter {
   */
   coalesceFindRequests = false;
 
-  findMany(store, type, ids, snapshots) {
+  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
@@ -231,7 +235,7 @@ class JSONAPIAdapter extends RESTAdapter {
     return pluralize(dasherized);
   }
 
-  updateRecord(store, type, snapshot) {
+  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
     const data = serializeIntoHash(store, type, snapshot);
 
     let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');

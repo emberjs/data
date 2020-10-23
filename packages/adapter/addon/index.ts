@@ -1,5 +1,9 @@
 import EmberObject from '@ember/object';
 
+type Store = import('@ember-data/store/-private/system/core-store').default;
+type Snapshot = import('ember-data/-private').Snapshot;
+type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
+
 /**
   An adapter is an object that receives requests from a store and
   translates them into the appropriate action to take against your
@@ -475,7 +479,7 @@ export default class Adapter extends EmberObject {
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany(store, snapshots) {
+  groupRecordsForFindMany(store: Store, snapshots: Snapshot[]) {
     return [snapshots];
   }
 
@@ -525,7 +529,7 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Boolean}
   */
-  shouldReloadRecord(store, snapshot) {
+  shouldReloadRecord(store: Store, snapshot: Snapshot) {
     return false;
   }
 
@@ -580,7 +584,7 @@ export default class Adapter extends EmberObject {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldReloadAll(store, snapshotRecordArray) {
+  shouldReloadAll(store: Store, snapshotRecordArray) {
     return !snapshotRecordArray.length;
   }
 
@@ -616,7 +620,7 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Boolean}
   */
-  shouldBackgroundReloadRecord(store, snapshot) {
+  shouldBackgroundReloadRecord(store: Store, Snapshot) {
     return true;
   }
 
@@ -652,7 +656,7 @@ export default class Adapter extends EmberObject {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldBackgroundReloadAll(store, snapshotRecordArray) {
+  shouldBackgroundReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray) {
     return true;
   }
 }
