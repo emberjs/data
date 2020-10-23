@@ -2685,11 +2685,7 @@ abstract class CoreStore extends Service {
     @param {Object} data
   */
   _load(data: ExistingResourceObject) {
-    const resource: ResourceIdentifierObject = constructResource(
-      normalizeModelName(data.type),
-      ensureStringId(data.id),
-      coerceId(data.lid)
-    );
+    const resource = constructResource(normalizeModelName(data.type), ensureStringId(data.id), coerceId(data.lid));
 
     let internalModel = internalModelFactoryFor(this).lookup(resource, data);
 

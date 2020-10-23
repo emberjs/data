@@ -62,7 +62,11 @@ abstract class Reference {
   }
 
   get recordData() {
-    return internalModelForReference(this)?._recordData;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      return this.store.recordDataFor(REFERENCE_CACHE.get(this) as StableRecordIdentifier, false);
+    } else {
+      return internalModelForReference(this)?._recordData;
+    }
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
