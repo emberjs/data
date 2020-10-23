@@ -1485,7 +1485,7 @@ abstract class CoreStore extends Service {
     }
     const type = normalizeModelName(modelName);
     const normalizedId = ensureStringId(id);
-    const resource: ResourceIdentifierObject = constructResource(type, normalizedId);
+    const resource = constructResource(type, normalizedId);
 
     if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
       let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
