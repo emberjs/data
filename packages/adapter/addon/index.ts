@@ -1,5 +1,10 @@
+import { warn } from '@ember/debug';
 import EmberObject from '@ember/object';
 
+import { Promise } from 'rsvp';
+
+type IAdapter = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
+type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('ember-data/-private').Snapshot;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
@@ -59,7 +64,7 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
   @class Adapter
   @extends EmberObject
 */
-export default class Adapter extends EmberObject {
+export default class Adapter extends EmberObject implements IAdapter {
   /**
     If you would like your adapter to use a custom serializer you can
     set the `defaultSerializer` property to be the name of the custom
@@ -117,6 +122,13 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
+  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot) {
+    warn('You subclassed the Adapter class but missing a findRecord override', false, {
+      id: 'adapter.missing-find-record',
+    });
+
+    return Promise.resolve();
+  }
 
   /**
     The `findAll()` method is used to retrieve all records for a given type.
@@ -148,6 +160,13 @@ export default class Adapter extends EmberObject {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
+  findAll(store: Store, type: ShimModelClass, neverSet, snapshotRecordArray: SnapshotRecordArray) {
+    warn('You subclassed the Adapter class but missing a findAll override', false, {
+      id: 'adapter.missing-find-all',
+    });
+
+    return Promise.resolve();
+  }
 
   /**
     This method is called when you call `query` on the store.
@@ -180,6 +199,13 @@ export default class Adapter extends EmberObject {
     @param {Object} adapterOptions
     @return {Promise} promise
   */
+  query(store: Store, type: ShimModelClass, query) {
+    warn('You subclassed the Adapter class but missing a query override', false, {
+      id: 'adapter.missing-query',
+    });
+
+    return Promise.resolve();
+  }
 
   /**
     The `queryRecord()` method is invoked when the store is asked for a single
@@ -218,6 +244,13 @@ export default class Adapter extends EmberObject {
     @param {Object} adapterOptions
     @return {Promise} promise
   */
+  queryRecord(store: Store, type: ShimModelClass, query, adapterOptions) {
+    warn('You subclassed the Adapter class but missing a queryRecord override', false, {
+      id: 'adapter.missing-query-record',
+    });
+
+    return Promise.resolve();
+  }
 
   /**
     If the globally unique IDs for your records should be generated on the client,
@@ -320,6 +353,13 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
+  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
+    warn('You subclassed the Adapter class but missing a createRecord override', false, {
+      id: 'adapter.missing-create-record',
+    });
+
+    return Promise.resolve();
+  }
 
   /**
     Implement this method in a subclass to handle the updating of
@@ -371,6 +411,13 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
+  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
+    warn('You subclassed the Adapter class but missing a updateRecord override', false, {
+      id: 'adapter.missing-update-record',
+    });
+
+    return Promise.resolve();
+  }
 
   /**
     Implement this method in a subclass to handle the deletion of
@@ -414,6 +461,13 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
+  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
+    warn('You subclassed the Adapter class but missing a deleteRecord override', false, {
+      id: 'adapter.missing-delete-record',
+    });
+
+    return Promise.resolve();
+  }
 
   /**
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop

@@ -34,7 +34,6 @@ const UseFetch = symbol('useFetch');
 const hasJQuery = typeof jQuery !== 'undefined';
 
 declare var najax: Function;
-type IAdapter = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
 type Payload = Record<string, any> | string | undefined;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
@@ -301,7 +300,7 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
   @extends Adapter
   @uses BuildURLMixin
 */
-class RESTAdapter extends Adapter.extend(BuildURLMixin) implements IAdapter {
+class RESTAdapter extends Adapter {
   defaultSerializer = '-rest';
 
   _defaultContentType = 'application/json; charset=utf-8';
