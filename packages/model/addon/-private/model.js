@@ -2163,7 +2163,7 @@ Model.reopenClass({
       callback.call(binding, name, meta);
     });
   },
-  
+
   /**
    Iterates through the transformedAttributes of the model, calling
    the passed function on each attribute. Note the callback will not be
