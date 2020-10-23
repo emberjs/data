@@ -88,7 +88,7 @@ export default class BelongsToReference extends Reference {
   }
 
   _resource() {
-    return internalModelForReference(this)?._recordData.getBelongsTo(this.key);
+    return this.recordData.getBelongsTo(this.key);
   }
 
   /**

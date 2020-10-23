@@ -37,7 +37,7 @@ export default class HasManyReference extends Reference {
   }
 
   _resource() {
-    return internalModelForReference(this)?._recordData.getHasMany(this.key);
+    return this.recordData.getHasMany(this.key);
   }
 
   /**
