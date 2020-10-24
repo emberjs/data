@@ -9,10 +9,10 @@ jobs:
   asset-size-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -92,13 +92,13 @@ jobs:
           node ./bin/asset-size-tracking/generate-diff.js ./control-data-no-rollup.json ./experiment-data-no-rollup.json | tee tmp/asset-sizes/diff-no-rollup.txt
       - name: Upload Dist Artifacts
         if: failure() || success()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: dists
           path: packages/-ember-data/dists
       - name: Upload Report Artifacts
         if: failure() || success()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: reports
           path: tmp/asset-sizes
