@@ -2,12 +2,13 @@ import { deprecate } from '@ember/debug';
 
 import { resolve } from 'rsvp';
 
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import recordDataFor from '../record-data-for';
-import { peekRecordIdentifier } from '../store/internal-model-factory';
-import Reference, { INTERNAL_MODELS } from './reference';
+import { internalModelFactoryFor, peekRecordIdentifier } from '../store/internal-model-factory';
+import Reference, { internalModelForReference } from './reference';
 
 /**
   @module @ember-data/store
@@ -22,13 +23,18 @@ import Reference, { INTERNAL_MODELS } from './reference';
  @extends Reference
  */
 export default class BelongsToReference extends Reference {
-  constructor(store, parentInternalModel, belongsToRelationship, key) {
-    super(store, parentInternalModel);
+  constructor(store, parentIMOrIdentifier, belongsToRelationship, key) {
+    super(store, parentIMOrIdentifier);
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.relationshipMeta.type;
-    this.parent = parentInternalModel.recordReference;
-    this.parentInternalModel = parentInternalModel;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
+      this.parentIdentifier = parentIMOrIdentifier;
+    } else {
+      this.parent = parentIMOrIdentifier.recordReference;
+      this.parentInternalModel = parentIMOrIdentifier;
+    }
 
     // TODO inverse
   }
@@ -82,7 +88,7 @@ export default class BelongsToReference extends Reference {
   }
 
   _resource() {
-    return INTERNAL_MODELS.get(this)?._recordData.getBelongsTo(this.key);
+    return this.recordData.getBelongsTo(this.key);
   }
 
   /**
@@ -146,7 +152,7 @@ export default class BelongsToReference extends Reference {
       }
 
       assertPolymorphicType(
-        INTERNAL_MODELS.get(this),
+        internalModelForReference(this),
         this.belongsToRelationship.relationshipMeta,
         record._internalModel,
         this.store
@@ -209,10 +215,9 @@ export default class BelongsToReference extends Reference {
    @return {Model} the record in this relationship
    */
   value() {
-    let store = this.parentInternalModel.store;
     let resource = this._resource();
     if (resource && resource.data) {
-      let inverseInternalModel = store._internalModelForResource(resource.data);
+      let inverseInternalModel = this.store._internalModelForResource(resource.data);
       if (inverseInternalModel && inverseInternalModel.isLoaded()) {
         return inverseInternalModel.getRecord();
       }
@@ -283,7 +288,12 @@ export default class BelongsToReference extends Reference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
   load(options) {
-    return this.parentInternalModel.getBelongsTo(this.key, options);
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
+      return parentInternalModel.getBelongsTo(this.key, options);
+    } else {
+      return this.parentInternalModel.getBelongsTo(this.key, options);
+    }
   }
 
   /**
@@ -336,7 +346,13 @@ export default class BelongsToReference extends Reference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
   reload(options) {
-    return this.parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
+    let parentInternalModel;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
+    } else {
+      parentInternalModel = this.parentInternalModel;
+    }
+    return parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
       return this.value();
     });
   }

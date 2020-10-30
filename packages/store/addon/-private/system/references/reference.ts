@@ -1,7 +1,9 @@
 import { deprecate } from '@ember/debug';
 
-import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { FULL_LINKS_ON_RELATIONSHIPS, RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
+
+import { internalModelFactoryFor } from '../store/internal-model-factory';
 
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
@@ -11,6 +13,7 @@ type CoreStore = import('../core-store').default;
 type JSONObject = import('json-typescript').Object;
 type JSONValue = import('json-typescript').Value;
 type InternalModel = import('../model/internal-model').default;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store
@@ -29,7 +32,16 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-export const INTERNAL_MODELS = new WeakMap<Reference, InternalModel>();
+// TODO: simplify after 3.23 release and only store identifier
+export const REFERENCE_CACHE = new WeakMap<Reference, InternalModel | StableRecordIdentifier>();
+
+export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
+  if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+    return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
+  } else {
+    return REFERENCE_CACHE.get(reference) as InternalModel;
+  }
+}
 
 /**
   This is the baseClass for the different References
@@ -41,9 +53,20 @@ interface Reference {
   links(): PaginationLinks | null;
 }
 abstract class Reference {
-  public recordData: InternalModel['_recordData'];
-  constructor(public store: CoreStore, internalModel: InternalModel) {
-    INTERNAL_MODELS.set(this, internalModel);
+  constructor(public store: CoreStore, identifierOrInternalModel: InternalModel | StableRecordIdentifier) {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      REFERENCE_CACHE.set(this, identifierOrInternalModel);
+    } else {
+      REFERENCE_CACHE.set(this, identifierOrInternalModel);
+    }
+  }
+
+  get recordData() {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      return this.store.recordDataFor(REFERENCE_CACHE.get(this) as StableRecordIdentifier, false);
+    } else {
+      return internalModelForReference(this)?._recordData;
+    }
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
@@ -212,7 +235,7 @@ if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
         until: '3.21',
       });
 
-      return INTERNAL_MODELS.get(this);
+      return REFERENCE_CACHE.get(this);
     },
   });
 }

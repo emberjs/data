@@ -144,8 +144,8 @@ module('integration/references/belongs-to', function(hooks) {
     var personReference = store.getReference('person', 1);
     var familyReference = person.belongsTo('family');
 
-    assert.ok(personReference);
-    assert.equal(familyReference.parent, personReference);
+    assert.ok(personReference, 'person reference is present');
+    assert.deepEqual(familyReference.parent, personReference, 'parent reference on BelongsToReference');
   });
 
   test('BelongsToReference#meta() returns the most recent meta for the relationship', async function(assert) {

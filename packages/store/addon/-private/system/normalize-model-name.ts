@@ -16,6 +16,6 @@ import { dasherize } from '@ember/string';
   @param {String} modelName
   @return {String} normalizedModelName
 */
-export default function normalizeModelName(modelName) {
+export default function normalizeModelName(modelName: string): string {
   return dasherize(modelName);
 }

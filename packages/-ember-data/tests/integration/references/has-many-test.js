@@ -152,8 +152,8 @@ module('integration/references/has-many', function(hooks) {
     var familyReference = store.getReference('family', 1);
     var personsReference = family.hasMany('persons');
 
-    assert.ok(familyReference);
-    assert.equal(personsReference.parent, familyReference);
+    assert.ok(familyReference, 'person reference is present');
+    assert.deepEqual(personsReference.parent, familyReference, 'parent reference on HasManyReferencee');
   });
 
   test('HasManyReference#meta() returns the most recent meta for the relationship', function(assert) {

@@ -1,9 +1,12 @@
 import RSVP, { resolve } from 'rsvp';
 
-import Reference, { INTERNAL_MODELS } from './reference';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+
+import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
 
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store
@@ -17,12 +20,25 @@ type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstan
    @extends Reference
 */
 export default class RecordReference extends Reference {
-  public get type() {
-    return INTERNAL_MODELS.get(this)!.modelName;
+  public get type(): string {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      return this.identifier().type;
+    } else {
+      return internalModelForReference(this)!.modelName;
+    }
   }
 
-  private get _id() {
-    return INTERNAL_MODELS.get(this)!.id;
+  private get _id(): string | null {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      let identifier = this.identifier();
+      if (identifier) {
+        return identifier.id;
+      }
+
+      return null;
+    } else {
+      return internalModelForReference(this)!.id;
+    }
   }
 
   /**
@@ -44,6 +60,27 @@ export default class RecordReference extends Reference {
   */
   id() {
     return this._id;
+  }
+
+  /**
+     The `identifier` of the record that this reference refers to.
+
+     Together, the `type` and `id` properties form a composite key for
+     the identity map.
+
+     Example
+
+     ```javascript
+     let userRef = store.getReference('user', 1);
+
+     userRef.identifier(); // '1'
+     ```
+
+     @method identifier
+     @return {String} The identifier of the record.
+  */
+  identifier(): StableRecordIdentifier {
+    return REFERENCE_CACHE.get(this) as StableRecordIdentifier;
   }
 
   /**
@@ -128,7 +165,7 @@ export default class RecordReference extends Reference {
   */
   value(): RecordInstance | null {
     if (this._id !== null) {
-      let internalModel = INTERNAL_MODELS.get(this);
+      let internalModel = internalModelForReference(this);
       if (internalModel && internalModel.isLoaded()) {
         return internalModel.getRecord();
       }

@@ -2,10 +2,12 @@ import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import recordDataFor from '../record-data-for';
-import Reference, { INTERNAL_MODELS } from './reference';
+import { internalModelFactoryFor } from '../store/internal-model-factory';
+import Reference, { internalModelForReference } from './reference';
 
 /**
   @module @ember-data/store
@@ -19,19 +21,23 @@ import Reference, { INTERNAL_MODELS } from './reference';
  @extends Reference
  */
 export default class HasManyReference extends Reference {
-  constructor(store, parentInternalModel, hasManyRelationship, key) {
-    super(store, parentInternalModel);
+  constructor(store, parentIMOrIdentifier, hasManyRelationship, key) {
+    super(store, parentIMOrIdentifier);
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.relationshipMeta.type;
-    this.parent = parentInternalModel.recordReference;
-    this.parentInternalModel = parentInternalModel;
+
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
+    } else {
+      this.parent = parentIMOrIdentifier.recordReference;
+    }
 
     // TODO inverse
   }
 
   _resource() {
-    return INTERNAL_MODELS.get(this)?._recordData.getHasMany(this.key);
+    return this.recordData.getHasMany(this.key);
   }
 
   /**
@@ -181,7 +187,7 @@ export default class HasManyReference extends Reference {
         array = payload.data;
       }
 
-      let internalModel = INTERNAL_MODELS.get(this);
+      let internalModel = internalModelForReference(this);
 
       let internalModels = array.map(obj => {
         let record = this.store.push(obj);
@@ -211,8 +217,7 @@ export default class HasManyReference extends Reference {
 
     //TODO Igor cleanup
     return members.every(recordData => {
-      let store = this.parentInternalModel.store;
-      let internalModel = store._internalModelForResource(recordData.getResourceIdentifier());
+      let internalModel = this.store._internalModelForResource(recordData.getResourceIdentifier());
       return internalModel.isLoaded() === true;
     });
   }
@@ -258,7 +263,7 @@ export default class HasManyReference extends Reference {
    @return {ManyArray}
    */
   value() {
-    let internalModel = INTERNAL_MODELS.get(this);
+    let internalModel = internalModelForReference(this);
     if (this._isLoaded()) {
       return internalModel.getManyArray(this.key);
     }
@@ -330,7 +335,7 @@ export default class HasManyReference extends Reference {
    this has-many relationship.
    */
   load(options) {
-    let internalModel = INTERNAL_MODELS.get(this);
+    let internalModel = internalModelForReference(this);
     return internalModel.getHasMany(this.key, options);
   }
 
@@ -384,7 +389,7 @@ export default class HasManyReference extends Reference {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
   reload(options) {
-    let internalModel = INTERNAL_MODELS.get(this);
+    let internalModel = internalModelForReference(this);
     return internalModel.reloadHasMany(this.key, options);
   }
 }
