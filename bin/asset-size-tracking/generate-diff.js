@@ -11,14 +11,8 @@ const getBuiltDist = require('./src/get-built-dist');
 
 let BASE_DATA_FILE = process.argv[2] || false;
 let NEW_DATA_FILE = process.argv[3] || false;
-let IS_RELEASE = process.argv[4] || false;
 
-let library_failure_threshold;
-if (IS_RELEASE) {
-  library_failure_threshold = 1000;
-} else {
-  library_failure_threshold = 500;
-}
+let library_failure_threshold = 75;
 const package_warn_threshold = 0;
 
 if (!BASE_DATA_FILE) {

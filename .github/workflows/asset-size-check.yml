@@ -82,20 +82,10 @@ jobs:
           node ./bin/asset-size-tracking/generate-diff.js ./control-ie11-data.json ./experiment-ie11-data.json | tee tmp/asset-sizes/diff-ie11.txt
       - name: Test Asset Sizes
         if: |
-          failure() || success() &&
-          (github.event_name == 'pull_request' && github.base_ref != 'release') ||
-          (github.event_name == 'push' && !endsWith(github.ref, '/release'))
+          failure() || success()
         run: |
           set -o pipefail
           node ./bin/asset-size-tracking/generate-diff.js ./control-data.json ./experiment-data.json | tee tmp/asset-sizes/diff.txt
-      - name: Test Release Asset Sizes
-        if: |
-          failure() || success() &&
-          (github.event_name == 'pull_request' && github.base_ref == 'release') ||
-          (github.event_name == 'push' && endsWith(github.ref, '/release'))
-        run: |
-          set -o pipefail
-          node ./bin/asset-size-tracking/generate-diff.js ./control-data.json ./experiment-data.json true | tee tmp/asset-sizes/diff.txt
       - name: Test Asset Sizes
         if: failure() || success()
         run: |
