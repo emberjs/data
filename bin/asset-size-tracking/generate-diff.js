@@ -9,11 +9,11 @@ const Library = require('./src/library');
 const parseModules = require('./src/parse-modules');
 const getBuiltDist = require('./src/get-built-dist');
 
-const library_failure_threshold = 15;
-const package_warn_threshold = 0;
-
 let BASE_DATA_FILE = process.argv[2] || false;
 let NEW_DATA_FILE = process.argv[3] || false;
+
+let library_failure_threshold = 75;
+const package_warn_threshold = 0;
 
 if (!BASE_DATA_FILE) {
   BASE_DATA_FILE = './current-data.json';
