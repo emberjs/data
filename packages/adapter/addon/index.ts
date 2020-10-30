@@ -3,7 +3,7 @@ import EmberObject from '@ember/object';
 
 import { Promise } from 'rsvp';
 
-type IAdapter = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
+type MinimumAdapterInterface = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('ember-data/-private').Snapshot;
@@ -64,7 +64,7 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
   @class Adapter
   @extends EmberObject
 */
-export default class Adapter extends EmberObject implements IAdapter {
+export default class Adapter extends EmberObject implements MinimumAdapterInterface {
   /**
     If you would like your adapter to use a custom serializer you can
     set the `defaultSerializer` property to be the name of the custom

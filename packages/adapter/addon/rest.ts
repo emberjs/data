@@ -300,7 +300,7 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
   @extends Adapter
   @uses BuildURLMixin
 */
-class RESTAdapter extends Adapter {
+class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   defaultSerializer = '-rest';
 
   _defaultContentType = 'application/json; charset=utf-8';
