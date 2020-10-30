@@ -81,8 +81,7 @@ jobs:
           set -o pipefail
           node ./bin/asset-size-tracking/generate-diff.js ./control-ie11-data.json ./experiment-ie11-data.json | tee tmp/asset-sizes/diff-ie11.txt
       - name: Test Asset Sizes
-        if: |
-          failure() || success()
+        if: failure() || success()
         run: |
           set -o pipefail
           node ./bin/asset-size-tracking/generate-diff.js ./control-data.json ./experiment-data.json | tee tmp/asset-sizes/diff.txt
