@@ -199,7 +199,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  query(store: Store, type: ShimModelClass, query) {
+  query(store: Store, type: ShimModelClass, query): Promise<unknown> {
     warn('You subclassed the Adapter class but missing a query override', false, {
       id: 'adapter.missing-query',
     });

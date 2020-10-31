@@ -6,7 +6,7 @@
 
 import { getOwner } from '@ember/application';
 import { deprecate, warn } from '@ember/debug';
-import { computed, get } from '@ember/object';
+import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
@@ -39,6 +39,7 @@ type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
+type Fastboot = import('./-private/fastboot-interface').Fastboot;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -301,11 +302,14 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
   @uses BuildURLMixin
 */
 class RESTAdapter extends Adapter.extend(BuildURLMixin) {
+  _fastboot: FastBoot | undefined;
+  _najaxRequest: Function;
+  useFetch: Boolean;
+
   defaultSerializer = '-rest';
 
   _defaultContentType = 'application/json; charset=utf-8';
 
-  @computed
   get fastboot() {
     // Avoid computed property override deprecation in fastboot as suggested by:
     // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
@@ -490,6 +494,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @property headers
     @type {Object}
    */
+  headers: unknown;
 
   /**
     Called by the store in order to fetch the JSON for a given
@@ -991,7 +996,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Promise} promise
   */
-  ajax(url: string, type: string, options = {}) {
+  ajax(url: string, type: string, options = {}): Promise<unknown> {
     let adapter = this;
 
     let requestData: Record<string, any> = {
@@ -1040,11 +1045,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     jQuery.ajax(options);
   }
 
-  _fetchRequest(options) {
+  _fetchRequest(options): Promise<Response> {
     let fetchFunction = fetch();
 
     if (fetchFunction) {
-      return fetchFunction(options.url, options);
+      return fetchFunction(options.url, options) as Promise<Response>;
     } else {
       throw new Error(
         'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
@@ -1055,7 +1060,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   _ajax(options): void {
     if (this.useFetch) {
       this._fetchRequest(options);
-    } else if (DEPRECATE_NAJAX && get(this, 'fastboot.isFastBoot')) {
+    } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
       this._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
@@ -1080,9 +1085,9 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       options
     );
 
-    let headers = get(this, 'headers');
+    let headers = this.headers;
     if (headers !== undefined) {
-      options.headers = assign({}, headers, options.headers);
+      options.headers = assign({}, headers as object, options.headers);
     } else if (!options.headers) {
       options.headers = {};
     }
@@ -1111,11 +1116,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   _ajaxURL(url: string): string | void {
-    if (get(this, 'fastboot.isFastBoot')) {
+    let fastboot: Fastboot | undefined = this.fastboot;
+    if (fastboot && fastboot.isFastBoot) {
       let httpRegex = /^https?:\/\//;
       let protocolRelativeRegex = /^\/\//;
-      let protocol = get(this, 'fastboot.request.protocol');
-      let host = get(this, 'fastboot.request.host');
+      let protocol = get(fastboot, 'request.protocol' as keyof Fastboot);
+      let host = get(fastboot, 'fastboot.request.host' as keyof Fastboot);
 
       if (protocolRelativeRegex.test(url)) {
         return `${protocol}${url}`;
@@ -1418,7 +1424,7 @@ if (DEPRECATE_NAJAX) {
     @private
     @param {Object} options jQuery ajax options to be used for the najax request
   */
-  RESTAdapter.prototype._najaxRequest = function(options) {
+  RESTAdapter.prototype._najaxRequest = function(options): void {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {

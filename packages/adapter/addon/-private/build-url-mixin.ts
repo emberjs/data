@@ -4,6 +4,9 @@ import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
+type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
+type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
+
 /**
   @module @ember-data/adapter
 */
@@ -55,7 +58,13 @@ export default Mixin.create({
     @param {Object} query object of query parameters to send for query requests.
     @return {String} url
   */
-  buildURL(modelName, id, snapshot, requestType, query) {
+  buildURL(
+    modelName: string,
+    id: string | string[] | Record<string, any> | null,
+    snapshot: Snapshot | Snapshot[] | SnapshotRecordArray | null,
+    requestType: string = '',
+    query = {}
+  ) {
     switch (requestType) {
       case 'findRecord':
         return this.urlForFindRecord(id, modelName, snapshot);
@@ -89,9 +98,9 @@ export default Mixin.create({
     @param {String} id
     @return {String} url
   */
-  _buildURL(modelName, id) {
+  _buildURL(modelName: string, id: string): string {
     let path;
-    let url = [];
+    let url: string[] = [];
     let host = get(this, 'host');
     let prefix = this.urlPrefix();
 
@@ -109,12 +118,12 @@ export default Mixin.create({
       url.unshift(prefix);
     }
 
-    url = url.join('/');
-    if (!host && url && url.charAt(0) !== '/') {
-      url = '/' + url;
+    let urlString = url.join('/');
+    if (!host && urlString && urlString.charAt(0) !== '/') {
+      urlString = '/' + urlString;
     }
 
-    return url;
+    return urlString;
   },
 
   /**
@@ -140,7 +149,7 @@ export default Mixin.create({
    @return {String} url
 
    */
-  urlForFindRecord(id, modelName, snapshot) {
+  urlForFindRecord(id: string, modelName: string, snapshot: Snapshot): string {
     return this._buildURL(modelName, id);
   },
 
@@ -165,7 +174,7 @@ export default Mixin.create({
    @param {SnapshotRecordArray} snapshot
    @return {String} url
    */
-  urlForFindAll(modelName, snapshot) {
+  urlForFindAll(modelName: string, snapshot: Snapshot): string {
     return this._buildURL(modelName);
   },
 
@@ -195,7 +204,7 @@ export default Mixin.create({
    @param {String} modelName
    @return {String} url
    */
-  urlForQuery(query, modelName) {
+  urlForQuery(query: Record<string, any>, modelName: string): string {
     return this._buildURL(modelName);
   },
 
@@ -220,7 +229,7 @@ export default Mixin.create({
    @param {String} modelName
    @return {String} url
    */
-  urlForQueryRecord(query, modelName) {
+  urlForQueryRecord(query: Record<string, any>, modelName: string): string {
     return this._buildURL(modelName);
   },
 
@@ -248,7 +257,7 @@ export default Mixin.create({
    @param {Array} snapshots
    @return {String} url
    */
-  urlForFindMany(ids, modelName, snapshots) {
+  urlForFindMany(ids: string[], modelName: string, snapshots: Snapshot[]) {
     return this._buildURL(modelName);
   },
 
@@ -275,7 +284,7 @@ export default Mixin.create({
    @param {Snapshot} snapshot
    @return {String} url
    */
-  urlForFindHasMany(id, modelName, snapshot) {
+  urlForFindHasMany(id: string, modelName: string, snapshot: Snapshot): string {
     return this._buildURL(modelName, id);
   },
 
@@ -302,7 +311,7 @@ export default Mixin.create({
    @param {Snapshot} snapshot
    @return {String} url
    */
-  urlForFindBelongsTo(id, modelName, snapshot) {
+  urlForFindBelongsTo(id: string, modelName: string, snapshot: Snapshot): string {
     return this._buildURL(modelName, id);
   },
 
@@ -352,7 +361,7 @@ export default Mixin.create({
    @param {Snapshot} snapshot
    @return {String} url
    */
-  urlForUpdateRecord(id, modelName, snapshot) {
+  urlForUpdateRecord(id: string, modelName: string, snapshot: Snapshot): string {
     return this._buildURL(modelName, id);
   },
 
@@ -377,7 +386,7 @@ export default Mixin.create({
    @param {Snapshot} snapshot
    @return {String} url
    */
-  urlForDeleteRecord(id, modelName, snapshot) {
+  urlForDeleteRecord(id: string, modelName: string, snapshot: Snapshot): string {
     return this._buildURL(modelName, id);
   },
 
@@ -388,7 +397,7 @@ export default Mixin.create({
     @param {String} parentURL
     @return {String} urlPrefix
   */
-  urlPrefix(path, parentURL) {
+  urlPrefix(path: string, parentURL: string): string {
     let host = get(this, 'host');
     let namespace = get(this, 'namespace');
 
@@ -412,7 +421,7 @@ export default Mixin.create({
     }
 
     // No path provided
-    let url = [];
+    let url: string[] = [];
     if (host) {
       url.push(host);
     }
@@ -450,7 +459,7 @@ export default Mixin.create({
     @param {String} modelName
     @return {String} path
   **/
-  pathForType(modelName) {
+  pathForType(modelName: string): string {
     let camelized = camelize(modelName);
     return pluralize(camelized);
   },
