@@ -1487,10 +1487,7 @@ if (DEPRECATE_NAJAX) {
     },
   });
 } else {
-  Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
-    writable: true,
-    value: true,
-  });
+  RESTAdapter.prototype.useFetch = true;
 }
 
 export default RESTAdapter;
