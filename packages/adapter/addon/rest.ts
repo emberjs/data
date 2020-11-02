@@ -304,7 +304,6 @@ type Fastboot = import('./-private/fastboot-interface').Fastboot;
 class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   _fastboot: FastBoot | undefined;
   _najaxRequest: Function;
-  useFetch: Boolean;
 
   defaultSerializer = '-rest';
 
@@ -328,6 +327,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @type {Boolean}
     @public
   */
+  useFetch: Boolean = false;
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -1488,10 +1488,8 @@ if (DEPRECATE_NAJAX) {
   });
 } else {
   Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
-    value() {
-      return true;
-    },
-    configurable: true,
+    writable: true,
+    value: true,
   });
 }
 
