@@ -1340,7 +1340,7 @@ function ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData) {
 function fetchResponseData(response: Response): Record<string, any> {
   return {
     status: response.status,
-    textStatus: (<any>response).textStatus,
+    textStatus: response.statusText,
     headers: headersToObject(response.headers),
   };
 }
