@@ -1,5 +1,3 @@
-/* globals jQuery */
-
 /**
   @module @ember-data/adapter
 */
@@ -31,8 +29,10 @@ import { addSymbol, symbol } from '@ember-data/store/-private';
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
 const UseFetch = symbol('useFetch');
+
 const hasJQuery = typeof jQuery !== 'undefined';
 
+declare var jQuery: any;
 declare var najax: Function;
 type Payload = Record<string, any> | string | undefined;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
@@ -327,7 +327,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @type {Boolean}
     @public
   */
-  useFetch: Boolean = false;
+  useFetch: boolean;
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
