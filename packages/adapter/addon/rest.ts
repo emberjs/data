@@ -1075,7 +1075,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, method: string, options) {
+  ajaxOptions(url: string, method: string, options: Record<string, any>) {
     options = assign(
       {
         url,
@@ -1087,7 +1087,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     let headers = this.headers;
     if (headers !== undefined) {
-      options.headers = assign({}, headers as object, options.headers);
+      options.headers = assign({}, headers as Record<string, any>, options.headers);
     } else if (!options.headers) {
       options.headers = {};
     }
