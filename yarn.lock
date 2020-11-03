@@ -1597,18 +1597,10 @@
     silent-error "^1.1.1"
     util.promisify "^1.0.0"
 
-"@ember/ordered-set@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.npmjs.org/@ember/ordered-set/-/ordered-set-2.0.3.tgz#2ac1ca73b3bd116063cae814898832ef434a57f9"
-  integrity sha512-F4yfVk6WMc4AUHxeZsC3CaKyTvO0qSZJy7WWHCFTlVDQw6vubn+FvnGdhzpN1F00EiXMI4Tv1tJdSquHcCnYrA==
-  dependencies:
-    ember-cli-babel "^6.16.0"
-    ember-compatibility-helpers "^1.1.1"
-
-"@ember/ordered-set@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/@ember/ordered-set/-/ordered-set-3.0.0.tgz#99a7cb4ec7ed7ca9dafb671b993d630c53cbe824"
-  integrity sha512-BNknCgOA7bLMzlOIPoCmeiOvn+EWP6sUoG4JHYYxLka5wsKvD/Oma1ftPazlWYkav6M8jHy5sCcfCu9qVlFsEQ==
+"@ember/ordered-set@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.npmjs.org/@ember/ordered-set/-/ordered-set-4.0.0.tgz#c5ec021ab8d4734c6db92708a81edd499d45fd31"
+  integrity sha512-cUCcme4R5H37HyK8w0qzdG5+lpb3XVr2RQHLyWEP4JsKI66Ob4tizoJOs8rb/XdHCv+F5WeA321hfPMi3DrZbg==
   dependencies:
     ember-cli-babel "^7.22.1"
     ember-compatibility-helpers "^1.1.1"
@@ -7136,7 +7128,7 @@ ember-cli-babel-plugin-helpers@^1.1.1:
   resolved "https://registry.npmjs.org/ember-cli-babel-plugin-helpers/-/ember-cli-babel-plugin-helpers-1.1.1.tgz#5016b80cdef37036c4282eef2d863e1d73576879"
   integrity sha512-sKvOiPNHr5F/60NLd7SFzMpYPte/nnGkq/tMIfXejfKHIhaiIkYFqX8Z9UFTKWLLn+V7NOaby6niNPZUdvKCRw==
 
-ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.12.0, ember-cli-babel@^6.16.0, ember-cli-babel@^6.3.0, ember-cli-babel@^6.6.0, ember-cli-babel@^6.8.1:
+ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.12.0, ember-cli-babel@^6.3.0, ember-cli-babel@^6.6.0, ember-cli-babel@^6.8.1:
   version "6.18.0"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-6.18.0.tgz#3f6435fd275172edeff2b634ee7b29ce74318957"
   integrity sha512-7ceC8joNYxY2wES16iIBlbPSxwKDBhYwC8drU3ZEvuPDMwVv1KzxCNu1fvxyFEBWhwaRNTUxSCsEVoTd9nosGA==
