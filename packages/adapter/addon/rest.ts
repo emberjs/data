@@ -26,13 +26,19 @@ import AdapterError, {
 import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
 import { addSymbol, symbol } from '@ember-data/store/-private';
 
-import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
+import {
+  determineBodyPromise,
+  fetch,
+  jQuery,
+  parseResponseHeaders,
+  serializeIntoHash,
+  serializeQueryParams,
+} from './-private';
 
 const UseFetch = symbol('useFetch');
 
 const hasJQuery = typeof jQuery !== 'undefined';
 
-declare var jQuery: any;
 declare var najax: Function;
 type Payload = Record<string, any> | string | undefined;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
