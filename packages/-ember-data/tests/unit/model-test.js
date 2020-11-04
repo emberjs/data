@@ -140,15 +140,45 @@ module('unit/model - Model', function(hooks) {
         'the deleted person is not removed from store (no unload called)'
       );
 
-      assert.expectAssertion(() => {
-        set(record, 'isArchived', true);
-      }, /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/);
+      assert.expectAssertion(
+        () => {
+          set(record, 'isArchived', true);
+        },
+        /Attempted to set 'isArchived' on the deleted record <person:1>/,
+        "Assertion does not leak the 'value'"
+      );
 
       currentState = record._internalModel.currentState;
 
       assert.ok(currentState.stateName === 'root.deleted.saved', 'record is still in a persisted deleted state');
       assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
       assert.ok(get(record, 'isArchived') === false, 'The record reflects canonical state');
+    });
+
+    testInDebug('Assertion for dirtying in root.deleted.saved', async function(assert) {
+      adapter.deleteRecord = () => {
+        return resolve({ data: null });
+      };
+
+      let record = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            isDrugAddict: false,
+          },
+        },
+      });
+
+      await record.destroyRecord();
+
+      assert.expectAssertion(
+        () => {
+          set(record, 'isDrugAddict', true);
+        },
+        /Attempted to set 'isDrugAddict' to 'true' on the deleted record <person:1>/,
+        'Assertion includes more context when in DEBUG'
+      );
     });
 
     test('currentState is accessible when the record is created', async function(assert) {
