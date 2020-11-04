@@ -14,6 +14,7 @@ import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
+import { recordIdentifierFor } from '@ember-data/store';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -2762,22 +2763,71 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-  testInDebug('warns when an empty response is returned, though a valid stringified JSON is expected', function(
+  testInDebug('warns when an empty 201 response is returned, though a valid stringified JSON is expected', function(
     assert
   ) {
+    assert.expect(1);
+
     server.post('/posts', function() {
       return [201, { 'Content-Type': 'application/json' }, ''];
     });
 
-    return run(() => {
-      return store.createRecord('post').save();
-    }).then(
+    let post = store.createRecord('post');
+    return post.save().then(
       () => {
         assert.equal(true, false, 'should not have fulfilled');
       },
       reason => {
-        assert.ok(/JSON/.test(reason.message));
+        if (!hasJQuery) {
+          assert.ok(/saved to the server/.test(reason.message));
+          // Workaround for #7371 to get the record a correct state before teardown
+          let identifier = recordIdentifierFor(post);
+          let im = store._internalModelForResource(identifier);
+          store.didSaveRecord(im, { data: { id: '1', type: 'post' } }, 'createRecord');
+        } else {
+          assert.ok(/JSON/.test(reason.message));
+        }
       }
     );
   });
+
+  if (!hasJQuery) {
+    testInDebug(
+      'warns when an empty 200 response is returned, though a valid stringified JSON is expected',
+      async function(assert) {
+        assert.expect(2);
+
+        server.put('/posts/1', function() {
+          return [200, { 'Content-Type': 'application/json' }, ''];
+        });
+
+        let post = store.push({ data: { id: '1', type: 'post' } });
+        await assert.expectWarning(async () => {
+          return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
+        }, /JSON/);
+      }
+    );
+
+    test('can return an empty 200 response, though a valid stringified JSON is expected', async function(assert) {
+      assert.expect(1);
+
+      server.put('/posts/1', function() {
+        return [200, { 'Content-Type': 'application/json' }, ''];
+      });
+
+      let post = store.push({ data: { id: '1', type: 'post' } });
+      return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
+    });
+
+    test('can return a null 200 response, though a valid stringified JSON is expected', async function(assert) {
+      assert.expect(1);
+
+      server.put('/posts/1', function() {
+        return [200, { 'Content-Type': 'application/json' }, null];
+      });
+
+      let post = store.push({ data: { id: '1', type: 'post' } });
+      return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
+    });
+  }
 });
