@@ -26,14 +26,7 @@ import AdapterError, {
 import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
 import { addSymbol, symbol } from '@ember-data/store/-private';
 
-import {
-  determineBodyPromise,
-  fetch,
-  jQuery,
-  parseResponseHeaders,
-  serializeIntoHash,
-  serializeQueryParams,
-} from './-private';
+import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
 const UseFetch = symbol('useFetch');
 
