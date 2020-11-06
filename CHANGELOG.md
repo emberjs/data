@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## Release 3.22.1 (November 05, 2020)
+- [#7372](https://github.com/emberjs/data/pull/7372) [Feature]: Do not error on empty payloads when using fetch 
+
 ## Release 3.22.0 (October 09, 2020)
 - [#7126](https://github.com/emberjs/data/pull/7126) Bugfix for wrong hasMany relationship state in scenario of sideposting with lid
 - [#7230](https://github.com/emberjs/data/pull/7230) [CHORE] najax deprecation when ember-fetch is also installed
