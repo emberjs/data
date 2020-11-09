@@ -1,5 +1,3 @@
-/* globals jQuery */
-
 /**
   @module @ember-data/adapter
 */
@@ -1043,7 +1041,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
   _ajaxRequest(options): void {
-    jQuery.ajax(options);
+    let jQuery: Window['jQuery'] = window.jQuery;
+    jQuery!.ajax(options);
   }
 
   _fetchRequest(options): Promise<Response> {
