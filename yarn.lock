@@ -121,7 +121,7 @@
     browserslist "^4.12.0"
     semver "^5.5.0"
 
-"@babel/helper-create-class-features-plugin@^7.10.4", "@babel/helper-create-class-features-plugin@^7.10.5", "@babel/helper-create-class-features-plugin@^7.5.5", "@babel/helper-create-class-features-plugin@^7.8.3":
+"@babel/helper-create-class-features-plugin@^7.10.4", "@babel/helper-create-class-features-plugin@^7.10.5", "@babel/helper-create-class-features-plugin@^7.5.5":
   version "7.10.5"
   resolved "https://registry.npmjs.org/@babel/helper-create-class-features-plugin/-/helper-create-class-features-plugin-7.10.5.tgz#9f61446ba80e8240b0a5c85c6fdac8459d6f259d"
   integrity sha512-0nkdeijB7VlZoLT3r/mY3bUkw3T8WG/hNw+FATs/6+pG2039IJWjTYL0VTISqsNHMUTEnwbVnc89WIJX9Qed0A==
@@ -133,7 +133,7 @@
     "@babel/helper-replace-supers" "^7.10.4"
     "@babel/helper-split-export-declaration" "^7.10.4"
 
-"@babel/helper-create-class-features-plugin@^7.12.1":
+"@babel/helper-create-class-features-plugin@^7.12.1", "@babel/helper-create-class-features-plugin@^7.8.3":
   version "7.12.1"
   resolved "https://registry.npmjs.org/@babel/helper-create-class-features-plugin/-/helper-create-class-features-plugin-7.12.1.tgz#3c45998f431edd4a9214c5f1d3ad1448a6137f6e"
   integrity sha512-hkL++rWeta/OVOBTRJc9a5Azh5mt5WgZUGAKMD8JM141YsE08K//bp1unBBieO6rUKkIPyUE0USQ30jAy3Sk1w==
@@ -515,7 +515,7 @@
     "@babel/helper-plugin-utils" "^7.10.4"
     "@babel/plugin-syntax-logical-assignment-operators" "^7.10.4"
 
-"@babel/plugin-proposal-nullish-coalescing-operator@^7.10.4", "@babel/plugin-proposal-nullish-coalescing-operator@^7.4.4":
+"@babel/plugin-proposal-nullish-coalescing-operator@^7.10.4":
   version "7.10.4"
   resolved "https://registry.npmjs.org/@babel/plugin-proposal-nullish-coalescing-operator/-/plugin-proposal-nullish-coalescing-operator-7.10.4.tgz#02a7e961fc32e6d5b2db0649e01bf80ddee7e04a"
   integrity sha512-wq5n1M3ZUlHl9sqT2ok1T2/MTt6AXE0e1Lz4WzWBr95LsAZ5qDXe4KnFuauYyEyLiohvXFMdbsOTMyLZs91Zlw==
@@ -523,7 +523,7 @@
     "@babel/helper-plugin-utils" "^7.10.4"
     "@babel/plugin-syntax-nullish-coalescing-operator" "^7.8.0"
 
-"@babel/plugin-proposal-nullish-coalescing-operator@^7.12.1":
+"@babel/plugin-proposal-nullish-coalescing-operator@^7.12.1", "@babel/plugin-proposal-nullish-coalescing-operator@^7.4.4":
   version "7.12.1"
   resolved "https://registry.npmjs.org/@babel/plugin-proposal-nullish-coalescing-operator/-/plugin-proposal-nullish-coalescing-operator-7.12.1.tgz#3ed4fff31c015e7f3f1467f190dbe545cd7b046c"
   integrity sha512-nZY0ESiaQDI1y96+jk6VxMOaL4LPo/QDHBqL+SF3/vl6dHkTwHlOI8L4ZwuRBHgakRBw5zsVylel7QPbbGuYgg==
@@ -581,7 +581,7 @@
     "@babel/helper-plugin-utils" "^7.10.4"
     "@babel/plugin-syntax-optional-catch-binding" "^7.8.0"
 
-"@babel/plugin-proposal-optional-chaining@^7.11.0", "@babel/plugin-proposal-optional-chaining@^7.6.0":
+"@babel/plugin-proposal-optional-chaining@^7.11.0":
   version "7.11.0"
   resolved "https://registry.npmjs.org/@babel/plugin-proposal-optional-chaining/-/plugin-proposal-optional-chaining-7.11.0.tgz#de5866d0646f6afdaab8a566382fe3a221755076"
   integrity sha512-v9fZIu3Y8562RRwhm1BbMRxtqZNFmFA2EG+pT2diuU8PT3H6T/KXoZ54KgYisfOFZHV6PfvAiBIZ9Rcz+/JCxA==
@@ -594,6 +594,15 @@
   version "7.12.1"
   resolved "https://registry.npmjs.org/@babel/plugin-proposal-optional-chaining/-/plugin-proposal-optional-chaining-7.12.1.tgz#cce122203fc8a32794296fc377c6dedaf4363797"
   integrity sha512-c2uRpY6WzaVDzynVY9liyykS+kVU+WRZPMPYpkelXH8KBt1oXoI89kPbZKKG/jDT5UK92FTW2fZkZaJhdiBabw==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.10.4"
+    "@babel/helper-skip-transparent-expression-wrappers" "^7.12.1"
+    "@babel/plugin-syntax-optional-chaining" "^7.8.0"
+
+"@babel/plugin-proposal-optional-chaining@^7.6.0":
+  version "7.12.7"
+  resolved "https://registry.npmjs.org/@babel/plugin-proposal-optional-chaining/-/plugin-proposal-optional-chaining-7.12.7.tgz#e02f0ea1b5dc59d401ec16fb824679f683d3303c"
+  integrity sha512-4ovylXZ0PWmwoOvhU2vhnzVNnm88/Sm9nx7V8BPgMvAzn5zDou3/Awy0EjglyubVHasJj+XCEkr/r1X3P5elCA==
   dependencies:
     "@babel/helper-plugin-utils" "^7.10.4"
     "@babel/helper-skip-transparent-expression-wrappers" "^7.12.1"
@@ -736,14 +745,14 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.10.4"
 
-"@babel/plugin-syntax-typescript@^7.10.4", "@babel/plugin-syntax-typescript@^7.2.0", "@babel/plugin-syntax-typescript@^7.8.3":
+"@babel/plugin-syntax-typescript@^7.10.4", "@babel/plugin-syntax-typescript@^7.2.0":
   version "7.10.4"
   resolved "https://registry.npmjs.org/@babel/plugin-syntax-typescript/-/plugin-syntax-typescript-7.10.4.tgz#2f55e770d3501e83af217d782cb7517d7bb34d25"
   integrity sha512-oSAEz1YkBCAKr5Yiq8/BNtvSAPwkp/IyUnwZogd8p+F0RuYQQrLeRUzIQhueQTTBy/F+a40uS7OFKxnkRvmvFQ==
   dependencies:
     "@babel/helper-plugin-utils" "^7.10.4"
 
-"@babel/plugin-syntax-typescript@^7.12.1":
+"@babel/plugin-syntax-typescript@^7.12.1", "@babel/plugin-syntax-typescript@^7.8.3":
   version "7.12.1"
   resolved "https://registry.npmjs.org/@babel/plugin-syntax-typescript/-/plugin-syntax-typescript-7.12.1.tgz#460ba9d77077653803c3dd2e673f76d66b4029e5"
   integrity sha512-UZNEcCY+4Dp9yYRCAHrHDU+9ZXLYaY9MgBXSRLkB9WjYFRR6quJBumfVrEkUxrePPBwFcpWfNKXqVRQQtm7mMA==
@@ -2841,10 +2850,35 @@
     "@types/jquery" "*"
     "@types/rsvp" "*"
 
-"@types/ember@*", "@types/ember@^3.1.1":
+"@types/ember@*":
   version "3.16.0"
   resolved "https://registry.npmjs.org/@types/ember/-/ember-3.16.0.tgz#1627b42087556ee366258e37b31ae81571e6e0ca"
   integrity sha512-9TBWidO/9ydThgh0Fy7y2DNX7Pb8REoV7tYK+HBFZ2iyc1TwXTNt15gVz0cCyorvsve2OS+vt5wzYvlqgSGlwg==
+  dependencies:
+    "@types/ember__application" "*"
+    "@types/ember__array" "*"
+    "@types/ember__component" "*"
+    "@types/ember__controller" "*"
+    "@types/ember__debug" "*"
+    "@types/ember__engine" "*"
+    "@types/ember__error" "*"
+    "@types/ember__object" "*"
+    "@types/ember__polyfills" "*"
+    "@types/ember__routing" "*"
+    "@types/ember__runloop" "*"
+    "@types/ember__service" "*"
+    "@types/ember__string" "*"
+    "@types/ember__template" "*"
+    "@types/ember__test" "*"
+    "@types/ember__utils" "*"
+    "@types/htmlbars-inline-precompile" "*"
+    "@types/jquery" "*"
+    "@types/rsvp" "*"
+
+"@types/ember@^3.16.2":
+  version "3.16.2"
+  resolved "https://registry.npmjs.org/@types/ember/-/ember-3.16.2.tgz#95d58f42de8d8eb043496fca2aaef3cf62832a13"
+  integrity sha512-00Rh+wDTua6H57wegaU7OWRf6tUNkDOCuxLqdqRDUQTag9W64G1Qgeo6jpT7PiZfoB0T559lziFVgHoKnyBQfQ==
   dependencies:
     "@types/ember__application" "*"
     "@types/ember__array" "*"
@@ -5363,6 +5397,22 @@ broccoli-string-replace@^0.1.2:
     broccoli-persistent-filter "^1.1.5"
     minimatch "^3.0.3"
 
+broccoli-terser-sourcemap@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/broccoli-terser-sourcemap/-/broccoli-terser-sourcemap-4.1.0.tgz#5f37441b64a3b6bfb0c67e9af232259c9576f115"
+  integrity sha512-zkNnjsAbP+M5rG2aMM1EE4BmXPUSxFKmtLUkUs2D1DLTOJQoF1xlOjGWjjKYCFy5tw8t4+tgGJ+HVa2ucJZ8sw==
+  dependencies:
+    async-promise-queue "^1.0.5"
+    broccoli-plugin "^4.0.3"
+    debug "^4.1.0"
+    lodash.defaultsdeep "^4.6.1"
+    matcher-collection "^2.0.1"
+    source-map-url "^0.4.0"
+    symlink-or-copy "^1.3.1"
+    terser "^5.3.0"
+    walk-sync "^2.2.0"
+    workerpool "^6.0.0"
+
 broccoli-test-helper@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/broccoli-test-helper/-/broccoli-test-helper-2.0.0.tgz#1cfbb76f7e856ad8df96d55ee2f5e0dddddf5d4f"
@@ -5375,7 +5425,7 @@ broccoli-test-helper@^2.0.0:
     tmp "^0.0.33"
     walk-sync "^0.3.3"
 
-broccoli-uglify-sourcemap@^3.1.0, broccoli-uglify-sourcemap@^3.2.0:
+broccoli-uglify-sourcemap@^3.2.0:
   version "3.2.0"
   resolved "https://registry.npmjs.org/broccoli-uglify-sourcemap/-/broccoli-uglify-sourcemap-3.2.0.tgz#d96f1d41f6c18e9a5d49af1a5ab9489cdcac1c6c"
   integrity sha512-kkkn8v7kXdWwnZNekq+3ILuTAGkZoaoEMUYCKoER5/uokuoyTjtdYLHaE7UxHkuPEuLfjvJYv21sCCePZ74/2g==
@@ -7444,6 +7494,13 @@ ember-cli-template-lint@^2.0.2:
     strip-ansi "^6.0.0"
     walk-sync "^2.0.2"
 
+ember-cli-terser@~4.0.1:
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/ember-cli-terser/-/ember-cli-terser-4.0.1.tgz#0da0b8f2b09989e8c992b207553ddec1bbb65915"
+  integrity sha512-vvp0uVl8reYeW9EZjSXRPR3Bq7y4u9CYlUdI7j/WzMPDj3/gUHU4Z7CHYOCrftrClQvFfqO2eXmHwDA6F7SLug==
+  dependencies:
+    broccoli-terser-sourcemap "^4.1.0"
+
 ember-cli-test-info@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/ember-cli-test-info/-/ember-cli-test-info-1.0.0.tgz#ed4e960f249e97523cf891e4aed2072ce84577b4"
@@ -7541,13 +7598,21 @@ ember-cli-typescript@^3.1.3:
     stagehand "^1.0.0"
     walk-sync "^2.0.0"
 
-ember-cli-uglify@3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/ember-cli-uglify/-/ember-cli-uglify-3.0.0.tgz#8819665b2cc5fe70e3ba9fe7a94645209bc42fd6"
-  integrity sha512-n3QxdBfAgBdb2Cnso82Kt/nxm3ppIjnYWM8uhOEhF1aYxNXfM7AJrc+yiqTCDUR61Db8aCpHfAMvChz3kyme7g==
+ember-cli-typescript@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.npmjs.org/ember-cli-typescript/-/ember-cli-typescript-4.0.0.tgz#690f0cd3d15f4a69ae6d89f25b70b5997ae59161"
+  integrity sha512-ZwnBbBJ0yAIKq4FVgNFkxfMwqJhw6PyT45Enp2RvWIgzgaYCId8brrSgg3tvVWWjA7N5hiT4Ilyz5jrQwrnU1Q==
   dependencies:
-    broccoli-uglify-sourcemap "^3.1.0"
-    lodash.defaultsdeep "^4.6.0"
+    ansi-to-html "^0.6.6"
+    broccoli-stew "^3.0.0"
+    debug "^4.0.0"
+    execa "^4.0.0"
+    fs-extra "^9.0.1"
+    resolve "^1.5.0"
+    rsvp "^4.8.1"
+    semver "^7.3.2"
+    stagehand "^1.0.0"
+    walk-sync "^2.2.0"
 
 ember-cli-valid-component-name@^1.0.0:
   version "1.0.0"
@@ -8447,6 +8512,21 @@ execa@^3.0.0:
     npm-run-path "^4.0.0"
     onetime "^5.1.0"
     p-finally "^2.0.0"
+    signal-exit "^3.0.2"
+    strip-final-newline "^2.0.0"
+
+execa@^4.0.0:
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/execa/-/execa-4.1.0.tgz#4e5491ad1572f2f17a77d388c6c857135b22847a"
+  integrity sha512-j5W0//W7f8UxAn8hXVnwG8tLwdiUy4FJLcSupCg6maBYZDpyBvTApK7KyuI4bKj8KOh1r2YH+6ucuYtJv1bTZA==
+  dependencies:
+    cross-spawn "^7.0.0"
+    get-stream "^5.0.0"
+    human-signals "^1.1.1"
+    is-stream "^2.0.0"
+    merge-stream "^2.0.0"
+    npm-run-path "^4.0.0"
+    onetime "^5.1.0"
     signal-exit "^3.0.2"
     strip-final-newline "^2.0.0"
 
@@ -11471,7 +11551,7 @@ matcher-collection@^1.0.0, matcher-collection@^1.0.4, matcher-collection@^1.1.1:
   dependencies:
     minimatch "^3.0.2"
 
-matcher-collection@^2.0.0:
+matcher-collection@^2.0.0, matcher-collection@^2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/matcher-collection/-/matcher-collection-2.0.1.tgz#90be1a4cf58d6f2949864f65bb3b0f3e41303b29"
   integrity sha512-daE62nS2ZQsDg9raM0IlZzLmI2u+7ZapXBwdoeBUKAYERPDDIc0qNqA8E0Rp2D+gspKR7BgIFP52GeujaGXWeQ==
@@ -14372,7 +14452,7 @@ source-map-support@^0.4.15:
   dependencies:
     source-map "^0.5.6"
 
-source-map-support@^0.5.0, source-map-support@~0.5.12:
+source-map-support@^0.5.0, source-map-support@~0.5.12, source-map-support@~0.5.19:
   version "0.5.19"
   resolved "https://registry.npmjs.org/source-map-support/-/source-map-support-0.5.19.tgz#a98b62f86dcaf4f67399648c085291ab9e8fed61"
   integrity sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==
@@ -14413,6 +14493,11 @@ source-map@~0.1.x:
   integrity sha1-wkvBRspRfBRx9drL4lcbK3+eM0Y=
   dependencies:
     amdefine ">=0.0.4"
+
+source-map@~0.7.2:
+  version "0.7.3"
+  resolved "https://registry.npmjs.org/source-map/-/source-map-0.7.3.tgz#5302f8169031735226544092e64981f751750383"
+  integrity sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
 
 sourcemap-validator@^1.1.0:
   version "1.1.1"
@@ -14923,6 +15008,15 @@ terser@^4.1.2, terser@^4.3.9:
     commander "^2.20.0"
     source-map "~0.6.1"
     source-map-support "~0.5.12"
+
+terser@^5.3.0:
+  version "5.5.1"
+  resolved "https://registry.npmjs.org/terser/-/terser-5.5.1.tgz#540caa25139d6f496fdea056e414284886fb2289"
+  integrity sha512-6VGWZNVP2KTUcltUQJ25TtNjx/XgdDsBDKGt8nN0MpydU36LmbPPcMBd2kmtZNNGVVDLg44k7GKeHHj+4zPIBQ==
+  dependencies:
+    commander "^2.20.0"
+    source-map "~0.7.2"
+    source-map-support "~0.5.19"
 
 testdouble@^3.2.6:
   version "3.16.1"
