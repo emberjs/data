@@ -14,7 +14,7 @@ interface Shoebox {
   retrieve(key: string): undefined | JSON;
 }
 
-export interface Fastboot {
+export interface FastBoot {
   isFastBoot: boolean;
   request: Request;
   shoebox: Shoebox;
