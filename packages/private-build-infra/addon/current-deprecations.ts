@@ -15,7 +15,7 @@
  * An app can use a different version than what it specifies as it's compatibility
  * version. For instance, an App could be using `3.16` while specifying compatibility
  * with `3.12`. This would remove any deprecations that were present in or before `3.12`
- * but keep support for anything deprecated in or abvoe `3.13`.
+ * but keep support for anything deprecated in or above `3.13`.
  *
  * ### Configuring Compatibility
  *
