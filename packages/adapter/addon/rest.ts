@@ -1110,12 +1110,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   _ajaxURL(url) {
-    let fastboot: FastBoot = this.fastboot;
-    if (fastboot.isFastBoot) {
+    if (this.fastboot?.isFastBoot) {
       let httpRegex = /^https?:\/\//;
       let protocolRelativeRegex = /^\/\//;
-      let protocol = fastboot.request.protocol;
-      let host = fastboot.request.host;
+      let protocol = this.fastboot.request.protocol;
+      let host = this.fastboot.request.host;
 
       if (protocolRelativeRegex.test(url)) {
         return `${protocol}${url}`;
