@@ -318,11 +318,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   /**
+    We do not define the type so that Typescipt does not assign in body of constructor to undefined
     @property useFetch
     @type {Boolean}
     @public
   */
-  useFetch: boolean;
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -1000,7 +1000,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
-    if (this.useFetch) {
+    if ((this as any).useFetch) {
       let _response;
       return this._fetchRequest(hash)
         .then(response => {
@@ -1053,7 +1053,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   _ajax(options) {
-    if (this.useFetch) {
+    if ((this as any).useFetch) {
       this._fetchRequest(options);
     } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
       this._najaxRequest(options);
@@ -1088,7 +1088,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     let contentType = options.contentType || this._defaultContentType;
 
-    if (this.useFetch) {
+    if ((this as any).useFetch) {
       if (options.data && options.type !== 'GET') {
         if (!options.headers['Content-Type'] && !options.headers['content-type']) {
           options.headers['content-type'] = contentType;
