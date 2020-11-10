@@ -298,7 +298,6 @@ type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 */
 class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   _fastboot: FastBoot | undefined;
-  _najaxRequest: Function;
 
   defaultSerializer = '-rest';
 
@@ -313,7 +312,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     return (this._fastboot = getOwner(this).lookup('service:fastboot'));
   }
 
-  set fastboot(value) {
+  set fastboot(value: FastBoot) {
     this._fastboot = value;
   }
 
@@ -1056,7 +1055,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     if ((this as any).useFetch) {
       this._fetchRequest(options);
     } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
-      this._najaxRequest(options);
+      (this as any)._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
     }
@@ -1411,7 +1410,7 @@ if (DEPRECATE_NAJAX) {
     @private
     @param {Object} options jQuery ajax options to be used for the najax request
   */
-  RESTAdapter.prototype._najaxRequest = function(options) {
+  (RESTAdapter.prototype as any)._najaxRequest = function(options) {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {
