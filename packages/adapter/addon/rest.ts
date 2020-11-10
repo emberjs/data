@@ -34,7 +34,11 @@ const hasJQuery = typeof jQuery !== 'undefined';
 
 declare var najax: Function;
 type FastBoot = import('./-private/fastboot-interface').FastBoot;
+type Payload = Record<string, any> | string | undefined;
+type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
+type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
+type Store = import('@ember-data/store/-private/system/core-store').default;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -507,7 +511,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  findRecord(store, type, id, snapshot) {
+  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot) {
     let url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
     let query = this.buildQuery(snapshot);
 
@@ -528,7 +532,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  findAll(store, type, sinceToken, snapshotRecordArray) {
+  findAll(store: Store, type: ShimModelClass, sinceToken, snapshotRecordArray: SnapshotRecordArray) {
     let query: Record<string, any> = this.buildQuery(snapshotRecordArray);
     let url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
 
@@ -556,7 +560,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} query
     @return {Promise} promise
   */
-  query(store, type, query) {
+  query(store: Store, type: ShimModelClass, query) {
     let url = this.buildURL(type.modelName, null, null, 'query', query);
 
     if (this.sortQueryParams) {
@@ -584,7 +588,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} query
     @return {Promise} promise
   */
-  queryRecord(store, type, query) {
+  queryRecord(store: Store, type: ShimModelClass, query) {
     let url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
 
     if (this.sortQueryParams) {
@@ -627,7 +631,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany(store, type, ids, snapshots) {
+  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
   }
@@ -668,7 +672,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findHasMany(store, snapshot, url, relationship) {
+  findHasMany(store: Store, snapshot: Snapshot, url: string, relationship) {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -713,7 +717,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findBelongsTo(store, snapshot, url, relationship) {
+  findBelongsTo(store: Store, snapshot: Snapshot, url: string, relationship) {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -737,7 +741,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord(store, type, snapshot) {
+  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
     let url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
     const data = serializeIntoHash(store, type, snapshot);
@@ -761,7 +765,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord(store, type, snapshot) {
+  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
     const data = serializeIntoHash(store, type, snapshot, {});
 
     let id = snapshot.id;
@@ -781,26 +785,26 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord(store, type, snapshot) {
+  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
     let id = snapshot.id;
 
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), 'DELETE');
   }
 
-  _stripIDFromURL(store, snapshot) {
+  _stripIDFromURL(store: Store, snapshot: Snapshot): string {
     let url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
 
-    let expandedURL = url.split('/');
+    let expandedURL: string[] = url.split('/');
     // Case when the url is of the format ...something/:id
     // We are decodeURIComponent-ing the lastSegment because if it represents
     // the id, it has been encodeURIComponent-ified within `buildURL`. If we
     // don't do this, then records with id having special characters are not
     // coalesced correctly (see GH #4190 for the reported bug)
-    let lastSegment = expandedURL[expandedURL.length - 1];
+    let lastSegment: string = expandedURL[expandedURL.length - 1];
     let id = snapshot.id;
     if (decodeURIComponent(lastSegment) === id) {
       expandedURL[expandedURL.length - 1] = '';
-    } else if (endsWith(lastSegment, '?id=' + id)) {
+    } else if (id && endsWith(lastSegment, '?id=' + id)) {
       //Case when the url is of the format ...something?id=:id
       expandedURL[expandedURL.length - 1] = lastSegment.substring(0, lastSegment.length - id.length - 1);
     }
@@ -833,7 +837,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany(store, snapshots) {
+  groupRecordsForFindMany(store: Store, snapshots: Snapshot[]): Snapshot[][] {
     let groups = new Map();
     let adapter = this;
     let maxURLLength = this.maxURLLength;
@@ -908,11 +912,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} requestData - the original request information
     @return {Object | AdapterError} response
   */
-  handleResponse(status, headers, payload, requestData) {
+  handleResponse(status: number, headers, payload: Payload, requestData: JQueryAjaxSettings) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
-      return new InvalidError(payload.errors);
+      return new InvalidError((payload as Record<string, any>).errors);
     }
 
     let errors = this.normalizeErrorResponse(status, headers, payload);
@@ -1035,7 +1039,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @private
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
-  _ajaxRequest(options) {
+  _ajaxRequest(options): void {
     jQuery.ajax(options);
   }
 
@@ -1051,7 +1055,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     }
   }
 
-  _ajax(options) {
+  _ajax(options): void {
     if ((this as any).useFetch) {
       this._fetchRequest(options);
     } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
@@ -1069,7 +1073,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url, method, options) {
+  ajaxOptions(url: string, method: string, options: Record<string, any>) {
     options = assign(
       {
         url,
@@ -1108,7 +1112,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     return options;
   }
 
-  _ajaxURL(url) {
+  _ajaxURL(url: string): string | void {
     if (this.fastboot?.isFastBoot) {
       let httpRegex = /^https?:\/\//;
       let protocolRelativeRegex = /^\/\//;
@@ -1184,11 +1188,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} requestData
     @return {String} detailed error message
   */
-  generatedDetailedMessage(status, headers, payload, requestData) {
+  generatedDetailedMessage(status: number, headers, payload: Payload, requestData: JQueryAjaxSettings): string {
     let shortenedPayload;
     let payloadContentType = headers['content-type'] || 'Empty Content-Type';
 
-    if (payloadContentType === 'text/html' && payload.length > 250) {
+    if (payloadContentType === 'text/html' && (payload as string).length > 250) {
       shortenedPayload = '[Omitted Lengthy HTML]';
     } else {
       shortenedPayload = payload;
@@ -1211,7 +1215,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Snapshot} snapshot
     @return {Object}
   */
-  buildQuery(snapshot) {
+  buildQuery(snapshot: Snapshot | SnapshotRecordArray): object {
     let query: Record<string, any> = {};
 
     if (snapshot) {
@@ -1226,7 +1230,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 }
 
-function ajaxSuccess(adapter, payload, requestData, responseData) {
+function ajaxSuccess(adapter, payload: Payload, requestData: JQueryAjaxSettings, responseData: Record<string, any>) {
   let response;
   try {
     response = adapter.handleResponse(responseData.status, responseData.headers, payload, requestData);
@@ -1241,7 +1245,7 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
   }
 }
 
-function ajaxError(adapter, payload, requestData, responseData) {
+function ajaxError(adapter, payload: Payload, requestData: JQueryAjaxSettings, responseData: Record<string, any>) {
   let error;
 
   if (responseData.errorThrown instanceof Error && payload !== '') {
@@ -1267,7 +1271,7 @@ function ajaxError(adapter, payload, requestData, responseData) {
 }
 
 // Adapter abort error to include any relevent info, e.g. request/response:
-function handleAbort(requestData, responseData) {
+function handleAbort(requestData, responseData): AbortError {
   let { method, url, errorThrown } = requestData;
   let { status } = responseData;
   let msg = `Request failed: ${method} ${url} ${errorThrown || ''}`;
@@ -1276,7 +1280,7 @@ function handleAbort(requestData, responseData) {
 }
 
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
-function endsWith(string, suffix) {
+function endsWith(string, suffix): boolean {
   if (typeof String.prototype.endsWith !== 'function') {
     return string.indexOf(suffix, string.length - suffix.length) !== -1;
   } else {
@@ -1284,12 +1288,18 @@ function endsWith(string, suffix) {
   }
 }
 
-function fetchSuccessHandler(adapter, payload, response, requestData) {
+function fetchSuccessHandler(adapter, payload: Payload, response: Response, requestData: Record<string, any>) {
   let responseData = fetchResponseData(response);
   return ajaxSuccess(adapter, payload, requestData, responseData);
 }
 
-function fetchErrorHandler(adapter, payload, response, errorThrown, requestData) {
+function fetchErrorHandler(
+  adapter,
+  payload: Payload,
+  response: Response,
+  errorThrown,
+  requestData: Record<string, any>
+) {
   let responseData = fetchResponseData(response);
 
   if (responseData.status === 200 && payload instanceof Error) {
@@ -1323,10 +1333,10 @@ function ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData) {
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
-function fetchResponseData(response): Record<string, any> {
+function fetchResponseData(response: Response): Record<string, any> {
   return {
     status: response.status,
-    textStatus: response.textStatus,
+    textStatus: response.statusText,
     headers: headersToObject(response.headers),
   };
 }
@@ -1410,7 +1420,7 @@ if (DEPRECATE_NAJAX) {
     @private
     @param {Object} options jQuery ajax options to be used for the najax request
   */
-  (RESTAdapter.prototype as any)._najaxRequest = function(options) {
+  (RESTAdapter.prototype as any)._najaxRequest = function(options): void {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {
