@@ -301,8 +301,6 @@ type Store = import('@ember-data/store/-private/system/core-store').default;
   @uses BuildURLMixin
 */
 class RESTAdapter extends Adapter.extend(BuildURLMixin) {
-  _fastboot: FastBoot | undefined;
-
   defaultSerializer = '-rest';
 
   _defaultContentType = 'application/json; charset=utf-8';
@@ -310,14 +308,15 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   get fastboot() {
     // Avoid computed property override deprecation in fastboot as suggested by:
     // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
-    if (this._fastboot) {
-      return this._fastboot;
+    let fastboot = (this as any)._fastboot;
+    if (fastboot) {
+      return fastboot;
     }
-    return (this._fastboot = getOwner(this).lookup('service:fastboot'));
+    return ((this as any)._fastboot = getOwner(this).lookup('service:fastboot'));
   }
 
   set fastboot(value: FastBoot) {
-    this._fastboot = value;
+    (this as any)._fastboot = value;
   }
 
   /**
