@@ -6,6 +6,7 @@
 
 import { getOwner } from '@ember/application';
 import { deprecate, warn } from '@ember/debug';
+import { computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
@@ -305,6 +306,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
   _defaultContentType = 'application/json; charset=utf-8';
 
+  @computed('_fastboot')
   get fastboot() {
     // Avoid computed property override deprecation in fastboot as suggested by:
     // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
