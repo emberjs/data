@@ -4,6 +4,7 @@ import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
 
@@ -60,11 +61,11 @@ export default Mixin.create({
   */
   buildURL(
     modelName: string,
-    id: string | string[] | Record<string, any> | null,
+    id: string | string[] | Dict<unknown> | null,
     snapshot: Snapshot | Snapshot[] | SnapshotRecordArray | null,
     requestType: string = '',
     query = {}
-  ) {
+  ): string {
     switch (requestType) {
       case 'findRecord':
         return this.urlForFindRecord(id, modelName, snapshot);
@@ -98,7 +99,7 @@ export default Mixin.create({
     @param {String} id
     @return {String} url
   */
-  _buildURL(modelName: string, id: string): string {
+  _buildURL(modelName: string | null | undefined, id: string | null | undefined): string {
     let path;
     let url: string[] = [];
     let host = get(this, 'host');
@@ -204,7 +205,7 @@ export default Mixin.create({
    @param {String} modelName
    @return {String} url
    */
-  urlForQuery(query: Record<string, any>, modelName: string): string {
+  urlForQuery(query: Dict<any>, modelName: string): string {
     return this._buildURL(modelName);
   },
 
@@ -229,7 +230,7 @@ export default Mixin.create({
    @param {String} modelName
    @return {String} url
    */
-  urlForQueryRecord(query: Record<string, any>, modelName: string): string {
+  urlForQueryRecord(query: Dict<any>, modelName: string): string {
     return this._buildURL(modelName);
   },
 
@@ -336,7 +337,7 @@ export default Mixin.create({
    @param {Snapshot} snapshot
    @return {String} url
    */
-  urlForCreateRecord(modelName, snapshot) {
+  urlForCreateRecord(modelName: string, snapshot: Snapshot) {
     return this._buildURL(modelName);
   },
 
@@ -397,7 +398,7 @@ export default Mixin.create({
     @param {String} parentURL
     @return {String} urlPrefix
   */
-  urlPrefix(path: string, parentURL: string): string {
+  urlPrefix(path: string | null | undefined, parentURL: string): string {
     let host = get(this, 'host');
     let namespace = get(this, 'namespace');
 

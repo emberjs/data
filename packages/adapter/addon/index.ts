@@ -1,5 +1,5 @@
-import { warn } from '@ember/debug';
 import EmberObject from '@ember/object';
+import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
@@ -123,9 +123,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
   */
   findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot) {
-    warn('You subclassed the Adapter class but missing a findRecord override', false, {
-      id: 'adapter.missing-find-record',
-    });
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a findRecord override');
+    }
 
     return Promise.resolve();
   }
@@ -161,9 +161,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
   */
   findAll(store: Store, type: ShimModelClass, neverSet, snapshotRecordArray: SnapshotRecordArray) {
-    warn('You subclassed the Adapter class but missing a findAll override', false, {
-      id: 'adapter.missing-find-all',
-    });
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a findAll override');
+    }
 
     return Promise.resolve();
   }
@@ -200,9 +200,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
   */
   query(store: Store, type: ShimModelClass, query): Promise<unknown> {
-    warn('You subclassed the Adapter class but missing a query override', false, {
-      id: 'adapter.missing-query',
-    });
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a query override');
+    }
 
     return Promise.resolve();
   }
@@ -245,9 +245,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
   */
   queryRecord(store: Store, type: ShimModelClass, query, adapterOptions) {
-    warn('You subclassed the Adapter class but missing a queryRecord override', false, {
-      id: 'adapter.missing-query-record',
-    });
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a queryRecord override');
+    }
 
     return Promise.resolve();
   }
@@ -354,9 +354,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
   */
   createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
-    warn('You subclassed the Adapter class but missing a createRecord override', false, {
-      id: 'adapter.missing-create-record',
-    });
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a createRecord override');
+    }
 
     return Promise.resolve();
   }
@@ -412,9 +412,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
   */
   updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
-    warn('You subclassed the Adapter class but missing a updateRecord override', false, {
-      id: 'adapter.missing-update-record',
-    });
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a updateRecord override');
+    }
 
     return Promise.resolve();
   }
@@ -462,9 +462,9 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Promise} promise
   */
   deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
-    warn('You subclassed the Adapter class but missing a deleteRecord override', false, {
-      id: 'adapter.missing-delete-record',
-    });
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a deleteRecord override');
+    }
 
     return Promise.resolve();
   }
@@ -638,7 +638,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldReloadAll(store: Store, snapshotRecordArray) {
+  shouldReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray) {
     return !snapshotRecordArray.length;
   }
 
