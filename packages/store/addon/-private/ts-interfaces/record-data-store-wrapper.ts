@@ -1,5 +1,7 @@
-import { RelationshipsSchema, AttributesSchema } from './record-data-schemas';
-import { BRAND_SYMBOL } from './utils/brand';
+import { BRAND_SYMBOL } from '../utils/brand';
+
+type RelationshipsSchema = import('./record-data-schemas').RelationshipsSchema;
+type AttributesSchema = import('./record-data-schemas').AttributesSchema;
 
 /**
   @module @ember-data/store

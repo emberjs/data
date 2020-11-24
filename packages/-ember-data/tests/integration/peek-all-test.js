@@ -1,9 +1,11 @@
 import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
-import Model from '@ember-data/model';
-import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
-import { attr } from '@ember-data/model';
+
+import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr } from '@ember-data/model';
 
 class Person extends Model {
   @attr()

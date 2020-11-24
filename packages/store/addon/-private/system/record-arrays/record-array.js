@@ -1,14 +1,24 @@
 /**
   @module @ember-data/store
 */
-import DeprecatedEvented from '../deprecated-evented';
-
 import ArrayProxy from '@ember/array/proxy';
-import { set, get, computed } from '@ember/object';
-import { Promise } from 'rsvp';
+import { computed, get, set } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
+
+import { Promise } from 'rsvp';
+
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+
+import DeprecatedEvented from '../deprecated-evented';
 import { PromiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
+import { internalModelFactoryFor } from '../store/internal-model-factory';
+
+function recordForIdentifier(store, identifier) {
+  return internalModelFactoryFor(store)
+    .lookup(identifier)
+    .getRecord();
+}
 
 /**
   A record array is an array that contains records of a certain modelName. The record
@@ -22,9 +32,9 @@ import SnapshotRecordArray from '../snapshot-record-array';
   @uses Ember.Evented
 */
 
-export default ArrayProxy.extend(DeprecatedEvented, {
-  init() {
-    this._super(...arguments);
+let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
+  init(args) {
+    this._super(args);
 
     if (DEBUG) {
       this._getDeprecatedEventedInfo = () => `RecordArray containing ${this.modelName}`;
@@ -48,7 +58,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     Example
 
     ```javascript
-    var people = store.peekAll('person');
+    let people = store.peekAll('person');
     people.get('isLoaded'); // true
     ```
 
@@ -62,7 +72,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     Example
 
     ```javascript
-    var people = store.peekAll('person');
+    let people = store.peekAll('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
@@ -112,8 +122,13 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @return {Model} record
   */
   objectAtContent(index) {
-    let internalModel = get(this, 'content').objectAt(index);
-    return internalModel && internalModel.getRecord();
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      let identifier = get(this, 'content').objectAt(index);
+      return identifier ? recordForIdentifier(this.store, identifier) : undefined;
+    } else {
+      let internalModel = get(this, 'content').objectAt(index);
+      return internalModel ? internalModel.getRecord() : undefined;
+    }
   },
 
   /**
@@ -123,7 +138,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     Example
 
     ```javascript
-    var people = store.peekAll('person');
+    let people = store.peekAll('person');
     people.get('isUpdating'); // false
 
     people.update().then(function() {
@@ -164,37 +179,12 @@ export default ArrayProxy.extend(DeprecatedEvented, {
   },
 
   /**
-    Adds an internal model to the `RecordArray` without duplicates
-
-    @method _pushInternalModels
-    @private
-    @param {InternalModel} internalModel
-  */
-  _pushInternalModels(internalModels) {
-    // pushObjects because the internalModels._recordArrays set was already
-    // consulted for inclusion, so addObject and its on .contains call is not
-    // required.
-    get(this, 'content').pushObjects(internalModels);
-  },
-
-  /**
-    Removes an internalModel to the `RecordArray`.
-
-    @method removeInternalModel
-    @private
-    @param {InternalModel} internalModel
-  */
-  _removeInternalModels(internalModels) {
-    get(this, 'content').removeObjects(internalModels);
-  },
-
-  /**
     Saves all of the records in the `RecordArray`.
 
     Example
 
     ```javascript
-    var messages = store.peekAll('message');
+    let messages = store.peekAll('message');
     messages.forEach(function(message) {
       message.set('hasBeenSeen', true);
     });
@@ -213,16 +203,6 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     );
 
     return PromiseArray.create({ promise });
-  },
-
-  _dissociateFromOwnRecords() {
-    this.get('content').forEach(internalModel => {
-      let recordArrays = internalModel.__recordArrays;
-
-      if (recordArrays) {
-        recordArrays.delete(this);
-      }
-    });
   },
 
   /**
@@ -256,12 +236,105 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     // this is private for users, but public for ember-data internals
     return new SnapshotRecordArray(this, this.get('meta'), options);
   },
-
-  /*
-    @method _takeSnapshot
-    @private
-  */
-  _takeSnapshot() {
-    return get(this, 'content').map(internalModel => internalModel.createSnapshot());
-  },
 });
+
+if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+  RecordArray = RecordArray.extend({
+    /**
+      @method _dissociateFromOwnRecords
+      @internal
+    */
+    _dissociateFromOwnRecords() {
+      this.get('content').forEach(identifier => {
+        let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
+
+        if (recordArrays) {
+          recordArrays.delete(this);
+        }
+      });
+    },
+
+    /**
+      Adds identifiers to the `RecordArray` without duplicates
+
+      @method _pushIdentifiers
+      @internal
+      @param {StableRecordIdentifier[]} identifiers
+    */
+    _pushIdentifiers(identifiers) {
+      get(this, 'content').pushObjects(identifiers);
+    },
+
+    /**
+      Removes identifiers from the `RecordArray`.
+
+      @method _removeIdentifiers
+      @internal
+      @param {StableRecordIdentifier[]} identifiers
+    */
+    _removeIdentifiers(identifiers) {
+      get(this, 'content').removeObjects(identifiers);
+    },
+
+    /**
+      @method _takeSnapshot
+      @internal
+    */
+    _takeSnapshot() {
+      return get(this, 'content').map(identifier =>
+        internalModelFactoryFor(this.store)
+          .lookup(identifier)
+          .createSnapshot()
+      );
+    },
+  });
+} else {
+  RecordArray = RecordArray.extend({
+    /**
+      @method _dissociateFromOwnRecords
+      @internal
+    */
+    _dissociateFromOwnRecords() {
+      this.get('content').forEach(internalModel => {
+        let recordArrays = internalModel.__recordArrays;
+
+        if (recordArrays) {
+          recordArrays.delete(this);
+        }
+      });
+    },
+
+    /**
+      Adds an internal model to the `RecordArray` without duplicates
+      @method _pushInternalModels
+      @private
+      @param {InternalModel} internalModel
+    */
+    _pushInternalModels(internalModels) {
+      // pushObjects because the internalModels._recordArrays set was already
+      // consulted for inclusion, so addObject and its on .contains call is not
+      // required.
+      get(this, 'content').pushObjects(internalModels);
+    },
+
+    /**
+      Removes an internalModel to the `RecordArray`.
+      @method _removeInternalModels
+      @private
+      @param {InternalModel} internalModel
+    */
+    _removeInternalModels(internalModels) {
+      get(this, 'content').removeObjects(internalModels);
+    },
+
+    /**
+      @method _takeSnapshot
+      @internal
+    */
+    _takeSnapshot() {
+      return get(this, 'content').map(internalModel => internalModel.createSnapshot());
+    },
+  });
+}
+
+export default RecordArray;

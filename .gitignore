@@ -9,6 +9,7 @@ tmp
 # dependencies
 bower_components
 node_modules
+bin/asset-size-tracking/current-data.json
 
 # misc
 .env*
@@ -40,6 +41,7 @@ benchmarks/results/*.json
 *.swp
 .metadata_never_index
 
-DEBUG
+/DEBUG
+/packages/*/DEBUG
 
 .vscode/

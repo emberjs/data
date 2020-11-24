@@ -1,4 +1,5 @@
 import { isNone } from '@ember/utils';
+
 import Transform from './transform';
 
 /**
@@ -9,18 +10,18 @@ import Transform from './transform';
   The `BooleanTransform` class is used to serialize and deserialize
   boolean attributes on Ember Data record objects. This transform is
   used when `boolean` is passed as the type parameter to the
-  [DS.attr](../../data#method_attr) function.
+  [attr](/ember-data/release/functions/@ember-data%2Fmodel/attr) function.
 
   Usage
 
   ```app/models/user.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    isAdmin: attr('boolean'),
-    name: attr('string'),
-    email: attr('string')
-  });
+  export default class UserModel extends Model {
+    @attr('boolean') isAdmin;
+    @attr('string') name;
+    @attr('string') email;
+  }
   ```
 
   By default, the boolean transform only allows for values of `true` or
@@ -30,11 +31,11 @@ import Transform from './transform';
   ```app/models/user.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    email: attr('string'),
-    username: attr('string'),
-    wantsWeeklyEmail: attr('boolean', { allowNull: true })
-  });
+  export default class UserModel extends Model {
+    @attr('string') email;
+    @attr('string') username;
+    @attr('boolean', { allowNull: true }) wantsWeeklyEmail;
+  }
   ```
 
   @class BooleanTransform

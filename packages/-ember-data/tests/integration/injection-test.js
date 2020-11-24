@@ -1,7 +1,10 @@
-import Model from '@ember-data/model';
 import Service from '@ember/service';
+
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
+
+import Model from '@ember-data/model';
 
 module('integration/injection factoryFor enabled', function(hooks) {
   setupTest(hooks);

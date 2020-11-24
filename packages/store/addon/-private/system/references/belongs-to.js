@@ -1,8 +1,14 @@
+import { deprecate } from '@ember/debug';
+
 import { resolve } from 'rsvp';
-import { assertPolymorphicType } from 'ember-data/-debug';
-import Model from '../model/model';
-import Reference from './reference';
+
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
+
 import recordDataFor from '../record-data-for';
+import { internalModelFactoryFor, peekRecordIdentifier } from '../store/internal-model-factory';
+import Reference, { internalModelForReference } from './reference';
 
 /**
   @module @ember-data/store
@@ -17,13 +23,18 @@ import recordDataFor from '../record-data-for';
  @extends Reference
  */
 export default class BelongsToReference extends Reference {
-  constructor(store, parentInternalModel, belongsToRelationship, key) {
-    super(store, parentInternalModel);
+  constructor(store, parentIMOrIdentifier, belongsToRelationship, key) {
+    super(store, parentIMOrIdentifier);
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.relationshipMeta.type;
-    this.parent = parentInternalModel.recordReference;
-    this.parentInternalModel = parentInternalModel;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
+      this.parentIdentifier = parentIMOrIdentifier;
+    } else {
+      this.parent = parentIMOrIdentifier.recordReference;
+      this.parentInternalModel = parentIMOrIdentifier;
+    }
 
     // TODO inverse
   }
@@ -39,9 +50,11 @@ export default class BelongsToReference extends Reference {
 
    ```javascript
    // models/blog.js
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+   import Model, { belongsTo } from '@ember-data/model';
+
+   export default class BlogModel extends Model {
+    @belongsTo({ async: true }) user;
+   }
 
    let blog = store.push({
       data: {
@@ -68,7 +81,7 @@ export default class BelongsToReference extends Reference {
   id() {
     let id = null;
     let resource = this._resource();
-    if (resource && resource.data && resource.data.id) {
+    if (resource && resource.data) {
       id = resource.data.id;
     }
     return id;
@@ -80,7 +93,7 @@ export default class BelongsToReference extends Reference {
 
   /**
    `push` can be used to update the data in the relationship and Ember
-   Data will treat the new data as the conanical value of this
+   Data will treat the new data as the canonical value of this
    relationship on the backend.
 
    Example
@@ -88,9 +101,9 @@ export default class BelongsToReference extends Reference {
    ```app/models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
 
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+   export default class BlogModel extends Model {
+      @belongsTo({ async: true }) user;
+    }
 
    let blog = store.push({
       data: {
@@ -124,18 +137,22 @@ export default class BelongsToReference extends Reference {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
   push(objectOrPromise) {
+    // TODO deprecate thenable support
     return resolve(objectOrPromise).then(data => {
       let record;
 
-      // TODO deprecate data as Model
-      if (data instanceof Model) {
+      if (DEPRECATE_BELONGS_TO_REFERENCE_PUSH && peekRecordIdentifier(data)) {
+        deprecate('Pushing a record into a BelongsToReference is deprecated', false, {
+          id: 'ember-data:belongs-to-reference-push-record',
+          until: '4.0',
+        });
         record = data;
       } else {
         record = this.store.push(data);
       }
 
       assertPolymorphicType(
-        this.internalModel,
+        internalModelForReference(this),
         this.belongsToRelationship.relationshipMeta,
         record._internalModel,
         this.store
@@ -161,9 +178,9 @@ export default class BelongsToReference extends Reference {
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
 
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+   export default class BlogModel extends Model {
+     @belongsTo({ async: true }) user;
+   }
 
    let blog = store.push({
       data: {
@@ -198,10 +215,9 @@ export default class BelongsToReference extends Reference {
    @return {Model} the record in this relationship
    */
   value() {
-    let store = this.parentInternalModel.store;
     let resource = this._resource();
     if (resource && resource.data) {
-      let inverseInternalModel = store._internalModelForResource(resource.data);
+      let inverseInternalModel = this.store._internalModelForResource(resource.data);
       if (inverseInternalModel && inverseInternalModel.isLoaded()) {
         return inverseInternalModel.getRecord();
       }
@@ -221,9 +237,9 @@ export default class BelongsToReference extends Reference {
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
 
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+   export default class BlogModel extends Model {
+     @belongsTo({ async: true }) user;
+   }
 
    let blog = store.push({
       data: {
@@ -256,9 +272,10 @@ export default class BelongsToReference extends Reference {
      userRef.value() === user;
    });
    ```
-
    ```app/adapters/user.js
-   export default ApplicationAdapter.extend({
+   import Adapter from '@ember-data/adapter';
+
+   export default class UserAdapter extends Adapter {
      findRecord(store, type, id, snapshot) {
        // In the adapter you will have access to adapterOptions.
        let adapterOptions = snapshot.adapterOptions;
@@ -271,7 +288,12 @@ export default class BelongsToReference extends Reference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
   load(options) {
-    return this.parentInternalModel.getBelongsTo(this.key, options);
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
+      return parentInternalModel.getBelongsTo(this.key, options);
+    } else {
+      return this.parentInternalModel.getBelongsTo(this.key, options);
+    }
   }
 
   /**
@@ -285,9 +307,10 @@ export default class BelongsToReference extends Reference {
    ```javascript
    // models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
-   export default Model.extend({
-      user: belongsTo({ async: true })
-    });
+
+   export default class BlogModel extends Model {
+     @belongsTo({ async: true }) user;
+   }
 
    let blog = store.push({
       data: {
@@ -323,7 +346,13 @@ export default class BelongsToReference extends Reference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
   reload(options) {
-    return this.parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
+    let parentInternalModel;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
+    } else {
+      parentInternalModel = this.parentInternalModel;
+    }
+    return parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
       return this.value();
     });
   }

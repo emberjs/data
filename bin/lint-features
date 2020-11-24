@@ -2,10 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const configPath = path.join(
-  __dirname,
-  '../packages/-build-infra/config/in-progress-features.json'
-);
+const configPath = path.join(__dirname, '../packages/private-build-infra/config/in-progress-features.json');
 const beginsWithDS = /^ds-/;
 const violations = [];
 

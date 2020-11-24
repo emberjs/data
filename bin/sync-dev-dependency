@@ -12,7 +12,7 @@
  * ```
  */
 
-const { shellSync } = require('execa');
+const execa = require('execa');
 const path = require('path');
 const fs = require('fs');
 const debug = require('debug')('sync-dev');
@@ -24,7 +24,7 @@ const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
 
 function execWithLog(command) {
-  return shellSync(command, { stdio: [0, 1, 2] });
+  return execa.sync(command, { stdio: [0, 1, 2], shell: true });
 }
 
 // Remove this ponyfill once fromEntries is supported in min version of node.js
@@ -64,7 +64,8 @@ packages.forEach(localName => {
       if (!rootPackage.devDependencies[name]) {
         if (
           !rootUpdates[name] ||
-          (pkg.devDependencies[name] !== '*' && semver.lt(rootUpdates[name], pkg.devDependencies[name]))
+          (pkg.devDependencies[name] !== '*' &&
+            semver.lt(semver.minVersion(rootUpdates[name]), semver.minVersion(pkg.devDependencies[name])))
         ) {
           rootUpdates[name] = pkg.devDependencies[name];
           debug(`devDependency "${name}" staged for root with version "${rootUpdates[name]}"`);

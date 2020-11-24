@@ -1,15 +1,17 @@
-import { module, test } from 'qunit';
-import { setupRenderingTest } from 'ember-qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import Model from '@ember-data/model';
 import { render, settled } from '@ember/test-helpers';
+import Ember from 'ember';
+
 import hbs from 'htmlbars-inline-precompile';
+import { module, test } from 'qunit';
+import { Promise, reject, resolve } from 'rsvp';
+
+import { setupRenderingTest } from 'ember-qunit';
+
+import { ServerError } from '@ember-data/adapter/error';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { Promise, resolve, reject } from 'rsvp';
-import { ServerError } from '@ember-data/adapter/error';
-import Ember from 'ember';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @attr()
@@ -75,7 +77,7 @@ class TestAdapter extends JSONAPIAdapter {
   }
 
   // find by link
-  findHasMany() {
+  findBelongsTo() {
     return this._nextPayload();
   }
 
@@ -171,6 +173,19 @@ function makePeopleWithRelationshipData() {
           data: {
             type: 'person',
             id: '3:has-2-children-and-parent',
+          },
+        },
+      },
+    },
+    {
+      type: 'person',
+      id: '6:has-linked-parent',
+      attributes: { name: 'Has a linked Parent' },
+      relationships: {
+        children: { data: [] },
+        parent: {
+          links: {
+            related: '/person/7',
           },
         },
       },
@@ -447,7 +462,6 @@ module('async belongs-to rendering tests', function(hooks) {
     });
 
     test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
-      assert.expect(14);
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
@@ -488,11 +502,6 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
       assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship inverse is dematerialized');
-      assert.equal(
-        relationshipState.allInverseRecordsAreLoaded,
-        false,
-        'The relationship is missing some or all related resources'
-      );
       assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
       assert.equal(!!RelationshipPromiseCache['parent'], false, 'The relationship has no fetch promise');
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
@@ -501,13 +510,51 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
 
       try {
-        let result = await sedona.get('parent');
+        let result = await sedona.get('parent.content');
         assert.ok(result === null, 're-access is safe');
       } catch (e) {
         assert.ok(false, `Accessing resulted in rejected promise error: ${e.message}`);
       }
 
+      try {
+        await sedona.get('parent');
+        assert.ok(false, 're-access should throw original rejection');
+      } catch (e) {
+        assert.ok(true, `Accessing resulted in rejected promise error: ${e.message}`);
+      }
+
       Ember.onerror = originalOnError;
+    });
+
+    test('accessing a linked async belongs-to whose fetch fails does not error for null proxy content', async function(assert) {
+      assert.expect(3);
+      let people = makePeopleWithRelationshipData();
+      let sedona = store.push({
+        data: people.dict['6:has-linked-parent'],
+      });
+
+      const error = 'hard error while finding <person>7:does-not-exist';
+      adapter.setupPayloads(assert, [new ServerError([], error)]);
+
+      try {
+        await sedona.get('parent');
+        assert.ok(false, `should have rejected`);
+      } catch (e) {
+        assert.equal(e.message, error, `should have rejected with '${error}'`);
+      }
+
+      await render(hbs`
+      <p>{{sedona.parent.name}}</p>
+      `);
+
+      assert.equal(this.element.textContent.trim(), '', 'we have no parent');
+
+      try {
+        await sedona.get('parent');
+        assert.ok(false, `should have rejected`);
+      } catch (e) {
+        assert.equal(e.message, error, `should have rejected with '${error}'`);
+      }
     });
   });
 });

@@ -1,12 +1,14 @@
+import EmberObject, { get, set } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { run } from '@ember/runloop';
-import EmberObject, { set, get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
 
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 const Author = Model.extend({
   name: attr('string'),

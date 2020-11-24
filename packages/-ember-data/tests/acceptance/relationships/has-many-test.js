@@ -1,19 +1,21 @@
-import { module, test } from 'qunit';
-import { setupRenderingTest } from 'ember-qunit';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import Model from '@ember-data/model';
-import { render } from '@ember/test-helpers';
+import { action } from '@ember/object';
+import { sort } from '@ember/object/computed';
+import { inject as service } from '@ember/service';
+import { click, findAll, render } from '@ember/test-helpers';
+import Component from '@glimmer/component';
+import Ember from 'ember';
+
 import hbs from 'htmlbars-inline-precompile';
+import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
+
+import { setupRenderingTest } from 'ember-qunit';
+
+import { ServerError } from '@ember-data/adapter/error';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { resolve, reject } from 'rsvp';
-import { ServerError } from '@ember-data/adapter/error';
-import Ember from 'ember';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
-
-function domListToArray(domList) {
-  return Array.prototype.slice.call(domList);
-}
 
 class Person extends Model {
   @attr()
@@ -229,8 +231,7 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
@@ -257,26 +258,25 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let items = findAll('li');
+      let names = items.map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
       this.set('parent', null);
 
-      items = this.element.querySelectorAll('li');
-      assert.ok(items.length === 0, 'We have no items');
+      items = findAll('li');
+      assert.equal(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 
-      items = this.element.querySelectorAll('li');
-      names = domListToArray(items).map(e => e.textContent);
+      names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
     test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
-      assert.expect(12);
+      assert.expect(11);
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -308,8 +308,7 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
 
@@ -320,11 +319,6 @@ module('async has-many rendering tests', function(hooks) {
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
       assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship has a dematerialized inverse');
-      assert.equal(
-        relationshipState.allInverseRecordsAreLoaded,
-        false,
-        'The relationship is missing some or all related resources'
-      );
       assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
       assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
@@ -355,8 +349,7 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
@@ -380,26 +373,25 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let items = findAll('li');
+      let names = items.map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
       this.set('parent', null);
 
-      items = this.element.querySelectorAll('li');
-      assert.ok(items.length === 0, 'We have no items');
+      items = findAll('li');
+      assert.equal(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 
-      items = this.element.querySelectorAll('li');
-      names = domListToArray(items).map(e => e.textContent);
+      names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
     test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
-      assert.expect(12);
+      assert.expect(11);
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -432,8 +424,7 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, [], 'We rendered no names');
 
@@ -448,16 +439,11 @@ module('async has-many rendering tests', function(hooks) {
         'The relationship is empty because no signal has been received as to true state'
       );
       assert.equal(relationshipState.relationshipIsStale, true, 'The relationship is still stale');
-      assert.equal(
-        relationshipState.allInverseRecordsAreLoaded,
-        true,
-        'The relationship is missing some or all related resources'
-      );
       assert.equal(relationshipState.hasAnyRelationshipData, false, 'The relationship knows which record it needs');
       assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
       assert.equal(!!RelationshipProxyCache['children'], true, 'The relationship has a promise proxy');
       assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
-      assert.equal(!!relationshipState.link, true, 'The relationship has a link');
+      assert.equal(!!(relationshipState.links && relationshipState.links.related), true, 'The relationship has a link');
 
       Ember.onerror = originalOnError;
     });
@@ -483,8 +469,7 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
@@ -510,8 +495,7 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
@@ -535,22 +519,330 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let items = this.element.querySelectorAll('li');
-      let names = domListToArray(items).map(e => e.textContent);
+      let items = findAll('li');
+      let names = items.map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
       this.set('parent', null);
 
-      items = this.element.querySelectorAll('li');
-      assert.ok(items.length === 0, 'We have no items');
+      items = findAll('li');
+      assert.equal(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 
-      items = this.element.querySelectorAll('li');
-      names = domListToArray(items).map(e => e.textContent);
+      names = findAll('li').map(e => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
+  });
+});
+
+module('autotracking has-many', function(hooks) {
+  setupRenderingTest(hooks);
+
+  let store;
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    owner.register('model:person', Person);
+    owner.register('adapter:application', TestAdapter);
+    owner.register('serializer:application', JSONAPISerializer);
+    owner.register('service:store', Store);
+    store = owner.lookup('service:store');
+  });
+
+  test('We can re-render a pojo', async function(assert) {
+    class ChildrenList extends Component {
+      @service store;
+
+      get children() {
+        return this.args.model.children;
+      }
+
+      get sortedChildren() {
+        return this.children.sortBy('name');
+      }
+
+      @action
+      createChild() {
+        const parent = this.args.model.person;
+        const name = 'RGB';
+        this.store.createRecord('person', { name, parent });
+      }
+    }
+
+    let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.sortedChildren.length}}</h2>
+      <ul>
+        {{#each this.sortedChildren as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+    this.owner.register('component:children-list', ChildrenList);
+    this.owner.register('template:components/children-list', layout);
+
+    store.createRecord('person', { id: '1', name: 'Doodad' });
+    let person = store.peekRecord('person', '1');
+    let children = await person.children;
+    this.model = { person, children };
+
+    await render(hbs`<ChildrenList @model={{this.model}} />`);
+
+    let names = findAll('li').map(e => e.textContent);
+
+    assert.deepEqual(names, [], 'rendered no children');
+
+    await click('#createChild');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['RGB'], 'rendered 1 child');
+
+    await click('#createChild');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+  });
+
+  test('We can re-render hasMany', async function(assert) {
+    class ChildrenList extends Component {
+      @service store;
+
+      get sortedChildren() {
+        return this.args.person.children.sortBy('name');
+      }
+
+      @action
+      createChild() {
+        const parent = this.args.person;
+        const name = 'RGB';
+        this.store.createRecord('person', { name, parent });
+      }
+    }
+
+    let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.sortedChildren.length}}</h2>
+      <ul>
+        {{#each this.sortedChildren as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+    this.owner.register('component:children-list', ChildrenList);
+    this.owner.register('template:components/children-list', layout);
+
+    store.createRecord('person', { id: '1', name: 'Doodad' });
+    this.person = store.peekRecord('person', '1');
+
+    await render(hbs`<ChildrenList @person={{this.person}} />`);
+
+    let names = findAll('li').map(e => e.textContent);
+
+    assert.deepEqual(names, [], 'rendered no children');
+
+    await click('#createChild');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['RGB'], 'rendered 1 child');
+
+    await click('#createChild');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+  });
+
+  test('We can re-render hasMany with sort computed macro', async function(assert) {
+    class ChildrenList extends Component {
+      @service store;
+
+      sortProperties = ['name'];
+      @sort('args.person.children', 'sortProperties') sortedChildren;
+
+      @action
+      createChild() {
+        const parent = this.args.person;
+        const name = 'RGB';
+        this.store.createRecord('person', { name, parent });
+      }
+    }
+
+    let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.sortedChildren.length}}</h2>
+      <ul>
+        {{#each this.sortedChildren as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+    this.owner.register('component:children-list', ChildrenList);
+    this.owner.register('template:components/children-list', layout);
+
+    store.createRecord('person', { id: '1', name: 'Doodad' });
+    this.person = store.peekRecord('person', '1');
+
+    await render(hbs`<ChildrenList @person={{this.person}} />`);
+
+    let names = findAll('li').map(e => e.textContent);
+
+    assert.deepEqual(names, [], 'rendered no children');
+
+    await click('#createChild');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['RGB'], 'rendered 1 child');
+
+    await click('#createChild');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+  });
+
+  test('We can re-render hasMany with objectAt', async function(assert) {
+    class ChildrenList extends Component {
+      @service store;
+
+      get firstChild() {
+        return this.args.person.children.objectAt(0);
+      }
+
+      @action
+      createChild() {
+        const parent = this.args.person;
+        const name = 'RGB';
+        this.store.createRecord('person', { name, parent });
+      }
+    }
+
+    let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.firstChild.name}}</h2>
+    `;
+    this.owner.register('component:children-list', ChildrenList);
+    this.owner.register('template:components/children-list', layout);
+
+    store.createRecord('person', { id: '1', name: 'Doodad' });
+    this.person = store.peekRecord('person', '1');
+
+    await render(hbs`<ChildrenList @person={{this.person}} />`);
+
+    assert.dom('h2').hasText('', 'rendered no children');
+
+    await click('#createChild');
+
+    assert.dom('h2').hasText('RGB', 'renders first child');
+
+    await click('#createChild');
+
+    assert.dom('h2').hasText('RGB', 'renders first child');
+  });
+
+  test('We can re-render hasMany with native map', async function(assert) {
+    class ChildrenList extends Component {
+      @service store;
+
+      get children() {
+        return this.args.person.children.map(child => child);
+      }
+
+      @action
+      createChild() {
+        const parent = this.args.person;
+        const name = 'RGB';
+        this.store.createRecord('person', { name, parent });
+      }
+    }
+
+    let layout = hbs`
+      <button id="createChild" {{on "click" this.createChild}}>Add child</button>
+
+      <h2>{{this.children.length}}</h2>
+      <ul>
+        {{#each this.children as |child|}}
+          <li>{{child.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+    this.owner.register('component:children-list', ChildrenList);
+    this.owner.register('template:components/children-list', layout);
+
+    store.createRecord('person', { id: '1', name: 'Doodad' });
+    this.person = store.peekRecord('person', '1');
+
+    await render(hbs`<ChildrenList @person={{this.person}} />`);
+
+    let names = findAll('li').map(e => e.textContent);
+
+    assert.deepEqual(names, [], 'rendered no children');
+
+    await click('#createChild');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['RGB'], 'rendered 1 child');
+
+    await click('#createChild');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
+  });
+
+  test('We can re-render hasMany with peekAll', async function(assert) {
+    class PeopleList extends Component {
+      @service store;
+
+      constructor() {
+        super(...arguments);
+
+        this.model = { people: this.store.peekAll('person') };
+      }
+
+      get allPeople() {
+        return this.model.people.map(child => child);
+      }
+
+      @action
+      createPerson() {
+        const name = 'RGB';
+        this.store.createRecord('person', { name });
+      }
+    }
+
+    let layout = hbs`
+      <button id="createPerson" {{on "click" this.createPerson}}>Add person</button>
+
+      <h2>{{this.allPeople.length}}</h2>
+      <ul>
+        {{#each this.allPeople as |person|}}
+          <li>{{person.name}}</li>
+        {{/each}}
+      </ul>
+    `;
+    this.owner.register('component:people-list', PeopleList);
+    this.owner.register('template:components/people-list', layout);
+
+    store.createRecord('person', { id: '1', name: 'Doodad' });
+
+    await render(hbs`<PeopleList />`);
+
+    let names = findAll('li').map(e => e.textContent);
+
+    assert.deepEqual(names, ['Doodad'], 'rendered no people');
+
+    await click('#createPerson');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['Doodad', 'RGB'], 'rendered 1 person');
+
+    await click('#createPerson');
+
+    names = findAll('li').map(e => e.textContent);
+    assert.deepEqual(names, ['Doodad', 'RGB', 'RGB'], 'rendered 2 people');
   });
 });

@@ -1,12 +1,12 @@
-import { resolve } from 'rsvp';
 import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
+import { Snapshot } from 'ember-data/-private';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Model from '@ember-data/model';
-import { Snapshot } from 'ember-data/-private';
-import { attr, belongsTo, hasMany } from '@ember-data/model';
 
 let owner, store, _Post;
 
@@ -236,8 +236,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
     });
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
-
-    assert.throws(
+    assert.expectAssertion(
       () => {
         snapshot.attr('unknown');
       },
@@ -374,6 +373,42 @@ module('integration/snapshot - Snapshot', function(hooks) {
     assert.equal(relationship.attr('title'), 'Hello World', 'post title is correct');
   });
 
+  test('snapshot.belongsTo().changedAttributes() returns an empty object if belongsTo record in not instantiated #7015', function(assert) {
+    assert.expect(2);
+
+    store.push({
+      data: [
+        {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            body: 'This is comment',
+          },
+          relationships: {
+            post: {
+              data: { type: 'post', id: '1' },
+            },
+          },
+        },
+      ],
+      included: [
+        {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Hello World',
+          },
+        },
+      ],
+    });
+    let comment = store.peekRecord('comment', 2);
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post');
+
+    assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
+    assert.deepEqual(relationship.changedAttributes(), {}, 'changedAttributes are correct');
+  });
+
   test('snapshot.belongsTo() returns null if relationship is deleted', function(assert) {
     assert.expect(1);
 
@@ -452,7 +487,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
 
-    assert.throws(
+    assert.expectAssertion(
       () => {
         snapshot.belongsTo('unknown');
       },
@@ -754,7 +789,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
         },
@@ -801,7 +839,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
         },
@@ -833,7 +874,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
         },
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+            data: [
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
       },
@@ -872,7 +916,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
         },
@@ -970,7 +1017,7 @@ module('integration/snapshot - Snapshot', function(hooks) {
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
 
-    assert.throws(
+    assert.expectAssertion(
       () => {
         snapshot.hasMany('unknown');
       },
@@ -1013,7 +1060,11 @@ module('integration/snapshot - Snapshot', function(hooks) {
           },
           relationships: {
             comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
         },
@@ -1134,7 +1185,10 @@ module('integration/snapshot - Snapshot', function(hooks) {
         },
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+            data: [
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
       },

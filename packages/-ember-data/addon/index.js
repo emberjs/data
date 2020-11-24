@@ -1,11 +1,49 @@
-import { VERSION } from '@ember/version';
-import EmberError from '@ember/error';
+import 'ember-inflector';
 
-/**
-  Ember Data
-  @module ember-data
-  @main ember-data
-*/
+import EmberError from '@ember/error';
+import { VERSION } from '@ember/version';
+
+import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+import AdapterError, {
+  AbortError,
+  ConflictError,
+  errorsArrayToHash,
+  errorsHashToArray,
+  ForbiddenError,
+  InvalidError,
+  NotFoundError,
+  ServerError,
+  TimeoutError,
+  UnauthorizedError,
+} from '@ember-data/adapter/error';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import RESTAdapter from '@ember-data/adapter/rest';
+import DebugAdapter from '@ember-data/debug';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import Serializer from '@ember-data/serializer';
+import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
+import JSONSerializer from '@ember-data/serializer/json';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
+import Transform from '@ember-data/serializer/transform';
+import Store, { normalizeModelName } from '@ember-data/store';
+
+import {
+  AdapterPopulatedRecordArray,
+  DS,
+  Errors,
+  InternalModel,
+  ManyArray,
+  PromiseArray,
+  PromiseManyArray,
+  PromiseObject,
+  RecordArray,
+  RecordArrayManager,
+  Relationship,
+  RootState,
+  Snapshot,
+} from './-private';
+import setupContainer from './setup-container';
 
 if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
   throw new EmberError(
@@ -14,57 +52,6 @@ if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
       '. Please upgrade your version of Ember, then upgrade Ember Data.'
   );
 }
-
-import Store, { normalizeModelName } from '@ember-data/store';
-
-import {
-  Snapshot,
-  DebugAdapter,
-  InternalModel,
-  DS,
-  Errors,
-  RootState,
-  PromiseArray,
-  PromiseObject,
-  PromiseManyArray,
-  RecordArray,
-  AdapterPopulatedRecordArray,
-  ManyArray,
-  RecordArrayManager,
-  Relationship,
-} from './-private';
-
-import 'ember-inflector';
-import setupContainer from './setup-container';
-import initializeStoreService from './initialize-store-service';
-
-import Transform from '@ember-data/serializer/transform';
-
-import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
-
-import Adapter, { BuildURLMixin } from '@ember-data/adapter';
-import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import RESTAdapter from '@ember-data/adapter/rest';
-
-import AdapterError, {
-  AbortError,
-  ConflictError,
-  ForbiddenError,
-  InvalidError,
-  NotFoundError,
-  ServerError,
-  TimeoutError,
-  UnauthorizedError,
-  errorsArrayToHash,
-  errorsHashToArray,
-} from '@ember-data/adapter/error';
-
-import Serializer from '@ember-data/serializer';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import JSONSerializer from '@ember-data/serializer/json';
-import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
-
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
 DS.Store = Store;
 DS.PromiseArray = PromiseArray;
@@ -129,7 +116,6 @@ DS.hasMany = hasMany;
 DS.Relationship = Relationship;
 
 DS._setupContainer = setupContainer;
-DS._initializeStoreService = initializeStoreService;
 
 Object.defineProperty(DS, 'normalizeModelName', {
   enumerable: true,

@@ -1,7 +1,7 @@
-import { setupTest } from 'ember-qunit';
-import DS from 'ember-data';
-
 import { module, test } from 'qunit';
+
+import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
 
 module('unit/adapters/build-url-mixin/build-url - DS.BuildURLMixin#buildURL', function(hooks) {
   let adapter;

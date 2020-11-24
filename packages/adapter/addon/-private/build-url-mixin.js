@@ -1,6 +1,7 @@
-import { camelize } from '@ember/string';
-import Mixin from '@ember/object/mixin';
 import { get } from '@ember/object';
+import Mixin from '@ember/object/mixin';
+import { camelize } from '@ember/string';
+
 import { pluralize } from 'ember-inflector';
 
 /**
@@ -8,9 +9,6 @@ import { pluralize } from 'ember-inflector';
 */
 
 /**
-
-  WARNING: This interface is likely to change in order to accommodate [RFC: Ember Data url templates](https://github.com/emberjs/rfcs/pull/4)
-
   ## Using BuildURLMixin
 
   To use URL building, include the mixin when extending an adapter, and call `buildURL` where needed.
@@ -21,12 +19,12 @@ import { pluralize } from 'ember-inflector';
   ```javascript
   import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 
-  export default Adapter.extend(BuildURLMixin, {
-    findRecord: function(store, type, id, snapshot) {
+  export default class ApplicationAdapter extends Adapter.extend(BuildURLMixin) {
+    findRecord(store, type, id, snapshot) {
       var url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
       return this.ajax(url, 'GET');
     }
-  });
+  }
   ```
 
   ### Attributes
@@ -41,7 +39,7 @@ export default Mixin.create({
 
     By default, it pluralizes the type's name (for example, 'post'
     becomes 'posts' and 'person' becomes 'people'). To override the
-    pluralization see [pathForType](#method_pathForType).
+    pluralization see [pathForType](BuildUrlMixin/methods/pathForType?anchor=pathForType).
 
     If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.
@@ -52,7 +50,7 @@ export default Mixin.create({
     @method buildURL
     @param {String} modelName
     @param {(String|Array|Object)} id single id or array of ids or query
-    @param {(DS.Snapshot|Array)} snapshot single snapshot or array of snapshots
+    @param {(Snapshot|SnapshotRecordArray)} snapshot single snapshot or array of snapshots
     @param {String} requestType
     @param {Object} query object of query parameters to send for query requests.
     @return {String} url
@@ -127,18 +125,18 @@ export default Mixin.create({
    ```app/adapters/user.js
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default JSONAPIAdapter.extend({
+   export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindRecord(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id, snapshot);
        return `${baseUrl}/users/${snapshot.adapterOptions.user_id}/playlists/${id}`;
      }
-   });
+   }
    ```
 
    @method urlForFindRecord
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
 
    */
@@ -154,16 +152,17 @@ export default Mixin.create({
    ```app/adapters/comment.js
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default JSONAPIAdapter.extend({
+   export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindAll(modelName, snapshot) {
-       return 'data/comments.json';
+       let baseUrl = this.buildURL(modelName);
+       return `${baseUrl}/data/comments.json`;
      }
-   });
+   }
    ```
 
    @method urlForFindAll
    @param {String} modelName
-   @param {DS.SnapshotRecordArray} snapshot
+   @param {SnapshotRecordArray} snapshot
    @return {String} url
    */
   urlForFindAll(modelName, snapshot) {
@@ -178,8 +177,8 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
-     host: 'https://api.github.com',
+   export default class ApplicationAdapter extends RESTAdapter {
+     host = 'https://api.github.com';
      urlForQuery (query, modelName) {
        switch(modelName) {
          case 'repo':
@@ -188,7 +187,7 @@ export default Mixin.create({
            return this._super(...arguments);
        }
      }
-   });
+   }
    ```
 
    @method urlForQuery
@@ -208,12 +207,12 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForQueryRecord({ slug }, modelName) {
        let baseUrl = this.buildURL();
        return `${baseUrl}/${encodeURIComponent(slug)}`;
      }
-   });
+   }
    ```
 
    @method urlForQueryRecord
@@ -235,12 +234,12 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForFindMany(ids, modelName) {
        let baseUrl = this.buildURL();
        return `${baseUrl}/coalesce`;
      }
-   });
+   }
    ```
 
    @method urlForFindMany
@@ -262,18 +261,18 @@ export default Mixin.create({
    ```app/adapters/application.js
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default JSONAPIAdapter.extend({
+   export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindHasMany(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
      }
-   });
+   }
    ```
 
    @method urlForFindHasMany
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForFindHasMany(id, modelName, snapshot) {
@@ -289,18 +288,18 @@ export default Mixin.create({
    ```app/adapters/application.js
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-   export default JSONAPIAdapter.extend({
+   export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindBelongsTo(id, modelName, snapshot) {
        let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
      }
-   });
+   }
    ```
 
    @method urlForFindBelongsTo
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForFindBelongsTo(id, modelName, snapshot) {
@@ -316,16 +315,16 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForCreateRecord(modelName, snapshot) {
        return this._super(...arguments) + '/new';
      }
-   });
+   }
    ```
 
    @method urlForCreateRecord
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForCreateRecord(modelName, snapshot) {
@@ -340,17 +339,17 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForUpdateRecord(id, modelName, snapshot) {
        return `/${id}/feed?access_token=${snapshot.adapterOptions.token}`;
      }
-   });
+   }
    ```
 
    @method urlForUpdateRecord
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForUpdateRecord(id, modelName, snapshot) {
@@ -365,17 +364,17 @@ export default Mixin.create({
    ```app/adapters/application.js
    import RESTAdapter from '@ember-data/adapter/rest';
 
-   export default RESTAdapter.extend({
+   export default class ApplicationAdapter extends RESTAdapter {
      urlForDeleteRecord(id, modelName, snapshot) {
        return this._super(...arguments) + '/destroy';
      }
-   });
+   }
    ```
 
    @method urlForDeleteRecord
    @param {String} id
    @param {String} modelName
-   @param {DS.Snapshot} snapshot
+   @param {Snapshot} snapshot
    @return {String} url
    */
   urlForDeleteRecord(id, modelName, snapshot) {
@@ -439,12 +438,12 @@ export default Mixin.create({
     import { decamelize } from '@ember/string';
     import { pluralize } from 'ember-inflector';
 
-    export default RESTAdapter.extend({
-      pathForType: function(modelName) {
+    export default class ApplicationAdapter extends RESTAdapter {
+      pathForType(modelName) {
         var decamelized = decamelize(modelName);
         return pluralize(decamelized);
       }
-    });
+    }
     ```
 
     @method pathForType

@@ -1,16 +1,21 @@
-import { get } from '@ember/object';
-import { setupTest } from 'ember-qunit';
+import EmberObject from '@ember/object';
+
+import { module, test } from 'qunit';
+import { Promise } from 'rsvp';
+
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
-import { module, test } from 'qunit';
-import { settled } from '@ember/test-helpers';
-import EmberObject from '@ember/object';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
-import { InvalidError, ServerError } from '@ember-data/adapter/error';
-import { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
-import RecordData from '@ember-data/store/-private/ts-interfaces/record-data';
-import { RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { setupTest } from 'ember-qunit';
+
+import { InvalidError } from '@ember-data/adapter/error';
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
+import { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+
+type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
+type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
+type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -21,7 +26,21 @@ class Person extends Model {
   lastName;
 }
 
+class TestRecordIdentifier implements NewRecordIdentifier {
+  constructor(public id: string | null, public lid: string, public type: string) {}
+}
+
 class TestRecordData implements RecordData {
+  id: string | null = '1';
+  clientId: string | null = 'test-record-data-1';
+  modelName = 'tst';
+
+  getResourceIdentifier() {
+    if (this.clientId !== null) {
+      return new TestRecordIdentifier(this.id, this.clientId, this.modelName);
+    }
+  }
+
   commitWasRejected(recordIdentifier: RecordIdentifier, errors?: JsonApiValidationError[]): void {}
 
   // Use correct interface once imports have been fix
@@ -109,13 +128,14 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
     let { owner } = this;
 
     owner.register('model:person', Person);
+    owner.unregister('service:store');
     owner.register('service:store', CustomStore);
+    owner.register('serializer:application', JSONAPISerializer);
   });
 
   test('Record Data invalid errors', async function(assert) {
     assert.expect(2);
-    let called = 0;
-    let createCalled = 0;
+
     const personHash = {
       type: 'person',
       id: '1',
@@ -167,7 +187,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    person.save().then(() => {}, err => {});
+    person.save().then(
+      () => {},
+      err => {}
+    );
   });
 
   test('Record Data adapter errors', async function(assert) {
@@ -208,7 +231,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    await person.save().then(() => {}, err => {});
+    await person.save().then(
+      () => {},
+      err => {}
+    );
   });
 
   test('Getting errors from Record Data shows up on the record', async function(assert) {
@@ -288,8 +314,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
 
   test('Record data which does not implement getErrors still works correctly with the default DS.Model', async function(assert) {
     assert.expect(4);
-    let called = 0;
-    let createCalled = 0;
+
     const personHash = {
       type: 'person',
       id: '1',
@@ -341,7 +366,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    await person.save().then(() => {}, err => {});
+    await person.save().then(
+      () => {},
+      err => {}
+    );
 
     assert.equal(person.get('isValid'), false, 'rejecting the save invalidates the person');
     let nameError = person

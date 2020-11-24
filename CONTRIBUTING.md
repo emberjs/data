@@ -12,6 +12,32 @@ We have provided an [issue template](.github/bug.md) what will help guide you th
 If you are unsure if something is a bug, the `#ember-data` channel on [Discord](https://discord.gg/zT3asNS) is
 a great place to ask for help!
 
+#### Testing ember data source directly
+
+##### monolithic ember-data
+
+You can use package linking to test checkouts of ember-data. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data. You can link to divisions within ember-data as well.
+
+1. clone this repository or another fork
+1. run `yarn install`
+1. run `yarn workspace ember-data link`
+1. `cd` into your application
+1. run `yarn link "ember-data"`. If you don't use yarn in your application, `npm link "ember-data"` may work.
+
+Then you can run `ember serve` as usual in your application. You should see something like the following printed to your terminal:
+```
+some-app $ ember serve
+
+Missing symlinked yarn packages:
+Package: ember-data
+  * Specified: ~3.15.0
+  * Symlinked: 3.17.0-alpha.1
+
+
+Build successful (41237ms) – Serving on http://localhost:4200/
+...
+```
+
 ### Discussion
 
 Before embarking on a fix, a new feature, or a refactor it is usually best to discuss the
@@ -89,6 +115,7 @@ the issue being fixed and test that the solution works.
   use `yarn test` or `yarn test --serve`. For additional test commands see the list
   of commands in [./package.json](./package.json)
 
+
 #### Commit Tagging
 
 All commits should be tagged. Tags are denoted by square brackets (`[]`) and come at the start of the commit message.
@@ -105,101 +132,6 @@ All commits should be tagged. Tags are denoted by square brackets (`[]`) and com
 
 In general almost all commits should fall into one of the above categories. In the cases where they don't please submit
 your PR untagged.
-
-#### Developing a New Feature with in-progress-feature Flags
-
-Sometimes a new feature can't be completed all at once, but portions
-of it can be landed to help parallelize the effort and make the review
-process simpler.
-
-`in-progress-feature` flags allow for code to be present on the `master`
-branch but stripped from any build that isn't.
-
-These flags have three states. Locally here means that a developer is
-working within the `addon` itself. Locally linking `ember-data` to
-another project or using a `master` build will not make code behind
-the flags available unless `isDevelopingAddon` in `index.js` is modified
-to return `true`.
-
-- `false`: the feature is only available locally and the code behind the
-  flag is stripped at all times and never included in test runs. To develop
-  on this feature use `--enable-in-progress-flag="desired-flag-name,another-flag-name"`
-  when running a command. This flag will never be active in `CI` jobs
-  meaning that both tests and code wrapped in a check for this flag will
-  not run.
-
-- `null`: The same as `false` except the `Enabled In-Progress Features`
-  job in `CI` will activate the flag to ensure it passes tests.
-  Use this for features that are nearing delivery and need protection
-  against regressions but are not quite polished off yet.
-
-  Other test runs and `CI` will still default the flag to `false` to ensure
-  that what we would release (were we to release master) works as
-  expected.
-
-  The `--enable-in-progress` flag and the Travis Job `Enabled In-Progress Features`
-  will run the tests with any flags set to `null` enabled to prevent
-  regressions.
-
-- `true`: Indicates that this feature is "complete". Features set to
-  `true` will be included in any `release` published while the flag
-  is in that state, any build from `master` and all `CI` jobs.
-
-  This is a sign that the feature has entered a final testing phase
-  and the in-progress flags for the feature should be removed
-  before a stable release is published.
-
-  Sometimes a nearly releasable feature may encounter problems late
-  in the release cycle. For such problems, the flag should be moved
-  back to the `null` state prior to doing a release.
-
-  Versions published with a flag set to `true` will include that
-  feature.
-
-1. Add your new feature flag to the [config/in-progress-features.json](https://github.com/emberjs/data/blob/master/config/in-progress-features.json) file with the `ds-` prefix.
-
-```js
-{
-  "ds-mynew-feature": false
-}
-```
-
-Give it a default of `false` so it will not be used in production builds.
-
-2. Import `isEnabled` from `ember-data/-private`, wrapping any new
-   code with your feature:
-
-```js
-import { isEnabled } from 'ember-data/-private';
-
-if (isEnabled('ds-mynew-feature')) {
-  // ... any additional code
-} else {
-  // ... any previous code that may have been overwritten
-}
-```
-
-3. Similarly, you will want to wrap any new or edited tests with the same
-   feature flag.
-
-```js
-import { isEnabled } from 'ember-data/-private';
-
-if (isEnabled('ds-mynew-feature')) {
-  test('test for new feature', function(assert) {
-    // ...
-  });
-}
-```
-
-This will ensure these feature tests are only run when then feature is included in the build for `ember-data`.
-
-4. Commit your work. For more information about commit prefixes see [Commit Tagging](#commit-tagging).
-
-5. Push to your fork and submit a pull request. Please provide us with some
-   explanation of why you made the changes you made. For new features make sure to
-   explain a standard use case to us. Use the commit tagging guidelines for the PR
-   title.
 
 ## Notes
 

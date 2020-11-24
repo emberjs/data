@@ -2,8 +2,11 @@
   @module @ember-data/adapter
 */
 import { dasherize } from '@ember/string';
-import RESTAdapter from './rest';
+
 import { pluralize } from 'ember-inflector';
+
+import { serializeIntoHash } from './-private';
+import RESTAdapter from './rest';
 
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It
@@ -114,9 +117,9 @@ import { pluralize } from 'ember-inflector';
   ```app/adapters/application.js
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-  export default JSONAPIAdapter.extend({
-    namespace: 'api/1'
-  });
+  export default class ApplicationAdapter extends JSONAPIAdapter {
+    namespace = 'api/1';
+  }
   ```
   Requests for the `person` model would now target `/api/1/people/1`.
 
@@ -127,9 +130,9 @@ import { pluralize } from 'ember-inflector';
   ```app/adapters/application.js
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-  export default JSONAPIAdapter.extend({
-    host: 'https://api.example.com'
-  });
+  export default class ApplicationAdapter extends JSONAPIAdapter {
+    host = 'https://api.example.com';
+  }
   ```
 
   Requests for the `person` model would now target
@@ -140,10 +143,10 @@ import { pluralize } from 'ember-inflector';
   @constructor
   @extends RESTAdapter
 */
-const JSONAPIAdapter = RESTAdapter.extend({
-  defaultSerializer: '-json-api',
+class JSONAPIAdapter extends RESTAdapter {
+  defaultSerializer = '-json-api';
 
-  _defaultContentType: 'application/vnd.api+json',
+  _defaultContentType = 'application/vnd.api+json';
 
   /**
     @method ajaxOptions
@@ -154,12 +157,12 @@ const JSONAPIAdapter = RESTAdapter.extend({
     @return {Object}
   */
   ajaxOptions(url, type, options = {}) {
-    let hash = this._super(url, type, options);
+    let hash = super.ajaxOptions(url, type, options);
 
     hash.headers['Accept'] = hash.headers['Accept'] || 'application/vnd.api+json';
 
     return hash;
-  },
+  }
 
   /**
     By default the JSONAPIAdapter will send each find request coming from a `store.find`
@@ -216,29 +219,25 @@ const JSONAPIAdapter = RESTAdapter.extend({
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests: false,
+  coalesceFindRequests = false;
 
   findMany(store, type, ids, snapshots) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
-  },
+  }
 
   pathForType(modelName) {
     let dasherized = dasherize(modelName);
     return pluralize(dasherized);
-  },
+  }
 
-  // TODO: Remove this once we have a better way to override HTTP verbs.
   updateRecord(store, type, snapshot) {
-    let data = {};
-    let serializer = store.serializerFor(type.modelName);
-
-    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+    const data = serializeIntoHash(store, type, snapshot);
 
     let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PATCH', { data: data });
-  },
-});
+  }
+}
 
 export default JSONAPIAdapter;

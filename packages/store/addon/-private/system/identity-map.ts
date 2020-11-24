@@ -1,5 +1,6 @@
 import InternalModelMap from './internal-model-map';
-import { Dict } from '../ts-interfaces/utils';
+
+type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 /**
   @module @ember-data/store
@@ -13,7 +14,7 @@ import { Dict } from '../ts-interfaces/utils';
  @private
  */
 export default class IdentityMap {
-  private _map: Dict<string, InternalModelMap> = Object.create(null);
+  private _map: ConfidentDict<InternalModelMap> = Object.create(null);
 
   /**
    Retrieves the `InternalModelMap` for a given modelName,

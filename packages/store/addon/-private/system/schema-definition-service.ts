@@ -1,10 +1,30 @@
-import Store from './ds-model-store';
-import { RecordIdentifier } from '../ts-interfaces/identifier';
-import { get } from '@ember/object';
 import { getOwner } from '@ember/application';
+import { get } from '@ember/object';
+
+import require from 'require';
+
+import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+
 import normalizeModelName from './normalize-model-name';
-import Model from './model/model';
-import { RelationshipsSchema, AttributesSchema } from '../ts-interfaces/record-data-schemas';
+
+type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
+type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
+type Store = import('./ds-model-store').default;
+
+type Model = import('@ember-data/model').default;
+type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
+
+let _modelForMixin: ModelForMixin;
+if (HAS_MODEL_PACKAGE) {
+  let _found;
+  _modelForMixin = function() {
+    if (!_found) {
+      _found = require('@ember-data/model/-private')._modelForMixin;
+    }
+    return _found(...arguments);
+  };
+}
 
 export class DSModelSchemaDefinitionService {
   private _modelFactoryCache = Object.create(null);
@@ -58,7 +78,7 @@ export class DSModelSchemaDefinitionService {
 
   doesTypeExist(modelName: string): boolean {
     let normalizedModelName = normalizeModelName(modelName);
-    let factory = getModelFactory(this.store, this.store._modelFactoryCache, normalizedModelName);
+    let factory = getModelFactory(this.store, this._modelFactoryCache, normalizedModelName);
 
     return factory !== null;
   }
@@ -71,13 +91,13 @@ export class DSModelSchemaDefinitionService {
  * @param normalizedModelName already normalized modelName
  * @return {*}
  */
-export function getModelFactory(store, cache, normalizedModelName) {
+export function getModelFactory(store: Store, cache, normalizedModelName: string): Model | null {
   let factory = cache[normalizedModelName];
 
   if (!factory) {
     factory = _lookupModelFactory(store, normalizedModelName);
 
-    if (!factory) {
+    if (!factory && HAS_MODEL_PACKAGE) {
       //Support looking up mixins as base types for polymorphic relationships
       factory = _modelForMixin(store, normalizedModelName);
     }
@@ -88,13 +108,11 @@ export function getModelFactory(store, cache, normalizedModelName) {
     }
 
     let klass = factory.class;
-    // assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
-    // TODO: deprecate this
     if (klass.isModel) {
-      let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
+      let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
       if (!hasOwnModelNameSet) {
-        klass.modelName = normalizedModelName;
+        Object.defineProperty(klass, 'modelName', { value: normalizedModelName });
       }
     }
 
@@ -104,42 +122,8 @@ export function getModelFactory(store, cache, normalizedModelName) {
   return factory;
 }
 
-export function _lookupModelFactory(store, normalizedModelName) {
+export function _lookupModelFactory(store: Store, normalizedModelName: string): Model | null {
   let owner = getOwner(store);
 
   return owner.factoryFor(`model:${normalizedModelName}`);
-}
-
-/*
-    In case someone defined a relationship to a mixin, for example:
-    ```
-      let Comment = DS.Model.extend({
-        owner: belongsTo('commentable'. { polymorphic: true })
-      });
-      let Commentable = Ember.Mixin.create({
-        comments: hasMany('comment')
-      });
-    ```
-    we want to look up a Commentable class which has all the necessary
-    relationship metadata. Thus, we look up the mixin and create a mock
-    DS.Model, so we can access the relationship CPs of the mixin (`comments`)
-    in this case
-  */
-export function _modelForMixin(store, normalizedModelName) {
-  let owner = getOwner(store);
-  let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-  let mixin = MaybeMixin && MaybeMixin.class;
-
-  if (mixin) {
-    let ModelForMixin = Model.extend(mixin);
-    ModelForMixin.reopenClass({
-      __isMixin: true,
-      __mixin: mixin,
-    });
-
-    //Cache the class as a model
-    owner.register('model:' + normalizedModelName, ModelForMixin);
-  }
-
-  return _lookupModelFactory(store, normalizedModelName);
 }

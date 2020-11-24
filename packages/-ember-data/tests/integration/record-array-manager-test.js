@@ -1,12 +1,15 @@
 import { A } from '@ember/array';
-import { setupTest } from 'ember-qunit';
 import OrderedSet from '@ember/ordered-set';
 import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 
-import Model from '@ember-data/model';
+import { setupTest } from 'ember-qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
-import { attr, belongsTo, hasMany } from '@ember-data/model';
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { recordIdentifierFor } from '@ember-data/store';
 
 let store, manager;
 
@@ -99,24 +102,48 @@ module('integration/record_array_manager', function(hooks) {
 
     assert.equal(allSummary.called.length, 0, 'initial: no calls to all.willDestroy');
     assert.equal(adapterPopulatedSummary.called.length, 0, 'initial: no calls to adapterPopulated.willDestroy');
-    assert.equal(
-      internalPersonModel._recordArrays.size,
-      1,
-      'initial: expected the person to be a member of 1 recordArrays'
-    );
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      assert.equal(
+        manager.getRecordArraysForIdentifier(internalPersonModel.identifier).size,
+        1,
+        'initial: expected the person to be a member of 1 recordArrays'
+      );
+    } else {
+      assert.equal(
+        internalPersonModel._recordArrays.size,
+        1,
+        'initial: expected the person to be a member of 1 recordArrays'
+      );
+    }
     assert.equal('person' in manager._liveRecordArrays, true, 'initial: we have a live array for person');
 
     all.destroy();
     await settled();
 
-    assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of 1 recordArrays');
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      assert.equal(
+        manager.getRecordArraysForIdentifier(internalPersonModel.identifier).size,
+        0,
+        'expected the person to be a member of no recordArrays'
+      );
+    } else {
+      assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
+    }
     assert.equal(allSummary.called.length, 1, 'all.willDestroy called once');
     assert.equal('person' in manager._liveRecordArrays, false, 'no longer have a live array for person');
 
     manager.destroy();
     await settled();
 
-    assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      assert.equal(
+        manager.getRecordArraysForIdentifier(internalPersonModel.identifier).size,
+        0,
+        'expected the person to be a member of no recordArrays'
+      );
+    } else {
+      assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
+    }
     assert.equal(allSummary.called.length, 1, 'all.willDestroy still only called once');
     assert.equal(adapterPopulatedSummary.called.length, 1, 'adapterPopulated.willDestroy called once');
   });
@@ -242,23 +269,42 @@ module('integration/record_array_manager', function(hooks) {
   });
 
   test('createRecordArray with optional content', function(assert) {
-    let record = {};
-    let internalModel = {
-      _recordArrays: new OrderedSet(),
-      getRecord() {
-        return record;
-      },
-    };
-    let content = A([internalModel]);
+    let content;
+    let record;
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      record = store.push({
+        data: {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini Cooper',
+          },
+        },
+      });
+      content = A([recordIdentifierFor(record)]);
+    } else {
+      let internalModel = {
+        _recordArrays: new OrderedSet(),
+        getRecord() {
+          return record;
+        },
+      };
+
+      content = A([internalModel]);
+    }
+
     let recordArray = manager.createRecordArray('foo', content);
 
-    assert.equal(recordArray.modelName, 'foo');
-    assert.equal(recordArray.isLoaded, true);
-    assert.equal(recordArray.manager, manager);
-    assert.equal(recordArray.get('content'), content);
-    assert.deepEqual(recordArray.toArray(), [record]);
-
-    assert.deepEqual(internalModel._recordArrays.toArray(), [recordArray]);
+    assert.equal(recordArray.modelName, 'foo', 'has modelName');
+    assert.equal(recordArray.isLoaded, true, 'isLoaded is true');
+    assert.equal(recordArray.manager, manager, 'recordArray has manager');
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      assert.deepEqual(recordArray.get('content'), [recordIdentifierFor(record)], 'recordArray has content');
+    } else {
+      assert.equal(recordArray.get('content'), content);
+    }
+    assert.deepEqual(recordArray.toArray(), [record], 'toArray works');
   });
 
   test('liveRecordArrayFor always return the same array for a given type', function(assert) {

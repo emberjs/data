@@ -1,20 +1,21 @@
+import { computed, get, observer, set } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
-import { resolve, reject } from 'rsvp';
-import { set, get, observer, computed } from '@ember/object';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { module, test } from 'qunit';
-import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import { settled } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
+
+import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
-import Model from '@ember-data/model';
+
 import { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Model, { attr, attr as DSattr, belongsTo, hasMany } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
-import { attr as DSattr } from '@ember-data/model';
-import { recordDataFor } from 'ember-data/-private';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
-import { gte } from 'ember-compatibility-helpers';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordDataFor } from '@ember-data/store/-private';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model - Model', function(hooks) {
   setupTest(hooks);
@@ -402,6 +403,13 @@ module('unit/model - Model', function(hooks) {
       assert.equal(idChange, 0);
       person._internalModel.setId('john');
       assert.equal(idChange, 1);
+      let recordData = recordDataFor(person);
+      assert.equal(
+        recordData.getResourceIdentifier().id,
+        'john',
+        'new id should be set on the identifier on record data.'
+      );
+      assert.equal(recordData.id, 'john', 'new id should be correctly set on the record data itself.');
       assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
     });
 
@@ -626,6 +634,7 @@ module('unit/model - Model', function(hooks) {
       'an event listener can be added to a record',
       {
         id: 'ember-data:evented-api-usage',
+        count: 1,
         until: '4.0',
       },
       async function(assert) {
@@ -637,11 +646,13 @@ module('unit/model - Model', function(hooks) {
         let record = store.createRecord('person');
 
         record.on('event!', F);
+
         record.trigger('event!');
 
         await settled();
 
         assert.equal(count, 1, 'the event was triggered');
+
         record.trigger('event!');
 
         await settled();
@@ -654,6 +665,7 @@ module('unit/model - Model', function(hooks) {
       'when an event is triggered on a record the method with the same name is invoked with arguments',
       {
         id: 'ember-data:evented-api-usage',
+        count: 0,
         until: '4.0',
       },
       async function(assert) {
@@ -677,6 +689,7 @@ module('unit/model - Model', function(hooks) {
       'when a method is invoked from an event with the same name the arguments are passed through',
       {
         id: 'ember-data:evented-api-usage',
+        count: 0,
         until: '4.0',
       },
       async function(assert) {
@@ -792,7 +805,6 @@ module('unit/model - Model', function(hooks) {
     testInDebug('A subclass of Model throws an error when calling create() directly', async function(assert) {
       class NativePerson extends Model {}
       const LegacyPerson = Model.extend({});
-      const EmberObjectNewError = 'was not instantiated correctly.';
 
       assert.throws(
         () => {
@@ -804,44 +816,10 @@ module('unit/model - Model', function(hooks) {
 
       assert.throws(
         () => {
-          try {
-            // the `{}` here is so that in recent ember we throw a nice error vs an
-            // obtuse error. An error will thrown in any case though.
-            new NativePerson({});
-          } catch (e) {
-            if (e.message.indexOf(EmberObjectNewError) !== -1) {
-              throw new Error('You should not call `create` on a model');
-            }
-            throw e;
-          }
-        },
-        /You should not call `create` on a model/,
-        'Throws an error when calling instantiating via new Model'
-      );
-
-      assert.throws(
-        () => {
           LegacyPerson.create();
         },
         /You should not call `create` on a model/,
         'Throws an error when calling create() on model'
-      );
-
-      assert.throws(
-        () => {
-          try {
-            // the `{}` here is so that in recent ember we throw a nice error vs an
-            // obtuse error. An error will thrown in any case though.
-            new LegacyPerson({});
-          } catch (e) {
-            if (e.message.indexOf(EmberObjectNewError) !== -1) {
-              throw new Error('You should not call `create` on a model');
-            }
-            throw e;
-          }
-        },
-        /You should not call `create` on a model/,
-        'Throws an error when calling instantiating view new Model()'
       );
     });
   });
@@ -938,56 +916,70 @@ module('unit/model - Model', function(hooks) {
   });
 
   module('toJSON()', function(hooks) {
-    test('A Model can be JSONified', async function(assert) {
-      let record = store.createRecord('person', { name: 'TomHuda' });
+    deprecatedTest(
+      'A Model can be JSONified',
+      {
+        id: 'ember-data:model.toJSON',
+        until: '4.0',
+      },
+      async function(assert) {
+        let record = store.createRecord('person', { name: 'TomHuda' });
 
-      assert.deepEqual(record.toJSON(), {
-        data: {
-          type: 'people',
-          attributes: {
-            name: 'TomHuda',
-            'is-archived': undefined,
-            'is-drug-addict': false,
+        assert.deepEqual(record.toJSON(), {
+          data: {
+            type: 'people',
+            attributes: {
+              name: 'TomHuda',
+              'is-archived': undefined,
+              'is-drug-addict': false,
+            },
           },
-        },
-      });
-    });
-
-    test('toJSON looks up the JSONSerializer using the store instead of using JSONSerializer.create', async function(assert) {
-      class Author extends Model {
-        @hasMany('post', { async: false, inverse: 'author' })
-        posts;
+        });
       }
-      class Post extends Model {
-        @belongsTo('author', { async: false, inverse: 'posts' })
-        author;
+    );
+
+    deprecatedTest(
+      'toJSON looks up the JSONSerializer using the store instead of using JSONSerializer.create',
+      {
+        id: 'ember-data:model.toJSON',
+        until: '4.0',
+      },
+      async function(assert) {
+        class Author extends Model {
+          @hasMany('post', { async: false, inverse: 'author' })
+          posts;
+        }
+        class Post extends Model {
+          @belongsTo('author', { async: false, inverse: 'posts' })
+          author;
+        }
+        this.owner.register('model:author', Author);
+        this.owner.register('model:post', Post);
+
+        // Loading the person without explicitly
+        // loading its relationships seems to trigger the
+        // original bug where `this.store` was not
+        // present on the serializer due to using .create
+        // instead of `store.serializerFor`.
+        let person = store.push({
+          data: {
+            type: 'author',
+            id: '1',
+          },
+        });
+
+        let errorThrown = false;
+        let json;
+        try {
+          json = person.toJSON();
+        } catch (e) {
+          errorThrown = true;
+        }
+
+        assert.ok(!errorThrown, 'error not thrown due to missing store');
+        assert.deepEqual(json, { data: { type: 'authors' } });
       }
-      this.owner.register('model:author', Author);
-      this.owner.register('model:post', Post);
-
-      // Loading the person without explicitly
-      // loading its relationships seems to trigger the
-      // original bug where `this.store` was not
-      // present on the serializer due to using .create
-      // instead of `store.serializerFor`.
-      let person = store.push({
-        data: {
-          type: 'author',
-          id: '1',
-        },
-      });
-
-      let errorThrown = false;
-      let json;
-      try {
-        json = person.toJSON();
-      } catch (e) {
-        errorThrown = true;
-      }
-
-      assert.ok(!errorThrown, 'error not thrown due to missing store');
-      assert.deepEqual(json, { data: { type: 'authors' } });
-    });
+    );
   });
 
   module('Updating', function() {

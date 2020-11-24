@@ -1,17 +1,15 @@
 import { A } from '@ember/array';
-import { Promise } from 'rsvp';
-import { assert, warn, deprecate } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
-import Ember from 'ember';
-import coerceId from '../coerce-id';
-
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
-
-import { normalizeResponseHelper } from './serializer-response';
-import { serializerForAdapter } from './serializers';
+import { assert, deprecate, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
-import { IDENTIFIERS } from '@ember-data/canary-features';
-import { REQUEST_SERVICE } from '@ember-data/canary-features';
+import { DEBUG } from '@glimmer/env';
+
+import { Promise } from 'rsvp';
+
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS, REQUEST_SERVICE } from '@ember-data/canary-features';
+
+import coerceId from '../coerce-id';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
+import { normalizeResponseHelper } from './serializer-response';
 
 /**
   @module @ember-data/store
@@ -45,7 +43,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
         `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
       );
-      let serializer = serializerForAdapter(store, adapter, modelName);
+      let serializer = store.serializerFor(modelName);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, id, 'findRecord');
       assert(
         `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
@@ -53,17 +51,15 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
       );
 
       warn(
-        `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead https://emberjs.com/api/data/classes/DS.Store.html#method_queryRecord`,
+        `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
         coerceId(payload.data.id) === coerceId(id),
         {
           id: 'ds.store.findRecord.id-mismatch',
         }
       );
 
-      if (IDENTIFIERS) {
-        // ensure that regardless of id returned we assign to the correct record
-        payload.data.lid = identifier.lid;
-      }
+      // ensure that regardless of id returned we assign to the correct record
+      payload.data.lid = identifier.lid;
 
       return store._push(payload);
     },
@@ -97,7 +93,7 @@ export function _findMany(adapter, store, modelName, ids, internalModels, option
         `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
       );
-      let serializer = serializerForAdapter(store, adapter, modelName);
+      let serializer = store.serializerFor(modelName);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findMany');
       return store._push(payload);
     },
@@ -131,17 +127,24 @@ function syncRelationshipDataFromLink(store, payload, parentInternalModel, relat
 
   // now, push the left hand side (the parent record) to ensure things are in sync, since
   // the payload will be pushed with store._push
-  store.push({
-    data: {
-      id: parentInternalModel.id,
-      type: parentInternalModel.modelName,
-      relationships: {
-        [relationship.key]: {
-          data: relationshipData,
-        },
+  const parentPayload = {
+    id: parentInternalModel.id,
+    type: parentInternalModel.modelName,
+    relationships: {
+      [relationship.key]: {
+        meta: payload.meta,
+        links: payload.links,
+        data: relationshipData,
       },
     },
-  });
+  };
+
+  if (!Array.isArray(payload.included)) {
+    payload.included = [];
+  }
+  payload.included.push(parentPayload);
+
+  return payload;
 }
 
 function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, parentRelationship, index) {
@@ -163,20 +166,21 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
       typeof relationshipData !== 'undefined' &&
       !relationshipDataPointsToParent(relationshipData, parentInternalModel)
     ) {
-      let quotedType = Ember.inspect(type);
-      let quotedInverse = Ember.inspect(inverseKey);
-      let expected = Ember.inspect({
+      let inspect = function inspect(thing) {
+        return `'${JSON.stringify(thing)}'`;
+      };
+      let quotedType = inspect(type);
+      let quotedInverse = inspect(inverseKey);
+      let expected = inspect({
         id: parentInternalModel.id,
         type: parentInternalModel.modelName,
       });
-      let expectedModel = Ember.inspect(parentInternalModel);
-      let got = Ember.inspect(relationshipData);
+      let expectedModel = `${parentInternalModel.modelName}:${parentInternalModel.id}`;
+      let got = inspect(relationshipData);
       let prefix = typeof index === 'number' ? `data[${index}]` : `data`;
-      let path = `${prefix}.relationships.${inverse}.data`;
+      let path = `${prefix}.relationships.${inverseKey}.data`;
       let other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
-      let relationshipFetched = `${Ember.inspect(parentInternalModel)}.${parentRelationship.kind}("${
-        parentRelationship.name
-      }")`;
+      let relationshipFetched = `${expectedModel}.${parentRelationship.kind}("${parentRelationship.name}")`;
       let includedRecord = `<${type}:${id}>`;
       let message = [
         `Encountered mismatched relationship: Ember Data expected ${path} in the payload from ${relationshipFetched} to include ${expected} but got ${got} instead.\n`,
@@ -268,7 +272,9 @@ function validateRelationshipEntry({ id }, { id: parentModelID }) {
 export function _findHasMany(adapter, store, internalModel, link, relationship, options) {
   let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
-  let promise = adapter.findHasMany(store, snapshot, link, relationship);
+  let useLink = !link || typeof link === 'string';
+  let relatedLink = useLink ? link : link.href;
+  let promise = adapter.findHasMany(store, snapshot, relatedLink, relationship);
   let label = `DS: Handle Adapter#findHasMany of '${internalModel.modelName}' : '${relationship.type}'`;
 
   promise = guardDestroyedStore(promise, store, label);
@@ -280,13 +286,12 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
         `You made a 'findHasMany' request for a ${internalModel.modelName}'s '${relationship.key}' relationship, using link '${link}' , but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
       );
-      let serializer = serializerForAdapter(store, adapter, relationship.type);
+      let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findHasMany');
 
-      syncRelationshipDataFromLink(store, payload, internalModel, relationship);
+      payload = syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       let internalModelArray = store._push(payload);
-      internalModelArray.meta = payload.meta;
       return internalModelArray;
     },
     null,
@@ -297,7 +302,9 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship, options) {
   let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
-  let promise = adapter.findBelongsTo(store, snapshot, link, relationship);
+  let useLink = !link || typeof link === 'string';
+  let relatedLink = useLink ? link : link.href;
+  let promise = adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
   let label = `DS: Handle Adapter#findBelongsTo of ${internalModel.modelName} : ${relationship.type}`;
 
   promise = guardDestroyedStore(promise, store, label);
@@ -305,14 +312,14 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 
   return promise.then(
     adapterPayload => {
-      let serializer = serializerForAdapter(store, adapter, relationship.type);
+      let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
       if (!payload.data) {
         return null;
       }
 
-      syncRelationshipDataFromLink(store, payload, internalModel, relationship);
+      payload = syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       return store._push(payload);
     },
@@ -336,7 +343,7 @@ export function _findAll(adapter, store, modelName, options) {
         `You made a 'findAll' request for '${modelName}' records, but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
       );
-      let serializer = serializerForAdapter(store, adapter, modelName);
+      let serializer = store.serializerFor(modelName);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findAll');
 
       store._push(payload);
@@ -360,7 +367,7 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
 
   return promise.then(
     adapterPayload => {
-      let serializer = serializerForAdapter(store, adapter, modelName);
+      let serializer = store.serializerFor(modelName);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'query');
       let internalModels = store._push(payload);
 
@@ -368,15 +375,29 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
         'The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.',
         Array.isArray(internalModels)
       );
-      if (recordArray) {
-        recordArray._setInternalModels(internalModels, payload);
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        let identifiers = internalModels.map(im => im.identifier);
+        if (recordArray) {
+          recordArray._setIdentifiers(identifiers, payload);
+        } else {
+          recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(
+            modelName,
+            query,
+            identifiers,
+            payload
+          );
+        }
       } else {
-        recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(
-          modelName,
-          query,
-          internalModels,
-          payload
-        );
+        if (recordArray) {
+          recordArray._setInternalModels(internalModels, payload);
+        } else {
+          recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(
+            modelName,
+            query,
+            internalModels,
+            payload
+          );
+        }
       }
 
       return recordArray;
@@ -395,7 +416,7 @@ export function _queryRecord(adapter, store, modelName, query, options) {
 
   return promise.then(
     adapterPayload => {
-      let serializer = serializerForAdapter(store, adapter, modelName);
+      let serializer = store.serializerFor(modelName);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'queryRecord');
 
       assert(

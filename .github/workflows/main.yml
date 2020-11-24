@@ -1,0 +1,345 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - beta
+      - release
+      - 'release-*'
+      - 'lts-*'
+    tags:
+      - '*'
+
+jobs:
+  lint:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Yarn install
+        run: yarn --frozen-lockfile
+      - name: Lint features
+        run: yarn lint:features
+      - name: Lint js
+        run: yarn lint:js
+      - name: Check for TypeScript problems
+        run: yarn problems
+
+  test-infra:
+    timeout-minutes: 8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Yarn install
+        run: yarn --frozen-lockfile
+      - name: Yarn test infra compatWith 3.0
+        env:
+          COMPAT_WITH: '3.0'
+        run: yarn test:infra
+      - name: Yarn test infra compatWith 3.8
+        env:
+          COMPAT_WITH: '3.8'
+        run: yarn test:infra
+      - name: Yarn test infra compatWith 3.12
+        env:
+          COMPAT_WITH: '3.12'
+        run: yarn test:infra
+      - name: Yarn test infra compatWith 3.16
+        env:
+          COMPAT_WITH: '3.16'
+        run: yarn test:infra
+      - name: Yarn test infra compatWith 99.0
+        env:
+          COMPAT_WITH: '99.0'
+        run: yarn test:infra
+
+
+  basic-tests:
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --network-timeout=300000
+      - name: Launcher Info
+        run: |
+          yarn run testem launchers
+      - name: Basic tests
+        run: yarn test
+      - name: Production build
+        run: yarn test:production
+      - name: Docs tests
+        run: yarn test:docs
+      - if: matrix.os != 'windows-latest'
+        name: Node tests
+        run: yarn test:node
+      - if: matrix.os == 'ubuntu-latest'
+        name: Encapsulation tests
+        run: yarn test:encapsulation
+      - if: |
+          matrix.os == 'ubuntu-latest' &&
+          github.event_name == 'pull_request' && (
+            github.base_ref == 'master' || github.base_ref == 'beta'
+          ) || github.event_name == 'push' && (
+            endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+          )
+        name: Enable All In progress features
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
+        run: yarn test
+      - if: |
+          matrix.os == 'ubuntu-latest' &&
+          github.event_name == 'pull_request' && (
+            github.base_ref == 'master' || github.base_ref == 'beta'
+          ) || github.event_name == 'push' && (
+            endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+          )
+        name: Disabled All In progress features
+        env:
+          EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
+        run: yarn test
+      - if: |
+          github.event_name == 'pull_request' && (
+            github.base_ref == 'master' || github.base_ref == 'beta'
+          ) || github.event_name == 'push' && (
+            endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+          )
+        name: Remove All Deprecations
+        env:
+          EMBER_DATA_FULL_COMPAT: true
+        run: yarn test:production
+
+  fastboot-tests:
+    needs: [lint]
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        scenario: [fastboot-with-ember-fetch, fastboot-with-jquery]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --network-timeout=300000
+      - name: Fastboot Test ${{ matrix.scenario }}
+        timeout-minutes: 6
+        run: yarn test:fastboot ${{ matrix.scenario }}
+
+  browser-tests:
+    needs: [lint]
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
+        launcher: [Chrome, Firefox, IE]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        exclude:
+          - os: macos-latest
+            launcher: IE
+          - os: ubuntu-latest
+            launcher: IE
+          - os: ubuntu-latest
+            launcher: Firefox
+          - os: windows-latest
+            launcher: Firefox
+          - os: macos-latest
+            launcher: Chrome
+          - os: windows-latest
+            launcher: Chrome
+    runs-on: ${{ matrix.os }}
+    name: ${{matrix.scenario}} ${{matrix.launcher}} on ${{matrix.os}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --network-timeout=300000
+      - name: Launcher Info
+        run: |
+          yarn run testem launchers
+      - name: Run Production Test
+        timeout-minutes: 8
+        env:
+          TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
+          CI: true
+        run:
+          yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
+
+  floating-dependencies:
+    timeout-minutes: 6
+    needs: [lint, basic-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Install dependencies w/o lockfile
+        run: yarn install --no-lockfile --non-interactive
+      - name: Basic Tests
+        run: yarn test
+
+  lts:
+    needs: [lint, basic-tests]
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [ember-lts-3.16, ember-lts-3.20]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests with ${{ matrix.scenario }}
+        timeout-minutes: 6
+        env:
+          CI: true
+        run: yarn test:try-one ${{ matrix.scenario }}
+
+  releases:
+    timeout-minutes: 6
+    needs: [lint, basic-tests]
+    if: |
+      github.event_name == 'pull_request' && (
+        github.base_ref == 'master' || github.base_ref == 'beta'
+      ) || github.event_name == 'push' && (
+        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+      )
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [ember-release, ember-beta, ember-canary]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Basic tests with ${{ matrix.scenario }}
+        env:
+          CI: true
+        run: yarn test:try-one ${{ matrix.scenario }}
+
+  additional-scenarios:
+    timeout-minutes: 7
+    needs: [lint, basic-tests]
+    strategy:
+      matrix:
+        scenario:
+          [
+            with-max-transpilation,
+            with-native-fetch,
+            with-ember-fetch-no-jquery,
+            with-ember-fetch-and-jquery,
+            with-jquery,
+          ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --network-timeout=300000
+      - name: Basic tests with ${{ matrix.scenario }}
+        env:
+          CI: true
+        run: yarn test:try-one ${{ matrix.scenario }}
+
+  node-version-test:
+    name: Use Node.js ${{ matrix.node-version }}
+    timeout-minutes: 6
+    needs: [lint, basic-tests]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 14.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies w/o lockfile
+        run: yarn install --no-lockfile --non-interactive
+      - name: Basic Tests
+        run: yarn test
+
+  external-partners:
+    needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
+    if: |
+      github.event_name == 'pull_request' && (
+        github.base_ref == 'master' || github.base_ref == 'beta'
+      ) || github.event_name == 'push' && (
+        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+      )
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        partner:
+          [
+            ember-data-change-tracker,
+            ember-data-relationship-tracker,
+            ember-m3,
+            ember-observer,
+            ember-resource-metadata,
+            factory-guy,
+            ilios-frontend,
+            model-fragments,
+            storefront,
+            travis-web,
+          ]
+        include:
+          - partner: ember-data-change-tracker
+            continue-on-error: true
+          - partner: factory-guy
+            continue-on-error: true
+          - partner: model-fragments
+            continue-on-error: true
+          - partner: travis-web
+            continue-on-error: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Generate package tarballs
+        run: node ./bin/packages-for-commit.js
+      - name: Run Tests
+        timeout-minutes: 16
+        env:
+          CI: true
+        run: yarn test-external:${{ matrix.partner }}
+        continue-on-error: ${{ matrix['continue-on-error'] == true }}
+      - name: upload built assets
+        if: failure() || success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.partner }}-dist
+          path: ${{ github.workspace }}/__external-test-cache/${{ matrix.partner }}/dist/assets
+        continue-on-error: ${{ matrix['continue-on-error'] == true }}

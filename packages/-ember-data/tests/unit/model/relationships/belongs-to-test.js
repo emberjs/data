@@ -1,14 +1,15 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
+
+import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { module, test } from 'qunit';
-
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model/relationships - DS.belongsTo', function(hooks) {
   setupTest(hooks);
@@ -566,7 +567,10 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
           },
           relationships: {
             occupations: {
-              data: [{ type: 'occupation', id: '5' }, { type: 'occupation', id: '2' }],
+              data: [
+                { type: 'occupation', id: '5' },
+                { type: 'occupation', id: '2' },
+              ],
             },
           },
         },

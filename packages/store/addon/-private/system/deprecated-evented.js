@@ -1,7 +1,9 @@
+import { deprecate } from '@ember/debug';
 import Evented from '@ember/object/evented';
 import Mixin from '@ember/object/mixin';
-import { deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
+
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 /**
   @module @ember-data/store
@@ -45,6 +47,7 @@ if (DEBUG) {
       deprecate(deprecationMessage, deprecations[eventName], {
         id: 'ember-data:evented-api-usage',
         until: '4.0',
+        url: 'https://deprecations.emberjs.com/ember-data/v3.x/#deprecatingrecordlifecycleeventmethods',
       });
       deprecations[eventName] = true;
     },
@@ -76,4 +79,4 @@ if (DEBUG) {
   });
 }
 
-export default DEBUG ? DeprecatedEvented : Evented;
+export default DEPRECATE_EVENTED_API_USAGE ? (DEBUG ? DeprecatedEvented : Evented) : {};

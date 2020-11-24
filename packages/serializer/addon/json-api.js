@@ -2,16 +2,16 @@
   @module @ember-data/serializer
 */
 
-import { typeOf, isNone } from '@ember/utils';
-
-import { dasherize } from '@ember/string';
-import { pluralize, singularize } from 'ember-inflector';
 import { assert, warn } from '@ember/debug';
+import { dasherize } from '@ember/string';
+import { isNone, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
+import { pluralize, singularize } from 'ember-inflector';
+
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONSerializer from '@ember-data/serializer/json';
 import { normalizeModelName } from '@ember-data/store';
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 /**
   Ember Data 2.0 Serializer:
@@ -29,22 +29,22 @@ import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
   ```app/models/player.js
   import Model, { attr, belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    name: attr('string'),
-    skill: attr('string'),
-    gamesPlayed: attr('number'),
-    club: belongsTo('club')
-  });
+  export default class Player extends Model {
+    @attr('string') name;
+    @attr('string') skill;
+    @attr('number') gamesPlayed;
+    @belongsTo('club') club;
+  }
   ```
 
   ```app/models/club.js
   import Model, { attr, hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    name: attr('string'),
-    location: attr('string'),
-    players: hasMany('player')
-  });
+  export default class Club extends Model {
+    @attr('string') name;
+    @attr('string') location;
+    @hasMany('player') players;
+  }
   ```
 
   ```js
@@ -103,25 +103,27 @@ import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
   `extractRelationship`.
 
   ```app/serializers/application.js
-  export default JSONAPISerializer.extend({
+  import JSONAPISerializer from '@ember-data/serializer/json';
+
+  export default class ApplicationSerializer extends JSONAPISerializer {
     normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
-      let normalizedDocument = this._super(...arguments);
+      let normalizedDocument = super.normalizeArrayResponse(...arguments);
 
       // Customize document meta
       normalizedDocument.meta = camelCaseKeys(normalizedDocument.meta);
 
       return normalizedDocument;
-    },
+    }
 
     extractRelationship(relationshipHash) {
-      let normalizedRelationship = this._super(...arguments);
+      let normalizedRelationship = super.extractRelationship(...arguments);
 
       // Customize relationship meta
       normalizedRelationship.meta = camelCaseKeys(normalizedRelationship.meta);
 
       return normalizedRelationship;
     }
-  });
+  }
   ```
 
   @since 1.13.0
@@ -209,7 +211,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   /**
     @method pushPayload
-    @param {DS.Store} store
+    @param {Store} store
     @param {Object} payload
   */
   pushPayload(store, payload) {
@@ -219,8 +221,8 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   /**
     @method _normalizeResponse
-    @param {DS.Store} store
-    @param {DS.Model} primaryModelClass
+    @param {Store} store
+    @param {Model} primaryModelClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -337,7 +339,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   /**
     @method _extractType
-    @param {DS.Model} modelClass
+    @param {Model} modelClass
     @param {Object} resourceHash
     @return {String}
     @private
@@ -413,11 +415,11 @@ const JSONAPISerializer = JSONSerializer.extend({
     import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { dasherize } from '@ember/string';
 
-    export default JSONAPISerializer.extend({
+    export default class ApplicationSerializer extends JSONAPISerializer {
       keyForAttribute(attr, method) {
         return dasherize(attr).toUpperCase();
       }
-    });
+    }
     ```
 
     @method keyForAttribute
@@ -444,11 +446,11 @@ const JSONAPISerializer = JSONSerializer.extend({
     import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { underscore } from '@ember/string';
 
-    export default JSONAPISerializer.extend({
+    export default class ApplicationSerializer extends JSONAPISerializer {
       keyForRelationship(key, relationship, method) {
         return underscore(key);
       }
-    });
+    }
     ```
    @method keyForRelationship
    @param {String} key
@@ -559,20 +561,23 @@ const JSONAPISerializer = JSONSerializer.extend({
 
 if (DEBUG) {
   JSONAPISerializer.reopen({
-    willMergeMixin(props) {
-      let constructor = this.constructor;
-      warn(
-        `You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at https://emberjs.com/api/data/classes/DS.JSONAPISerializer on how to customize meta when using JSON API.`,
-        isNone(props.extractMeta) || props.extractMeta === JSONSerializer.prototype.extractMeta,
-        {
-          id: 'ds.serializer.json-api.extractMeta',
-        }
-      );
-      warn(
-        'The JSONAPISerializer does not work with the EmbeddedRecordsMixin because the JSON API spec does not describe how to format embedded resources.',
-        !props.isEmbeddedRecordsMixin,
+    init(...args) {
+      this._super(...args);
+
+      assert(
+        `You've used the EmbeddedRecordsMixin in ${this.toString()} which is not fully compatible with the JSON:API specification. Please confirm that this works for your specific API and add \`this.isEmbeddedRecordsMixinCompatible = true\` to your serializer.`,
+        !this.isEmbeddedRecordsMixin || this.isEmbeddedRecordsMixinCompatible === true,
         {
           id: 'ds.serializer.embedded-records-mixin-not-supported',
+        }
+      );
+
+      let constructor = this.constructor;
+      warn(
+        `You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at https://api.emberjs.com/ember-data/release/classes/JSONAPISerializer on how to customize meta when using JSON API.`,
+        this.extractMeta === JSONSerializer.prototype.extractMeta,
+        {
+          id: 'ds.serializer.json-api.extractMeta',
         }
       );
     },

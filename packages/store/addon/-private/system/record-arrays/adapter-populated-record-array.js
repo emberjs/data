@@ -1,9 +1,13 @@
-import { once } from '@ember/runloop';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import RecordArray from './record-array';
-import cloneNull from '../clone-null';
+import { assign } from '@ember/polyfills';
+import { once } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
+
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
+
+import RecordArray from './record-array';
 
 /**
   @module @ember-data/store
@@ -18,7 +22,7 @@ import { DEBUG } from '@glimmer/env';
   ---
 
   If you want to update the array and get the latest records from the
-  adapter, you can invoke [`update()`](#method_update):
+  adapter, you can invoke [`update()`](AdapterPopulatedRecordArray/methods/update?anchor=update):
 
   Example
 
@@ -46,9 +50,8 @@ import { DEBUG } from '@glimmer/env';
   @class AdapterPopulatedRecordArray
   @extends RecordArray
 */
-export default RecordArray.extend({
+let AdapterPopulatedRecordArray = RecordArray.extend({
   init() {
-    // yes we are touching `this` before super, but ArrayProxy has a bug that requires this.
     this.set('content', this.get('content') || A());
 
     this._super(...arguments);
@@ -72,31 +75,55 @@ export default RecordArray.extend({
     return store._query(this.modelName, query, this);
   },
 
-  /**
-    @method _setInternalModels
-    @param {Array} internalModels
-    @param {Object} payload normalized payload
-    @private
-  */
-  _setInternalModels(internalModels, payload) {
+  _setObjects(identifiersOrInternalModels, payload) {
     // TODO: initial load should not cause change events at all, only
     // subsequent. This requires changing the public api of adapter.query, but
     // hopefully we can do that soon.
-    this.get('content').setObjects(internalModels);
+    this.get('content').setObjects(identifiersOrInternalModels);
 
     this.setProperties({
       isLoaded: true,
       isUpdating: false,
-      meta: cloneNull(payload.meta),
-      links: cloneNull(payload.links),
+      meta: assign({}, payload.meta),
+      links: assign({}, payload.links),
     });
 
-    this.manager._associateWithRecordArray(internalModels, this);
+    this.manager._associateWithRecordArray(identifiersOrInternalModels, this);
 
-    const _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
-    if (_hasDidLoad) {
-      // TODO: should triggering didLoad event be the last action of the runLoop?
-      once(this, 'trigger', 'didLoad');
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      let _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
+      if (_hasDidLoad) {
+        // TODO: should triggering didLoad event be the last action of the runLoop?
+        once(this, 'trigger', 'didLoad');
+      }
     }
   },
 });
+
+if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+  AdapterPopulatedRecordArray = AdapterPopulatedRecordArray.extend({
+    /**
+      @method _setIdentifiers
+      @param {StableRecordIdentifier[]} identifiers
+      @param {Object} payload normalized payload
+      @internal
+    */
+    _setIdentifiers(identifiers, payload) {
+      this._setObjects(identifiers, payload);
+    },
+  });
+} else {
+  AdapterPopulatedRecordArray = AdapterPopulatedRecordArray.extend({
+    /**
+      @method _setInternalModels
+      @param {Array} internalModels
+      @param {Object} payload normalized payload
+      @internal
+    */
+    _setInternalModels(internalModels, payload) {
+      this._setObjects(internalModels, payload);
+    },
+  });
+}
+
+export default AdapterPopulatedRecordArray;

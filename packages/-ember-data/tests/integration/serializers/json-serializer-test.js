@@ -1,12 +1,16 @@
-import { underscore } from '@ember/string';
-import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
+/* eslint no-prototype-builtins: 'off' */
+// prototype hasOwnProperty has no security issues here because it is not production code
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import JSONSerializer from '@ember-data/serializer/json';
+import { run } from '@ember/runloop';
+import { underscore } from '@ember/string';
+
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+
+import JSONSerializer from '@ember-data/serializer/json';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 var Post, Comment, Favorite;
 
@@ -313,7 +317,10 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
 
   test('normalizeResponse normalizes each record in the array', function(assert) {
     var postNormalizeCount = 0;
-    var posts = [{ id: '1', title: 'Rails is omakase' }, { id: '2', title: 'Another Post' }];
+    var posts = [
+      { id: '1', title: 'Rails is omakase' },
+      { id: '2', title: 'Another Post' },
+    ];
 
     this.owner.register(
       'serializer:post',
@@ -1002,7 +1009,10 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     var jsonHash = {
       id: '1',
       title: 'Rails is omakase',
-      comments: [{ id: '1', body: 'comment 1' }, { id: '2', body: 'comment 2' }],
+      comments: [
+        { id: '1', body: 'comment 1' },
+        { id: '2', body: 'comment 2' },
+      ],
     };
 
     let store = this.owner.lookup('service:store');
@@ -1034,7 +1044,10 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       {
         id: '2',
         title: 'Post 2',
-        comments: [{ id: '2', body: 'comment 2' }, { id: '3', body: 'comment 3' }],
+        comments: [
+          { id: '2', body: 'comment 2' },
+          { id: '3', body: 'comment 3' },
+        ],
       },
     ];
 

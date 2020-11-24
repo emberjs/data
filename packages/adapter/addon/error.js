@@ -1,5 +1,5 @@
-import EmberError from '@ember/error';
 import { assert } from '@ember/debug';
+import EmberError from '@ember/error';
 
 /**
   @module @ember-data/adapter
@@ -21,7 +21,7 @@ import { assert } from '@ember/debug';
   - `ServerError`
 
   To create a custom error to signal a specific error state in communicating
-  with an external API, extend the `DS.AdapterError`. For example, if the
+  with an external API, extend the `AdapterError`. For example, if the
   external API exclusively used HTTP `503 Service Unavailable` to indicate
   it was closed for maintenance:
 
@@ -37,7 +37,7 @@ import { assert } from '@ember/debug';
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
   import MaintenanceError from './maintenance-error';
 
-  export default JSONAPIAdapter.extend({
+  export default class ApplicationAdapter extends JSONAPIAdapter {
     handleResponse(status) {
       if (503 === status) {
         return new MaintenanceError();
@@ -45,7 +45,7 @@ import { assert } from '@ember/debug';
 
       return this._super(...arguments);
     }
-  });
+  }
   ```
 
   And can then be detected in an application and used to send the user to an
@@ -55,7 +55,7 @@ import { assert } from '@ember/debug';
   import Route from '@ember/routing/route';
   import MaintenanceError from '../adapters/maintenance-error';
 
-  export default Route.extend({
+  export default class ApplicationRoute extends Route {
     actions: {
       error(error, transition) {
         if (error instanceof MaintenanceError) {
@@ -66,7 +66,7 @@ import { assert } from '@ember/debug';
         // ...other error handling logic
       }
     }
-  });
+  }
   ```
 
   @class AdapterError
@@ -85,7 +85,6 @@ function AdapterError(errors, message = 'Adapter operation failed') {
     this.message = error.message;
     this.name = error.name;
     this.number = error.number;
-    this.code = error.code;
   }
 
   this.errors = errors || [
@@ -116,7 +115,7 @@ function extend(ParentErrorClass, defaultMessage) {
 }
 
 AdapterError.prototype = Object.create(EmberError.prototype);
-
+AdapterError.prototype.code = 'AdapterError';
 AdapterError.extend = extendFn(AdapterError);
 
 /**
@@ -137,10 +136,10 @@ AdapterError.extend = extendFn(AdapterError);
   ```app/models/post.js
   import Model, { attr } from '@ember-data/model';
 
-  export default Model.extend({
-    title: attr('string'),
-    content: attr('string')
-  });
+  export default class PostModel extends Model {
+    @attr('string') title;
+    @attr('string') content;
+  }
   ```
 
   To show an error from the server related to the `title` and
@@ -152,7 +151,7 @@ AdapterError.extend = extendFn(AdapterError);
   import RESTAdapter from '@ember-data/adapter/rest';
   import { InvalidError } from '@ember-data/adapter/error';
 
-  export default RESTAdapter.extend({
+  export default class ApplicationAdapter extends RESTAdapter {
     updateRecord() {
       // Fictional adapter that always rejects
       return RSVP.reject(new InvalidError([
@@ -166,7 +165,7 @@ AdapterError.extend = extendFn(AdapterError);
         }
       ]));
     }
-  });
+  }
   ```
 
   Your backend may use different property names for your records the
@@ -179,6 +178,7 @@ AdapterError.extend = extendFn(AdapterError);
   @extends AdapterError
 */
 export const InvalidError = extend(AdapterError, 'The adapter rejected the commit because it was invalid');
+InvalidError.prototype.code = 'InvalidError';
 
 /**
   A `TimeoutError` is used by an adapter to signal that a request
@@ -191,26 +191,27 @@ export const InvalidError = extend(AdapterError, 'The adapter rejected the commi
   ```app/routes/application.js
   import Route from '@ember/routing/route';
   import { TimeoutError } from '@ember-data/adapter/error';
+  import { action } from '@ember/object';
 
-  export default Route.extend({
-    actions: {
-      error(error, transition) {
-        if (error instanceof TimeoutError) {
-          // alert the user
-          alert('Are you still connected to the internet?');
-          return;
-        }
-
-        // ...other error handling logic
+  export default class ApplicationRoute extends Route {
+    @action
+    error(error, transition) {
+      if (error instanceof TimeoutError) {
+        // alert the user
+        alert('Are you still connected to the Internet?');
+        return;
       }
+
+      // ...other error handling logic
     }
-  });
+  }
   ```
 
   @class TimeoutError
   @extends AdapterError
 */
 export const TimeoutError = extend(AdapterError, 'The adapter operation timed out');
+TimeoutError.prototype.code = 'TimeoutError';
 
 /**
   A `AbortError` is used by an adapter to signal that a request to
@@ -222,6 +223,7 @@ export const TimeoutError = extend(AdapterError, 'The adapter operation timed ou
   @extends AdapterError
 */
 export const AbortError = extend(AdapterError, 'The adapter operation was aborted');
+AbortError.prototype.code = 'AbortError';
 
 /**
   A `UnauthorizedError` equates to a HTTP `401 Unauthorized` response
@@ -235,26 +237,27 @@ export const AbortError = extend(AdapterError, 'The adapter operation was aborte
   ```app/routes/application.js
   import Route from '@ember/routing/route';
   import { UnauthorizedError } from '@ember-data/adapter/error';
+  import { action } from '@ember/object';
 
-  export default Route.extend({
-    actions: {
-      error(error, transition) {
-        if (error instanceof UnauthorizedError) {
-          // go to the sign in route
-          this.transitionTo('login');
-          return;
-        }
-
-        // ...other error handling logic
+  export default class ApplicationRoute extends Route {
+    @action
+    error(error, transition) {
+      if (error instanceof UnauthorizedError) {
+        // go to the login route
+        this.transitionTo('login');
+        return;
       }
+
+      // ...other error handling logic
     }
-  });
+  }
   ```
 
   @class UnauthorizedError
   @extends AdapterError
 */
 export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
+UnauthorizedError.prototype.code = 'UnauthorizedError';
 
 /**
   A `ForbiddenError` equates to a HTTP `403 Forbidden` response status.
@@ -267,6 +270,7 @@ export const UnauthorizedError = extend(AdapterError, 'The adapter operation is 
   @extends AdapterError
 */
 export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
+ForbiddenError.prototype.code = 'ForbiddenError';
 
 /**
   A `NotFoundError` equates to a HTTP `404 Not Found` response status.
@@ -279,30 +283,32 @@ export const ForbiddenError = extend(AdapterError, 'The adapter operation is for
   ```app/routes/post.js
   import Route from '@ember/routing/route';
   import { NotFoundError } from '@ember-data/adapter/error';
+  import { inject as service } from '@ember/service';
+  import { action } from '@ember/object';
 
-  export default Route.extend({
+  export default class PostRoute extends Route {
+    @service store;
     model(params) {
       return this.get('store').findRecord('post', params.post_id);
-    },
-
-    actions: {
-      error(error, transition) {
-        if (error instanceof NotFoundError) {
-          // redirect to a list of all posts instead
-          this.transitionTo('posts');
-        } else {
-          // otherwise let the error bubble
-          return true;
-        }
+    }
+    @action
+    error(error, transition) {
+      if (error instanceof NotFoundError) {
+        // redirect to a list of all posts instead
+        this.transitionTo('posts');
+      } else {
+        // otherwise let the error bubble
+        return true;
       }
     }
-  });
+  }
   ```
 
   @class NotFoundError
   @extends AdapterError
 */
 export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
+NotFoundError.prototype.code = 'NotFoundError';
 
 /**
   A `ConflictError` equates to a HTTP `409 Conflict` response status.
@@ -315,6 +321,7 @@ export const NotFoundError = extend(AdapterError, 'The adapter could not find th
   @extends AdapterError
 */
 export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
+ConflictError.prototype.code = 'ConflictError';
 
 /**
   A `ServerError` equates to a HTTP `500 Internal Server Error` response
@@ -325,5 +332,6 @@ export const ConflictError = extend(AdapterError, 'The adapter operation failed 
   @extends AdapterError
 */
 export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');
+ServerError.prototype.code = 'ServerError';
 
 export { errorsHashToArray, errorsArrayToHash } from '@ember-data/store/-private';

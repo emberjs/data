@@ -1,24 +1,28 @@
-import { default as RSVP, Promise } from 'rsvp';
-import { DEBUG } from '@glimmer/env';
-import { run as emberRunLoop } from '@ember/runloop';
-import { assert, warn, inspect } from '@ember/debug';
-import Snapshot from './snapshot';
-import { guardDestroyedStore, _guard, _bind, _objectIsAlive } from './store/common';
-import { normalizeResponseHelper } from './store/serializer-response';
-import { serializerForAdapter } from './store/serializers';
-import { InvalidError } from '@ember-data/adapter/error';
-import coerceId from './coerce-id';
 import { A } from '@ember/array';
+import { assert, warn } from '@ember/debug';
+import { run as emberRunLoop } from '@ember/runloop';
+import { DEBUG } from '@glimmer/env';
 
-import { _findHasMany, _findBelongsTo, _findAll, _query, _queryRecord } from './store/finders';
+import { default as RSVP, Promise } from 'rsvp';
+
+import { symbol } from '../utils/symbol';
+import coerceId from './coerce-id';
+import { errorsArrayToHash } from './errors-utils';
 import RequestCache from './request-cache';
-import { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
-import { RecordIdentifier } from '../ts-interfaces/identifier';
-import { FindRecordQuery, SaveRecordMutation, Request } from '../ts-interfaces/fetch-manager';
-import { symbol } from '../ts-interfaces/utils/symbol';
-import Store from './ds-model-store';
-import recordDataFor from './record-data-for';
-import CoreStore from './core-store';
+import Snapshot from './snapshot';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
+import { normalizeResponseHelper } from './store/serializer-response';
+
+type CoreStore = import('./core-store').default;
+type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
+type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
+type Request = import('../ts-interfaces/fetch-manager').Request;
+type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
+type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
+type ExistingRecordIdentifier = import('../ts-interfaces/identifier').ExistingRecordIdentifier;
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
+type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -32,7 +36,7 @@ const emberRun = emberRunLoop.backburner;
 export const SaveOp: unique symbol = symbol('SaveOp');
 
 interface PendingFetchItem {
-  identifier: RecordIdentifier;
+  identifier: ExistingRecordIdentifier;
   queryRequest: Request;
   resolver: RSVP.Deferred<any>;
   options: { [k: string]: unknown };
@@ -101,9 +105,10 @@ export default class FetchManager {
     let { snapshot, resolver, identifier, options } = pending;
     let adapter = this._store.adapterFor(identifier.type);
     let operation = options[SaveOp];
-    let recordData = recordDataFor(this._store._internalModelForResource(identifier));
 
-    let internalModel = snapshot._internalModel;
+    // TODO We have to cast due to our reliance on this private property
+    // this will be refactored away once we change our pending API to be identifier based
+    let internalModel = ((snapshot as unknown) as PrivateSnapshot)._internalModel;
     let modelName = snapshot.modelName;
     let store = this._store;
     let modelClass = store.modelFor(modelName);
@@ -115,7 +120,7 @@ export default class FetchManager {
     );
 
     let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-    let serializer = serializerForAdapter(store, adapter, modelName);
+    let serializer = store.serializerFor(modelName);
     let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
     assert(
@@ -128,15 +133,20 @@ export default class FetchManager {
 
     promise = promise.then(
       adapterPayload => {
-        let payload, data, sideloaded;
         if (adapterPayload) {
-          payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
-          return payload;
+          return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         }
       },
       function(error) {
-        if (error instanceof InvalidError) {
-          let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+        if (error && error.isAdapterError === true && error.code === 'InvalidError') {
+          let parsedErrors = error.errors;
+
+          if (typeof serializer.extractErrors === 'function') {
+            parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+          } else {
+            parsedErrors = errorsArrayToHash(error.errors);
+          }
+
           throw { error, parsedErrors };
         } else {
           throw { error };
@@ -163,7 +173,7 @@ export default class FetchManager {
     }
   }
 
-  scheduleFetch(identifier: RecordIdentifier, options: any, shouldTrace: boolean): RSVP.Promise<any> {
+  scheduleFetch(identifier: ExistingRecordIdentifier, options: any, shouldTrace: boolean): RSVP.Promise<any> {
     // TODO Probably the store should pass in the query object
 
     let query: FindRecordQuery = {
@@ -262,7 +272,7 @@ export default class FetchManager {
           `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
           !!payloadIsNotBlank(adapterPayload)
         );
-        let serializer = serializerForAdapter(this._store, adapter, modelName);
+        let serializer = this._store.serializerFor(modelName);
         let payload = normalizeResponseHelper(serializer, this._store, klass, adapterPayload, id, 'findRecord');
         assert(
           `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
@@ -270,7 +280,7 @@ export default class FetchManager {
         );
 
         warn(
-          `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead https://emberjs.com/api/data/classes/DS.Store.html#method_queryRecord`,
+          `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
           coerceId(payload.data.id) === coerceId(id),
           {
             id: 'ds.store.findRecord.id-mismatch',
@@ -318,7 +328,10 @@ export default class FetchManager {
 
     for (let i = 0, l = expectedSnapshots.length; i < l; i++) {
       let snapshot = expectedSnapshots[i];
+      assertIsString(snapshot.id);
 
+      // We know id is a string because you can't fetch
+      // without one.
       if (!found[snapshot.id]) {
         missingSnapshots.push(snapshot);
       }
@@ -340,14 +353,18 @@ export default class FetchManager {
 
   rejectFetchedItems(seeking: { [id: string]: PendingFetchItem }, snapshots: Snapshot[], error?) {
     for (let i = 0, l = snapshots.length; i < l; i++) {
-      let identifier = snapshots[i];
-      let pair = seeking[identifier.id];
+      let snapshot = snapshots[i];
+      assertIsString(snapshot.id);
+      // TODO refactor to identifier.lid to avoid this cast to string
+      //  we can do this case because you can only fetch an identifier
+      //  that has an ID
+      let pair = seeking[snapshot.id];
 
       if (pair) {
         pair.resolver.reject(
           error ||
             new Error(
-              `Expected: '<${identifier.modelName}:${identifier.id}>' to be present in the adapter provided payload, but it was not found.`
+              `Expected: '<${snapshot.modelName}:${snapshot.id}>' to be present in the adapter provided payload, but it was not found.`
             )
         );
       }
@@ -379,7 +396,7 @@ export default class FetchManager {
           `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
           !!payloadIsNotBlank(adapterPayload)
         );
-        let serializer = serializerForAdapter(store, adapter, modelName);
+        let serializer = store.serializerFor(modelName);
         let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findMany');
         return payload;
       },
@@ -429,14 +446,14 @@ export default class FetchManager {
     let identifiers = new Array(totalItems);
     let seeking: { [id: string]: PendingFetchItem } = Object.create(null);
 
-    let optionsMap = new WeakMap<RecordIdentifier, Object>();
+    let optionsMap = new WeakMap<RecordIdentifier, Dict<unknown>>();
 
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];
       let identifier = pendingItem.identifier;
       identifiers[i] = identifier;
       optionsMap.set(identifier, pendingItem.options);
-      seeking[identifier.id as string] = pendingItem;
+      seeking[identifier.id] = pendingItem;
     }
 
     if (shouldCoalesce) {
@@ -452,7 +469,9 @@ export default class FetchManager {
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array<Snapshot>(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        let options = optionsMap.get(identifiers[i]);
+        // we know options is in the map due to having just set it above
+        // but TS doesn't know so we cast it
+        let options = optionsMap.get(identifiers[i]) as Dict<unknown>;
         snapshots[i] = new Snapshot(options, identifiers[i], this._store);
       }
 
@@ -479,5 +498,13 @@ export default class FetchManager {
 
   destroy() {
     this.isDestroyed = true;
+  }
+}
+
+function assertIsString(id: string | null): asserts id is string {
+  if (DEBUG) {
+    if (typeof id !== 'string') {
+      throw new Error(`Cannot fetch record without an id`);
+    }
   }
 }

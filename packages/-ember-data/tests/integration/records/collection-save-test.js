@@ -1,10 +1,13 @@
-import { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
+
 import { module, test } from 'qunit';
+import { reject, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
+
 import Adapter from '@ember-data/adapter';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/records/collection_save - Save Collection of Records', function(hooks) {
   setupTest(hooks);

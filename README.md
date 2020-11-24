@@ -1,7 +1,7 @@
 ember-data
 ==============================================================================
 
-[![Build Status](https://secure.travis-ci.org/emberjs/data.svg?branch=master)](http://travis-ci.org/emberjs/data)
+[![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
 [![Code Climate](https://codeclimate.com/github/emberjs/data/badges/gpa.svg)](https://codeclimate.com/github/emberjs/data)
 [![Discord Community Server](https://img.shields.io/discord/480462759797063690.svg?logo=discord)](https://discord.gg/zT3asNS)
 
@@ -17,7 +17,7 @@ It provides many of the facilities you'd find in server-side `ORM`s like
 `JavaScript` in the browser.
 
 - [Usage Guide](https://guides.emberjs.com/release/models/)
-- [API Documentation](https://emberjs.com/api/ember-data/release/modules/ember-data)
+- [API Documentation](https://api.emberjs.com/ember-data/release)
 - [Contributing Guide](./CONTRIBUTING.md)
 - [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data)
 - [Community](https://emberjs.com/community)

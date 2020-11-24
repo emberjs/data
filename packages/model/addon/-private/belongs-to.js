@@ -1,7 +1,9 @@
+import { assert, inspect, warn } from '@ember/debug';
 import { computed } from '@ember/object';
-import { assert, warn, inspect } from '@ember/debug';
-import { normalizeModelName } from '@ember-data/store';
 import { DEBUG } from '@glimmer/env';
+
+import { normalizeModelName } from '@ember-data/store';
+
 import { computedMacroWithOptionalParams } from './util';
 
 /**
@@ -10,7 +12,7 @@ import { computedMacroWithOptionalParams } from './util';
 
 /**
   `belongsTo` is used to define One-To-One and One-To-Many
-  relationships on a [Model](/api/data/classes/DS.Model.html).
+  relationships on a [Model](/ember-data/release/classes/Model).
 
 
   `belongsTo` takes an optional hash as a second parameter, currently
@@ -19,6 +21,7 @@ import { computedMacroWithOptionalParams } from './util';
   - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
   - `inverse`: A string used to identify the inverse property on a
     related model in a One-To-Many relationship. See [Explicit Inverses](#explicit-inverses)
+  - `polymorphic` A boolean value to mark the relationship as polymorphic
 
   #### One-To-One
   To declare a one-to-one relationship between two models, use
@@ -100,6 +103,9 @@ import { computedMacroWithOptionalParams } from './util';
   ```
 
   @method belongsTo
+  @public
+  @static
+  @for @ember-data/model
   @param {String} modelName (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
@@ -144,9 +150,9 @@ function belongsTo(modelName, options) {
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );
         }
-        if (opts.hasOwnProperty('serialize')) {
+        if (Object.prototype.hasOwnProperty.call(opts, 'serialize')) {
           warn(
-            `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://emberjs.com/api/data/classes/DS.Serializer.html`,
+            `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://api.emberjs.com/ember-data/release/classes/Serializer`,
             false,
             {
               id: 'ds.model.serialize-option-in-belongs-to',
@@ -154,9 +160,9 @@ function belongsTo(modelName, options) {
           );
         }
 
-        if (opts.hasOwnProperty('embedded')) {
+        if (Object.prototype.hasOwnProperty.call(opts, 'embedded')) {
           warn(
-            `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html`,
+            `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://api.emberjs.com/ember-data/release/classes/EmbeddedRecordsMixin`,
             false,
             {
               id: 'ds.model.embedded-option-in-belongs-to',

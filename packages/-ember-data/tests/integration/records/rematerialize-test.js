@@ -1,14 +1,15 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
-import deepCopy from 'dummy/tests/helpers/deep-copy';
+
 import { module, test } from 'qunit';
-import { IDENTIFIERS } from '@ember-data/canary-features';
+
+import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 module('integration/unload - Rematerializing Unloaded Records', function(hooks) {
   setupTest(hooks);
@@ -85,7 +86,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
 
     assert.equal(store.hasRecordForId('person', 1), true, 'The person is in the store');
     assert.equal(
-      store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      store._internalModelsFor('person').has('@ember-data:lid-person-1'),
       true,
       'The person internalModel is loaded'
     );
@@ -94,7 +95,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
 
     assert.equal(store.hasRecordForId('person', 1), false, 'The person is unloaded');
     assert.equal(
-      store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      store._internalModelsFor('person').has('@ember-data:lid-person-1'),
       false,
       'The person internalModel is freed'
     );
@@ -201,7 +202,10 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
           },
           relationships: {
             boats: {
-              data: [{ type: 'boat', id: '2' }, { type: 'boat', id: '1' }],
+              data: [
+                { type: 'boat', id: '2' },
+                { type: 'boat', id: '1' },
+              ],
             },
           },
         },
@@ -220,13 +224,13 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     // assert our initial cache state
     assert.equal(store.hasRecordForId('person', '1'), true, 'The person is in the store');
     assert.equal(
-      store._internalModelsFor('person').has(IDENTIFIERS ? '@ember-data:lid-person-1' : '1'),
+      store._internalModelsFor('person').has('@ember-data:lid-person-1'),
       true,
       'The person internalModel is loaded'
     );
     assert.equal(store.hasRecordForId('boat', '1'), true, 'The boat is in the store');
     assert.equal(
-      store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      store._internalModelsFor('boat').has('@ember-data:lid-boat-1'),
       true,
       'The boat internalModel is loaded'
     );
@@ -240,7 +244,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     // assert our new cache state
     assert.equal(store.hasRecordForId('boat', '1'), false, 'The boat is unloaded');
     assert.equal(
-      store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      store._internalModelsFor('boat').has('@ember-data:lid-boat-1'),
       true,
       'The boat internalModel is retained'
     );
@@ -257,7 +261,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
 
     assert.equal(store.hasRecordForId('boat', '1'), true, 'The boat is loaded');
     assert.equal(
-      store._internalModelsFor('boat').has(IDENTIFIERS ? '@ember-data:lid-boat-1' : '1'),
+      store._internalModelsFor('boat').has('@ember-data:lid-boat-1'),
       true,
       'The boat internalModel is retained'
     );

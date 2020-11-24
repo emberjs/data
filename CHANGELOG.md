@@ -1,6 +1,289 @@
 # Ember Data Changelog
 
-### Master
+## Release 3.21.0 (August 30, 2020)
+- [#7224](https://github.com/emberjs/data/pull/7224) [DOCS] fix links on @ember-data/store package intro
+- [#7228](https://github.com/emberjs/data/pull/7228) chore: remove instance initializer (#7228)
+- [#7232](https://github.com/emberjs/data/pull/7232) [DOC] Fix minor typo in findRecord documentation
+- [#7231](https://github.com/emberjs/data/pull/7231) [DOC] Use native syntax in RESTSerializer documentation (#7231)
+
+## Release 3.20.2 (LTS) (August 30, 2020)
+- Rerelease of 3.20.1
+
+## Release 3.20.1 (August 29, 2020)
+- [#7273](https://github.com/emberjs/data/pull/7273) [BUGFIX] Entangle Errors.errorsFor properly
+
+## Release 3.20.0 (July 16, 2020)
+
+- [#7167](https://github.com/emberjs/data/pull/7167) [FEATURE] JSONAPI Serializer asserts instead of warning when passed EmbeddedRecordsMixin, opt out with `isEmbeddedRecordsMixinCompatible: true`
+- [#7198](https://github.com/emberjs/data/pull/7198) [DOC] Update documentation around behavior of attr (#7198)
+- [#7200](https://github.com/emberjs/data/commit/7d7e38ebdcfebbf368d31f1ccd53066fcd5d48b3) [DOC] Use native syntax in JSONAPISerializer documentation (#7200)
+- [#7096](https://github.com/emberjs/data/pull/7096) [PERFORMANCE] Optimize visiting the relating records
+- [#7090](https://github.com/emberjs/data/pull/7090) [PERFORMANCE] Optimize the update of a has-many relationship
+- [#7235](https://github.com/emberjs/data/pull/7235) [BUGFIX] Allow createRecord responses without a type
+
+## Release 3.19.0 (June 5, 2020)
+
+- [76768a2f](https://github.com/emberjs/data/commit/76768a2fe85aacc8a6ea6006f2a8295bb11618bf) [BUGFIX] dont use Ember.get on internals (#7103)
+- [6404a2db](https://github.com/emberjs/data/commit/6404a2db5c7b6a286f2a10926e508f93ea3b8371) [DOC] fix import path in JSON serializer documentation (#7111)
+- [#6889](https://github.com/emberjs/data/pull/6889) [DEPRECATION] deprecate intimate Reference.internalModel (#6889)
+- [#7146](https://github.com/emberjs/data/pull/7146) [BUGFIX]: Fix errors while running yarn start (#7146)
+- [#7198](https://github.com/emberjs/data/pull/7198) [DOC] Update documentation around behavior of attr (#7198)
+- [82d6f586](https://github.com/emberjs/data/commit/82d6f5860b9ac8f8a1590d9f136417165533740a) [DOC] Use native syntax in JSONAPISerializer documentation (#7200)
+- [#7182](https://github.com/emberjs/data/pull/7182) [BUGFIX] Cache identifers globally, not just per type
+
+## Release 3.18.0 (April 28, 2020)
+
+- [#6941](https://github.com/emberjs/data/pull/6941) [BUGFIX] fix jsonapi error handling when not using jquery  (#6941)
+- [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
+- [#7030](https://github.com/emberjs/data/pull/7030) Revert "Disable known failure for 3.16.x"
+- [#7038](https://github.com/emberjs/data/pull/7038) [DOC] fix minor typo in Model overview documentation
+- [#7043](https://github.com/emberjs/data/pull/7043) [DOC] modernize TimeoutError example code
+- [#6958](https://github.com/emberjs/data/pull/6958) [DOC] Update embedded-records-mixin.js
+- [#7019](https://github.com/emberjs/data/pull/7019) [DOC] create a howto for testing pull requests
+- [78e0b41d](https://github.com/emberjs/data/commit/78e0b41d8bc545a750925cfc57336904bb7d7b2c) [BUGFIX] Fix #7015 - calling changedAttributes for non instantiated relationships
+
+## Release 3.17.1 (April 28, 2020)
+
+- [#7144](https://github.com/emberjs/data/pull/7144) [BUGFIX] dont use Ember.get on internals (#7103)
+- [#7144](https://github.com/emberjs/data/pull/7144) chore: update lts tests (#7133)
+- [#7144](https://github.com/emberjs/data/pull/7144) clear relationships during delete (#7109)
+- [#7144](https://github.com/emberjs/data/pull/7144) clear initialState after construction (#7110)
+- [#7144](https://github.com/emberjs/data/pull/7144) fix creation recursion with ember-data-model-fragments (#7123)
+- [#7144](https://github.com/emberjs/data/pull/7144) fix: blueprint tests for classic (#7132)
+
+## Release 3.17.0 (March 10, 2020)
+
+- [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
+- [#6941](https://github.com/emberjs/data/pull/6941) [BUGFIX] fix jsonapi error handling when not using jquery  (#6941)
+- [c36d42ae](https://github.com/emberjs/data/commit/c36d42aef7218fe2a34ab7cde6321fb08d7c9cca) [BUGFIX] Fix #7015 - calling changedAttributes for non instantiated relationshipsjj
+- [f7340c9b](https://github.com/emberjs/data/commit/f7340c9b5be1c0b58b0357581761ccafc91bf27a) [DOCS] MinimumAdapterInterface (#6643)
+- [e1822f96](https://github.com/emberjs/data/commit/e1822f96de83fb0b991d621007e3b866e618261d) [DOCS] Fix link for API Documentation (#6950)
+- [3e3677f6](https://github.com/emberjs/data/commit/3e3677f6cfb3c8715697b302aed522d07926287f) [BUGFIX] fix importing from @ember-data/store
+- [#6944](https://github.com/emberjs/data/pull/6944) chore: refactor: Remove last usages of run in adapter find tests (#6944)
+- [#6985](https://github.com/emberjs/data/pull/6985) [FIX] RecordData is not a constructor
+- [d776f1ec](https://github.com/emberjs/data/commit/d776f1ece2db0d3ec869f627d4e518c24e3f252a) [BUGFIX] findRecord should not resolve without id in production builds (#6561)
+- [#6968](https://github.com/emberjs/data/pull/6968) remove IDENTIFIERS off branches (#6968)
+- [#6927](https://github.com/emberjs/data/pull/6927) [FIX] groupRecordsForFindMany should be optional (#6927)
+- [#7006](https://github.com/emberjs/data/pull/7006) Make execa use compatible with volta
+
+## Release 3.16.9 (LTS) (August 29, 2020)
+- [d22499d0](https://github.com/emberjs/data/pull/7291) [BUGFIX] Entangle Errors.errorsFor properly
+
+## Release 3.16.8 (LTS) (June 24, 2020)
+- [#7236](https://github.com/emberjs/data/pull/7236) [BUGFIX] Allow createRecord responses without a type (#7236)
+
+## Release 3.16.7 (LTS) (June 10, 2020)
+
+- [#7220](https://github.com/emberjs/data/pull/7220) [BUGFIX] Update ember-cli-babel to prevent errors with newer TS syntax (#7220)
+
+## Release 3.16.6 (LTS) (May 13, 2020)
+
+- [#7182](https://github.com/emberjs/data/pull/7182) [BUGFIX] Cache identifiers regardless of type, fixes polymorphism issues (#7182)
+
+## Release 3.16.5 (LTS) (April 28, 2020)
+
+- [#7144](https://github.com/emberjs/data/pull/7144) [BUGFIX] dont use Ember.get on internals (#7103)
+- [#7144](https://github.com/emberjs/data/pull/7144) chore: update lts tests (#7133)
+- [#7144](https://github.com/emberjs/data/pull/7144) clear relationships during delete (#7109)
+- [#7144](https://github.com/emberjs/data/pull/7144) clear initialState after construction (#7110)
+- [#7144](https://github.com/emberjs/data/pull/7144) fix creation recursion with ember-data-model-fragments (#7123)
+- [#7144](https://github.com/emberjs/data/pull/7144) fix: blueprint tests for classic (#7132)
+
+## Release 3.16.4 (LTS) (March 10 2020)
+
+- Rerelease of 3.16.3
+
+## Release 3.16.3 (March 10 2020)
+
+- [cef0ed5c](https://github.com/emberjs/data/commit/cef0ed5c73e35e14dd5c398f6126307922d51c95) [BUGFIX] Fix #7015 - calling changedAttributes for non instantiated relationships
+
+## Release 3.16.2 (February 27 2020)
+
+- [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
+- [#6941](https://github.com/emberjs/data/pull/6941) [BUGFIX] fix jsonapi error handling when not using jquery  (#6941)
+
+## Release 3.16.1 (February 27 2020)
+
+- Never published.
+
+## Release 3.16.0 (January 24 2020)
+
+- [c07cee0b](https://github.com/emberjs/data/commit/c07cee0ba58c46001b638405c43dd4ce5941f9a6) [BUGFIX RELEASE BETA CANARY] Better fastboot crypto error message (#6692)
+- [#6683](https://github.com/emberjs/data/pull/6683) [BUGFIX RELEASE BETA CANARY] Fastboot issues (#6683)
+- [919fb21f](https://github.com/emberjs/data/commit/919fb21fac63a8c961f6e6c775b9f67e1b5bcec4) [BREAKING BUGFIX] eliminate infrastructure for filter record arrays (#6702)
+- [#6673](https://github.com/emberjs/data/pull/6673) [BUGFIX TEST] reloading tests for adapter encapsulation side quest - shouldReloadAll (#6673)
+- [#6711](https://github.com/emberjs/data/pull/6711) [BUGFIX TEST] reloading tests for adapter encapsulation side quest - shouldBackgroundReloadAll (#6711)
+- [#6713](https://github.com/emberjs/data/pull/6713) [CHORE] refactor: Remove runloop usage in integration/store-tests module deleteRecord (#6713)
+- [3641f293](https://github.com/emberjs/data/commit/3641f293e75fa2f84897f8754a330f54a352508e) [BUGFIX TEST] reloading tests for adapter encapsulation side quest - shouldReloadRecord (#6714)
+- [c9a8908e](https://github.com/emberjs/data/commit/c9a8908e930b95e471784d4890b1f31be87a3759) [BUGFIX TEST] reloading tests for adapter encapsulation side quest - shouldBackgroundReloadRecord (#6718)
+- [#6574](https://github.com/emberjs/data/pull/6574) [CHORE] - Removes allInverseRecordsAreLoaded from has-many and belongs-to state classes (#6574)
+- [#6599](https://github.com/emberjs/data/pull/6599) Using a config to include ember-data/debug in the build (#6599)
+- [#6712](https://github.com/emberjs/data/pull/6712) [CHORE] refactor: Remove runloop usage in integration tests for store/ find All module (#6712)
+- [#6734](https://github.com/emberjs/data/pull/6734) [CHORE] build speed improvements & docs path fix (#6734)
+- [493b7b22](https://github.com/emberjs/data/commit/493b7b223ae1e87f42a0cd472164a2a31c1770aa) [BUGFIX] only allow feature flag alterations in canary (#6738)
+- [e13247cd](https://github.com/emberjs/data/commit/e13247cd45f4197e65d1848372b942f539263c8b) [DOC] Fix typo (#6741)
+- [#6742](https://github.com/emberjs/data/pull/6742) Strip FeatureFlagged code in non canary builds
+- [#6737](https://github.com/emberjs/data/pull/6737) [CHORE] add package flag infra, strip flag infra (#6737)
+- [4baa29f5](https://github.com/emberjs/data/commit/4baa29f5c10438258e71b24f2dec1cb3994e53c4) [BUGFIX] ensure MandatorySetter does not trigger for modelName
+- [#6752](https://github.com/emberjs/data/pull/6752) [CHORE] feature flag reversal test (#6752)
+- [#6767](https://github.com/emberjs/data/pull/6767) [BUGFIX] fix detect usage for native class polymorphism (#6767)
+- [#6766](https://github.com/emberjs/data/pull/6766) [CHORE issue-template] capture nested package deps in cli output (#6766)
+- [#6763](https://github.com/emberjs/data/pull/6763) [CHORE] rename Record to RecordInstance (#6763)
+- [118a0470](https://github.com/emberjs/data/commit/118a0470207d88d01080a0f63aac7aa82617ec55) [BUGFIX] Set IDs on Record Data when mutating DS Model (#6775)
+- [#6802](https://github.com/emberjs/data/pull/6802) [CHORE] Move _modelForMixin to Model package (#6802)
+- [#6797](https://github.com/emberjs/data/pull/6797) [BUGFIX TEST] relationships tests for adapter enapsulation side quest (#6797)
+- [#6809](https://github.com/emberjs/data/pull/6809) [BUGFIX] cleanup rollup warnings (#6809)
+- [#6808](https://github.com/emberjs/data/pull/6808) [FIX] improve tarball insertion (#6808)
+- [#6816](https://github.com/emberjs/data/pull/6816) fixed serialize example (#6816)
+- [#6820](https://github.com/emberjs/data/pull/6820) [CHORE] improve comment bot (#6820)
+- [#6823](https://github.com/emberjs/data/pull/6823) [FIX] comment-bot, partner-tests: use yarn lock-file when we can (#6823)
+- [#6824](https://github.com/emberjs/data/pull/6824) [TEST] generateIdForRecord tests for adapter encapsulation side quest (#6824)
+- [#6822](https://github.com/emberjs/data/pull/6822) [CHORE] Move PromiseBelongsTo, PromiseManyArray and ManyArray to model package (#6822)
+- [#6826](https://github.com/emberjs/data/pull/6826) [CHORE] AssetSize check for both modern and IE11 builds (#6826)
+- [#6828](https://github.com/emberjs/data/pull/6828) [CHORE] Fix workflow and enable partner test debugging (#6828)
+- [#6830](https://github.com/emberjs/data/pull/6830) [CHORE] IE11 Testing (#6830)
+- [a0158dec](https://github.com/emberjs/data/commit/a0158dec4af4870205281d29c1992e7bd2759c0d) [BUGFIX] Octane: should not need to use get with model.id (#6829)
+- [#6835](https://github.com/emberjs/data/pull/6835) [CHORE] Use model name instead of store in isPrimaryType (#6835)
+- [#6831](https://github.com/emberjs/data/pull/6831) [BUGFIX TESTS] matrix tests for fastboot & ie11 w/jquery & fetch (#6831)
+- [#6847](https://github.com/emberjs/data/pull/6847) [FIX CI] fetch full history for checks against master (#6847)
+- [#6844](https://github.com/emberjs/data/pull/6844) [CHORE] Cron job to check for external deprecations (#6844)
+- [#6857](https://github.com/emberjs/data/pull/6857) fix nightly.yml (#6857)
+- [#6814](https://github.com/emberjs/data/pull/6814) [FEAT] Strip resolved Deprecations (#6814)
+- [#6859](https://github.com/emberjs/data/pull/6859) [CHORE] document canary feature-flag infra
+- [#6861](https://github.com/emberjs/data/pull/6861) [DOCS] fix inclusion of docs for deprecation and canary features (#6861)
+- [#6792](https://github.com/emberjs/data/pull/6792) improve urlForFindAll example (#6792)
+- [#6865](https://github.com/emberjs/data/pull/6865) Revert dependency updates requiring Node 10+. (#6865)
+- [#6801](https://github.com/emberjs/data/pull/6801) [CHORE ts] type Snapshot (#6801)
+- [#6839](https://github.com/emberjs/data/pull/6839) [DEPRECATION] deprecate belongsToReference.push accepting a model (#6839)
+- [#6881](https://github.com/emberjs/data/pull/6881) [TEST] deprecation infra (#6881)
+- [#6871](https://github.com/emberjs/data/pull/6871) [BUGFIX] ensure handleResponse always called in rest adapter (#6871)
+- [972c8114](https://github.com/emberjs/data/commit/972c811431c9e31764f012b75045b8d63958b546) [BUGFIX] fix single-table poymorphic-type-switch
+- [#6986](https://github.com/emberjs/data/pull/6986) [BUFGIX BETA] dont run canary model tests in beta
+- [4cbafa1e](https://github.com/emberjs/data/commit/4cbafa1e8c7103f76882f6f23e6637af68017ecd) v3.17.0-alpha.1
+- [#6968](https://github.com/emberjs/data/pull/6968) remove IDENTIFIERS off branches (#6968)
+- [#6985](https://github.com/emberjs/data/pull/6985) [FIX] RecordData is not a constructor
+- [#7001](https://github.com/emberjs/data/pull/7001) Disable known failure for 3.16.x
+- [#7003](https://github.com/emberjs/data/pull/7003) beta backports
+- [#7006](https://github.com/emberjs/data/pull/7006) Make execa use compatible with volta
+- [#7008](https://github.com/emberjs/data/pull/7008) Bump ember-cli-typescript
+- [#7009](https://github.com/emberjs/data/pull/7009) Make execa use compatible with volta
+
+## Release 3.15.1 (January 24, 2020)
+
+- [7bc74620](https://github.com/emberjs/data/commit/7bc74620aad159f37eb75eee07293c8b89216048) [BUGFIX] fix importing from @ember-data/store
+- [#6985](https://github.com/emberjs/data/pull/6985) [FIX] RecordData is not a constructor
+- [#7001](https://github.com/emberjs/data/pull/7001) Disable known failure for 3.16.x
+- [#7002](https://github.com/emberjs/data/pull/7002) 3.15.x release backports
+
+## Release 3.15.0 (December 18, 2019)
+
+- [#6586](https://github.com/emberjs/data/pull/6586) [BUGFIX] relationship setup for link fetch should batch (#6586)
+- [1d6ce0e4](https://github.com/emberjs/data/commit/1d6ce0e44518c2046e5e472f5e348bab17f34f31) [BUGFIX] fix single-table poymorphic-type-switch
+- [#6449](https://github.com/emberjs/data/pull/6449) [FIX DOCS] Docs updates for Packages to fix missing docs and broken links (#6449)
+- [110712d5](https://github.com/emberjs/data/commit/110712d5cb990b107197c937b2a319ec82a83af3) [BUGFIX] only allow feature flag alterations in canary
+- [22f7af03](https://github.com/emberjs/data/commit/22f7af034acfce9cee6b081d7134e81f9c9d724c) [BUGFIX] only include version in ember-data output (#6528)
+- [db6967f3](https://github.com/emberjs/data/commit/db6967f3f076589c52bf3811bb36f1f363b50237) [BUGFIX] Set IDs on Record Data when mutating DS Model (#6775) (#6780)
+- [9492196d](https://github.com/emberjs/data/commit/9492196d6dc8b50fec337b8b40c07ed2923ebf06) [BUGFIX] ensure MandatorySetter does not trigger for modelName (#6747)
+- [4c6422ae](https://github.com/emberjs/data/commit/4c6422aea25dcf9d50088bc739309b3e73086ed8) [BUGFIX] Better fastboot crypto error message (#6698)
+- [8942ee6f](https://github.com/emberjs/data/commit/8942ee6fb733c9b9ea796b34a4313e2fddb17d76) [BUGFIX adapter]: Fix problem with headers precedence #6588 (#6650)
+- [b8287383](https://github.com/emberjs/data/commit/b828738391c662cbc9596cc9b619ab9b6dd9ee3e) [DOC] Close code block in the description
+- [e9d54628](https://github.com/emberjs/data/commit/e9d546286f9e47376fe8116fa87be81103dcee2f) [BUGFIX fetchOptions] fix fetchOptions to support POST body of all valid types (#6562)
+- [#6646](https://github.com/emberjs/data/pull/6646) [CHORE] refactor: Remove runloop usage in destroy module of integration/store… (#6646)
+- [#6525](https://github.com/emberjs/data/pull/6525) [CHORE] moving files into Debug package (#6525)
+- [#6549](https://github.com/emberjs/data/pull/6549) [CHORE] Removing detect function (and dependence on model package) in @debug  (#6549)
+- [#6568](https://github.com/emberjs/data/pull/6568) [BUGFIX] Enable `store.createRecord` in FastBoot (#6568)
+- [#6587](https://github.com/emberjs/data/pull/6587) [BUGFIX] AdapterError reexport (#6587)
+- [#6610](https://github.com/emberjs/data/pull/6610) [BUGFIX] modelFor should return a stable ShimModelClass (#6610)
+- [#6606](https://github.com/emberjs/data/pull/6606) [FEAT links] ensures full links object support for relationships (#6606)
+- [#6626](https://github.com/emberjs/data/pull/6626) [CHORE] adds infra for testing calls to Ember warn|deprecate|assert (#6626)
+- [#6676](https://github.com/emberjs/data/pull/6676) [CHORE] Improve output and fail test for Asset size Check (#6676)
+- [#6767](https://github.com/emberjs/data/pull/6767) [BUGFIX] fix detect usage for native class polymorphism (#6767)
+- [#6871](https://github.com/emberjs/data/pull/6871) [BUGFIX] ensure handleResponse always called in rest adapter (#6871)
+- [ae0b9647](https://github.com/emberjs/data/commit/ae0b964797b5c01c3d511a88781317fb9c18cdc2) [BUGFIX] Octane: should not need to use get with model.id (#6829)
+- [#6871](https://github.com/emberjs/data/pull/6366) [FEAT identifiers] turn on IDENTIFIERS feature (#6366)
+
+## Release 3.14.1 (December 18, 2019)
+- [c408dd1d](https://github.com/emberjs/data/commit/c408dd1da5de55aaca782cc7850f0bdd4183a161) [BUGFIX] Better fastboot crypto error message (#6699)
+- [#6708](https://github.com/emberjs/data/pull/6708) [BUGFIX] Fix Fastboot issues (#6683) (#6708)
+- [358c229a](https://github.com/emberjs/data/commit/358c229aaf2179a64ebe1610dcd5f1d430406cde) [BUGFIX] ensure MandatorySetter does not trigger for modelName (#6748)
+- [e44f6523](https://github.com/emberjs/data/commit/e44f65232c34b7db1bf8d0d681ceb39f1651c937) [BUGFIX] Set IDs on Record Data when mutating DS Model (#6775) (#6779)
+- [c2fe49ab](https://github.com/emberjs/data/commit/c2fe49ab89eddf97736f54fa0fc1c78d76dd2eec) [BUGFIX] only allow feature flag alterations in canary (#6738)
+- [#6767](https://github.com/emberjs/data/pull/6767) [BUGFIX] fix detect usage for native class polymorphism (#6767)
+- [c8995256](https://github.com/emberjs/data/commit/c89952563a9353a710bdb4d621fb9bf418ab37ff) [BUGFIX] Octane: should not need to use get with model.id (#6829)
+
+## Release 3.14.0 (November 7, 2019)
+- [#6522](https://github.com/emberjs/data/pull/6522) [FIX DOCS] Docs updates for Packages to fix missing docs and broken links (#6449) (#6522)
+- [#6568](https://github.com/emberjs/data/pull/6568) [BUGFIX] Enable `store.createRecord` in FastBoot (#6568)
+- [#6586](https://github.com/emberjs/data/pull/6586) [BUGFIX links] relationship setup for link fetch should batch (#6586)
+- [3f428ca9](https://github.com/emberjs/data/commit/3f428ca9d38b63059aa7e5f4c5a4055e9c5ec770) [BUGFIX adapter]: Fix problem with headers precedence #6588 (#6650)
+- [#6234](https://github.com/emberjs/data/pull/6234) [BUGFIX relationships] fix proxy isDestroying error (#6234)
+- [#6312](https://github.com/emberjs/data/pull/6312) [CHORE] Add environment variable to opt-out of rolling up `-private` (#6312)
+- [396ae0aa](https://github.com/emberjs/data/commit/396ae0aabe707247e4da05756d17873d727adbc2) [BUGFIX beta] Update edition detection logic.
+- [bb23403b](https://github.com/emberjs/data/commit/bb23403b97107c3579b593c1c8f6272f9f29a253) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444)
+- [e61ab503](https://github.com/emberjs/data/commit/e61ab5038bdeebebfa7bbe44ea8242d553327b08) [BUGFIX] ensure we publish all packages regardless of changes (#6429)
+- [bc7a0eca](https://github.com/emberjs/data/commit/bc7a0eca2eb0f244476aad724482819dc7d8b0f9) [DOC debug-adapter]: Add comments for each method in debug-adapter (#6352)
+- [d4c48d52](https://github.com/emberjs/data/commit/d4c48d52dac9af60d7e1f89af7e29885656a0d9e) [BUGFIX] Fix Model lifecycle event deprecations
+- [aa05d928](https://github.com/emberjs/data/commit/aa05d928737a2832051c8ffd1882d44db399794c) [FEAT] Adds support for parenless attr, belongsTo, and hasMany (#6339)
+- [5c6a30c9](https://github.com/emberjs/data/commit/5c6a30c9e25377d253858f459eb73853e4d0867e) [BUGFIX] Fix Rollup warning about unresolved dependency
+- [#6316](https://github.com/emberjs/data/pull/6316) [BUGFIX] Fix Rollup warning about unresolved dependency (#6316)
+- [#6341](https://github.com/emberjs/data/pull/6341) [BUGFIX]: set Content-Type for non GET requests only (#6341)
+- [#6334](https://github.com/emberjs/data/pull/6334) [BUGFIX] usage of recordDataFor for client side create needs to be in correct cache (#6334)
+- [#6358](https://github.com/emberjs/data/pull/6358) [CHORE blueprints] Update blueprints to use package imports (#6358)
+- [#6349](https://github.com/emberjs/data/pull/6349) [BUGFIX inspector] Set group name to relationship.kind (#6349)
+- [#6452](https://github.com/emberjs/data/pull/6452) [BUGFIX beta] Update edition detection logic.
+- [#6395](https://github.com/emberjs/data/pull/6395) [BUGFIX] Fix Model lifecycle event deprecations
+- [#6390](https://github.com/emberjs/data/pull/6390) [DEPRECATION] RFC-522 implementation to add deprecations (#6390)
+- [#6371](https://github.com/emberjs/data/pull/6371) [BUGFIX] Don't use Typescript in /app (#6371)
+- [#6420](https://github.com/emberjs/data/pull/6420) Improve RecordReference, BelongsToReference and HasManyReference docs (#6420)
+- [#6397](https://github.com/emberjs/data/pull/6397) [DOC] Added URL to `queryRecord` deprecation warning (#6397)
+- [#6396](https://github.com/emberjs/data/pull/6396) [DOC] Added documentation URL to evented deprecation warnings (#6396)
+- [#6410](https://github.com/emberjs/data/pull/6410) Remove module-unification blueprints
+- [#6430](https://github.com/emberjs/data/pull/6430) [BUGFIX] make fetch function JIT (#6430)
+- [#6450](https://github.com/emberjs/data/pull/6450) [CHORE]: Eliminate default injections in favor of re-export (#6450)
+- [#6486](https://github.com/emberjs/data/pull/6486) [DOC] Fix meta example in reference.ts (#6486)
+- [1e7c5738](https://github.com/emberjs/data/commit/1e7c5738b2866da41c00de31711f07e156193afd) [DOC serializer] implements MinimumSerializerInterface (#6451)
+
+## Release 3.13.1 (September 24, 2019)
+
+- [0ff38fb1](https://github.com/emberjs/data/commit/0ff38fb1c0a8d75c7ad03f5dc8eaf8193d7f6e80) [DOC serializer] implements MinimumSerializerInterface (#6451) (#6499)
+
+## Release 3.13.0 (September 20, 2019)
+
+- [b29baa17](https://github.com/emberjs/data/commit/b29baa176f91b87ffc28a0c11c2fdd1c079e5ad9) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444) (#6445)
+- [8320ff4c](https://github.com/emberjs/data/commit/8320ff4c51012631af3af2ff50aa0ca679402b3f) [BUGFIX BETA RELEASE] Fix missing @babel/plugin-transform-block-scoping dependency (#6432)
+- [d7454364](https://github.com/emberjs/data/commit/d7454364e262743206d86a9b88607d03fe4ae46f) [BUGFIX BETA] ensure produced artifacts correctly lock with each other (#6309)
+- [a029725f](https://github.com/emberjs/data/commit/a029725f7372bae73b8cfbda307c3d2569b45b07) [BUGFIX beta] Fix Rollup warning about unresolved dependency
+- [69749b86](https://github.com/emberjs/data/commit/69749b86fe7d3effea974edf0b12fc4316e02ebf) [BUGFIX release beta canary] Fix Model lifecycle event deprecations
+- [#6312](https://github.com/emberjs/data/pull/6312) [BETA] Add environment variable to opt-out of rolling up `-private` (#6312)
+- [#6292](https://github.com/emberjs/data/pull/6292) chore: ensure * deps are hoisted (#6292)
+- [#6337](https://github.com/emberjs/data/pull/6337) [CHORE] fix test observers to match ember canary changes (#6337)
+- [#6411](https://github.com/emberjs/data/pull/6411) [BUGFIX beta] Adds support for parenless attr, belongsTo, and hasMany (#6339)
+- [#6434](https://github.com/emberjs/data/pull/6434) [BUGFIX BETA RELEASE] make fetch function JIT (#6430) (#6434)
+- [#6436](https://github.com/emberjs/data/pull/6436) fix: Strip Symbol from production builds (#6389) (#6436)
+- [#6452](https://github.com/emberjs/data/pull/6452) [BUGFIX beta] Update edition detection logic.
+- [#6334](https://github.com/emberjs/data/pull/6334) [BUGFIX BETA CANARY] usage of recordDataFor for client side create needs to be in correct cache
+- [#6430](https://github.com/emberjs/data/pull/6430) [BUGFIX BETA RELEASE] make fetch function JIT
+
+## Release 3.12.6 (LTS) (March 9, 2020)
+- [3032e94c](https://github.com/emberjs/data/commit/3032e94cea8c2c3d19e643dfc071e63357277d4b) [BUGFIX] only allow feature flag alterations in canary (#6738)
+- [51b0572e](https://github.com/emberjs/data/commit/51b0572eb197e0757dea674fea478135e983e267) [BUGFIX] Fix headers precedence warning for null headers object
+- [#7020](https://github.com/emberjs/data/pull/7020) Ensure adapters and serializers are destroyed upon store destruction. (#7020)
+- [51b0572e](https://github.com/emberjs/data/commit/82cd91419b7c14c91fb10d9190b8534d7c84d4b4) [BUGFIX] Add @canary-features as -build-infra dep
+
+## Release 3.12.5 (LTS) (November 21, 2019)
+- [#6524](https://github.com/emberjs/data/pull/6524) [DOCS] Docs updates for Packages to fix missing docs and broken links (#6524)
+- [b101be12](https://github.com/emberjs/data/commit/b101be12f6598b9f7ee9cbbcdff88762c074d3ee) [BUGFIX] ensure MandatorySetter does not trigger for modelName (#6749)
+- [c5f85800](https://github.com/emberjs/data/commit/c5f858008ee6eb2e01a57cfdf21005eb00452066) [BUGFIX] Set IDs on Record Data when mutating DS Model (#6775) (#6778)
+- [#6744](https://github.com/emberjs/data/pull/6744) [BUGFIX] ensure feature flagged code is stripped out
+
+## Release 3.12.4 (LTS) (September 24, 2019)
+
+- [e10c8cf8](https://github.com/emberjs/data/commit/e10c8cf848f28bf6ce3ff9a654138b04e4b4a2d2) [DOC serializer] implements MinimumSerializerInterface (#6451) (#6500)
+
+## Release 3.12.3 (LTS) (September 20, 2019)
+
+- [#6441](https://github.com/emberjs/data/pull/6441) [BUGFIX] Await potentially async operations (#6441)
+- [0cef1775](https://github.com/emberjs/data/commit/0cef177588351f25eeb20ca1eb4235ca6bfd0c03) [DOCS BETA RELEASE] Fix @ember-data/model package is blank (#6444) (#6446)
 
 ## Release 3.12.2 (September 11, 2019)
 
@@ -61,7 +344,7 @@
 - [fa67c329](https://github.com/emberjs/data/commit/fa67c329f4a11c2ea16d374684239d1a89869cc6) [BUGFIX release] Add blueprints to ember-data package.
 
 ## Release 3.11.0 (June 28, 2019)
- 
+
 - [#6189](https://github.com/emberjs/data/pull/6189) Update model API docs to use the new packages import syntax (#6137)
 - [#6075](https://github.com/emberjs/data/pull/6075) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
 - [6c2ae3d4](https://github.com/emberjs/data/commit/6c2ae3d4eaae5c090d9b4bda6e5afc8f15f73d70) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
@@ -1858,7 +2141,7 @@ post.constructor.typeKey => postSnapshot.typeKey
 If you need to access the underlying record of a snapshot you can do so by
 accessing `snapshot.record`.
 
-The full API reference of `DS.Snapshot` can be found [here](https://emberjs.com/api/data/classes/DS.Snapshot.html).
+The full API reference of `DS.Snapshot` can be found [here](https://api.emberjs.com/ember-data/release/classes/Snapshot).
 
 #### Changes
 
@@ -2092,7 +2375,7 @@ to set metadata.
 
 ##### `ManyArray`s are no longer `RecordArray`s
 
-[ManyArray](https://emberjs.com/api/data/classes/DS.ManyArray.html),
+[ManyArray](https://api.emberjs.com/ember-data/release/classes/ManyArray),
 the object Ember Data uses to represent `DS.hasMany` relationships has
 been changed so it no longer extends from `RecordArray`. This means if
 you were relying on the RecordArray's `content` property to access the

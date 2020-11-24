@@ -21,14 +21,16 @@ Flags
 Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3200f183bffb7d520a3c71249#diff-19fef6f3236e72e3b5af7c884eef67a0
 */
 
-const debug = require('debug')('publish-packages');
-const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
-const { shellSync } = require('execa');
-const cliArgs = require('command-line-args');
 const readline = require('readline');
+
+const chalk = require('chalk');
+const execa = require('execa');
+const cliArgs = require('command-line-args');
 const semver = require('semver');
+const debug = require('debug')('publish-packages');
+
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
@@ -51,10 +53,10 @@ function cleanProject() {
 function execWithLog(command, proxyIO = false) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
   if (proxyIO) {
-    return shellSync(command, { stdio: [0, 1, 2] });
+    return execa.sync(command, { stdio: [0, 1, 2], shell: true, preferLocal: true });
   }
 
-  return shellSync(command).stdout;
+  return execa.sync(command, { shell: true, preferLocal: true }).stdout;
 }
 
 function getConfig() {

@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
 'use strict';
 
-const QUnit = require('qunit');
-const test = QUnit.test;
 const path = require('path');
+
+const QUnit = require('qunit');
+
+const test = QUnit.test;
 
 QUnit.module('Docs coverage', function(hooks) {
   let docs, expected;
@@ -11,14 +13,32 @@ QUnit.module('Docs coverage', function(hooks) {
     if (!process.env.REUSE_DOCS) {
       buildDocs();
     }
-    docs = require(path.join(__dirname, '../../docs/data.json'));
+    docs = require(path.join(__dirname, '../../dist/docs/data.json'));
     expected = require('../fixtures/expected');
+  });
+
+  QUnit.module('modules', function() {
+    test('We have all expected modules', function(assert) {
+      assert.deepEqual(Object.keys(docs.modules), expected.modules, 'We have all modules');
+    });
   });
 
   QUnit.module('classitems', function(hooks) {
     let docsItems, expectedItems;
     hooks.before(function() {
-      docsItems = new Set(docs.classitems.map(item => item.name).filter(Boolean));
+      docsItems = new Set(
+        docs.classitems
+          .map(item => {
+            // docs without internal and without a private flag are published as public by default
+            let status =
+              item.access || (Object.prototype.hasOwnProperty.call(item, 'internal') ? 'internal' : 'public');
+            if (!item.name || status === 'internal') {
+              return;
+            }
+            return `(${status}) ${item.module ? `${item.module} ` : ''}${item.class}#${item.name}`;
+          })
+          .filter(Boolean)
+      );
       expectedItems = new Set(expected.classitems);
     });
 

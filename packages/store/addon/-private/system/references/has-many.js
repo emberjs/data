@@ -1,9 +1,13 @@
-import { resolve } from 'rsvp';
-import { get } from '@ember/object';
-import Reference from './reference';
 import { DEBUG } from '@glimmer/env';
-import { assertPolymorphicType } from 'ember-data/-debug';
+
+import { resolve } from 'rsvp';
+
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+import { assertPolymorphicType } from '@ember-data/store/-debug';
+
 import recordDataFor from '../record-data-for';
+import { internalModelFactoryFor } from '../store/internal-model-factory';
+import Reference, { internalModelForReference } from './reference';
 
 /**
   @module @ember-data/store
@@ -17,13 +21,17 @@ import recordDataFor from '../record-data-for';
  @extends Reference
  */
 export default class HasManyReference extends Reference {
-  constructor(store, parentInternalModel, hasManyRelationship, key) {
-    super(store, parentInternalModel);
+  constructor(store, parentIMOrIdentifier, hasManyRelationship, key) {
+    super(store, parentIMOrIdentifier);
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.relationshipMeta.type;
-    this.parent = parentInternalModel.recordReference;
-    this.parentInternalModel = parentInternalModel;
+
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
+    } else {
+      this.parent = parentIMOrIdentifier.recordReference;
+    }
 
     // TODO inverse
   }
@@ -41,9 +49,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -88,9 +97,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -134,9 +144,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```
@@ -176,26 +187,28 @@ export default class HasManyReference extends Reference {
         array = payload.data;
       }
 
+      let internalModel = internalModelForReference(this);
+
       let internalModels = array.map(obj => {
         let record = this.store.push(obj);
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel, this.store);
+          assertPolymorphicType(internalModel, relationshipMeta, record._internalModel, this.store);
         }
         return recordDataFor(record);
       });
 
       this.hasManyRelationship.computeChanges(internalModels);
 
-      return this.internalModel.getHasMany(this.hasManyRelationship.key);
+      return internalModel.getHasMany(this.hasManyRelationship.key);
       // TODO IGOR it seems wrong that we were returning the many array here
       //return this.hasManyRelationship.manyArray;
     });
   }
 
   _isLoaded() {
-    let hasRelationshipDataProperty = get(this.hasManyRelationship, 'hasAnyRelationshipData');
+    let hasRelationshipDataProperty = this.hasManyRelationship.hasAnyRelationshipData;
     if (!hasRelationshipDataProperty) {
       return false;
     }
@@ -204,8 +217,7 @@ export default class HasManyReference extends Reference {
 
     //TODO Igor cleanup
     return members.every(recordData => {
-      let store = this.parentInternalModel.store;
-      let internalModel = store._internalModelForResource(recordData.getResourceIdentifier());
+      let internalModel = this.store._internalModelForResource(recordData.getResourceIdentifier());
       return internalModel.isLoaded() === true;
     });
   }
@@ -221,9 +233,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -250,8 +263,9 @@ export default class HasManyReference extends Reference {
    @return {ManyArray}
    */
   value() {
+    let internalModel = internalModelForReference(this);
     if (this._isLoaded()) {
-      return this.internalModel.getManyArray(this.key);
+      return internalModel.getManyArray(this.key);
     }
 
     return null;
@@ -267,9 +281,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -320,7 +335,8 @@ export default class HasManyReference extends Reference {
    this has-many relationship.
    */
   load(options) {
-    return this.internalModel.getHasMany(this.key, options);
+    let internalModel = internalModelForReference(this);
+    return internalModel.getHasMany(this.key, options);
   }
 
   /**
@@ -331,9 +347,10 @@ export default class HasManyReference extends Reference {
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
-   export default Model.extend({
-     comments: hasMany({ async: true })
-   });
+
+   export default class PostModel extends Model {
+     @hasMany({ async: true }) comments;
+   }
    ```
 
    ```javascript
@@ -372,6 +389,7 @@ export default class HasManyReference extends Reference {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
   reload(options) {
-    return this.internalModel.reloadHasMany(this.key, options);
+    let internalModel = internalModelForReference(this);
+    return internalModel.reloadHasMany(this.key, options);
   }
 }

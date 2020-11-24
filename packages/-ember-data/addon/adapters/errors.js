@@ -1,6 +1,6 @@
 export {
   AbortError,
-  AdapterError,
+  default as AdapterError,
   ConflictError,
   ForbiddenError,
   InvalidError,

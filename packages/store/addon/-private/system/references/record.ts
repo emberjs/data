@@ -1,7 +1,12 @@
 import RSVP, { resolve } from 'rsvp';
-import Reference from './reference';
-import { Record } from '../../ts-interfaces/record';
-import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
+
+import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+
+import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
+
+type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store
@@ -15,9 +20,25 @@ import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api'
    @extends Reference
 */
 export default class RecordReference extends Reference {
-  public type = this.internalModel.modelName;
-  private get _id() {
-    return this.internalModel.id;
+  public get type(): string {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      return this.identifier().type;
+    } else {
+      return internalModelForReference(this)!.modelName;
+    }
+  }
+
+  private get _id(): string | null {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      let identifier = this.identifier();
+      if (identifier) {
+        return identifier.id;
+      }
+
+      return null;
+    } else {
+      return internalModelForReference(this)!.id;
+    }
   }
 
   /**
@@ -39,6 +60,27 @@ export default class RecordReference extends Reference {
   */
   id() {
     return this._id;
+  }
+
+  /**
+     The `identifier` of the record that this reference refers to.
+
+     Together, the `type` and `id` properties form a composite key for
+     the identity map.
+
+     Example
+
+     ```javascript
+     let userRef = store.getReference('user', 1);
+
+     userRef.identifier(); // '1'
+     ```
+
+     @method identifier
+     @return {String} The identifier of the record.
+  */
+  identifier(): StableRecordIdentifier {
+    return REFERENCE_CACHE.get(this) as StableRecordIdentifier;
   }
 
   /**
@@ -99,7 +141,7 @@ export default class RecordReference extends Reference {
     @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
   */
-  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<Record> {
+  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<RecordInstance> {
     return resolve(objectOrPromise).then(data => {
       return this.store.push(data);
     });
@@ -121,9 +163,12 @@ export default class RecordReference extends Reference {
      @method value
      @return {Model} the record for this RecordReference
   */
-  value() {
-    if (this.internalModel.hasRecord) {
-      return this.internalModel.getRecord();
+  value(): RecordInstance | null {
+    if (this._id !== null) {
+      let internalModel = internalModelForReference(this);
+      if (internalModel && internalModel.isLoaded()) {
+        return internalModel.getRecord();
+      }
     }
     return null;
   }
@@ -168,11 +213,9 @@ export default class RecordReference extends Reference {
      @return {Promise<record>} the record for this RecordReference
   */
   reload() {
-    let record = this.value();
-    if (record) {
-      return record.reload();
+    if (this._id !== null) {
+      return this.store.findRecord(this.type, this._id, { reload: true });
     }
-
-    return this.load();
+    throw new Error(`Unable to fetch record of type ${this.type} without an id`);
   }
 }

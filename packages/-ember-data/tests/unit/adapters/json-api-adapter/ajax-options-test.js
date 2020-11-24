@@ -1,5 +1,6 @@
-import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+
+import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -8,7 +9,12 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   setupTest(hooks);
 
   hooks.beforeEach(function() {
-    this.owner.register('adapter:application', JSONAPIAdapter.extend({ useFetch: true }));
+    this.owner.register(
+      'adapter:application',
+      class extends JSONAPIAdapter {
+        useFetch = true;
+      }
+    );
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 

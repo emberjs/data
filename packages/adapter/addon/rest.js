@@ -4,29 +4,34 @@
   @module @ember-data/adapter
 */
 
-import RSVP, { Promise as EmberPromise } from 'rsvp';
-import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
-import { run } from '@ember/runloop';
-import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+import { deprecate, warn } from '@ember/debug';
+import { computed, get } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { determineBodyPromise, fetch, parseResponseHeaders, serializeQueryParams } from './-private';
-import AdapterError, {
-  InvalidError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  ConflictError,
-  ServerError,
-  TimeoutError,
-  AbortError,
-} from '@ember-data/adapter/error';
-import { warn } from '@ember/debug';
+import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-const Promise = EmberPromise;
+import { has } from 'require';
+import { Promise } from 'rsvp';
+
+import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+import AdapterError, {
+  AbortError,
+  ConflictError,
+  ForbiddenError,
+  InvalidError,
+  NotFoundError,
+  ServerError,
+  TimeoutError,
+  UnauthorizedError,
+} from '@ember-data/adapter/error';
+import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
+import { addSymbol, symbol } from '@ember-data/store/-private';
+
+import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
+
+const UseFetch = symbol('useFetch');
 const hasJQuery = typeof jQuery !== 'undefined';
-const hasNajax = typeof najax !== 'undefined';
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -204,9 +209,9 @@ const hasNajax = typeof najax !== 'undefined';
   ```app/adapters/application.js
   import RESTAdapter from '@ember-data/adapter/rest';
 
-  export default RESTAdapter.extend({
-    namespace: 'api/1'
-  });
+  export default class ApplicationAdapter extends RESTAdapter {
+    namespace = 'api/1';
+  }
   ```
   Requests for the `Person` model would now target `/api/1/people/1`.
 
@@ -217,9 +222,9 @@ const hasNajax = typeof najax !== 'undefined';
   ```app/adapters/application.js
   import RESTAdapter from '@ember-data/adapter/rest';
 
-  export default RESTAdapter.extend({
-    host: 'https://api.example.com'
-  });
+  export default class ApplicationAdapter extends RESTAdapter {
+    host = 'https://api.example.com';
+  }
   ```
 
   ### Headers customization
@@ -233,14 +238,14 @@ const hasNajax = typeof najax !== 'undefined';
   import RESTAdapter from '@ember-data/adapter/rest';
   import { computed } from '@ember/object';
 
-  export default RESTAdapter.extend({
+  export default class ApplicationAdapter extends RESTAdapter {
     headers: computed(function() {
       return {
         'API_KEY': 'secret key',
         'ANOTHER_HEADER': 'Some header value'
       };
     }
-  });
+  }
   ```
 
   `headers` can also be used as a computed property to support dynamic
@@ -251,20 +256,20 @@ const hasNajax = typeof najax !== 'undefined';
   import RESTAdapter from '@ember-data/adapter/rest';
   import { computed } from '@ember/object';
 
-  export default RESTAdapter.extend({
+  export default class ApplicationAdapter extends RESTAdapter {
     headers: computed('session.authToken', function() {
       return {
         'API_KEY': this.get('session.authToken'),
         'ANOTHER_HEADER': 'Some header value'
       };
     })
-  });
+  }
   ```
 
   In some cases, your dynamic headers may require data from some
   object outside of Ember's observer system (for example
   `document.cookie`). You can use the
-  [volatile](/api/classes/Ember.ComputedProperty.html#method_volatile)
+  [volatile](/api/classes/Ember.ComputedProperty.html?anchor=volatile)
   function to set the property into a non-cached mode causing the headers to
   be recomputed with every request.
 
@@ -273,14 +278,14 @@ const hasNajax = typeof najax !== 'undefined';
   import { get } from '@ember/object';
   import { computed } from '@ember/object';
 
-  export default RESTAdapter.extend({
+  export default class ApplicationAdapter extends RESTAdapter {
     headers: computed(function() {
       return {
         'API_KEY': get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
         'ANOTHER_HEADER': 'Some header value'
       };
     }).volatile()
-  });
+  }
   ```
 
   @class RESTAdapter
@@ -288,28 +293,30 @@ const hasNajax = typeof najax !== 'undefined';
   @extends Adapter
   @uses BuildURLMixin
 */
-const RESTAdapter = Adapter.extend(BuildURLMixin, {
-  defaultSerializer: '-rest',
+class RESTAdapter extends Adapter.extend(BuildURLMixin) {
+  defaultSerializer = '-rest';
 
-  _defaultContentType: 'application/json; charset=utf-8',
+  _defaultContentType = 'application/json; charset=utf-8';
 
-  fastboot: computed(function() {
-    return getOwner(this).lookup('service:fastboot');
-  }),
-
-  useFetch: computed(function() {
-    let ENV = getOwner(this).resolveRegistration('config:environment');
-    // TODO: https://github.com/emberjs/data/issues/6093
-    let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
-
-    if (jQueryIntegrationDisabled) {
-      return true;
-    } else if (hasNajax || hasJQuery) {
-      return false;
-    } else {
-      return true;
+  @computed
+  get fastboot() {
+    // Avoid computed property override deprecation in fastboot as suggested by:
+    // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
+    if (this._fastboot) {
+      return this._fastboot;
     }
-  }),
+    return (this._fastboot = getOwner(this).lookup('service:fastboot'));
+  }
+
+  set fastboot(value) {
+    return (this._fastboot = value);
+  }
+
+  /**
+    @property useFetch
+    @type {Boolean}
+    @public
+  */
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -335,7 +342,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default RESTAdapter.extend({
+    export default class ApplicationAdapter extends RESTAdapter {
       sortQueryParams(params) {
         let sortedKeys = Object.keys(params).sort().reverse();
         let len = sortedKeys.length, newParams = {};
@@ -346,7 +353,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
         return newParams;
       }
-    });
+    }
     ```
 
     @method sortQueryParams
@@ -366,7 +373,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       newQueryParams[sortedKeys[i]] = obj[sortedKeys[i]];
     }
     return newQueryParams;
-  },
+  }
 
   /**
     By default the RESTAdapter will send each find request coming from a `store.find`
@@ -415,7 +422,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests: false,
+  coalesceFindRequests = false;
 
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
@@ -424,9 +431,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default RESTAdapter.extend({
-      namespace: 'api/1'
-    });
+    export default class ApplicationAdapter extends RESTAdapter {
+      namespace = 'api/1';
+    }
     ```
 
     Requests for the `Post` model would now target `/api/1/post/`.
@@ -441,9 +448,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
 
-    export default RESTAdapter.extend({
-      host: 'https://api.example.com'
-    });
+    export default class ApplicationAdapter extends RESTAdapter {
+      host = 'https://api.example.com';
+    }
     ```
 
     Requests for the `Post` model would now target `https://api.example.com/post/`.
@@ -457,20 +464,20 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     key. Arbitrary headers can be set as key/value pairs on the
     `RESTAdapter`'s `headers` object and Ember Data will send them
     along with each ajax request. For dynamic headers see [headers
-    customization](/api/data/classes/DS.RESTAdapter.html).
+    customization](/ember-data/release/classes/RESTAdapter).
 
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
     import { computed } from '@ember/object';
 
-    export default RESTAdapter.extend({
+    export default class ApplicationAdapter extends RESTAdapter {
       headers: computed(function() {
         return {
           'API_KEY': 'secret key',
           'ANOTHER_HEADER': 'Some header value'
         };
       })
-    });
+    }
     ```
 
     @property headers
@@ -488,10 +495,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     @since 1.13.0
     @method findRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {String} id
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   findRecord(store, type, id, snapshot) {
@@ -499,7 +506,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let query = this.buildQuery(snapshot);
 
     return this.ajax(url, 'GET', { data: query });
-  },
+  }
 
   /**
     Called by the store in order to fetch a JSON array for all
@@ -509,10 +516,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     promise for the resulting payload.
 
     @method findAll
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {undefined} neverSet a value is never provided to this argument
-    @param {DS.SnapshotRecordArray} snapshotRecordArray
+    @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
   findAll(store, type, sinceToken, snapshotRecordArray) {
@@ -524,7 +531,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return this.ajax(url, 'GET', { data: query });
-  },
+  }
 
   /**
     Called by the store in order to fetch a JSON array for
@@ -538,8 +545,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     to the server as parameters.
 
     @method query
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {Object} query
     @return {Promise} promise
   */
@@ -551,7 +558,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return this.ajax(url, 'GET', { data: query });
-  },
+  }
 
   /**
     Called by the store in order to fetch a JSON object for
@@ -566,8 +573,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     @since 1.13.0
     @method queryRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {Object} query
     @return {Promise} promise
   */
@@ -579,7 +586,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return this.ajax(url, 'GET', { data: query });
-  },
+  }
 
   /**
     Called by the store in order to fetch several records together if `coalesceFindRequests` is true
@@ -608,8 +615,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     promise for the resulting payload.
 
     @method findMany
-    @param {DS.Store} store
-    @param {DS.Model} type
+    @param {Store} store
+    @param {Model} type
     @param {Array} ids
     @param {Array} snapshots
     @return {Promise} promise
@@ -617,7 +624,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   findMany(store, type, ids, snapshots) {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
-  },
+  }
 
   /**
     Called by the store in order to fetch a JSON array for
@@ -649,8 +656,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @method findHasMany
-    @param {DS.Store} store
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Snapshot} snapshot
     @param {String} url
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
@@ -662,7 +669,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findHasMany'));
 
     return this.ajax(url, 'GET');
-  },
+  }
 
   /**
     Called by the store in order to fetch the JSON for the unloaded record in a
@@ -694,8 +701,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @method findBelongsTo
-    @param {DS.Store} store
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Snapshot} snapshot
     @param {String} url
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
@@ -706,7 +713,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findBelongsTo'));
     return this.ajax(url, 'GET');
-  },
+  }
 
   /**
     Called by the store when a newly created record is
@@ -719,20 +726,18 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     of a record.
 
     @method createRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Model} type
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   createRecord(store, type, snapshot) {
-    let data = {};
-    let serializer = store.serializerFor(type.modelName);
     let url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
-    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+    const data = serializeIntoHash(store, type, snapshot);
 
-    return this.ajax(url, 'POST', { data: data });
-  },
+    return this.ajax(url, 'POST', { data });
+  }
 
   /**
     Called by the store when an existing record is saved
@@ -745,22 +750,19 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     of a record.
 
     @method updateRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Model} type
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   updateRecord(store, type, snapshot) {
-    let data = {};
-    let serializer = store.serializerFor(type.modelName);
-
-    serializer.serializeIntoHash(data, type, snapshot);
+    const data = serializeIntoHash(store, type, snapshot, {});
 
     let id = snapshot.id;
     let url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
 
-    return this.ajax(url, 'PUT', { data: data });
-  },
+    return this.ajax(url, 'PUT', { data });
+  }
 
   /**
     Called by the store when a record is deleted.
@@ -768,16 +770,16 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     The `deleteRecord` method  makes an Ajax (HTTP DELETE) request to a URL computed by `buildURL`.
 
     @method deleteRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {Store} store
+    @param {Model} type
+    @param {Snapshot} snapshot
     @return {Promise} promise
   */
   deleteRecord(store, type, snapshot) {
     let id = snapshot.id;
 
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), 'DELETE');
-  },
+  }
 
   _stripIDFromURL(store, snapshot) {
     let url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
@@ -798,10 +800,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return expandedURL.join('/');
-  },
+  }
 
   // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
-  maxURLLength: 2048,
+  maxURLLength = 2048;
 
   /**
     Organize records into groups, each of which is to be passed to separate
@@ -820,7 +822,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     and `/posts/2/comments/3`
 
     @method groupRecordsForFindMany
-    @param {DS.Store} store
+    @param {Store} store
     @param {Array} snapshots
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
@@ -869,7 +871,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     });
 
     return groupsArray;
-  },
+  }
 
   /**
     Takes an ajax response, and returns the json payload or an error.
@@ -898,7 +900,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param  {Object} headers
     @param  {Object} payload
     @param  {Object} requestData - the original request information
-    @return {Object | DS.AdapterError} response
+    @return {Object | AdapterError} response
   */
   handleResponse(status, headers, payload, requestData) {
     if (this.isSuccess(status, headers, payload)) {
@@ -926,7 +928,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return new AdapterError(errors, detailedMessage);
-  },
+  }
 
   /**
     Default `handleResponse` implementation uses this hook to decide if the
@@ -941,7 +943,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   isSuccess(status, headers, payload) {
     return (status >= 200 && status < 300) || status === 304;
-  },
+  }
 
   /**
     Default `handleResponse` implementation uses this hook to decide if the
@@ -956,7 +958,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   isInvalid(status, headers, payload) {
     return status === 422;
-  },
+  }
 
   /**
     Takes a URL, an HTTP method and a hash of data, and makes an
@@ -984,7 +986,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   ajax(url, type, options) {
     let adapter = this;
-    let useFetch = get(this, 'useFetch');
 
     let requestData = {
       url: url,
@@ -992,19 +993,18 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
-    if (useFetch) {
+    if (this.useFetch) {
+      let _response;
       return this._fetchRequest(hash)
         .then(response => {
-          return RSVP.hash({
-            response,
-            payload: determineBodyPromise(response, requestData),
-          });
+          _response = response;
+          return determineBodyPromise(response, requestData);
         })
-        .then(({ response, payload }) => {
-          if (response.ok) {
-            return fetchSuccessHandler(adapter, payload, response, requestData);
+        .then(payload => {
+          if (_response.ok && !(payload instanceof Error)) {
+            return fetchSuccessHandler(adapter, payload, _response, requestData);
           } else {
-            throw fetchErrorHandler(adapter, payload, response, null, requestData);
+            throw fetchErrorHandler(adapter, payload, _response, null, requestData);
           }
         });
     }
@@ -1022,7 +1022,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
       adapter._ajax(hash);
     }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
-  },
+  }
 
   /**
     @method _ajaxRequest
@@ -1031,22 +1031,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   _ajaxRequest(options) {
     jQuery.ajax(options);
-  },
-
-  /**
-    @method _najaxRequest
-    @private
-    @param {Object} options jQuery ajax options to be used for the najax request
-  */
-  _najaxRequest(options) {
-    if (hasNajax) {
-      najax(options);
-    } else {
-      throw new Error(
-        'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
-      );
-    }
-  },
+  }
 
   _fetchRequest(options) {
     let fetchFunction = fetch();
@@ -1058,17 +1043,17 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
         'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
       );
     }
-  },
+  }
 
   _ajax(options) {
-    if (get(this, 'useFetch')) {
+    if (this.useFetch) {
       this._fetchRequest(options);
-    } else if (get(this, 'fastboot.isFastBoot')) {
+    } else if (DEPRECATE_NAJAX && get(this, 'fastboot.isFastBoot')) {
       this._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
     }
-  },
+  }
 
   /**
     @method ajaxOptions
@@ -1090,14 +1075,14 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
-      options.headers = assign({}, options.headers, headers);
+      options.headers = assign({}, headers, options.headers);
     } else if (!options.headers) {
       options.headers = {};
     }
 
     let contentType = options.contentType || this._defaultContentType;
 
-    if (get(this, 'useFetch')) {
+    if (this.useFetch) {
       if (options.data && options.type !== 'GET') {
         if (!options.headers['Content-Type'] && !options.headers['content-type']) {
           options.headers['content-type'] = contentType;
@@ -1116,7 +1101,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     options.url = this._ajaxURL(options.url);
 
     return options;
-  },
+  }
 
   _ajaxURL(url) {
     if (get(this, 'fastboot.isFastBoot')) {
@@ -1140,7 +1125,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return url;
-  },
+  }
 
   /**
     @method parseErrorResponse
@@ -1158,7 +1143,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return json;
-  },
+  }
 
   /**
     @method normalizeErrorResponse
@@ -1180,7 +1165,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
         },
       ];
     }
-  },
+  }
 
   /**
     Generates a detailed ("friendly") error message, with plenty
@@ -1194,7 +1179,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param  {Object} requestData
     @return {String} detailed error message
   */
-  generatedDetailedMessage: function(status, headers, payload, requestData) {
+  generatedDetailedMessage(status, headers, payload, requestData) {
     let shortenedPayload;
     let payloadContentType = headers['content-type'] || 'Empty Content-Type';
 
@@ -1212,9 +1197,15 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       payloadDescription,
       shortenedPayload,
     ].join('\n');
-  },
+  }
 
-  // @since 2.5.0
+  /**
+    @method buildQuery
+    @since 2.5.0
+    @public
+    @param  {Snapshot} snapshot
+    @return {Object}
+  */
   buildQuery(snapshot) {
     let query = {};
 
@@ -1227,8 +1218,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return query;
-  },
-});
+  }
+}
 
 function ajaxSuccess(adapter, payload, requestData, responseData) {
   let response;
@@ -1248,7 +1239,7 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 function ajaxError(adapter, payload, requestData, responseData) {
   let error;
 
-  if (responseData.errorThrown instanceof Error) {
+  if (responseData.errorThrown instanceof Error && payload !== '') {
     error = responseData.errorThrown;
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
@@ -1295,7 +1286,14 @@ function fetchSuccessHandler(adapter, payload, response, requestData) {
 
 function fetchErrorHandler(adapter, payload, response, errorThrown, requestData) {
   let responseData = fetchResponseData(response);
-  responseData.errorThrown = errorThrown;
+
+  if (responseData.status === 200 && payload instanceof Error) {
+    responseData.errorThrown = payload;
+    payload = responseData.errorThrown.payload;
+  } else {
+    responseData.errorThrown = errorThrown;
+    payload = adapter.parseErrorResponse(payload);
+  }
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
@@ -1349,11 +1347,11 @@ function headersToObject(headers) {
 /**
  * Helper function that translates the options passed to `jQuery.ajax` into a format that `fetch` expects.
  * @param {Object} _options
- * @param {DS.Adapter} adapter
+ * @param {Adapter} adapter
  * @returns {Object}
  */
 export function fetchOptions(options, adapter) {
-  options.credentials = 'same-origin';
+  options.credentials = options.credentials || 'same-origin';
 
   if (options.data) {
     // GET and HEAD requests can't have a `body`
@@ -1367,7 +1365,19 @@ export function fetchOptions(options, adapter) {
     } else {
       // NOTE: a request's body cannot be an object, so we stringify it if it is.
       // JSON.stringify removes keys with values of `undefined` (mimics jQuery.ajax).
-      options.body = JSON.stringify(options.data);
+      // If the data is not a POJO (it's a String, FormData, etc), we just set it.
+      // If the data is a string, we assume it's a stringified object.
+
+      /* We check for Objects this way because we want the logic inside the consequent to run
+       * if `options.data` is a POJO, not if it is a data structure whose `typeof` returns "object"
+       * when it's not (Array, FormData, etc). The reason we don't use `options.data.constructor`
+       * to check is in case `data` is an object with no prototype (e.g. created with null).
+       */
+      if (Object.prototype.toString.call(options.data) === '[object Object]') {
+        options.body = JSON.stringify(options.data);
+      } else {
+        options.body = options.data;
+      }
     }
   }
 
@@ -1387,6 +1397,83 @@ function ajaxOptions(options, adapter) {
   };
 
   return options;
+}
+
+if (DEPRECATE_NAJAX) {
+  /**
+    @method _najaxRequest
+    @private
+    @param {Object} options jQuery ajax options to be used for the najax request
+  */
+  RESTAdapter.prototype._najaxRequest = function(options) {
+    if (typeof najax !== 'undefined') {
+      najax(options);
+    } else {
+      throw new Error(
+        'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
+      );
+    }
+  };
+
+  Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
+    get() {
+      if (typeof this[UseFetch] === 'boolean') {
+        return this[UseFetch];
+      }
+
+      // Mixin validates all properties. Might not have it in the container yet
+      let ENV = getOwner(this) ? getOwner(this).resolveRegistration('config:environment') : {};
+      // TODO: https://github.com/emberjs/data/issues/6093
+      let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
+
+      let shouldUseFetch;
+      if (jQueryIntegrationDisabled) {
+        shouldUseFetch = true;
+      } else if (typeof najax !== 'undefined') {
+        if (has('fetch')) {
+          deprecate(
+            'You have ember-fetch and jquery installed. To use ember-fetch instead of najax, set `useFetch = true` in your adapter.  In 4.0, ember-data will default to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
+            false,
+            {
+              id: 'ember-data:najax-fallback',
+              until: '4.0',
+            }
+          );
+        } else {
+          deprecate(
+            'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar fetch polyfill in FastBoot and set `useFetch = true` in your adapter.',
+            false,
+            {
+              id: 'ember-data:najax-fallback',
+              until: '4.0',
+            }
+          );
+        }
+
+        shouldUseFetch = false;
+      } else if (hasJQuery) {
+        shouldUseFetch = false;
+      } else {
+        shouldUseFetch = true;
+      }
+
+      addSymbol(this, UseFetch, shouldUseFetch);
+
+      return shouldUseFetch;
+    },
+
+    set(value) {
+      addSymbol(this, UseFetch, value);
+      return value;
+    },
+  });
+} else {
+  Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
+    value() {
+      return true;
+    },
+    configurable: true,
+  });
 }
 
 export default RESTAdapter;

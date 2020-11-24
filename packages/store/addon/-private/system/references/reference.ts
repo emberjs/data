@@ -1,8 +1,19 @@
-import Store from '../ds-model-store';
-import InternalModel from '../model/internal-model';
-import recordDataFor from '../record-data-for';
-import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
-import CoreStore from '../core-store';
+import { deprecate } from '@ember/debug';
+
+import { FULL_LINKS_ON_RELATIONSHIPS, RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
+
+import { internalModelFactoryFor } from '../store/internal-model-factory';
+
+type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
+type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
+type PaginationLinks = import('../../ts-interfaces/ember-data-json-api').PaginationLinks;
+type LinkObject = import('../../ts-interfaces/ember-data-json-api').LinkObject;
+type CoreStore = import('../core-store').default;
+type JSONObject = import('json-typescript').Object;
+type JSONValue = import('json-typescript').Value;
+type InternalModel = import('../model/internal-model').default;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store
@@ -15,8 +26,21 @@ interface ResourceIdentifier {
   meta?: JSONObject;
 }
 
-function isResourceIdentiferWithRelatedLinks(value: any): value is ResourceIdentifier & { links: { related: string } } {
+function isResourceIdentiferWithRelatedLinks(
+  value: any
+): value is ResourceIdentifier & { links: { related: string | LinkObject | null } } {
   return value && value.links && value.links.related;
+}
+
+// TODO: simplify after 3.23 release and only store identifier
+export const REFERENCE_CACHE = new WeakMap<Reference, InternalModel | StableRecordIdentifier>();
+
+export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
+  if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+    return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
+  } else {
+    return REFERENCE_CACHE.get(reference) as InternalModel;
+  }
 }
 
 /**
@@ -25,13 +49,27 @@ function isResourceIdentiferWithRelatedLinks(value: any): value is ResourceIdent
 
  @class Reference
  */
-export default abstract class Reference {
-  public recordData: InternalModel['_recordData'];
-  constructor(public store: CoreStore, public internalModel: InternalModel) {
-    this.recordData = recordDataFor(this);
+interface Reference {
+  links(): PaginationLinks | null;
+}
+abstract class Reference {
+  constructor(public store: CoreStore, identifierOrInternalModel: InternalModel | StableRecordIdentifier) {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      REFERENCE_CACHE.set(this, identifierOrInternalModel);
+    } else {
+      REFERENCE_CACHE.set(this, identifierOrInternalModel);
+    }
   }
 
-  public _resource(): ResourceIdentifier | (JSONObject & { meta?: { [k: string]: JSONValue } }) | void {}
+  get recordData() {
+    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+      return this.store.recordDataFor(REFERENCE_CACHE.get(this) as StableRecordIdentifier, false);
+    } else {
+      return internalModelForReference(this)?._recordData;
+    }
+  }
+
+  public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
 
   /**
    This returns a string that represents how the reference will be
@@ -119,16 +157,17 @@ export default abstract class Reference {
    @method link
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
-  link() {
-    let link: string | null = null;
+  link(): string | null {
+    let link;
     let resource = this._resource();
 
     if (isResourceIdentiferWithRelatedLinks(resource)) {
       if (resource.links) {
         link = resource.links.related;
+        link = !link || typeof link === 'string' ? link : link.href;
       }
     }
-    return link;
+    return link || null;
   }
 
   /**
@@ -151,10 +190,10 @@ export default abstract class Reference {
           user: {
             links: {
               related: {
-                href: '/articles/1/author',
-                meta: {
-                  lastUpdated: 1458014400000
-                }
+                href: '/articles/1/author'
+              },
+              meta: {
+                lastUpdated: 1458014400000
               }
             }
           }
@@ -171,7 +210,7 @@ export default abstract class Reference {
    @return {Object} The meta information for the belongs-to relationship.
    */
   meta() {
-    let meta: { [k: string]: JSONValue } | null = null;
+    let meta: Dict<JSONValue> | null = null;
     let resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
@@ -179,3 +218,26 @@ export default abstract class Reference {
     return meta;
   }
 }
+
+if (FULL_LINKS_ON_RELATIONSHIPS) {
+  Reference.prototype.links = function links(): PaginationLinks | null {
+    let resource = this._resource();
+
+    return resource && resource.links ? resource.links : null;
+  };
+}
+
+if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
+  Object.defineProperty(Reference.prototype, 'internalModel', {
+    get() {
+      deprecate('Accessing the internalModel property of Reference is deprecated', false, {
+        id: 'ember-data:reference-internal-model',
+        until: '3.21',
+      });
+
+      return REFERENCE_CACHE.get(this);
+    },
+  });
+}
+
+export default Reference;

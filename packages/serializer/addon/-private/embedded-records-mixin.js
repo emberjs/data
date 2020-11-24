@@ -1,9 +1,9 @@
-import { typeOf } from '@ember/utils';
 import { A } from '@ember/array';
+import { warn } from '@ember/debug';
+import { get, set } from '@ember/object';
 import Mixin from '@ember/object/mixin';
 import { camelize } from '@ember/string';
-import { set, get } from '@ember/object';
-import { warn } from '@ember/debug';
+import { typeOf } from '@ember/utils';
 
 /**
   @module @ember-data/serializer
@@ -19,17 +19,19 @@ import { warn } from '@ember/debug';
 
   Note that embedded records will serialize with the serializer for their model instead of the serializer in which they are defined.
 
+  Note also that this mixin does not work with JSONAPISerializer because the JSON:API specification does not describe how to format embedded resources.
+
   Below is an example of a per-type serializer (`post` type).
 
   ```app/serializers/post.js
   import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-  export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-    attrs: {
+  export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+    attrs = {
       author: { embedded: 'always' },
       comments: { serialize: 'ids' }
     }
-  });
+  }
   ```
   Note that this use of `{ embedded: 'always' }` is unrelated to
   the `{ embedded: 'always' }` that is defined as an option on `attr` as part of
@@ -94,9 +96,9 @@ import { warn } from '@ember/debug';
   to modify it to fit your specific needs.**
 
   For example, review the docs for each method of this mixin:
-  * [normalize](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_normalize)
-  * [serializeBelongsTo](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeBelongsTo)
-  * [serializeHasMany](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeHasMany)
+  * [normalize](/ember-data/release/classes/EmbeddedRecordsMixin/methods/normalize?anchor=normalize)
+  * [serializeBelongsTo](/ember-data/release/classes/EmbeddedRecordsMixin/methods/serializeBelongsTo?anchor=serializeBelongsTo)
+  * [serializeHasMany](/ember-data/release/classes/EmbeddedRecordsMixin/methods/serializeHasMany?anchor=serializeHasMany)
 
   @class EmbeddedRecordsMixin
 */
@@ -123,7 +125,7 @@ export default Mixin.create({
     }
     ```
    @method normalize
-   @param {DS.Model} typeClass
+   @param {Model} typeClass
    @param {Object} hash to be normalized
    @param {String} prop the hash has been referenced by
    @return {Object} the normalized hash
@@ -169,11 +171,11 @@ export default Mixin.create({
     ```app/serializers/post.js
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-      attrs: {
+    export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+      attrs = {
         author: { embedded: 'always' }
       }
-    })
+    }
     ```
 
     A payload with an attribute configured for embedded records can serialize
@@ -193,7 +195,7 @@ export default Mixin.create({
     ```
 
     @method serializeBelongsTo
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
@@ -270,11 +272,11 @@ export default Mixin.create({
     ```app/serializers/post.js
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-      attrs: {
+    export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+      attrs = {
         comments: { embedded: 'always' }
       }
-    })
+    }
     ```
 
     A payload with an attribute configured for embedded records can serialize
@@ -309,11 +311,11 @@ export default Mixin.create({
     ```app/serializers/post.js
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-      attrs: {
+    export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+      attrs = {
         comments: { serialize: 'ids', deserialize: 'records' }
       }
-    })
+    }
     ```
 
     ```js
@@ -336,13 +338,13 @@ export default Mixin.create({
     For example having a user that has many pets:
 
     ```js
-    User = DS.Model.extend({
-      name:    DS.attr('string'),
-      pets: DS.hasMany('pet', { polymorphic: true })
+    User = Model.extend({
+      name: attr('string'),
+      pets: hasMany('pet', { polymorphic: true })
     });
 
-    Pet = DS.Model.extend({
-      name: DS.attr('string'),
+    Pet = Model.extend({
+      name: attr('string'),
     });
 
     Cat = Pet.extend({
@@ -357,11 +359,11 @@ export default Mixin.create({
     ```app/serializers/user.js
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-    export default RESTSerializer.extend(EmbeddedRecordsMixin, {
-      attrs: {
+    export default class UserSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
+      attrs = {
         pets: { serialize: 'ids-and-types', deserialize: 'records' }
       }
-    });
+    }
     ```
 
     ```js
@@ -378,7 +380,7 @@ export default Mixin.create({
     ```
 
     @method serializeHasMany
-    @param {DS.Snapshot} snapshot
+    @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
@@ -419,7 +421,7 @@ export default Mixin.create({
 
     json[serializedKey] = A(hasMany).map(function(recordSnapshot) {
       //
-      // I'm sure I'm being utterly naive here. Propably id is a configurate property and
+      // I'm sure I'm being utterly naive here. Probably id is a configurable property and
       // type too, and the modelName has to be normalized somehow.
       //
       return { id: recordSnapshot.id, type: recordSnapshot.modelName };
@@ -470,8 +472,8 @@ export default Mixin.create({
     the parent record.
 
     @method removeEmbeddedForeignKey
-    @param {DS.Snapshot} snapshot
-    @param {DS.Snapshot} embeddedSnapshot
+    @param {Snapshot} snapshot
+    @param {Snapshot} embeddedSnapshot
     @param {Object} relationship
     @param {Object} json
   */

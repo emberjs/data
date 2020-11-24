@@ -1,8 +1,9 @@
-import { resolve, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
-import { setupTest } from 'ember-qunit';
 
 import { module, test } from 'qunit';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+
+import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
@@ -19,7 +20,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     this.owner.register('model:person', Person);
     this.owner.register('model:place', Place);
 
-    this.owner.register('adapter:application', RESTAdapter.extend({ useFetch: true }));
+    this.owner.register(
+      'adapter:application',
+      class extends RESTAdapter {
+        useFetch = true;
+      }
+    );
     this.owner.register('serializer:application', RESTSerializer.extend());
   });
 
@@ -194,6 +200,33 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
+  test('ajaxOptions() headers take precedence over adapter headers', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    let url = 'example.com';
+    let type = 'POST';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    assert.deepEqual(ajaxOptions, {
+      credentials: 'same-origin',
+      type: 'POST',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      url: 'example.com',
+    });
+  });
+
   test('_fetchRequest() returns a promise', function(assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -215,7 +248,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
 
   module('ajax-options - ajax', function(hooks) {
     hooks.beforeEach(function() {
-      this.owner.register('adapter:application', RESTAdapter.extend({ useFetch: false }));
+      this.owner.register(
+        'adapter:application',
+        class extends RESTAdapter {
+          useFetch = false;
+        }
+      );
     });
 
     test('ajaxOptions() Content-Type is not set with ajax GET', function(assert) {
@@ -240,8 +278,14 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       assert.notOk(ajaxOptions.contentType, 'contentType not set with POST no data');
     });
 
-    test('ajaxOptions() Content-Type is set with ajax POST with data', function(assert) {
+    test('ajaxOptions() Content-Type is set with ajax POST with data if not useFetch', function(assert) {
       let store = this.owner.lookup('service:store');
+      this.owner.register(
+        'adapter:application',
+        class extends RESTAdapter {
+          useFetch = false;
+        }
+      );
       let adapter = store.adapterFor('application');
 
       let url = 'example.com';
@@ -249,6 +293,27 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
 
       assert.equal(ajaxOptions.contentType, 'application/json; charset=utf-8', 'contentType is set with POST');
+    });
+
+    test('ajaxOptions() Content-Type is set with ajax POST with data if useFetch', function(assert) {
+      let store = this.owner.lookup('service:store');
+      this.owner.register(
+        'adapter:application',
+        class extends RESTAdapter {
+          useFetch = true;
+        }
+      );
+      let adapter = store.adapterFor('application');
+
+      let url = 'example.com';
+      let type = 'POST';
+      let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
+
+      assert.equal(
+        ajaxOptions.headers['content-type'],
+        'application/json; charset=utf-8',
+        'contentType is set with POST'
+      );
     });
   });
 });

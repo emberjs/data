@@ -23,7 +23,7 @@ If a previous version of `ember-data` worked as `expected`, which was the most r
 
 ### Versions
 
-Run the following command and paste the output below: `npm ls ember-source && npm ls ember-cli && npm ls ember-data`.
+Run the following command and paste the output below: `yarn list ember-source && yarn list ember-cli && yarn list --pattern ember-data`.
 
 ```cli
 [Replace this line with the output]

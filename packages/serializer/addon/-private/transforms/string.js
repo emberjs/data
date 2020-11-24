@@ -1,4 +1,5 @@
 import { isNone as none } from '@ember/utils';
+
 import Transform from './transform';
 
 /**
@@ -9,18 +10,18 @@ import Transform from './transform';
   The `StringTransform` class is used to serialize and deserialize
   string attributes on Ember Data record objects. This transform is
   used when `string` is passed as the type parameter to the
-  [DS.attr](./DS/methods/attr?anchor=attr) function.
+  [attr](/ember-data/release/functions/@ember-data%2Fmodel/attr) function.
 
   Usage
 
   ```app/models/user.js
   import Model, { attr, belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    isAdmin: attr('boolean'),
-    name: attr('string'),
-    email: attr('string')
-  });
+  export default class UserModel extends Model {
+    @attr('boolean') isAdmin;
+    @attr('string') name;
+    @attr('string') email;
+  }
   ```
 
   @class StringTransform
