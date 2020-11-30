@@ -1,6 +1,7 @@
 import { computed, get, observer, set } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 import { settled } from '@ember/test-helpers';
+import { DEBUG } from '@glimmer/env';
 
 import { module, test } from 'qunit';
 import { reject, resolve } from 'rsvp';
@@ -141,9 +142,23 @@ module('unit/model - Model', function(hooks) {
         'the deleted person is not removed from store (no unload called)'
       );
 
-      assert.expectAssertion(() => {
-        set(record, 'isArchived', true);
-      }, /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/);
+      if (DEBUG) {
+        assert.throws(
+          () => {
+            set(record, 'isArchived', true);
+          },
+          /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/,
+          'Assertion includes more context when in DEBUG'
+        );
+      } else {
+        assert.throws(
+          () => {
+            set(record, 'isArchived', true);
+          },
+          /Attempted to set 'isArchived' on the deleted record <person:1>/,
+          "Assertion does not leak the 'value'"
+        );
+      }
 
       currentState = record._internalModel.currentState;
 
