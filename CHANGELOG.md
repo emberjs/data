@@ -1,8 +1,10 @@
 # Ember Data Changelog
 
-## Release 3.23.0-beta.0 (August 30, 2020)
-- [#7285](https://github.com/emberjs/data/pull/7285) [FEATURE]: Allow fetch to accept credentials (#7285)
-- [#7342](https://github.com/emberjs/data/pull/7342) [Debug]: improved identifier debug msg instead of [object Object]
+## Release 3.23.0 (Novemberr 30, 2020)
+- [#7337](https://github.com/emberjs/data/pull/7337) [Debug]: improved debug msg instead of [object Object]
+- [#7230](https://github.com/emberjs/data/pull/7230) [CHORE] najax deprecation when ember-fetch is also installed
+- [#7370](https://github.com/emberjs/data/pull/7370) Don't expose the value of a model's attribute in assertions (#7370)
+- [#7363](https://github.com/emberjs/data/pull/7363) [BUGFIX identifiers] Address issue with polymorphic findRecord  (#7363)
 - [#7338](https://github.com/emberjs/data/pull/7338) [Chore]: remove deprecation for DEPRECATE_MODEL_DATA
 
 ## Release 3.22.0 (October 09, 2020)
