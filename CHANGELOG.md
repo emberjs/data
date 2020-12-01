@@ -1,5 +1,12 @@
 # Ember Data Changelog
 
+## Release 3.24.0-beta.0 (November 30, 2020)
+- [#7350](https://github.com/emberjs/data/pull/7350) [Chore]: convert adapters to class syntax (#7350)
+- [#7359](https://github.com/emberjs/data/pull/7359) [CI]: bump failure asset size to 75 bytes (#7359)
+- [#7369](https://github.com/emberjs/data/pull/7369) [CHORE] Bump @ember/ordered-set
+- [#7370](https://github.com/emberjs/data/pull/7370) Don't expose the value of a model's attribute in assertions (#7370)
+- [#7363](https://github.com/emberjs/data/pull/7363) [BUGFIX identifiers] Address issue with polymorphic findRecord  (#7363)
+
 ## Release 3.21.0 (August 30, 2020)
 - [#7224](https://github.com/emberjs/data/pull/7224) [DOCS] fix links on @ember-data/store package intro
 - [#7228](https://github.com/emberjs/data/pull/7228) chore: remove instance initializer (#7228)
