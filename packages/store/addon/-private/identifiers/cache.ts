@@ -1,4 +1,5 @@
 import { warn } from '@ember/debug';
+import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
@@ -342,6 +343,17 @@ export class IdentifierCache {
 
     let newId = coerceId(data.id);
     let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
+
+    if (!existingIdentifier) {
+      // If the incoming type does not match the identifier type, we need to create an identifier for the incoming
+      // data so we can merge the incoming data with the existing identifier, see #7325 and #7363
+      if (data.type && identifier.type !== normalizeModelName(data.type)) {
+        let incomingDataResource = assign({}, data);
+        // Need to strip the lid from the incomingData in order force a new identifier creation
+        delete incomingDataResource.lid;
+        existingIdentifier = this.getOrCreateRecordIdentifier(incomingDataResource);
+      }
+    }
 
     if (existingIdentifier) {
       let keyOptions = getTypeIndex(this._cache.types, identifier.type);
