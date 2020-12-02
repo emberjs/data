@@ -5,7 +5,7 @@
   "keywords": [
     "ember-addon"
   ],
-  "repository": "https://github.com/emberjs/data/tree/master/packages/adapter",
+  "repository": "https://github.com/emberjs/data/tree/master/packages/record-data",
   "license": "MIT",
   "author": "",
   "directories": {
