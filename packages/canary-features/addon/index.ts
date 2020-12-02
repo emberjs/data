@@ -9,6 +9,7 @@ import { assign } from '@ember/polyfills';
 import DEFAULT_FEATURES from './default-features';
 
 type FeatureList = {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   [key in keyof typeof DEFAULT_FEATURES]: boolean | null;
 };
 

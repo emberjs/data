@@ -1564,7 +1564,6 @@ if (DEPRECATE_NAJAX) {
 
     set(value) {
       addSymbol(this, UseFetch, value);
-      return value;
     },
   });
 } else {
