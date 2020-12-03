@@ -332,6 +332,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   declare useFetch: boolean;
 
   declare _fastboot: FastBoot;
+  declare _najaxRequest: any;
 
   defaultSerializer = '-rest';
 
@@ -1083,7 +1084,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     if (this.useFetch) {
       this._fetchRequest(options);
     } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
-      (this as any)._najaxRequest(options);
+      this._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
     }
@@ -1438,7 +1439,7 @@ if (DEPRECATE_NAJAX) {
     @private
     @param {Object} options jQuery ajax options to be used for the najax request
   */
-  (RESTAdapter.prototype as any)._najaxRequest = function(options): void {
+  RESTAdapter.prototype._najaxRequest = function(options): void {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {
