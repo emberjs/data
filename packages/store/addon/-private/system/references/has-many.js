@@ -2,7 +2,6 @@ import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
 
-import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import recordDataFor from '../record-data-for';
@@ -27,11 +26,7 @@ export default class HasManyReference extends Reference {
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.relationshipMeta.type;
 
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
-    } else {
-      this.parent = parentIMOrIdentifier.recordReference;
-    }
+    this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
 
     // TODO inverse
   }
