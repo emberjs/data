@@ -332,7 +332,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   declare useFetch: boolean;
 
   declare _fastboot: FastBoot;
-  declare _najaxRequest: any;
+  declare _najaxRequest: Function;
 
   defaultSerializer = '-rest';
 
