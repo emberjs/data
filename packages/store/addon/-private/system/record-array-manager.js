@@ -418,15 +418,28 @@ const updateLiveRecordArray = function updateLiveRecordArray(store, recordArray,
   }
 
   if (identifiersToAdd.length > 0) {
-    recordArray._pushIdentifiers(identifiersToAdd);
+    pushIdentifiers(recordArray, identifiersToAdd, internalModelFactoryFor(store));
   }
   if (identifiersToRemove.length > 0) {
-    removeIdentifiers(recordArray, identifiersToRemove);
+    removeIdentifiers(recordArray, identifiersToRemove, internalModelFactoryFor(store));
   }
 };
 
-const removeIdentifiers = function removeIdentifiers(recordArray, identifiers) {
-  recordArray._removeIdentifiers(identifiers);
+const pushIdentifiers = function pushIdentifiers(recordArray, identifiers, cache) {
+  if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._pushIdentifiers) {
+    // deprecate('not allowed to use this intimate api any more');
+    recordArray._pushInternalModels(identifiers.map(i => peekIMCache(cache, i)));
+  } else {
+    recordArray._pushIdentifiers(identifiers);
+  }
+};
+const removeIdentifiers = function removeIdentifiers(recordArray, identifiers, cache) {
+  if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._removeIdentifiers) {
+    // deprecate('not allowed to use this intimate api any more');
+    recordArray._removeInternalModels(identifiers.map(i => peekIMCache(cache, i)));
+  } else {
+    recordArray._removeIdentifiers(identifiers);
+  }
 };
 
 const removeFromAdapterPopulatedRecordArrays = function removeFromAdapterPopulatedRecordArrays(store, identifiers) {
@@ -438,9 +451,10 @@ const removeFromAdapterPopulatedRecordArrays = function removeFromAdapterPopulat
 const removeFromAll = function removeFromAll(store, identifier) {
   identifier = getIdentifier(identifier);
   const recordArrays = recordArraysForIdentifier(identifier);
+  const cache = internalModelFactoryFor(store);
 
   recordArrays.forEach(function(recordArray) {
-    removeIdentifiers(recordArray, [identifier]);
+    removeIdentifiers(recordArray, [identifier], cache);
   });
 
   recordArrays.clear();
