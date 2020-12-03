@@ -331,6 +331,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   */
   declare useFetch: boolean;
 
+  declare _fastboot: FastBoot;
+
   defaultSerializer = '-rest';
 
   _defaultContentType = 'application/json; charset=utf-8';
@@ -339,15 +341,15 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   get fastboot() {
     // Avoid computed property override deprecation in fastboot as suggested by:
     // https://deprecations.emberjs.com/v3.x/#toc_computed-property-override
-    let fastboot = (this as any)._fastboot;
+    let fastboot = this._fastboot;
     if (fastboot) {
       return fastboot;
     }
-    return ((this as any)._fastboot = getOwner(this).lookup('service:fastboot'));
+    return (this._fastboot = getOwner(this).lookup('service:fastboot'));
   }
 
   set fastboot(value: FastBoot) {
-    (this as any)._fastboot = value;
+    this._fastboot = value;
   }
 
   /**
