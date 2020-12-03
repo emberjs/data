@@ -518,6 +518,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @property headers
     @type {Object}
    */
+  declare headers: unknown;
 
   /**
     Called by the store in order to fetch the JSON for a given
@@ -1108,8 +1109,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       options
     );
 
-    if ((this as any).headers !== undefined) {
-      options.headers = assign({}, (this as any).headers as Dict<unknown>, options.headers);
+    if (this.headers !== undefined) {
+      options.headers = assign({}, this.headers as Dict<unknown>, options.headers);
     } else if (!options.headers) {
       options.headers = {};
     }
