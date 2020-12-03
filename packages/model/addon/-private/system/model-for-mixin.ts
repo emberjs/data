@@ -9,7 +9,7 @@ type Store = import('@ember-data/store').default;
       import Model, { belongsTo, hasMany } from '@ember-data/model';
       import Mixin from '@ember/object/mixin';
 
-      let Comment = class CommentModel extends Model {
+      class CommentModel extends Model {
         @belongsTo('commentable', { polymorphic: true }) owner;
       }
 

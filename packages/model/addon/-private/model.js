@@ -2137,13 +2137,13 @@ Model.reopenClass({
    ```javascript
    import Model, { attr } from '@ember-data/model';
 
-   const person = class PersonModel extends Model {
+   class PersonModel extends Model {
       @attr('string') firstName;
       @attr('string') lastName;
       @attr('date') birthday;
     }
 
-   person.eachAttribute(function(name, meta) {
+   PersonModel.eachAttribute(function(name, meta) {
       console.log(name, meta);
     });
 
