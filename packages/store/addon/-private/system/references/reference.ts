@@ -1,6 +1,5 @@
 import { deprecate } from '@ember/debug';
 
-import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
 import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
 
 import { internalModelFactoryFor } from '../store/internal-model-factory';
@@ -157,6 +156,12 @@ abstract class Reference {
     return link || null;
   }
 
+  links(): PaginationLinks | null {
+    let resource = this._resource();
+
+    return resource && resource.links ? resource.links : null;
+  }
+
   /**
    The meta data for the belongs-to relationship.
 
@@ -204,14 +209,6 @@ abstract class Reference {
     }
     return meta;
   }
-}
-
-if (FULL_LINKS_ON_RELATIONSHIPS) {
-  Reference.prototype.links = function links(): PaginationLinks | null {
-    let resource = this._resource();
-
-    return resource && resource.links ? resource.links : null;
-  };
 }
 
 if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {

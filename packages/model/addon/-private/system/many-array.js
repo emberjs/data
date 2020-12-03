@@ -8,7 +8,7 @@ import EmberObject, { get } from '@ember/object';
 
 import { all } from 'rsvp';
 
-import { CUSTOM_MODEL_CLASS, FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { _objectIsAlive, DeprecatedEvented, diffArray, PromiseArray, recordDataFor } from '@ember-data/store/-private';
 
 /**
@@ -245,14 +245,15 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     let jsonApi = this.get('recordData').getHasMany(this.get('key'));
     // TODO this is odd, why should ManyArray ever tell itself to resync?
     let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
+
     if (jsonApi.meta) {
       this.set('meta', jsonApi.meta);
     }
-    if (FULL_LINKS_ON_RELATIONSHIPS) {
-      if (jsonApi.links) {
-        this.set('links', jsonApi.links);
-      }
+
+    if (jsonApi.links) {
+      this.set('links', jsonApi.links);
     }
+
     this.flushCanonical(internalModels, true);
   },
 
