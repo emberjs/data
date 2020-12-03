@@ -32,8 +32,7 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-// TODO: simplify after 3.23 release and only store identifier
-export const REFERENCE_CACHE = new WeakMap<Reference, InternalModel | StableRecordIdentifier>();
+export const REFERENCE_CACHE = new WeakMap<Reference, StableRecordIdentifier>();
 
 export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
   return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
@@ -49,8 +48,8 @@ interface Reference {
   links(): PaginationLinks | null;
 }
 abstract class Reference {
-  constructor(public store: CoreStore, identifierOrInternalModel: InternalModel | StableRecordIdentifier) {
-    REFERENCE_CACHE.set(this, identifierOrInternalModel);
+  constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
+    REFERENCE_CACHE.set(this, identifier);
   }
 
   get recordData() {
