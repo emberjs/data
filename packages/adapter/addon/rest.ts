@@ -1,5 +1,3 @@
-/* globals jQuery */
-
 /**
   @module @ember-data/adapter
 */
