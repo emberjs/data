@@ -28,10 +28,6 @@ import { addSymbol, symbol } from '@ember-data/store/-private';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
-const UseFetch = symbol('useFetch');
-const hasJQuery = typeof jQuery !== 'undefined';
-
-declare var najax: Function;
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type FastBoot = import('./-private/fastboot-interface').FastBoot;
@@ -60,6 +56,12 @@ type ResponseData = {
   headers: {};
   errorThrown?: any;
 };
+
+declare const najax: Function | undefined;
+declare const jQuery: ConfidentDict<any> | undefined;
+
+const UseFetch = symbol('useFetch');
+const hasJQuery = typeof jQuery !== 'undefined';
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -1064,7 +1066,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
   _ajaxRequest(options): void {
-    jQuery.ajax(options);
+    typeof jQuery !== 'undefined' && jQuery.ajax(options);
   }
 
   _fetchRequest(options) {
