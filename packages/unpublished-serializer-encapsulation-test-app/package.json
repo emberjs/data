@@ -22,7 +22,7 @@
     "@ember-data/model": "3.27.0-alpha.0",
     "@ember-data/record-data": "3.27.0-alpha.0",
     "@ember-data/store": "3.27.0-alpha.0",
-    "ember-inflector": "^3.0.1"
+    "ember-inflector": "^4.0.1"
   },
   "devDependencies": {
     "@ember-data/unpublished-test-infra": "3.27.0-alpha.0",
