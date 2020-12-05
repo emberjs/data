@@ -4,7 +4,6 @@ import { assign } from '@ember/polyfills';
 import { once } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 import RecordArray from './record-array';
@@ -98,32 +97,16 @@ let AdapterPopulatedRecordArray = RecordArray.extend({
       }
     }
   },
-});
 
-if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-  AdapterPopulatedRecordArray = AdapterPopulatedRecordArray.extend({
-    /**
-      @method _setIdentifiers
-      @param {StableRecordIdentifier[]} identifiers
-      @param {Object} payload normalized payload
-      @internal
-    */
-    _setIdentifiers(identifiers, payload) {
-      this._setObjects(identifiers, payload);
-    },
-  });
-} else {
-  AdapterPopulatedRecordArray = AdapterPopulatedRecordArray.extend({
-    /**
-      @method _setInternalModels
-      @param {Array} internalModels
-      @param {Object} payload normalized payload
-      @internal
-    */
-    _setInternalModels(internalModels, payload) {
-      this._setObjects(internalModels, payload);
-    },
-  });
-}
+  /**
+    @method _setIdentifiers
+    @param {StableRecordIdentifier[]} identifiers
+    @param {Object} payload normalized payload
+    @internal
+  */
+  _setIdentifiers(identifiers, payload) {
+    this._setObjects(identifiers, payload);
+  },
+});
 
 export default AdapterPopulatedRecordArray;

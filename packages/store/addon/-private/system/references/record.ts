@@ -1,7 +1,5 @@
 import RSVP, { resolve } from 'rsvp';
 
-import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
-
 import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
 
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
@@ -21,24 +19,16 @@ type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRec
 */
 export default class RecordReference extends Reference {
   public get type(): string {
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      return this.identifier().type;
-    } else {
-      return internalModelForReference(this)!.modelName;
-    }
+    return this.identifier().type;
   }
 
   private get _id(): string | null {
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let identifier = this.identifier();
-      if (identifier) {
-        return identifier.id;
-      }
-
-      return null;
-    } else {
-      return internalModelForReference(this)!.id;
+    let identifier = this.identifier();
+    if (identifier) {
+      return identifier.id;
     }
+
+    return null;
   }
 
   /**

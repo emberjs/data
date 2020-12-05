@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-import { FULL_LINKS_ON_RELATIONSHIPS, RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
+import { FULL_LINKS_ON_RELATIONSHIPS } from '@ember-data/canary-features';
 import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
 
 import { internalModelFactoryFor } from '../store/internal-model-factory';
@@ -32,15 +32,10 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-// TODO: simplify after 3.23 release and only store identifier
-export const REFERENCE_CACHE = new WeakMap<Reference, InternalModel | StableRecordIdentifier>();
+export const REFERENCE_CACHE = new WeakMap<Reference, StableRecordIdentifier>();
 
 export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
-  if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-    return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
-  } else {
-    return REFERENCE_CACHE.get(reference) as InternalModel;
-  }
+  return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
 }
 
 /**
@@ -53,20 +48,12 @@ interface Reference {
   links(): PaginationLinks | null;
 }
 abstract class Reference {
-  constructor(public store: CoreStore, identifierOrInternalModel: InternalModel | StableRecordIdentifier) {
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      REFERENCE_CACHE.set(this, identifierOrInternalModel);
-    } else {
-      REFERENCE_CACHE.set(this, identifierOrInternalModel);
-    }
+  constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
+    REFERENCE_CACHE.set(this, identifier);
   }
 
   get recordData() {
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      return this.store.recordDataFor(REFERENCE_CACHE.get(this) as StableRecordIdentifier, false);
-    } else {
-      return internalModelForReference(this)?._recordData;
-    }
+    return this.store.recordDataFor(REFERENCE_CACHE.get(this) as StableRecordIdentifier, false);
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}

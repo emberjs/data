@@ -7,7 +7,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -68,17 +67,10 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     let results = store.push(payload);
 
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      recordArray._setIdentifiers(
-        results.map(r => recordIdentifierFor(r)),
-        payload
-      );
-    } else {
-      recordArray._setInternalModels(
-        results.map(r => r._internalModel),
-        payload
-      );
-    }
+    recordArray._setIdentifiers(
+      results.map(r => recordIdentifierFor(r)),
+      payload
+    );
 
     assert.equal(recordArray.get('length'), 3, 'expected recordArray to contain exactly 3 records');
 
@@ -123,17 +115,10 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     };
 
     let results = store.push(payload);
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      recordArray._setIdentifiers(
-        results.map(r => recordIdentifierFor(r)),
-        payload
-      );
-    } else {
-      recordArray._setInternalModels(
-        results.map(r => r._internalModel),
-        payload
-      );
-    }
+    recordArray._setIdentifiers(
+      results.map(r => recordIdentifierFor(r)),
+      payload
+    );
     assert.equal(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
   });
 
@@ -171,17 +156,10 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     };
 
     let results = store.push(payload);
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      recordArray._setIdentifiers(
-        results.map(r => recordIdentifierFor(r)),
-        payload
-      );
-    } else {
-      recordArray._setInternalModels(
-        results.map(r => r._internalModel),
-        payload
-      );
-    }
+    recordArray._setIdentifiers(
+      results.map(r => recordIdentifierFor(r)),
+      payload
+    );
 
     assert.equal(
       recordArray.get('links.first'),

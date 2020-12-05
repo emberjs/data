@@ -13,7 +13,6 @@ import RSVP, { Promise } from 'rsvp';
 import {
   CUSTOM_MODEL_CLASS,
   FULL_LINKS_ON_RELATIONSHIPS,
-  RECORD_ARRAY_MANAGER_IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
@@ -234,11 +233,7 @@ export default class InternalModel {
 
   get recordReference() {
     if (this._recordReference === null) {
-      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-        this._recordReference = new RecordReference(this.store, this.identifier);
-      } else {
-        this._recordReference = new RecordReference(this.store, this);
-      }
+      this._recordReference = new RecordReference(this.store, this.identifier);
     }
     return this._recordReference;
   }
@@ -1367,11 +1362,7 @@ export default class InternalModel {
     @private
   */
   updateRecordArrays() {
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      this.store.recordArrayManager.recordDidChange(this.identifier);
-    } else {
-      this.store.recordArrayManager.recordDidChange(this);
-    }
+    this.store.recordArrayManager.recordDidChange(this.identifier);
   }
 
   setId(id: string) {
@@ -1574,12 +1565,7 @@ export default class InternalModel {
       }
 
       let relationshipKind = relationship.relationshipMeta.kind;
-      let identifierOrInternalModel;
-      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-        identifierOrInternalModel = this.identifier;
-      } else {
-        identifierOrInternalModel = this;
-      }
+      let identifierOrInternalModel = this.identifier;
 
       if (relationshipKind === 'belongsTo') {
         reference = new BelongsToReference(this.store, identifierOrInternalModel, relationship, name);
@@ -1594,25 +1580,12 @@ export default class InternalModel {
   }
 }
 
-if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-  // in production code, this is only accesssed in `record-array-manager`
-  // if REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT is also false
-  if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
-    Object.defineProperty(InternalModel.prototype, '_recordArrays', {
-      get() {
-        return recordArraysForIdentifier(this.identifier);
-      },
-    });
-  }
-} else {
-  // TODO investigate removing this property since it will only be used in tests
-  // once RECORD_ARRAY_MANAGER_IDENTIFIERS is turned on
+// in production code, this is only accesssed in `record-array-manager`
+// if REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT is also false
+if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
   Object.defineProperty(InternalModel.prototype, '_recordArrays', {
     get() {
-      if (this.__recordArrays === null) {
-        this.__recordArrays = new Set();
-      }
-      return this.__recordArrays;
+      return recordArraysForIdentifier(this.identifier);
     },
   });
 }

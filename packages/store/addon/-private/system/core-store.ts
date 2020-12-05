@@ -19,7 +19,6 @@ import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
 
 import {
   CUSTOM_MODEL_CLASS,
-  RECORD_ARRAY_MANAGER_IDENTIFIERS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REQUEST_SERVICE,
@@ -1487,19 +1486,15 @@ abstract class CoreStore extends Service {
     const normalizedId = ensureStringId(id);
     const resource = constructResource(type, normalizedId);
 
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
-      if (identifier) {
-        if (RECORD_REFERENCES.has(identifier)) {
-          return RECORD_REFERENCES.get(identifier);
-        }
-
-        let reference = new RecordReference(this, identifier);
-        RECORD_REFERENCES.set(identifier, reference);
-        return reference;
+    let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
+    if (identifier) {
+      if (RECORD_REFERENCES.has(identifier)) {
+        return RECORD_REFERENCES.get(identifier);
       }
-    } else {
-      return internalModelFactoryFor(this).lookup(resource).recordReference;
+
+      let reference = new RecordReference(this, identifier);
+      RECORD_REFERENCES.set(identifier, reference);
+      return reference;
     }
   }
 
@@ -2714,11 +2709,7 @@ abstract class CoreStore extends Service {
     internalModel.setupData(data);
 
     if (!isUpdate) {
-      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-        this.recordArrayManager.recordDidChange(identifier);
-      } else {
-        this.recordArrayManager.recordDidChange(internalModel);
-      }
+      this.recordArrayManager.recordDidChange(identifier);
     }
 
     return internalModel;

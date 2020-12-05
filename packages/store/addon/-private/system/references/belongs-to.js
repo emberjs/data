@@ -2,7 +2,6 @@ import { deprecate } from '@ember/debug';
 
 import { resolve } from 'rsvp';
 
-import { RECORD_ARRAY_MANAGER_IDENTIFIERS } from '@ember-data/canary-features';
 import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
@@ -28,13 +27,8 @@ export default class BelongsToReference extends Reference {
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.relationshipMeta.type;
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
-      this.parentIdentifier = parentIMOrIdentifier;
-    } else {
-      this.parent = parentIMOrIdentifier.recordReference;
-      this.parentInternalModel = parentIMOrIdentifier;
-    }
+    this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
+    this.parentIdentifier = parentIMOrIdentifier;
 
     // TODO inverse
   }
@@ -288,12 +282,8 @@ export default class BelongsToReference extends Reference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
   load(options) {
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-      return parentInternalModel.getBelongsTo(this.key, options);
-    } else {
-      return this.parentInternalModel.getBelongsTo(this.key, options);
-    }
+    let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
+    return parentInternalModel.getBelongsTo(this.key, options);
   }
 
   /**
@@ -346,12 +336,7 @@ export default class BelongsToReference extends Reference {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
   reload(options) {
-    let parentInternalModel;
-    if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
-      parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-    } else {
-      parentInternalModel = this.parentInternalModel;
-    }
+    let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
     return parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
       return this.value();
     });
