@@ -12,7 +12,6 @@ import RSVP, { Promise } from 'rsvp';
 
 import {
   CUSTOM_MODEL_CLASS,
-  FULL_LINKS_ON_RELATIONSHIPS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
@@ -739,7 +738,7 @@ export default class InternalModel {
         type: this.store.modelFor(relationshipMeta.type),
         recordData: this._recordData,
         meta: jsonApi.meta,
-        links: FULL_LINKS_ON_RELATIONSHIPS ? jsonApi.links : undefined,
+        links: jsonApi.links,
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
