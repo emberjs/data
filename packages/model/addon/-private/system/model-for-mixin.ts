@@ -3,15 +3,18 @@ import { getOwner } from '@ember/application';
 import Model from '../model';
 
 type Store = import('@ember-data/store').default;
-
-/*
+/* 
     In case someone defined a relationship to a mixin, for example:
     ```
-      let Comment = Model.extend({
-        owner: belongsTo('commentable'. { polymorphic: true })
-      });
-      let Commentable = Ember.Mixin.create({
-        comments: hasMany('comment')
+      import Model, { belongsTo, hasMany } from '@ember-data/model';
+      import Mixin from '@ember/object/mixin';
+
+      class CommentModel extends Model {
+        @belongsTo('commentable', { polymorphic: true }) owner;
+      }
+
+      let Commentable = Mixin.create({
+        @hasMany('comment') comments;
       });
     ```
     we want to look up a Commentable class which has all the necessary

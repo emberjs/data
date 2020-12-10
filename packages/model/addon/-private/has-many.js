@@ -26,18 +26,18 @@ import { computedMacroWithOptionalParams } from './util';
 
   ```app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
-
-  export default Model.extend({
-    comments: hasMany('comment')
-  });
+  
+  export default class PostModel extends Model {
+    @hasMany('comment') comments; 
+  }
   ```
 
   ```app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
-
-  export default Model.extend({
-    post: belongsTo('post')
-  });
+  
+  export default class CommentModel extends Model {
+    @belongsTo('post') post; 
+  }
   ```
 
   #### Many-To-Many
@@ -47,17 +47,17 @@ import { computedMacroWithOptionalParams } from './util';
   ```app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    tags: hasMany('tag')
-  });
+  export default class PostModel extends Model {
+    @hasMany('tag') tags;
+  }
   ```
 
   ```app/models/tag.js
   import Model, { hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    posts: hasMany('post')
-  });
+  export default class TagModel extends Model {
+    @hasMany('post') posts; 
+  }
   ```
 
   You can avoid passing a string as the first parameter. In that case Ember Data
@@ -66,9 +66,9 @@ import { computedMacroWithOptionalParams } from './util';
   ```app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    tags: hasMany()
-  });
+  export default class PostModel extends Model {
+    @hasMany tags;
+  }
   ```
 
   will lookup for a Tag type.
@@ -88,22 +88,24 @@ import { computedMacroWithOptionalParams } from './util';
   ```app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default Model.extend({
-    onePost: belongsTo('post'),
-    twoPost: belongsTo('post'),
-    redPost: belongsTo('post'),
-    bluePost: belongsTo('post')
-  });
+  export default class CommentModel extends Model {
+    @belongsTo('post') onePost;
+    @belongsTo('post') twoPost
+    @belongsTo('post') redPost;
+    @belongsTo('post') bluePost;
+  }
   ```
 
   ```app/models/post.js
-  import Model, { hasMany } from '@ember-data/model';
+  import Model from '@ember-data/model';
+  import { hasMany } from '@ember-decorators/data';
 
-  export default Model.extend({
-    comments: hasMany('comment', {
+  export default class PostModel extends Model {
+    @hasMany('comment', {
       inverse: 'redPost'
     })
-  });
+    comments;
+  }
   ```
 
   You can also specify an inverse on a `belongsTo`, which works how
@@ -118,11 +120,12 @@ import { computedMacroWithOptionalParams } from './util';
   ```app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
 
-  export default Model.extend({
-    comments: hasMany('comment', {
+  export default class PostModel extends Model {
+    @hasMany('comment', {
       async: false
     })
-  });
+    comments;
+  }
   ```
 
   In contrast to async relationship, accessing a sync relationship
