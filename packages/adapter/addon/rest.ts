@@ -10,7 +10,7 @@ import { run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { has } from 'require';
-import { Promise } from 'rsvp';
+import { Promise as RSVPPromise } from 'rsvp';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
@@ -1057,7 +1057,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
         url: url,
         method: type,
       };
-      return new Promise(function(resolve, reject) {
+      return new RSVPPromise(function(resolve, reject) {
         hash.success = function(payload, textStatus, jqXHR) {
           let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
           run.join(null, resolve, response);
@@ -1279,11 +1279,11 @@ function ajaxSuccess(
   try {
     response = adapter.handleResponse(responseData.status, responseData.headers, payload, requestData);
   } catch (error) {
-    return Promise.reject(error);
+    return RSVPPromise.reject(error);
   }
 
   if (response && response.isAdapterError) {
-    return Promise.reject(response);
+    return RSVPPromise.reject(response);
   } else {
     return response;
   }

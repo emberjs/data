@@ -1,7 +1,7 @@
 import EmberObject from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
-import { Promise } from 'rsvp';
+import { Promise as RSVPPromise } from 'rsvp';
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type MinimumAdapterInterface = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
@@ -128,7 +128,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
       throw new Error('You subclassed the Adapter class but missing a findRecord override');
     }
 
-    return Promise.resolve();
+    return RSVPPromise.resolve();
   }
 
   /**
@@ -166,7 +166,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
       throw new Error('You subclassed the Adapter class but missing a findAll override');
     }
 
-    return Promise.resolve();
+    return RSVPPromise.resolve();
   }
 
   /**
@@ -205,7 +205,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
       throw new Error('You subclassed the Adapter class but missing a query override');
     }
 
-    return Promise.resolve();
+    return RSVPPromise.resolve();
   }
 
   /**
@@ -250,7 +250,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
       throw new Error('You subclassed the Adapter class but missing a queryRecord override');
     }
 
-    return Promise.resolve();
+    return RSVPPromise.resolve();
   }
 
   /**
@@ -359,7 +359,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
       throw new Error('You subclassed the Adapter class but missing a createRecord override');
     }
 
-    return Promise.resolve();
+    return RSVPPromise.resolve();
   }
 
   /**
@@ -417,7 +417,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
       throw new Error('You subclassed the Adapter class but missing a updateRecord override');
     }
 
-    return Promise.resolve();
+    return RSVPPromise.resolve();
   }
 
   /**
@@ -467,7 +467,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
       throw new Error('You subclassed the Adapter class but missing a deleteRecord override');
     }
 
-    return Promise.resolve();
+    return RSVPPromise.resolve();
   }
 
   /**

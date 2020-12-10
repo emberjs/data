@@ -227,7 +227,7 @@ class JSONAPIAdapter extends RESTAdapter {
   */
   coalesceFindRequests: boolean = false;
 
-  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]) {
+  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<unknown> {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
@@ -237,7 +237,7 @@ class JSONAPIAdapter extends RESTAdapter {
     return pluralize(dasherized);
   }
 
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
+  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
     const data = serializeIntoHash(store, type, snapshot);
 
     let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
