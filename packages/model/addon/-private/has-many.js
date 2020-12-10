@@ -104,7 +104,7 @@ import { computedMacroWithOptionalParams } from './util';
     @hasMany('comment', {
       inverse: 'redPost'
     })
-    commnets;
+    comments;
   }
   ```
 
