@@ -222,7 +222,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     // add a single error
     errors.add('username', 'This field is required');
 
-    errors.errorsFor('password');
+    errors.errorsFor('username');
     // =>
     // [
     //   { attribute: 'username', message: 'This field is required' },
