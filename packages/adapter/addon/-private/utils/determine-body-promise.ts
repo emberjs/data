@@ -3,6 +3,12 @@ import { DEBUG } from '@glimmer/env';
 
 import continueOnReject from './continue-on-reject';
 
+type FetchRequestData = {
+  url?: string;
+  method?: string;
+  [key: string]: any;
+};
+
 type Payload = object | string | undefined;
 
 interface CustomSyntaxError extends SyntaxError {
@@ -62,7 +68,10 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
   return ret;
 }
 
-export function determineBodyPromise(response: Response, requestData: JQueryAjaxSettings): Promise<Payload> {
+export function determineBodyPromise(
+  response: Response,
+  requestData: JQueryAjaxSettings | FetchRequestData
+): Promise<Payload> {
   // response.text() may resolve or reject
   // it is a native promise, may not have finally
   return continueOnReject(response.text()).then(payload => _determineContent(response, requestData, payload));

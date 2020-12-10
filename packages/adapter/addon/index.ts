@@ -3,6 +3,7 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type MinimumAdapterInterface = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
@@ -122,7 +123,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot) {
+  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findRecord override');
     }
@@ -160,7 +161,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  findAll(store: Store, type: ShimModelClass, neverSet, snapshotRecordArray: SnapshotRecordArray) {
+  findAll(store: Store, type: ShimModelClass, neverSet, snapshotRecordArray: SnapshotRecordArray): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findAll override');
     }
@@ -244,7 +245,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  queryRecord(store: Store, type: ShimModelClass, query, adapterOptions) {
+  queryRecord(store: Store, type: ShimModelClass, query, adapterOptions): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a queryRecord override');
     }
@@ -308,7 +309,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Object}   options
     @return {Object} serialized snapshot
   */
-  serialize(snapshot, options) {
+  serialize(snapshot, options): Dict<unknown> {
     return snapshot.serialize(options);
   }
 
@@ -353,7 +354,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
+  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a createRecord override');
     }
@@ -411,7 +412,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
+  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a updateRecord override');
     }
@@ -461,7 +462,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot) {
+  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a deleteRecord override');
     }
@@ -533,7 +534,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany(store: Store, snapshots: Snapshot[]) {
+  groupRecordsForFindMany(store: Store, snapshots: Snapshot[]): Snapshot[][] {
     return [snapshots];
   }
 
@@ -583,7 +584,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Boolean}
   */
-  shouldReloadRecord(store: Store, snapshot: Snapshot) {
+  shouldReloadRecord(store: Store, snapshot: Snapshot): boolean {
     return false;
   }
 
@@ -638,7 +639,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray) {
+  shouldReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray): boolean {
     return !snapshotRecordArray.length;
   }
 
@@ -674,7 +675,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Boolean}
   */
-  shouldBackgroundReloadRecord(store: Store, Snapshot) {
+  shouldBackgroundReloadRecord(store: Store, Snapshot): boolean {
     return true;
   }
 
@@ -710,7 +711,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldBackgroundReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray) {
+  shouldBackgroundReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray): boolean {
     return true;
   }
 }

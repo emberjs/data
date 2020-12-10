@@ -29,9 +29,9 @@ import { addSymbol, symbol } from '@ember-data/store/-private';
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
 type FastBoot = import('./-private/fastboot-interface').FastBoot;
-type Payload = Dict<unknown> | string | undefined;
+type Payload = Dict<any> | string | undefined;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
@@ -43,17 +43,21 @@ type QueryState = {
 };
 
 type FetchRequestData = {
-  url?: number;
+  url?: string;
   method?: string;
-  string: any;
+  [key: string]: any;
 };
 
-type RequestData = JQueryAjaxSettings | FetchRequestData;
+interface JQueryFetchData extends JQueryAjaxSettings {
+  errorThrown: Dict<unknown>;
+}
+
+type RequestData = JQueryFetchData | FetchRequestData;
 
 type ResponseData = {
   status: number;
   textStatus: string;
-  headers: {};
+  headers: Dict<any>;
   errorThrown?: any;
 };
 
@@ -395,7 +399,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} obj
     @return {Object}
   */
-  sortQueryParams(obj) {
+  sortQueryParams(obj): Dict<unknown> {
     let keys = Object.keys(obj);
     let len = keys.length;
     if (len < 2) {
@@ -457,7 +461,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests = false;
+  coalesceFindRequests: boolean = false;
 
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
@@ -938,7 +942,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} requestData - the original request information
     @return {Object | AdapterError} response
   */
-  handleResponse(status: number, headers, payload: Payload, requestData: RequestData) {
+  handleResponse(
+    status: number,
+    headers: Dict<any>,
+    payload: Payload,
+    requestData: RequestData
+  ): Payload | AdapterError {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
@@ -977,7 +986,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Boolean}
   */
-  isSuccess(status, headers, payload) {
+  isSuccess(status: number, _headers: Dict<any>, _payload: Payload): boolean {
     return (status >= 200 && status < 300) || status === 304;
   }
 
@@ -992,7 +1001,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Boolean}
   */
-  isInvalid(status, headers, payload) {
+  isInvalid(status: number, _headers: Dict<any>, _payload: Payload): boolean {
     return status === 422;
   }
 
@@ -1023,41 +1032,45 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   ajax(url: string, type: string, options: JQueryAjaxSettings = {}): Promise<unknown> {
     let adapter = this;
 
-    let requestData: RequestData = {
-      url: url,
-      method: type,
-    };
     let hash = adapter.ajaxOptions(url, type, options);
 
     if (this.useFetch) {
+      let requestData: FetchRequestData = {
+        url: url,
+        method: type,
+      };
       let _response;
-      return this._fetchRequest(hash)
-        .then(response => {
+      return (this._fetchRequest(hash) as Promise<Response>)
+        .then((response: Response) => {
           _response = response;
-          return determineBodyPromise(response, requestData as JQueryAjaxSettings);
+          return determineBodyPromise(response, requestData);
         })
         .then((payload: Payload) => {
           if (_response.ok && !(payload instanceof Error)) {
-            return fetchSuccessHandler(adapter, payload, _response, requestData as FetchRequestData);
+            return fetchSuccessHandler(adapter, payload, _response, requestData);
           } else {
-            throw fetchErrorHandler(adapter, payload, _response, null, requestData as FetchRequestData);
+            throw fetchErrorHandler(adapter, payload, _response, null, requestData);
           }
         });
+    } else {
+      let requestData: JQueryAjaxSettings = {
+        url: url,
+        method: type,
+      };
+      return new Promise(function(resolve, reject) {
+        hash.success = function(payload, textStatus, jqXHR) {
+          let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
+          run.join(null, resolve, response);
+        };
+
+        hash.error = function(jqXHR, textStatus, errorThrown) {
+          let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
+          run.join(null, reject, error);
+        };
+
+        adapter._ajax(hash);
+      }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
     }
-
-    return new Promise(function(resolve, reject) {
-      hash.success = function(payload, textStatus, jqXHR) {
-        let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
-        run.join(null, resolve, response);
-      };
-
-      hash.error = function(jqXHR, textStatus, errorThrown) {
-        let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
-        run.join(null, reject, error);
-      };
-
-      adapter._ajax(hash);
-    }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
   }
 
   /**
@@ -1065,11 +1078,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @private
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
-  _ajaxRequest(options): void {
+  _ajaxRequest(options: ConfidentDict<any>): void {
     typeof jQuery !== 'undefined' && jQuery.ajax(options);
   }
 
-  _fetchRequest(options) {
+  _fetchRequest(options): Promise<Response> | Error {
     let fetchFunction = fetch();
 
     if (fetchFunction) {
@@ -1081,7 +1094,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     }
   }
 
-  _ajax(options): void {
+  _ajax(options: ConfidentDict<any>): void {
     if (this.useFetch) {
       this._fetchRequest(options);
     } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
@@ -1099,7 +1112,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, method: string, options: ConfidentDict<any>) {
+  ajaxOptions(url: string, method: string, options: Dict<any>): ConfidentDict<any> {
     options = assign(
       {
         url,
@@ -1168,8 +1181,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {String} responseText
     @return {Object}
   */
-  parseErrorResponse(responseText) {
-    let json = responseText;
+  parseErrorResponse(responseText: string): Dict<unknown> | string {
+    let json: string | Dict<unknown> = responseText;
 
     try {
       json = JSON.parse(responseText);
@@ -1177,7 +1190,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       // ignored
     }
 
-    return json;
+    return json as Dict<unknown>;
   }
 
   /**
@@ -1188,7 +1201,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Array} errors payload
   */
-  normalizeErrorResponse(status, headers, payload) {
+  normalizeErrorResponse(status: number, _headers: Dict<any>, payload: Payload): Dict<unknown>[] {
     if (payload && typeof payload === 'object' && payload.errors) {
       return payload.errors;
     } else {
@@ -1256,7 +1269,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 }
 
-function ajaxSuccess(adapter, payload: Payload, requestData: RequestData, responseData: ResponseData) {
+function ajaxSuccess(
+  adapter: RESTAdapter,
+  payload: Payload,
+  requestData: RequestData,
+  responseData: ResponseData
+): Promise<unknown> {
   let response;
   try {
     response = adapter.handleResponse(responseData.status, responseData.headers, payload, requestData);
@@ -1271,7 +1289,12 @@ function ajaxSuccess(adapter, payload: Payload, requestData: RequestData, respon
   }
 }
 
-function ajaxError(adapter, payload: Payload, requestData: RequestData, responseData: ResponseData) {
+function ajaxError(
+  adapter: RESTAdapter,
+  payload: Payload,
+  requestData: RequestData,
+  responseData: ResponseData
+): Error | TimeoutError | AbortError | ConfidentDict<unknown> {
   let error;
 
   if (responseData.errorThrown instanceof Error && payload !== '') {
@@ -1297,7 +1320,7 @@ function ajaxError(adapter, payload: Payload, requestData: RequestData, response
 }
 
 // Adapter abort error to include any relevent info, e.g. request/response:
-function handleAbort(requestData, responseData): AbortError {
+function handleAbort(requestData: RequestData, responseData: ResponseData): AbortError {
   let { method, url, errorThrown } = requestData;
   let { status } = responseData;
   let msg = `Request failed: ${method} ${url} ${errorThrown || ''}`;
@@ -1306,7 +1329,7 @@ function handleAbort(requestData, responseData): AbortError {
 }
 
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
-function endsWith(string, suffix): boolean {
+function endsWith(string: string, suffix: string): boolean {
   if (typeof String.prototype.endsWith !== 'function') {
     return string.indexOf(suffix, string.length - suffix.length) !== -1;
   } else {
@@ -1314,12 +1337,23 @@ function endsWith(string, suffix): boolean {
   }
 }
 
-function fetchSuccessHandler(adapter, payload: Payload, response: Response, requestData: FetchRequestData) {
+function fetchSuccessHandler(
+  adapter: RESTAdapter,
+  payload: Payload,
+  response: Response,
+  requestData: FetchRequestData
+): Promise<unknown> {
   let responseData = fetchResponseData(response);
   return ajaxSuccess(adapter, payload, requestData, responseData);
 }
 
-function fetchErrorHandler(adapter, payload: Payload, response: Response, errorThrown, requestData: FetchRequestData) {
+function fetchErrorHandler(
+  adapter: RESTAdapter,
+  payload: Payload,
+  response: Response,
+  errorThrown,
+  requestData: FetchRequestData
+) {
   let responseData = fetchResponseData(response);
 
   if (responseData.status === 200 && payload instanceof Error) {
@@ -1327,17 +1361,27 @@ function fetchErrorHandler(adapter, payload: Payload, response: Response, errorT
     payload = responseData.errorThrown.payload;
   } else {
     responseData.errorThrown = errorThrown;
-    payload = adapter.parseErrorResponse(payload);
+    payload = adapter.parseErrorResponse(payload as string);
   }
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
-function ajaxSuccessHandler(adapter, payload, jqXHR, requestData) {
+function ajaxSuccessHandler(
+  adapter: RESTAdapter,
+  payload: Payload,
+  jqXHR: JQuery.jqXHR,
+  requestData: JQueryAjaxSettings
+): Promise<unknown> {
   let responseData = ajaxResponseData(jqXHR);
   return ajaxSuccess(adapter, payload, requestData, responseData);
 }
 
-function ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData) {
+function ajaxErrorHandler(
+  adapter: RESTAdapter,
+  jqXHR: JQuery.jqXHR,
+  errorThrown: Dict<unknown>,
+  requestData: JQueryAjaxSettings
+) {
   let responseData = ajaxResponseData(jqXHR);
   responseData.errorThrown = errorThrown;
   let payload = adapter.parseErrorResponse(jqXHR.responseText);
@@ -1361,7 +1405,7 @@ function fetchResponseData(response: Response): ResponseData {
   };
 }
 
-function ajaxResponseData(jqXHR): ResponseData {
+function ajaxResponseData(jqXHR: JQuery.jqXHR): ResponseData {
   return {
     status: jqXHR.status,
     textStatus: jqXHR.statusText,
@@ -1369,7 +1413,7 @@ function ajaxResponseData(jqXHR): ResponseData {
   };
 }
 
-function headersToObject(headers) {
+function headersToObject(headers: Headers): Dict<unknown> {
   let headersObject = {};
 
   if (headers) {
@@ -1385,7 +1429,7 @@ function headersToObject(headers) {
  * @param {Adapter} adapter
  * @returns {Object}
  */
-export function fetchOptions(options, adapter) {
+export function fetchOptions(options: ConfidentDict<any>, adapter: RESTAdapter): ConfidentDict<any> {
   options.credentials = options.credentials || 'same-origin';
 
   if (options.data) {
@@ -1440,7 +1484,7 @@ if (DEPRECATE_NAJAX) {
     @private
     @param {Object} options jQuery ajax options to be used for the najax request
   */
-  RESTAdapter.prototype._najaxRequest = function(options): void {
+  RESTAdapter.prototype._najaxRequest = function(options: ConfidentDict<any>): void {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {
