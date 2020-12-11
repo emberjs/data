@@ -1190,7 +1190,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @return {Object}
   */
   parseErrorResponse(responseText: string): Dict<unknown> | string {
-    let json: string | Dict<unknown> = responseText;
+    let json: string = responseText;
 
     try {
       json = JSON.parse(responseText);
@@ -1198,7 +1198,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       // ignored
     }
 
-    return json as Dict<unknown>;
+    return json;
   }
 
   /**
@@ -1369,7 +1369,9 @@ function fetchErrorHandler(
     payload = responseData.errorThrown.payload;
   } else {
     responseData.errorThrown = errorThrown;
-    payload = adapter.parseErrorResponse(payload as string);
+    if (typeof payload === 'string') {
+      payload = adapter.parseErrorResponse(payload);
+    }
   }
   return ajaxError(adapter, payload, requestData, responseData);
 }
