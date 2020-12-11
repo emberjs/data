@@ -9,7 +9,6 @@ import { serializeIntoHash } from './-private';
 import RESTAdapter from './rest';
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
@@ -162,7 +161,7 @@ class JSONAPIAdapter extends RESTAdapter {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, type: string, options: Dict<any> = {}): ConfidentDict<any> {
+  ajaxOptions(url: string, type: string, options: Dict<any> = {}): Dict<any> {
     let hash = super.ajaxOptions(url, type, options);
 
     hash.headers['Accept'] = hash.headers['Accept'] || 'application/vnd.api+json';

@@ -29,7 +29,6 @@ import { addSymbol, symbol } from '@ember-data/store/-private';
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
 type FastBoot = import('./-private/fastboot-interface').FastBoot;
 type Payload = Dict<any> | string | undefined;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
@@ -62,7 +61,7 @@ type ResponseData = {
 };
 
 declare const najax: Function | undefined;
-declare const jQuery: ConfidentDict<any> | undefined;
+declare const jQuery: Dict<any> | undefined;
 
 const UseFetch = symbol('useFetch');
 const hasJQuery = typeof jQuery !== 'undefined';
@@ -522,7 +521,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @property headers
     @type {Object}
    */
-  declare headers: unknown;
+  declare headers: Dict<unknown> | undefined;
 
   /**
     Called by the store in order to fetch the JSON for a given
@@ -944,7 +943,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   */
   handleResponse(
     status: number,
-    headers: Dict<any>,
+    headers: Dict<unknown>,
     payload: Payload,
     requestData: RequestData
   ): Payload | AdapterError {
@@ -986,7 +985,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Boolean}
   */
-  isSuccess(status: number, _headers: Dict<any>, _payload: Payload): boolean {
+  isSuccess(status: number, _headers: Dict<unknown>, _payload: Payload): boolean {
     return (status >= 200 && status < 300) || status === 304;
   }
 
@@ -1001,7 +1000,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Boolean}
   */
-  isInvalid(status: number, _headers: Dict<any>, _payload: Payload): boolean {
+  isInvalid(status: number, _headers: Dict<unknown>, _payload: Payload): boolean {
     return status === 422;
   }
 
@@ -1078,7 +1077,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @private
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
-  _ajaxRequest(options: ConfidentDict<any>): void {
+  _ajaxRequest(options: Dict<any>): void {
     typeof jQuery !== 'undefined' && jQuery.ajax(options);
   }
 
@@ -1094,7 +1093,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     }
   }
 
-  _ajax(options: ConfidentDict<any>): void {
+  _ajax(options: Dict<any>): void {
     if (this.useFetch) {
       this._fetchRequest(options);
     } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
@@ -1112,7 +1111,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, method: string, options: Dict<any>): ConfidentDict<any> {
+  ajaxOptions(url: string, method: string, options: JQueryAjaxSettings): Dict<any> {
     options = assign(
       {
         url,
@@ -1123,7 +1122,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     );
 
     if (this.headers !== undefined) {
-      options.headers = assign({}, this.headers as Dict<unknown>, options.headers);
+      options.headers = assign({}, this.headers, options.headers);
     } else if (!options.headers) {
       options.headers = {};
     }
@@ -1131,7 +1130,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     let contentType = options.contentType || this._defaultContentType;
 
     if (this.useFetch) {
-      if (options.data && options.type !== 'GET') {
+      if (options.data && options.type !== 'GET' && options.headers) {
         if (!options.headers['Content-Type'] && !options.headers['content-type']) {
           options.headers['content-type'] = contentType;
         }
@@ -1146,12 +1145,14 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       options = ajaxOptions(options, this);
     }
 
-    options.url = this._ajaxURL(options.url);
+    if (options.url) {
+      options.url = this._ajaxURL(options.url);
+    }
 
     return options;
   }
 
-  _ajaxURL(url: string): string | void {
+  _ajaxURL(url: string): string {
     if (this.fastboot?.isFastBoot) {
       let httpRegex = /^https?:\/\//;
       let protocolRelativeRegex = /^\/\//;
@@ -1294,7 +1295,7 @@ function ajaxError(
   payload: Payload,
   requestData: RequestData,
   responseData: ResponseData
-): Error | TimeoutError | AbortError | ConfidentDict<unknown> {
+): Error | TimeoutError | AbortError | Dict<unknown> {
   let error;
 
   if (responseData.errorThrown instanceof Error && payload !== '') {
@@ -1429,7 +1430,7 @@ function headersToObject(headers: Headers): Dict<unknown> {
  * @param {Adapter} adapter
  * @returns {Object}
  */
-export function fetchOptions(options: ConfidentDict<any>, adapter: RESTAdapter): ConfidentDict<any> {
+export function fetchOptions(options: Dict<any>, adapter: RESTAdapter): Dict<any> {
   options.credentials = options.credentials || 'same-origin';
 
   if (options.data) {
@@ -1463,7 +1464,7 @@ export function fetchOptions(options: ConfidentDict<any>, adapter: RESTAdapter):
   return options;
 }
 
-function ajaxOptions(options: ConfidentDict<any>, adapter): ConfidentDict<any> {
+function ajaxOptions(options: JQueryAjaxSettings, adapter: RESTAdapter): JQueryAjaxSettings {
   options.dataType = 'json';
   options.context = adapter;
 
@@ -1484,7 +1485,7 @@ if (DEPRECATE_NAJAX) {
     @private
     @param {Object} options jQuery ajax options to be used for the najax request
   */
-  RESTAdapter.prototype._najaxRequest = function(options: ConfidentDict<any>): void {
+  RESTAdapter.prototype._najaxRequest = function(options: Dict<any>): void {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {
