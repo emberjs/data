@@ -1046,7 +1046,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
         method: type,
       };
       let _response;
-      return (this._fetchRequest(hash) as Promise<Response>)
+      return this._fetchRequest(hash)
         .then((response: Response) => {
           _response = response;
           return determineBodyPromise(response, requestData);
