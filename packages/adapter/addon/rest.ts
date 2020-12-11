@@ -41,24 +41,26 @@ type QueryState = {
   since?: unknown;
 };
 
-type FetchRequestData = {
-  url?: string;
-  method?: string;
+interface FetchRequestInit extends RequestInit {
+  url: string;
+  method: string;
+  type: string;
+  contentType?: string;
+  body?: any;
+  data?: any;
+}
+
+interface JQueryRequestInit extends JQueryAjaxSettings {
+  url: string;
+  method: string;
+  type: string;
+}
+
+type RequestData = {
+  url: string;
+  method: string;
   [key: string]: any;
 };
-
-interface FetchRequestInit extends RequestInit {
-  contentType?: string;
-  data?: unknown;
-  type?: string;
-  url?: string;
-}
-
-interface JQueryFetchData extends JQueryAjaxSettings {
-  errorThrown: Dict<unknown>;
-}
-
-type RequestData = JQueryFetchData | FetchRequestData;
 
 type ResponseData = {
   status: number;
@@ -1035,16 +1037,17 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Promise} promise
   */
-  ajax(url: string, type: string, options: JQueryAjaxSettings | FetchRequestInit = {}): Promise<unknown> {
+  ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<unknown> {
     let adapter = this;
 
     let hash = adapter.ajaxOptions(url, type, options);
 
+    let requestData: RequestData = {
+      url: url,
+      method: type,
+    };
+
     if (this.useFetch) {
-      let requestData: FetchRequestData = {
-        url: url,
-        method: type,
-      };
       let _response;
       return this._fetchRequest(hash)
         .then((response: Response) => {
@@ -1059,10 +1062,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
           }
         });
     } else {
-      let requestData: JQueryAjaxSettings = {
-        url: url,
-        method: type,
-      };
       return new RSVPPromise(function(resolve, reject) {
         hash.success = function(payload, textStatus, jqXHR) {
           let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
@@ -1118,8 +1117,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, method: string, options: JQueryAjaxSettings | FetchRequestInit): Dict<any> {
-    options = assign(
+  ajaxOptions(url: string, method: string, options: JQueryAjaxSettings | RequestInit): Dict<any> {
+    let reqOptions: JQueryRequestInit | FetchRequestInit = assign(
       {
         url,
         method,
@@ -1129,34 +1128,32 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     );
 
     if (this.headers !== undefined) {
-      options.headers = assign({}, this.headers, options.headers);
+      reqOptions.headers = assign({}, this.headers, reqOptions.headers);
     } else if (!options.headers) {
-      options.headers = {};
+      reqOptions.headers = {};
     }
 
-    let contentType = options.contentType || this._defaultContentType;
+    let contentType = reqOptions.contentType || this._defaultContentType;
 
     if (this.useFetch) {
-      if (options.data && options.type !== 'GET' && options.headers) {
-        if (!options.headers['Content-Type'] && !options.headers['content-type']) {
-          options.headers['content-type'] = contentType;
+      if (reqOptions.data && reqOptions.type !== 'GET' && reqOptions.headers) {
+        if (!reqOptions.headers['Content-Type'] && !reqOptions.headers['content-type']) {
+          reqOptions.headers['content-type'] = contentType;
         }
       }
-      options = fetchOptions(options, this);
+      reqOptions = fetchOptions(reqOptions as FetchRequestInit, this);
     } else {
       // GET requests without a body should not have a content-type header
       // and may be unexpected by a server
-      if (options.data && options.type !== 'GET') {
-        options = assign(options, { contentType });
+      if (reqOptions.data && reqOptions.type !== 'GET') {
+        reqOptions = assign(reqOptions, { contentType });
       }
-      options = ajaxOptions(options as JQueryAjaxSettings, this);
+      reqOptions = ajaxOptions(reqOptions as JQueryRequestInit, this);
     }
 
-    if (options.url) {
-      options.url = this._ajaxURL(options.url);
-    }
+    reqOptions.url = this._ajaxURL(reqOptions.url);
 
-    return options;
+    return reqOptions;
   }
 
   _ajaxURL(url: string): string {
@@ -1349,7 +1346,7 @@ function fetchSuccessHandler(
   adapter: RESTAdapter,
   payload: Payload,
   response: Response,
-  requestData: FetchRequestData
+  requestData: RequestData
 ): Promise<unknown> {
   let responseData = fetchResponseData(response);
   return ajaxSuccess(adapter, payload, requestData, responseData);
@@ -1360,7 +1357,7 @@ function fetchErrorHandler(
   payload: Payload,
   response: Response,
   errorThrown,
-  requestData: FetchRequestData
+  requestData: RequestData
 ) {
   let responseData = fetchResponseData(response);
 
@@ -1380,7 +1377,7 @@ function ajaxSuccessHandler(
   adapter: RESTAdapter,
   payload: Payload,
   jqXHR: JQuery.jqXHR,
-  requestData: JQueryAjaxSettings
+  requestData: RequestData
 ): Promise<unknown> {
   let responseData = ajaxResponseData(jqXHR);
   return ajaxSuccess(adapter, payload, requestData, responseData);
@@ -1390,7 +1387,7 @@ function ajaxErrorHandler(
   adapter: RESTAdapter,
   jqXHR: JQuery.jqXHR,
   errorThrown: Dict<unknown>,
-  requestData: JQueryAjaxSettings
+  requestData: RequestData
 ) {
   let responseData = ajaxResponseData(jqXHR);
   responseData.errorThrown = errorThrown;
@@ -1439,14 +1436,14 @@ function headersToObject(headers: Headers): Dict<unknown> {
  * @param {Adapter} adapter
  * @returns {Object}
  */
-export function fetchOptions(options: Dict<any>, adapter: RESTAdapter): Dict<any> {
+export function fetchOptions(options: FetchRequestInit, adapter: RESTAdapter): FetchRequestInit {
   options.credentials = options.credentials || 'same-origin';
 
   if (options.data) {
     // GET and HEAD requests can't have a `body`
     if (options.method === 'GET' || options.method === 'HEAD') {
       // If no options are passed, Ember Data sets `data` to an empty object, which we test for.
-      if (Object.keys(options.data).length) {
+      if (Object.keys(options.data).length && options.url) {
         // Test if there are already query params in the url (mimics jQuey.ajax).
         const queryParamDelimiter = options.url.indexOf('?') > -1 ? '&' : '?';
         options.url += `${queryParamDelimiter}${serializeQueryParams(options.data)}`;
@@ -1473,7 +1470,7 @@ export function fetchOptions(options: Dict<any>, adapter: RESTAdapter): Dict<any
   return options;
 }
 
-function ajaxOptions(options: JQueryAjaxSettings, adapter: RESTAdapter): JQueryAjaxSettings {
+function ajaxOptions(options: JQueryRequestInit, adapter: RESTAdapter): JQueryRequestInit {
   options.dataType = 'json';
   options.context = adapter;
 
