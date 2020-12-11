@@ -47,6 +47,13 @@ type FetchRequestData = {
   [key: string]: any;
 };
 
+interface FetchRequestInit extends RequestInit {
+  contentType?: string;
+  data?: unknown;
+  type?: string;
+  url?: string;
+}
+
 interface JQueryFetchData extends JQueryAjaxSettings {
   errorThrown: Dict<unknown>;
 }
@@ -1028,7 +1035,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Promise} promise
   */
-  ajax(url: string, type: string, options: JQueryAjaxSettings = {}): Promise<unknown> {
+  ajax(url: string, type: string, options: JQueryAjaxSettings | FetchRequestInit = {}): Promise<unknown> {
     let adapter = this;
 
     let hash = adapter.ajaxOptions(url, type, options);
@@ -1081,11 +1088,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     typeof jQuery !== 'undefined' && jQuery.ajax(options);
   }
 
-  _fetchRequest(options): Promise<Response> | Error {
+  _fetchRequest(options): Promise<Response> {
     let fetchFunction = fetch();
 
     if (fetchFunction) {
-      return fetchFunction(options.url, options) as Promise<Response>;
+      return fetchFunction(options.url, options);
     } else {
       throw new Error(
         'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
@@ -1111,7 +1118,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, method: string, options: JQueryAjaxSettings): Dict<any> {
+  ajaxOptions(url: string, method: string, options: JQueryAjaxSettings | FetchRequestInit): Dict<any> {
     options = assign(
       {
         url,
@@ -1142,7 +1149,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       if (options.data && options.type !== 'GET') {
         options = assign(options, { contentType });
       }
-      options = ajaxOptions(options, this);
+      options = ajaxOptions(options as JQueryAjaxSettings, this);
     }
 
     if (options.url) {
@@ -1232,7 +1239,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     let shortenedPayload;
     let payloadContentType = headers['content-type'] || 'Empty Content-Type';
 
-    if (payloadContentType === 'text/html' && (payload as string).length > 250) {
+    if (payloadContentType === 'text/html' && typeof payload === 'string' && payload.length > 250) {
       shortenedPayload = '[Omitted Lengthy HTML]';
     } else {
       shortenedPayload = payload;
@@ -1473,7 +1480,15 @@ function ajaxOptions(options: JQueryAjaxSettings, adapter: RESTAdapter): JQueryA
   }
 
   options.beforeSend = function(xhr) {
-    Object.keys(options.headers).forEach(key => xhr.setRequestHeader(key, options.headers[key]));
+    if (options.headers) {
+      Object.keys(options.headers).forEach(key => {
+        let headerValue = options.headers && options.headers[key];
+        const isString = (value: unknown): value is string => typeof value === 'string';
+        if (isString(headerValue)) {
+          xhr.setRequestHeader(key, headerValue);
+        }
+      });
+    }
   };
 
   return options;
