@@ -22,6 +22,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       firstName: attr('string'),
       lastName: attr('string'),
       phoneNumbers: hasMany('phone-number', { async: false }),
+      friends: hasMany('person', { async: false, inverse: 'friends' }), // many to many
     });
 
     PhoneNumber = DS.Model.extend({
@@ -551,6 +552,75 @@ module('unit/store/push - DS.Store#push', function(hooks) {
 
     assert.equal(person.get('firstName'), 'Jacquie', 'you can push raw JSON into the store');
     assert.equal(person.get('lastName'), 'Jackson', 'existing fields are untouched');
+  });
+
+  test('Calling pushPayload with a record does not reorder the hasMany it is in when a many-many relationship', function(assert) {
+    // one person with two friends
+    // if we push a change to a friend, the
+    // person's friends should be in the same order
+    // at the end
+    run(() => {
+      store.pushPayload({
+        data: [
+          {
+            id: '1',
+            type: 'person',
+            attributes: {
+              'first-name': 'Robert',
+              'last-name': 'Jackson',
+            },
+            relationships: {
+              friends: {
+                data: [
+                  { id: '2', type: 'person' },
+                  { id: '3', type: 'person' },
+                ],
+              },
+            },
+          },
+        ],
+        included: [
+          {
+            id: '2',
+            type: 'person',
+            attributes: {
+              'first-name': 'Friend',
+              'last-name': 'One',
+            },
+          },
+          {
+            id: '3',
+            type: 'person',
+            attributes: {
+              'first-name': 'Friend',
+              'last-name': 'Two',
+            },
+          },
+        ],
+      });
+    });
+
+    run(() => {
+      store.pushPayload({
+        data: [
+          {
+            id: '2',
+            type: 'person',
+            relationships: {
+              friends: {
+                data: [{ id: '1', type: 'person' }],
+              },
+            },
+          },
+        ],
+      });
+    });
+
+    let robert = store.peekRecord('person', '1');
+
+    var friends = robert.friends;
+    assert.equal(friends.firstObject.id, '2', 'first object is unchanged');
+    assert.equal(friends.lastObject.id, '3', 'last object is unchanged');
   });
 
   testInDebug('calling push without data argument as an object raises an error', function(assert) {
