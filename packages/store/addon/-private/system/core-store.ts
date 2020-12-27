@@ -3462,7 +3462,7 @@ abstract class CoreStore extends Service {
         {
           id: 'ember-data:default-serializer',
           until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-serializers',
         }
       );
 
@@ -3518,7 +3518,7 @@ abstract class CoreStore extends Service {
         {
           id: 'ember-data:default-serializer',
           until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-serializers',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-serializers',
         }
       );
 
@@ -3644,7 +3644,7 @@ if (DEPRECATE_DEFAULT_ADAPTER) {
         {
           id: 'ember-data:default-adapter',
           until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_ember-data:default-adapter',
+          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-adapter',
         }
       );
       let adapter = this.adapter || '-json-api';
