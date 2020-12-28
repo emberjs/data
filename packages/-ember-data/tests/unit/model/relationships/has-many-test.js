@@ -2048,6 +2048,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     );
 
     run(() => {
+      // make a local change that is not persisted
       pets.pushObjects([rebel]);
     });
 
@@ -2058,6 +2059,9 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     );
 
     return run(() => {
+      // destroy pet '1',
+      // with the delete sideloading ['2']
+      // overwriting the local state of ['2', '3']
       return shen.destroyRecord({}).then(() => {
         shen.unloadRecord();
 

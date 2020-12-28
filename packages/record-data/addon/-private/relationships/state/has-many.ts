@@ -156,13 +156,45 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
-  computeChanges(recordDatas: RelationshipRecordData[] = []) {
-    const members = this.canonicalMembers.toArray();
-    for (let i = members.length - 1; i >= 0; i--) {
-      this.removeCanonicalRecordData(members[i], i);
+  computeChanges(newMembers: RelationshipRecordData[] = []) {
+    const oldMembers = this.canonicalMembers.toArray();
+
+    let oldLength = oldMembers.length;
+    let newLength = newMembers.length;
+    let shortest = Math.min(oldLength, newLength);
+    // find the difference block in the old data
+    // from the first change to the last change
+    let blockStart = shortest;
+    // find the first difference
+    for (let i = 0; i < shortest; i++) {
+      if (oldMembers[i] !== newMembers[i]) {
+        blockStart = i;
+        break;
+      }
     }
-    for (let i = 0, l = recordDatas.length; i < l; i++) {
-      this.addCanonicalRecordData(recordDatas[i], i);
+    let oldBlockLength = oldLength - blockStart;
+    let newBlockLength = newLength - blockStart;
+    if (blockStart < shortest) {
+      // we found a difference so
+      // find the last difference
+      for (let i = oldLength - 1, j = newLength - 1; i >= oldLength - shortest; i--, j--) {
+        if (oldMembers[i] !== newMembers[j]) {
+          oldBlockLength = i - blockStart + 1;
+          newBlockLength = j - blockStart + 1;
+          break;
+        }
+      }
+    }
+
+    // remove old records from the change block
+    if (oldBlockLength > 0) {
+      for (let i = blockStart + oldBlockLength - 1; i >= blockStart; i--) {
+        this.removeCanonicalRecordData(oldMembers[i], i, true);
+      }
+    }
+    // insert new records into the change block
+    for (let i = blockStart; i < blockStart + newBlockLength; i++) {
+      this.addCanonicalRecordData(newMembers[i], i);
     }
   }
 

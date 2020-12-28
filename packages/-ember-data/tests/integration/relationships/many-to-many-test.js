@@ -11,7 +11,6 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import Model, { attr, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
 module('integration/relationships/many_to_many_test - ManyToMany relationships', function(hooks) {
   setupTest(hooks);
@@ -568,104 +567,101 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     assert.equal(user.get('accounts.length'), 0, 'Accounts got rolledback correctly');
   });
 
-  todo(
-    'Re-loading a removed record should re add it to the relationship when the removed record is the last one in the relationship',
-    function(assert) {
-      assert.expect(4);
+  test('Re-loading a removed record should re add it to the relationship when the removed record is the last one in the relationship', function(assert) {
+    assert.expect(4);
 
-      let store = this.owner.lookup('service:store');
+    let store = this.owner.lookup('service:store');
 
-      let account;
+    let account;
 
-      run(() => {
-        account = store.push({
-          data: {
-            id: '2',
-            type: 'account',
-            attributes: {
-              state: 'account 1',
-            },
+    run(() => {
+      account = store.push({
+        data: {
+          id: '2',
+          type: 'account',
+          attributes: {
+            state: 'account 1',
           },
-        });
-        let ada = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Ada Lovelace',
-            },
-            relationships: {
-              accounts: {
-                data: [
-                  {
-                    id: '2',
-                    type: 'account',
-                  },
-                ],
-              },
-            },
-          },
-        });
-        let byron = store.push({
-          data: {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Lord Byron',
-            },
-            relationships: {
-              accounts: {
-                data: [
-                  {
-                    id: '2',
-                    type: 'account',
-                  },
-                ],
-              },
-            },
-          },
-        });
-        account.get('users').removeObject(byron);
-        account = store.push({
-          data: {
-            id: '2',
-            type: 'account',
-            attributes: {
-              state: 'account 1',
-            },
-            relationships: {
-              users: {
-                data: [
-                  {
-                    id: '1',
-                    type: 'user',
-                  },
-                  {
-                    id: '2',
-                    type: 'user',
-                  },
-                ],
-              },
-            },
-          },
-        });
+        },
       });
+      let ada = store.push({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Ada Lovelace',
+          },
+          relationships: {
+            accounts: {
+              data: [
+                {
+                  id: '2',
+                  type: 'account',
+                },
+              ],
+            },
+          },
+        },
+      });
+      let byron = store.push({
+        data: {
+          id: '2',
+          type: 'user',
+          attributes: {
+            name: 'Lord Byron',
+          },
+          relationships: {
+            accounts: {
+              data: [
+                {
+                  id: '2',
+                  type: 'account',
+                },
+              ],
+            },
+          },
+        },
+      });
+      account.get('users').removeObject(byron);
+      account = store.push({
+        data: {
+          id: '2',
+          type: 'account',
+          attributes: {
+            state: 'account 1',
+          },
+          relationships: {
+            users: {
+              data: [
+                {
+                  id: '1',
+                  type: 'user',
+                },
+                {
+                  id: '2',
+                  type: 'user',
+                },
+              ],
+            },
+          },
+        },
+      });
+    });
 
-      let state = account.hasMany('users').hasManyRelationship.canonicalMembers.list;
-      let users = account.get('users');
+    let state = account.hasMany('users').hasManyRelationship.canonicalMembers.list;
+    let users = account.get('users');
 
-      assert.todo.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');
-      assert.todo.deepEqual(
-        users.map(r => get(r, 'id')),
-        ['1'],
-        'Accounts were updated correctly (ui state)'
-      );
-      assert.equal(state.length, 2, 'Accounts were updated correctly (server state)');
-      assert.deepEqual(
-        state.map(r => r.id),
-        ['1', '2'],
-        'Accounts were updated correctly (server state)'
-      );
-    }
-  );
+    assert.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');
+    assert.deepEqual(
+      users.map(r => get(r, 'id')),
+      ['1'],
+      'Accounts were updated correctly (ui state)'
+    );
+    assert.equal(state.length, 2, 'Accounts were updated correctly (server state)');
+    assert.deepEqual(
+      state.map(r => r.id),
+      ['1', '2'],
+      'Accounts were updated correctly (server state)'
+    );
+  });
 });

@@ -333,7 +333,7 @@ export default class Relationship {
 
   addCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
     if (!this.canonicalMembers.has(recordData)) {
-      this.canonicalMembers.add(recordData);
+      this.canonicalMembers.addWithIndex(recordData, idx);
       this.setupInverseRelationship(recordData);
     }
     this.flushCanonicalLater();
@@ -380,8 +380,8 @@ export default class Relationship {
     }
   }
 
-  removeCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
-    if (this.canonicalMembers.has(recordData)) {
+  removeCanonicalRecordData(recordData: RelationshipRecordData, idx?: number, knownToExist?: boolean) {
+    if (knownToExist || this.canonicalMembers.has(recordData)) {
       this.removeCanonicalRecordDataFromOwn(recordData, idx);
       if (this.inverseKey) {
         this.removeCanonicalRecordDataFromInverse(recordData);
