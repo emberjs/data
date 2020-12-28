@@ -184,7 +184,7 @@ export default Mixin.create({
          case 'repo':
            return `https://api.github.com/orgs/${query.orgId}/repos`;
          default:
-           return this._super(...arguments);
+           return super.urlForQuery(...arguments);
        }
      }
    }
@@ -317,7 +317,7 @@ export default Mixin.create({
 
    export default class ApplicationAdapter extends RESTAdapter {
      urlForCreateRecord(modelName, snapshot) {
-       return this._super(...arguments) + '/new';
+       return super.urlForCreateRecord(...arguments) + '/new';
      }
    }
    ```
@@ -366,7 +366,7 @@ export default Mixin.create({
 
    export default class ApplicationAdapter extends RESTAdapter {
      urlForDeleteRecord(id, modelName, snapshot) {
-       return this._super(...arguments) + '/destroy';
+       return super.urlForDeleteRecord(...arguments) + '/destroy';
      }
    }
    ```
