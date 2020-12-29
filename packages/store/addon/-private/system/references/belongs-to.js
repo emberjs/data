@@ -1,6 +1,6 @@
-import { deprecate } from '@ember/debug';
-
 import { resolve } from 'rsvp';
+
+import { deprecate } from 'ember-deprecations';
 
 import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
 import { assertPolymorphicType } from '@ember-data/store/-debug';

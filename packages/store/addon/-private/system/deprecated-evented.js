@@ -1,7 +1,8 @@
-import { deprecate } from '@ember/debug';
 import Evented from '@ember/object/evented';
 import Mixin from '@ember/object/mixin';
 import { DEBUG } from '@glimmer/env';
+
+import { deprecate } from 'ember-deprecations';
 
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
