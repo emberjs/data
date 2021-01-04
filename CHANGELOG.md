@@ -6,9 +6,12 @@
 - [#7369](https://github.com/emberjs/data/pull/7369) [CHORE] Bump @ember/ordered-set
 - [#7370](https://github.com/emberjs/data/pull/7370) Don't expose the value of a model's attribute in assertions (#7370)
 - [#7363](https://github.com/emberjs/data/pull/7363) [BUGFIX identifiers] Address issue with polymorphic findRecord
+- [#7262](https://github.com/emberjs/data/pull/7262) [CHORE]: Extract internalModel access to identifiers for Relationships
 
 ## Release 3.23.0 (November 30, 2020)
+
 ## Release 3.22.0 (November 5, 2020)
+
 ## Release 3.21.0 (August 30, 2020)
 - [#7224](https://github.com/emberjs/data/pull/7224) [DOCS] fix links on @ember-data/store package intro
 - [#7228](https://github.com/emberjs/data/pull/7228) chore: remove instance initializer (#7228)
