@@ -15,7 +15,7 @@
 - [#7370](https://github.com/emberjs/data/pull/7370) Don't expose the value of a model's attribute in assertions (#7370)
 - [#7363](https://github.com/emberjs/data/pull/7363) [BUGFIX identifiers] Address issue with polymorphic findRecord
 
-## Release 3.23.0 (Novemberr 30, 2020)
+## Release 3.23.0 (November 30, 2020)
 - [#7337](https://github.com/emberjs/data/pull/7337) [Debug]: improved debug msg instead of [object Object]
 - [#7230](https://github.com/emberjs/data/pull/7230) [CHORE] najax deprecation when ember-fetch is also installed
 - [#7370](https://github.com/emberjs/data/pull/7370) Don't expose the value of a model's attribute in assertions (#7370)
