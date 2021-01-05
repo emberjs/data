@@ -6,11 +6,24 @@
 - [#7369](https://github.com/emberjs/data/pull/7369) [CHORE] Bump @ember/ordered-set
 - [#7370](https://github.com/emberjs/data/pull/7370) Don't expose the value of a model's attribute in assertions (#7370)
 - [#7363](https://github.com/emberjs/data/pull/7363) [BUGFIX identifiers] Address issue with polymorphic findRecord
+
+## Release 3.23.0 (Novemberr 30, 2020)
+- [#7337](https://github.com/emberjs/data/pull/7337) [Debug]: improved debug msg instead of [object Object]
+- [#7230](https://github.com/emberjs/data/pull/7230) [CHORE] najax deprecation when ember-fetch is also installed
+- [#7370](https://github.com/emberjs/data/pull/7370) Don't expose the value of a model's attribute in assertions (#7370)
+- [#7363](https://github.com/emberjs/data/pull/7363) [BUGFIX identifiers] Address issue with polymorphic findRecord  (#7363)
+- [#7338](https://github.com/emberjs/data/pull/7338) [Chore]: remove deprecation for DEPRECATE_MODEL_DATA
 - [#7262](https://github.com/emberjs/data/pull/7262) [CHORE]: Extract internalModel access to identifiers for Relationships
 
-## Release 3.23.0 (November 30, 2020)
-
-## Release 3.22.0 (November 5, 2020)
+## Release 3.22.0 (October 09, 2020)
+- [#7126](https://github.com/emberjs/data/pull/7126) Bugfix for wrong hasMany relationship state in scenario of sideposting with lid
+- [#7230](https://github.com/emberjs/data/pull/7230) [CHORE] najax deprecation when ember-fetch is also installed
+- [#7330](https://github.com/emberjs/data/pull/7330) [BUG]: Consume array access to autotrack hasMany
+- [#7273](https://github.com/emberjs/data/pull/7273) [BUGFIX] Entangle Errors.errorsFor properly
+- [#7335](https://github.com/emberjs/data/pull/7335) [Bug]: errors `remove` to accurately update in template
+- [#7322](https://github.com/emberjs/data/pull/7322) [Build]: disable esm cache (#7322)
+- [#7263](https://github.com/emberjs/data/pull/7263) [CHORE]: Move symbols out of /ts-interfaces and into -private/utils
+- [#6715](https://github.com/emberjs/data/pull/6715) [CHORE]: Extract internalModel access to identifiers in RecordArray modules
 
 ## Release 3.21.0 (August 30, 2020)
 - [#7224](https://github.com/emberjs/data/pull/7224) [DOCS] fix links on @ember-data/store package intro
