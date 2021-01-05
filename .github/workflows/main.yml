@@ -147,7 +147,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [with-native-fetch, with-ember-fetch-no-jquery, with-ember-fetch-and-jquery, with-jquery]
         launcher: [Chrome, Firefox, IE]
         os: [macos-latest, windows-latest, ubuntu-latest]
         exclude:
@@ -164,7 +163,7 @@ jobs:
           - os: windows-latest
             launcher: Chrome
     runs-on: ${{ matrix.os }}
-    name: ${{matrix.scenario}} ${{matrix.launcher}} on ${{matrix.os}}
+    name: ${{matrix.launcher}} on ${{matrix.os}}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2-beta
@@ -181,7 +180,7 @@ jobs:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
         run:
-          yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
+          yarn test:production
 
   floating-dependencies:
     timeout-minutes: 6
