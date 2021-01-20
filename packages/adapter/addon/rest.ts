@@ -1141,14 +1141,14 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
           reqOptions.headers['content-type'] = contentType;
         }
       }
-      reqOptions = fetchOptions(reqOptions as FetchRequestInit, this);
+      reqOptions = fetchOptions(reqOptions, this);
     } else {
       // GET requests without a body should not have a content-type header
       // and may be unexpected by a server
       if (reqOptions.data && reqOptions.type !== 'GET') {
         reqOptions = assign(reqOptions, { contentType });
       }
-      reqOptions = ajaxOptions(reqOptions as JQueryRequestInit, this);
+      reqOptions = ajaxOptions(reqOptions, this);
     }
 
     reqOptions.url = this._ajaxURL(reqOptions.url);
@@ -1436,7 +1436,7 @@ function headersToObject(headers: Headers): Dict<unknown> {
  * @param {Adapter} adapter
  * @returns {Object}
  */
-export function fetchOptions(options: FetchRequestInit, adapter: RESTAdapter): FetchRequestInit {
+export function fetchOptions(options: JQueryRequestInit & Partial<FetchRequestInit>, adapter: RESTAdapter): FetchRequestInit {
   options.credentials = options.credentials || 'same-origin';
 
   if (options.data) {
