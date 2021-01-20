@@ -961,7 +961,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
-      return new InvalidError(typeof payload === 'object' ? payload.errors: undefined);
+      return new InvalidError(typeof payload === 'object' ? payload.errors : undefined);
     }
 
     let errors = this.normalizeErrorResponse(status, headers, payload);
@@ -1438,7 +1438,10 @@ function headersToObject(headers: Headers): Dict<unknown> {
  * @param {Adapter} adapter
  * @returns {Object}
  */
-export function fetchOptions(options: JQueryRequestInit & Partial<FetchRequestInit>, adapter: RESTAdapter): FetchRequestInit {
+export function fetchOptions(
+  options: JQueryRequestInit & Partial<FetchRequestInit>,
+  adapter: RESTAdapter
+): FetchRequestInit {
   options.credentials = options.credentials || 'same-origin';
 
   if (options.data) {
