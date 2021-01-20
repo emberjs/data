@@ -45,9 +45,11 @@ interface FetchRequestInit extends RequestInit {
   url: string;
   method: string;
   type: string;
-  contentType?: string;
+  contentType?: any;
   body?: any;
   data?: any;
+  cache?: any;
+  headers?: any;
 }
 
 interface JQueryRequestInit extends JQueryAjaxSettings {
