@@ -205,7 +205,7 @@ export default Mixin.create({
    @param {String} modelName
    @return {String} url
    */
-  urlForQuery(query: Dict<any>, modelName: string): string {
+  urlForQuery(query: Dict<unknown>, modelName: string): string {
     return this._buildURL(modelName);
   },
 
@@ -230,7 +230,7 @@ export default Mixin.create({
    @param {String} modelName
    @return {String} url
    */
-  urlForQueryRecord(query: Dict<any>, modelName: string): string {
+  urlForQueryRecord(query: Dict<unknown>, modelName: string): string {
     return this._buildURL(modelName);
   },
 
