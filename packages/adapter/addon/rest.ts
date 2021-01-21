@@ -41,7 +41,7 @@ type QueryState = {
   since?: unknown;
 };
 
-interface FetchRequestInit extends RequestInit {
+export interface FetchRequestInit extends RequestInit {
   url: string;
   method: string;
   type: string;
@@ -52,7 +52,7 @@ interface FetchRequestInit extends RequestInit {
   headers?: any;
 }
 
-interface JQueryRequestInit extends JQueryAjaxSettings {
+export interface JQueryRequestInit extends JQueryAjaxSettings {
   url: string;
   method: string;
   type: string;
@@ -1065,12 +1065,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
         });
     } else {
       return new RSVPPromise(function(resolve, reject) {
-        hash.success = function(payload, textStatus, jqXHR) {
+        (hash as JQueryAjaxSettings).success = function(payload, textStatus, jqXHR) {
           let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
           run.join(null, resolve, response);
         };
 
-        hash.error = function(jqXHR, textStatus, errorThrown) {
+        (hash as JQueryAjaxSettings).error = function(jqXHR, textStatus, errorThrown) {
           let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
           run.join(null, reject, error);
         };
@@ -1085,11 +1085,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @private
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
-  _ajaxRequest(options: Dict<any>): void {
+  _ajaxRequest(options: JQueryAjaxSettings): void {
+    // TODO add assertion that jquery is there rather then equality check
     typeof jQuery !== 'undefined' && jQuery.ajax(options);
   }
 
-  _fetchRequest(options): Promise<Response> {
+  _fetchRequest(options: FetchRequestInit): Promise<Response> {
     let fetchFunction = fetch();
 
     if (fetchFunction) {
@@ -1101,13 +1102,13 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     }
   }
 
-  _ajax(options: Dict<any>): void {
+  _ajax(options: FetchRequestInit | JQueryAjaxSettings): void {
     if (this.useFetch) {
-      this._fetchRequest(options);
+      this._fetchRequest(options as FetchRequestInit);
     } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
       this._najaxRequest(options);
     } else {
-      this._ajaxRequest(options);
+      this._ajaxRequest(options as JQueryAjaxSettings);
     }
   }
 
@@ -1119,7 +1120,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, method: string, options: JQueryAjaxSettings | RequestInit): Dict<any> {
+  ajaxOptions(url: string, method: string, options: JQueryAjaxSettings | RequestInit): JQueryRequestInit | FetchRequestInit {
     let reqOptions: JQueryRequestInit | FetchRequestInit = assign(
       {
         url,
@@ -1388,7 +1389,7 @@ function ajaxSuccessHandler(
 function ajaxErrorHandler(
   adapter: RESTAdapter,
   jqXHR: JQuery.jqXHR,
-  errorThrown: Dict<unknown>,
+  errorThrown: string,
   requestData: RequestData
 ) {
   let responseData = ajaxResponseData(jqXHR);
