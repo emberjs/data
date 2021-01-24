@@ -496,7 +496,6 @@ function performRecordIdentifierUpdate(
   updateFn: UpdateMethod
 ) {
   let { id, lid } = data;
-  let type = data.type && normalizeModelName(data.type);
 
   if (DEBUG) {
     // get the mutable instance behind our proxy wrapper
@@ -524,13 +523,6 @@ function performRecordIdentifierUpdate(
           { id: 'ember-data:multiple-ids-for-identifier' }
         );
       }
-    }
-
-    // TODO consider just ignoring here to allow flexible polymorphic support
-    if (type && type !== identifier.type) {
-      throw new Error(
-        `The 'type' for a RecordIdentifier cannot be updated once it has been set. Attempted to set type for '${wrapper}' to '${type}'.`
-      );
     }
 
     updateFn(wrapper, data, 'record');

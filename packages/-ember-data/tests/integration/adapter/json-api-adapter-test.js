@@ -240,6 +240,48 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(posts.get('firstObject.title'), 'Ember.js rocks', 'Sets correct title to record');
   });
 
+  test('find many polymorphic records', async function(assert) {
+    assert.expect(4);
+
+    ajaxResponse([
+      {
+        data: [
+          {
+            type: 'github-handles',
+            id: '1',
+            attributes: {
+              username: 'ykatz',
+            },
+          },
+          {
+            type: 'twitter-handles',
+            id: '2',
+            attributes: {
+              nickname: 'ykatz',
+            },
+          },
+        ],
+        included: [],
+      },
+    ]);
+
+    let handles = await store.findAll('handle');
+
+    let twitter_handles = store.peekAll('twitter-handles');
+    let github_handles = store.peekAll('github-handles');
+
+    //This should work b/c we loaded these types from the API, but it doesn't
+    assert.equal(twitter_handles.get('length'), 1);
+    assert.equal(github_handles.get('length'), 1);
+
+    assert.equal(passedUrl[0], '/handles', 'Builds correct URL');
+
+    //These won't work because we didn't load anything of the base type 'handles'
+    assert.equal(handles.get('length'), 2, 'Returns the correct number of records');
+    assert.equal(handles.get('firstObject.username'), 'ykatz', 'Sets correct username to record');
+    assert.equal(handles.get('secondObject.nickname'), 'ykatz', 'Sets correct username to record');
+  });
+
   test('queryRecord - primary data being a single record', async function(assert) {
     ajaxResponse([
       {
