@@ -1042,8 +1042,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<unknown> {
     let adapter = this;
 
-    let hash = adapter.ajaxOptions(url, type, options);
-
     let requestData: RequestData = {
       url: url,
       method: type,
@@ -1051,6 +1049,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     if (this.useFetch) {
       let _response;
+      let hash: FetchRequestInit = adapter.ajaxOptions(url, type, options);
       return this._fetchRequest(hash)
         .then((response: Response) => {
           _response = response;
@@ -1064,13 +1063,15 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
           }
         });
     } else {
+      let hash: JQueryRequestInit = adapter.ajaxOptions(url, type, options);
+
       return new RSVPPromise(function(resolve, reject) {
-        (hash as JQueryAjaxSettings).success = function(payload, textStatus, jqXHR) {
+        hash.success = function(payload, textStatus, jqXHR) {
           let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
           run.join(null, resolve, response);
         };
 
-        (hash as JQueryAjaxSettings).error = function(jqXHR, textStatus, errorThrown) {
+        hash.error = function(jqXHR, textStatus, errorThrown) {
           let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
           run.join(null, reject, error);
         };
