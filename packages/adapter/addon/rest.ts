@@ -1210,7 +1210,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param  {Object} payload
     @return {Array} errors payload
   */
-  normalizeErrorResponse(status: number, _headers: Dict<any>, payload: Payload): Dict<unknown>[] {
+  normalizeErrorResponse(status: number, _headers: Dict<unknown>, payload: Payload): Dict<unknown>[] {
     if (payload && typeof payload === 'object' && payload.errors instanceof Array) {
       return payload.errors;
     } else {
@@ -1506,7 +1506,7 @@ if (DEPRECATE_NAJAX) {
     @private
     @param {Object} options jQuery ajax options to be used for the najax request
   */
-  RESTAdapter.prototype._najaxRequest = function(options: Dict<any>): void {
+  RESTAdapter.prototype._najaxRequest = function(options: JQueryAjaxSettings): void {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {
