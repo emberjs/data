@@ -6,7 +6,10 @@ import { dasherize } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import { serializeIntoHash } from './-private';
-import RESTAdapter, {FetchRequestInit, JQueryRequestInit} from './rest';
+import RESTAdapter from './rest';
+
+type FetchRequestInit = import('./rest').FetchRequestInit;
+type JQueryRequestInit = import('./rest').JQueryRequestInit;
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
@@ -161,7 +164,11 @@ class JSONAPIAdapter extends RESTAdapter {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): JQueryRequestInit | FetchRequestInit {
+  ajaxOptions(
+    url: string,
+    type: string,
+    options: JQueryAjaxSettings | RequestInit = {}
+  ): JQueryRequestInit | FetchRequestInit {
     let hash = super.ajaxOptions(url, type, options);
 
     hash.headers['Accept'] = hash.headers['Accept'] || 'application/vnd.api+json';

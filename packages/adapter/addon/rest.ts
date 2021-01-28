@@ -1121,7 +1121,11 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url: string, method: string, options: JQueryAjaxSettings | RequestInit): JQueryRequestInit | FetchRequestInit {
+  ajaxOptions(
+    url: string,
+    method: string,
+    options: JQueryAjaxSettings | RequestInit
+  ): JQueryRequestInit | FetchRequestInit {
     let reqOptions: JQueryRequestInit | FetchRequestInit = assign(
       {
         url,
@@ -1387,12 +1391,7 @@ function ajaxSuccessHandler(
   return ajaxSuccess(adapter, payload, requestData, responseData);
 }
 
-function ajaxErrorHandler(
-  adapter: RESTAdapter,
-  jqXHR: JQuery.jqXHR,
-  errorThrown: string,
-  requestData: RequestData
-) {
+function ajaxErrorHandler(adapter: RESTAdapter, jqXHR: JQuery.jqXHR, errorThrown: string, requestData: RequestData) {
   let responseData = ajaxResponseData(jqXHR);
   responseData.errorThrown = errorThrown;
   let payload = adapter.parseErrorResponse(jqXHR.responseText);
