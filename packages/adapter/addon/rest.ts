@@ -72,7 +72,7 @@ type ResponseData = {
 };
 
 declare const najax: Function | undefined;
-declare const jQuery: Dict<any> | undefined;
+declare const jQuery: JQueryStatic | undefined;
 
 const UseFetch = symbol('useFetch');
 const hasJQuery = typeof jQuery !== 'undefined';
