@@ -1103,13 +1103,13 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     }
   }
 
-  _ajax(options: FetchRequestInit | JQueryAjaxSettings): void {
+  _ajax(options: FetchRequestInit | JQueryRequestInit): void {
     if (this.useFetch) {
       this._fetchRequest(options as FetchRequestInit);
     } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
       this._najaxRequest(options);
     } else {
-      this._ajaxRequest(options as JQueryAjaxSettings);
+      this._ajaxRequest(options as JQueryRequestInit);
     }
   }
 
