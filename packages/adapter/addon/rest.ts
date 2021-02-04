@@ -58,7 +58,7 @@ export interface JQueryRequestInit extends JQueryAjaxSettings {
   type: string;
 }
 
-type RequestData = {
+export type RequestData = {
   url: string;
   method: string;
   [key: string]: any;
