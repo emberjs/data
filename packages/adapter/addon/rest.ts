@@ -1086,7 +1086,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @private
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
-  _ajaxRequest(options: JQueryAjaxSettings): void {
+  _ajaxRequest(options: JQueryRequestInit): void {
     // TODO add assertion that jquery is there rather then equality check
     typeof jQuery !== 'undefined' && jQuery.ajax(options);
   }
