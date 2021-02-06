@@ -2790,31 +2790,34 @@
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
   integrity sha512-ONhaKPIufzzrlNbqtWFFd+jlnemX6lJAgq9ZeiZtS7I1PIf/la7CW4m83rTXRnVnsMbW2k56pGYu7AUFJD9Pow==
 
-"@tracerbench/core@3.1.2":
-  version "3.1.2"
-  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-3.1.2.tgz#1d0f214dfb48a9a3373cd71714d86eaf7b7eafa8"
-  integrity sha512-OFGW8whyDKN+nIJpGOO+ji2+lFALZB8e9GXPVBzuRqHi4c6vItGDyVLrOaxybvTP0j8LG5wZ3ezNtoQjkhTPmQ==
+"@tracerbench/core@4.5.0":
+  version "4.5.0"
+  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-4.5.0.tgz#069c909b254db401f8aed048753622b461d70e94"
+  integrity sha512-zrM7IGPaxN+aUW1s3WuHzwWPqfMCky0anAx+aSEDi3R+mh/bY6rBgLEucqMrZJpC+BPph2eMf6jPF3cE8YfHuQ==
   dependencies:
+    "@tracerbench/har" "^4.0.1"
+    "@tracerbench/trace-event" "^4.5.0"
+    "@tracerbench/trace-model" "^4.5.0"
     "@types/d3-hierarchy" "^1.1.6"
     "@types/node" "*"
     array-binsearch "^1.0.1"
-    chalk "^4.0.0"
-    chrome-debugging-client "^1.2.0"
-    d3-hierarchy "^1.1.9"
-    debug "^4.1.1"
-    devtools-protocol "^0.0.772852"
-    fs-extra "^9.0.0"
+    chalk "^4.1.0"
+    chrome-debugging-client "^2.0.0"
+    d3-hierarchy "^2.0.0"
+    debug "^4.2.0"
+    devtools-protocol "^0.0.809251"
+    fs-extra "^9.0.1"
     handlebars "^4.7.6"
     lodash.clonedeep "^4.5.0"
     race-cancellation "^0.4.1"
     silent-error "^1.1.1"
     tmp "^0.2.1"
-    tslib "^1.11.1"
+    tslib "^2.0.1"
 
-"@tracerbench/find-chrome@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/@tracerbench/find-chrome/-/find-chrome-1.3.1.tgz#bea4fd8ac1cc94fa8e6274603abc015b34142c8a"
-  integrity sha512-kCeKFEBqZFbsn1xjUW+QhrHQrJ9vvAfirnWbNBQ9uGFD2ULkET9muc7oFuB7mH65Ux9KSJYnMNoRPP03M4Xrag==
+"@tracerbench/find-chrome@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@tracerbench/find-chrome/-/find-chrome-2.0.0.tgz#fa0c7707d05c4c4296e55d474a4ebe049dd983e5"
+  integrity sha512-tqx3LNo7vLkEVdI0ou0kCTKbG4blgb9th4e/YIEBpDzBNHokB5X/owBII/M4AYkOLnfX3WnTAEE8F7WmenVMkQ==
   dependencies:
     chrome-launcher "^0.13.2"
 
@@ -2823,53 +2826,71 @@
   resolved "https://registry.npmjs.org/@tracerbench/har/-/har-2.3.0.tgz#87e8f032b760a2982810d4202f4e12377af5b166"
   integrity sha512-Wp/8SK7svoUpfEFpiUGd60VheKOCwdudIPU4R+CK/ADagUMdKHQdjxRljPggKQyq9vDCTM/vC7T5MMQKZU4ErQ==
 
-"@tracerbench/message-transport@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/@tracerbench/message-transport/-/message-transport-1.3.1.tgz#d93b71af3898dee342b8c09586c3c87d3eb52eab"
-  integrity sha512-SklPtGs5kdVf+tF2qGL7i5gtgZaLOdJRDVEmNvqbTyvogcPhuVGj7dBtslYqT1CBvEcSyEwJLBbzdC9iRr6oTw==
+"@tracerbench/har@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/@tracerbench/har/-/har-4.0.1.tgz#c8b77601faf794bee51a6bb264ca5b130802fd20"
+  integrity sha512-jP9hoWSUsQmitHAayu0d2N7jlwZ4WsqvakNelyGifHvddfVqJo36M/DRE3cceBwOn1Nf/WIDHn19UlRWEgnksA==
 
-"@tracerbench/protocol-connection@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/@tracerbench/protocol-connection/-/protocol-connection-1.3.1.tgz#bdc77456c901059e501c9b86431bb665a2b02c74"
-  integrity sha512-6+A8H4Q+Jm8uHhDVDcRvOyVNzvDJppPRiAdD9lCl88SfWOKbx7yUV/YlW39Cb4se9nMbUmBvbx0BfX+cElvZuQ==
+"@tracerbench/message-transport@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@tracerbench/message-transport/-/message-transport-2.0.0.tgz#430c1c84eac2860d9819d9a9c94ef06d79f80e16"
+  integrity sha512-PtgWnELGF9j3CSlqJX3vVw3s46eMlt4OnwQUh1yAvqAcdzjfXyJeCrRa/YSbt4tyvLfHKGPVmcuHBuBO1/rrtQ==
+
+"@tracerbench/protocol-connection@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@tracerbench/protocol-connection/-/protocol-connection-2.0.0.tgz#7abc61352b8339b10072639dc96e2b8e83a89ab7"
+  integrity sha512-S43URQlQ8L1ZkvHGpqglRv8f1fal92JASoKvT7t7VQElFYb/juV/CM69lp10f2gGPY4A/iIu7c2BwK0v1FwSdw==
   dependencies:
-    "@tracerbench/message-transport" "^1.3.1"
-    "@tracerbench/protocol-transport" "^1.3.1"
+    "@tracerbench/message-transport" "^2.0.0"
+    "@tracerbench/protocol-transport" "^2.0.0"
     race-cancellation "^0.4.1"
 
-"@tracerbench/protocol-transport@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/@tracerbench/protocol-transport/-/protocol-transport-1.3.1.tgz#4e0d61fd6f4822e84416cc498c90e0bf72a6b388"
-  integrity sha512-Qtvku/oKpMh9dOtfaSv/QsRP9CrBGLkjSoz2IKTFUJCOh/9BcDg1avfo7XaFMC+fU7prswnBh6avwBRz2ENZnA==
+"@tracerbench/protocol-transport@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@tracerbench/protocol-transport/-/protocol-transport-2.0.0.tgz#81d7f6ab387e6362ab1ac9df4497ba0f6a2e1bf3"
+  integrity sha512-Z62tfmARhQ/lpl4Q1ZDGnNqQyyNlme1YLJa9Egak7joOEDmyxrJpmeTszW/XhaAYuaZQihB6nTXzLzjRwfyqWw==
   dependencies:
-    "@tracerbench/message-transport" "^1.3.1"
+    "@tracerbench/message-transport" "^2.0.0"
     race-cancellation "^0.4.1"
 
-"@tracerbench/spawn-chrome@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/@tracerbench/spawn-chrome/-/spawn-chrome-1.3.1.tgz#8d5531055ca23a2fc8a3b9675e4b08903fae89cf"
-  integrity sha512-pURgLNl4h47Gbef10uEQxIpHObvmOWrZPb3+hoAEb6wTwuZzVAZq0iVU7KGq1XrQKTQ/yNjYCLTD2sy+h00/5A==
+"@tracerbench/spawn-chrome@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@tracerbench/spawn-chrome/-/spawn-chrome-2.0.0.tgz#c968fa74052cee110cbd6d44ad678976a3b414c9"
+  integrity sha512-B2PFea2zMuZHVf312lH/fyePmDu9BNOWap0RFXmJW9Rw8jwnDLo3L5oR6Vj17dkUF958HAmHiwL3eUpbqPcgng==
   dependencies:
-    "@tracerbench/find-chrome" "^1.3.1"
-    "@tracerbench/spawn" "^1.3.1"
+    "@tracerbench/find-chrome" "^2.0.0"
+    "@tracerbench/spawn" "^2.0.0"
     tmp "^0.2.1"
 
-"@tracerbench/spawn@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/@tracerbench/spawn/-/spawn-1.3.1.tgz#ac28aba0f615aaea96740d4aa1f86ec024c3f528"
-  integrity sha512-YINRws523zsvypQ2+mUaapge7Mat4mfQNQkcSipZuoP9edHOP/qqH+RsWWWS/c++KvFFOg740/4B8tdE6uuX+Q==
+"@tracerbench/spawn@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@tracerbench/spawn/-/spawn-2.0.0.tgz#dce2d75c8a0913cff154fe9a527d83a85c89cac0"
+  integrity sha512-Bj8w1Tx51BkA4ES5MI9UE7nX9rJDXwL5MeDTHOowyFM/OSqUblVc+I9Lb5+9Nllw8oFBV37ue9JquIE9iOti7w==
   dependencies:
-    "@tracerbench/message-transport" "^1.3.1"
+    "@tracerbench/message-transport" "^2.0.0"
     debug "^4.1.1"
     execa "^4.0.2"
     race-cancellation "^0.4.1"
 
-"@tracerbench/websocket-message-transport@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/@tracerbench/websocket-message-transport/-/websocket-message-transport-1.3.1.tgz#ea143341f6cfd0052a23de9844204d627263ca64"
-  integrity sha512-5BhFM4U9pWir6UI1KxJRjQjdhtk/mNLWv68WLDFsNfrLrZYNIBY748fw1fcvs/YuNk4rjE51eBfC/xefVJYySw==
+"@tracerbench/trace-event@^4.5.0", "@tracerbench/trace-event@^4.5.5":
+  version "4.5.5"
+  resolved "https://registry.npmjs.org/@tracerbench/trace-event/-/trace-event-4.5.5.tgz#21c34a6725777d1056550ce1d9df0945e641064c"
+  integrity sha512-dwQF3I3ozNBP9KrV9XO/PI/yFC7ul8e2cC2GqxZcZub7EU3JPfvW9ijy7IHAJttOQfxKkeZKwuwkGcdLA1vJXw==
+
+"@tracerbench/trace-model@^4.5.0":
+  version "4.5.5"
+  resolved "https://registry.npmjs.org/@tracerbench/trace-model/-/trace-model-4.5.5.tgz#4f8133294789a6c8e96a704a2bf2b83edc56d0f9"
+  integrity sha512-2wAIn29b49XDXbZsqJYhuIFN3sIiPr1aIhRRxLTLLy2JmgUiOAf1fNDNjLsij4PIu9LGTcqoSjOcocfvEM3faw==
   dependencies:
-    "@tracerbench/message-transport" "^1.3.1"
+    "@tracerbench/trace-event" "^4.5.5"
+    debug "^4.3.1"
+
+"@tracerbench/websocket-message-transport@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@tracerbench/websocket-message-transport/-/websocket-message-transport-2.0.0.tgz#83b53168cdd4cc016d094859e0a4dd983c301543"
+  integrity sha512-fw4i7RNc/6Ps/h0yXq93yDav8BGX1HcjTdaXxFqLDl5ijK2JngAswPaOn/Dof41+jG0s90Yy3pA2lCAJzcL58Q==
+  dependencies:
+    "@tracerbench/message-transport" "^2.0.0"
     race-cancellation "^0.4.1"
     ws "^7.3.0"
 
@@ -6077,17 +6098,17 @@ chownr@^1.1.1, chownr@^1.1.2:
   resolved "https://registry.npmjs.org/chownr/-/chownr-1.1.4.tgz#6fc9d7b42d32a583596337666e7d08084da2cc6b"
   integrity sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==
 
-chrome-debugging-client@^1.2.0:
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/chrome-debugging-client/-/chrome-debugging-client-1.3.1.tgz#721021a6dbfbe6c956ef4d17409395ec15ce2d8f"
-  integrity sha512-0WTrzCyWdyFKwU/7GTuPFtZHQ1KWicWtCxeQdEWSM6l4m/loAT2+Dpfhpd/4Yv9fERkpwIplBOgsh/S+744kUQ==
+chrome-debugging-client@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/chrome-debugging-client/-/chrome-debugging-client-2.0.0.tgz#d72e7f814c5041b1f25a00e6dd7697cbba822321"
+  integrity sha512-aWC72vm+kFS1lefdrLc/9pg8wL0mgNmri6cN6A/UaASH1S2mpUT6RrvgX654sitsefM07RDRTILTev9I2j+AuQ==
   dependencies:
-    "@tracerbench/find-chrome" "^1.3.1"
-    "@tracerbench/message-transport" "^1.3.1"
-    "@tracerbench/protocol-connection" "^1.3.1"
-    "@tracerbench/spawn" "^1.3.1"
-    "@tracerbench/spawn-chrome" "^1.3.1"
-    "@tracerbench/websocket-message-transport" "^1.3.1"
+    "@tracerbench/find-chrome" "^2.0.0"
+    "@tracerbench/message-transport" "^2.0.0"
+    "@tracerbench/protocol-connection" "^2.0.0"
+    "@tracerbench/spawn" "^2.0.0"
+    "@tracerbench/spawn-chrome" "^2.0.0"
+    "@tracerbench/websocket-message-transport" "^2.0.0"
     debug "^4.1.1"
     race-cancellation "^0.4.1"
 
@@ -6842,10 +6863,10 @@ cyclist@^1.0.1:
   resolved "https://registry.npmjs.org/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-d3-hierarchy@^1.1.9:
-  version "1.1.9"
-  resolved "https://registry.npmjs.org/d3-hierarchy/-/d3-hierarchy-1.1.9.tgz#2f6bee24caaea43f8dc37545fa01628559647a83"
-  integrity sha512-j8tPxlqh1srJHAtxfvOUwKNYJkQuBFdM1+JAUfq6xqH5eAqf93L7oG1NVqDa4CpFZNvnNKtCYEUC8KY9yEn9lQ==
+d3-hierarchy@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/d3-hierarchy/-/d3-hierarchy-2.0.0.tgz#dab88a58ca3e7a1bc6cab390e89667fcc6d20218"
+  integrity sha512-SwIdqM3HxQX2214EG9GTjgmCc/mbSx4mQBn+DuEETubhOw6/U3fmnji4uCVrmzOydMHSO1nZle5gh6HB/wdOzw==
 
 dag-map@^2.0.2:
   version "2.0.2"
@@ -6907,6 +6928,13 @@ debug@^4.0.0, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@~4.1.0:
   integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
   dependencies:
     ms "^2.1.1"
+
+debug@^4.2.0, debug@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.npmjs.org/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
+  integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
+  dependencies:
+    ms "2.1.2"
 
 debuglog@^1.0.1:
   version "1.0.1"
@@ -7073,10 +7101,10 @@ detect-newline@3.1.0:
   resolved "https://registry.npmjs.org/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
 
-devtools-protocol@^0.0.772852:
-  version "0.0.772852"
-  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.772852.tgz#9dd87a50d0425d86dc4f36e270e9c06a94160c67"
-  integrity sha512-BTNnZFhh/ogi12dCzYAoXaaM+zo++BMr8FBV/5DT4Ug1ufYS9QS7vNSfrcJOLIRH+NshZS3Au4iXH7fdJysN/w==
+devtools-protocol@^0.0.809251:
+  version "0.0.809251"
+  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.809251.tgz#300b3366be107d5c46114ecb85274173e3999518"
+  integrity sha512-pf+2OY6ghMDPjKkzSWxHMq+McD+9Ojmq5XVRYpv/kPd9sTMQxzEt21592a31API8qRjro0iYYOc3ag46qF/1FA==
 
 dezalgo@^1.0.0:
   version "1.0.3"
@@ -12174,7 +12202,7 @@ ms@2.1.1:
   resolved "https://registry.npmjs.org/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
   integrity sha512-tgp+dl5cGk28utYktBsrFqA7HKgrhgPsg6Z/EfhWI4gl1Hwq8B/GmY/0oXZ6nF8hDVesS/FpnYaD/kOWhYQvyg==
 
-ms@^2.0.0, ms@^2.1.1:
+ms@2.1.2, ms@^2.0.0, ms@^2.1.1:
   version "2.1.2"
   resolved "https://registry.npmjs.org/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
@@ -15560,10 +15588,10 @@ tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.13.0.tgz#c881e13cc7015894ed914862d276436fa9a47043"
   integrity sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==
 
-tslib@^1.11.1:
-  version "1.14.1"
-  resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
-  integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
+tslib@^2.0.1:
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
+  integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
 
 tsutils@^3.17.1:
   version "3.17.1"

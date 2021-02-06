@@ -1,7 +1,7 @@
 const path = require('path');
 
 const fs = require('fs-extra');
-const { InitialRenderBenchmark, Runner } = require('@tracerbench/core');
+const { createTraceNavigationBenchmark, run } = require('@tracerbench/core');
 
 // The number of samples TracerBench will run. Higher sample count is more accurate.
 // However, the duration of the test will increase. The recommendation is somewhere between 30-60 samples.
@@ -118,25 +118,32 @@ const TRACER_BENCH_RESULTS_PATH = path.resolve(
     for (let i = 0; i < routes.length; i++) {
       const { routeName, markers } = routes[i];
       const prefix = `00${i + 1}`.slice(-2) + '-' + routeName;
-      const control = new InitialRenderBenchmark({
-        name: 'control',
-        url: `http://localhost:4200/#/${routeName}/?tracerbench=true`,
+      const control = createTraceNavigationBenchmark(
+        'control',
+        `http://localhost:4200/#/${routeName}/?tracerbench=true`,
         markers,
-        browser,
-        saveTraces: () => path.resolve(TRACER_BENCH_RESULTS_PATH, `${prefix}-control-trace.json`),
-      });
+        {
+          spawnOptions: browser,
+          traceOptions: {
+            saveTraces: () => path.resolve(TRACER_BENCH_RESULTS_PATH, `${prefix}-control-trace.json`),
+          },
+        }
+      );
 
-      const experiment = new InitialRenderBenchmark({
-        name: 'experiment',
-        url: `http://localhost:4201/#/${routeName}/?tracerbench=true`,
+      const experiment = createTraceNavigationBenchmark(
+        'experiment',
+        `http://localhost:4201/#/${routeName}/?tracerbench=true`,
         markers,
-        browser,
-        saveTraces: () => path.resolve(TRACER_BENCH_RESULTS_PATH, `${prefix}-experiment-trace.json`),
-      });
+        {
+          spawnOptions: browser,
+          traceOptions: {
+            saveTraces: () => path.resolve(TRACER_BENCH_RESULTS_PATH, `${prefix}-experiment-trace.json`),
+          },
+        }
+      );
 
       console.log(`${prefix}: computing results...`);
-      const runner = new Runner([control, experiment]);
-      const results = await runner.run(samplesCount);
+      const results = await run([control, experiment], samplesCount);
       fs.writeFileSync(
         path.resolve(TRACER_BENCH_RESULTS_PATH, `${prefix}-trace-results.json`),
         JSON.stringify(results, null, 2)
