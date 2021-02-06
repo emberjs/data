@@ -31,6 +31,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
   module('Secondary Cache based on an attribute', function(hooks) {
     let store;
     let calls;
+    let isQuery = false;
     let secondaryCache: {
       id: ConfidentDict<string>;
       username: ConfidentDict<string>;
@@ -44,10 +45,11 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       shouldBackgroundReloadRecord() {
         return false;
       }
-      findRecord(isQuery = false) {
+      findRecord() {
         if (isQuery !== true) {
           calls.findRecord++;
         }
+        isQuery = false;
         return resolve({
           data: {
             id: '1',
@@ -62,7 +64,8 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       }
       queryRecord() {
         calls.queryRecord++;
-        return this.findRecord(true);
+        isQuery = true;
+        return this.findRecord();
       }
     }
 
@@ -234,6 +237,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
   module('Secondary Cache using an attribute as an alternate id', function(hooks) {
     let store;
     let calls;
+    let isQuery = false;
     let secondaryCache: ConfidentDict<string>;
     class TestSerializer extends Serializer {
       normalizeResponse(_, __, payload) {
@@ -244,10 +248,11 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       shouldBackgroundReloadRecord() {
         return false;
       }
-      findRecord(isQuery = false) {
+      findRecord() {
         if (isQuery !== true) {
           calls.findRecord++;
         }
+        isQuery = false;
         return resolve({
           data: {
             id: '1',
@@ -262,7 +267,8 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       }
       queryRecord() {
         calls.queryRecord++;
-        return this.findRecord(true);
+        isQuery = true;
+        return this.findRecord();
       }
     }
 
