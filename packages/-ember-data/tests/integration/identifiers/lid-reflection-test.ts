@@ -220,4 +220,76 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     assert.deepEqual(cake.hasMany('ingredients').ids(), ['2']);
     assert.equal(cake.ingredients.objectAt(0).name, 'Cheese');
   });
+
+  test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function(assert) {
+    class Topping extends Model {
+      @attr name;
+    }
+
+    class Cake extends Model {
+      @attr name;
+      @belongsTo('topping', { inverse: null, async: false }) topping;
+    }
+
+    this.owner.register('model:topping', Topping);
+    this.owner.register('model:cake', Cake);
+
+    class TestSerializer extends Serializer {
+      normalizeResponse(_, __, payload) {
+        return payload;
+      }
+    }
+    class TestAdapter extends Adapter {
+      createRecord(store, ModelClass, snapshot) {
+        return resolve({
+          data: {
+            type: 'cake',
+            id: '1',
+            attributes: {
+              name: 'Cheesecake',
+            },
+            relationships: {
+              topping: {
+                data: {
+                  type: 'topping',
+                  id: '2',
+                  lid: cheeseIdentifier.lid,
+                },
+              },
+            },
+          },
+          included: [
+            {
+              type: 'topping',
+              id: '2',
+              lid: cheeseIdentifier.lid,
+              attributes: {
+                name: 'Cheese',
+              },
+              relationships: {
+                cake: {
+                  data: {
+                    type: 'cake',
+                    id: '1',
+                  },
+                },
+              },
+            },
+          ],
+        });
+      }
+    }
+    this.owner.register('serializer:application', TestSerializer);
+    this.owner.register('adapter:application', TestAdapter);
+
+    const cheese = store.createRecord('topping', { name: 'Cheese' });
+    const cake = store.createRecord('cake', { name: 'Cheesecake', topping: cheese });
+
+    const cheeseIdentifier = recordIdentifierFor(cheese);
+
+    await cake.save();
+
+    assert.deepEqual(cake.belongsTo('topping').id(), '2');
+    assert.equal(cake.topping.name, 'Cheese');
+  });
 });

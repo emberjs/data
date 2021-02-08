@@ -193,7 +193,7 @@ export default class BelongsToRelationship extends Relationship {
     );
 
     if (recordData !== null) {
-      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id);
+      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id, data.lid);
     }
     this.setCanonicalRecordData(recordData);
   }
