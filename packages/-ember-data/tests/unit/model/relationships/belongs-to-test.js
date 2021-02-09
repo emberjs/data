@@ -1,4 +1,5 @@
 import { get } from '@ember/object';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
@@ -148,6 +149,8 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     person.addObserver('tag', tagDidChange);
 
     assert.equal(person.get('tag.name'), 'whatever', 'relationship is correct');
+
+    await settled();
 
     // This needs to be removed so it is not triggered when test context is torn down
     person.removeObserver('tag', tagDidChange);
