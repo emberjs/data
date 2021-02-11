@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## Release 3.24.1 (LTS) (February 11, 2021)
+- Rerelease of 3.24.0
+
 ## Release 3.24.0 (January 4, 2021)
 - [#7350](https://github.com/emberjs/data/pull/7350) [Chore]: convert adapters to class syntax
 - [#7359](https://github.com/emberjs/data/pull/7359) [CI]: bump failure asset size to 75 bytes
