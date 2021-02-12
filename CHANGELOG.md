@@ -1,7 +1,7 @@
 # Ember Data Changelog
 
 
-## Release 3.25.0-beta.0 (January 4, 2021)
+## Release 3.25.0 (February 11, 2021)
 - [#7394](https://github.com/emberjs/data/pull/7394) [Cleanup]: Remove RECORD_ARRAY_MANAGER_IDENTIFIERS (#7394)
 - [#7393](https://github.com/emberjs/data/pull/7393) [Cleanup]: Remove FULL_LINKS_ON_RELATIONSHIPS (#7393)
 - [#7292](https://github.com/emberjs/data/pull/7292) [DOC model] convert api examples to native classes/Octane (#7292)
