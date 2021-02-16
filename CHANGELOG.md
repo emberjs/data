@@ -1,11 +1,15 @@
 # Ember Data Changelog
 
-## Release 3.25.0-beta.0 (January 4, 2021)
+## Release 3.26.0-beta.0 (February 16, 2021)
+- [#7416](https://github.com/emberjs/data/pull/7416) [Deps]: bump ember packages (#7416)
+- [#7358](https://github.com/emberjs/data/pull/7358) [Chore]: TypeScript adapters (#7358)
+
+## Release 3.25.0 (February 11, 2021)
 - [#7394](https://github.com/emberjs/data/pull/7394) [Cleanup]: Remove RECORD_ARRAY_MANAGER_IDENTIFIERS (#7394)
 - [#7393](https://github.com/emberjs/data/pull/7393) [Cleanup]: Remove FULL_LINKS_ON_RELATIONSHIPS (#7393)
 - [#7292](https://github.com/emberjs/data/pull/7292) [DOC model] convert api examples to native classes/Octane (#7292)
 - [#7399](https://github.com/emberjs/data/pull/7399) Fix deprecation URLs (#7399)
-- [#7405](https://github.com/emberjs/data/pull/7405) [DOC adapter] fix parent class invocation syntax (#7405)
+- [623145d0](https://github.com/emberjs/data/commit/623145d0009d683a50468ba9961431ae76ae6df6) [DOC adapter] fix parent class invocation syntax (#7405)
 
 ## Release 3.24.0 (January 4, 2021)
 - [#7350](https://github.com/emberjs/data/pull/7350) [Chore]: convert adapters to class syntax
