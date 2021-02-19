@@ -3675,11 +3675,6 @@ function _commit(adapter, store, operation, snapshot) {
   let serializer = store.serializerFor(modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
-  assert(
-    `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
-    promise !== undefined
-  );
-
   promise = guardDestroyedStore(promise, store, label);
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
