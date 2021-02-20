@@ -1,6 +1,6 @@
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import { settled } from '@ember/test-helpers';
+import { settled, waitUntil } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
@@ -111,6 +111,8 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     assert.deepEqual(record.color, 'black', 'We are given the right display color for a clean value');
 
     let post = await store.findRecord('post', 1);
+
+    await waitUntil(() => updatedRecords && updatedRecords.length === 1, { timeout: 2000 });
 
     post.set('title', 'Modified Post');
 
