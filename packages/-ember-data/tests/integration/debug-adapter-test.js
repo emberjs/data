@@ -65,7 +65,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
   test('Watching Records', async function(assert) {
     let { owner } = this;
     let debugAdapter = owner.lookup('data-adapter:main');
-    let addedRecords, updatedRecords, removedIndex, removedCount;
+    let addedRecords, updatedRecords, removedRecords;
 
     this.owner.register(
       'adapter:application',
@@ -92,9 +92,8 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     var recordsUpdated = function(wrappedRecords) {
       updatedRecords = wrappedRecords;
     };
-    var recordsRemoved = function(index, count) {
-      removedIndex = index;
-      removedCount = count;
+    var recordsRemoved = function(wrappedRecords) {
+      removedRecords = wrappedRecords;
     };
 
     debugAdapter.watchRecords('post', recordsAdded, recordsUpdated, recordsRemoved);
@@ -133,8 +132,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     assert.deepEqual(record.color, 'blue', 'we have a color to represent we were modified');
 
     // reset
-    addedRecords = updatedRecords = [];
-    removedCount = removedIndex = null;
+    addedRecords = updatedRecords = removedRecords = [];
 
     post = store.createRecord('post', { id: '2', title: 'New Post' });
 
@@ -161,15 +159,13 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       'The newly created post has meaningful color to represent new-ness';
 
     // reset
-    addedRecords = updatedRecords = [];
-    removedCount = removedIndex = null;
+    addedRecords = updatedRecords = removedRecords = [];
 
     post.unloadRecord();
 
     await settled();
 
-    assert.equal(removedIndex, 1, 'We are notified of the start index of a removal when we remove posts');
-    assert.equal(removedCount, 1, 'We are notified of the total posts removed');
+    assert.equal(removedRecords.length, 1, 'We are notified of the total posts removed');
   });
 
   test('Column names', function(assert) {
