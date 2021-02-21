@@ -112,9 +112,10 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     let post = await store.findRecord('post', 1);
 
-    await waitUntil(() => updatedRecords && updatedRecords.length === 1, { timeout: 2000 });
-
     post.set('title', 'Modified Post');
+
+    // await updated callback
+    await settled();
 
     assert.equal(get(updatedRecords, 'length'), 1, 'We updated 1 post');
     record = updatedRecords[0];
