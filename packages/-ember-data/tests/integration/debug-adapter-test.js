@@ -1,6 +1,6 @@
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import { settled, waitUntil } from '@ember/test-helpers';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
