@@ -4,6 +4,7 @@ import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
+import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
@@ -86,14 +87,16 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       },
     });
 
-    var recordsAdded = function(wrappedRecords) {
+    let recordsAdded = function(wrappedRecords) {
       addedRecords = wrappedRecords;
     };
-    var recordsUpdated = function(wrappedRecords) {
+    let recordsUpdated = function(wrappedRecords) {
       updatedRecords = wrappedRecords;
     };
-    var recordsRemoved = function(wrappedRecords) {
-      removedRecords = wrappedRecords;
+    let recordsRemoved = function(...args) {
+      // in 3.26 there is only 1 argument - wrappedRecords
+      // below 3.26, it is the index and count removed
+      removedRecords = args;
     };
 
     debugAdapter.watchRecords('post', recordsAdded, recordsUpdated, recordsRemoved);
@@ -167,7 +170,12 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     // this is an array with length 1 in 3.26.  Simple ok assertion for now due to API change
     // https://github.com/emberjs/ember.js/pull/19379
-    assert.ok(removedRecords, 'We are notified of the total posts removed');
+    if (gte('3.26.0')) {
+      assert.ok(removedRecords[0], 'We are notified of the total posts removed');
+    } else {
+      assert.equal(removedRecords[0], 1, 'We are notified of the start index of a removal when we remove posts');
+      assert.equal(removedRecords[1], 1, 'We are notified of the total posts removed');
+    }
   });
 
   test('Column names', function(assert) {
