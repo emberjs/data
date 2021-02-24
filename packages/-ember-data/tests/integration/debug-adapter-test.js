@@ -94,8 +94,9 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       updatedRecords = wrappedRecords;
     };
     let recordsRemoved = function(...args) {
-      // in 3.26 there is only 1 argument - wrappedRecords
-      // below 3.26, it is the index and count removed
+      // in 3.26 there is only 1 argument - the record removed
+      // below 3.26, it is 2 arguments - the index and count removed
+      // https://github.com/emberjs/ember.js/pull/19379
       removedRecords = args;
     };
 
@@ -168,10 +169,9 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     await settled();
 
-    // this is an array with length 1 in 3.26.  Simple ok assertion for now due to API change
-    // https://github.com/emberjs/ember.js/pull/19379
     if (gte('3.26.0')) {
-      assert.ok(removedRecords[0], 'We are notified of the total posts removed');
+      assert.equal(removedRecords.length, 1, 'We are notified of the total posts removed');
+      assert.equal(removedRecords[0], post, 'The removed post is correct');
     } else {
       assert.equal(removedRecords[0], 1, 'We are notified of the start index of a removal when we remove posts');
       assert.equal(removedRecords[1], 1, 'We are notified of the total posts removed');
