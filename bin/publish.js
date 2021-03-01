@@ -325,7 +325,7 @@ function publishPackage(distTag, tarball, otp) {
   }
 
   console.log(cmd);
-  // execWithLog(`npm publish ${tarball} --tag=${distTag} --access=public --otp=${otp}`);
+  execWithLog(`npm publish ${tarball} --tag=${distTag} --access=public --otp=${otp}`);
 }
 
 async function confirmPublish(tarballs, promptOtp = true) {
