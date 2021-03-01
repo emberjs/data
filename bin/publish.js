@@ -28,6 +28,7 @@ const readline = require('readline');
 const chalk = require('chalk');
 const execa = require('execa');
 const cliArgs = require('command-line-args');
+const process = require('process');
 const semver = require('semver');
 const debug = require('debug')('publish-packages');
 
@@ -120,18 +121,18 @@ function assertGitIsClean() {
     if (options.force) {
       console.log(
         chalk.white('⚠️ ⚠️ ⚠️  Local Git branch has uncommitted changes!\n\t') +
-          chalk.yellow('Passed option: ') +
-          chalk.white('--force') +
-          chalk.grey(' :: ignoring unclean git working tree')
+        chalk.yellow('Passed option: ') +
+        chalk.white('--force') +
+        chalk.grey(' :: ignoring unclean git working tree')
       );
     } else {
       console.log(
         chalk.red('💥 Git working tree is not clean. 💥 \n\t') +
-          chalk.grey('Use ') +
-          chalk.white('--force') +
-          chalk.grey(' to ignore this warning and publish anyway\n') +
-          chalk.yellow('⚠️  Publishing from an unclean working state may result in a broken release ⚠️\n\n') +
-          chalk.grey(`Status:\n${status}`)
+        chalk.grey('Use ') +
+        chalk.white('--force') +
+        chalk.grey(' to ignore this warning and publish anyway\n') +
+        chalk.yellow('⚠️  Publishing from an unclean working state may result in a broken release ⚠️\n\n') +
+        chalk.grey(`Status:\n${status}`)
       );
       process.exit(1);
     }
@@ -141,18 +142,18 @@ function assertGitIsClean() {
     if (options.force) {
       console.log(
         chalk.white('⚠️ ⚠️ ⚠️  Local Git branch is not in sync with origin branch') +
-          chalk.yellow('\n\tPassed option: ') +
-          chalk.white('--force') +
-          chalk.grey(' :: ignoring unsynced git branch')
+        chalk.yellow('\n\tPassed option: ') +
+        chalk.white('--force') +
+        chalk.grey(' :: ignoring unsynced git branch')
       );
     } else {
       console.log(
         chalk.red('💥 Local Git branch is not in sync with origin branch. 💥 \n\t') +
-          chalk.grey('Use ') +
-          chalk.white('--force') +
-          chalk.grey(' to ignore this warning and publish anyway\n') +
-          chalk.yellow('⚠️  Publishing from an unsynced working state may result in a broken release ⚠️') +
-          chalk.grey(`Status:\n${status}`)
+        chalk.grey('Use ') +
+        chalk.white('--force') +
+        chalk.grey(' to ignore this warning and publish anyway\n') +
+        chalk.yellow('⚠️  Publishing from an unsynced working state may result in a broken release ⚠️') +
+        chalk.grey(`Status:\n${status}`)
       );
       process.exit(1);
     }
@@ -174,19 +175,19 @@ function assertGitIsClean() {
         chalk.white(
           `⚠️ ⚠️ ⚠️  Expected to publish npm tag ${options.distTag} from the git branch ${expectedChannelBranch}, but found ${foundBranch}`
         ) +
-          chalk.yellow('\n\tPassed option: ') +
-          chalk.white('--force') +
-          chalk.grey(' :: ignoring unexpected branch')
+        chalk.yellow('\n\tPassed option: ') +
+        chalk.white('--force') +
+        chalk.grey(' :: ignoring unexpected branch')
       );
     } else {
       console.log(
         chalk.red(
           `💥 Expected to publish npm tag ${options.distTag} from the git branch ${expectedChannelBranch}, but found ${foundBranch} 💥 \n\t`
         ) +
-          chalk.grey('Use ') +
-          chalk.white('--force') +
-          chalk.grey(' to ignore this warning and publish anyway\n') +
-          chalk.yellow('⚠️  Publishing from an incorrect branch may result in a broken release ⚠️')
+        chalk.grey('Use ') +
+        chalk.white('--force') +
+        chalk.grey(' to ignore this warning and publish anyway\n') +
+        chalk.yellow('⚠️  Publishing from an incorrect branch may result in a broken release ⚠️')
       );
       process.exit(1);
     }
@@ -280,9 +281,9 @@ function packAllPackages() {
           if (pkgInfo.scripts.prepublish || pkgInfo.scripts.prepare) {
             console.log(
               `⚠️ ` +
-                chalk.grey(
-                  `${pkgInfo.name} has both a 'prepublishOnly' and either 'prepare' or 'publish' scripts. Running prepublishOnly manually before instead of after publish and prepare. See https://github.com/npm/npm/issues/15363`
-                )
+              chalk.grey(
+                `${pkgInfo.name} has both a 'prepublishOnly' and either 'prepare' or 'publish' scripts. Running prepublishOnly manually before instead of after publish and prepare. See https://github.com/npm/npm/issues/15363`
+              )
             );
           }
           execWithLog(`cd ${pkgDir} && npm run prepublishOnly`);
@@ -308,22 +309,41 @@ let cli = readline.createInterface({
   output: process.stdout,
 });
 
-function publishPackage(distTag, otp, tarball) {
-  execWithLog(`npm publish ${tarball} --tag=${distTag} --access=public --otp=${otp}`);
+/**
+ * If otp is passed add it as a parameter to the publish command else assume authentication is setup either
+ * as environment variable
+ *
+ * @param {string} distTag - Use this tag on npm for this instance
+ * @param {string} tarball - Path to the tarball
+ * @param {string} otp - Token to make publish requests to npm
+ */
+function publishPackage(distTag, tarball, otp) {
+  let cmd = `npm publish ${tarball} --tag=${distTag} --access=public`;
+
+  if (otp) {
+    cmd += ` --otp=${otp}`;
+  }
+
+  console.log(cmd);
+  // execWithLog(`npm publish ${tarball} --tag=${distTag} --access=public --otp=${otp}`);
 }
 
-async function confirmPublish(tarballs, nextVersion) {
-  let otp = await getOTPToken();
+async function confirmPublish(tarballs, promptOtp = true) {
+  let otp;
+
+  if (promptOtp) {
+    otp = await getOTPToken();
+  }
 
   for (let tarball of tarballs) {
     try {
-      publishPackage(options.distTag, otp, tarball);
+      publishPackage(options.distTag, tarball, otp);
     } catch (e) {
       // the token is outdated, we need another one
       if (e.message.includes('E401') || e.message.includes('EOTP')) {
         otp = await getOTPToken();
 
-        publishPackage(options.distTag, otp, tarball);
+        publishPackage(options.distTag, tarball, otp);
       } else {
         throw e;
       }
@@ -362,7 +382,8 @@ async function main() {
   }
   if (!options.skipPublish) {
     const tarballs = collectTarballPaths();
-    await confirmPublish(tarballs, nextVersion);
+    const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
+    await confirmPublish(tarballs, !npmAuthTokenInEnv);
     console.log(`✅ ` + chalk.cyan(`Successfully Published ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Publishing`));

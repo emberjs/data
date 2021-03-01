@@ -1,0 +1,45 @@
+name: 'Alpha Release'
+
+on:
+  schedule:
+    - cron: '0 20 * * 1' # weekly (Monday)
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Test latest code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies for master
+        run: yarn install --frozen-lockfile --non-interactive
+      - name: Basic Tests
+        env:
+          CI: true
+          ASSERT_ALL_DEPRECATIONS: true
+        run: yarn test
+
+  release:
+    name: Run publish script
+    runs-on: ubuntu-latest
+    needs: [ test ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies for master
+        run: yarn install --frozen-lockfile --non-interactive
+      - name: publish with script
+        run: node bin/publish.js canary
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: push branch + tag
+        run: git push origin HEAD --follow-tags
