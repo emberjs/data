@@ -383,6 +383,7 @@ async function main() {
   if (!options.skipPublish) {
     const tarballs = collectTarballPaths();
     const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
+    // Assume human ran script if token is missing
     await confirmPublish(tarballs, !npmAuthTokenInEnv);
     console.log(`✅ ` + chalk.cyan(`Successfully Published ${nextVersion}`));
   } else {
