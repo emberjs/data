@@ -94,6 +94,7 @@ function getConfig() {
     { name: 'bumpMajor', type: Boolean, defaultValue: false },
     { name: 'bumpMinor', type: Boolean, defaultValue: false },
     { name: 'force', type: Boolean, defaultValue: false },
+    { name: 'useVersion', type: String, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
   const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
@@ -367,7 +368,15 @@ async function main() {
     // --force-publish ensures that all packages release a new version regardless
     // of whether changes have occurred in them
     // --yes skips the prompt for confirming the version
-    nextVersion = retrieveNextVersion();
+    if (options.useVersion) {
+      if (semver.valid(options.useVersion)) {
+        nextVersion = options.useVersion;
+      } else {
+        throw Error(`Version "${options.useVersion}" is not a valid semantic version.`);
+      }
+    } else {
+      nextVersion = retrieveNextVersion();
+    }
     execWithLog(`lerna version ${nextVersion} --force-publish --exact --yes`, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {

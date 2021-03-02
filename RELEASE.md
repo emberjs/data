@@ -294,3 +294,10 @@ Twitter the Crosslinking the announcement to the following Discord channels.
       ```
 
 Congrats, you are finished!
+
+#### Canary Auto Publish
+New canary versions are published to npm every Monday at 12pm PST by the `alpha-release` GitHub action. Depending on the
+current version from `lerna.json`, the next version chosen will be:
+1. If current version is a minor version release such as `3.15.0`, the version picked for the next alpha is `3.15.1-alpha.0`
+2. If current version is an alpha release such as `3.15.1-alpha.0`, the version picked for the next alpha is `3.15.1-alpha.1`
+3. Beta releases would not affect the versioning of the next alpha version as the alpha will continue from the last alpha release.

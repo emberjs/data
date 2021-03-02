@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Check should run if HEAD it untagged
+      run: |
+        if [[ "$(git name-rev --tags --name-only $(git rev-parse HEAD))" != "undefined" ]]; then
+          exit 1
+        fi
       - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
@@ -34,9 +39,15 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies for master
         run: yarn install --frozen-lockfile --non-interactive
-      - name: publish with script
-        run: node bin/publish.js canary
+      - name: Get next alpha version
+        run: echo "NEXT_VERSION=$(node bin/determine-next-alpha-version.js)" >> $GITHUB_ENV
+      - name: Make sure git user is setup
+        run: |
+          git config --local user.email 'cron@example.com'
+          git config --local user.name 'Ember Data Cron CI'
+      - name: Publish with script
+        run: node bin/publish.js canary --useVersion=${{ env.NEXT_VERSION }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: push branch + tag
+      - name: Push branch + tag
         run: git push origin HEAD --follow-tags
