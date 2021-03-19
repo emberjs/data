@@ -9,6 +9,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: true,
   externalDependenciesForPrivateModule() {
     return [
+      'ember',
       '@ember/application/namespace',
       '@ember-data/record-data/-private',
       'ember-data/version',
