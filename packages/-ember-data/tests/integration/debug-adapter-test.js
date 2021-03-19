@@ -171,7 +171,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     if (gte('3.26.0')) {
       assert.equal(removedRecords.length, 1, 'We are notified of the total posts removed');
-      assert.equal(removedRecords[0].attributes, post.attributes, 'The removed post is correct');
+      assert.equal(removedRecords[0][0].object, post, 'The removed post is correct');
     } else {
       assert.equal(removedRecords[0], 1, 'We are notified of the start index of a removal when we remove posts');
       assert.equal(removedRecords[1], 1, 'We are notified of the total posts removed');
