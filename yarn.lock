@@ -983,28 +983,17 @@
     ember-cli-htmlbars-inline-precompile "^2.1.0"
     ember-test-waiters "^1.1.1"
 
-"@ember/test-helpers@^2.2.5":
-  version "2.2.5"
-  resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-2.2.5.tgz#9f915310b79fd6330e8e19857958e5f241c1d0de"
-  integrity sha512-E0GMlkmRb9r3lHa+88gtfZcve+IlAS3yoUsB5QSSTC8oRTGhqzirvsxYAylCj8n40gfoOHdqKEZxncYhVimZwg==
+"@ember/test-helpers@^1.7.3":
+  version "1.7.3"
+  resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-1.7.3.tgz#d06b36cb579b172186b11b236b90f0a1aba15ab0"
+  integrity sha512-0NwxM9rtl/vD/Zqv8cHefLxojL3l2xuRs6pEppff/Fe39ybXz5H7hm5ZvnpRO/lpSsIeX7tivht9ko6/V+sShw==
   dependencies:
-    "@ember/test-waiters" "^2.4.3"
     broccoli-debug "^0.6.5"
-    broccoli-funnel "^3.0.3"
+    broccoli-funnel "^2.0.2"
+    ember-assign-polyfill "^2.6.0"
     ember-cli-babel "^7.26.2"
-    ember-cli-htmlbars "^5.7.1"
-    ember-destroyable-polyfill "^2.0.3"
-
-"@ember/test-waiters@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.npmjs.org/@ember/test-waiters/-/test-waiters-2.4.3.tgz#44c144fad5e3a5858b02604c1df7edea61a52dbf"
-  integrity sha512-2Nq1y5+mbBg2QeP57JaOrhfCCu2tEBr8QA3XrJw6uutnU5heNKIROnh1gskqDg72m8lqocA1UFzpCQIg4XQywQ==
-  dependencies:
-    calculate-cache-key-for-tree "^2.0.0"
-    ember-cli-babel "^7.26.2"
-    ember-cli-typescript "^4.1.0"
-    ember-cli-version-checker "^5.1.2"
-    semver "^7.3.2"
+    ember-cli-htmlbars-inline-precompile "^2.1.0"
+    ember-test-waiters "^1.1.1"
 
 "@embroider/core@0.33.0", "@embroider/core@^0.33.0":
   version "0.33.0"
@@ -1282,13 +1271,6 @@
   dependencies:
     "@glimmer/env" "^0.1.7"
     "@glimmer/global-context" "0.65.2"
-
-"@glimmer/vm-babel-plugins@0.77.3":
-  version "0.77.3"
-  resolved "https://registry.npmjs.org/@glimmer/vm-babel-plugins/-/vm-babel-plugins-0.77.3.tgz#0671fa09828ba0e2c204e4ca2586651928c32ace"
-  integrity sha512-m1RUfiTlxPSRGML1QkRl5VSjkLHIaFPjeRaz3NzT+B3mjTlEjusCm9q9fQS6doQRGgz4Rwl3vXi9hZHmMJal+Q==
-  dependencies:
-    babel-plugin-debug-macros "^0.3.4"
 
 "@glimmer/vm@^0.42.2":
   version "0.42.2"
@@ -6823,7 +6805,7 @@ ember-cli-htmlbars@^4.3.1:
     strip-bom "^4.0.0"
     walk-sync "^2.0.2"
 
-ember-cli-htmlbars@^5.1.2, ember-cli-htmlbars@^5.7.1:
+ember-cli-htmlbars@^5.1.2:
   version "5.7.1"
   resolved "https://registry.npmjs.org/ember-cli-htmlbars/-/ember-cli-htmlbars-5.7.1.tgz#eb5b88c7d9083bc27665fb5447a9b7503b32ce4f"
   integrity sha512-9laCgL4tSy48orNoQgQKEHp93MaqAs9ZOl7or5q+8iyGGJHW6sVXIYrVv5/5O9HfV6Ts8/pW1rSoaeKyLUE+oA==
@@ -7051,7 +7033,7 @@ ember-cli-typescript@^3.1.3:
     stagehand "^1.0.0"
     walk-sync "^2.0.0"
 
-ember-cli-typescript@^4.0.0, ember-cli-typescript@^4.1.0:
+ember-cli-typescript@^4.0.0:
   version "4.1.0"
   resolved "https://registry.npmjs.org/ember-cli-typescript/-/ember-cli-typescript-4.1.0.tgz#2ff17be2e6d26b58c88b1764cb73887e7176618b"
   integrity sha512-zSuKG8IQuYE3vS+c7V0mHJqwrN/4Wo9Wr50+0NUjnZH3P99ChynczQHu/P7WSifkO6pF6jaxwzf09XzWvG8sVw==
@@ -7216,7 +7198,7 @@ ember-cli@~3.24.0:
     workerpool "^6.0.3"
     yam "^1.0.0"
 
-ember-compatibility-helpers@^1.1.1, ember-compatibility-helpers@^1.1.2, ember-compatibility-helpers@^1.2.0, ember-compatibility-helpers@^1.2.1:
+ember-compatibility-helpers@^1.1.1, ember-compatibility-helpers@^1.1.2, ember-compatibility-helpers@^1.2.0:
   version "1.2.3"
   resolved "https://registry.npmjs.org/ember-compatibility-helpers/-/ember-compatibility-helpers-1.2.3.tgz#356283a3ebc85d0678c9a8f711b8dc877e25e845"
   integrity sha512-X7kMSEVLKIAPt/KN0+xoz0QzBMJzUdyGU+WcuLqsdDDaR4S99r3aCGSFoJ2KeV5AZewDmwB5hO36xVKc7kjSsw==
@@ -7233,15 +7215,6 @@ ember-decorators-polyfill@^1.1.5:
     ember-cli-babel "^7.1.2"
     ember-cli-version-checker "^3.1.3"
     ember-compatibility-helpers "^1.2.0"
-
-ember-destroyable-polyfill@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.npmjs.org/ember-destroyable-polyfill/-/ember-destroyable-polyfill-2.0.3.tgz#1673ed66609a82268ef270a7d917ebd3647f11e1"
-  integrity sha512-TovtNqCumzyAiW0/OisSkkVK93xnVF4NRU6+FN0ubpfwEOpRrmM2RqDwXI6YAChCgSHON1cz0DfQStpA1Gjuuw==
-  dependencies:
-    ember-cli-babel "^7.22.1"
-    ember-cli-version-checker "^5.1.1"
-    ember-compatibility-helpers "^1.2.1"
 
 ember-disable-prototype-extensions@^1.1.3:
   version "1.1.3"
@@ -7360,36 +7333,6 @@ ember-source-channel-url@^3.0.0:
   integrity sha512-vF/8BraOc66ZxIDo3VuNP7iiDrnXEINclJgSJmqwAAEpg84Zb1DHPI22XTXSDA+E8fW5btPUxu65c3ZXi8AQFA==
   dependencies:
     node-fetch "^2.6.0"
-
-"ember-source@https://s3.amazonaws.com/builds.emberjs.com/canary/shas/bb762919e597197aa7e978e8892861f8379739c1.tgz":
-  version "3.28.0-alpha.1.canary"
-  resolved "https://s3.amazonaws.com/builds.emberjs.com/canary/shas/bb762919e597197aa7e978e8892861f8379739c1.tgz#fed31ab7fa2004caa8494396b1b1630754e40d9a"
-  dependencies:
-    "@babel/helper-module-imports" "^7.8.3"
-    "@babel/plugin-transform-block-scoping" "^7.8.3"
-    "@babel/plugin-transform-object-assign" "^7.8.3"
-    "@ember/edition-utils" "^1.2.0"
-    "@glimmer/vm-babel-plugins" "0.77.3"
-    babel-plugin-debug-macros "^0.3.3"
-    babel-plugin-filter-imports "^4.0.0"
-    broccoli-concat "^4.2.4"
-    broccoli-debug "^0.6.4"
-    broccoli-funnel "^2.0.2"
-    broccoli-merge-trees "^4.2.0"
-    chalk "^4.0.0"
-    ember-cli-babel "^7.23.0"
-    ember-cli-get-component-path-option "^1.0.0"
-    ember-cli-is-package-missing "^1.0.0"
-    ember-cli-normalize-entity-name "^1.0.0"
-    ember-cli-path-utils "^1.0.0"
-    ember-cli-string-utils "^1.1.0"
-    ember-cli-version-checker "^5.1.1"
-    ember-router-generator "^2.0.0"
-    inflection "^1.12.0"
-    jquery "^3.5.1"
-    resolve "^1.17.0"
-    semver "^7.3.4"
-    silent-error "^1.1.1"
 
 ember-source@~3.24.0:
   version "3.24.3"
@@ -10327,7 +10270,7 @@ jquery-deferred@^0.3.0:
   resolved "https://registry.npmjs.org/jquery-deferred/-/jquery-deferred-0.3.1.tgz#596eca1caaff54f61b110962b23cafea74c35355"
   integrity sha1-WW7KHKr/VPYbEQlisjyv6nTDU1U=
 
-jquery@^3.5.0, jquery@^3.5.1:
+jquery@^3.5.0:
   version "3.6.0"
   resolved "https://registry.npmjs.org/jquery/-/jquery-3.6.0.tgz#c72a09f15c1bdce142f49dbf1170bdf8adac2470"
   integrity sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==
