@@ -971,19 +971,7 @@
   dependencies:
     ember-cli-babel "^7.4.0"
 
-"@ember/test-helpers@^1.7.1":
-  version "1.7.2"
-  resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-1.7.2.tgz#5b128dc5f6524c3850abf52668e6bd4fda401194"
-  integrity sha512-FEJBpbFNIaWAsCSnataiNwYFvmcpoymL/B7fXLruuJ/46BnJjzLaRPtpUIZ91w4GNTK6knxbHWXW76aVb3Aezg==
-  dependencies:
-    broccoli-debug "^0.6.5"
-    broccoli-funnel "^2.0.2"
-    ember-assign-polyfill "^2.6.0"
-    ember-cli-babel "^7.7.3"
-    ember-cli-htmlbars-inline-precompile "^2.1.0"
-    ember-test-waiters "^1.1.1"
-
-"@ember/test-helpers@^1.7.3":
+"@ember/test-helpers@1.7.3", "@ember/test-helpers@^1.7.1":
   version "1.7.3"
   resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-1.7.3.tgz#d06b36cb579b172186b11b236b90f0a1aba15ab0"
   integrity sha512-0NwxM9rtl/vD/Zqv8cHefLxojL3l2xuRs6pEppff/Fe39ybXz5H7hm5ZvnpRO/lpSsIeX7tivht9ko6/V+sShw==
