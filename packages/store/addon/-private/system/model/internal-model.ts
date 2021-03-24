@@ -4,7 +4,7 @@ import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { run } from '@ember/runloop';
+import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
@@ -602,7 +602,7 @@ export default class InternalModel {
     this.send('unloadRecord');
     this.dematerializeRecord();
     if (this._scheduledDestroy === null) {
-      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
+      this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
     }
   }
 
@@ -618,7 +618,7 @@ export default class InternalModel {
 
     this._doNotDestroy = true;
     this._isDematerializing = false;
-    run.cancel(this._scheduledDestroy);
+    cancel(this._scheduledDestroy);
     this._scheduledDestroy = null;
   }
 

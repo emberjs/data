@@ -7,7 +7,7 @@ import { A } from '@ember/array';
 import { assert, deprecate, inspect, warn } from '@ember/debug';
 import { computed, defineProperty, get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { run as emberRunLoop } from '@ember/runloop';
+import { _backburner as emberBackburner } from '@ember/runloop';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { isNone, isPresent, typeOf } from '@ember/utils';
@@ -95,7 +95,6 @@ type Relationship = import('@ember-data/record-data/-private').Relationship;
 type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
 
 let _RecordData: RecordDataClass | undefined;
-const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
@@ -603,7 +602,7 @@ abstract class CoreStore extends Service {
     //   of record-arrays via ember's run loop, not our own.
     //
     //   to remove this, we would need to move to a new `async` API.
-    return emberRun.join(() => {
+    return emberBackburner.join(() => {
       return this._backburner.join(() => {
         let normalizedModelName = normalizeModelName(modelName);
         let properties = assign({}, inputProperties);
@@ -1261,7 +1260,7 @@ abstract class CoreStore extends Service {
 
       internalModel.loadingData(promise);
       if (this._pendingFetch.size === 0) {
-        emberRun.schedule('actions', this, this.flushAllPendingFetches);
+        emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
       }
 
       let fetches = this._pendingFetch;
@@ -2518,7 +2517,7 @@ abstract class CoreStore extends Service {
       resolver: resolver,
     });
 
-    emberRun.scheduleOnce('actions', this, this.flushPendingSave);
+    emberBackburner.scheduleOnce('actions', this, this.flushPendingSave);
   }
 
   /**
@@ -3618,7 +3617,7 @@ abstract class CoreStore extends Service {
       return;
     }
 
-    emberRun.schedule('actions', this, this._flushUpdatedInternalModels);
+    emberBackburner.schedule('actions', this, this._flushUpdatedInternalModels);
   }
 
   _flushUpdatedInternalModels() {

@@ -1,4 +1,4 @@
-import { run } from '@ember/runloop';
+import { next, run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 import { Promise as EmberPromise, reject, resolve } from 'rsvp';
@@ -103,7 +103,7 @@ module('unit/model/merge - Merging', function(hooks) {
       updateRecord(store, type, snapshot) {
         // Make sure saving isn't resolved synchronously
         return new EmberPromise(resolve => {
-          run.next(null, resolve, {
+          next(null, resolve, {
             data: {
               id: 1,
               type: 'person',
