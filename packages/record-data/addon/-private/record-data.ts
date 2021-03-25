@@ -3,7 +3,7 @@
 */
 import { assert, inspect, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
-import { _backburner as emberBackburner, run } from '@ember/runloop';
+import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
