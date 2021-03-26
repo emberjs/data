@@ -6,7 +6,7 @@ import { getOwner } from '@ember/application';
 import { deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { run } from '@ember/runloop';
+import { join } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { has } from 'require';
@@ -1068,12 +1068,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       return new RSVPPromise(function(resolve, reject) {
         hash.success = function(payload, textStatus, jqXHR) {
           let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
-          run.join(null, resolve, response);
+          join(null, resolve, response);
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
           let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
-          run.join(null, reject, error);
+          join(null, reject, error);
         };
 
         adapter._ajax(hash);

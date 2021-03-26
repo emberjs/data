@@ -1,6 +1,6 @@
 import { A } from '@ember/array';
 import { get, set } from '@ember/object';
-import { run } from '@ember/runloop';
+import { later, run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 import { all, Promise as EmberPromise, resolve } from 'rsvp';
@@ -693,7 +693,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
         let record = { id, type: type.modelName };
 
         return new EmberPromise(resolve => {
-          run.later(() => resolve({ data: record }), 5);
+          later(() => resolve({ data: record }), 5);
         });
       },
 
@@ -701,7 +701,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
         let records = ids.map(id => ({ id, type: type.modelName }));
 
         return new EmberPromise(resolve => {
-          run.later(() => {
+          later(() => {
             resolve({ data: records });
           }, 15);
         });
@@ -791,7 +791,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
           if (id === 'igor') {
             resolve({ data: record });
           } else {
-            run.later(function() {
+            later(function() {
               davidResolved = true;
               resolve({ data: record });
             }, 5);
@@ -844,7 +844,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
           if (id === 'igor') {
             reject({ data: record });
           } else {
-            run.later(() => {
+            later(() => {
               davidResolved = true;
               resolve({ data: record });
             }, 5);
