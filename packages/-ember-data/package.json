@@ -7,9 +7,6 @@
     "doc": "docs",
     "test": "tests"
   },
-  "workspaces": [
-    "../packages/*"
-  ],
   "scripts": {
     "build": "ember build",
     "build:production": "ember build --environment=production",
