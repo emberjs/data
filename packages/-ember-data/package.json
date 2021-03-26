@@ -34,7 +34,7 @@
     "@ember/string": "^1.0.0",
     "@glimmer/env": "^0.1.7",
     "broccoli-merge-trees": "^4.2.0",
-    "ember-cli-babel": "^7.18.0",
+    "ember-cli-babel": "^7.26.3",
     "ember-cli-typescript": "^4.0.0",
     "ember-inflector": "^4.0.1"
   },
@@ -61,9 +61,7 @@
     "ember-cli-dependency-checker": "^3.2.0",
     "ember-cli-htmlbars": "^5.1.2",
     "ember-cli-inject-live-reload": "^2.0.2",
-    "ember-cli-internal-test-helpers": "^0.9.1",
     "ember-cli-pretender": "^3.2.0",
-    "ember-cli-shims": "^1.2.0",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-terser": "~4.0.1",
     "ember-cli-test-loader": "^3.0.0",

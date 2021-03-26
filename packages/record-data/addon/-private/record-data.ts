@@ -3,7 +3,7 @@
 */
 import { assert, inspect, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
-import { run } from '@ember/runloop';
+import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
@@ -437,7 +437,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._destroyRelationships();
     this.reset();
     if (!this._scheduledDestroy) {
-      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_cleanupOrphanedRecordDatas');
+      this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_cleanupOrphanedRecordDatas');
     }
   }
 
