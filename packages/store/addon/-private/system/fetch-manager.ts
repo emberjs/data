@@ -1,6 +1,6 @@
 import { A } from '@ember/array';
 import { assert, warn } from '@ember/debug';
-import { run as emberRunLoop } from '@ember/runloop';
+import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { default as RSVP, Promise } from 'rsvp';
@@ -32,7 +32,6 @@ function payloadIsNotBlank(adapterPayload): boolean {
   }
 }
 
-const emberRun = emberRunLoop.backburner;
 export const SaveOp: unique symbol = symbol('SaveOp');
 
 interface PendingFetchItem {
@@ -94,7 +93,7 @@ export default class FetchManager {
       queryRequest,
     };
     this._pendingSave.push(pendingSaveItem);
-    emberRun.scheduleOnce('actions', this, this._flushPendingSaves);
+    emberBackburner.scheduleOnce('actions', this, this._flushPendingSaves);
 
     this.requestCache.enqueue(resolver.promise, pendingSaveItem.queryRequest);
 
@@ -228,7 +227,7 @@ export default class FetchManager {
     let promise = resolver.promise;
 
     if (this._pendingFetch.size === 0) {
-      emberRun.schedule('actions', this, this.flushAllPendingFetches);
+      emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
     }
 
     let fetches = this._pendingFetch;

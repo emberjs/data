@@ -11,7 +11,7 @@ module('integration/store/creation-recursion', function(hooks) {
     let storeFactory = this.owner.factoryFor('service:store');
 
     this.owner.unregister('service:store');
-    this.owner.register('service:store', storeFactory);
+    this.owner.register('service:store', storeFactory.class);
 
     let test = this;
     test.dateTransformCreated = false;

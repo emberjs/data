@@ -4,6 +4,7 @@ import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
+import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
@@ -65,7 +66,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
   test('Watching Records', async function(assert) {
     let { owner } = this;
     let debugAdapter = owner.lookup('data-adapter:main');
-    let addedRecords, updatedRecords, removedIndex, removedCount;
+    let addedRecords, updatedRecords, removedRecords;
 
     this.owner.register(
       'adapter:application',
@@ -86,15 +87,17 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       },
     });
 
-    var recordsAdded = function(wrappedRecords) {
+    let recordsAdded = function(wrappedRecords) {
       addedRecords = wrappedRecords;
     };
-    var recordsUpdated = function(wrappedRecords) {
+    let recordsUpdated = function(wrappedRecords) {
       updatedRecords = wrappedRecords;
     };
-    var recordsRemoved = function(index, count) {
-      removedIndex = index;
-      removedCount = count;
+    let recordsRemoved = function(...args) {
+      // in 3.26 there is only 1 argument - the record removed
+      // below 3.26, it is 2 arguments - the index and count removed
+      // https://github.com/emberjs/ember.js/pull/19379
+      removedRecords = args;
     };
 
     debugAdapter.watchRecords('post', recordsAdded, recordsUpdated, recordsRemoved);
@@ -114,6 +117,9 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     post.set('title', 'Modified Post');
 
+    // await updated callback
+    await settled();
+
     assert.equal(get(updatedRecords, 'length'), 1, 'We updated 1 post');
     record = updatedRecords[0];
     assert.deepEqual(
@@ -131,7 +137,6 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     // reset
     addedRecords = updatedRecords = [];
-    removedCount = removedIndex = null;
 
     post = store.createRecord('post', { id: '2', title: 'New Post' });
 
@@ -159,14 +164,18 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
     // reset
     addedRecords = updatedRecords = [];
-    removedCount = removedIndex = null;
 
     post.unloadRecord();
 
     await settled();
 
-    assert.equal(removedIndex, 1, 'We are notified of the start index of a removal when we remove posts');
-    assert.equal(removedCount, 1, 'We are notified of the total posts removed');
+    if (gte('3.26.0')) {
+      assert.equal(removedRecords.length, 1, 'We are notified of the total posts removed');
+      assert.equal(removedRecords[0][0].object, post, 'The removed post is correct');
+    } else {
+      assert.equal(removedRecords[0], 1, 'We are notified of the start index of a removal when we remove posts');
+      assert.equal(removedRecords[1], 1, 'We are notified of the total posts removed');
+    }
   });
 
   test('Column names', function(assert) {
