@@ -1,6 +1,6 @@
 # Ember Data Changelog
 
-## Release 3.26.0-beta.0 (February 16, 2021)
+## Release 3.26.0 (March 26, 2021)
 - [#7416](https://github.com/emberjs/data/pull/7416) [Deps]: bump ember packages (#7416)
 - [#7358](https://github.com/emberjs/data/pull/7358) [Chore]: TypeScript adapters (#7358)
 
