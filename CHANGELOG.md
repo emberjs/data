@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## Release 3.24.2 (LTS) (March 26, 2021)
+- Rerelease of 3.24.1
+
 ## Release 3.24.1 (LTS) (February 11, 2021)
 - Rerelease of 3.24.0
 
