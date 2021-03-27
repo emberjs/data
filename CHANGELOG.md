@@ -1,5 +1,11 @@
 # Ember Data Changelog
 
+## Release 3.27.0-beta.0 (March 26, 2021)
+- [#7435](https://github.com/emberjs/data/pull/7435) [Test]: fix for DataWrapper refactor in emberjs (#7435)
+
+## Release 3.26.0-beta.0 (February 16, 2021)
+- release of 3.25.0-beta.0
+
 ## Release 3.25.0-beta.0 (January 4, 2021)
 - [#7394](https://github.com/emberjs/data/pull/7394) [Cleanup]: Remove RECORD_ARRAY_MANAGER_IDENTIFIERS (#7394)
 - [#7393](https://github.com/emberjs/data/pull/7393) [Cleanup]: Remove FULL_LINKS_ON_RELATIONSHIPS (#7393)
