@@ -598,6 +598,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Store} store
     @param {Model} type
     @param {Object} query
+    @param {AdapterPopulatedRecordArray} recordArray
+    @param {Object} adapterOptions
     @return {Promise} promise
   */
   query(store: Store, type: ShimModelClass, query): Promise<unknown> {
@@ -626,9 +628,10 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Store} store
     @param {Model} type
     @param {Object} query
+    @param {Object} adapterOptions
     @return {Promise} promise
   */
-  queryRecord(store: Store, type: ShimModelClass, query: Dict<unknown>): Promise<unknown> {
+  queryRecord(store: Store, type: ShimModelClass, query: Dict<unknown>, adapterOptions: Dict<unknown>): Promise<unknown> {
     let url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
 
     if (this.sortQueryParams) {
