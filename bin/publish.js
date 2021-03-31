@@ -325,8 +325,7 @@ function publishPackage(distTag, tarball, otp) {
     cmd += ` --otp=${otp}`;
   }
 
-  console.log(cmd);
-  execWithLog(`npm publish ${tarball} --tag=${distTag} --access=public --otp=${otp}`);
+  execWithLog(cmd);
 }
 
 async function confirmPublish(tarballs, promptOtp = true) {
@@ -392,6 +391,9 @@ async function main() {
   if (!options.skipPublish) {
     const tarballs = collectTarballPaths();
     const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
+    if (!npmAuthTokenInEnv) {
+      console.log('No NODE_AUTH_TOKEN environment variable. Prompting for OTP.');
+    }
     // Assume human ran script if token is missing
     await confirmPublish(tarballs, !npmAuthTokenInEnv);
     console.log(`✅ ` + chalk.cyan(`Successfully Published ${nextVersion}`));
