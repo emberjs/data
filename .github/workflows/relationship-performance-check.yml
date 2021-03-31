@@ -17,7 +17,7 @@ jobs:
           node-version: 12.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: TracerBench CLI Install
-        run: npm install -g tracerbench@3.1.2
+        run: npm install -g tracerbench@4.5.0
       - name: PM2 CLI Install
         run: npm install -g pm2
       - name: Check SHA
