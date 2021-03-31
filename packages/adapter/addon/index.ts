@@ -1,4 +1,14 @@
 import EmberObject from '@ember/object';
+import { DEBUG } from '@glimmer/env';
+
+import { Promise as RSVPPromise } from 'rsvp';
+
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+type MinimumAdapterInterface = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
+type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
+type Store = import('@ember-data/store/-private/system/core-store').default;
+type Snapshot = import('ember-data/-private').Snapshot;
+type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
 
 /**
   An adapter is an object that receives requests from a store and
@@ -55,7 +65,7 @@ import EmberObject from '@ember/object';
   @class Adapter
   @extends EmberObject
 */
-export default class Adapter extends EmberObject {
+export default class Adapter extends EmberObject implements MinimumAdapterInterface {
   /**
     If you would like your adapter to use a custom serializer you can
     set the `defaultSerializer` property to be the name of the custom
@@ -113,6 +123,13 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
+  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<unknown> {
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a findRecord override');
+    }
+
+    return RSVPPromise.resolve();
+  }
 
   /**
     The `findAll()` method is used to retrieve all records for a given type.
@@ -144,6 +161,13 @@ export default class Adapter extends EmberObject {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
+  findAll(store: Store, type: ShimModelClass, neverSet, snapshotRecordArray: SnapshotRecordArray): Promise<unknown> {
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a findAll override');
+    }
+
+    return RSVPPromise.resolve();
+  }
 
   /**
     This method is called when you call `query` on the store.
@@ -176,6 +200,13 @@ export default class Adapter extends EmberObject {
     @param {Object} adapterOptions
     @return {Promise} promise
   */
+  query(store: Store, type: ShimModelClass, query): Promise<unknown> {
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a query override');
+    }
+
+    return RSVPPromise.resolve();
+  }
 
   /**
     The `queryRecord()` method is invoked when the store is asked for a single
@@ -214,6 +245,13 @@ export default class Adapter extends EmberObject {
     @param {Object} adapterOptions
     @return {Promise} promise
   */
+  queryRecord(store: Store, type: ShimModelClass, query, adapterOptions): Promise<unknown> {
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a queryRecord override');
+    }
+
+    return RSVPPromise.resolve();
+  }
 
   /**
     If the globally unique IDs for your records should be generated on the client,
@@ -271,7 +309,7 @@ export default class Adapter extends EmberObject {
     @param {Object}   options
     @return {Object} serialized snapshot
   */
-  serialize(snapshot, options) {
+  serialize(snapshot, options): Dict<unknown> {
     return snapshot.serialize(options);
   }
 
@@ -316,6 +354,13 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
+  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a createRecord override');
+    }
+
+    return RSVPPromise.resolve();
+  }
 
   /**
     Implement this method in a subclass to handle the updating of
@@ -367,6 +412,13 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
+  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a updateRecord override');
+    }
+
+    return RSVPPromise.resolve();
+  }
 
   /**
     Implement this method in a subclass to handle the deletion of
@@ -410,6 +462,13 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
+  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+    if (DEBUG) {
+      throw new Error('You subclassed the Adapter class but missing a deleteRecord override');
+    }
+
+    return RSVPPromise.resolve();
+  }
 
   /**
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop
@@ -475,7 +534,7 @@ export default class Adapter extends EmberObject {
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany(store, snapshots) {
+  groupRecordsForFindMany(store: Store, snapshots: Snapshot[]): Snapshot[][] {
     return [snapshots];
   }
 
@@ -525,7 +584,7 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Boolean}
   */
-  shouldReloadRecord(store, snapshot) {
+  shouldReloadRecord(store: Store, snapshot: Snapshot): boolean {
     return false;
   }
 
@@ -580,7 +639,7 @@ export default class Adapter extends EmberObject {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldReloadAll(store, snapshotRecordArray) {
+  shouldReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray): boolean {
     return !snapshotRecordArray.length;
   }
 
@@ -616,7 +675,7 @@ export default class Adapter extends EmberObject {
     @param {Snapshot} snapshot
     @return {Boolean}
   */
-  shouldBackgroundReloadRecord(store, snapshot) {
+  shouldBackgroundReloadRecord(store: Store, Snapshot): boolean {
     return true;
   }
 
@@ -652,7 +711,7 @@ export default class Adapter extends EmberObject {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldBackgroundReloadAll(store, snapshotRecordArray) {
+  shouldBackgroundReloadAll(store: Store, snapshotRecordArray: SnapshotRecordArray): boolean {
     return true;
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/canary-features",
-  "version": "3.26.0-alpha.0",
+  "version": "3.28.0-alpha.0",
   "description": "Canary features",
   "keywords": [
     "ember-addon"
@@ -14,7 +14,7 @@
   },
   "scripts": {},
   "dependencies": {
-    "ember-cli-babel": "^7.18.0",
+    "ember-cli-babel": "^7.26.3",
     "ember-cli-typescript": "^4.0.0"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { run as emberRunloop } from '@ember/runloop';
+import { _backburner as emberBackburner } from '@ember/runloop';
 
 import { REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
 
@@ -15,7 +15,6 @@ import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import { internalModelFactoryFor } from './store/internal-model-factory';
 
 const RecordArraysCache = new WeakMap();
-const emberRun = emberRunloop.backburner;
 
 export function recordArraysForIdentifier(identifierOrInternalModel) {
   if (RecordArraysCache.has(identifierOrInternalModel)) {
@@ -369,7 +368,7 @@ class RecordArrayManager {
       return;
     }
 
-    emberRun.schedule('actions', this, this._flush);
+    emberBackburner.schedule('actions', this, this._flush);
   }
 
   willDestroy() {
@@ -380,7 +379,7 @@ class RecordArrayManager {
 
   destroy() {
     this.isDestroying = true;
-    emberRun.schedule('actions', this, this.willDestroy);
+    emberBackburner.schedule('actions', this, this.willDestroy);
   }
 }
 
