@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Check should run if HEAD it untagged
-      run: |
-        if [[ "$(git name-rev --tags --name-only $(git rev-parse HEAD))" != "undefined" ]]; then
-          exit 1
-        fi
+        name: Check should run if HEAD is untagged
+        run: |
+          if [[ "$(git name-rev --tags --name-only $(git rev-parse HEAD))" != "undefined" ]]; then
+            exit 1
+          fi
       - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
