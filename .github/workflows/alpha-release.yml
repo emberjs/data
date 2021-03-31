@@ -1,4 +1,4 @@
-name: 'Alpha Release'
+name: Alpha Releases
 
 on:
   schedule:
