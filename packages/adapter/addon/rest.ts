@@ -471,7 +471,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests: boolean = false;
+
+  _coalesceFindRequests: boolean = false;
 
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace

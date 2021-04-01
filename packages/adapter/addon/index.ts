@@ -470,6 +470,8 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     return RSVPPromise.resolve();
   }
 
+  _coalesceFindRequests = true;
+
   /**
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop
     into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
@@ -479,7 +481,17 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests = true;
+  get coalesceFindRequests() {
+    let coalesceFindRequests = this._coalesceFindRequests;
+    if (typeof coalesceFindRequests === 'boolean') {
+      return coalesceFindRequests;
+    }
+    return (this._coalesceFindRequests = false);
+  }
+
+  set coalesceFindRequests(value: boolean) {
+    this._coalesceFindRequests = value;
+  }
 
   /**
     The store will call `findMany` instead of multiple `findRecord`
