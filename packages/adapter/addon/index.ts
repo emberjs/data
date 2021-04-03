@@ -66,6 +66,8 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
   @extends EmberObject
 */
 export default class Adapter extends EmberObject implements MinimumAdapterInterface {
+  declare _coalesceFindRequests: boolean;
+
   /**
     If you would like your adapter to use a custom serializer you can
     set the `defaultSerializer` property to be the name of the custom
@@ -470,8 +472,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     return RSVPPromise.resolve();
   }
 
-  _coalesceFindRequests = true;
-
   /**
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop
     into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
@@ -486,7 +486,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     if (typeof coalesceFindRequests === 'boolean') {
       return coalesceFindRequests;
     }
-    return (this._coalesceFindRequests = false);
+    return (this._coalesceFindRequests = true);
   }
 
   set coalesceFindRequests(value: boolean) {
