@@ -367,18 +367,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     this._fastboot = value;
   }
 
-  get coalesceFindRequests() {
-    let coalesceFindRequests = this._coalesceFindRequests;
-    if (typeof coalesceFindRequests === 'boolean') {
-      return coalesceFindRequests;
-    }
-    return (this._coalesceFindRequests = false);
-  }
-
-  set coalesceFindRequests(value: boolean) {
-    this._coalesceFindRequests = value;
-  }
-
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
     server.
@@ -483,6 +471,17 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @property coalesceFindRequests
     @type {boolean}
   */
+  get coalesceFindRequests() {
+    let coalesceFindRequests = this._coalesceFindRequests;
+    if (typeof coalesceFindRequests === 'boolean') {
+      return coalesceFindRequests;
+    }
+    return (this._coalesceFindRequests = false);
+  }
+
+  set coalesceFindRequests(value: boolean) {
+    this._coalesceFindRequests = value;
+  }
 
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
