@@ -1,4 +1,5 @@
 import { module, test } from 'qunit';
+
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 module('unit/adapters/json-api-test', function() {
@@ -23,12 +24,16 @@ module('unit/adapters/json-api-test', function() {
   });
 
   test('coalesceFindRequests class true', function(assert) {
-    class MyClass extends JSONAPIAdapter { coalesceFindRequests = true }
+    class MyClass extends JSONAPIAdapter {
+      coalesceFindRequests = true;
+    }
     assert.deepEqual(MyClass.create().coalesceFindRequests, true, 'result is true');
   });
 
   test('coalesceFindRequests class false', function(assert) {
-    class MyClass extends JSONAPIAdapter { coalesceFindRequests = false }
+    class MyClass extends JSONAPIAdapter {
+      coalesceFindRequests = false;
+    }
     assert.deepEqual(MyClass.create().coalesceFindRequests, false, 'result is false');
   });
 });

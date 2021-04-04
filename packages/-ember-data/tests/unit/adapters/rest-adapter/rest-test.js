@@ -1,4 +1,5 @@
 import { module, test } from 'qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
 
 module('unit/adapters/rest-test', function() {
@@ -23,12 +24,16 @@ module('unit/adapters/rest-test', function() {
   });
 
   test('coalesceFindRequests class true', function(assert) {
-    class MyClass extends RESTAdapter { coalesceFindRequests = true }
+    class MyClass extends RESTAdapter {
+      coalesceFindRequests = true;
+    }
     assert.deepEqual(MyClass.create().coalesceFindRequests, true, 'result is true');
   });
 
   test('coalesceFindRequests class false', function(assert) {
-    class MyClass extends RESTAdapter { coalesceFindRequests = false }
+    class MyClass extends RESTAdapter {
+      coalesceFindRequests = false;
+    }
     assert.deepEqual(MyClass.create().coalesceFindRequests, false, 'result is false');
   });
 });
