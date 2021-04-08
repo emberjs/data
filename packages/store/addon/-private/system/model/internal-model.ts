@@ -37,6 +37,7 @@ type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstan
 type JsonApiResource = import('../../ts-interfaces/record-data-json-api').JsonApiResource;
 type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api').JsonApiValidationError;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
+type FindOptions = import('../../ts-interfaces/store').FindOptions;
 type RecordArray = import('../record-arrays/record-array').default;
 type Store = import('../ds-model-store').default;
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
@@ -960,8 +961,8 @@ export default class InternalModel {
     @method createSnapshot
     @private
   */
-  createSnapshot(options?: Dict<unknown>): Snapshot {
-    return new Snapshot(options || {}, this.identifier, this.store);
+  createSnapshot(options: FindOptions = {}): Snapshot {
+    return new Snapshot(options, this.identifier, this.store);
   }
 
   /*

@@ -24,6 +24,7 @@ type HasManyRelationship = import('@ember-data/record-data/-private/relationship
 type BelongsToRelationship = import('@ember-data/record-data/-private/relationships/state/belongs-to').default;
 type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
 type Store = import('./core-store').default;
+type FindOptions = import('../ts-interfaces/store').FindOptions;
 type RecordId = string | null;
 
 function relationshipsFor(instance: Snapshot): Relationships {
@@ -69,9 +70,9 @@ export default class Snapshot implements Snapshot {
   public modelName: string;
   public id: string | null;
   public include?: unknown;
-  public adapterOptions: Dict<unknown>;
+  public adapterOptions?: Dict<unknown>;
 
-  constructor(options: Dict<any>, identifier: StableRecordIdentifier, private _store: Store) {
+  constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store) {
     let internalModel = (this._internalModel = _store._internalModelForResource(identifier));
     this.modelName = identifier.type;
 
@@ -417,7 +418,7 @@ export default class Snapshot implements Snapshot {
         let internalModel = store._internalModelForResource(member);
         if (!internalModel.isDeleted()) {
           if (returnModeIsIds) {
-            (results as RecordId[]).push(member.id);
+            (results as RecordId[]).push(member.id || null);
           } else {
             (results as Snapshot[]).push(internalModel.createSnapshot());
           }

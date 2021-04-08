@@ -20,17 +20,9 @@ type ForgetMethod = import('../ts-interfaces/identifier').ForgetMethod;
 type ResetMethod = import('../ts-interfaces/identifier').ResetMethod;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
+type ExistingResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
 type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
-
-/**
- * Peekable - (id && type) || lid
- * - Identifiers are guaranteed to have a lid
- * - ResourceIdentifierObject is Existing or New
- *    - NewResources are guaranteed to have a lid
- *    - ExistingResources are guaranteed to have an id AND type
- */
-export type Peekable = RecordIdentifier | ResourceIdentifierObject;
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
@@ -82,7 +74,7 @@ function defaultGenerationMethod(data: ResourceIdentifierObject, bucket: string)
   if (isNonEmptyString(data.lid)) {
     return data.lid;
   }
-  let { type, id } = data;
+  let { type, id } = data as ExistingResourceIdentifierObject;
   if (isNonEmptyString(id)) {
     return `@ember-data:lid-${normalizeModelName(type)}-${id}`;
   }
@@ -149,16 +141,13 @@ export class IdentifierCache {
   /**
    * @internal
    */
-  private _getRecordIdentifier(
-    resource: ResourceIdentifierObject | Identifier,
-    shouldGenerate: true
-  ): StableRecordIdentifier;
+  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
   private _getRecordIdentifier(
     resource: ResourceIdentifierObject,
     shouldGenerate: false
   ): StableRecordIdentifier | undefined;
   private _getRecordIdentifier(
-    resource: Peekable,
+    resource: ResourceIdentifierObject,
     shouldGenerate: boolean = false
   ): StableRecordIdentifier | undefined {
     // short circuit if we're already the stable version
@@ -180,7 +169,7 @@ export class IdentifierCache {
     }
 
     let _resource = resource as ResourceIdentifierObject;
-    let type = normalizeModelName(_resource.type);
+    let type = _resource.type && normalizeModelName(_resource.type);
     let id = coerceId(_resource.id);
 
     if (shouldGenerate === false) {
@@ -190,11 +179,7 @@ export class IdentifierCache {
     }
 
     // `type` must always be present
-    if (DEBUG) {
-      if (!isNonEmptyString(_resource.type)) {
-        throw new Error('resource.type needs to be a string');
-      }
-    }
+    assertWithNarrow<string>('resource.type needs to be a string', !isNonEmptyString(_resource.type), type);
 
     let keyOptions = getTypeIndex(this._cache.types, type);
 
@@ -278,7 +263,7 @@ export class IdentifierCache {
    *
    * @internal
    */
-  peekRecordIdentifier(resource: Peekable): StableRecordIdentifier | undefined {
+  peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
     return this._getRecordIdentifier(resource, false);
   }
 
@@ -586,4 +571,10 @@ function detectMerge(
   }
 
   return false;
+}
+
+function assertWithNarrow<T>(msg: string, cond: any, value: any): asserts value is T {
+  if (DEBUG && !cond) {
+    throw new Error(msg);
+  }
 }
