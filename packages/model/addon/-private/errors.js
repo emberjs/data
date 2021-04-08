@@ -80,8 +80,8 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
   ```
 
   @class Errors
-  @extends ArrayProxy
-  @uses Evented
+  @extends Ember.ArrayProxy
+  @uses Ember.Evented
  */
 export default ArrayProxy.extend(DeprecatedEvented, {
   /**
