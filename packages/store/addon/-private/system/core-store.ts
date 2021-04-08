@@ -93,6 +93,7 @@ type SchemaDefinitionService = import('../ts-interfaces/schema-definition-servic
 type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 type Relationship = import('@ember-data/record-data/-private').Relationship;
 type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
+type RequestCache = import('./request-cache').default;
 
 let _RecordData: RecordDataClass | undefined;
 
@@ -408,12 +409,15 @@ abstract class CoreStore extends Service {
     }
   }
 
-  getRequestStateService() {
+  getRequestStateService(): RequestCache {
+    assertInDebug(
+      'RequestService is not available unless the feature flag is on and running on a canary build',
+      REQUEST_SERVICE
+    );
     if (REQUEST_SERVICE) {
       return this._fetchManager.requestCache;
     }
-
-    assertInDebug('RequestService is not available unless the feature flag is on and running on a canary build', false);
+    return void 0 as never;
   }
 
   get identifierCache(): IdentifierCache {
@@ -513,11 +517,11 @@ abstract class CoreStore extends Service {
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
+    assertInDebug('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService', false);
     if (CUSTOM_MODEL_CLASS) {
       return this._schemaDefinitionService;
     }
-
-    assertInDebug('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService', false);
+    return void 0 as never;
   }
 
   // TODO Double check this return value is correct
@@ -3126,6 +3130,7 @@ abstract class CoreStore extends Service {
     }
 
     assertInDebug('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    return void 0 as never;
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
@@ -3180,6 +3185,7 @@ abstract class CoreStore extends Service {
     }
 
     assertInDebug(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
+    return void 0 as never;
   }
 
   /**
@@ -3807,7 +3813,7 @@ function internalModelForRelatedResource(
   return store._internalModelForResource(identifier);
 }
 
-function assertInDebug(msg: string, cond: boolean = false): asserts cond is true {
+function assertInDebug(msg: string, cond: any = false): asserts cond is true {
   if (DEBUG && cond) {
     throw new Error(msg);
   }
