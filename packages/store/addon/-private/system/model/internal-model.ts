@@ -233,10 +233,6 @@ export default class InternalModel {
     }
   }
 
-  get type() {
-    return this.modelClass;
-  }
-
   get recordReference() {
     if (this._recordReference === null) {
       this._recordReference = new RecordReference(this.store, this.identifier);
@@ -748,7 +744,7 @@ export default class InternalModel {
       return this._updatePromiseProxyFor('hasMany', key, { promise, content: manyArray });
     } else {
       assert(
-        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany({ async: true })')`,
+        `You looked up the '${key}' relationship on a '${this.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany({ async: true })')`,
         !manyArray.anyUnloaded()
       );
 
