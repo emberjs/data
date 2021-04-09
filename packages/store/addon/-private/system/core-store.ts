@@ -1403,14 +1403,19 @@ abstract class CoreStore extends Service {
         groups = [snapshots];
       }
 
+      // we use var here because babel transpiles let
+      // in a manner that causes a mega-bad perf scenario here
+      // when targets no longer include IE11 we can drop this.
+      // eslint-disable-next-line no-var
+      var ids, internalModel;
       for (let i = 0, l = groups.length; i < l; i++) {
         let group = groups[i];
         let totalInGroup = groups[i].length;
-        let ids = new Array(totalInGroup);
+        ids = new Array(totalInGroup);
         let groupedInternalModels = new Array(totalInGroup);
 
         for (let j = 0; j < totalInGroup; j++) {
-          let internalModel = group[j]._internalModel;
+          internalModel = group[j]._internalModel;
 
           groupedInternalModels[j] = internalModel;
           ids[j] = internalModel.id;
@@ -3179,7 +3184,7 @@ abstract class CoreStore extends Service {
       return new _RecordData(identifier, storeWrapper);
     }
 
-    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
+    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
   }
 
   /**
