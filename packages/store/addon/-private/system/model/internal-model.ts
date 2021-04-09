@@ -329,10 +329,6 @@ export default class InternalModel {
     }
   }
 
-  dirtyType() {
-    return this.currentState.dirtyType;
-  }
-
   getRecord(properties?) {
     if (!this._record && !this._isDematerializing) {
       let { store } = this;
