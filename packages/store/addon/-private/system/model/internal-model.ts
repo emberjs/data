@@ -1338,10 +1338,6 @@ export default class InternalModel {
     }
   }
 
-  removeErrorMessageFromAttribute(attribute) {
-    get(this.getRecord(), 'errors')._remove(attribute);
-  }
-
   hasErrors() {
     if (RECORD_DATA_ERRORS) {
       if (this._recordData.getErrors) {
