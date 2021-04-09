@@ -116,7 +116,7 @@
     "glob": "^7.1.6",
     "har-remix": "^2.3.0",
     "json-typescript": "^1.1.0",
-    "lerna": "^3.21.0",
+    "lerna": "^4.0.0",
     "loader.js": "^4.7.0",
     "mocha": "^7.1.2",
     "npm-git-info": "^1.0.3",
