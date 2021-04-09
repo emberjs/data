@@ -843,10 +843,6 @@ export default class InternalModel {
     this._isDestroyed = true;
   }
 
-  inverseFor(key) {
-    return this.modelClass.inverseFor(key);
-  }
-
   setupData(data) {
     let changedKeys = this._recordData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
