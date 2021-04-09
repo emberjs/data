@@ -575,18 +575,15 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
   invalidErrorsChanged(jsonApiErrors) {
     if (RECORD_DATA_ERRORS) {
-      this.get('errors')._clear();
-      let errors = errorsArrayToHash(jsonApiErrors);
-      let errorKeys = Object.keys(errors);
+      const { errors } = this;
+      errors._clear();
+      let newErrors = errorsArrayToHash(jsonApiErrors);
+      let errorKeys = Object.keys(newErrors);
 
       for (let i = 0; i < errorKeys.length; i++) {
-        this._addErrorMessageToAttribute(errorKeys[i], errors[errorKeys[i]]);
+        errors._add(errorKeys[i], newErrors[errorKeys[i]]);
       }
     }
-  },
-
-  _addErrorMessageToAttribute(attribute, message) {
-    this.get('errors')._add(attribute, message);
   },
 
   /**

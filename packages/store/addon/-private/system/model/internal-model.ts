@@ -1338,10 +1338,6 @@ export default class InternalModel {
     }
   }
 
-  addErrorMessageToAttribute(attribute, message) {
-    get(this.getRecord(), 'errors')._add(attribute, message);
-  }
-
   removeErrorMessageFromAttribute(attribute) {
     get(this.getRecord(), 'errors')._remove(attribute);
   }
@@ -1373,7 +1369,7 @@ export default class InternalModel {
         if (!this._recordData.getErrors) {
           for (attribute in parsedErrors) {
             if (hasOwnProperty.call(parsedErrors, attribute)) {
-              this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
+              this.getRecord().errors._add(attribute, parsedErrors[attribute]);
             }
           }
         }
@@ -1393,7 +1389,7 @@ export default class InternalModel {
 
       for (attribute in parsedErrors) {
         if (hasOwnProperty.call(parsedErrors, attribute)) {
-          this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
+          this.getRecord().errors._add(attribute, parsedErrors[attribute]);
         }
       }
 
