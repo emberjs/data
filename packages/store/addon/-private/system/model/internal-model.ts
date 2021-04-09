@@ -305,10 +305,6 @@ export default class InternalModel {
     }
   }
 
-  hasDirtyAttributes() {
-    return this.currentState.hasDirtyAttributes;
-  }
-
   isDeleted() {
     if (RECORD_DATA_STATE) {
       if (this._recordData.isDeleted) {
