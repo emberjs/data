@@ -338,12 +338,12 @@ const DirtyState = {
     pushedData() {},
 
     willCommit(internalModel) {
-      internalModel.clearErrorMessages();
+      clearErrorMessages(internalModel);
       internalModel.transitionTo('inFlight');
     },
 
     rolledBack(internalModel) {
-      internalModel.clearErrorMessages();
+      clearErrorMessages(internalModel);
       internalModel.transitionTo('loaded.saved');
       internalModel.triggerLater('ready');
     },
@@ -454,7 +454,7 @@ updatedState.uncommitted.deleteRecord = function(internalModel) {
 };
 
 updatedState.invalid.rolledBack = function(internalModel) {
-  internalModel.clearErrorMessages();
+  clearErrorMessages(internalModel);
   internalModel.transitionTo('loaded.saved');
   internalModel.triggerLater('rolledBack');
 };
@@ -730,7 +730,7 @@ const RootState = {
       willCommit() {},
 
       rolledBack(internalModel) {
-        internalModel.clearErrorMessages();
+        clearErrorMessages(internalModel);
         internalModel.transitionTo('loaded.saved');
         internalModel.triggerLater('ready');
       },
@@ -768,6 +768,10 @@ function wireState(object, parent, name) {
   }
 
   return object;
+}
+
+function clearErrorMessages(internalModel) {
+  internalModel.getRecord().errors._clear();
 }
 
 export default wireState(RootState, null, 'root');

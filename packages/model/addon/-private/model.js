@@ -575,7 +575,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
   invalidErrorsChanged(jsonApiErrors) {
     if (RECORD_DATA_ERRORS) {
-      this._clearErrorMessages();
+      this.get('errors')._clear();
       let errors = errorsArrayToHash(jsonApiErrors);
       let errorKeys = Object.keys(errors);
 
@@ -587,10 +587,6 @@ const Model = EmberObject.extend(DeprecatedEvented, {
 
   _addErrorMessageToAttribute(attribute, message) {
     this.get('errors')._add(attribute, message);
-  },
-
-  _clearErrorMessages() {
-    this.get('errors')._clear();
   },
 
   /**
@@ -748,7 +744,7 @@ const Model = EmberObject.extend(DeprecatedEvented, {
         this.model.destroyRecord().then(function() {
           this.transitionToRoute('model.index');
         });
-      } 
+      }
     }
     ```
 
