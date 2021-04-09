@@ -2750,7 +2750,7 @@
   dependencies:
     "@types/ember__application" "*"
 
-"@types/ember__utils@*":
+"@types/ember__utils@*", "@types/ember__utils@^3.16.2":
   version "3.16.2"
   resolved "https://registry.npmjs.org/@types/ember__utils/-/ember__utils-3.16.2.tgz#3fa9a0666a3e8204262e2a2960289aaf01f29467"
   integrity sha512-tBbqewgegiKSpGZvGh3pbcoXwLCMvKVdLRE97vys75nAEz/vBzkGJm+PDz1HVaTkRukWbRhlDiTm2qFH8qRnSw==
