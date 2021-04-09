@@ -843,10 +843,6 @@ export default class InternalModel {
     this._isDestroyed = true;
   }
 
-  eachAttribute(callback, binding) {
-    return this.modelClass.eachAttribute(callback, binding);
-  }
-
   inverseFor(key) {
     return this.modelClass.inverseFor(key);
   }
