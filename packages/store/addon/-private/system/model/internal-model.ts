@@ -851,10 +851,6 @@ export default class InternalModel {
     this.send('pushedData');
   }
 
-  getAttributeValue(key) {
-    return this._recordData.getAttr(key);
-  }
-
   setDirtyHasMany(key, records) {
     assertRecordsPassedToHasMany(records);
     return this._recordData.setDirtyHasMany(key, extractRecordDatasFromRecords(records));
@@ -873,7 +869,7 @@ export default class InternalModel {
       }
     }
 
-    let currentValue = this.getAttributeValue(key);
+    let currentValue = this._recordData.getAttr(key);
     if (currentValue !== value) {
       this._recordData.setDirtyAttribute(key, value);
       let isDirty = this._recordData.isAttrDirty(key);
