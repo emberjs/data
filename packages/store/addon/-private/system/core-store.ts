@@ -1114,7 +1114,7 @@ abstract class CoreStore extends Service {
   }
 
   _findEmptyInternalModel(internalModel, options) {
-    if (internalModel.isEmpty()) {
+    if (internalModel.currentState.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
 
@@ -1223,7 +1223,7 @@ abstract class CoreStore extends Service {
       error => {
         // TODO  remove this once we don't rely on state machine
         internalModel.notFound();
-        if (internalModel.isEmpty()) {
+        if (internalModel.currentState.isEmpty) {
           internalModel.unloadRecord();
         }
         throw error;
@@ -3822,7 +3822,7 @@ function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelations
     // treat as collection
     // check for unloaded records
     let hasEmptyRecords = resource.data.reduce((hasEmptyModel, resourceIdentifier) => {
-      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).isEmpty();
+      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).currentState.isEmpty;
     }, false);
 
     return !hasEmptyRecords;
@@ -3832,7 +3832,7 @@ function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelations
       return true;
     } else {
       const internalModel = internalModelForRelatedResource(store, cache, resource.data);
-      return !internalModel.isEmpty();
+      return !internalModel.currentState.isEmpty;
     }
   }
 }

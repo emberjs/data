@@ -266,7 +266,7 @@ export default class InternalModel {
     // models to rematerialize their records.
 
     // eager checks to avoid instantiating record data if we are empty or loading
-    if (this.isEmpty()) {
+    if (this.currentState.isEmpty) {
       return true;
     }
 
@@ -303,10 +303,6 @@ export default class InternalModel {
       // assert here
       return false;
     }
-  }
-
-  isEmpty() {
-    return this.currentState.isEmpty;
   }
 
   isLoading() {
