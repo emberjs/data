@@ -1199,7 +1199,7 @@ abstract class CoreStore extends Service {
   _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
     // TODO  remove this once we don't rely on state machine
-    internalModel.loadingData();
+    internalModel.send('loadingData');
     let identifier = internalModel.identifier;
 
     assertIdentifierHasId(identifier);
@@ -1267,7 +1267,7 @@ abstract class CoreStore extends Service {
 
       let promise = resolver.promise;
 
-      internalModel.loadingData(promise);
+      internalModel.send('loadingData', promise);
       if (this._pendingFetch.size === 0) {
         emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
       }

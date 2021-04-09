@@ -898,19 +898,6 @@ export default class InternalModel {
     return new Snapshot(options || {}, this.identifier, this.store);
   }
 
-  /*
-    @method loadingData
-    @private
-    @param {Promise} promise
-  */
-  loadingData(promise?) {
-    if (REQUEST_SERVICE) {
-      this.send('loadingData');
-    } else {
-      this.send('loadingData', promise);
-    }
-  }
-
   hasChangedAttributes() {
     if (REQUEST_SERVICE) {
       if (!this.__recordData) {
