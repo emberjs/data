@@ -231,7 +231,17 @@ class JSONAPIAdapter extends RESTAdapter {
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests: boolean = false;
+  get coalesceFindRequests() {
+    let coalesceFindRequests = this._coalesceFindRequests;
+    if (typeof coalesceFindRequests === 'boolean') {
+      return coalesceFindRequests;
+    }
+    return (this._coalesceFindRequests = false);
+  }
+
+  set coalesceFindRequests(value: boolean) {
+    this._coalesceFindRequests = value;
+  }
 
   findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<unknown> {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');

@@ -9,7 +9,7 @@ if (TestIE) {
 }
 
 module.exports = {
-  test_page: 'tests/index.html?hidepassed',
+  test_page: 'tests/index.html?hidepassed&nocontainer',
   disable_watching: true,
   reporter: customDotReporter,
   launch_in_ci: TestIE ? ['IE'] : ['Chrome'],
