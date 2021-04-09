@@ -118,8 +118,6 @@ export default class FetchManager {
       typeof adapter[operation] === 'function'
     );
 
-    debugger;
-
     let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
     let serializer = store.serializerFor(modelName);
     let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
