@@ -1397,7 +1397,8 @@ abstract class CoreStore extends Service {
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        snapshots[i] = internalModels[i].createSnapshot(optionsMap.get(internalModel));
+        let internalModel = internalModels[i];
+        snapshots[i] = internalModel.createSnapshot(optionsMap.get(internalModel));
       }
 
       let groups;
@@ -1410,11 +1411,11 @@ abstract class CoreStore extends Service {
       for (let i = 0, l = groups.length; i < l; i++) {
         let group = groups[i];
         let totalInGroup = groups[i].length;
-        var ids = new Array(totalInGroup);
+        let ids = new Array(totalInGroup);
         let groupedInternalModels = new Array(totalInGroup);
 
         for (let j = 0; j < totalInGroup; j++) {
-          var internalModel = group[j]._internalModel;
+          let internalModel = group[j]._internalModel;
 
           groupedInternalModels[j] = internalModel;
           ids[j] = internalModel.id;

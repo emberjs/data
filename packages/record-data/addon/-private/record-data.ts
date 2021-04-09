@@ -20,7 +20,6 @@ type DefaultCollectionResourceRelationship = import('./ts-interfaces/relationshi
 type JsonApiResource = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiResource;
 type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
 type AttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').AttributesHash;
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
 type ChangedAttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data').ChangedAttributesHash;
 type Relationship = import('./relationships/state/relationship').default;
 type ManyRelationship = import('./relationships/state/has-many').default;

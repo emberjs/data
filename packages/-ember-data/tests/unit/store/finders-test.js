@@ -20,7 +20,7 @@ class Dog extends Model {
   @attr('string') name;
 }
 
-module('unit/store/finders', async function(hooks) {
+module('unit/store/finders', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {

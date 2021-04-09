@@ -176,7 +176,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   },
 
   set length(value) {
-    return (this._length = value);
+    this._length = value;
   },
 
   objectAt(index) {

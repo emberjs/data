@@ -1,4 +1,4 @@
-// eslint-disable no-restricted-globals
+/* eslint-disable no-restricted-globals */
 type Dict<T> = import('./utils').Dict<T>;
 type Snapshot = import('../system/snapshot').default;
 type SnapshotRecordArray = import('../system/snapshot-record-array').default;

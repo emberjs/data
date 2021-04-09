@@ -11,10 +11,12 @@ import RESTAdapter from './rest';
 type FetchRequestInit = import('./rest').FetchRequestInit;
 type JQueryRequestInit = import('./rest').JQueryRequestInit;
 
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+type RSVPPromise<T> = import('rsvp').Promise<T>;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
+// eslint-disable-next-line no-restricted-globals
+type AdapterPromise<T> = Promise<T> | RSVPPromise<T>;
 
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It
@@ -243,7 +245,7 @@ class JSONAPIAdapter extends RESTAdapter {
     this._coalesceFindRequests = value;
   }
 
-  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<unknown> {
+  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): AdapterPromise<unknown> {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
@@ -253,7 +255,7 @@ class JSONAPIAdapter extends RESTAdapter {
     return pluralize(dasherized);
   }
 
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): AdapterPromise<unknown> {
     const data = serializeIntoHash(store, type, snapshot);
 
     let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
