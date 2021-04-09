@@ -410,14 +410,10 @@ abstract class CoreStore extends Service {
   }
 
   getRequestStateService(): RequestCache {
-    assertInDebug(
-      'RequestService is not available unless the feature flag is on and running on a canary build',
-      REQUEST_SERVICE
-    );
     if (REQUEST_SERVICE) {
       return this._fetchManager.requestCache;
     }
-    return void 0 as never;
+    assert('RequestService is not available unless the feature flag is on and running on a canary build');
   }
 
   get identifierCache(): IdentifierCache {
@@ -479,7 +475,7 @@ abstract class CoreStore extends Service {
       return record;
     }
 
-    assertInDebug('should not be here, custom model class ff error', false);
+    assert('should not be here, custom model class ff error', false);
   }
 
   abstract instantiateRecord(
@@ -517,11 +513,10 @@ abstract class CoreStore extends Service {
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
-    assertInDebug('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService', false);
     if (CUSTOM_MODEL_CLASS) {
       return this._schemaDefinitionService;
     }
-    return void 0 as never;
+    assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
   }
 
   // TODO Double check this return value is correct
@@ -3117,7 +3112,7 @@ abstract class CoreStore extends Service {
       return internalModel!.createSnapshot(options).serialize(options);
     }
 
-    assertInDebug('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    assert('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
@@ -3130,8 +3125,7 @@ abstract class CoreStore extends Service {
       return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
     }
 
-    assertInDebug('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
-    return void 0 as never;
+    assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
@@ -3142,7 +3136,7 @@ abstract class CoreStore extends Service {
       return internalModel!.referenceFor(null, key);
     }
 
-    assertInDebug('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    assert('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   /**
@@ -3185,8 +3179,7 @@ abstract class CoreStore extends Service {
       return new _RecordData(identifier, storeWrapper);
     }
 
-    assertInDebug(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
-    return void 0 as never;
+    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
   }
 
   /**
@@ -3254,7 +3247,7 @@ abstract class CoreStore extends Service {
   }
 
   newClientId() {
-    assertInDebug(`Private API Removed`, false);
+    assert(`Private API Removed`, false);
   }
 
   // ...............
@@ -3814,14 +3807,8 @@ function internalModelForRelatedResource(
   return store._internalModelForResource(identifier);
 }
 
-function assertInDebug(msg: string, cond: any = false): asserts cond is true {
-  if (DEBUG && cond) {
-    throw new Error(msg);
-  }
-}
-
 function assertIdentifierHasId(
   identifier: StableRecordIdentifier
 ): asserts identifier is StableExistingRecordIdentifier {
-  assertInDebug(`Attempted to schedule a fetch for a record without an id.`, identifier.id === null);
+  assert(`Attempted to schedule a fetch for a record without an id.`, identifier.id === null);
 }
