@@ -224,11 +224,14 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
+    const internalModel = internalModelFactoryFor(this._store).peek(identifier);
+
     if (!internalModel) {
       return false;
     }
-    return internalModel.isRecordInUse();
+
+    const record = internalModel._record;
+    return record && !(record.isDestroyed || record.isDestroying);
   }
 
   disconnectRecord(type: string, id: string | null, lid: string): void;

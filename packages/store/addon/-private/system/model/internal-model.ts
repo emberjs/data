@@ -305,11 +305,6 @@ export default class InternalModel {
     }
   }
 
-  isRecordInUse() {
-    let record = this._record;
-    return record && !(record.get('isDestroyed') || record.get('isDestroying'));
-  }
-
   isEmpty() {
     return this.currentState.isEmpty;
   }
