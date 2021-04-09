@@ -894,7 +894,7 @@ export default class InternalModel {
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
     }
-    this.pushedData();
+    this.send('pushedData');
   }
 
   getAttributeValue(key) {
@@ -975,14 +975,6 @@ export default class InternalModel {
   */
   notFound() {
     this.send('notFound');
-  }
-
-  /*
-    @method pushedData
-    @private
-  */
-  pushedData() {
-    this.send('pushedData');
   }
 
   hasChangedAttributes() {
