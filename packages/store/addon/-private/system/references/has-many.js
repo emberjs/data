@@ -213,7 +213,7 @@ export default class HasManyReference extends Reference {
     //TODO Igor cleanup
     return members.every(recordData => {
       let internalModel = this.store._internalModelForResource(recordData.getResourceIdentifier());
-      return internalModel.isLoaded() === true;
+      return internalModel.currentState.isLoaded === true;
     });
   }
 

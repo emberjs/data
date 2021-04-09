@@ -313,10 +313,6 @@ export default class InternalModel {
     return this.currentState.isLoading;
   }
 
-  isLoaded() {
-    return this.currentState.isLoaded;
-  }
-
   hasDirtyAttributes() {
     return this.currentState.hasDirtyAttributes;
   }

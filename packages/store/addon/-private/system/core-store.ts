@@ -1622,7 +1622,7 @@ abstract class CoreStore extends Service {
     const identifier = identifierCacheFor(this).peekRecordIdentifier(resource);
     const internalModel = identifier && internalModelFactoryFor(this).peek(identifier);
 
-    return !!internalModel && internalModel.isLoaded();
+    return !!internalModel && internalModel.currentState.isLoaded;
   }
 
   /**

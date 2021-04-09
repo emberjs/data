@@ -144,7 +144,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   // TODO: if(DEBUG)
   anyUnloaded() {
     // Use `filter[0]` as opposed to `find` because of IE11
-    let unloaded = this.currentState.filter(im => im._isDematerializing || !im.isLoaded())[0];
+    let unloaded = this.currentState.filter(im => im._isDematerializing || !im.currentState.isLoaded)[0];
     return !!unloaded;
   },
 
@@ -155,7 +155,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       if (CUSTOM_MODEL_CLASS) {
         shouldRemove = internalModel._isDematerializing;
       } else {
-        shouldRemove = internalModel._isDematerializing || !internalModel.isLoaded();
+        shouldRemove = internalModel._isDematerializing || !internalModel.currentState.isLoaded;
       }
       if (shouldRemove) {
         this.arrayContentWillChange(i, 1, 0);
