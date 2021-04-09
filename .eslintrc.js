@@ -60,13 +60,19 @@ module.exports = {
     // See https://github.com/eslint/eslint/issues/11899 and similar
     'require-atomic-updates': 'off',
 
+    'prefer-rest-params': 'off',
+    'prefer-const': 'off',
+
     // eslint-plugin-qunit
     'qunit/assert-args': 'off',
     'qunit/literal-compare-order': 'off',
     'qunit/no-identical-names': 'off',
     'qunit/no-ok-equality': 'off',
+    'qunit/no-assert-logical-expression': 'off',
     'qunit/require-expect': 'off',
     'qunit/resolve-async': 'off',
+    'qunit/no-early-return': 'off',
+    'qunit/no-conditional-assertions': 'off',
   },
   globals: {
     heimdall: true,
@@ -87,21 +93,15 @@ module.exports = {
       parserOptions: {
         sourceType: 'module',
       },
-      plugins: ['@typescript-eslint', 'ember-data', 'simple-import-sort', 'import'],
-      extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended'],
+      plugins: ['@typescript-eslint', 'ember-data'],
+      extends: ['plugin:@typescript-eslint/eslint-recommended'],
       rules: {
+        'no-restricted-globals': ['warn', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'no-unused-vars': 'off',
-        'require-atomic-updates': 'off',
+        'prefer-rest-params': 'off',
+        'prefer-const': 'off',
         'ember-data/prefer-type-only-import': 'error',
-        'simple-import-sort/sort': ['error', { groups: ImportSortGroups }],
-        'sort-imports': 'off',
-        'import/order': 'off',
-        'import/first': 'error',
-        'import/newline-after-import': 'error',
-        // this rule doesn't work properly with --fix
-        // https://github.com/benmosher/eslint-plugin-import/issues/1504
-        'import/no-duplicates': 'warn',
       },
     },
 
