@@ -96,11 +96,11 @@ module('unit/utils', function(hooks) {
       type: DS.hasMany(),
     });
 
-    assert.equal(modelHasAttributeOrRelationshipNamedType(Model), false);
+    assert.false(modelHasAttributeOrRelationshipNamedType(Model));
 
-    assert.equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeAttribute), true);
-    assert.equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeBelongsTo), true);
-    assert.equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeHasMany), true);
+    assert.true(modelHasAttributeOrRelationshipNamedType(ModelWithTypeAttribute));
+    assert.true(modelHasAttributeOrRelationshipNamedType(ModelWithTypeBelongsTo));
+    assert.true(modelHasAttributeOrRelationshipNamedType(ModelWithTypeHasMany));
   });
 
   testInDebug('assertPolymorphicType works for mixins', function(assert) {

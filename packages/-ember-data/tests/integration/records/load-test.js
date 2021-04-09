@@ -41,7 +41,7 @@ module('integration/load - Loading Records', function(hooks) {
     );
 
     await store.findRecord('person', '1').catch(() => {
-      assert.equal(store.hasRecordForId('person', '1'), false);
+      assert.false(store.hasRecordForId('person', '1'));
     });
   });
 

@@ -321,7 +321,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     findArray = await store.findAll('person');
 
     assert.equal(queryArr.get('length'), 0, 'No records for this query');
-    assert.equal(queryArr.get('isUpdating'), false, 'Record array isUpdating state updated');
+    assert.false(queryArr.get('isUpdating'), 'Record array isUpdating state updated');
     assert.equal(findArray.get('length'), 1, 'All records are included in collection array');
 
     // a new element gets pushed in record array
@@ -329,7 +329,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     await queryArr.update();
 
     assert.equal(queryArr.get('length'), 1, 'The new record is returned and added in adapter populated array');
-    assert.equal(queryArr.get('isUpdating'), false, 'Record array isUpdating state updated');
+    assert.false(queryArr.get('isUpdating'), 'Record array isUpdating state updated');
     assert.equal(findArray.get('length'), 2, 'find returns 2 records');
 
     // element gets removed

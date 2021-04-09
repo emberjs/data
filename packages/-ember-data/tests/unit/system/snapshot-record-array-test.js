@@ -68,8 +68,8 @@ module('Unit - snapshot-record-array', function() {
 
     let snapshot = new SnapshotRecordArray(array, meta, options);
 
-    assert.equal(false, typeLoaded, 'model class is not eager loaded');
+    assert.false(typeLoaded, 'model class is not eager loaded');
     assert.equal(snapshot.type, 'some type');
-    assert.equal(true, typeLoaded, 'model class is loaded');
+    assert.true(typeLoaded, 'model class is loaded');
   });
 });

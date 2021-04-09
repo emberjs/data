@@ -37,7 +37,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
     store = owner.lookup('service:store');
   });
 
-  test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', assert => {
+  test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', function(assert) {
     let payload = {
       data: {
         type: 'book',
@@ -82,7 +82,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
     assert.strictEqual(book.get('author'), null);
   });
 
-  test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', assert => {
+  test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', function(assert) {
     let payload = {
       data: {
         type: 'async-book',

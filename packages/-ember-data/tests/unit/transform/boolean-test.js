@@ -19,22 +19,17 @@ module('unit/transform - BooleanTransform', function(hooks) {
       '{ allowNull: true } - we serialize undefined to null'
     );
 
-    assert.equal(
-      transform.serialize(null, { allowNull: false }),
-      false,
-      '{ allowNull: false } - we serialize null to false'
-    );
-    assert.equal(
+    assert.false(transform.serialize(null, { allowNull: false }), '{ allowNull: false } - we serialize null to false');
+    assert.false(
       transform.serialize(undefined, { allowNull: false }),
-      false,
       '{ allowNull: false } - we serialize null to false'
     );
 
-    assert.equal(transform.serialize(null, {}), false, 'we serialize null to false');
-    assert.equal(transform.serialize(undefined, {}), false, 'we serialize undefined to false');
+    assert.false(transform.serialize(null, {}), 'we serialize null to false');
+    assert.false(transform.serialize(undefined, {}), 'we serialize undefined to false');
 
-    assert.equal(transform.serialize(true), true, 'we serialize true to true');
-    assert.equal(transform.serialize(false), false, 'we serialize false to false');
+    assert.true(transform.serialize(true), 'we serialize true to true');
+    assert.false(transform.serialize(false), 'we serialize false to false');
   });
 
   test('#deserialize', async function(assert) {
@@ -51,38 +46,36 @@ module('unit/transform - BooleanTransform', function(hooks) {
       '{ allowNull: true } - we deserialize undefined to null'
     );
 
-    assert.equal(
+    assert.false(
       transform.deserialize(null, { allowNull: false }),
-      false,
       '{ allowNull: false } - we deserialize null to false'
     );
-    assert.equal(
+    assert.false(
       transform.deserialize(undefined, { allowNull: false }),
-      false,
       '{ allowNull: true } - we deserialize undefined to false'
     );
 
-    assert.equal(transform.deserialize(null, {}), false, 'we deserialize null to false');
-    assert.equal(transform.deserialize(undefined, {}), false, 'we deserialize undefined to false');
+    assert.false(transform.deserialize(null, {}), 'we deserialize null to false');
+    assert.false(transform.deserialize(undefined, {}), 'we deserialize undefined to false');
 
-    assert.equal(transform.deserialize(true), true, 'we deserialize true to true');
-    assert.equal(transform.deserialize(false), false, 'we deserialize false to false');
+    assert.true(transform.deserialize(true), 'we deserialize true to true');
+    assert.false(transform.deserialize(false), 'we deserialize false to false');
 
-    assert.equal(transform.deserialize('true'), true, 'we deserialize string "true" to true');
-    assert.equal(transform.deserialize('TRUE'), true, 'we deserialize string "TRUE" to true');
-    assert.equal(transform.deserialize('false'), false, 'we deserialize string "false" to false');
-    assert.equal(transform.deserialize('FALSE'), false, 'we deserialize string "FALSE" to false');
+    assert.true(transform.deserialize('true'), 'we deserialize string "true" to true');
+    assert.true(transform.deserialize('TRUE'), 'we deserialize string "TRUE" to true');
+    assert.false(transform.deserialize('false'), 'we deserialize string "false" to false');
+    assert.false(transform.deserialize('FALSE'), 'we deserialize string "FALSE" to false');
 
-    assert.equal(transform.deserialize('t'), true, 'we deserialize string "t" to true');
-    assert.equal(transform.deserialize('T'), true, 'we deserialize string "T" to true');
-    assert.equal(transform.deserialize('f'), false, 'we deserialize string "f" to false');
-    assert.equal(transform.deserialize('F'), false, 'we deserialize string "F" to false');
+    assert.true(transform.deserialize('t'), 'we deserialize string "t" to true');
+    assert.true(transform.deserialize('T'), 'we deserialize string "T" to true');
+    assert.false(transform.deserialize('f'), 'we deserialize string "f" to false');
+    assert.false(transform.deserialize('F'), 'we deserialize string "F" to false');
 
-    assert.equal(transform.deserialize('1'), true, 'we deserialize string "1" to true');
-    assert.equal(transform.deserialize('0'), false, 'we deserialize string "0" to false');
+    assert.true(transform.deserialize('1'), 'we deserialize string "1" to true');
+    assert.false(transform.deserialize('0'), 'we deserialize string "0" to false');
 
-    assert.equal(transform.deserialize(1), true, 'we deserialize number 1 to true');
-    assert.equal(transform.deserialize(2), false, 'we deserialize numbers greater than 1 to false');
-    assert.equal(transform.deserialize(0), false, 'we deserialize number 0 to false');
+    assert.true(transform.deserialize(1), 'we deserialize number 1 to true');
+    assert.false(transform.deserialize(2), 'we deserialize numbers greater than 1 to false');
+    assert.false(transform.deserialize(0), 'we deserialize number 0 to false');
   });
 });

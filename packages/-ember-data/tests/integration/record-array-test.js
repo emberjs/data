@@ -492,6 +492,6 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     let people = await store.query('person', { page: 1 });
 
-    assert.equal(get(people, 'isLoaded'), true, 'The array is now loaded');
+    assert.true(get(people, 'isLoaded'), 'The array is now loaded');
   });
 });

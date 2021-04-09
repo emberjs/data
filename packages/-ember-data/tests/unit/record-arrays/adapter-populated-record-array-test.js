@@ -25,7 +25,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
   test('default initial state', async function(assert) {
     let recordArray = AdapterPopulatedRecordArray.create({ modelName: 'recordType' });
 
-    assert.equal(recordArray.get('isLoaded'), false, 'expected isLoaded to be false');
+    assert.false(recordArray.get('isLoaded'), 'expected isLoaded to be false');
     assert.equal(recordArray.get('modelName'), 'recordType', 'has modelName');
     assert.deepEqual(recordArray.get('content'), [], 'has no content');
     assert.strictEqual(recordArray.get('query'), null, 'no query');
@@ -45,8 +45,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       query: 'some-query',
       links: 'foo',
     });
-    assert.equal(recordArray.get('isLoaded'), true);
-    assert.equal(recordArray.get('isUpdating'), false);
+    assert.true(recordArray.get('isLoaded'));
+    assert.false(recordArray.get('isUpdating'));
     assert.equal(recordArray.get('modelName'), 'apple');
     assert.deepEqual(recordArray.get('content'), content);
     assert.equal(recordArray.get('store'), store);
@@ -87,7 +87,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       query: 'some-query',
     });
 
-    assert.equal(recordArray.get('isUpdating'), false, 'should not yet be updating');
+    assert.false(recordArray.get('isUpdating'), 'should not yet be updating');
 
     assert.equal(queryCalled, 0);
 
@@ -97,11 +97,11 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     deferred.resolve('return value');
 
-    assert.equal(recordArray.get('isUpdating'), true, 'should be updating');
+    assert.true(recordArray.get('isUpdating'), 'should be updating');
 
     return updateResult.then(result => {
       assert.equal(result, 'return value');
-      assert.equal(recordArray.get('isUpdating'), false, 'should no longer be updating');
+      assert.false(recordArray.get('isUpdating'), 'should no longer be updating');
     });
   });
 
@@ -266,8 +266,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       assert.equal(addAmt, 2, 'expected addAmt');
     });
 
-    assert.equal(recordArray.get('isLoaded'), true, 'should be considered loaded');
-    assert.equal(recordArray.get('isUpdating'), false, 'should not yet be updating');
+    assert.true(recordArray.get('isLoaded'), 'should be considered loaded');
+    assert.false(recordArray.get('isUpdating'), 'should not yet be updating');
 
     assert.equal(arrayDidChange, 0);
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
@@ -298,8 +298,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     recordArray._setIdentifiers([recordIdentifierFor(record3), recordIdentifierFor(record4)], {});
 
     assert.equal(didAddRecord, 2, 'expected 2 didAddRecords');
-    assert.equal(recordArray.get('isLoaded'), true, 'should be considered loaded');
-    assert.equal(recordArray.get('isUpdating'), false, 'should no longer be updating');
+    assert.true(recordArray.get('isLoaded'), 'should be considered loaded');
+    assert.false(recordArray.get('isUpdating'), 'should no longer be updating');
 
     assert.equal(arrayDidChange, 1, 'record array should have omitted ONE change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
@@ -323,8 +323,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     });
 
     // re-query
-    assert.equal(recordArray.get('isLoaded'), true, 'should be considered loaded');
-    assert.equal(recordArray.get('isUpdating'), false, 'should not yet be updating');
+    assert.true(recordArray.get('isLoaded'), 'should be considered loaded');
+    assert.false(recordArray.get('isUpdating'), 'should not yet be updating');
 
     assert.equal(arrayDidChange, 0, 'record array should not yet have omitted a change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
@@ -345,8 +345,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     assert.equal(didAddRecord, 1, 'expected 0 didAddRecord');
 
-    assert.equal(recordArray.get('isLoaded'), true, 'should be considered loaded');
-    assert.equal(recordArray.get('isUpdating'), false, 'should not longer be updating');
+    assert.true(recordArray.get('isLoaded'), 'should be considered loaded');
+    assert.false(recordArray.get('isUpdating'), 'should not longer be updating');
 
     assert.equal(arrayDidChange, 1, 'record array should have emitted one change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');

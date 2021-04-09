@@ -70,7 +70,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
 
     assert.ok(pushedRecord === record, 'We have the same record instance');
     assert.strictEqual(record.name, 'Chris', 'We use the dirty name');
-    assert.strictEqual(record.isNew, false, 'We are no longer in the new state');
+    assert.false(record.isNew, 'We are no longer in the new state');
 
     record.rollbackAttributes();
 
@@ -131,9 +131,9 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     assert.strictEqual(record.age, 31, 'We received the pushed data');
     if (RECORD_DATA_STATE) {
       // once the payload is received the derived state shifts to "no longer new" in the RECORD_DATA_STATE world
-      assert.strictEqual(record.isNew, false, 'We are no longer in the new state');
+      assert.false(record.isNew, 'We are no longer in the new state');
     } else {
-      assert.strictEqual(record.isNew, true, 'We are still in the new state');
+      assert.true(record.isNew, 'We are still in the new state');
     }
 
     record.rollbackAttributes();

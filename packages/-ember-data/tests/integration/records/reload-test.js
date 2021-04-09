@@ -75,15 +75,15 @@ module('integration/reload - Reloading Records', function(hooks) {
     let person = await store.findRecord('person', '1');
 
     assert.equal(get(person, 'name'), 'Tom Dale', 'The person is loaded with the right name');
-    assert.equal(get(person, 'isLoaded'), true, 'The person is now loaded');
+    assert.true(get(person, 'isLoaded'), 'The person is now loaded');
 
     let promise = person.reload(reloadOptions);
 
-    assert.equal(get(person, 'isReloading'), true, 'The person is now reloading');
+    assert.true(get(person, 'isReloading'), 'The person is now reloading');
 
     await promise;
 
-    assert.equal(get(person, 'isReloading'), false, 'The person is no longer reloading');
+    assert.false(get(person, 'isReloading'), 'The person is no longer reloading');
     assert.equal(get(person, 'name'), 'Braaaahm Dale', 'The person is now updated with the right name');
 
     // ensure we won't call adapter.findRecord again
@@ -110,7 +110,7 @@ module('integration/reload - Reloading Records', function(hooks) {
         },
 
         findRecord() {
-          assert.equal(tom.get('isReloading'), true, 'Tom is reloading');
+          assert.true(tom.get('isReloading'), 'Tom is reloading');
           if (count++ === 0) {
             return reject();
           } else {
@@ -126,14 +126,14 @@ module('integration/reload - Reloading Records', function(hooks) {
       assert.ok(true, 'we throw an error');
     });
 
-    assert.equal(tom.get('isError'), true, 'Tom is now errored');
-    assert.equal(tom.get('isReloading'), false, 'Tom is no longer reloading');
+    assert.true(tom.get('isError'), 'Tom is now errored');
+    assert.false(tom.get('isReloading'), 'Tom is no longer reloading');
 
     let person = await tom.reload();
 
     assert.equal(person, tom, 'The resolved value is the record');
-    assert.equal(tom.get('isError'), false, 'Tom is no longer errored');
-    assert.equal(tom.get('isReloading'), false, 'Tom is no longer reloading');
+    assert.false(tom.get('isError'), 'Tom is no longer errored');
+    assert.false(tom.get('isReloading'), 'Tom is no longer reloading');
     assert.equal(tom.get('name'), 'Thomas Dale', 'the updates apply');
   });
 
@@ -169,7 +169,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       // This observer should never fire
       assert.ok(false, 'We should not trigger the isLoaded observer');
       // but if it does we should still have the same isLoaded state
-      assert.equal(get(this, 'isLoaded'), true, 'The person is still loaded after change');
+      assert.true(get(this, 'isLoaded'), 'The person is still loaded after change');
     }
 
     store.push(getTomDale());
@@ -177,12 +177,12 @@ module('integration/reload - Reloading Records', function(hooks) {
     let person = await store.findRecord('person', '1');
 
     person.addObserver('isLoaded', isLoadedDidChange);
-    assert.equal(get(person, 'isLoaded'), true, 'The person is loaded');
+    assert.true(get(person, 'isLoaded'), 'The person is loaded');
 
     // Reload the record
     store.push(getTomDale());
 
-    assert.equal(get(person, 'isLoaded'), true, 'The person is still loaded after load');
+    assert.true(get(person, 'isLoaded'), 'The person is still loaded after load');
 
     person.removeObserver('isLoaded', isLoadedDidChange);
   });

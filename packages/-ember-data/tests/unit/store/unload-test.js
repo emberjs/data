@@ -104,7 +104,7 @@ module('unit/store/unload - Store unloading records', function(hooks) {
         tryToFind = false;
 
         return store.findRecord('record', 1).then(() => {
-          assert.equal(tryToFind, true, 'not found record with id 1');
+          assert.true(tryToFind, 'not found record with id 1');
         });
       });
     });

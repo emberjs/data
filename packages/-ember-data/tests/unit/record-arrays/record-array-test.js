@@ -24,8 +24,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
   test('default initial state', async function(assert) {
     let recordArray = RecordArray.create({ modelName: 'recordType' });
 
-    assert.equal(get(recordArray, 'isLoaded'), false, 'record is not loaded');
-    assert.equal(get(recordArray, 'isUpdating'), false, 'record is not updating');
+    assert.false(get(recordArray, 'isLoaded'), 'record is not loaded');
+    assert.false(get(recordArray, 'isUpdating'), 'record is not updating');
     assert.equal(get(recordArray, 'modelName'), 'recordType', 'has modelName');
     assert.equal(get(recordArray, 'content'), undefined, 'content is not defined');
     assert.strictEqual(get(recordArray, 'store'), null, 'no store with recordArray');
@@ -41,8 +41,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
       content,
       store,
     });
-    assert.equal(get(recordArray, 'isLoaded'), true);
-    assert.equal(get(recordArray, 'isUpdating'), false); // cannot set as default value:
+    assert.true(get(recordArray, 'isLoaded'));
+    assert.false(get(recordArray, 'isUpdating')); // cannot set as default value:
     assert.equal(get(recordArray, 'modelName'), 'apple');
     assert.deepEqual(get(recordArray, 'content'), content);
     assert.equal(get(recordArray, 'store'), store);
@@ -102,7 +102,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
       findAll(modelName, options) {
         findAllCalled++;
         assert.equal(modelName, 'recordType');
-        assert.equal(options.reload, true, 'options should contain reload: true');
+        assert.true(options.reload, 'options should contain reload: true');
         return deferred.promise;
       },
     };
@@ -112,7 +112,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
       store,
     });
 
-    assert.equal(get(recordArray, 'isUpdating'), false, 'should not yet be updating');
+    assert.false(get(recordArray, 'isUpdating'), 'should not yet be updating');
 
     assert.equal(findAllCalled, 0);
 
@@ -122,11 +122,11 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
 
     deferred.resolve('return value');
 
-    assert.equal(get(recordArray, 'isUpdating'), true, 'should be updating');
+    assert.true(get(recordArray, 'isUpdating'), 'should be updating');
 
     return updateResult.then(result => {
       assert.equal(result, 'return value');
-      assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
+      assert.false(get(recordArray, 'isUpdating'), 'should no longer be updating');
     });
   });
 
@@ -145,7 +145,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
       store,
     });
 
-    assert.equal(get(recordArray, 'isUpdating'), false, 'should not be updating');
+    assert.false(get(recordArray, 'isUpdating'), 'should not be updating');
     assert.equal(findAllCalled, 0);
 
     let updateResult1 = recordArray.update();
@@ -160,11 +160,11 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
 
     deferred.resolve('return value');
 
-    assert.equal(get(recordArray, 'isUpdating'), true, 'should be updating');
+    assert.true(get(recordArray, 'isUpdating'), 'should be updating');
 
     return updateResult1.then(result => {
       assert.equal(result, 'return value');
-      assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
+      assert.false(get(recordArray, 'isUpdating'), 'should no longer be updating');
     });
   });
 
@@ -374,8 +374,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
       },
     });
 
-    assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
-    assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
+    assert.false(get(recordArray, 'isDestroyed'), 'should not be destroyed');
+    assert.false(get(recordArray, 'isDestroying'), 'should not be destroying');
 
     assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
     assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
@@ -392,7 +392,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
 
     assert.strictEqual(get(recordArray, 'content'), null);
     assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
-    assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
+    assert.true(get(recordArray, 'isDestroyed'), 'should be destroyed');
   });
 
   test('#_createSnapshot', async function(assert) {
@@ -469,8 +469,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
       store,
     });
 
-    assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
-    assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
+    assert.false(get(recordArray, 'isDestroyed'), 'should not be destroyed');
+    assert.false(get(recordArray, 'isDestroying'), 'should not be destroying');
 
     assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
     assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
@@ -488,6 +488,6 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
 
     assert.strictEqual(get(recordArray, 'content'), null);
     assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
-    assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
+    assert.true(get(recordArray, 'isDestroyed'), 'should be destroyed');
   });
 });

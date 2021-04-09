@@ -1407,13 +1407,13 @@ abstract class CoreStore extends Service {
         groups = [snapshots];
       }
 
-      for (var i = 0, l = groups.length; i < l; i++) {
-        var group = groups[i];
-        var totalInGroup = groups[i].length;
+      for (let i = 0, l = groups.length; i < l; i++) {
+        let group = groups[i];
+        let totalInGroup = groups[i].length;
         var ids = new Array(totalInGroup);
-        var groupedInternalModels = new Array(totalInGroup);
+        let groupedInternalModels = new Array(totalInGroup);
 
-        for (var j = 0; j < totalInGroup; j++) {
+        for (let j = 0; j < totalInGroup; j++) {
           var internalModel = group[j]._internalModel;
 
           groupedInternalModels[j] = internalModel;
@@ -1431,7 +1431,7 @@ abstract class CoreStore extends Service {
               });
           })(groupedInternalModels);
         } else if (ids.length === 1) {
-          var pair = seeking[groupedInternalModels[0].id];
+          let pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
         } else {
           assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);

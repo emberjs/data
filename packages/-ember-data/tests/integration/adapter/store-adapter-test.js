@@ -162,7 +162,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
       count++;
 
-      assert.equal(snapshot.record.get('isSaving'), true, 'record is saving');
+      assert.true(snapshot.record.get('isSaving'), 'record is saving');
 
       return resolve();
     };
@@ -212,11 +212,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         let tom = records.tom;
         let yehuda = records.yehuda;
 
-        assert.equal(tom.get('isSaving'), false, 'record is no longer saving');
-        assert.equal(tom.get('isLoaded'), true, 'record is loaded');
+        assert.false(tom.get('isSaving'), 'record is no longer saving');
+        assert.true(tom.get('isLoaded'), 'record is loaded');
 
-        assert.equal(yehuda.get('isSaving'), false, 'record is no longer saving');
-        assert.equal(yehuda.get('isLoaded'), true, 'record is loaded');
+        assert.false(yehuda.get('isSaving'), 'record is no longer saving');
+        assert.true(yehuda.get('isLoaded'), 'record is loaded');
       });
   });
 
@@ -295,10 +295,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         let tom = records.tom;
         let yehuda = records.yehuda;
 
-        assert.equal(get(tom, 'hasDirtyAttributes'), false, 'the record should not be dirty');
+        assert.false(get(tom, 'hasDirtyAttributes'), 'the record should not be dirty');
         assert.equal(get(tom, 'updatedAt'), 'now', 'the hash was updated');
 
-        assert.equal(get(yehuda, 'hasDirtyAttributes'), false, 'the record should not be dirty');
+        assert.false(get(yehuda, 'hasDirtyAttributes'), 'the record should not be dirty');
         assert.equal(get(yehuda, 'updatedAt'), 'now!', 'the hash was updated');
       });
   });
@@ -469,14 +469,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         .then(tom => {
           tom.set('name', "Tom Mothereffin' Dale");
 
-          assert.equal(get(tom, 'hasDirtyAttributes'), true, 'precond - record should be dirty after editing');
+          assert.true(get(tom, 'hasDirtyAttributes'), 'precond - record should be dirty after editing');
 
           tom.deleteRecord();
           return tom.save();
         })
         .then(tom => {
-          assert.equal(get(tom, 'hasDirtyAttributes'), false, 'record should not be dirty');
-          assert.equal(get(tom, 'isDeleted'), true, 'record should be considered deleted');
+          assert.false(get(tom, 'hasDirtyAttributes'), 'record should not be dirty');
+          assert.true(get(tom, 'isDeleted'), 'record should be considered deleted');
         })
     );
   });
@@ -519,14 +519,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           return person.save();
         })
         .catch(() => {
-          assert.equal(tom.get('isError'), true, 'Tom is now errored');
+          assert.true(tom.get('isError'), 'Tom is now errored');
           assert.equal(tom.get('adapterError'), error, 'error object is exposed');
 
           // this time it succeeds
           return tom.save();
         })
         .then(() => {
-          assert.equal(tom.get('isError'), false, 'Tom is not errored anymore');
+          assert.false(tom.get('isError'), 'Tom is not errored anymore');
           assert.equal(tom.get('adapterError'), null, 'error object is discarded');
         });
     });
@@ -564,26 +564,26 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return yehuda
         .save()
         .catch(error => {
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
+          assert.false(get(yehuda, 'isValid'), 'the record is invalid');
           assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
 
           set(yehuda, 'updatedAt', true);
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
+          assert.false(get(yehuda, 'isValid'), 'the record is still invalid');
 
           set(yehuda, 'name', 'Brohuda Brokatz');
 
-          assert.equal(get(yehuda, 'isValid'), true, 'the record is no longer invalid after changing');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
+          assert.true(get(yehuda, 'isValid'), 'the record is no longer invalid after changing');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record has outstanding changes');
 
-          assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
+          assert.true(get(yehuda, 'isNew'), 'precond - record is still new');
 
           return yehuda.save();
         })
         .then(person => {
           assert.strictEqual(person, yehuda, 'The promise resolves with the saved record');
 
-          assert.equal(get(yehuda, 'isValid'), true, 'record remains valid after committing');
-          assert.equal(get(yehuda, 'isNew'), false, 'record is no longer new');
+          assert.true(get(yehuda, 'isValid'), 'record remains valid after committing');
+          assert.false(get(yehuda, 'isNew'), 'record is no longer new');
         });
     });
   });
@@ -618,30 +618,30 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return yehuda
         .save()
         .catch(error => {
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
+          assert.false(get(yehuda, 'isValid'), 'the record is invalid');
           assert.ok(get(yehuda, 'errors.base'), 'The errors.base property exists');
           assert.deepEqual(get(yehuda, 'errors').errorsFor('base'), [
             { attribute: 'base', message: 'is a generally unsavoury character' },
           ]);
 
           set(yehuda, 'updatedAt', true);
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
+          assert.false(get(yehuda, 'isValid'), 'the record is still invalid');
 
           set(yehuda, 'name', 'Brohuda Brokatz');
 
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid as far as we know');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
+          assert.false(get(yehuda, 'isValid'), 'the record is still invalid as far as we know');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record has outstanding changes');
 
-          assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
+          assert.true(get(yehuda, 'isNew'), 'precond - record is still new');
 
           return yehuda.save();
         })
         .then(person => {
           assert.strictEqual(person, yehuda, 'The promise resolves with the saved record');
-          assert.ok(!get(yehuda, 'errors.base'), 'The errors.base property does not exist');
+          assert.notOk(get(yehuda, 'errors.base'), 'The errors.base property does not exist');
           assert.deepEqual(get(yehuda, 'errors').errorsFor('base'), []);
-          assert.equal(get(yehuda, 'isValid'), true, 'record remains valid after committing');
-          assert.equal(get(yehuda, 'isNew'), false, 'record is no longer new');
+          assert.true(get(yehuda, 'isValid'), 'record remains valid after committing');
+          assert.false(get(yehuda, 'isNew'), 'record is no longer new');
         });
     });
   });
@@ -686,10 +686,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
             reason.message.match('The adapter rejected the commit because it was invalid'),
             'It should fail due to being invalid'
           );
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
+          assert.false(get(yehuda, 'isValid'), 'the record is invalid');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record has outstanding changes');
           assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
-          assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
+          assert.true(get(yehuda, 'isNew'), 'precond - record is still new');
           return yehuda.save();
         })
         .catch(reason => {
@@ -698,18 +698,18 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
             reason.message.match('The adapter rejected the commit because it was invalid'),
             'It should fail due to being invalid'
           );
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
+          assert.false(get(yehuda, 'isValid'), 'the record is still invalid');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record has outstanding changes');
           assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
-          assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
+          assert.true(get(yehuda, 'isNew'), 'precond - record is still new');
           set(yehuda, 'name', 'Brohuda Brokatz');
           return yehuda.save();
         })
         .then(person => {
           assert.equal(saveCount, 3, 'The record has been saved thrice');
-          assert.equal(get(yehuda, 'isValid'), true, 'record is valid');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), false, 'record is not dirty');
-          assert.equal(get(yehuda, 'errors.isEmpty'), true, 'record has no errors');
+          assert.true(get(yehuda, 'isValid'), 'record is valid');
+          assert.false(get(yehuda, 'hasDirtyAttributes'), 'record is not dirty');
+          assert.true(get(yehuda, 'errors.isEmpty'), 'record has no errors');
         });
     });
   });
@@ -780,30 +780,30 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         .then(person => {
           assert.equal(person, yehuda, 'The same object is passed through');
 
-          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is valid');
+          assert.true(get(yehuda, 'isValid'), 'precond - the record is valid');
           set(yehuda, 'name', 'Yehuda Katz');
-          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is still valid as far as we know');
+          assert.true(get(yehuda, 'isValid'), 'precond - the record is still valid as far as we know');
 
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is dirty');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record is dirty');
 
           return yehuda.save();
         })
         .catch(reason => {
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is still dirty');
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record is still dirty');
+          assert.false(get(yehuda, 'isValid'), 'the record is invalid');
 
           set(yehuda, 'updatedAt', true);
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
+          assert.false(get(yehuda, 'isValid'), 'the record is still invalid');
 
           set(yehuda, 'name', 'Brohuda Brokatz');
-          assert.equal(get(yehuda, 'isValid'), true, 'the record is no longer invalid after changing');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
+          assert.true(get(yehuda, 'isValid'), 'the record is no longer invalid after changing');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record has outstanding changes');
 
           return yehuda.save();
         })
         .then(yehuda => {
-          assert.equal(get(yehuda, 'isValid'), true, 'record remains valid after committing');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), false, 'record is no longer new');
+          assert.true(get(yehuda, 'isValid'), 'record remains valid after committing');
+          assert.false(get(yehuda, 'hasDirtyAttributes'), 'record is no longer new');
         });
     });
   });
@@ -850,39 +850,38 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         .then(person => {
           assert.equal(person, yehuda, 'The same object is passed through');
 
-          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is valid');
+          assert.true(get(yehuda, 'isValid'), 'precond - the record is valid');
           set(yehuda, 'name', 'Yehuda Katz');
-          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is still valid as far as we know');
+          assert.true(get(yehuda, 'isValid'), 'precond - the record is still valid as far as we know');
 
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is dirty');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record is dirty');
 
           return yehuda.save();
         })
         .catch(reason => {
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is still dirty');
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record is still dirty');
+          assert.false(get(yehuda, 'isValid'), 'the record is invalid');
           assert.ok(get(yehuda, 'errors.base'), 'The errors.base property exists');
           assert.deepEqual(get(yehuda, 'errors').errorsFor('base'), [
             { attribute: 'base', message: 'is a generally unsavoury character' },
           ]);
 
           set(yehuda, 'updatedAt', true);
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
+          assert.false(get(yehuda, 'isValid'), 'the record is still invalid');
 
           set(yehuda, 'name', 'Brohuda Brokatz');
-          assert.equal(
+          assert.false(
             get(yehuda, 'isValid'),
-            false,
             "the record is still invalid after changing (only server can know if it's now valid)"
           );
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record has outstanding changes');
 
           return yehuda.save();
         })
         .then(yehuda => {
-          assert.equal(get(yehuda, 'isValid'), true, 'record remains valid after committing');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), false, 'record is no longer new');
-          assert.ok(!get(yehuda, 'errors.base'), 'The errors.base property does not exist');
+          assert.true(get(yehuda, 'isValid'), 'record remains valid after committing');
+          assert.false(get(yehuda, 'hasDirtyAttributes'), 'record is no longer new');
+          assert.notOk(get(yehuda, 'errors.base'), 'The errors.base property does not exist');
           assert.deepEqual(get(yehuda, 'errors').errorsFor('base'), []);
         });
     });
@@ -934,11 +933,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         .then(person => {
           assert.equal(person, yehuda, 'The same object is passed through');
 
-          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is valid');
+          assert.true(get(yehuda, 'isValid'), 'precond - the record is valid');
           set(yehuda, 'name', 'Yehuda Katz');
-          assert.equal(get(yehuda, 'isValid'), true, 'precond - the record is still valid as far as we know');
+          assert.true(get(yehuda, 'isValid'), 'precond - the record is still valid as far as we know');
 
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is dirty');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record is dirty');
 
           return yehuda.save();
         })
@@ -948,8 +947,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
             reason.message.match('The adapter rejected the commit because it was invalid'),
             'It should fail due to being invalid'
           );
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record is still dirty');
-          assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'the record is still dirty');
+          assert.false(get(yehuda, 'isValid'), 'the record is invalid');
           return yehuda.save();
         })
         .catch(reason => {
@@ -958,16 +957,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
             reason.message.match('The adapter rejected the commit because it was invalid'),
             'It should fail due to being invalid'
           );
-          assert.equal(get(yehuda, 'isValid'), false, 'record is still invalid');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'record is still dirty');
+          assert.false(get(yehuda, 'isValid'), 'record is still invalid');
+          assert.true(get(yehuda, 'hasDirtyAttributes'), 'record is still dirty');
           set(yehuda, 'name', 'Brohuda Brokatz');
           return yehuda.save();
         })
         .then(person => {
           assert.equal(saveCount, 3, 'The record has been saved thrice');
-          assert.equal(get(yehuda, 'isValid'), true, 'record is valid');
-          assert.equal(get(yehuda, 'hasDirtyAttributes'), false, 'record is not dirty');
-          assert.equal(get(yehuda, 'errors.isEmpty'), true, 'record has no errors');
+          assert.true(get(yehuda, 'isValid'), 'record is valid');
+          assert.false(get(yehuda, 'hasDirtyAttributes'), 'record is not dirty');
+          assert.true(get(yehuda, 'errors.isEmpty'), 'record has no errors');
         });
     });
   });
@@ -1530,7 +1529,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     adapter.query = function(store, type, query, array, options) {
-      assert.ok(!('adapterOptions' in query));
+      assert.notOk('adapterOptions' in query);
       assert.deepEqual(options.adapterOptions, { query: { embed: true } });
       return { data: [] };
     };
@@ -1547,7 +1546,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     adapter.queryRecord = function(store, type, query, snapshot) {
-      assert.ok(!('adapterOptions' in query));
+      assert.notOk('adapterOptions' in query);
       assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
       return { data: { type: 'person', id: 1, attributes: {} } };
     };
