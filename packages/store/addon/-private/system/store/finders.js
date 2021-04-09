@@ -25,7 +25,7 @@ function payloadIsNotBlank(adapterPayload) {
 
 export function _find(adapter, store, modelClass, id, internalModel, options) {
   if (REQUEST_SERVICE) {
-    // assert here
+    assert(`Rquests made when REQUEST_SERVICE=true should not use the legacy finders`);
   }
   let snapshot = internalModel.createSnapshot(options);
   let { modelName } = internalModel;

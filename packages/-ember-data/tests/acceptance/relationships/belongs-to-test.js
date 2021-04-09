@@ -91,6 +91,10 @@ class TestAdapter extends JSONAPIAdapter {
     return this._nextPayload();
   }
 
+  updateRecord() {
+    return this._nextPayload();
+  }
+
   deleteRecord() {
     return resolve({ data: null });
   }
@@ -273,16 +277,16 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 2);
 
       let petOwner = await goofy.get('petOwner');
-      assert.equal(petOwner.get('name'), 'Pete');
+      assert.equal(petOwner.get('name'), 'Pete', 'We have the expected owner for goofy');
 
       petOwner = await tweety.get('petOwner');
-      assert.equal(petOwner.get('name'), 'Pete');
+      assert.equal(petOwner.get('name'), 'Pete', 'We have the expected owner for tweety');
 
       await goofy.destroyRecord();
-      assert.ok(goofy.isDeleted);
+      assert.ok(goofy.isDeleted, 'goofy is deleted after calling destroyRecord');
 
       await tweety.destroyRecord();
-      assert.ok(tweety.isDeleted);
+      assert.ok(tweety.isDeleted, 'tweety is deleted after calling destroyRecord');
 
       assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 0);
 

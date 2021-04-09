@@ -10,7 +10,6 @@ function isPlainObject(obj: any): boolean {
  */
 export function serializeQueryParams(queryParamsObject: object | string): string {
   let s: any[] = [];
-
   function buildParams(prefix: string, obj: any) {
     let i, len, key;
 
