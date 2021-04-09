@@ -397,7 +397,7 @@ const createdState = dirtyState({
   isNew: true,
 
   setup(internalModel) {
-    internalModel.updateRecordArrays();
+    internalModel.store.recordArrayManager.recordDidChange(internalModel.identifier);
   },
 });
 
@@ -628,7 +628,7 @@ const RootState = {
 
     // TRANSITIONS
     setup(internalModel) {
-      internalModel.updateRecordArrays();
+      internalModel.store.recordArrayManager.recordDidChange(internalModel.identifier);
     },
 
     // SUBSTATES

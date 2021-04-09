@@ -441,7 +441,7 @@ export default class InternalModel {
     }
 
     // move to an empty never-loaded state
-    this.updateRecordArrays();
+    this.store.recordArrayManager.recordDidChange(this.identifier);
     this._recordData.unloadRecord();
     this._record = null;
     this.isReloading = false;
@@ -1058,7 +1058,7 @@ export default class InternalModel {
       }
     }
     if (!key || key === 'isDeletionCommitted') {
-      this.updateRecordArrays();
+      this.store.recordArrayManager.recordDidChange(this.identifier);
     }
   }
 
@@ -1251,16 +1251,6 @@ export default class InternalModel {
     return { type: internalModel.modelName, id: internalModel.id };
   }
 
-  /*
-    Used to notify the store to update FilteredRecordArray membership.
-
-    @method updateRecordArrays
-    @private
-  */
-  updateRecordArrays() {
-    this.store.recordArrayManager.recordDidChange(this.identifier);
-  }
-
   setId(id: string) {
     let didChange = id !== this._id;
 
@@ -1326,7 +1316,7 @@ export default class InternalModel {
     let changedKeys = this._recordData.didCommit(data);
 
     this.send('didCommit');
-    this.updateRecordArrays();
+    this.store.recordArrayManager.recordDidChange(this.identifier);
 
     if (!data) {
       return;
