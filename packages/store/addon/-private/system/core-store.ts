@@ -1120,11 +1120,11 @@ abstract class CoreStore extends Service {
 
     //TODO double check about reloading
     if (!REQUEST_SERVICE) {
-      if (internalModel.isLoading()) {
+      if (internalModel.currentState.isLoading) {
         return internalModel._promiseProxy;
       }
     } else {
-      if (internalModel.isLoading()) {
+      if (internalModel.currentState.isLoading) {
         return this._scheduleFetch(internalModel, options);
       }
     }
@@ -1843,7 +1843,7 @@ abstract class CoreStore extends Service {
           return pendingRequests[0][RequestPromise].then(() => internalModel.getRecord());
         }
       } else {
-        if (internalModel.isLoading()) {
+        if (internalModel.currentState.isLoading) {
           return internalModel._promiseProxy.then(() => {
             return internalModel.getRecord();
           });

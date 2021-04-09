@@ -271,7 +271,7 @@ export default class InternalModel {
     }
 
     if (RECORD_DATA_STATE) {
-      if (this.isLoading()) {
+      if (this.currentState.isLoading) {
         return false;
       }
     }
@@ -303,10 +303,6 @@ export default class InternalModel {
       // assert here
       return false;
     }
-  }
-
-  isLoading() {
-    return this.currentState.isLoading;
   }
 
   hasDirtyAttributes() {
@@ -972,7 +968,7 @@ export default class InternalModel {
         return false;
       }
     } else {
-      if (this.isLoading() && !this.isReloading) {
+      if (this.currentState.isLoading && !this.isReloading) {
         // no need to calculate changed attributes when calling `findRecord`
         return false;
       }
@@ -994,7 +990,7 @@ export default class InternalModel {
         return {};
       }
     } else {
-      if (this.isLoading() && !this.isReloading) {
+      if (this.currentState.isLoading && !this.isReloading) {
         // no need to calculate changed attributes when calling `findRecord`
         return {};
       }
