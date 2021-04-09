@@ -26,7 +26,7 @@ function recordForIdentifier(store, identifier) {
   in response to queries.
 
   @class RecordArray
-  @extends ArrayProxy
+  @extends Ember.ArrayProxy
   @uses Ember.Evented
 */
 
