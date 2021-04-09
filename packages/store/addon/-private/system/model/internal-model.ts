@@ -329,12 +329,6 @@ export default class InternalModel {
     }
   }
 
-  isValid() {
-    if (!RECORD_DATA_ERRORS) {
-      return this.currentState.isValid;
-    }
-  }
-
   dirtyType() {
     return this.currentState.dirtyType;
   }
