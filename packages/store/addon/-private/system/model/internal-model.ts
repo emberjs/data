@@ -609,10 +609,6 @@ export default class InternalModel {
     }
   }
 
-  eachRelationship(callback, binding) {
-    return this.modelClass.eachRelationship(callback, binding);
-  }
-
   _findBelongsTo(key, resource, relationshipMeta, options) {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
