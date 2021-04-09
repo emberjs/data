@@ -513,11 +513,10 @@ abstract class CoreStore extends Service {
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
-    assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService', false);
     if (CUSTOM_MODEL_CLASS) {
       return this._schemaDefinitionService;
     }
-    return void 0 as never;
+    assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
   }
 
   // TODO Double check this return value is correct
@@ -3130,8 +3129,7 @@ abstract class CoreStore extends Service {
       return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
     }
 
-    assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
-    return void 0 as never;
+    assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
@@ -3185,8 +3183,7 @@ abstract class CoreStore extends Service {
       return new _RecordData(identifier, storeWrapper);
     }
 
-    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
-    return void 0 as never;
+    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
   }
 
   /**
