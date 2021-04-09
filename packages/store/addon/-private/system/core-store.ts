@@ -631,7 +631,7 @@ abstract class CoreStore extends Service {
         const factory = internalModelFactoryFor(this);
         const internalModel = factory.build({ type: normalizedModelName, id: properties.id });
 
-        internalModel.loadedData();
+        internalModel.send('loadedData');
         // TODO this exists just to proxy `isNew` to RecordData which is weird
         internalModel.didCreateRecord();
 
@@ -3211,7 +3211,7 @@ abstract class CoreStore extends Service {
     let internalModel;
     if (isCreate === true) {
       internalModel = internalModelFactoryFor(this).build({ type: identifier.type, id: null });
-      internalModel.loadedData();
+      internalModel.send('loadedData');
       internalModel.didCreateRecord();
     } else {
       internalModel = internalModelFactoryFor(this).lookup(identifier as StableRecordIdentifier);

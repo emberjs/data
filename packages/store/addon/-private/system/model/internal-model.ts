@@ -911,14 +911,6 @@ export default class InternalModel {
     }
   }
 
-  /*
-    @method loadedData
-    @private
-  */
-  loadedData() {
-    this.send('loadedData');
-  }
-
   hasChangedAttributes() {
     if (REQUEST_SERVICE) {
       if (!this.__recordData) {
