@@ -919,14 +919,6 @@ export default class InternalModel {
     this.send('loadedData');
   }
 
-  /*
-    @method notFound
-    @private
-  */
-  notFound() {
-    this.send('notFound');
-  }
-
   hasChangedAttributes() {
     if (REQUEST_SERVICE) {
       if (!this.__recordData) {

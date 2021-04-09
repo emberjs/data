@@ -64,7 +64,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
       return store._push(payload);
     },
     error => {
-      internalModel.notFound();
+      internalModel.send('notFound');
       if (internalModel.currentState.isEmpty) {
         internalModel.unloadRecord();
       }

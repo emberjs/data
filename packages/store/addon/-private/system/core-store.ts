@@ -1222,7 +1222,7 @@ abstract class CoreStore extends Service {
       },
       error => {
         // TODO  remove this once we don't rely on state machine
-        internalModel.notFound();
+        internalModel.send('notFound');
         if (internalModel.currentState.isEmpty) {
           internalModel.unloadRecord();
         }
