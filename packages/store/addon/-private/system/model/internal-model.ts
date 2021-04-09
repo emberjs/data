@@ -321,10 +321,6 @@ export default class InternalModel {
     return this.currentState.hasDirtyAttributes;
   }
 
-  isSaving() {
-    return this.currentState.isSaving;
-  }
-
   isDeleted() {
     if (RECORD_DATA_STATE) {
       if (this._recordData.isDeleted) {
