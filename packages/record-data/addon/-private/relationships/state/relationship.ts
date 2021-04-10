@@ -235,7 +235,7 @@ export default class Relationship {
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
     this.forAllMembers(inverseRecordData => {
-      if (!this._hasSupportForRelationships(inverseRecordData)) {
+      if (!inverseRecordData || !this._hasSupportForRelationships(inverseRecordData)) {
         return;
       }
       let relationship = relationshipStateFor(inverseRecordData, inverseKey);
@@ -253,7 +253,7 @@ export default class Relationship {
     });
   }
 
-  forAllMembers(callback: (im: RelationshipRecordData) => void) {
+  forAllMembers(callback: (im: RelationshipRecordData | null) => void) {
     let seen = Object.create(null);
 
     for (let i = 0; i < this.members.list.length; i++) {
@@ -380,13 +380,14 @@ export default class Relationship {
     }
   }
 
-  removeCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
+  removeCanonicalRecordData(recordData: RelationshipRecordData | null, idx?: number) {
     if (this.canonicalMembers.has(recordData)) {
       this.removeCanonicalRecordDataFromOwn(recordData, idx);
       if (this.inverseKey) {
         this.removeCanonicalRecordDataFromInverse(recordData);
       } else {
         if (
+          recordData !== null &&
           this._hasSupportForImplicitRelationships(recordData) &&
           recordData._implicitRelationships[this.inverseKeyForImplicit]
         ) {
@@ -421,13 +422,14 @@ export default class Relationship {
     this.setHasAnyRelationshipData(true);
   }
 
-  removeRecordData(recordData: RelationshipRecordData) {
+  removeRecordData(recordData: RelationshipRecordData | null) {
     if (this.members.has(recordData)) {
       this.removeRecordDataFromOwn(recordData);
       if (this.inverseKey) {
         this.removeRecordDataFromInverse(recordData);
       } else {
         if (
+          recordData !== null &&
           this._hasSupportForImplicitRelationships(recordData) &&
           recordData._implicitRelationships[this.inverseKeyForImplicit]
         ) {
@@ -437,8 +439,8 @@ export default class Relationship {
     }
   }
 
-  removeRecordDataFromInverse(recordData: RelationshipRecordData) {
-    if (!this._hasSupportForRelationships(recordData)) {
+  removeRecordDataFromInverse(recordData: RelationshipRecordData | null) {
+    if (!recordData || !this._hasSupportForRelationships(recordData)) {
       return;
     }
     if (this.inverseKey) {
@@ -454,8 +456,8 @@ export default class Relationship {
     this.members.delete(recordData);
   }
 
-  removeCanonicalRecordDataFromInverse(recordData: RelationshipRecordData) {
-    if (!this._hasSupportForRelationships(recordData)) {
+  removeCanonicalRecordDataFromInverse(recordData: RelationshipRecordData | null) {
+    if (!recordData || !this._hasSupportForRelationships(recordData)) {
       return;
     }
     if (this.inverseKey) {

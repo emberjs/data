@@ -55,7 +55,7 @@ export default class OrderedSet {
   @param {*} obj
   @return {OrderedSet}
   */
-  add(obj: RelationshipRecordData): OrderedSet {
+  add(obj: RelationshipRecordData | null): OrderedSet {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
@@ -74,7 +74,7 @@ export default class OrderedSet {
   @param {*} obj
   @return {Boolean}
   */
-  delete(obj: RelationshipRecordData): boolean {
+  delete(obj: RelationshipRecordData | null): boolean {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
@@ -98,7 +98,7 @@ export default class OrderedSet {
   @param {*} obj
   @return {Boolean}
   */
-  has(obj: RelationshipRecordData): boolean {
+  has(obj: RelationshipRecordData | null): boolean {
     if (this.size === 0) {
       return false;
     }
@@ -132,7 +132,7 @@ export default class OrderedSet {
     return set;
   }
 
-  addWithIndex(obj: RelationshipRecordData, idx?: number) {
+  addWithIndex(obj: RelationshipRecordData | null, idx?: number) {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
