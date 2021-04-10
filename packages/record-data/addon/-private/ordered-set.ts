@@ -28,10 +28,6 @@ function guidFor(obj): string {
   return obj.clientId || obj.lid;
 }
 
-/**
-@class OrderedSet
-@constructor
-*/
 export default class OrderedSet {
   declare presenceSet: Dict<RelationshipRecordData | null>;
   declare list: (RelationshipRecordData | null)[];
@@ -41,20 +37,12 @@ export default class OrderedSet {
     this.clear();
   }
 
-  /**
-  @method clear
-  */
   clear() {
     this.presenceSet = Object.create(null);
     this.list = [];
     this.size = 0;
   }
 
-  /**
-  @method add
-  @param {*} obj
-  @return {OrderedSet}
-  */
   add(obj: RelationshipRecordData | null): OrderedSet {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
@@ -69,11 +57,6 @@ export default class OrderedSet {
     return this;
   }
 
-  /**
-  @method delete
-  @param {*} obj
-  @return {Boolean}
-  */
   delete(obj: RelationshipRecordData | null): boolean {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
@@ -93,11 +76,6 @@ export default class OrderedSet {
     }
   }
 
-  /**
-  @method has
-  @param {*} obj
-  @return {Boolean}
-  */
   has(obj: RelationshipRecordData | null): boolean {
     if (this.size === 0) {
       return false;
@@ -107,18 +85,10 @@ export default class OrderedSet {
     return this.presenceSet[guid] === obj;
   }
 
-  /**
-  @method toArray
-  @return {Array}
-  */
   toArray(): (RelationshipRecordData | null)[] {
     return this.list.slice();
   }
 
-  /**
-  @method copy
-  @return {OrderedSet}
-  */
   copy(): OrderedSet {
     let set = new OrderedSet();
 
