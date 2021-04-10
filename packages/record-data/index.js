@@ -12,7 +12,6 @@ module.exports = Object.assign({}, addonBaseConfig, {
     return [
       '@ember-data/store/-debug',
       '@ember-data/store/-private',
-      '@ember/ordered-set',
       '@ember-data/store',
       '@ember-data/canary-features',
     ];

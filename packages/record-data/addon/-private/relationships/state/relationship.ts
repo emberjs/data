@@ -515,8 +515,8 @@ export default class Relationship {
       };
     }
 
-    this.members.forEach(unload);
-    this.canonicalMembers.forEach(unload);
+    this.members.toArray().forEach(unload);
+    this.canonicalMembers.toArray().forEach(unload);
 
     if (!this.isAsync) {
       this.clear();
