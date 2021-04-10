@@ -27,8 +27,8 @@ export default class Relationship {
   inverseIsAsync: boolean | undefined;
   kind?: string;
   recordData: RelationshipRecordData;
-  members: OrderedSet<RelationshipRecordData>;
-  canonicalMembers: OrderedSet<RelationshipRecordData>;
+  members: OrderedSet;
+  canonicalMembers: OrderedSet;
   store: any;
   key: string | null;
   inverseKey: string | null;
