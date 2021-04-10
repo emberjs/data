@@ -6,7 +6,6 @@ import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
-import Ember from 'ember';
 
 import RSVP, { Promise } from 'rsvp';
 
@@ -155,9 +154,9 @@ export default class InternalModel {
   declare _record: any;
   declare _scheduledDestroy: any;
   declare _modelClass: any;
-  declare __deferredTriggers: any;
+  declare _deferredTriggers: any;
   declare __recordArrays: any;
-  declare _references: any;
+  declare references: any;
   declare _recordReference: any;
   declare _manyArrayCache: ConfidentDict<ManyArray>;
 
@@ -181,12 +180,10 @@ export default class InternalModel {
 
     this.__recordData = null;
 
-    // this ensure ordered set can quickly identify this as unique
-    this[Ember.GUID_KEY] = identifier.lid;
-
     this._promiseProxy = null;
     this._record = null;
     this._isDestroyed = false;
+    this._doNotDestroy = false;
     this.isError = false;
     this._pendingRecordArrayManagerFlush = false; // used by the recordArrayManager
 
@@ -198,14 +195,15 @@ export default class InternalModel {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
 
-    this.resetRecord();
-
     // caches for lazy getters
     this._modelClass = null;
-    this.__deferredTriggers = null;
     this.__recordArrays = null;
-    this._references = null;
     this._recordReference = null;
+    this.__recordData = null;
+
+    this.isReloading = false;
+    this.error = null;
+    this.currentState = RootState.empty;
 
     // other caches
     // class fields have [[DEFINE]] semantics which are significantly slower than [[SET]] semantics here
@@ -213,6 +211,8 @@ export default class InternalModel {
     this._retainedManyArrayCache = Object.create(null);
     this._relationshipPromisesCache = Object.create(null);
     this._relationshipProxyCache = Object.create(null);
+    this.references = Object.create(null);
+    this._deferredTriggers = [];
   }
 
   get id(): string | null {
@@ -256,20 +256,6 @@ export default class InternalModel {
 
   set _recordData(newValue) {
     this.__recordData = newValue;
-  }
-
-  get references() {
-    if (this._references === null) {
-      this._references = Object.create(null);
-    }
-    return this._references;
-  }
-
-  get _deferredTriggers() {
-    if (this.__deferredTriggers === null) {
-      this.__deferredTriggers = [];
-    }
-    return this.__deferredTriggers;
   }
 
   isHiddenFromRecordArrays() {
@@ -457,13 +443,6 @@ export default class InternalModel {
     return this._record;
   }
 
-  resetRecord() {
-    this._record = null;
-    this.isReloading = false;
-    this.error = null;
-    this.currentState = RootState.empty;
-  }
-
   dematerializeRecord() {
     this._isDematerializing = true;
 
@@ -504,7 +483,10 @@ export default class InternalModel {
     // move to an empty never-loaded state
     this.updateRecordArrays();
     this._recordData.unloadRecord();
-    this.resetRecord();
+    this._record = null;
+    this.isReloading = false;
+    this.error = null;
+    this.currentState = RootState.empty;
   }
 
   deleteRecord() {
