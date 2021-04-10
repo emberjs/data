@@ -1,0 +1,34 @@
+name: Performance Checks
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  relationship-performance-check:
+    name: 'Relationship Materialization'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Check SHA
+        run: |
+          sha=$(git rev-parse --short=8 HEAD)
+          echo "HEAD sha=$sha"
+          echo "GITHUB_SHA sha=$GITHUB_SHA"
+          mkdir -p tmp
+          echo $sha > tmp/sha-for-check.txt
+          originSha=$(git rev-parse HEAD^2)
+          echo $originSha > tmp/sha-for-commit.txt
+          git show --format=short --no-patch $originSha
+      - uses: tracerbench/tracerbench-compare-action@master
+        with:
+          experiment-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
+          experiment-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-experiment --port 4201
+          experiment-url: 'http://localhost:4201/materialization'
+          control-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-control
+          control-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-control
+          control-url: 'http://localhost:4200/materialization'
+          markers: 'start-find-all,start-outer-materialization,stop-outer-materialization,end-find-all'
