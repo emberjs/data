@@ -138,7 +138,7 @@ function extractPivotName(name) {
 */
 export default class InternalModel {
   _id: string | null;
-  _tag: number = 0;
+  _tag: number;
   modelName: string;
   clientId: string;
   __recordData: RecordData | null;
@@ -159,14 +159,14 @@ export default class InternalModel {
   __recordArrays: any;
   _references: any;
   _recordReference: any;
-  _manyArrayCache: ConfidentDict<ManyArray> = Object.create(null);
+  _manyArrayCache: ConfidentDict<ManyArray>;
 
   // The previous ManyArrays for this relationship which will be destroyed when
   // we create a new ManyArray, but in the interim the retained version will be
   // updated if inverse internal models are unloaded.
-  _retainedManyArrayCache: ConfidentDict<ManyArray> = Object.create(null);
-  _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>> = Object.create(null);
-  _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo> = Object.create(null);
+  _retainedManyArrayCache: ConfidentDict<ManyArray>;
+  _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
+  _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
   currentState: any;
   error: any;
 
@@ -174,6 +174,7 @@ export default class InternalModel {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
+    this._tag = 0;
     this._id = identifier.id;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
@@ -205,6 +206,13 @@ export default class InternalModel {
     this.__recordArrays = null;
     this._references = null;
     this._recordReference = null;
+
+    // other caches
+    // class fields have [[DEFINE]] semantics which are significantly slower than [[SET]] semantics here
+    this._manyArrayCache = Object.create(null);
+    this._retainedManyArrayCache = Object.create(null);
+    this._relationshipPromisesCache = Object.create(null);
+    this._relationshipProxyCache = Object.create(null);
   }
 
   get id(): string | null {
