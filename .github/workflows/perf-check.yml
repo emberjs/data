@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: ember-performance-monitoring/tracerbench-compare-action@master
+      - uses: tracerbench/tracerbench-compare-action@master
         with:
           experiment-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
           experiment-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-experiment --port 4201
