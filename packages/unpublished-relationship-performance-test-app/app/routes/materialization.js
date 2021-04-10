@@ -1,7 +1,5 @@
 import Route from '@ember/routing/route';
 
-import { endTrace } from '../utils/end-trace';
-
 export default Route.extend({
   model() {
     performance.mark('start-find-all');
@@ -24,9 +22,5 @@ export default Route.extend({
 
       return flattened;
     });
-  },
-
-  afterModel() {
-    endTrace();
   },
 });
