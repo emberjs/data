@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - uses: tracerbench/tracerbench-compare-action@master
         with:
           experiment-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
