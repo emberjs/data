@@ -5,10 +5,26 @@ type RelationshipRecordData = import('./ts-interfaces/relationship-record-data')
 
 const NULL_POINTER = `null-${Date.now()}`;
 
+/*
+ TODO Ember's guidFor returns a new string per-object reference
+ while ours does not.
+
+ This has surfaced a bug during resurrection
+ in which Ember's guidFor would return false for `has` since the
+ resurrected record receives a fresh RecordData instance, leaving
+ the destroyed record in the set and thus depending on the state flags
+ for it not appearing elsewhere. We've accounted for this bug in the
+ updated OrderedSet implementation by doing a reference check: e.g.
+ the bug is preserved.
+
+ While we convert relationships to identifiers this will be something we
+ will be forced to address.
+*/
 function guidFor(obj): string {
   if (obj === null) {
     return NULL_POINTER;
   }
+
   return obj.clientId || obj.lid;
 }
 
@@ -17,7 +33,7 @@ function guidFor(obj): string {
 @constructor
 */
 export default class OrderedSet {
-  declare presenceSet: Dict<boolean>;
+  declare presenceSet: Dict<RelationshipRecordData | null>;
   declare list: (RelationshipRecordData | null)[];
   declare size: number;
 
@@ -45,8 +61,8 @@ export default class OrderedSet {
     let presenceSet = this.presenceSet;
     let list = this.list;
 
-    if (presenceSet[guid] !== true) {
-      presenceSet[guid] = true;
+    if (presenceSet[guid] !== obj) {
+      presenceSet[guid] = obj;
       this.size = list.push(obj);
     }
 
@@ -56,7 +72,6 @@ export default class OrderedSet {
   /**
   @method delete
   @param {*} obj
-  @param {string} [_guid] (for internal use)
   @return {Boolean}
   */
   delete(obj: RelationshipRecordData): boolean {
@@ -65,7 +80,7 @@ export default class OrderedSet {
     let presenceSet = this.presenceSet;
     let list = this.list;
 
-    if (presenceSet[guid] === true) {
+    if (presenceSet[guid] === obj) {
       delete presenceSet[guid];
       let index = list.indexOf(obj);
       if (index > -1) {
@@ -89,7 +104,7 @@ export default class OrderedSet {
     }
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
-    return this.presenceSet[guid] === true;
+    return this.presenceSet[guid] === obj;
   }
 
   /**
@@ -123,11 +138,11 @@ export default class OrderedSet {
     let presenceSet = this.presenceSet;
     let list = this.list;
 
-    if (presenceSet[guid] === true) {
+    if (presenceSet[guid] === obj) {
       return;
     }
 
-    presenceSet[guid] = true;
+    presenceSet[guid] = obj;
 
     if (idx === undefined || idx === null) {
       list.push(obj);
@@ -146,7 +161,7 @@ export default class OrderedSet {
     let presenceSet = this.presenceSet;
     let list = this.list;
 
-    if (presenceSet[guid] === true) {
+    if (presenceSet[guid] === obj) {
       delete presenceSet[guid];
 
       assert('object is not present at specified index', idx === undefined || list[idx] === obj);
