@@ -43,6 +43,9 @@
     "loader.js": "^4.7.0",
     "qunit-dom": "^1.2.0"
   },
+  "ember": {
+    "edition": "octane"
+  },
   "engines": {
     "node": "10.* || >= 12.*"
   },
