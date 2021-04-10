@@ -137,38 +137,38 @@ function extractPivotName(name) {
   @class InternalModel
 */
 export default class InternalModel {
-  _id: string | null;
-  _tag: number;
-  modelName: string;
-  clientId: string;
-  __recordData: RecordData | null;
-  _isDestroyed: boolean;
-  isError: boolean;
-  _pendingRecordArrayManagerFlush: boolean;
-  _isDematerializing: boolean;
-  isReloading: boolean;
-  _doNotDestroy: boolean;
-  isDestroying: boolean;
+  declare _id: string | null;
+  declare _tag: number;
+  declare modelName: string;
+  declare clientId: string;
+  declare __recordData: RecordData | null;
+  declare _isDestroyed: boolean;
+  declare isError: boolean;
+  declare _pendingRecordArrayManagerFlush: boolean;
+  declare _isDematerializing: boolean;
+  declare isReloading: boolean;
+  declare _doNotDestroy: boolean;
+  declare isDestroying: boolean;
 
   // Not typed yet
-  _promiseProxy: any;
-  _record: any;
-  _scheduledDestroy: any;
-  _modelClass: any;
-  __deferredTriggers: any;
-  __recordArrays: any;
-  _references: any;
-  _recordReference: any;
-  _manyArrayCache: ConfidentDict<ManyArray>;
+  declare _promiseProxy: any;
+  declare _record: any;
+  declare _scheduledDestroy: any;
+  declare _modelClass: any;
+  declare __deferredTriggers: any;
+  declare __recordArrays: any;
+  declare _references: any;
+  declare _recordReference: any;
+  declare _manyArrayCache: ConfidentDict<ManyArray>;
 
   // The previous ManyArrays for this relationship which will be destroyed when
   // we create a new ManyArray, but in the interim the retained version will be
   // updated if inverse internal models are unloaded.
-  _retainedManyArrayCache: ConfidentDict<ManyArray>;
-  _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
-  _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
-  currentState: any;
-  error: any;
+  declare _retainedManyArrayCache: ConfidentDict<ManyArray>;
+  declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
+  declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
+  declare currentState: any;
+  declare error: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
