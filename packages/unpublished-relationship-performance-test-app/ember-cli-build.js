@@ -9,6 +9,9 @@ module.exports = function(defaults) {
     fingerprint: {
       enabled: false,
     },
+    emberData: {
+      compatWith: '99',
+    },
   });
 
   // Use `app.import` to add additional libraries to the generated
