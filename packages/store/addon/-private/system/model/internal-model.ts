@@ -6,7 +6,6 @@ import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
-import Ember from 'ember';
 
 import RSVP, { Promise } from 'rsvp';
 
@@ -137,55 +136,54 @@ function extractPivotName(name) {
   @class InternalModel
 */
 export default class InternalModel {
-  _id: string | null;
-  _tag: number = 0;
-  modelName: string;
-  clientId: string;
-  __recordData: RecordData | null;
-  _isDestroyed: boolean;
-  isError: boolean;
-  _pendingRecordArrayManagerFlush: boolean;
-  _isDematerializing: boolean;
-  isReloading: boolean;
-  _doNotDestroy: boolean;
-  isDestroying: boolean;
+  declare _id: string | null;
+  declare _tag: number;
+  declare modelName: string;
+  declare clientId: string;
+  declare __recordData: RecordData | null;
+  declare _isDestroyed: boolean;
+  declare isError: boolean;
+  declare _pendingRecordArrayManagerFlush: boolean;
+  declare _isDematerializing: boolean;
+  declare isReloading: boolean;
+  declare _doNotDestroy: boolean;
+  declare isDestroying: boolean;
 
   // Not typed yet
-  _promiseProxy: any;
-  _record: any;
-  _scheduledDestroy: any;
-  _modelClass: any;
-  __deferredTriggers: any;
-  __recordArrays: any;
-  _references: any;
-  _recordReference: any;
-  _manyArrayCache: ConfidentDict<ManyArray> = Object.create(null);
+  declare _promiseProxy: any;
+  declare _record: any;
+  declare _scheduledDestroy: any;
+  declare _modelClass: any;
+  declare _deferredTriggers: any;
+  declare __recordArrays: any;
+  declare references: any;
+  declare _recordReference: any;
+  declare _manyArrayCache: ConfidentDict<ManyArray>;
 
   // The previous ManyArrays for this relationship which will be destroyed when
   // we create a new ManyArray, but in the interim the retained version will be
   // updated if inverse internal models are unloaded.
-  _retainedManyArrayCache: ConfidentDict<ManyArray> = Object.create(null);
-  _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>> = Object.create(null);
-  _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo> = Object.create(null);
-  currentState: any;
-  error: any;
+  declare _retainedManyArrayCache: ConfidentDict<ManyArray>;
+  declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
+  declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
+  declare currentState: any;
+  declare error: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
+    this._tag = 0;
     this._id = identifier.id;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
 
     this.__recordData = null;
 
-    // this ensure ordered set can quickly identify this as unique
-    this[Ember.GUID_KEY] = identifier.lid;
-
     this._promiseProxy = null;
     this._record = null;
     this._isDestroyed = false;
+    this._doNotDestroy = false;
     this.isError = false;
     this._pendingRecordArrayManagerFlush = false; // used by the recordArrayManager
 
@@ -197,14 +195,24 @@ export default class InternalModel {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
 
-    this.resetRecord();
-
     // caches for lazy getters
     this._modelClass = null;
-    this.__deferredTriggers = null;
     this.__recordArrays = null;
-    this._references = null;
     this._recordReference = null;
+    this.__recordData = null;
+
+    this.isReloading = false;
+    this.error = null;
+    this.currentState = RootState.empty;
+
+    // other caches
+    // class fields have [[DEFINE]] semantics which are significantly slower than [[SET]] semantics here
+    this._manyArrayCache = Object.create(null);
+    this._retainedManyArrayCache = Object.create(null);
+    this._relationshipPromisesCache = Object.create(null);
+    this._relationshipProxyCache = Object.create(null);
+    this.references = Object.create(null);
+    this._deferredTriggers = [];
   }
 
   get id(): string | null {
@@ -248,20 +256,6 @@ export default class InternalModel {
 
   set _recordData(newValue) {
     this.__recordData = newValue;
-  }
-
-  get references() {
-    if (this._references === null) {
-      this._references = Object.create(null);
-    }
-    return this._references;
-  }
-
-  get _deferredTriggers() {
-    if (this.__deferredTriggers === null) {
-      this.__deferredTriggers = [];
-    }
-    return this.__deferredTriggers;
   }
 
   isHiddenFromRecordArrays() {
@@ -449,13 +443,6 @@ export default class InternalModel {
     return this._record;
   }
 
-  resetRecord() {
-    this._record = null;
-    this.isReloading = false;
-    this.error = null;
-    this.currentState = RootState.empty;
-  }
-
   dematerializeRecord() {
     this._isDematerializing = true;
 
@@ -496,7 +483,10 @@ export default class InternalModel {
     // move to an empty never-loaded state
     this.updateRecordArrays();
     this._recordData.unloadRecord();
-    this.resetRecord();
+    this._record = null;
+    this.isReloading = false;
+    this.error = null;
+    this.currentState = RootState.empty;
   }
 
   deleteRecord() {
