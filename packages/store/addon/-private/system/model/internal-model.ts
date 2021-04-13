@@ -1278,10 +1278,10 @@ export default class InternalModel {
     }
 
     if (didChange && this.hasRecord) {
+      set(this, '_tag', this._tag + 1);
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'identity');
       } else {
-        set(this, '_tag', this._tag + 1);
         this.notifyPropertyChange('id');
       }
     }
