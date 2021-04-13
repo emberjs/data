@@ -105,7 +105,7 @@ module('integration/record_array_manager', function(hooks) {
       1,
       'initial: expected the person to be a member of 1 recordArrays'
     );
-    assert.equal('person' in manager._liveRecordArrays, true, 'initial: we have a live array for person');
+    assert.true('person' in manager._liveRecordArrays, 'initial: we have a live array for person');
 
     all.destroy();
     await settled();
@@ -116,7 +116,7 @@ module('integration/record_array_manager', function(hooks) {
       'expected the person to be a member of no recordArrays'
     );
     assert.equal(allSummary.called.length, 1, 'all.willDestroy called once');
-    assert.equal('person' in manager._liveRecordArrays, false, 'no longer have a live array for person');
+    assert.false('person' in manager._liveRecordArrays, 'no longer have a live array for person');
 
     manager.destroy();
     await settled();
@@ -244,7 +244,7 @@ module('integration/record_array_manager', function(hooks) {
     let recordArray = manager.createRecordArray('foo');
 
     assert.equal(recordArray.modelName, 'foo');
-    assert.equal(recordArray.isLoaded, true);
+    assert.true(recordArray.isLoaded);
     assert.equal(recordArray.manager, manager);
     assert.deepEqual(recordArray.get('content'), []);
     assert.deepEqual(recordArray.toArray(), []);
@@ -266,7 +266,7 @@ module('integration/record_array_manager', function(hooks) {
     let recordArray = manager.createRecordArray('foo', content);
 
     assert.equal(recordArray.modelName, 'foo', 'has modelName');
-    assert.equal(recordArray.isLoaded, true, 'isLoaded is true');
+    assert.true(recordArray.isLoaded, 'isLoaded is true');
     assert.equal(recordArray.manager, manager, 'recordArray has manager');
     assert.deepEqual(recordArray.get('content'), [recordIdentifierFor(record)], 'recordArray has content');
     assert.deepEqual(recordArray.toArray(), [record], 'toArray works');

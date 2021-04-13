@@ -130,15 +130,15 @@ module('integration/snapshot - Snapshot', function(hooks) {
     let postInternalModel = store._internalModelForId('post', 1);
     let snapshot = await postInternalModel.createSnapshot();
 
-    assert.equal(false, postClassLoaded, 'model class is not eagerly loaded');
+    assert.false(postClassLoaded, 'model class is not eagerly loaded');
     assert.equal(snapshot.type, _Post, 'type is correct');
-    assert.equal(true, postClassLoaded, 'model class is loaded');
+    assert.true(postClassLoaded, 'model class is loaded');
   });
 
   test('an initial findRecord call has no record for internal-model when a snapshot is generated', function(assert) {
     assert.expect(2);
     store.adapterFor('application').findRecord = (store, type, id, snapshot) => {
-      assert.equal(snapshot._internalModel.hasRecord, false, 'We do not have a materialized record');
+      assert.false(snapshot._internalModel.hasRecord, 'We do not have a materialized record');
       assert.equal(snapshot.__attributes, null, 'attributes were not populated initially');
       return resolve({
         data: {

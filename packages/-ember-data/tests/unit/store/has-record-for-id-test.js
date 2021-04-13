@@ -45,11 +45,7 @@ module('unit/store/hasRecordForId - Store hasRecordForId', function(hooks) {
         },
       });
 
-      assert.equal(
-        false,
-        store.hasRecordForId('phone-number', 1),
-        'hasRecordForId only returns true for loaded records'
-      );
+      assert.false(store.hasRecordForId('phone-number', 1), 'hasRecordForId only returns true for loaded records');
     });
   });
 
@@ -73,11 +69,7 @@ module('unit/store/hasRecordForId - Store hasRecordForId', function(hooks) {
         },
       });
 
-      assert.equal(
-        true,
-        store.hasRecordForId('person', 1),
-        'hasRecordForId returns true for records loaded into the store'
-      );
+      assert.true(store.hasRecordForId('person', 1), 'hasRecordForId returns true for records loaded into the store');
     });
   });
 });

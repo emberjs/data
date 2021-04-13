@@ -295,7 +295,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, 'POST');
         assert.deepEqual(passedHash.data, { post: { id: 'some-uuid', name: 'The Parley Letter' } });
 
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
         assert.equal(post.get('name'), 'The Parley Letter', 'the post was updated');
       });
     });
@@ -328,7 +328,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
         assert.equal(post.get('id'), '1', 'the post has the updated ID');
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
         assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
       });
     });
@@ -344,7 +344,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
       assert.equal(post.get('id'), '1', 'the post has the updated ID');
-      assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+      assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
       assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
     });
   });
@@ -383,7 +383,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
     return run(() => {
       return comment.save().then(comment => {
-        assert.equal(comment.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+        assert.false(comment.get('hasDirtyAttributes'), "the post isn't dirty anymore");
         assert.equal(comment.get('name'), 'Dat Parley Letter', 'the post was updated');
         assert.equal(comment.get('post'), post, 'the post is still set');
       });
@@ -631,10 +631,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
 
     return run(() => {
       return post.save().then(record => {
-        assert.equal(store.peekRecord('post', 1).get('comment.isLoaded'), true, "post's comment isLoaded (via store)");
-        assert.equal(store.peekRecord('comment', 1).get('post.isLoaded'), true, "comment's post isLoaded (via store)");
-        assert.equal(record.get('comment.isLoaded'), true, "post's comment isLoaded (via record)");
-        assert.equal(record.get('comment.post.isLoaded'), true, "post's comment's post isLoaded (via record)");
+        assert.true(store.peekRecord('post', 1).get('comment.isLoaded'), "post's comment isLoaded (via store)");
+        assert.true(store.peekRecord('comment', 1).get('post.isLoaded'), "comment's post isLoaded (via store)");
+        assert.true(record.get('comment.isLoaded'), "post's comment isLoaded (via record)");
+        assert.true(record.get('comment.post.isLoaded'), "post's comment's post isLoaded (via record)");
       });
     });
   });
@@ -734,7 +734,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, 'PUT');
         assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
         assert.equal(post.get('name'), 'The Parley Letter', 'the post was updated');
       });
     });
@@ -800,7 +800,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, 'PUT');
         assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
         assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
       });
   });
@@ -832,7 +832,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, 'PUT');
         assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
         assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
       });
   });
@@ -852,7 +852,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
         assert.equal(post.get('id'), '1', 'the post has the updated ID');
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
         assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
 
         let comment = store.peekRecord('comment', 1);
@@ -891,7 +891,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, 'PUT');
         assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
         assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
 
         let comment = store.peekRecord('comment', 1);
@@ -1025,8 +1025,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, 'DELETE');
         assert.strictEqual(passedHash, undefined);
 
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
-        assert.equal(post.get('isDeleted'), true, 'the post is now deleted');
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+        assert.true(post.get('isDeleted'), 'the post is now deleted');
       });
   });
 
@@ -1088,8 +1088,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, 'DELETE');
         assert.strictEqual(passedHash, undefined);
 
-        assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
-        assert.equal(post.get('isDeleted'), true, 'the post is now deleted');
+        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+        assert.true(post.get('isDeleted'), 'the post is now deleted');
 
         let comment = store.peekRecord('comment', 1);
         assert.equal(comment.get('name'), 'FIRST', 'The comment was sideloaded');
@@ -1123,8 +1123,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, 'DELETE');
         assert.strictEqual(passedHash, undefined);
 
-        assert.equal(post.get('hasDirtyAttributes'), false, "the original post isn't dirty anymore");
-        assert.equal(post.get('isDeleted'), true, 'the original post is now deleted');
+        assert.false(post.get('hasDirtyAttributes'), "the original post isn't dirty anymore");
+        assert.true(post.get('isDeleted'), 'the original post is now deleted');
 
         let newPost = store.peekRecord('post', 2);
         assert.equal(newPost.get('name'), 'The Parley Letter', 'The new post was added to the store');
@@ -1141,8 +1141,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
         assert.equal(passedVerb, null, 'There is no ajax call to delete a record that has never been saved.');
         assert.equal(passedHash, null, 'There is no ajax call to delete a record that has never been saved.');
 
-        assert.equal(post.get('isDeleted'), true, 'the post is now deleted');
-        assert.equal(post.get('isError'), false, 'the post is not an error');
+        assert.true(post.get('isDeleted'), 'the post is now deleted');
+        assert.false(post.get('isError'), 'the post is not an error');
       });
     });
   });
@@ -1168,7 +1168,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
       assert.equal(posts.get('length'), 2, 'The posts are in the array');
-      assert.equal(posts.get('isLoaded'), true, 'The RecordArray is loaded');
+      assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
       assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
     });
   });
@@ -1243,7 +1243,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
       assert.equal(posts.get('length'), 2, 'The posts are in the array');
-      assert.equal(posts.get('isLoaded'), true, 'The RecordArray is loaded');
+      assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
       assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
     });
   });
@@ -1370,7 +1370,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
       assert.equal(posts.get('length'), 2, 'The posts are in the array');
-      assert.equal(posts.get('isLoaded'), true, 'The RecordArray is loaded');
+      assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
       assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
     });
   });
@@ -1416,7 +1416,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
       assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
       assert.equal(posts.get('length'), 2, 'The posts are in the array');
-      assert.equal(posts.get('isLoaded'), true, 'The RecordArray is loaded');
+      assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
       assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
     });
   });
@@ -2664,7 +2664,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-  test('error handling includes a detailed message from the server', assert => {
+  test('error handling includes a detailed message from the server', function(assert) {
     assert.expect(2);
 
     ajaxError('An error message, perhaps generated from a backend server!', 500, {
@@ -2682,7 +2682,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-  test('error handling with a very long HTML-formatted payload truncates the friendly message', assert => {
+  test('error handling with a very long HTML-formatted payload truncates the friendly message', function(assert) {
     assert.expect(2);
 
     ajaxError(new Array(100).join('<blink />'), 500, { 'Content-Type': 'text/html' });
@@ -2698,7 +2698,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-  test('findAll resolves with a collection of DS.Models, not DS.InternalModels', assert => {
+  test('findAll resolves with a collection of DS.Models, not DS.InternalModels', function(assert) {
     assert.expect(4);
 
     ajaxResponse({

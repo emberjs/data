@@ -100,7 +100,7 @@ module('integration/store - serializerFor', function(hooks) {
     let serializerAgain = store.serializerFor('application');
 
     assert.ok(serializerAgain instanceof AppSerializer, 'We found the correct serializer');
-    assert.ok(!didInstantiate, 'We did not instantiate the serializer again');
+    assert.notOk(didInstantiate, 'We did not instantiate the serializer again');
     assert.ok(serializer === serializerAgain, 'Repeated calls to serializerFor return the same instance');
   });
 
@@ -156,7 +156,7 @@ module('integration/store - serializerFor', function(hooks) {
 
     assert.ok(serializer instanceof PersonSerializer, 'We found the correct serializer');
     assert.ok(didInstantiatePersonSerializer, 'We instantiated the person serializer');
-    assert.ok(!didInstantiateAppSerializer, 'We did not instantiate the application serializer');
+    assert.notOk(didInstantiateAppSerializer, 'We did not instantiate the application serializer');
 
     let appSerializer = store.serializerFor('application');
     assert.ok(appSerializer instanceof AppSerializer, 'We found the correct serializer');
@@ -184,7 +184,7 @@ module('integration/store - serializerFor', function(hooks) {
 
     let appSerializer = store.serializerFor('application');
     assert.ok(appSerializer instanceof AppSerializer, 'We found the correct serializer');
-    assert.ok(!didInstantiateAppSerializer, 'We did not instantiate the serializer again');
+    assert.notOk(didInstantiateAppSerializer, 'We did not instantiate the serializer again');
     assert.ok(appSerializer === serializer, 'We fell back to the application serializer instance');
   });
 

@@ -294,8 +294,8 @@ if (CUSTOM_MODEL_CLASS) {
         },
       };
       store.registerSchemaDefinitionService(schema);
-      assert.equal(store._hasModelFor('person'), true, 'hasModelFor matches schema hook when true');
-      assert.equal(store._hasModelFor('boat'), false, 'hasModelFor matches schema hook when false');
+      assert.true(store._hasModelFor('person'), 'hasModelFor matches schema hook when true');
+      assert.false(store._hasModelFor('boat'), 'hasModelFor matches schema hook when false');
     });
 
     test('store.saveRecord', async function(assert) {
@@ -332,10 +332,10 @@ if (CUSTOM_MODEL_CLASS) {
       let CreationStore = CustomStore.extend({
         instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
           rd = recordDataFor(identifier);
-          assert.equal(rd.isDeleted!(), false, 'we are not deleted when we start');
+          assert.false(rd.isDeleted!(), 'we are not deleted when we start');
           notificationManager.subscribe(identifier, (passedId, key) => {
             assert.equal(key, 'state', 'state change to deleted has been notified');
-            assert.equal(recordDataFor(identifier).isDeleted(), true, 'we have been marked as deleted');
+            assert.true(recordDataFor(identifier).isDeleted(), 'we have been marked as deleted');
           });
           return {};
         },
@@ -347,9 +347,9 @@ if (CUSTOM_MODEL_CLASS) {
       store = this.owner.lookup('service:store');
       let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
       store.deleteRecord(person);
-      assert.equal(rd!.isDeleted!(), true, 'record has been marked as deleted');
+      assert.true(rd!.isDeleted!(), 'record has been marked as deleted');
       await store.saveRecord(person);
-      assert.equal(rd!.isDeletionCommitted!(), true, 'deletion has been commited');
+      assert.true(rd!.isDeletionCommitted!(), 'deletion has been commited');
     });
 
     test('record serialize', function(assert) {

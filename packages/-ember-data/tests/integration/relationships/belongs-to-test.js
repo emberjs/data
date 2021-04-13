@@ -1223,7 +1223,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     return run(() => {
       return store.findRecord('book', 1).then(book => {
         let relationship = relationshipStateFor(book, 'author');
-        assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
+        assert.true(relationship.hasAnyRelationshipData, 'relationship has data');
       });
     });
   });
@@ -1250,7 +1250,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     return run(() => {
       return store.findRecord('book', 1).then(book => {
         let relationship = relationshipStateFor(book, 'author');
-        assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
+        assert.true(relationship.hasAnyRelationshipData, 'relationship has data');
       });
     });
   });
@@ -1281,7 +1281,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     return run(() => {
       return store.findRecord('book', 1).then(book => {
         let relationship = relationshipStateFor(book, 'author');
-        assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
+        assert.false(relationship.hasAnyRelationshipData, 'relationship does not have data');
       });
     });
   });
@@ -1305,7 +1305,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
     return run(() => {
       return store.findRecord('book', 1).then(book => {
         let relationship = relationshipStateFor(book, 'author');
-        assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
+        assert.false(relationship.hasAnyRelationshipData, 'relationship does not have data');
       });
     });
   });
@@ -1324,7 +1324,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       let book = store.createRecord('book', { name: 'The Greatest Book' });
       let relationship = relationshipStateFor(book, 'author');
 
-      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
+      assert.false(relationship.hasAnyRelationshipData, 'relationship does not have data');
 
       book = store.createRecord('book', {
         name: 'The Greatest Book',
@@ -1333,7 +1333,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
 
       relationship = relationshipStateFor(book, 'author');
 
-      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
+      assert.true(relationship.hasAnyRelationshipData, 'relationship has data');
     });
   });
 
@@ -1349,7 +1349,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       });
 
       let relationship = relationshipStateFor(book, 'author');
-      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
+      assert.false(relationship.hasAnyRelationshipData, 'relationship does not have data');
 
       book = store.createRecord('book', {
         name: 'The Greatest Book',
@@ -1357,7 +1357,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       });
 
       relationship = relationshipStateFor(book, 'author');
-      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
+      assert.true(relationship.hasAnyRelationshipData, 'relationship has data');
     });
   });
 
@@ -1373,7 +1373,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
         },
       });
 
-      assert.ok(!relationshipsFor(user).has('favouriteMessage'), 'Newly created record should not have relationships');
+      assert.notOk(
+        relationshipsFor(user).has('favouriteMessage'),
+        'Newly created record should not have relationships'
+      );
     });
   });
 

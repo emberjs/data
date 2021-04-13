@@ -76,7 +76,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
     let queryResults = await store.query('person', { page: 1 });
 
     assert.equal(queryResults.length, 2, 'the record array has a length of 2 after the results are loaded');
-    assert.equal(queryResults.isLoaded, true, "the record array's `isLoaded` property should be true");
+    assert.true(queryResults.isLoaded, "the record array's `isLoaded` property should be true");
 
     assert.equal(queryResults.objectAt(0).name, 'Peter Wagenet', "the first record is 'Peter Wagenet'");
     assert.equal(queryResults.objectAt(1).name, 'Brohuda Katz', "the second record is 'Brohuda Katz'");
@@ -100,7 +100,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
 
     assert.equal(personsQuery.length, 1, 'There is one person');
     assert.equal(personsQuery.firstObject.id, 'first', 'the right person is present');
-    assert.equal(personsQuery.isUpdating, false, 'RecordArray is not updating');
+    assert.false(personsQuery.isUpdating, 'RecordArray is not updating');
 
     let resolveQueryPromise;
 
@@ -114,7 +114,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
 
     personsQuery.update();
 
-    assert.equal(personsQuery.isUpdating, true, 'RecordArray is updating');
+    assert.true(personsQuery.isUpdating, 'RecordArray is updating');
 
     // Resolve internal promises to allow the RecordArray to build.
     await settled();
@@ -124,7 +124,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
     // Wait for all promises to resolve after the query promise resolves.
     await settled();
 
-    assert.equal(personsQuery.isUpdating, false, 'RecordArray is not updating anymore');
+    assert.false(personsQuery.isUpdating, 'RecordArray is not updating anymore');
     assert.equal(personsQuery.length, 1, 'There is still one person after update resolves');
     assert.equal(personsQuery.firstObject.id, 'second', 'Now it is a different person');
   });

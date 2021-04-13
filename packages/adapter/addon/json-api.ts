@@ -11,7 +11,6 @@ import RESTAdapter from './rest';
 type FetchRequestInit = import('./rest').FetchRequestInit;
 type JQueryRequestInit = import('./rest').JQueryRequestInit;
 
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;

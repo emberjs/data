@@ -222,8 +222,8 @@ module('integration/records/error', function(hooks) {
       let errors = person.errors;
 
       assert.equal(errors.length, 2, 'Adds two errors to the model');
-      assert.equal(errors.has('firstName'), true, 'firstName is included in the errors object');
-      assert.equal(errors.has('lastName'), true, 'lastName is included in the errors object');
+      assert.true(errors.has('firstName'), 'firstName is included in the errors object');
+      assert.true(errors.has('lastName'), 'lastName is included in the errors object');
 
       person.setProperties({
         firstName: 'updated',

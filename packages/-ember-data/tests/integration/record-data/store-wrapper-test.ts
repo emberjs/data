@@ -196,14 +196,9 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
           'car',
           'can lookup inverses on other models'
         );
-        assert.equal(
-          storeWrapper.inverseIsAsyncForRelationship('house', 'car'),
-          true,
-          'can lookup async inverse on self'
-        );
-        assert.equal(
+        assert.true(storeWrapper.inverseIsAsyncForRelationship('house', 'car'), 'can lookup async inverse on self');
+        assert.false(
           storeWrapper.inverseIsAsyncForRelationship('car', 'garage'),
-          false,
           'can lookup async inverse on other models'
         );
       }
@@ -380,7 +375,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
       constructor(storeWrapper, id, clientId) {
         super();
         if (!id) {
-          assert.equal(storeWrapper.isRecordInUse('house', '1'), true, 'house 1 is in use');
+          assert.true(storeWrapper.isRecordInUse('house', '1'), 'house 1 is in use');
           // TODO isRecordInUse should coorce to false rather than null
           assert.equal(storeWrapper.isRecordInUse('house', '2'), null, 'house 2 is not in use');
         }
@@ -442,6 +437,6 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
       included: [houseHash],
     });
     wrapper.disconnectRecord('house', '1');
-    assert.equal(store.hasRecordForId('house', '1'), false, 'record was removed from id map');
+    assert.false(store.hasRecordForId('house', '1'), 'record was removed from id map');
   });
 });

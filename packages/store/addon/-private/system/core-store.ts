@@ -93,6 +93,7 @@ type SchemaDefinitionService = import('../ts-interfaces/schema-definition-servic
 type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 type Relationship = import('@ember-data/record-data/-private').Relationship;
 type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
+type RequestCache = import('./request-cache').default;
 
 let _RecordData: RecordDataClass | undefined;
 
@@ -408,12 +409,11 @@ abstract class CoreStore extends Service {
     }
   }
 
-  getRequestStateService() {
+  getRequestStateService(): RequestCache {
     if (REQUEST_SERVICE) {
       return this._fetchManager.requestCache;
     }
-
-    assertInDebug('RequestService is not available unless the feature flag is on and running on a canary build', false);
+    assert('RequestService is not available unless the feature flag is on and running on a canary build', false);
   }
 
   get identifierCache(): IdentifierCache {
@@ -475,7 +475,7 @@ abstract class CoreStore extends Service {
       return record;
     }
 
-    assertInDebug('should not be here, custom model class ff error', false);
+    assert('should not be here, custom model class ff error', false);
   }
 
   abstract instantiateRecord(
@@ -516,8 +516,7 @@ abstract class CoreStore extends Service {
     if (CUSTOM_MODEL_CLASS) {
       return this._schemaDefinitionService;
     }
-
-    assertInDebug('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService', false);
+    assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
   }
 
   // TODO Double check this return value is correct
@@ -1393,7 +1392,8 @@ abstract class CoreStore extends Service {
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        snapshots[i] = internalModels[i].createSnapshot(optionsMap.get(internalModel));
+        let internalModel = internalModels[i];
+        snapshots[i] = internalModel.createSnapshot(optionsMap.get(internalModel));
       }
 
       let groups;
@@ -1403,6 +1403,10 @@ abstract class CoreStore extends Service {
         groups = [snapshots];
       }
 
+      // we use var here because babel transpiles let
+      // in a manner that causes a mega-bad perf scenario here
+      // when targets no longer include IE11 we can drop this.
+      /* eslint-disable no-var */
       for (var i = 0, l = groups.length; i < l; i++) {
         var group = groups[i];
         var totalInGroup = groups[i].length;
@@ -1430,7 +1434,7 @@ abstract class CoreStore extends Service {
           var pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
         } else {
-          assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
+          assert("You cannot return an empty array from adapter's method groupRecordsForFindMany");
         }
       }
     } else {
@@ -3112,7 +3116,7 @@ abstract class CoreStore extends Service {
       return internalModel!.createSnapshot(options).serialize(options);
     }
 
-    assertInDebug('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    assert('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
@@ -3125,7 +3129,7 @@ abstract class CoreStore extends Service {
       return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
     }
 
-    assertInDebug('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
@@ -3136,7 +3140,7 @@ abstract class CoreStore extends Service {
       return internalModel!.referenceFor(null, key);
     }
 
-    assertInDebug('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    assert('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   /**
@@ -3179,7 +3183,7 @@ abstract class CoreStore extends Service {
       return new _RecordData(identifier, storeWrapper);
     }
 
-    assertInDebug(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
+    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
   }
 
   /**
@@ -3247,7 +3251,7 @@ abstract class CoreStore extends Service {
   }
 
   newClientId() {
-    assertInDebug(`Private API Removed`, false);
+    assert(`Private API Removed`, false);
   }
 
   // ...............
@@ -3807,14 +3811,8 @@ function internalModelForRelatedResource(
   return store._internalModelForResource(identifier);
 }
 
-function assertInDebug(msg: string, cond: boolean = false): asserts cond is true {
-  if (DEBUG && cond) {
-    throw new Error(msg);
-  }
-}
-
 function assertIdentifierHasId(
   identifier: StableRecordIdentifier
 ): asserts identifier is StableExistingRecordIdentifier {
-  assertInDebug(`Attempted to schedule a fetch for a record without an id.`, identifier.id === null);
+  assert(`Attempted to schedule a fetch for a record without an id.`, identifier.id !== null);
 }

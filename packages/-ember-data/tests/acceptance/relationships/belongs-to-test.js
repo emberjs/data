@@ -91,6 +91,10 @@ class TestAdapter extends JSONAPIAdapter {
     return this._nextPayload();
   }
 
+  updateRecord() {
+    return this._nextPayload();
+  }
+
   deleteRecord() {
     return resolve({ data: null });
   }
@@ -273,16 +277,16 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 2);
 
       let petOwner = await goofy.get('petOwner');
-      assert.equal(petOwner.get('name'), 'Pete');
+      assert.equal(petOwner.get('name'), 'Pete', 'We have the expected owner for goofy');
 
       petOwner = await tweety.get('petOwner');
-      assert.equal(petOwner.get('name'), 'Pete');
+      assert.equal(petOwner.get('name'), 'Pete', 'We have the expected owner for tweety');
 
       await goofy.destroyRecord();
-      assert.ok(goofy.isDeleted);
+      assert.ok(goofy.isDeleted, 'goofy is deleted after calling destroyRecord');
 
       await tweety.destroyRecord();
-      assert.ok(tweety.isDeleted);
+      assert.ok(tweety.isDeleted, 'tweety is deleted after calling destroyRecord');
 
       assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 0);
 
@@ -499,15 +503,15 @@ module('async belongs-to rendering tests', function(hooks) {
       let RelationshipPromiseCache = sedona._internalModel._relationshipPromisesCache;
       let RelationshipProxyCache = sedona._internalModel._relationshipProxyCache;
 
-      assert.equal(relationshipState.isAsync, true, 'The relationship is async');
-      assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
-      assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship inverse is dematerialized');
-      assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
-      assert.equal(!!RelationshipPromiseCache['parent'], false, 'The relationship has no fetch promise');
-      assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
-      assert.equal(relationshipState.shouldForceReload === false, true, 'The relationship will not force a reload');
-      assert.equal(!!RelationshipProxyCache['parent'], true, 'The relationship has a promise proxy');
-      assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
+      assert.true(relationshipState.isAsync, 'The relationship is async');
+      assert.false(relationshipState.relationshipIsEmpty, 'The relationship is not empty');
+      assert.true(relationshipState.hasDematerializedInverse, 'The relationship inverse is dematerialized');
+      assert.true(relationshipState.hasAnyRelationshipData, 'The relationship knows which record it needs');
+      assert.false(!!RelationshipPromiseCache['parent'], 'The relationship has no fetch promise');
+      assert.true(relationshipState.hasFailedLoadAttempt === true, 'The relationship has attempted a load');
+      assert.true(relationshipState.shouldForceReload === false, 'The relationship will not force a reload');
+      assert.true(!!RelationshipProxyCache['parent'], 'The relationship has a promise proxy');
+      assert.false(!!relationshipState.link, 'The relationship does not have a link');
 
       try {
         let result = await sedona.get('parent.content');

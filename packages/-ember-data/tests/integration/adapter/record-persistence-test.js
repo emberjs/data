@@ -165,7 +165,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
 
     await tom.save();
 
-    assert.strictEqual(tom.isDeleted, true, 'record is marked as deleted');
+    assert.true(tom.isDeleted, 'record is marked as deleted');
   });
 
   test('An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.', async function(assert) {
@@ -237,15 +237,15 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     tom.set('name', 'Draaaaaahm Dale');
     yehuda.set('name', 'Goy Katz');
 
-    assert.strictEqual(tom.hasDirtyAttributes, true, 'Tom is dirty');
-    assert.strictEqual(yehuda.hasDirtyAttributes, true, 'Yehuda is dirty');
+    assert.true(tom.hasDirtyAttributes, 'Tom is dirty');
+    assert.true(yehuda.hasDirtyAttributes, 'Yehuda is dirty');
 
     let [{ value: savedTom }, { value: savedYehuda }] = await allSettled([tom.save(), yehuda.save()]);
 
     assert.strictEqual(savedTom, tom, 'The record is correct');
     assert.strictEqual(savedYehuda, yehuda, 'The record is correct');
-    assert.strictEqual(tom.hasDirtyAttributes, false, 'Tom is not dirty after saving record');
-    assert.strictEqual(yehuda.hasDirtyAttributes, false, 'Yehuda is not dirty after dsaving record');
+    assert.false(tom.hasDirtyAttributes, 'Tom is not dirty after saving record');
+    assert.false(yehuda.hasDirtyAttributes, 'Yehuda is not dirty after dsaving record');
     assert.strictEqual(tom.name, 'Tom Dale', 'name attribute should reflect value of hash passed to didSaveRecords');
     assert.strictEqual(
       tom.updatedAt,
@@ -309,14 +309,14 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
       yehuda: store.findRecord('person', '2'),
     });
 
-    assert.strictEqual(tom.isDeleted, false, 'Tom is not deleted');
-    assert.strictEqual(yehuda.isDeleted, false, 'Yehuda is not deleted');
+    assert.false(tom.isDeleted, 'Tom is not deleted');
+    assert.false(yehuda.isDeleted, 'Yehuda is not deleted');
 
     await allSettled([tom.deleteRecord(), yehuda.deleteRecord()]);
     await allSettled([tom.save(), yehuda.save()]);
 
-    assert.strictEqual(tom.isDeleted, true, 'Tom is marked as deleted');
-    assert.strictEqual(yehuda.isDeleted, true, 'Yehuda is marked as deleted');
+    assert.true(tom.isDeleted, 'Tom is marked as deleted');
+    assert.true(yehuda.isDeleted, 'Yehuda is marked as deleted');
   });
 
   test('Create record response does not have to include the type property', async function(assert) {

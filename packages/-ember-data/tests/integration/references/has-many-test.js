@@ -526,7 +526,7 @@ module('integration/references/has-many', function(hooks) {
       var personsReference = family.hasMany('persons');
       var records = personsReference.value();
       assert.equal(get(records, 'length'), 2);
-      assert.equal(records.isEvery('isLoaded'), true);
+      assert.true(records.isEvery('isLoaded'));
     });
   });
 
@@ -576,7 +576,7 @@ module('integration/references/has-many', function(hooks) {
     run(function() {
       var personsReference = family.hasMany('persons');
       var isLoaded = personsReference._isLoaded();
-      assert.equal(isLoaded, true);
+      assert.true(isLoaded);
     });
   });
 

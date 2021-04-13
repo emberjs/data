@@ -60,19 +60,15 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     let request = store.findRecord('person', '1');
     let waiter = store.__asyncWaiter;
 
-    assert.equal(
-      waiter(),
-      true,
-      'We return true when no requests have been initiated yet (pending queue flush is async)'
-    );
+    assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await findRecordWasInvokedPromise;
 
-    assert.equal(waiter(), false, 'We return false to keep waiting while requests are pending');
+    assert.false(waiter(), 'We return false to keep waiting while requests are pending');
 
     await request;
 
-    assert.equal(waiter(), true, 'We return true to end waiting when no requests are pending');
+    assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 
   test('waiter can be turned off', async function(assert) {
@@ -101,20 +97,16 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     let request = store.findRecord('person', '1');
     let waiter = store.__asyncWaiter;
 
-    assert.equal(
-      waiter(),
-      true,
-      'We return true when no requests have been initiated yet (pending queue flush is async)'
-    );
+    assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await findRecordWasInvokedPromise;
 
     assert.equal(store._trackedAsyncRequests.length, 1, 'We return true even though a request is pending');
-    assert.equal(waiter(), true, 'We return true even though a request is pending');
+    assert.true(waiter(), 'We return true even though a request is pending');
 
     await request;
 
-    assert.equal(waiter(), true, 'We return true to end waiting when no requests are pending');
+    assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 
   test('waiter works even when the adapter rejects', async function(assert) {
@@ -141,19 +133,15 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     let request = store.findRecord('person', '1');
     let waiter = store.__asyncWaiter;
 
-    assert.equal(
-      waiter(),
-      true,
-      'We return true when no requests have been initiated yet (pending queue flush is async)'
-    );
+    assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await findRecordWasInvokedPromise;
 
-    assert.equal(waiter(), false, 'We return false to keep waiting while requests are pending');
+    assert.false(waiter(), 'We return false to keep waiting while requests are pending');
 
     await assert.rejects(request);
 
-    assert.equal(waiter(), true, 'We return true to end waiting when no requests are pending');
+    assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 
   test('waiter works even when the adapter throws', async function(assert) {
@@ -163,7 +151,7 @@ module('unit/store async-waiter and leak detection', function(hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         findRecord() {
-          assert.equal(waiter(), false, 'We return false to keep waiting while requests are pending');
+          assert.false(waiter(), 'We return false to keep waiting while requests are pending');
           throw new Error('Invalid Request!');
         },
       })
@@ -171,15 +159,11 @@ module('unit/store async-waiter and leak detection', function(hooks) {
 
     let request = store.findRecord('person', '1');
 
-    assert.equal(
-      waiter(),
-      true,
-      'We return true when no requests have been initiated yet (pending queue flush is async)'
-    );
+    assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await assert.rejects(request);
 
-    assert.equal(waiter(), true, 'We return true to end waiting when no requests are pending');
+    assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 
   test('when the store is torn down too early, we throw an error', async function(assert) {
@@ -205,15 +189,11 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     store.findRecord('person', '1');
     let waiter = store.__asyncWaiter;
 
-    assert.equal(
-      waiter(),
-      true,
-      'We return true when no requests have been initiated yet (pending queue flush is async)'
-    );
+    assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await stepPromise;
 
-    assert.equal(waiter(), false, 'We return false to keep waiting while requests are pending');
+    assert.false(waiter(), 'We return false to keep waiting while requests are pending');
 
     // needed for LTS 2.16
     Ember.Test.adapter.exception = e => {
@@ -224,12 +204,12 @@ module('unit/store async-waiter and leak detection', function(hooks) {
       run(() => store.destroy());
     }, /Async Request leaks detected/);
 
-    assert.equal(waiter(), false, 'We return false because we still have a pending request');
+    assert.false(waiter(), 'We return false because we still have a pending request');
 
     // make the waiter complete
     run(() => next());
     assert.equal(store._trackedAsyncRequests.length, 0, 'Our pending request is cleaned up');
-    assert.equal(waiter(), true, 'We return true because the waiter is cleared');
+    assert.true(waiter(), 'We return true because the waiter is cleared');
   });
 
   test('when the store is torn down too early, but the waiter behavior is turned off, we emit a warning', async function(assert) {
@@ -259,28 +239,24 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     let waiter = store.__asyncWaiter;
 
     assert.equal(store._trackedAsyncRequests.length, 0, 'We have no requests yet');
-    assert.equal(
-      waiter(),
-      true,
-      'We return true when no requests have been initiated yet (pending queue flush is async)'
-    );
+    assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await stepPromise;
 
     assert.equal(store._trackedAsyncRequests.length, 1, 'We have a pending request');
-    assert.equal(waiter(), true, 'We return true because the waiter is turned off');
+    assert.true(waiter(), 'We return true because the waiter is turned off');
     assert.expectWarning(() => {
       run(() => {
         store.destroy();
       });
     }, /Async Request leaks detected/);
 
-    assert.equal(waiter(), true, 'We return true because the waiter is turned off');
+    assert.true(waiter(), 'We return true because the waiter is turned off');
 
     // make the waiter complete
     run(() => next());
     assert.equal(store._trackedAsyncRequests.length, 0, 'Our pending request is cleaned up');
-    assert.equal(waiter(), true, 'We return true because the waiter is cleared');
+    assert.true(waiter(), 'We return true because the waiter is cleared');
   });
 
   test('when configured, pending requests have useful stack traces', async function(assert) {
@@ -306,15 +282,11 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     let request = store.findRecord('person', '1');
     let waiter = store.__asyncWaiter;
 
-    assert.equal(
-      waiter(),
-      true,
-      'We return true when no requests have been initiated yet (pending queue flush is async)'
-    );
+    assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await stepPromise;
 
-    assert.equal(waiter(), false, 'We return false to keep waiting while requests are pending');
+    assert.false(waiter(), 'We return false to keep waiting while requests are pending');
     assert.equal(
       store._trackedAsyncRequests[0].trace,
       'set `store.generateStackTracesForTrackedRequests = true;` to get a detailed trace for where this request originated',
@@ -323,20 +295,16 @@ module('unit/store async-waiter and leak detection', function(hooks) {
 
     await request;
 
-    assert.equal(waiter(), true, 'We return true to end waiting when no requests are pending');
+    assert.true(waiter(), 'We return true to end waiting when no requests are pending');
 
     store.generateStackTracesForTrackedRequests = true;
     request = store.findRecord('person', '2');
 
-    assert.equal(
-      waiter(),
-      true,
-      'We return true when no requests have been initiated yet (pending queue flush is async)'
-    );
+    assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await stepPromise;
 
-    assert.equal(waiter(), false, 'We return false to keep waiting while requests are pending');
+    assert.false(waiter(), 'We return false to keep waiting while requests are pending');
     /*
       TODO this just traces back to the `flushPendingFetches`,
       we should do something similar to capture where the fetch was scheduled
@@ -350,6 +318,6 @@ module('unit/store async-waiter and leak detection', function(hooks) {
 
     await request;
 
-    assert.equal(waiter(), true, 'We return true to end waiting when no requests are pending');
+    assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 });

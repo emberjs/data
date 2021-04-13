@@ -79,7 +79,7 @@ module('integration/adapter/store-adapter - client-side delete', function(hooks)
 
     await settled();
 
-    assert.equal(store.hasRecordForId('book', '2'), false, 'book 2 unloaded');
+    assert.false(store.hasRecordForId('book', '2'), 'book 2 unloaded');
     assert.deepEqual(bookstore.get('books').mapBy('id'), ['1'], 'one book client-side deleted');
 
     store.push({

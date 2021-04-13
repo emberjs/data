@@ -234,7 +234,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
 
     store.serializerFor('post').serializeHasMany(post._createSnapshot(), json, { key: 'comments', options: {} });
 
-    assert.ok(!json.hasOwnProperty('comments'), 'Does not add the relationship key to json');
+    assert.notOk(json.hasOwnProperty('comments'), 'Does not add the relationship key to json');
   });
 
   test('shouldSerializeHasMany', function(assert) {
@@ -548,8 +548,8 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     let post = store.createRecord('post', { title: 'Rails is omakase' });
     let payload = store.serializerFor('post').serialize(post._createSnapshot());
 
-    assert.ok(!payload.hasOwnProperty('title'), 'Does not add the key to instance');
-    assert.ok(!payload.hasOwnProperty('[object Object]'), 'Does not add some random key like [object Object]');
+    assert.notOk(payload.hasOwnProperty('title'), 'Does not add the key to instance');
+    assert.notOk(payload.hasOwnProperty('[object Object]'), 'Does not add some random key like [object Object]');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function(assert) {
@@ -572,7 +572,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
 
     var payload = serializer.serialize(post._createSnapshot());
-    assert.ok(!payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+    assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function(assert) {
@@ -595,7 +595,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
 
     var payload = serializer.serialize(comment._createSnapshot());
-    assert.ok(!payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+    assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function(assert) {
@@ -618,7 +618,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
 
     var payload = serializer.serialize(post._createSnapshot());
-    assert.ok(!payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+    assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
   test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function(assert) {
@@ -641,7 +641,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
 
     var payload = serializer.serialize(comment._createSnapshot());
-    assert.ok(!payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+    assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
   test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', function(assert) {
@@ -727,7 +727,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.equal(payload.title_payload_key, 'Rails is omakase');
     assert.equal(payload.description_payload_key, 'Omakase is delicious');
     assert.equal(payload.overwritten_another_string_key, 'yet another string');
-    assert.ok(!payload.base_another_string_key, 'overwritten key is not added');
+    assert.notOk(payload.base_another_string_key, 'overwritten key is not added');
   });
 
   test('Serializer should respect the primaryKey attribute when extracting records', function(assert) {

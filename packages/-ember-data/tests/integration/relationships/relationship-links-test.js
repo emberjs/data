@@ -76,7 +76,7 @@ module('JSON:API links access on relationships', function(hooks) {
     // Test we have access via the HasManyReference
     const toolsRef = user.hasMany('tools');
     let links = toolsRef.links();
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship HasManyReference');
+    assert.true(!!links, 'We have a links value on the relationship HasManyReference');
     assert.strictEqual(links.related, '/the/related/link', 'The related link is correctly available');
     assert.strictEqual(links.first, '/the/related/link?page=1', 'The first link is correctly available');
     assert.strictEqual(links.last, '/the/related/link?page=3', 'The last link is correctly available');
@@ -87,7 +87,7 @@ module('JSON:API links access on relationships', function(hooks) {
     // Test we have access via the ManyArray
     const toolsRel = await user.tools;
     links = toolsRel.links;
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship ManyArray');
+    assert.true(!!links, 'We have a links value on the relationship ManyArray');
     assert.strictEqual(links.related, '/the/related/link', 'The related link is correctly available');
     assert.strictEqual(links.first, '/the/related/link?page=1', 'The first link is correctly available');
     assert.strictEqual(links.last, '/the/related/link?page=3', 'The last link is correctly available');
@@ -154,7 +154,7 @@ module('JSON:API links access on relationships', function(hooks) {
     // Test we have access via the HasManyReference
     const toolsRef = user.hasMany('tools');
     let links = toolsRef.links();
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship HasManyReference');
+    assert.true(!!links, 'We have a links value on the relationship HasManyReference');
     assert.deepEqual(links.related, { href: '/the/related/link' }, 'The related link is correctly available');
     assert.deepEqual(links.first, { href: '/the/related/link?page=1' }, 'The first link is correctly available');
     assert.deepEqual(links.last, { href: '/the/related/link?page=3' }, 'The last link is correctly available');
@@ -165,7 +165,7 @@ module('JSON:API links access on relationships', function(hooks) {
     // Test we have access via the ManyArray
     const toolsRel = await user.tools;
     links = toolsRel.links;
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship ManyArray');
+    assert.true(!!links, 'We have a links value on the relationship ManyArray');
     assert.deepEqual(links.related, { href: '/the/related/link' }, 'The related link is correctly available');
     assert.deepEqual(links.first, { href: '/the/related/link?page=1' }, 'The first link is correctly available');
     assert.deepEqual(links.last, { href: '/the/related/link?page=3' }, 'The last link is correctly available');
@@ -227,7 +227,7 @@ module('JSON:API links access on relationships', function(hooks) {
     // Test we have access via the HasManyReference
     const toolsRef = user.hasMany('tools');
     let links = toolsRef.links();
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship HasManyReference');
+    assert.true(!!links, 'We have a links value on the relationship HasManyReference');
     assert.deepEqual(links.related, { href: '/the/related/link' }, 'The related link is correctly available');
 
     let link = toolsRef.link();
@@ -236,7 +236,7 @@ module('JSON:API links access on relationships', function(hooks) {
     // Test we have access via the ManyArray
     const toolsRel = await user.tools;
     links = toolsRel.links;
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship ManyArray');
+    assert.true(!!links, 'We have a links value on the relationship ManyArray');
     assert.deepEqual(links.related, { href: '/the/related/link' }, 'The related link is correctly available');
   });
 
@@ -306,7 +306,7 @@ module('JSON:API links access on relationships', function(hooks) {
     // Test we have access via the HasManyReference
     const toolsRef = user.hasMany('tools');
     let links = toolsRef.links();
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship HasManyReference');
+    assert.true(!!links, 'We have a links value on the relationship HasManyReference');
     assert.deepEqual(links.related, { href: '/the/related/link' }, 'The related link is correctly available');
     assert.deepEqual(links.first, { href: '/the/related/link?page=1' }, 'The first link is correctly available');
     assert.deepEqual(links.last, { href: '/the/related/link?page=3' }, 'The last link is correctly available');
@@ -327,7 +327,7 @@ module('JSON:API links access on relationships', function(hooks) {
     const toolsRel = await user.tools;
 
     links = toolsRef.links();
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship HasManyReference');
+    assert.true(!!links, 'We have a links value on the relationship HasManyReference');
     assert.deepEqual(
       links.related,
       { href: '/the/new/related/link?page=3' },
@@ -341,7 +341,7 @@ module('JSON:API links access on relationships', function(hooks) {
 
     // Test we have access via the ManyArray
     links = toolsRel.links;
-    assert.strictEqual(!!links, true, 'We have a links value on the relationship ManyArray');
+    assert.true(!!links, 'We have a links value on the relationship ManyArray');
     assert.deepEqual(
       links.related,
       { href: '/the/new/related/link?page=3' },

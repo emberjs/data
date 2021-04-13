@@ -135,11 +135,7 @@ module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
     );
 
     andromedaStore.push(normalizedAndromedaPayload);
-    assert.equal(
-      andromedaStore.hasRecordForId('super-villain', '1'),
-      true,
-      'superVillain should exist in service:store'
-    );
+    assert.true(andromedaStore.hasRecordForId('super-villain', '1'), 'superVillain should exist in service:store');
 
     const normalizedCartWheelPayload = cartwheelSerializer.normalizeResponse(
       cartwheelStore,
@@ -150,11 +146,7 @@ module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
     );
 
     cartwheelStore.push(normalizedCartWheelPayload);
-    assert.equal(
-      cartwheelStore.hasRecordForId('super-villain', '1'),
-      true,
-      'superVillain should exist in store:store-a'
-    );
+    assert.true(cartwheelStore.hasRecordForId('super-villain', '1'), 'superVillain should exist in store:store-a');
 
     const normalizedCigarPayload = cigarSerializer.normalizeResponse(
       cigarStore,
@@ -165,7 +157,7 @@ module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
     );
     cigarStore.push(normalizedCigarPayload);
 
-    assert.equal(cigarStore.hasRecordForId('super-villain', '1'), true, 'superVillain should exist in store:store-b');
+    assert.true(cigarStore.hasRecordForId('super-villain', '1'), 'superVillain should exist in store:store-b');
   });
 
   test('each store should have a unique instance of the serializers', function(assert) {
