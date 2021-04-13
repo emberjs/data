@@ -188,12 +188,12 @@ function deprecateTestRegistration(
   The store provides multiple ways to create new record objects. They have
   some subtle differences in their use which are detailed below:
 
-  [createRecord](../classes/Store/methods/createRecord?anchor=createRecord) is used for creating new
+  [createRecord](../methods/createRecord?anchor=createRecord) is used for creating new
   records on the client side. This will return a new record in the
   `created.uncommitted` state. In order to persist this record to the
   backend, you will need to call `record.save()`.
 
-  [push](../classes/Store/methods/push?anchor=push) is used to notify Ember Data's store of new or
+  [push](../methods/push?anchor=push) is used to notify Ember Data's store of new or
   updated records that exist in the backend. This will return a record
   in the `loaded.saved` state. The primary use-case for `store#push` is
   to notify Ember Data about record updates (full or partial) that happen
@@ -201,7 +201,7 @@ function deprecateTestRegistration(
   [SSE](http://dev.w3.org/html5/eventsource/) or [Web
   Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
 
-  [pushPayload](../classes/Store/methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
+  [pushPayload](../methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
   `store#push` that will deserialize payloads if the
   Serializer implements a `pushPayload` method.
 
@@ -932,7 +932,7 @@ abstract class CoreStore extends Service {
     }
     ```
 
-    See [peekRecord](../classes/Store/methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
+    See [peekRecord](../methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
 
     ### Retrieving Related Model Records
 
@@ -1508,7 +1508,7 @@ abstract class CoreStore extends Service {
     otherwise it will return `null`. A record is available if it has been fetched earlier, or
     pushed manually into the store.
 
-    See [findRecord](../classes/Store/methods/findRecord?anchor=findRecord) if you would like to request this record from the backend.
+    See [findRecord](../methods/findRecord?anchor=findRecord) if you would like to request this record from the backend.
 
     _Note: This is a synchronous method and does not return a promise._
 
@@ -1973,7 +1973,7 @@ abstract class CoreStore extends Service {
 
   /**
     This method makes a request for one record, where the `id` is not known
-    beforehand (if the `id` is known, use [`findRecord`](../classes/Store/methods/findRecord?anchor=findRecord)
+    beforehand (if the `id` is known, use [`findRecord`](../methods/findRecord?anchor=findRecord)
     instead).
 
     This method can be used when it is certain that the server will return a
@@ -2244,7 +2244,7 @@ abstract class CoreStore extends Service {
     }
     ```
 
-    See [peekAll](../classes/Store/methods/peekAll?anchor=peekAll) to get an array of current records in the
+    See [peekAll](../methods/peekAll?anchor=peekAll) to get an array of current records in the
     store, without waiting until a reload is finished.
 
     ### Retrieving Related Model Records
@@ -2285,7 +2285,7 @@ abstract class CoreStore extends Service {
     }
     ```
 
-    See [query](../classes/Store/methods/query?anchor=query) to only get a subset of records from the server.
+    See [query](../methods/query?anchor=query) to only get a subset of records from the server.
 
     @since 1.13.0
     @method findAll
@@ -2375,7 +2375,7 @@ abstract class CoreStore extends Service {
     locally created records of the type, however, it will not make a
     request to the backend to retrieve additional records. If you
     would like to request all the records from the backend please use
-    [store.findAll](../classes/Store/methods/findAll?anchor=findAll).
+    [store.findAll](../methods/findAll?anchor=findAll).
 
     Also note that multiple calls to `peekAll` for a given type will always
     return the same `RecordArray`.
@@ -2852,7 +2852,7 @@ abstract class CoreStore extends Service {
 
     If you're streaming data or implementing an adapter, make sure
     that you have converted the incoming data into this form. The
-    store's [normalize](../classes/Store/methods/normalize?anchor=normalize) method is a convenience
+    store's [normalize](../methods/normalize?anchor=normalize) method is a convenience
     helper for converting a json payload into the form Ember Data
     expects.
 
@@ -3212,7 +3212,7 @@ abstract class CoreStore extends Service {
 
   /**
     `normalize` converts a json payload into the normalized form that
-    [push](../classes/Store/methods/push?anchor=push) expects.
+    [push](../methods/push?anchor=push) expects.
 
     Example
 
