@@ -2118,29 +2118,29 @@
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@tracerbench/core@4.5.0":
-  version "4.5.0"
-  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-4.5.0.tgz#069c909b254db401f8aed048753622b461d70e94"
-  integrity sha512-zrM7IGPaxN+aUW1s3WuHzwWPqfMCky0anAx+aSEDi3R+mh/bY6rBgLEucqMrZJpC+BPph2eMf6jPF3cE8YfHuQ==
+"@tracerbench/core@5.3.6":
+  version "5.3.6"
+  resolved "https://registry.npmjs.org/@tracerbench/core/-/core-5.3.6.tgz#198f3bdec84d43015a482da680bc9374de793e35"
+  integrity sha512-ibY10rsVp8vRklxSTsZRLSqtxg4CJkN+j/B8L9YyRvALlOg2WlqfnEg7pvKCctWfYsFIymkHawb1yCzAF3khJw==
   dependencies:
-    "@tracerbench/har" "^4.0.1"
-    "@tracerbench/trace-event" "^4.5.0"
-    "@tracerbench/trace-model" "^4.5.0"
-    "@types/d3-hierarchy" "^1.1.6"
+    "@tracerbench/har" "^5.3.6"
+    "@tracerbench/trace-event" "^5.3.6"
+    "@tracerbench/trace-model" "^5.3.6"
+    "@types/d3-hierarchy" "^2.0.0"
     "@types/node" "*"
     array-binsearch "^1.0.1"
     chalk "^4.1.0"
     chrome-debugging-client "^2.0.0"
     d3-hierarchy "^2.0.0"
-    debug "^4.2.0"
-    devtools-protocol "^0.0.809251"
+    debug "^4.3.1"
+    devtools-protocol "^0.0.839267"
     fs-extra "^9.0.1"
     handlebars "^4.7.6"
     lodash.clonedeep "^4.5.0"
     race-cancellation "^0.4.1"
     silent-error "^1.1.1"
     tmp "^0.2.1"
-    tslib "^2.0.1"
+    tslib "^2.0.3"
 
 "@tracerbench/find-chrome@^2.0.0":
   version "2.0.0"
@@ -2154,10 +2154,10 @@
   resolved "https://registry.npmjs.org/@tracerbench/har/-/har-2.3.0.tgz#87e8f032b760a2982810d4202f4e12377af5b166"
   integrity sha512-Wp/8SK7svoUpfEFpiUGd60VheKOCwdudIPU4R+CK/ADagUMdKHQdjxRljPggKQyq9vDCTM/vC7T5MMQKZU4ErQ==
 
-"@tracerbench/har@^4.0.1":
-  version "4.0.1"
-  resolved "https://registry.npmjs.org/@tracerbench/har/-/har-4.0.1.tgz#c8b77601faf794bee51a6bb264ca5b130802fd20"
-  integrity sha512-jP9hoWSUsQmitHAayu0d2N7jlwZ4WsqvakNelyGifHvddfVqJo36M/DRE3cceBwOn1Nf/WIDHn19UlRWEgnksA==
+"@tracerbench/har@^5.3.6":
+  version "5.3.6"
+  resolved "https://registry.npmjs.org/@tracerbench/har/-/har-5.3.6.tgz#ce003d8dc5168f54cc21add1503373d2754aa78f"
+  integrity sha512-k7SAqA7ZAoQtXcGCMyIRPsdtCy7Nzom7YznBEPTpTRgGXx72uWoIU6GzpJhQ2ktY2ilA/zt13OqFaDEtoqMgUw==
 
 "@tracerbench/message-transport@^2.0.0":
   version "2.0.0"
@@ -2200,17 +2200,17 @@
     execa "^4.0.2"
     race-cancellation "^0.4.1"
 
-"@tracerbench/trace-event@^4.5.0", "@tracerbench/trace-event@^4.5.5":
-  version "4.5.5"
-  resolved "https://registry.npmjs.org/@tracerbench/trace-event/-/trace-event-4.5.5.tgz#21c34a6725777d1056550ce1d9df0945e641064c"
-  integrity sha512-dwQF3I3ozNBP9KrV9XO/PI/yFC7ul8e2cC2GqxZcZub7EU3JPfvW9ijy7IHAJttOQfxKkeZKwuwkGcdLA1vJXw==
+"@tracerbench/trace-event@^5.3.6":
+  version "5.3.6"
+  resolved "https://registry.npmjs.org/@tracerbench/trace-event/-/trace-event-5.3.6.tgz#44075d9cf5e19cbc385ab27ce732ea90a96cb5ca"
+  integrity sha512-7lBBV3aBoK8qJK3YTuphpmQcOT93u/8W+2QPesa/edaozrRsyUBFbkjZeDZ+VPsWiLdhymcxjk1oA5nltkMzCw==
 
-"@tracerbench/trace-model@^4.5.0":
-  version "4.5.5"
-  resolved "https://registry.npmjs.org/@tracerbench/trace-model/-/trace-model-4.5.5.tgz#4f8133294789a6c8e96a704a2bf2b83edc56d0f9"
-  integrity sha512-2wAIn29b49XDXbZsqJYhuIFN3sIiPr1aIhRRxLTLLy2JmgUiOAf1fNDNjLsij4PIu9LGTcqoSjOcocfvEM3faw==
+"@tracerbench/trace-model@^5.3.6":
+  version "5.3.6"
+  resolved "https://registry.npmjs.org/@tracerbench/trace-model/-/trace-model-5.3.6.tgz#e12cdc4b538aa3b106f38c642e30935697824307"
+  integrity sha512-SkcsoyqWe4TAdYlk9ILl+xA+yUmx32ZQZE2giWMNxjkyFOo19cSz8MMXb64BY5LRMmWtglW+6UrBd8XYstMJ9A==
   dependencies:
-    "@tracerbench/trace-event" "^4.5.5"
+    "@tracerbench/trace-event" "^5.3.6"
     debug "^4.3.1"
 
 "@tracerbench/websocket-message-transport@^2.0.0":
@@ -2254,10 +2254,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/d3-hierarchy@^1.1.6":
-  version "1.1.7"
-  resolved "https://registry.npmjs.org/@types/d3-hierarchy/-/d3-hierarchy-1.1.7.tgz#14a57b0539f8929015f8ad96490de50a16211040"
-  integrity sha512-fvht6DOYKzqmXjMb/+xfgkmrWM4SD7rMA/ZbM+gGwr9ZTuIDfky95J8CARtaJo/ExeWyS0xGVdL2gqno2zrQ0Q==
+"@types/d3-hierarchy@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@types/d3-hierarchy/-/d3-hierarchy-2.0.0.tgz#92079d9dbcec1dfe2736fb050a8bf916e5850a1c"
+  integrity sha512-YxdskUvwzqggpnSnDQj4KVkicgjpkgXn/g/9M9iGsiToLS3nG6Ytjo1FoYhYVAAElV/fJBGVL3cQ9Hb7tcv+lw==
 
 "@types/ember-qunit@^3.4.13":
   version "3.4.13"
@@ -6236,7 +6236,7 @@ debug@3.2.6:
   dependencies:
     ms "^2.1.1"
 
-debug@4, debug@^4.0.0, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@^4.2.0, debug@^4.3.1:
+debug@4, debug@^4.0.0, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1:
   version "4.3.1"
   resolved "https://registry.npmjs.org/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
   integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
@@ -6434,10 +6434,10 @@ detect-newline@3.1.0:
   resolved "https://registry.npmjs.org/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
 
-devtools-protocol@^0.0.809251:
-  version "0.0.809251"
-  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.809251.tgz#300b3366be107d5c46114ecb85274173e3999518"
-  integrity sha512-pf+2OY6ghMDPjKkzSWxHMq+McD+9Ojmq5XVRYpv/kPd9sTMQxzEt21592a31API8qRjro0iYYOc3ag46qF/1FA==
+devtools-protocol@^0.0.839267:
+  version "0.0.839267"
+  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.839267.tgz#6f437369e4664dbd9849723b886f8cedf28607ac"
+  integrity sha512-1DcPo/3PGJVw3INnq2NXO4onJiNFhWJW4YmSRQIiuDK/sW5OD1/LfXCcetrPvMvOBnz5c22DlpnpbYkJRE8MZw==
 
 dezalgo@^1.0.0:
   version "1.0.3"
@@ -7646,8 +7646,7 @@ eslint-module-utils@^2.6.0:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "3.28.0-alpha.0"
 
 eslint-plugin-ember@^10.3.0:
   version "10.3.0"
@@ -15033,7 +15032,7 @@ tslib@^1.8.1, tslib@^1.9.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.1, tslib@^2.0.3:
+tslib@^2.0.3:
   version "2.1.0"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
   integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
