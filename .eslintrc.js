@@ -96,7 +96,7 @@ module.exports = {
       plugins: ['@typescript-eslint', 'ember-data'],
       extends: ['plugin:@typescript-eslint/eslint-recommended'],
       rules: {
-        'no-restricted-globals': ['warn', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
+        'no-restricted-globals': ['off'],
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'no-unused-vars': 'off',
         'prefer-rest-params': 'off',

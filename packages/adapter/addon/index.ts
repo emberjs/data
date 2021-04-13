@@ -9,8 +9,6 @@ type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('ember-data/-private').Snapshot;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
-// eslint-disable-next-line no-restricted-globals
-type AdapterPromise<T> = Promise<T> | RSVPPromise<T>;
 
 /**
   An adapter is an object that receives requests from a store and
@@ -127,7 +125,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): AdapterPromise<unknown> {
+  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findRecord override');
     }
@@ -165,12 +163,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  findAll(
-    store: Store,
-    type: ShimModelClass,
-    neverSet,
-    snapshotRecordArray: SnapshotRecordArray
-  ): AdapterPromise<unknown> {
+  findAll(store: Store, type: ShimModelClass, neverSet, snapshotRecordArray: SnapshotRecordArray): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findAll override');
     }
@@ -209,7 +202,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  query(store: Store, type: ShimModelClass, query): AdapterPromise<unknown> {
+  query(store: Store, type: ShimModelClass, query): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a query override');
     }
@@ -254,7 +247,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  queryRecord(store: Store, type: ShimModelClass, query, adapterOptions): AdapterPromise<unknown> {
+  queryRecord(store: Store, type: ShimModelClass, query, adapterOptions): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a queryRecord override');
     }
@@ -363,7 +356,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): AdapterPromise<unknown> {
+  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a createRecord override');
     }
@@ -421,7 +414,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): AdapterPromise<unknown> {
+  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a updateRecord override');
     }
@@ -471,7 +464,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): AdapterPromise<unknown> {
+  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a deleteRecord override');
     }
