@@ -8,6 +8,7 @@ import _normalizeLink from '../../normalize-link';
 import OrderedSet from '../../ordered-set';
 import { implicitRelationshipStateFor, relationshipStateFor } from '../../record-data-for';
 
+type Store = import('@ember-data/store/-private/system/core-store').default;
 type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
 type JsonApiRelationship = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiRelationship;
@@ -24,39 +25,39 @@ interface ImplicitRelationshipMeta {
 }
 
 export default class Relationship {
-  inverseIsAsync: boolean | undefined;
-  kind?: string;
-  recordData: RelationshipRecordData;
-  members: OrderedSet;
-  canonicalMembers: OrderedSet;
-  store: any;
-  key: string | null;
-  inverseKey: string | null;
-  isAsync: boolean;
-  isPolymorphic: boolean;
-  relationshipMeta: ImplicitRelationshipMeta | RelationshipSchema;
-  inverseKeyForImplicit: string;
-  meta: any;
-  __inverseMeta: any;
-  _tempModelName: string;
-  shouldForceReload: boolean = false;
-  relationshipIsStale: boolean;
-  hasDematerializedInverse: boolean;
-  hasAnyRelationshipData: boolean;
-  relationshipIsEmpty: boolean;
-  hasFailedLoadAttempt: boolean = false;
-  links?: PaginationLinks;
-  willSync?: boolean;
+  declare inverseIsAsync: boolean | undefined;
+  declare kind: string;
+  declare recordData: RelationshipRecordData;
+  declare members: OrderedSet;
+  declare canonicalMembers: OrderedSet;
+  declare store: any;
+  declare key: string | null;
+  declare inverseKey: string | null;
+  declare isAsync: boolean;
+  declare isPolymorphic: boolean;
+  declare relationshipMeta: ImplicitRelationshipMeta | RelationshipSchema;
+  declare inverseKeyForImplicit: string;
+  declare meta: any;
+  declare __inverseMeta: any;
+  declare _tempModelName: string;
+  declare shouldForceReload: boolean;
+  declare relationshipIsStale: boolean;
+  declare hasDematerializedInverse: boolean;
+  declare hasAnyRelationshipData: boolean;
+  declare relationshipIsEmpty: boolean;
+  declare hasFailedLoadAttempt: boolean;
+  declare links?: PaginationLinks;
+  declare willSync: boolean;
 
   constructor(
-    store: any,
+    store: Store,
     inverseKey: string | null,
     relationshipMeta: ImplicitRelationshipMeta,
     recordData: RelationshipRecordData,
     inverseIsAsync?: boolean
   ) {
     this.inverseIsAsync = inverseIsAsync;
-    this.kind = relationshipMeta.kind;
+    this.kind = relationshipMeta.kind || 'implicit';
     let async = relationshipMeta.options.async;
     let polymorphic = relationshipMeta.options.polymorphic;
     this.recordData = recordData;
@@ -73,6 +74,11 @@ export default class Relationship {
     this.inverseKeyForImplicit = this._tempModelName + this.key;
     this.meta = null;
     this.__inverseMeta = undefined;
+
+    this.links = undefined;
+    this.hasFailedLoadAttempt = false;
+    this.shouldForceReload = false;
+    this.willSync = false;
 
     /*
      This flag forces fetch. `true` for a single request once `reload()`
