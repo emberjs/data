@@ -15,8 +15,6 @@
   "scripts": {
     "build": "ember build",
     "start": "ember serve",
-    "test": "ember test",
-    "test:all": "ember try:each",
     "test:node": "mocha"
   },
   "dependencies": {

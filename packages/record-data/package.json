@@ -17,7 +17,7 @@
     "start": "ember serve",
     "test": "ember test",
     "test:production": "ember test -e production",
-    "test:all": "ember try:each"
+    "test:try-one": "ember try:one --config-path='../-ember-data/config/ember-try.js'"
   },
   "dependencies": {
     "@ember-data/canary-features": "3.28.0-alpha.0",

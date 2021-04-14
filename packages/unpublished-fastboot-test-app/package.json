@@ -16,7 +16,7 @@
     "lint:js": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
     "test": "ember test --test-port=0",
-    "test:try-one": "ember try:one"
+    "test:scenario": "ember try:one"
   },
   "dependencies": {
     "ember-data": "3.28.0-alpha.0",
