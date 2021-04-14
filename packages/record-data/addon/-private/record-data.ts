@@ -28,21 +28,21 @@ type BelongsToRelationship = import('./relationships/state/belongs-to').default;
 let nextBfsId = 1;
 
 export default class RecordDataDefault implements RelationshipRecordData {
-  _errors?: JsonApiValidationError[];
-  __relationships: Relationships | null;
-  __implicitRelationships: { [key: string]: Relationship } | null;
-  modelName: string;
-  clientId: string;
-  id: string | null;
-  isDestroyed: boolean;
-  _isNew: boolean;
-  _bfsId: number;
-  __attributes: any;
-  __inFlightAttributes: any;
-  __data: any;
-  _scheduledDestroy: any;
-  _isDeleted: boolean;
-  _isDeletionCommited: boolean;
+  declare _errors?: JsonApiValidationError[];
+  declare __relationships: Relationships | null;
+  declare __implicitRelationships: { [key: string]: Relationship } | null;
+  declare modelName: string;
+  declare clientId: string;
+  declare id: string | null;
+  declare isDestroyed: boolean;
+  declare _isNew: boolean;
+  declare _bfsId: number;
+  declare __attributes: any;
+  declare __inFlightAttributes: any;
+  declare __data: any;
+  declare _scheduledDestroy: any;
+  declare _isDeleted: boolean;
+  declare _isDeletionCommited: boolean;
 
   constructor(private identifier: RecordIdentifier, public storeWrapper: RecordDataStoreWrapper) {
     this.modelName = identifier.type;
