@@ -5,6 +5,7 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import Relationship from './relationship';
 
+type Store = import('@ember-data/store/-private/system/core-store').default;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
 type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultCollectionResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
@@ -14,13 +15,13 @@ type DefaultCollectionResourceRelationship = import('../../ts-interfaces/relatio
 */
 
 export default class ManyRelationship extends Relationship {
-  canonicalState: RelationshipRecordData[];
-  currentState: RelationshipRecordData[];
-  _willUpdateManyArray: boolean;
-  _pendingManyArrayUpdates: any;
-  key: string;
+  declare canonicalState: RelationshipRecordData[];
+  declare currentState: RelationshipRecordData[];
+  declare _willUpdateManyArray: boolean;
+  declare _pendingManyArrayUpdates: any;
+  declare key: string;
   constructor(
-    store: any,
+    store: Store,
     inverseKey: string | null,
     relationshipMeta: RelationshipSchema,
     recordData: RelationshipRecordData,
