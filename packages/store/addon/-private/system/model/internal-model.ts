@@ -247,7 +247,7 @@ export default class InternalModel {
   get _recordData(): RecordData {
     if (this.__recordData === null) {
       let recordData = this.store._createRecordData(this.identifier);
-      this._recordData = recordData;
+      this.__recordData = recordData;
       return recordData;
     }
     return this.__recordData;
@@ -1362,7 +1362,8 @@ export default class InternalModel {
     if (didChange && id !== null) {
       this.store.setRecordId(this.modelName, id, this.clientId);
       // internal set of ID to get it to RecordData from DS.Model
-      if (this._recordData.__setId) {
+      // if we are within create we may not have a recordData yet.
+      if (this.__recordData && this._recordData.__setId) {
         this._recordData.__setId(id);
       }
     }
