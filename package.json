@@ -21,7 +21,7 @@
     "test:all": "yarn workspace ember-data test:all",
     "test:node": "lerna run --stream test:node",
     "test:production": "lerna run --stream --no-private --ignore='@ember-data/{private-build-infra,canary-features,debug}' test:production",
-    "test:try-one": "lerna run --stream --no-private --ignore='@ember-data/{private-build-infra,canary-features,debug}' test:try-one",
+    "test:try-one": "lerna run --stream --no-private --ignore='@ember-data/{private-build-infra,canary-features,debug}' test:try-one --",
     "test:docs": "yarn workspace ember-data test:docs",
     "test:encapsulation": "lerna run --stream --scope='*-encapsulation-test-app' test",
     "test:fastboot": "yarn workspace fastboot-test-app test:scenario",
