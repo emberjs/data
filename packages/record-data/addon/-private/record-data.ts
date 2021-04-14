@@ -12,7 +12,7 @@ import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-featur
 import coerceId from './coerce-id';
 import Relationships from './relationships/state/create';
 
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordDataStoreWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
 type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultSingleResourceRelationship = import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
@@ -43,11 +43,15 @@ export default class RecordDataDefault implements RelationshipRecordData {
   declare _scheduledDestroy: any;
   declare _isDeleted: boolean;
   declare _isDeletionCommited: boolean;
+  declare identifier: StableRecordIdentifier;
+  declare storeWrapper: RecordDataStoreWrapper;
 
-  constructor(private identifier: RecordIdentifier, public storeWrapper: RecordDataStoreWrapper) {
+  constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
     this.id = identifier.id;
+    this.identifier = identifier;
+    this.storeWrapper = storeWrapper;
 
     this.__relationships = null;
     this.__implicitRelationships = null;
@@ -61,7 +65,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   // PUBLIC API
-  getResourceIdentifier(): RecordIdentifier {
+  getResourceIdentifier(): StableRecordIdentifier {
     return this.identifier;
   }
 
