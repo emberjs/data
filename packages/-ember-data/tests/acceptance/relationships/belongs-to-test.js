@@ -354,7 +354,7 @@ module('async belongs-to rendering tests', function(hooks) {
       this.set('chris', chris);
 
       await render(hbs`
-      <p>{{chris.bestDog.name}}</p>
+      <p>{{this.chris.bestDog.name}}</p>
       `);
       await settled();
 
@@ -405,7 +405,7 @@ module('async belongs-to rendering tests', function(hooks) {
       this.set('sedona', sedona);
 
       await render(hbs`
-      <p>{{sedona.parent.name}}</p>
+      <p>{{this.sedona.parent.name}}</p>
       `);
 
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
@@ -423,7 +423,7 @@ module('async belongs-to rendering tests', function(hooks) {
       this.set('sedona', sedona);
 
       await render(hbs`
-      <p>{{sedona.parent.name}}</p>
+      <p>{{this.sedona.parent.name}}</p>
       `);
 
       let parent = await sedona.get('parent');
@@ -453,7 +453,7 @@ module('async belongs-to rendering tests', function(hooks) {
       this.set('sedona', sedona);
 
       await render(hbs`
-      <p>{{sedona.parent.name}}</p>
+      <p>{{this.sedona.parent.name}}</p>
       `);
 
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
@@ -494,7 +494,7 @@ module('async belongs-to rendering tests', function(hooks) {
       };
 
       await render(hbs`
-      <p>{{sedona.parent.name}}</p>
+      <p>{{this.sedona.parent.name}}</p>
       `);
 
       assert.equal(this.element.textContent.trim(), '', 'we have no parent');
@@ -548,7 +548,7 @@ module('async belongs-to rendering tests', function(hooks) {
       }
 
       await render(hbs`
-      <p>{{sedona.parent.name}}</p>
+      <p>{{this.sedona.parent.name}}</p>
       `);
 
       assert.equal(this.element.textContent.trim(), '', 'we have no parent');

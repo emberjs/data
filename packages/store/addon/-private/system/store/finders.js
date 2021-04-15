@@ -194,6 +194,11 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
       deprecate(message + '\n', false, {
         id: 'mismatched-inverse-relationship-data-from-payload',
         until: '3.8',
+        for: '@ember-data/store',
+        since: {
+          available: '3.8',
+          enabled: '3.8',
+        },
       });
     }
 
@@ -408,10 +413,7 @@ export function _queryRecord(adapter, store, modelName, query, options) {
 
       assert(
         `Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array.`,
-        !Array.isArray(payload.data),
-        {
-          id: 'ds.store.queryRecord-array-response',
-        }
+        !Array.isArray(payload.data)
       );
 
       return store._push(payload);
