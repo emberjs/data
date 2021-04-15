@@ -1,5 +1,3 @@
-import { BRAND_SYMBOL } from '../utils/brand';
-
 /**
   @module @ember-data/store
 */
@@ -8,7 +6,6 @@ export interface RelationshipSchema {
   /**
    * @internal
    */
-  [BRAND_SYMBOL]: 'RelationshipSchema';
   kind: 'belongsTo' | 'hasMany';
   type: string; // related type
   key: string; // deprecated version of name

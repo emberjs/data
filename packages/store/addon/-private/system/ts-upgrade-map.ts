@@ -4,7 +4,6 @@
 
 import { BRAND_SYMBOL } from '../utils/brand';
 
-type RelationshipDefinition = import('./relationship-meta').RelationshipDefinition;
 type RecordDataStoreWrapper = import('./store/record-data-store-wrapper').default;
 
 /**
@@ -14,7 +13,6 @@ type RecordDataStoreWrapper = import('./store/record-data-store-wrapper').defaul
  */
 export interface UpgradeMap {
   RecordDataStoreWrapper: RecordDataStoreWrapper;
-  RelationshipSchema: RelationshipDefinition;
 }
 
 /**

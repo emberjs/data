@@ -4,9 +4,9 @@ import { guidFor } from '@ember/object/internals';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
+import { implicitRelationshipsFor, implicitRelationshipStateFor, relationshipStateFor } from '../../accessors';
 import _normalizeLink from '../../normalize-link';
 import OrderedSet from '../../ordered-set';
-import { implicitRelationshipsFor, implicitRelationshipStateFor, relationshipStateFor } from '../../record-data-for';
 
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;

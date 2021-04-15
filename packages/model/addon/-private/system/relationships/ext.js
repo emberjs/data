@@ -2,8 +2,7 @@ import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import { computed, get } from '@ember/object';
 
-import { relationshipFromMeta, typeForRelationshipMeta } from '@ember-data/store/-private';
-
+import { relationshipFromMeta, typeForRelationshipMeta } from './relationship-meta';
 /**
   @module @ember-data/model
 */
