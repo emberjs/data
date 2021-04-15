@@ -19,7 +19,6 @@ export default class ManyRelationship extends Relationship {
   declare currentState: RelationshipRecordData[];
   declare _willUpdateManyArray: boolean;
   declare _pendingManyArrayUpdates: any;
-  declare key: string;
   constructor(
     store: Store,
     inverseKey: string | null,
@@ -34,7 +33,6 @@ export default class ManyRelationship extends Relationship {
     this.currentState = [];
     this._willUpdateManyArray = false;
     this._pendingManyArrayUpdates = null;
-    this.key = relationshipMeta.key;
   }
 
   addCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {

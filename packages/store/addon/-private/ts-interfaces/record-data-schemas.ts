@@ -10,13 +10,15 @@ export interface RelationshipSchema {
    */
   [BRAND_SYMBOL]: 'RelationshipSchema';
   kind: 'belongsTo' | 'hasMany';
-  type: string;
-  key: string;
+  type: string; // related type
+  key: string; // deprecated version of name
   options: {
+    async?: boolean;
+    polymorphic?: boolean;
     [key: string]: any;
   };
-  name: string;
-  inverse?: string | null;
+  name: string; // property key for this relationship
+  inverse?: string | null; // property key on the related type (if any)
 }
 
 export interface RelationshipsSchema {

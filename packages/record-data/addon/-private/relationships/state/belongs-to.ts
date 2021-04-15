@@ -14,7 +14,6 @@ type DefaultSingleResourceRelationship = import('../../ts-interfaces/relationshi
 export default class BelongsToRelationship extends Relationship {
   declare inverseRecordData: RelationshipRecordData | null;
   declare canonicalState: RelationshipRecordData | null;
-  declare key: string;
 
   constructor(
     store: Store,
@@ -24,10 +23,8 @@ export default class BelongsToRelationship extends Relationship {
     inverseIsAsync: boolean
   ) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
-    this.key = relationshipMeta.key;
     this.inverseRecordData = null;
     this.canonicalState = null;
-    this.key = relationshipMeta.key;
   }
 
   setRecordData(recordData: RelationshipRecordData) {

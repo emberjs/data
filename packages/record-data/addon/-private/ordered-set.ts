@@ -1,7 +1,6 @@
 import { assert } from '@ember/debug';
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
 
 const NULL_POINTER = `null-${Date.now()}`;
 
@@ -28,9 +27,9 @@ function guidFor(obj): string {
   return obj.clientId || obj.lid;
 }
 
-export default class OrderedSet {
-  declare presenceSet: Dict<RelationshipRecordData | null>;
-  declare list: (RelationshipRecordData | null)[];
+export default class OrderedSet<T> {
+  declare presenceSet: Dict<T | null>;
+  declare list: (T | null)[];
   declare size: number;
 
   constructor() {
@@ -43,7 +42,7 @@ export default class OrderedSet {
     this.size = 0;
   }
 
-  add(obj: RelationshipRecordData | null): OrderedSet {
+  add(obj: T | null): OrderedSet<T> {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
@@ -57,7 +56,7 @@ export default class OrderedSet {
     return this;
   }
 
-  delete(obj: RelationshipRecordData | null): boolean {
+  delete(obj: T | null): boolean {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
@@ -76,7 +75,7 @@ export default class OrderedSet {
     }
   }
 
-  has(obj: RelationshipRecordData | null): boolean {
+  has(obj: T | null): boolean {
     if (this.size === 0) {
       return false;
     }
@@ -85,12 +84,12 @@ export default class OrderedSet {
     return this.presenceSet[guid] === obj;
   }
 
-  toArray(): (RelationshipRecordData | null)[] {
+  toArray(): (T | null)[] {
     return this.list.slice();
   }
 
-  copy(): OrderedSet {
-    let set = new OrderedSet();
+  copy(): OrderedSet<T> {
+    let set = new OrderedSet<T>();
 
     for (let prop in this.presenceSet) {
       set.presenceSet[prop] = this.presenceSet[prop];
@@ -102,7 +101,7 @@ export default class OrderedSet {
     return set;
   }
 
-  addWithIndex(obj: RelationshipRecordData | null, idx?: number) {
+  addWithIndex(obj: T | null, idx?: number) {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
@@ -125,7 +124,7 @@ export default class OrderedSet {
     return this;
   }
 
-  deleteWithIndex(obj: RelationshipRecordData | null, idx?: number): boolean {
+  deleteWithIndex(obj: T | null, idx?: number): boolean {
     let guid = guidFor(obj);
     assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
