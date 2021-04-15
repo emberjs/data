@@ -6,7 +6,7 @@ import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 import _normalizeLink from '../../normalize-link';
 import OrderedSet from '../../ordered-set';
-import { implicitRelationshipStateFor, relationshipStateFor } from '../../record-data-for';
+import { implicitRelationshipsFor, implicitRelationshipStateFor, relationshipStateFor } from '../../record-data-for';
 
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
@@ -375,8 +375,8 @@ export default class Relationship {
       if (!this._hasSupportForImplicitRelationships(recordData)) {
         return;
       }
-      let relationships = recordData._implicitRelationships;
-      let relationship = relationships[this.inverseKey];
+      const relationships = implicitRelationshipsFor(recordData);
+      let relationship = implicitRelationshipStateFor(recordData, this.inverseKey);
       if (!relationship) {
         relationship = relationships[this.inverseKey] = new Relationship(
           this.store,
@@ -412,12 +412,11 @@ export default class Relationship {
       if (!this.inverseIsImplicit) {
         this.removeCanonicalRecordDataFromInverse(recordData);
       } else {
-        if (
-          recordData !== null &&
-          this._hasSupportForImplicitRelationships(recordData) &&
-          recordData._implicitRelationships[this.inverseKey]
-        ) {
-          recordData._implicitRelationships[this.inverseKey].removeCanonicalRecordData(this.recordData);
+        if (recordData !== null && this._hasSupportForImplicitRelationships(recordData)) {
+          const relationship = implicitRelationshipStateFor(recordData, this.inverseKey);
+          if (relationship) {
+            relationship.removeCanonicalRecordData(this.recordData);
+          }
         }
       }
     }
@@ -432,8 +431,10 @@ export default class Relationship {
         relationshipStateFor(recordData, this.inverseKey).addRecordData(this.recordData);
       } else {
         if (this._hasSupportForImplicitRelationships(recordData)) {
-          if (!recordData._implicitRelationships[this.inverseKey]) {
-            recordData._implicitRelationships[this.inverseKey] = new Relationship(
+          const relationships = implicitRelationshipsFor(recordData);
+          let relationship = implicitRelationshipStateFor(recordData, this.inverseKey);
+          if (!relationship) {
+            relationship = relationships[this.inverseKey] = new Relationship(
               this.store,
               this.key,
               {
@@ -447,7 +448,7 @@ export default class Relationship {
               this.isAsync
             );
           }
-          recordData._implicitRelationships[this.inverseKey].addRecordData(this.recordData);
+          relationship.addRecordData(this.recordData);
         }
       }
     }
@@ -460,12 +461,11 @@ export default class Relationship {
       if (!this.inverseIsImplicit) {
         this.removeRecordDataFromInverse(recordData);
       } else {
-        if (
-          recordData !== null &&
-          this._hasSupportForImplicitRelationships(recordData) &&
-          recordData._implicitRelationships[this.inverseKey]
-        ) {
-          recordData._implicitRelationships[this.inverseKey].removeRecordData(this.recordData);
+        if (recordData !== null && this._hasSupportForImplicitRelationships(recordData)) {
+          const relationship = implicitRelationshipStateFor(recordData, this.inverseKey);
+          if (relationship) {
+            relationship.removeRecordData(this.recordData);
+          }
         }
       }
     }
