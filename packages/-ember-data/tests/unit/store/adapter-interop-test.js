@@ -1,6 +1,6 @@
 import { A } from '@ember/array';
 import { get, set } from '@ember/object';
-import { run } from '@ember/runloop';
+import { later, run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 import { all, Promise as EmberPromise, resolve } from 'rsvp';
@@ -215,7 +215,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
       });
 
       return store.findRecord('person', 1).then(tom => {
-        assert.equal(get(tom, 'hasDirtyAttributes'), false, 'precond - record is not dirty');
+        assert.false(get(tom, 'hasDirtyAttributes'), 'precond - record is not dirty');
         assert.equal(get(tom, 'name'), 'Tom Dale', 'returns the correct name');
 
         store.push({
@@ -344,9 +344,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
 
     let person = this.owner.lookup('service:store').createRecord('person');
 
-    assert.equal(get(person, 'isLoaded'), true, 'A newly created record is loaded');
-    assert.equal(get(person, 'isNew'), true, 'A newly created record is new');
-    assert.equal(get(person, 'hasDirtyAttributes'), true, 'A newly created record is dirty');
+    assert.true(get(person, 'isLoaded'), 'A newly created record is loaded');
+    assert.true(get(person, 'isNew'), 'A newly created record is new');
+    assert.true(get(person, 'hasDirtyAttributes'), 'A newly created record is dirty');
 
     run(() => set(person, 'name', 'Braaahm Dale'));
 
@@ -387,9 +387,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
     let store = this.owner.lookup('service:store');
     let person = store.createRecord('person', { name: 'Brohuda Katz' });
 
-    assert.equal(get(person, 'isLoaded'), true, 'A newly created record is loaded');
-    assert.equal(get(person, 'isNew'), true, 'A newly created record is new');
-    assert.equal(get(person, 'hasDirtyAttributes'), true, 'A newly created record is dirty');
+    assert.true(get(person, 'isLoaded'), 'A newly created record is loaded');
+    assert.true(get(person, 'isNew'), 'A newly created record is new');
+    assert.true(get(person, 'hasDirtyAttributes'), 'A newly created record is dirty');
 
     assert.equal(get(person, 'name'), 'Brohuda Katz', 'The initial data hash is provided');
   });
@@ -693,7 +693,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
         let record = { id, type: type.modelName };
 
         return new EmberPromise(resolve => {
-          run.later(() => resolve({ data: record }), 5);
+          later(() => resolve({ data: record }), 5);
         });
       },
 
@@ -701,7 +701,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
         let records = ids.map(id => ({ id, type: type.modelName }));
 
         return new EmberPromise(resolve => {
-          run.later(() => {
+          later(() => {
             resolve({ data: records });
           }, 15);
         });
@@ -791,7 +791,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
           if (id === 'igor') {
             resolve({ data: record });
           } else {
-            run.later(function() {
+            later(function() {
               davidResolved = true;
               resolve({ data: record });
             }, 5);
@@ -813,13 +813,13 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
 
       wait.push(
         igor.then(() => {
-          assert.equal(davidResolved, false, 'Igor did not need to wait for David');
+          assert.false(davidResolved, 'Igor did not need to wait for David');
         })
       );
 
       wait.push(
         david.then(() => {
-          assert.equal(davidResolved, true, 'David resolved');
+          assert.true(davidResolved, 'David resolved');
         })
       );
 
@@ -844,7 +844,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
           if (id === 'igor') {
             reject({ data: record });
           } else {
-            run.later(() => {
+            later(() => {
               davidResolved = true;
               resolve({ data: record });
             }, 5);
@@ -866,13 +866,13 @@ module('unit/store/adapter-interop - Store working with a Adapter', function(hoo
 
       wait.push(
         igor.catch(() => {
-          assert.equal(davidResolved, false, 'Igor did not need to wait for David');
+          assert.false(davidResolved, 'Igor did not need to wait for David');
         })
       );
 
       wait.push(
         david.then(() => {
-          assert.equal(davidResolved, true, 'David resolved');
+          assert.true(davidResolved, 'David resolved');
         })
       );
 

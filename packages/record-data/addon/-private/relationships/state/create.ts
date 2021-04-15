@@ -3,37 +3,41 @@ import { upgradeForInternal } from '@ember-data/store/-private';
 import BelongsToRelationship from './belongs-to';
 import ManyRelationship from './has-many';
 
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
-type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
+type RelationshipRecordData = import('../../record-data').default;
 
 function createRelationshipFor(
   relationshipMeta: RelationshipSchema,
-  store: CoreStore,
-  recordData: RelationshipRecordData,
-  key: string
+  storeWrapper: RecordDataStoreWrapper,
+  identifier: StableRecordIdentifier,
+  key: string,
+  recordData: RelationshipRecordData
 ) {
-  let inverseKey = recordData.storeWrapper.inverseForRelationship(recordData.modelName, key);
-  let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(recordData.modelName, key);
+  let inverseKey = storeWrapper.inverseForRelationship(identifier.type, key);
+  let inverseIsAsync = storeWrapper.inverseIsAsyncForRelationship(identifier.type, key);
 
   if (relationshipMeta.kind === 'hasMany') {
-    return new ManyRelationship(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
+    return new ManyRelationship(storeWrapper._store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
   } else {
-    return new BelongsToRelationship(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
+    return new BelongsToRelationship(storeWrapper._store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
   }
 }
 
 export default class Relationships {
-  _store: CoreStore;
-  _storeWrapper: RecordDataStoreWrapper;
-  initializedRelationships: {
+  declare _storeWrapper: RecordDataStoreWrapper;
+  declare initializedRelationships: {
     [key: string]: BelongsToRelationship | ManyRelationship;
   };
-  constructor(public recordData: RelationshipRecordData) {
-    this.initializedRelationships = Object.create(null);
+  declare identifier: StableRecordIdentifier;
+  declare recordData: RelationshipRecordData;
+
+  constructor(recordData: RelationshipRecordData) {
     this._storeWrapper = upgradeForInternal(recordData.storeWrapper);
-    this._store = this._storeWrapper._store;
+    this.initializedRelationships = Object.create(null);
+    this.identifier = recordData.identifier;
+    this.recordData = recordData;
   }
 
   has(key: string) {
@@ -52,12 +56,17 @@ export default class Relationships {
     let relationship = relationships[key];
 
     if (!relationship) {
-      let recordData = this.recordData;
-      let rel = this.recordData.storeWrapper.relationshipsDefinitionFor(this.recordData.modelName)[key];
+      let rel = this._storeWrapper.relationshipsDefinitionFor(this.identifier.type)[key];
 
       if (rel) {
         // lazily instantiate relationship
-        relationship = relationships[key] = createRelationshipFor(rel, this._store, recordData, key);
+        relationship = relationships[key] = createRelationshipFor(
+          rel,
+          this._storeWrapper,
+          this.identifier,
+          key,
+          this.recordData
+        );
       }
     }
 

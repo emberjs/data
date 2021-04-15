@@ -146,10 +146,10 @@ module('integration/records/save - Save Record', function(hooks) {
 
     run(function() {
       post.save().then(null, function() {
-        assert.equal(post.get('isValid'), false);
+        assert.false(post.get('isValid'));
 
         post.save().then(null, function() {
-          assert.equal(post.get('isValid'), false);
+          assert.false(post.get('isValid'));
         });
       });
     });
@@ -169,10 +169,10 @@ module('integration/records/save - Save Record', function(hooks) {
 
     run(function() {
       post.save().then(null, function() {
-        assert.equal(post.get('isValid'), false);
+        assert.false(post.get('isValid'));
 
         post.save().then(null, function() {
-          assert.equal(post.get('isValid'), false);
+          assert.false(post.get('isValid'));
         });
       });
     });

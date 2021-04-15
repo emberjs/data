@@ -303,7 +303,7 @@ module('integration/store - findRecord', function(hooks) {
 
     let cachedRecordIsPresent = store.hasRecordForId('car', '20');
 
-    assert.ok(!cachedRecordIsPresent, 'Car with id=20 should not exist');
+    assert.notOk(cachedRecordIsPresent, 'Car with id=20 should not exist');
 
     let car = await store.findRecord('car', '20');
 
@@ -975,7 +975,7 @@ module('integration/store - findAll', function(hooks) {
 
     let car = store.recordForId('car', '20');
 
-    assert.equal(car.isEmpty, true, 'Car with id=20 should be empty');
+    assert.true(car.isEmpty, 'Car with id=20 should be empty');
 
     car = await store.findRecord('car', '20', { reload: true });
 

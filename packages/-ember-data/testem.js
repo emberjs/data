@@ -4,7 +4,7 @@ const customDotReporter = require('@ember-data/unpublished-test-infra/src/testem
 console.log(`\n\nLaunching with ${process.env.TESTEM_CI_LAUNCHER || 'Chrome'}\n\n`);
 
 module.exports = {
-  test_page: 'tests/index.html?hidepassed',
+  test_page: 'tests/index.html?hidepassed&nocontainer',
   disable_watching: true,
   reporter: customDotReporter,
   launch_in_ci: [process.env.TESTEM_CI_LAUNCHER || 'Chrome'],

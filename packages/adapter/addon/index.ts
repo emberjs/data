@@ -66,6 +66,8 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
   @extends EmberObject
 */
 export default class Adapter extends EmberObject implements MinimumAdapterInterface {
+  declare _coalesceFindRequests: boolean;
+
   /**
     If you would like your adapter to use a custom serializer you can
     set the `defaultSerializer` property to be the name of the custom
@@ -479,7 +481,17 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests = true;
+  get coalesceFindRequests() {
+    let coalesceFindRequests = this._coalesceFindRequests;
+    if (typeof coalesceFindRequests === 'boolean') {
+      return coalesceFindRequests;
+    }
+    return (this._coalesceFindRequests = true);
+  }
+
+  set coalesceFindRequests(value: boolean) {
+    this._coalesceFindRequests = value;
+  }
 
   /**
     The store will call `findMany` instead of multiple `findRecord`

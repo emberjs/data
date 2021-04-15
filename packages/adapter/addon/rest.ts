@@ -6,7 +6,7 @@ import { getOwner } from '@ember/application';
 import { deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { run } from '@ember/runloop';
+import { join } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { has } from 'require';
@@ -471,7 +471,17 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @property coalesceFindRequests
     @type {boolean}
   */
-  coalesceFindRequests: boolean = false;
+  get coalesceFindRequests() {
+    let coalesceFindRequests = this._coalesceFindRequests;
+    if (typeof coalesceFindRequests === 'boolean') {
+      return coalesceFindRequests;
+    }
+    return (this._coalesceFindRequests = false);
+  }
+
+  set coalesceFindRequests(value: boolean) {
+    this._coalesceFindRequests = value;
+  }
 
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
@@ -598,6 +608,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Store} store
     @param {Model} type
     @param {Object} query
+    @param {AdapterPopulatedRecordArray} recordArray
+    @param {Object} adapterOptions
     @return {Promise} promise
   */
   query(store: Store, type: ShimModelClass, query): Promise<unknown> {
@@ -626,9 +638,15 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Store} store
     @param {Model} type
     @param {Object} query
+    @param {Object} adapterOptions
     @return {Promise} promise
   */
-  queryRecord(store: Store, type: ShimModelClass, query: Dict<unknown>): Promise<unknown> {
+  queryRecord(
+    store: Store,
+    type: ShimModelClass,
+    query: Dict<unknown>,
+    adapterOptions: Dict<unknown>
+  ): Promise<unknown> {
     let url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
 
     if (this.sortQueryParams) {
@@ -1068,12 +1086,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       return new RSVPPromise(function(resolve, reject) {
         hash.success = function(payload, textStatus, jqXHR) {
           let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
-          run.join(null, resolve, response);
+          join(null, resolve, response);
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
           let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
-          run.join(null, reject, error);
+          join(null, reject, error);
         };
 
         adapter._ajax(hash);

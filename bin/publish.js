@@ -24,6 +24,7 @@ Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const process = require('process');
 
 const chalk = require('chalk');
 const execa = require('execa');
@@ -93,6 +94,7 @@ function getConfig() {
     { name: 'bumpMajor', type: Boolean, defaultValue: false },
     { name: 'bumpMinor', type: Boolean, defaultValue: false },
     { name: 'force', type: Boolean, defaultValue: false },
+    { name: 'useVersion', type: String, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
   const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
@@ -308,22 +310,40 @@ let cli = readline.createInterface({
   output: process.stdout,
 });
 
-function publishPackage(distTag, otp, tarball) {
-  execWithLog(`npm publish ${tarball} --tag=${distTag} --access=public --otp=${otp}`);
+/**
+ * If otp is passed add it as a parameter to the publish command else assume authentication is setup either
+ * as environment variable
+ *
+ * @param {string} distTag - Use this tag on npm for this instance
+ * @param {string} tarball - Path to the tarball
+ * @param {string} otp - Token to make publish requests to npm
+ */
+function publishPackage(distTag, tarball, otp) {
+  let cmd = `npm publish ${tarball} --tag=${distTag} --access=public`;
+
+  if (otp) {
+    cmd += ` --otp=${otp}`;
+  }
+
+  execWithLog(cmd);
 }
 
-async function confirmPublish(tarballs, nextVersion) {
-  let otp = await getOTPToken();
+async function confirmPublish(tarballs, promptOtp = true) {
+  let otp;
+
+  if (promptOtp) {
+    otp = await getOTPToken();
+  }
 
   for (let tarball of tarballs) {
     try {
-      publishPackage(options.distTag, otp, tarball);
+      publishPackage(options.distTag, tarball, otp);
     } catch (e) {
       // the token is outdated, we need another one
       if (e.message.includes('E401') || e.message.includes('EOTP')) {
         otp = await getOTPToken();
 
-        publishPackage(options.distTag, otp, tarball);
+        publishPackage(options.distTag, tarball, otp);
       } else {
         throw e;
       }
@@ -347,7 +367,15 @@ async function main() {
     // --force-publish ensures that all packages release a new version regardless
     // of whether changes have occurred in them
     // --yes skips the prompt for confirming the version
-    nextVersion = retrieveNextVersion();
+    if (options.useVersion) {
+      if (semver.valid(options.useVersion)) {
+        nextVersion = options.useVersion;
+      } else {
+        throw Error(`Version "${options.useVersion}" is not a valid semantic version.`);
+      }
+    } else {
+      nextVersion = retrieveNextVersion();
+    }
     execWithLog(`lerna version ${nextVersion} --force-publish --exact --yes`, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
@@ -362,7 +390,12 @@ async function main() {
   }
   if (!options.skipPublish) {
     const tarballs = collectTarballPaths();
-    await confirmPublish(tarballs, nextVersion);
+    const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
+    if (!npmAuthTokenInEnv) {
+      console.log('No NODE_AUTH_TOKEN environment variable. Prompting for OTP.');
+    }
+    // Assume human ran script if token is missing
+    await confirmPublish(tarballs, !npmAuthTokenInEnv);
     console.log(`✅ ` + chalk.cyan(`Successfully Published ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Publishing`));

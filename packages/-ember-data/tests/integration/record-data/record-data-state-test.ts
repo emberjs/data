@@ -197,18 +197,18 @@ module('integration/record-data - Record Data State', function(hooks) {
     let person = store.peekRecord('person', '1');
     isNew = true;
     await person.save();
-    assert.equal(calledCreate, true, 'called create if record isNew');
+    assert.true(calledCreate, 'called create if record isNew');
 
     isNew = false;
     isDeleted = true;
     await person.save();
-    assert.equal(calledDelete, true, 'called delete if record isDeleted');
+    assert.true(calledDelete, 'called delete if record isDeleted');
 
     isNew = false;
     isDeleted = false;
 
     await person.save();
-    assert.equal(calledUpdate, true, 'called update if record isnt deleted or new');
+    assert.true(calledUpdate, 'called update if record isnt deleted or new');
   });
 
   test('Record Data state record flags', async function(assert) {
@@ -268,29 +268,25 @@ module('integration/record-data - Record Data State', function(hooks) {
     isNew = true;
 
     storeWrapper.notifyStateChange('person', '1', null, 'isNew');
-    assert.equal(person.get('isNew'), true, 'person is new');
+    assert.true(person.get('isNew'), 'person is new');
 
     isNew = false;
     isDeleted = true;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
     storeWrapper.notifyStateChange('person', '1', null, 'isNew');
 
-    assert.equal(person.get('isNew'), false, 'person is not new');
-    assert.equal(person.get('isDeleted'), true, 'person is deleted');
+    assert.false(person.get('isNew'), 'person is not new');
+    assert.true(person.get('isDeleted'), 'person is deleted');
 
     isNew = false;
     isDeleted = false;
     storeWrapper.notifyStateChange('person', '1', null, 'isDeleted');
-    assert.equal(person.get('isNew'), false, 'person is not new');
-    assert.equal(person.get('isDeleted'), false, 'person is not deleted');
+    assert.false(person.get('isNew'), 'person is not new');
+    assert.false(person.get('isDeleted'), 'person is not deleted');
 
     person.deleteRecord();
-    assert.equal(
-      person.get('isDeleted'),
-      false,
-      'calling deleteRecord does not automatically set isDeleted flag to true'
-    );
-    assert.equal(calledSetIsDeleted, true, 'called setIsDeleted');
+    assert.false(person.get('isDeleted'), 'calling deleteRecord does not automatically set isDeleted flag to true');
+    assert.true(calledSetIsDeleted, 'called setIsDeleted');
 
     assert.equal(people.get('length'), 1, 'live array starting length is 1');
     isDeletionCommitted = true;

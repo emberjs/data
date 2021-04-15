@@ -431,7 +431,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
 
     assert.equal(company.id, '2', 'Record has correct id');
     assert.equal(company.name, 'Tilde', 'Sets correct name to record');
-    assert.equal(company.coffee, true, 'Sets correct value for coffee attribute');
+    assert.true(company.coffee, 'Sets correct value for coffee attribute');
   });
 
   test('find a single record with sideloaded belongsTo link as object { data }', async function(assert) {

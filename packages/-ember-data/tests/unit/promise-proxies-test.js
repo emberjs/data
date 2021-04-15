@@ -41,32 +41,32 @@ module('PromiseManyArray', function() {
       promise,
     });
 
-    assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
-    assert.equal(array.get('isPending'), true, 'should be pending');
-    assert.equal(array.get('isSettled'), false, 'should NOT be settled');
-    assert.equal(array.get('isFulfilled'), false, 'should NOT be fulfilled');
+    assert.false(array.get('isRejected'), 'should NOT be rejected');
+    assert.true(array.get('isPending'), 'should be pending');
+    assert.false(array.get('isSettled'), 'should NOT be settled');
+    assert.false(array.get('isFulfilled'), 'should NOT be fulfilled');
 
     return array.then(() => {
-      assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
-      assert.equal(array.get('isPending'), false, 'should NOT be pending');
-      assert.equal(array.get('isSettled'), true, 'should be settled');
-      assert.equal(array.get('isFulfilled'), true, 'should be fulfilled');
+      assert.false(array.get('isRejected'), 'should NOT be rejected');
+      assert.false(array.get('isPending'), 'should NOT be pending');
+      assert.true(array.get('isSettled'), 'should be settled');
+      assert.true(array.get('isFulfilled'), 'should be fulfilled');
 
       let reloaded = array.reload();
 
-      assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
-      assert.equal(array.get('isPending'), true, 'should be pending');
-      assert.equal(array.get('isSettled'), false, 'should NOT be settled');
-      assert.equal(array.get('isFulfilled'), false, 'should NOT be fulfilled');
+      assert.false(array.get('isRejected'), 'should NOT be rejected');
+      assert.true(array.get('isPending'), 'should be pending');
+      assert.false(array.get('isSettled'), 'should NOT be settled');
+      assert.false(array.get('isFulfilled'), 'should NOT be fulfilled');
 
       assert.ok(reloaded instanceof DS.PromiseManyArray);
       assert.equal(reloaded, array);
 
       return reloaded.then(value => {
-        assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
-        assert.equal(array.get('isPending'), false, 'should NOT be pending');
-        assert.equal(array.get('isSettled'), true, 'should be settled');
-        assert.equal(array.get('isFulfilled'), true, 'should be fulfilled');
+        assert.false(array.get('isRejected'), 'should NOT be rejected');
+        assert.false(array.get('isPending'), 'should NOT be pending');
+        assert.true(array.get('isSettled'), 'should be settled');
+        assert.true(array.get('isFulfilled'), 'should be fulfilled');
 
         assert.equal(content, value);
       });
@@ -84,31 +84,31 @@ module('PromiseManyArray', function() {
       promise,
     });
 
-    assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
-    assert.equal(array.get('isPending'), true, 'should be pending');
-    assert.equal(array.get('isSettled'), false, 'should NOT be settled');
-    assert.equal(array.get('isFulfilled'), false, 'should NOT be fulfilled');
+    assert.false(array.get('isRejected'), 'should NOT be rejected');
+    assert.true(array.get('isPending'), 'should be pending');
+    assert.false(array.get('isSettled'), 'should NOT be settled');
+    assert.false(array.get('isFulfilled'), 'should NOT be fulfilled');
 
     return array.then(() => {
-      assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
-      assert.equal(array.get('isPending'), false, 'should NOT be pending');
-      assert.equal(array.get('isSettled'), true, 'should be settled');
-      assert.equal(array.get('isFulfilled'), true, 'should be fulfilled');
+      assert.false(array.get('isRejected'), 'should NOT be rejected');
+      assert.false(array.get('isPending'), 'should NOT be pending');
+      assert.true(array.get('isSettled'), 'should be settled');
+      assert.true(array.get('isFulfilled'), 'should be fulfilled');
 
       array.set('promise', EmberPromise.resolve(content));
 
-      assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
-      assert.equal(array.get('isPending'), true, 'should be pending');
-      assert.equal(array.get('isSettled'), false, 'should NOT be settled');
-      assert.equal(array.get('isFulfilled'), false, 'should NOT be fulfilled');
+      assert.false(array.get('isRejected'), 'should NOT be rejected');
+      assert.true(array.get('isPending'), 'should be pending');
+      assert.false(array.get('isSettled'), 'should NOT be settled');
+      assert.false(array.get('isFulfilled'), 'should NOT be fulfilled');
 
       assert.ok(array instanceof DS.PromiseManyArray);
 
       return array.then(value => {
-        assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
-        assert.equal(array.get('isPending'), false, 'should NOT be pending');
-        assert.equal(array.get('isSettled'), true, 'should be settled');
-        assert.equal(array.get('isFulfilled'), true, 'should be fulfilled');
+        assert.false(array.get('isRejected'), 'should NOT be rejected');
+        assert.false(array.get('isPending'), 'should NOT be pending');
+        assert.true(array.get('isSettled'), 'should be settled');
+        assert.true(array.get('isFulfilled'), 'should be fulfilled');
 
         assert.equal(content, value);
       });

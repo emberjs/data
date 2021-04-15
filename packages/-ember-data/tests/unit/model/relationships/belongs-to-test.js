@@ -84,7 +84,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       return store.findRecord('person', 1).then(person => {
         assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
-        assert.equal(get(person, 'tag') instanceof Tag, true, 'the tag property should return a tag');
+        assert.true(get(person, 'tag') instanceof Tag, 'the tag property should return a tag');
         assert.equal(get(person, 'tag.name'), 'friendly', 'the tag shuld have name');
 
         assert.strictEqual(get(person, 'tag'), get(person, 'tag'), 'the returned object is always the same');
@@ -212,7 +212,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
         })
         .then(tag => {
           assert.equal(get(tag, 'name'), 'friendly', 'Tom Dale is now friendly');
-          assert.equal(get(tag, 'isLoaded'), true, 'Tom Dale is now loaded');
+          assert.true(get(tag, 'isLoaded'), 'Tom Dale is now loaded');
         });
     });
   });
@@ -296,10 +296,10 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     let [tag1, tag2] = await Promise.all(persons.map(person => get(person, 'tag')));
 
     assert.equal(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
-    assert.equal(get(tag1, 'isLoaded'), true, "Tom Dale's tag is now loaded");
+    assert.true(get(tag1, 'isLoaded'), "Tom Dale's tag is now loaded");
 
     assert.equal(get(tag2, 'name'), 'nice', 'Bob Dylan is now nice');
-    assert.equal(get(tag2, 'isLoaded'), true, "Bob Dylan's tag is now loaded");
+    assert.true(get(tag2, 'isLoaded'), "Bob Dylan's tag is now loaded");
   });
 
   test('async belongsTo relationships are grouped with coalesceFindRequests=true', async function(assert) {
@@ -379,10 +379,10 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     let [tag1, tag2] = await Promise.all(persons.map(person => get(person, 'tag')));
 
     assert.equal(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
-    assert.equal(get(tag1, 'isLoaded'), true, "Tom Dale's tag is now loaded");
+    assert.true(get(tag1, 'isLoaded'), "Tom Dale's tag is now loaded");
 
     assert.equal(get(tag2, 'name'), 'nice', 'Bob Dylan is now nice');
-    assert.equal(get(tag2, 'isLoaded'), true, "Bob Dylan's tag is now loaded");
+    assert.true(get(tag2, 'isLoaded'), "Bob Dylan's tag is now loaded");
   });
 
   test('async belongsTo relationships work when the data hash has already been loaded', function(assert) {
@@ -435,7 +435,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
         return get(person, 'tag');
       }).then(tag => {
         assert.equal(get(tag, 'name'), 'friendly', 'Tom Dale is now friendly');
-        assert.equal(get(tag, 'isLoaded'), true, 'Tom Dale is now loaded');
+        assert.true(get(tag, 'isLoaded'), 'Tom Dale is now loaded');
       });
     });
   });
@@ -581,7 +581,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       return store
         .findRecord('person', 1)
         .then(person => {
-          assert.equal(get(person, 'isLoaded'), true, 'isLoaded should be true');
+          assert.true(get(person, 'isLoaded'), 'isLoaded should be true');
           assert.equal(get(person, 'name'), 'Tom Dale', 'the person is still Tom Dale');
 
           return get(person, 'occupations');
@@ -590,7 +590,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
           assert.equal(get(occupations, 'length'), 2, 'the list of occupations should have the correct length');
 
           assert.equal(get(occupations.objectAt(0), 'description'), 'fifth', 'the occupation is the fifth');
-          assert.equal(get(occupations.objectAt(0), 'isLoaded'), true, 'the occupation is now loaded');
+          assert.true(get(occupations.objectAt(0), 'isLoaded'), 'the occupation is now loaded');
         });
     });
   });
@@ -704,7 +704,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       return store.findRecord('person', 1).then(person => {
         assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
-        assert.equal(get(person, 'tag') instanceof Tag, true, 'the tag property should return a tag');
+        assert.true(get(person, 'tag') instanceof Tag, 'the tag property should return a tag');
         assert.equal(get(person, 'tag.name'), 'friendly', 'the tag should have name');
 
         assert.strictEqual(get(person, 'tag'), get(person, 'tag'), 'the returned object is always the same');

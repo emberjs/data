@@ -4,9 +4,8 @@ import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { run } from '@ember/runloop';
+import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
-import Ember from 'ember';
 
 import RSVP, { Promise } from 'rsvp';
 
@@ -37,7 +36,6 @@ type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstan
 type JsonApiResource = import('../../ts-interfaces/record-data-json-api').JsonApiResource;
 type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api').JsonApiValidationError;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
-type RecordArray = import('../record-arrays/record-array').default;
 type Store = import('../ds-model-store').default;
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
@@ -137,55 +135,54 @@ function extractPivotName(name) {
   @class InternalModel
 */
 export default class InternalModel {
-  _id: string | null;
-  _tag: number = 0;
-  modelName: string;
-  clientId: string;
-  __recordData: RecordData | null;
-  _isDestroyed: boolean;
-  isError: boolean;
-  _pendingRecordArrayManagerFlush: boolean;
-  _isDematerializing: boolean;
-  isReloading: boolean;
-  _doNotDestroy: boolean;
-  isDestroying: boolean;
+  declare _id: string | null;
+  declare _tag: number;
+  declare modelName: string;
+  declare clientId: string;
+  declare __recordData: RecordData | null;
+  declare _isDestroyed: boolean;
+  declare isError: boolean;
+  declare _pendingRecordArrayManagerFlush: boolean;
+  declare _isDematerializing: boolean;
+  declare isReloading: boolean;
+  declare _doNotDestroy: boolean;
+  declare isDestroying: boolean;
 
   // Not typed yet
-  _promiseProxy: any;
-  _record: any;
-  _scheduledDestroy: any;
-  _modelClass: any;
-  __deferredTriggers: any;
-  __recordArrays: any;
-  _references: any;
-  _recordReference: any;
-  _manyArrayCache: ConfidentDict<ManyArray> = Object.create(null);
+  declare _promiseProxy: any;
+  declare _record: any;
+  declare _scheduledDestroy: any;
+  declare _modelClass: any;
+  declare _deferredTriggers: any;
+  declare __recordArrays: any;
+  declare references: any;
+  declare _recordReference: any;
+  declare _manyArrayCache: ConfidentDict<ManyArray>;
 
   // The previous ManyArrays for this relationship which will be destroyed when
   // we create a new ManyArray, but in the interim the retained version will be
   // updated if inverse internal models are unloaded.
-  _retainedManyArrayCache: ConfidentDict<ManyArray> = Object.create(null);
-  _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>> = Object.create(null);
-  _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo> = Object.create(null);
-  currentState: any;
-  error: any;
+  declare _retainedManyArrayCache: ConfidentDict<ManyArray>;
+  declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
+  declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
+  declare currentState: any;
+  declare error: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
+    this._tag = 0;
     this._id = identifier.id;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
 
     this.__recordData = null;
 
-    // this ensure ordered set can quickly identify this as unique
-    this[Ember.GUID_KEY] = identifier.lid;
-
     this._promiseProxy = null;
     this._record = null;
     this._isDestroyed = false;
+    this._doNotDestroy = false;
     this.isError = false;
     this._pendingRecordArrayManagerFlush = false; // used by the recordArrayManager
 
@@ -197,14 +194,24 @@ export default class InternalModel {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
 
-    this.resetRecord();
-
     // caches for lazy getters
     this._modelClass = null;
-    this.__deferredTriggers = null;
     this.__recordArrays = null;
-    this._references = null;
     this._recordReference = null;
+    this.__recordData = null;
+
+    this.isReloading = false;
+    this.error = null;
+    this.currentState = RootState.empty;
+
+    // other caches
+    // class fields have [[DEFINE]] semantics which are significantly slower than [[SET]] semantics here
+    this._manyArrayCache = Object.create(null);
+    this._retainedManyArrayCache = Object.create(null);
+    this._relationshipPromisesCache = Object.create(null);
+    this._relationshipProxyCache = Object.create(null);
+    this.references = Object.create(null);
+    this._deferredTriggers = [];
   }
 
   get id(): string | null {
@@ -240,7 +247,7 @@ export default class InternalModel {
   get _recordData(): RecordData {
     if (this.__recordData === null) {
       let recordData = this.store._createRecordData(this.identifier);
-      this._recordData = recordData;
+      this.__recordData = recordData;
       return recordData;
     }
     return this.__recordData;
@@ -248,20 +255,6 @@ export default class InternalModel {
 
   set _recordData(newValue) {
     this.__recordData = newValue;
-  }
-
-  get references() {
-    if (this._references === null) {
-      this._references = Object.create(null);
-    }
-    return this._references;
-  }
-
-  get _deferredTriggers() {
-    if (this.__deferredTriggers === null) {
-      this.__deferredTriggers = [];
-    }
-    return this.__deferredTriggers;
   }
 
   isHiddenFromRecordArrays() {
@@ -449,13 +442,6 @@ export default class InternalModel {
     return this._record;
   }
 
-  resetRecord() {
-    this._record = null;
-    this.isReloading = false;
-    this.error = null;
-    this.currentState = RootState.empty;
-  }
-
   dematerializeRecord() {
     this._isDematerializing = true;
 
@@ -496,7 +482,10 @@ export default class InternalModel {
     // move to an empty never-loaded state
     this.updateRecordArrays();
     this._recordData.unloadRecord();
-    this.resetRecord();
+    this._record = null;
+    this.isReloading = false;
+    this.error = null;
+    this.currentState = RootState.empty;
   }
 
   deleteRecord() {
@@ -602,7 +591,7 @@ export default class InternalModel {
     this.send('unloadRecord');
     this.dematerializeRecord();
     if (this._scheduledDestroy === null) {
-      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
+      this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_checkForOrphanedInternalModels');
     }
   }
 
@@ -618,7 +607,7 @@ export default class InternalModel {
 
     this._doNotDestroy = true;
     this._isDematerializing = false;
-    run.cancel(this._scheduledDestroy);
+    cancel(this._scheduledDestroy);
     this._scheduledDestroy = null;
   }
 
@@ -1373,7 +1362,8 @@ export default class InternalModel {
     if (didChange && id !== null) {
       this.store.setRecordId(this.modelName, id, this.clientId);
       // internal set of ID to get it to RecordData from DS.Model
-      if (this._recordData.__setId) {
+      // if we are within create we may not have a recordData yet.
+      if (this.__recordData && this._recordData.__setId) {
         this._recordData.__setId(id);
       }
     }

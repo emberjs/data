@@ -288,10 +288,10 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       .errorsFor('name')
       .get('firstObject');
     assert.equal(nameError.attribute, 'name', 'error shows up on name');
-    assert.equal(person.get('isValid'), false, 'person is not valid');
+    assert.false(person.get('isValid'), 'person is not valid');
     errorsToReturn = [];
     storeWrapper.notifyErrorsChange('person', '1');
-    assert.equal(person.get('isValid'), true, 'person is valid');
+    assert.true(person.get('isValid'), 'person is valid');
     assert.equal(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
     errorsToReturn = [
       {
@@ -303,7 +303,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       },
     ];
     storeWrapper.notifyErrorsChange('person', '1');
-    assert.equal(person.get('isValid'), false, 'person is valid');
+    assert.false(person.get('isValid'), 'person is valid');
     assert.equal(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
     let lastNameError = person
       .get('errors')
@@ -371,7 +371,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       err => {}
     );
 
-    assert.equal(person.get('isValid'), false, 'rejecting the save invalidates the person');
+    assert.false(person.get('isValid'), 'rejecting the save invalidates the person');
     let nameError = person
       .get('errors')
       .errorsFor('name')

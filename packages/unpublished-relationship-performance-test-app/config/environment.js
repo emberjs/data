@@ -5,7 +5,7 @@ module.exports = function(environment) {
     modulePrefix: 'relationship-performance-test-app',
     environment,
     rootURL: '/',
-    locationType: 'hash',
+    locationType: 'auto',
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build

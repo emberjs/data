@@ -1126,7 +1126,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         .then(tags => {
           assert.equal(get(tags, 'length'), 2, 'the tags object still exists');
           assert.equal(get(tags.objectAt(0), 'name'), 'friendly', 'Tom Dale is now friendly');
-          assert.equal(get(tags.objectAt(0), 'isLoaded'), true, 'Tom Dale is now loaded');
+          assert.true(get(tags.objectAt(0), 'isLoaded'), 'Tom Dale is now loaded');
         });
     });
   });
@@ -2382,8 +2382,8 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
         let isRecordDataBuild = people.recordData !== undefined;
         tag.unloadRecord();
         // TODO Check all unloading behavior
-        assert.equal(people.isDestroying, false, 'people is NOT destroying sync after unloadRecord');
-        assert.equal(people.isDestroyed, false, 'people is NOT destroyed sync after unloadRecord');
+        assert.false(people.isDestroying, 'people is NOT destroying sync after unloadRecord');
+        assert.false(people.isDestroyed, 'people is NOT destroyed sync after unloadRecord');
 
         // unload is not the same as destroy, and we may cancel
         //  prior to RecordData, this was coupled to the destroy
@@ -2394,11 +2394,11 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
           isRecordDataBuild,
           'peopleProxy is not destroying sync after unloadRecord'
         );
-        assert.equal(peopleProxy.isDestroyed, false, 'peopleProxy is NOT YET destroyed sync after unloadRecord');
+        assert.false(peopleProxy.isDestroyed, 'peopleProxy is NOT YET destroyed sync after unloadRecord');
       });
 
-      assert.equal(peopleProxy.isDestroying, true, 'peopleProxy is destroying after the run post unloadRecord');
-      assert.equal(peopleProxy.isDestroyed, true, 'peopleProxy is destroyed after the run post unloadRecord');
+      assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying after the run post unloadRecord');
+      assert.true(peopleProxy.isDestroyed, 'peopleProxy is destroyed after the run post unloadRecord');
     });
   });
 

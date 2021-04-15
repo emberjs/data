@@ -81,9 +81,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
           assert.equal(user1.belongsTo('organisation').id(), 1, `user's belongsTo has its id populated`);
 
           return user1.get('organisation').then(orgFromUser => {
-            assert.equal(
+            assert.false(
               user1.belongsTo('organisation').belongsToRelationship.relationshipIsStale,
-              false,
               'user should have loaded its belongsTo relationship'
             );
 
@@ -144,9 +143,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
         },
       });
 
-      assert.equal(
+      assert.true(
         parent.hasMany('children').hasManyRelationship.relationshipIsStale,
-        true,
         'parent should think that children still needs to be loaded'
       );
     });
@@ -799,7 +797,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       let home = run(() => user.get('home'));
 
       if (homeRelWasEmpty) {
-        assert.ok(!didFetchInitially, 'We did not fetch');
+        assert.notOk(didFetchInitially, 'We did not fetch');
       }
 
       assert.ok(!!home, 'We found our home');

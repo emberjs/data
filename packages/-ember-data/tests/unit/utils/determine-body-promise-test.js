@@ -37,7 +37,7 @@ module('Unit | determineBodyPromise', function() {
     const bodyPromise = determineBodyPromise(response, {});
 
     return bodyPromise.then(body => {
-      assert.equal(body instanceof SyntaxError, true, 'body response syntax errored if cannot be parsed as json');
+      assert.true(body instanceof SyntaxError, 'body response syntax errored if cannot be parsed as json');
     });
   });
 

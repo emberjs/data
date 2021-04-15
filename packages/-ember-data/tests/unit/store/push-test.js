@@ -80,7 +80,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
 
     assert.equal(person.get('firstName'), 'updated first name');
     assert.equal(person.get('currentState.stateName'), 'root.loaded.saved');
-    assert.ok(!person.changedAttributes().firstName);
+    assert.notOk(person.changedAttributes().firstName);
   });
 
   test('Calling push with a normalized hash returns a record', function(assert) {

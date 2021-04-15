@@ -316,14 +316,14 @@ module('async has-many rendering tests', function(hooks) {
       let RelationshipPromiseCache = parent._internalModel._relationshipPromisesCache;
       let RelationshipProxyCache = parent._internalModel._relationshipProxyCache;
 
-      assert.equal(relationshipState.isAsync, true, 'The relationship is async');
-      assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
-      assert.equal(relationshipState.hasDematerializedInverse, true, 'The relationship has a dematerialized inverse');
-      assert.equal(relationshipState.hasAnyRelationshipData, true, 'The relationship knows which record it needs');
-      assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
-      assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
-      assert.equal(!!RelationshipProxyCache['children'], true, 'The relationship has a promise proxy');
-      assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
+      assert.true(relationshipState.isAsync, 'The relationship is async');
+      assert.false(relationshipState.relationshipIsEmpty, 'The relationship is not empty');
+      assert.true(relationshipState.hasDematerializedInverse, 'The relationship has a dematerialized inverse');
+      assert.true(relationshipState.hasAnyRelationshipData, 'The relationship knows which record it needs');
+      assert.false(!!RelationshipPromiseCache['children'], 'The relationship has no fetch promise');
+      assert.true(relationshipState.hasFailedLoadAttempt === true, 'The relationship has attempted a load');
+      assert.true(!!RelationshipProxyCache['children'], 'The relationship has a promise proxy');
+      assert.false(!!relationshipState.link, 'The relationship does not have a link');
 
       Ember.onerror = originalOnError;
     });
@@ -432,18 +432,17 @@ module('async has-many rendering tests', function(hooks) {
       let RelationshipPromiseCache = parent._internalModel._relationshipPromisesCache;
       let RelationshipProxyCache = parent._internalModel._relationshipProxyCache;
 
-      assert.equal(relationshipState.isAsync, true, 'The relationship is async');
-      assert.equal(
+      assert.true(relationshipState.isAsync, 'The relationship is async');
+      assert.true(
         relationshipState.relationshipIsEmpty,
-        true,
         'The relationship is empty because no signal has been received as to true state'
       );
-      assert.equal(relationshipState.relationshipIsStale, true, 'The relationship is still stale');
-      assert.equal(relationshipState.hasAnyRelationshipData, false, 'The relationship knows which record it needs');
-      assert.equal(!!RelationshipPromiseCache['children'], false, 'The relationship has no fetch promise');
-      assert.equal(!!RelationshipProxyCache['children'], true, 'The relationship has a promise proxy');
-      assert.equal(relationshipState.hasFailedLoadAttempt === true, true, 'The relationship has attempted a load');
-      assert.equal(!!(relationshipState.links && relationshipState.links.related), true, 'The relationship has a link');
+      assert.true(relationshipState.relationshipIsStale, 'The relationship is still stale');
+      assert.false(relationshipState.hasAnyRelationshipData, 'The relationship knows which record it needs');
+      assert.false(!!RelationshipPromiseCache['children'], 'The relationship has no fetch promise');
+      assert.true(!!RelationshipProxyCache['children'], 'The relationship has a promise proxy');
+      assert.true(relationshipState.hasFailedLoadAttempt === true, 'The relationship has attempted a load');
+      assert.true(!!(relationshipState.links && relationshipState.links.related), 'The relationship has a link');
 
       Ember.onerror = originalOnError;
     });

@@ -13,7 +13,7 @@ module('unit/store/has-model-For', function(hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.equal(store._hasModelFor('oneFoo'), true);
-    assert.equal(store._hasModelFor('twoFoo'), true);
+    assert.true(store._hasModelFor('oneFoo'));
+    assert.true(store._hasModelFor('twoFoo'));
   });
 });

@@ -70,7 +70,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
 
     assert.ok(pushedRecord === record, 'We have the same record instance');
     assert.strictEqual(record.name, 'Chris', 'We use the dirty name');
-    assert.strictEqual(record.isNew, false, 'We are no longer in the new state');
+    assert.false(record.isNew, 'We are no longer in the new state');
 
     record.rollbackAttributes();
 
@@ -131,9 +131,9 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     assert.strictEqual(record.age, 31, 'We received the pushed data');
     if (RECORD_DATA_STATE) {
       // once the payload is received the derived state shifts to "no longer new" in the RECORD_DATA_STATE world
-      assert.strictEqual(record.isNew, false, 'We are no longer in the new state');
+      assert.false(record.isNew, 'We are no longer in the new state');
     } else {
-      assert.strictEqual(record.isNew, true, 'We are still in the new state');
+      assert.true(record.isNew, 'We are still in the new state');
     }
 
     record.rollbackAttributes();
@@ -154,7 +154,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
 
     class Cake extends Model {
       @attr name;
-      @hasMany('ingredient', { async: false }) ingredients;
+      @hasMany('ingredient', { inverse: null, async: false }) ingredients;
     }
 
     this.owner.register('model:ingredient', Ingredient);
@@ -165,8 +165,10 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
         return payload;
       }
     }
+
     class TestAdapter extends Adapter {
       createRecord(store, ModelClass, snapshot) {
+        const lid = recordIdentifierFor(snapshot.record.ingredients.firstObject).lid;
         return resolve({
           data: {
             type: 'cake',
@@ -180,7 +182,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
                   {
                     type: 'ingredient',
                     id: '2',
-                    lid: cheeseIdentifier.lid,
+                    lid,
                   },
                 ],
               },
@@ -190,7 +192,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
             {
               type: 'ingredient',
               id: '2',
-              lid: cheeseIdentifier.lid,
+              lid,
               attributes: {
                 name: 'Cheese',
               },
@@ -213,11 +215,81 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     const cheese = store.createRecord('ingredient', { name: 'Cheese' });
     const cake = store.createRecord('cake', { name: 'Cheesecake', ingredients: [cheese] });
 
-    const cheeseIdentifier = recordIdentifierFor(cheese);
-
     await cake.save();
 
     assert.deepEqual(cake.hasMany('ingredients').ids(), ['2']);
     assert.equal(cake.ingredients.objectAt(0).name, 'Cheese');
+  });
+
+  test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function(assert) {
+    class Topping extends Model {
+      @attr name;
+    }
+
+    class Cake extends Model {
+      @attr name;
+      @belongsTo('topping', { inverse: null, async: false }) topping;
+    }
+
+    this.owner.register('model:topping', Topping);
+    this.owner.register('model:cake', Cake);
+
+    class TestSerializer extends Serializer {
+      normalizeResponse(_, __, payload) {
+        return payload;
+      }
+    }
+
+    class TestAdapter extends Adapter {
+      createRecord(store, ModelClass, snapshot) {
+        const lid = recordIdentifierFor(snapshot.record.topping).lid;
+        return resolve({
+          data: {
+            type: 'cake',
+            id: '1',
+            attributes: {
+              name: 'Cheesecake',
+            },
+            relationships: {
+              topping: {
+                data: {
+                  type: 'topping',
+                  id: '2',
+                  lid,
+                },
+              },
+            },
+          },
+          included: [
+            {
+              type: 'topping',
+              id: '2',
+              lid,
+              attributes: {
+                name: 'Cheese',
+              },
+              relationships: {
+                cake: {
+                  data: {
+                    type: 'cake',
+                    id: '1',
+                  },
+                },
+              },
+            },
+          ],
+        });
+      }
+    }
+    this.owner.register('serializer:application', TestSerializer);
+    this.owner.register('adapter:application', TestAdapter);
+
+    const cheese = store.createRecord('topping', { name: 'Cheese' });
+    const cake = store.createRecord('cake', { name: 'Cheesecake', topping: cheese });
+
+    await cake.save();
+
+    assert.deepEqual(cake.belongsTo('topping').id(), '2');
+    assert.equal(cake.topping.name, 'Cheese');
   });
 });

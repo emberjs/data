@@ -7,7 +7,7 @@ import { A } from '@ember/array';
 import { assert, deprecate, inspect, warn } from '@ember/debug';
 import { computed, defineProperty, get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { run as emberRunLoop } from '@ember/runloop';
+import { _backburner as emberBackburner } from '@ember/runloop';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { isNone, isPresent, typeOf } from '@ember/utils';
@@ -93,9 +93,9 @@ type SchemaDefinitionService = import('../ts-interfaces/schema-definition-servic
 type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 type Relationship = import('@ember-data/record-data/-private').Relationship;
 type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
+type RequestCache = import('./request-cache').default;
 
 let _RecordData: RecordDataClass | undefined;
-const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
@@ -188,12 +188,12 @@ function deprecateTestRegistration(
   The store provides multiple ways to create new record objects. They have
   some subtle differences in their use which are detailed below:
 
-  [createRecord](../classes/Store/methods/createRecord?anchor=createRecord) is used for creating new
+  [createRecord](../methods/createRecord?anchor=createRecord) is used for creating new
   records on the client side. This will return a new record in the
   `created.uncommitted` state. In order to persist this record to the
   backend, you will need to call `record.save()`.
 
-  [push](../classes/Store/methods/push?anchor=push) is used to notify Ember Data's store of new or
+  [push](../methods/push?anchor=push) is used to notify Ember Data's store of new or
   updated records that exist in the backend. This will return a record
   in the `loaded.saved` state. The primary use-case for `store#push` is
   to notify Ember Data about record updates (full or partial) that happen
@@ -201,7 +201,7 @@ function deprecateTestRegistration(
   [SSE](http://dev.w3.org/html5/eventsource/) or [Web
   Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
 
-  [pushPayload](../classes/Store/methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
+  [pushPayload](../methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
   `store#push` that will deserialize payloads if the
   Serializer implements a `pushPayload` method.
 
@@ -409,12 +409,11 @@ abstract class CoreStore extends Service {
     }
   }
 
-  getRequestStateService() {
+  getRequestStateService(): RequestCache {
     if (REQUEST_SERVICE) {
       return this._fetchManager.requestCache;
     }
-
-    assertInDebug('RequestService is not available unless the feature flag is on and running on a canary build', false);
+    assert('RequestService is not available unless the feature flag is on and running on a canary build', false);
   }
 
   get identifierCache(): IdentifierCache {
@@ -476,7 +475,7 @@ abstract class CoreStore extends Service {
       return record;
     }
 
-    assertInDebug('should not be here, custom model class ff error', false);
+    assert('should not be here, custom model class ff error', false);
   }
 
   abstract instantiateRecord(
@@ -517,8 +516,7 @@ abstract class CoreStore extends Service {
     if (CUSTOM_MODEL_CLASS) {
       return this._schemaDefinitionService;
     }
-
-    assertInDebug('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService', false);
+    assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
   }
 
   // TODO Double check this return value is correct
@@ -603,7 +601,7 @@ abstract class CoreStore extends Service {
     //   of record-arrays via ember's run loop, not our own.
     //
     //   to remove this, we would need to move to a new `async` API.
-    return emberRun.join(() => {
+    return emberBackburner.join(() => {
       return this._backburner.join(() => {
         let normalizedModelName = normalizeModelName(modelName);
         let properties = assign({}, inputProperties);
@@ -934,7 +932,7 @@ abstract class CoreStore extends Service {
     }
     ```
 
-    See [peekRecord](../classes/Store/methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
+    See [peekRecord](../methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
 
     ### Retrieving Related Model Records
 
@@ -1261,7 +1259,7 @@ abstract class CoreStore extends Service {
 
       internalModel.loadingData(promise);
       if (this._pendingFetch.size === 0) {
-        emberRun.schedule('actions', this, this.flushAllPendingFetches);
+        emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
       }
 
       let fetches = this._pendingFetch;
@@ -1394,7 +1392,8 @@ abstract class CoreStore extends Service {
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        snapshots[i] = internalModels[i].createSnapshot(optionsMap.get(internalModel));
+        let internalModel = internalModels[i];
+        snapshots[i] = internalModel.createSnapshot(optionsMap.get(internalModel));
       }
 
       let groups;
@@ -1404,6 +1403,10 @@ abstract class CoreStore extends Service {
         groups = [snapshots];
       }
 
+      // we use var here because babel transpiles let
+      // in a manner that causes a mega-bad perf scenario here
+      // when targets no longer include IE11 we can drop this.
+      /* eslint-disable no-var */
       for (var i = 0, l = groups.length; i < l; i++) {
         var group = groups[i];
         var totalInGroup = groups[i].length;
@@ -1431,7 +1434,7 @@ abstract class CoreStore extends Service {
           var pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
         } else {
-          assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
+          assert("You cannot return an empty array from adapter's method groupRecordsForFindMany");
         }
       }
     } else {
@@ -1505,7 +1508,7 @@ abstract class CoreStore extends Service {
     otherwise it will return `null`. A record is available if it has been fetched earlier, or
     pushed manually into the store.
 
-    See [findRecord](../classes/Store/methods/findRecord?anchor=findRecord) if you would like to request this record from the backend.
+    See [findRecord](../methods/findRecord?anchor=findRecord) if you would like to request this record from the backend.
 
     _Note: This is a synchronous method and does not return a promise._
 
@@ -1970,7 +1973,7 @@ abstract class CoreStore extends Service {
 
   /**
     This method makes a request for one record, where the `id` is not known
-    beforehand (if the `id` is known, use [`findRecord`](../classes/Store/methods/findRecord?anchor=findRecord)
+    beforehand (if the `id` is known, use [`findRecord`](../methods/findRecord?anchor=findRecord)
     instead).
 
     This method can be used when it is certain that the server will return a
@@ -2241,7 +2244,7 @@ abstract class CoreStore extends Service {
     }
     ```
 
-    See [peekAll](../classes/Store/methods/peekAll?anchor=peekAll) to get an array of current records in the
+    See [peekAll](../methods/peekAll?anchor=peekAll) to get an array of current records in the
     store, without waiting until a reload is finished.
 
     ### Retrieving Related Model Records
@@ -2282,7 +2285,7 @@ abstract class CoreStore extends Service {
     }
     ```
 
-    See [query](../classes/Store/methods/query?anchor=query) to only get a subset of records from the server.
+    See [query](../methods/query?anchor=query) to only get a subset of records from the server.
 
     @since 1.13.0
     @method findAll
@@ -2372,7 +2375,7 @@ abstract class CoreStore extends Service {
     locally created records of the type, however, it will not make a
     request to the backend to retrieve additional records. If you
     would like to request all the records from the backend please use
-    [store.findAll](../classes/Store/methods/findAll?anchor=findAll).
+    [store.findAll](../methods/findAll?anchor=findAll).
 
     Also note that multiple calls to `peekAll` for a given type will always
     return the same `RecordArray`.
@@ -2518,7 +2521,7 @@ abstract class CoreStore extends Service {
       resolver: resolver,
     });
 
-    emberRun.scheduleOnce('actions', this, this.flushPendingSave);
+    emberBackburner.scheduleOnce('actions', this, this.flushPendingSave);
   }
 
   /**
@@ -2849,7 +2852,7 @@ abstract class CoreStore extends Service {
 
     If you're streaming data or implementing an adapter, make sure
     that you have converted the incoming data into this form. The
-    store's [normalize](../classes/Store/methods/normalize?anchor=normalize) method is a convenience
+    store's [normalize](../methods/normalize?anchor=normalize) method is a convenience
     helper for converting a json payload into the form Ember Data
     expects.
 
@@ -3113,7 +3116,7 @@ abstract class CoreStore extends Service {
       return internalModel!.createSnapshot(options).serialize(options);
     }
 
-    assertInDebug('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    assert('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
@@ -3126,7 +3129,7 @@ abstract class CoreStore extends Service {
       return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
     }
 
-    assertInDebug('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
@@ -3137,7 +3140,7 @@ abstract class CoreStore extends Service {
       return internalModel!.referenceFor(null, key);
     }
 
-    assertInDebug('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    assert('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
   /**
@@ -3180,7 +3183,7 @@ abstract class CoreStore extends Service {
       return new _RecordData(identifier, storeWrapper);
     }
 
-    assertInDebug(`Expected store.createRecordDataFor to be implemented but it wasn't`, false);
+    assert(`Expected store.createRecordDataFor to be implemented but it wasn't`);
   }
 
   /**
@@ -3209,7 +3212,7 @@ abstract class CoreStore extends Service {
 
   /**
     `normalize` converts a json payload into the normalized form that
-    [push](../classes/Store/methods/push?anchor=push) expects.
+    [push](../methods/push?anchor=push) expects.
 
     Example
 
@@ -3248,7 +3251,7 @@ abstract class CoreStore extends Service {
   }
 
   newClientId() {
-    assertInDebug(`Private API Removed`, false);
+    assert(`Private API Removed`, false);
   }
 
   // ...............
@@ -3618,7 +3621,7 @@ abstract class CoreStore extends Service {
       return;
     }
 
-    emberRun.schedule('actions', this, this._flushUpdatedInternalModels);
+    emberBackburner.schedule('actions', this, this._flushUpdatedInternalModels);
   }
 
   _flushUpdatedInternalModels() {
@@ -3674,11 +3677,6 @@ function _commit(adapter, store, operation, snapshot) {
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer = store.serializerFor(modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
-
-  assert(
-    `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
-    promise !== undefined
-  );
 
   promise = guardDestroyedStore(promise, store, label);
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
@@ -3813,14 +3811,8 @@ function internalModelForRelatedResource(
   return store._internalModelForResource(identifier);
 }
 
-function assertInDebug(msg: string, cond: boolean = false): asserts cond is true {
-  if (DEBUG && cond) {
-    throw new Error(msg);
-  }
-}
-
 function assertIdentifierHasId(
   identifier: StableRecordIdentifier
 ): asserts identifier is StableExistingRecordIdentifier {
-  assertInDebug(`Attempted to schedule a fetch for a record without an id.`, identifier.id === null);
+  assert(`Attempted to schedule a fetch for a record without an id.`, identifier.id !== null);
 }

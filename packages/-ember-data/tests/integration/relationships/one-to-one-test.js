@@ -291,14 +291,10 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     assert.equal(user1bestFriendState.canonicalState, null, '<user:1>.job is canonically empty');
     assert.equal(user1bestFriendState.currentState, null, '<user:1>.job is locally empty');
-    assert.equal(user1bestFriendState.relationshipIsEmpty, true, 'The relationship is empty');
-    assert.equal(user1bestFriendState.relationshipIsStale, false, 'The relationship is not stale');
-    assert.equal(user1bestFriendState.shouldForceReload, false, 'The relationship does not require reload');
-    assert.equal(
-      user1bestFriendState.hasAnyRelationshipData,
-      true,
-      'The relationship considers its canonical data complete'
-    );
+    assert.true(user1bestFriendState.relationshipIsEmpty, 'The relationship is empty');
+    assert.false(user1bestFriendState.relationshipIsStale, 'The relationship is not stale');
+    assert.false(user1bestFriendState.shouldForceReload, 'The relationship does not require reload');
+    assert.true(user1bestFriendState.hasAnyRelationshipData, 'The relationship considers its canonical data complete');
   });
 
   test('Fetching a belongsTo that is set to a different record, sets the old relationship to null - sync', async function(assert) {
@@ -379,10 +375,10 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     assert.equal(user1JobState.canonicalState, null, '<user:1>.job is canonically empty');
     assert.equal(user1JobState.currentState, null, '<user:1>.job is locally empty');
-    assert.equal(user1JobState.relationshipIsEmpty, true, 'The relationship is empty');
-    assert.equal(user1JobState.relationshipIsStale, false, 'The relationship is not stale');
-    assert.equal(user1JobState.shouldForceReload, false, 'The relationship does not require reload');
-    assert.equal(user1JobState.hasAnyRelationshipData, true, 'The relationship considers its canonical data complete');
+    assert.true(user1JobState.relationshipIsEmpty, 'The relationship is empty');
+    assert.false(user1JobState.relationshipIsStale, 'The relationship is not stale');
+    assert.false(user1JobState.shouldForceReload, 'The relationship does not require reload');
+    assert.true(user1JobState.hasAnyRelationshipData, 'The relationship considers its canonical data complete');
   });
 
   /*

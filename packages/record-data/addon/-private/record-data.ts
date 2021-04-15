@@ -3,7 +3,7 @@
 */
 import { assert, inspect, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
-import { run } from '@ember/runloop';
+import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
@@ -12,7 +12,7 @@ import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-featur
 import coerceId from './coerce-id';
 import Relationships from './relationships/state/create';
 
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordDataStoreWrapper = import('@ember-data/store/-private/ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
 type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultSingleResourceRelationship = import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
@@ -20,7 +20,6 @@ type DefaultCollectionResourceRelationship = import('./ts-interfaces/relationshi
 type JsonApiResource = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiResource;
 type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
 type AttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').AttributesHash;
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
 type ChangedAttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data').ChangedAttributesHash;
 type Relationship = import('./relationships/state/relationship').default;
 type ManyRelationship = import('./relationships/state/has-many').default;
@@ -29,26 +28,30 @@ type BelongsToRelationship = import('./relationships/state/belongs-to').default;
 let nextBfsId = 1;
 
 export default class RecordDataDefault implements RelationshipRecordData {
-  _errors?: JsonApiValidationError[];
-  __relationships: Relationships | null;
-  __implicitRelationships: { [key: string]: Relationship } | null;
-  modelName: string;
-  clientId: string;
-  id: string | null;
-  isDestroyed: boolean;
-  _isNew: boolean;
-  _bfsId: number;
-  __attributes: any;
-  __inFlightAttributes: any;
-  __data: any;
-  _scheduledDestroy: any;
-  _isDeleted: boolean;
-  _isDeletionCommited: boolean;
+  declare _errors?: JsonApiValidationError[];
+  declare __relationships: Relationships | null;
+  declare __implicitRelationships: { [key: string]: Relationship } | null;
+  declare modelName: string;
+  declare clientId: string;
+  declare id: string | null;
+  declare isDestroyed: boolean;
+  declare _isNew: boolean;
+  declare _bfsId: number;
+  declare __attributes: any;
+  declare __inFlightAttributes: any;
+  declare __data: any;
+  declare _scheduledDestroy: any;
+  declare _isDeleted: boolean;
+  declare _isDeletionCommited: boolean;
+  declare identifier: StableRecordIdentifier;
+  declare storeWrapper: RecordDataStoreWrapper;
 
-  constructor(private identifier: RecordIdentifier, public storeWrapper: RecordDataStoreWrapper) {
+  constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
     this.id = identifier.id;
+    this.identifier = identifier;
+    this.storeWrapper = storeWrapper;
 
     this.__relationships = null;
     this.__implicitRelationships = null;
@@ -62,7 +65,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   // PUBLIC API
-  getResourceIdentifier(): RecordIdentifier {
+  getResourceIdentifier(): StableRecordIdentifier {
     return this.identifier;
   }
 
@@ -437,7 +440,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._destroyRelationships();
     this.reset();
     if (!this._scheduledDestroy) {
-      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_cleanupOrphanedRecordDatas');
+      this._scheduledDestroy = emberBackburner.schedule('destroy', this, '_cleanupOrphanedRecordDatas');
     }
   }
 

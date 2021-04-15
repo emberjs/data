@@ -5,18 +5,19 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import Relationship from './relationship';
 
+type Store = import('@ember-data/store/-private/system/core-store').default;
 type ExistingResourceIdentifierObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
 type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultSingleResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
 
 export default class BelongsToRelationship extends Relationship {
-  inverseRecordData: RelationshipRecordData | null;
-  canonicalState: RelationshipRecordData | null;
-  key: string;
+  declare inverseRecordData: RelationshipRecordData | null;
+  declare canonicalState: RelationshipRecordData | null;
+  declare key: string;
 
   constructor(
-    store: any,
+    store: Store,
     inverseKey: string | null,
     relationshipMeta: RelationshipSchema,
     recordData: RelationshipRecordData,
@@ -193,7 +194,7 @@ export default class BelongsToRelationship extends Relationship {
     );
 
     if (recordData !== null) {
-      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id);
+      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id, data.lid);
     }
     this.setCanonicalRecordData(recordData);
   }
