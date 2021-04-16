@@ -1555,6 +1555,11 @@ if (DEPRECATE_NAJAX) {
             {
               id: 'ember-data:najax-fallback',
               until: '4.0',
+              for: '@ember-data/adapter',
+              since: {
+                available: '3.22',
+                enabled: '3.22',
+              },
             }
           );
         } else {
@@ -1564,6 +1569,11 @@ if (DEPRECATE_NAJAX) {
             {
               id: 'ember-data:najax-fallback',
               until: '4.0',
+              for: '@ember-data/adapter',
+              since: {
+                available: '3.22',
+                enabled: '3.22',
+              },
             }
           );
         }

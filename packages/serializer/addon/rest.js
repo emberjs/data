@@ -291,6 +291,11 @@ const RESTSerializer = JSONSerializer.extend({
           until: '3.0',
           url:
             'https://deprecations.emberjs.com/ember-data/v2.x/#toc_store-queryrecord-array-response-with-restserializer',
+          for: '@ember-data/serializer',
+          since: {
+            available: '3.0',
+            enabled: '3.0',
+          },
         });
       }
 

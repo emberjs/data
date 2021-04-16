@@ -225,7 +225,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
@@ -252,7 +252,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
@@ -302,7 +302,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
@@ -343,7 +343,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
@@ -367,7 +367,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
@@ -418,7 +418,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
@@ -462,7 +462,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
@@ -488,7 +488,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
@@ -512,7 +512,7 @@ module('async has-many rendering tests', function(hooks) {
 
       await render(hbs`
       <ul>
-      {{#each parent.children as |child|}}
+      {{#each this.parent.children as |child|}}
         <li>{{child.name}}</li>
       {{/each}}
       </ul>
