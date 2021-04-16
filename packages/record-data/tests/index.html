@@ -24,6 +24,14 @@
     <script src="/testem.js" integrity=""></script>
     <script src="{{rootURL}}assets/vendor.js"></script>
     <script src="{{rootURL}}assets/test-support.js"></script>
+
+    <script>
+      // Handle testing feature flags
+      if (QUnit.urlParams.enableoptionalfeatures) {
+        window.EmberDataENV = { ENABLE_OPTIONAL_FEATURES: true };
+      }
+    </script>
+
     <script src="{{rootURL}}assets/dummy.js"></script>
     <script src="{{rootURL}}assets/tests.js"></script>
 

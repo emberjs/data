@@ -14,9 +14,7 @@
   },
   "scripts": {
     "build": "ember build",
-    "start": "ember serve",
-    "test": "ember test",
-    "test:all": "ember try:each"
+    "start": "ember serve"
   },
   "dependencies": {
     "@ember-data/private-build-infra": "3.28.0-alpha.0",

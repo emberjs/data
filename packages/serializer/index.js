@@ -9,6 +9,16 @@ const addonBaseConfig = addonBuildConfigForDataPackage(name);
 module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: true,
   externalDependenciesForPrivateModule() {
-    return [];
+    return [
+      '@ember/object',
+      '@ember/application',
+      '@ember/string',
+      '@ember/utils',
+      '@ember/debug',
+      '@ember/polyfills',
+      '@ember/array',
+      '@ember/object/mixin',
+      '@ember/string',
+    ];
   },
 });

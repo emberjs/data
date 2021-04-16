@@ -32,6 +32,13 @@ function addonBuildConfigForDataPackage(PackageName) {
       }
     },
 
+    isDevelopingAddon() {
+      if (typeof this.parent.name === 'string' && this.parent.name === 'ember-data') {
+        return this.parent.isDevelopingAddon();
+      }
+      return this._super(...arguments);
+    },
+
     _warn(message) {
       let chalk = require('chalk');
       let warning = chalk.yellow('WARNING: ' + message);
@@ -150,6 +157,17 @@ function addonBuildConfigForDataPackage(PackageName) {
       this._setupBabelOptions();
 
       let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
+      let externalDeps = this.externalDependenciesForPrivateModule();
+
+      // don't print this for consumers
+      if (this.isDevelopingAddon()) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Rolling up ${this.name} private modules with the following external dependencies: ['${externalDeps.join(
+            "', '"
+          )}']`
+        );
+      }
 
       let privateTree = rollupPrivateModule(tree, {
         packageName: PackageName,

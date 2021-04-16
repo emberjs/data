@@ -75,7 +75,6 @@ module.exports = {
     'qunit/no-conditional-assertions': 'off',
   },
   globals: {
-    heimdall: true,
     Map: false,
     WeakMap: true,
     Set: true,

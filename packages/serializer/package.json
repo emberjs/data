@@ -14,10 +14,7 @@
   },
   "scripts": {
     "build": "ember build",
-    "lint:hbs": "ember-template-lint .",
     "start": "ember serve",
-    "test": "ember test",
-    "test:all": "ember try:each",
     "test:node": "mocha"
   },
   "dependencies": {
