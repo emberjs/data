@@ -4,7 +4,6 @@ import { identifierCacheFor } from '../../identifiers/cache';
 import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
 import { BRAND_SYMBOL } from '../../utils/brand';
 import constructResource from '../../utils/construct-resource';
-import { upgradeForInternal } from '../ts-upgrade-map';
 import { internalModelFactoryFor } from './internal-model-factory';
 
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
@@ -13,12 +12,16 @@ type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
 type AttributesSchema = import('../../ts-interfaces/record-data-schemas').AttributesSchema;
 type RelationshipsSchema = import('../../ts-interfaces/record-data-schemas').RelationshipsSchema;
-
+type RelationshipDefinition = import('@ember-data/model/-private/system/relationships/relationship-meta').RelationshipDefinition;
 /**
   @module @ember-data/store
 */
 
 type StableIdentifierOrString = StableRecordIdentifier | string;
+
+function metaIsRelationshipDefinition(meta: unknown): meta is RelationshipDefinition {
+  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
+}
 
 export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   [BRAND_SYMBOL]: 'RecordDataStoreWrapper';
@@ -107,36 +110,46 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
 
   inverseForRelationship(type: string, key: string): string | null {
     const modelClass = this._store.modelFor(type);
-    const definition = upgradeForInternal(this.relationshipsDefinitionFor(type)[key]);
+    const definition = this.relationshipsDefinitionFor(type)[key];
+    if (!definition) {
+      return null;
+    }
     if (CUSTOM_MODEL_CLASS) {
       if (definition.inverse !== undefined) {
         return definition.inverse;
       } else {
         //TODO add a test for this branch
-        if (!definition._inverseKey) {
-          return null;
+        if (metaIsRelationshipDefinition(definition)) {
+          return definition._inverseKey(this._store, modelClass);
         }
-        return definition._inverseKey(this._store, modelClass);
+        return null;
       }
     } else {
-      return definition._inverseKey(this._store, modelClass);
+      return (definition as RelationshipDefinition)._inverseKey(this._store, modelClass);
     }
   }
 
   inverseIsAsyncForRelationship(type: string, key: string): boolean {
     const modelClass = this._store.modelFor(type);
-    const definition = upgradeForInternal(this.relationshipsDefinitionFor(type)[key]);
+    const definition = this.relationshipsDefinitionFor(type)[key];
+    if (!definition) {
+      return false;
+    }
     if (CUSTOM_MODEL_CLASS) {
       if (definition.inverse === null) {
         return false;
       }
-      if (definition.inverseIsAsync !== undefined) {
-        return !!definition.inverseIsAsync;
-      } else {
+      if (((definition as unknown) as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {
+        // TODO do we need to amend the RFC for this prop?
+        // else we should add it to the TS interface and document.
+        return !!((definition as unknown) as { inverseIsAsync: boolean }).inverseIsAsync;
+      } else if (metaIsRelationshipDefinition(definition)) {
         return definition._inverseIsAsync(this._store, modelClass);
+      } else {
+        return false;
       }
     } else {
-      return definition._inverseIsAsync(this._store, modelClass);
+      return (definition as RelationshipDefinition)._inverseIsAsync(this._store, modelClass);
     }
   }
 

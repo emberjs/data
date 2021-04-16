@@ -2,11 +2,10 @@ import { DEBUG } from '@glimmer/env';
 
 import { singularize } from 'ember-inflector';
 
-import { RelationshipSchema } from '../ts-interfaces/record-data-schemas';
-import { BRAND_SYMBOL } from '../utils/brand';
-import normalizeModelName from './normalize-model-name';
+import { normalizeModelName } from '@ember-data/store/-private';
 
-type CoreStore = import('./core-store').default;
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 
 /**
   @module @ember-data/store
@@ -31,17 +30,22 @@ function shouldFindInverse(relationshipMeta) {
 }
 
 export class RelationshipDefinition implements RelationshipSchema {
-  [BRAND_SYMBOL]: 'RelationshipSchema';
-  _type: string = '';
-  __inverseKey: string = '';
-  __inverseIsAsync: boolean = true;
-  __hasCalculatedInverse: boolean = false;
-  parentModelName: string;
-  inverse: string | null;
-  inverseIsAsync: string | null;
+  declare _type: string;
+  declare __inverseKey: string;
+  declare __inverseIsAsync: boolean;
+  declare __hasCalculatedInverse: boolean;
+  declare parentModelName: string;
+  declare inverseIsAsync: string | null;
+  declare inverse: string;
+  declare meta: any;
 
-  constructor(public meta: any) {
+  constructor(meta: any) {
+    this._type = '';
+    this.__inverseKey = '';
+    this.__inverseIsAsync = true;
+    this.__hasCalculatedInverse = false;
     this.parentModelName = meta.parentModelName;
+    this.meta = meta;
   }
 
   get key(): string {

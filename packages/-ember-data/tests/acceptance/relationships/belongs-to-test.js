@@ -259,7 +259,16 @@ module('async belongs-to rendering tests', function(hooks) {
         },
       });
 
-      assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 1);
+      const implicitRelationships = pete._internalModel.__recordData.__implicitRelationships;
+      const implicitKeys = Object.keys(implicitRelationships);
+      const petOwnerImplicit = implicitRelationships[implicitKeys[0]];
+
+      assert.strictEqual(
+        implicitKeys.length,
+        1,
+        `Expected only one implicit relationship, found ${implicitKeys.join(', ')}`
+      );
+      assert.equal(petOwnerImplicit.canonicalMembers.size, 1);
 
       const tweety = store.push({
         data: {
@@ -274,7 +283,7 @@ module('async belongs-to rendering tests', function(hooks) {
         },
       });
 
-      assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 2);
+      assert.equal(petOwnerImplicit.canonicalMembers.size, 2);
 
       let petOwner = await goofy.get('petOwner');
       assert.equal(petOwner.get('name'), 'Pete', 'We have the expected owner for goofy');
@@ -288,7 +297,7 @@ module('async belongs-to rendering tests', function(hooks) {
       await tweety.destroyRecord();
       assert.ok(tweety.isDeleted, 'tweety is deleted after calling destroyRecord');
 
-      assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 0);
+      assert.equal(petOwnerImplicit.canonicalMembers.size, 0);
 
       const jerry = store.push({
         data: {
@@ -306,7 +315,7 @@ module('async belongs-to rendering tests', function(hooks) {
       petOwner = await jerry.get('petOwner');
       assert.equal(petOwner.get('name'), 'Pete');
 
-      assert.equal(pete._internalModel.__recordData.__implicitRelationships.undefinedpetOwner.canonicalMembers.size, 1);
+      assert.equal(petOwnerImplicit.canonicalMembers.size, 1);
 
       await settled();
     });

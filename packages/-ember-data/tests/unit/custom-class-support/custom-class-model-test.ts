@@ -468,7 +468,7 @@ if (CUSTOM_MODEL_CLASS) {
                 kind: 'belongsTo',
                 inverse: null,
                 options: {},
-                key: 'house',
+                name: 'house',
               },
             };
           } else {
@@ -531,7 +531,7 @@ if (CUSTOM_MODEL_CLASS) {
                 kind: 'hasMany',
                 inverse: null,
                 options: {},
-                key: 'house',
+                name: 'house',
               },
             };
           } else {

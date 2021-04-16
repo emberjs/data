@@ -4,9 +4,9 @@ import { guidFor } from '@ember/object/internals';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
+import { implicitRelationshipsFor, implicitRelationshipStateFor, relationshipStateFor } from '../../accessors';
 import _normalizeLink from '../../normalize-link';
 import OrderedSet from '../../ordered-set';
-import { implicitRelationshipStateFor, relationshipStateFor } from '../../record-data-for';
 
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
@@ -18,28 +18,40 @@ type RelationshipRecordData = import('../../ts-interfaces/relationship-record-da
   @module @ember-data/store
 */
 
-interface ImplicitRelationshipMeta {
-  key?: string;
-  kind?: string;
-  options: any;
+const IMPLICIT_KEY_RAND = Date.now();
+
+function implicitKeyFor(key: string): string {
+  return `implicit-inverse:${key}:${IMPLICIT_KEY_RAND}`;
 }
+
+export interface ImplicitRelationshipMeta {
+  kind: 'implicit';
+  name: string; // a generated randomized key
+  type: string; // the expected type for this implicit inverse
+  inverse: string; // we must always have a key on the inverse
+  options: {
+    async: boolean;
+    polymorphic?: boolean;
+  };
+}
+
+export type RelationshipMeta = ImplicitRelationshipMeta | RelationshipSchema;
 
 export default class Relationship {
   declare inverseIsAsync: boolean | undefined;
-  declare kind: string;
+  declare kind: 'hasMany' | 'belongsTo' | 'implicit';
   declare recordData: RelationshipRecordData;
-  declare members: OrderedSet;
-  declare canonicalMembers: OrderedSet;
+  declare members: OrderedSet<RelationshipRecordData>;
+  declare canonicalMembers: OrderedSet<RelationshipRecordData>;
   declare store: any;
-  declare key: string | null;
-  declare inverseKey: string | null;
+  declare key: string;
+  declare inverseKey: string;
   declare isAsync: boolean;
   declare isPolymorphic: boolean;
-  declare relationshipMeta: ImplicitRelationshipMeta | RelationshipSchema;
-  declare inverseKeyForImplicit: string;
+  declare inverseIsImplicit: boolean;
+  declare relationshipMeta: RelationshipMeta;
   declare meta: any;
   declare __inverseMeta: any;
-  declare _tempModelName: string;
   declare shouldForceReload: boolean;
   declare relationshipIsStale: boolean;
   declare hasDematerializedInverse: boolean;
@@ -52,26 +64,26 @@ export default class Relationship {
   constructor(
     store: Store,
     inverseKey: string | null,
-    relationshipMeta: ImplicitRelationshipMeta,
+    relationshipMeta: RelationshipMeta,
     recordData: RelationshipRecordData,
     inverseIsAsync?: boolean
   ) {
     this.inverseIsAsync = inverseIsAsync;
-    this.kind = relationshipMeta.kind || 'implicit';
+    this.kind = relationshipMeta.kind;
     let async = relationshipMeta.options.async;
     let polymorphic = relationshipMeta.options.polymorphic;
     this.recordData = recordData;
-    this.members = new OrderedSet();
-    this.canonicalMembers = new OrderedSet();
+    this.members = new OrderedSet<RelationshipRecordData>();
+    this.canonicalMembers = new OrderedSet<RelationshipRecordData>();
     this.store = store;
-    this.key = relationshipMeta.key || null;
-    this.inverseKey = inverseKey;
+    this.key = relationshipMeta.name;
+    this.inverseIsImplicit = !inverseKey;
+    this.inverseKey = inverseKey || implicitKeyFor(this.key);
     this.isAsync = typeof async === 'undefined' ? true : async;
     this.isPolymorphic = typeof polymorphic === 'undefined' ? false : polymorphic;
     this.relationshipMeta = relationshipMeta;
     //This probably breaks for polymorphic relationship in complex scenarios, due to
     //multiple possible modelNames
-    this.inverseKeyForImplicit = this._tempModelName + this.key;
     this.meta = null;
     this.__inverseMeta = undefined;
 
@@ -204,7 +216,7 @@ export default class Relationship {
   }
 
   _inverseIsSync(): boolean {
-    return !!(this.inverseKey && !this.inverseIsAsync);
+    return !this.inverseIsImplicit && !this.inverseIsAsync;
   }
 
   _hasSupportForImplicitRelationships(recordData: RelationshipRecordData): boolean {
@@ -215,13 +227,13 @@ export default class Relationship {
     return recordData._relationships !== undefined && recordData._relationships !== null;
   }
 
-  get _inverseMeta(): RelationshipSchema {
+  get _inverseMeta(): RelationshipMeta {
     if (this.__inverseMeta === undefined) {
       let inverseMeta = null;
 
-      if (this.inverseKey) {
+      if (!this.inverseIsImplicit) {
         // We know we have a full inverse relationship
-        let type = (this.relationshipMeta as RelationshipSchema).type;
+        let type = this.relationshipMeta.type;
         let inverseModelClass = this.store.modelFor(type);
         let inverseRelationships = get(inverseModelClass, 'relationshipsByName');
         inverseMeta = inverseRelationships.get(this.inverseKey);
@@ -233,10 +245,11 @@ export default class Relationship {
   }
 
   recordDataDidDematerialize() {
-    const inverseKey = this.inverseKey;
-    if (!inverseKey) {
+    if (this.inverseIsImplicit) {
       return;
     }
+
+    const inverseKey = this.inverseKey;
 
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
@@ -347,7 +360,7 @@ export default class Relationship {
   }
 
   setupInverseRelationship(recordData: RelationshipRecordData) {
-    if (this.inverseKey) {
+    if (!this.inverseIsImplicit) {
       if (!this._hasSupportForRelationships(recordData)) {
         return;
       }
@@ -362,14 +375,21 @@ export default class Relationship {
       if (!this._hasSupportForImplicitRelationships(recordData)) {
         return;
       }
-      let relationships = recordData._implicitRelationships;
-      let relationship = relationships[this.inverseKeyForImplicit];
+      const relationships = implicitRelationshipsFor(recordData);
+      let relationship = implicitRelationshipStateFor(recordData, this.inverseKey);
       if (!relationship) {
-        relationship = relationships[this.inverseKeyForImplicit] = new Relationship(
+        relationship = relationships[this.inverseKey] = new Relationship(
           this.store,
           this.key,
-          { options: { async: this.isAsync } },
-          recordData
+          {
+            kind: 'implicit',
+            name: implicitKeyFor(this.key),
+            type: this.recordData.modelName,
+            inverse: this.key as string,
+            options: { async: false }, // our inverse must always be present since we are implicit
+          },
+          recordData,
+          this.isAsync
         );
       }
       relationship.addCanonicalRecordData(this.recordData);
@@ -389,15 +409,14 @@ export default class Relationship {
   removeCanonicalRecordData(recordData: RelationshipRecordData | null, idx?: number) {
     if (this.canonicalMembers.has(recordData)) {
       this.removeCanonicalRecordDataFromOwn(recordData, idx);
-      if (this.inverseKey) {
+      if (!this.inverseIsImplicit) {
         this.removeCanonicalRecordDataFromInverse(recordData);
       } else {
-        if (
-          recordData !== null &&
-          this._hasSupportForImplicitRelationships(recordData) &&
-          recordData._implicitRelationships[this.inverseKeyForImplicit]
-        ) {
-          recordData._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalRecordData(this.recordData);
+        if (recordData !== null && this._hasSupportForImplicitRelationships(recordData)) {
+          const relationship = implicitRelationshipStateFor(recordData, this.inverseKey);
+          if (relationship) {
+            relationship.removeCanonicalRecordData(this.recordData);
+          }
         }
       }
     }
@@ -408,20 +427,28 @@ export default class Relationship {
     if (!this.members.has(recordData)) {
       this.members.addWithIndex(recordData, idx);
       this.notifyRecordRelationshipAdded(recordData, idx);
-      if (this._hasSupportForRelationships(recordData) && this.inverseKey) {
+      if (!this.inverseIsImplicit && this._hasSupportForRelationships(recordData)) {
         relationshipStateFor(recordData, this.inverseKey).addRecordData(this.recordData);
       } else {
         if (this._hasSupportForImplicitRelationships(recordData)) {
-          if (!recordData._implicitRelationships[this.inverseKeyForImplicit]) {
-            recordData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
+          const relationships = implicitRelationshipsFor(recordData);
+          let relationship = implicitRelationshipStateFor(recordData, this.inverseKey);
+          if (!relationship) {
+            relationship = relationships[this.inverseKey] = new Relationship(
               this.store,
               this.key,
-              { options: { async: this.isAsync } },
+              {
+                kind: 'implicit',
+                name: implicitKeyFor(this.key),
+                type: this.recordData.modelName,
+                inverse: this.key as string,
+                options: { async: false }, // our inverse must always be present since we are implicit
+              },
               recordData,
               this.isAsync
             );
           }
-          recordData._implicitRelationships[this.inverseKeyForImplicit].addRecordData(this.recordData);
+          relationship.addRecordData(this.recordData);
         }
       }
     }
@@ -431,15 +458,14 @@ export default class Relationship {
   removeRecordData(recordData: RelationshipRecordData | null) {
     if (this.members.has(recordData)) {
       this.removeRecordDataFromOwn(recordData);
-      if (this.inverseKey) {
+      if (!this.inverseIsImplicit) {
         this.removeRecordDataFromInverse(recordData);
       } else {
-        if (
-          recordData !== null &&
-          this._hasSupportForImplicitRelationships(recordData) &&
-          recordData._implicitRelationships[this.inverseKeyForImplicit]
-        ) {
-          recordData._implicitRelationships[this.inverseKeyForImplicit].removeRecordData(this.recordData);
+        if (recordData !== null && this._hasSupportForImplicitRelationships(recordData)) {
+          const relationship = implicitRelationshipStateFor(recordData, this.inverseKey);
+          if (relationship) {
+            relationship.removeRecordData(this.recordData);
+          }
         }
       }
     }
@@ -449,7 +475,7 @@ export default class Relationship {
     if (!recordData || !this._hasSupportForRelationships(recordData)) {
       return;
     }
-    if (this.inverseKey) {
+    if (!this.inverseIsImplicit) {
       let inverseRelationship = relationshipStateFor(recordData, this.inverseKey);
       //Need to check for existence, as the record might unloading at the moment
       if (inverseRelationship) {
@@ -466,7 +492,7 @@ export default class Relationship {
     if (!recordData || !this._hasSupportForRelationships(recordData)) {
       return;
     }
-    if (this.inverseKey) {
+    if (!this.inverseIsImplicit) {
       let inverseRelationship = relationshipStateFor(recordData, this.inverseKey);
       //Need to check for existence, as the record might unloading at the moment
       if (inverseRelationship) {
@@ -489,22 +515,18 @@ export default class Relationship {
     @private
    */
   removeCompletelyFromInverse() {
-    if (!this.inverseKey && !this.inverseKeyForImplicit) {
-      return;
-    }
-
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
     let seen = Object.create(null);
     const recordData = this.recordData;
 
     let unload;
-    if (this.inverseKey) {
+    if (!this.inverseIsImplicit) {
       unload = inverseRecordData => {
         const id = guidFor(inverseRecordData);
 
         if (this._hasSupportForRelationships(inverseRecordData) && seen[id] === undefined) {
-          if (this.inverseKey) {
+          if (!this.inverseIsImplicit) {
             const relationship = relationshipStateFor(inverseRecordData, this.inverseKey);
             relationship.removeCompletelyFromOwn(recordData);
           }
@@ -516,7 +538,7 @@ export default class Relationship {
         const id = guidFor(inverseRecordData);
 
         if (this._hasSupportForImplicitRelationships(inverseRecordData) && seen[id] === undefined) {
-          const relationship = implicitRelationshipStateFor(inverseRecordData, this.inverseKeyForImplicit);
+          const relationship = implicitRelationshipStateFor(inverseRecordData, this.inverseKey);
           relationship.removeCompletelyFromOwn(recordData);
           seen[id] = true;
         }
