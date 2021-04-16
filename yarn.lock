@@ -7192,37 +7192,6 @@ ember-source@~3.26.0:
     semver "^7.3.4"
     silent-error "^1.1.1"
 
-ember-source@~3.27.0-beta.1:
-  version "3.27.0-beta.3"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.27.0-beta.3.tgz#075dfd21f79424a3f6bfe8d5eb998aca13ba4900"
-  integrity sha512-XcA+3qQexvqNUu3uDeG7JgU5AehdwzwbNI/i1uSzjOCgQ6PiAfePJWGrRIFAb4QHKVsijh5oi2IyNFiLN2kENw==
-  dependencies:
-    "@babel/helper-module-imports" "^7.8.3"
-    "@babel/plugin-transform-block-scoping" "^7.8.3"
-    "@babel/plugin-transform-object-assign" "^7.8.3"
-    "@ember/edition-utils" "^1.2.0"
-    "@glimmer/vm-babel-plugins" "0.77.5"
-    babel-plugin-debug-macros "^0.3.3"
-    babel-plugin-filter-imports "^4.0.0"
-    broccoli-concat "^4.2.4"
-    broccoli-debug "^0.6.4"
-    broccoli-funnel "^2.0.2"
-    broccoli-merge-trees "^4.2.0"
-    chalk "^4.0.0"
-    ember-cli-babel "^7.23.0"
-    ember-cli-get-component-path-option "^1.0.0"
-    ember-cli-is-package-missing "^1.0.0"
-    ember-cli-normalize-entity-name "^1.0.0"
-    ember-cli-path-utils "^1.0.0"
-    ember-cli-string-utils "^1.1.0"
-    ember-cli-version-checker "^5.1.1"
-    ember-router-generator "^2.0.0"
-    inflection "^1.12.0"
-    jquery "^3.5.1"
-    resolve "^1.17.0"
-    semver "^7.3.4"
-    silent-error "^1.1.1"
-
 ember-template-lint@^2.0.1:
   version "2.21.0"
   resolved "https://registry.npmjs.org/ember-template-lint/-/ember-template-lint-2.21.0.tgz#7e120abf309a8810eeed26c52377943faf15a95b"
