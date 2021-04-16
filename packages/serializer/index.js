@@ -19,6 +19,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/array',
       '@ember/object/mixin',
       '@ember/string',
+      'ember-inflector',
     ];
   },
 });

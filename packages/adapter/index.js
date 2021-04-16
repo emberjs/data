@@ -21,6 +21,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@glimmer/env',
       '@ember/runloop',
       '@ember/polyfills',
+      'ember-inflector',
     ];
   },
 });

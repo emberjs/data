@@ -23,6 +23,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember-data/canary-features',
       '@ember-data/store',
       '@ember-data/store/-private',
+      'ember-inflector',
       'ember',
       'rsvp',
     ];

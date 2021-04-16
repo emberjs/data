@@ -12,6 +12,7 @@ type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
 type AttributesSchema = import('../../ts-interfaces/record-data-schemas').AttributesSchema;
 type RelationshipsSchema = import('../../ts-interfaces/record-data-schemas').RelationshipsSchema;
+type RelationshipSchema = import('../../ts-interfaces/record-data-schemas').RelationshipSchema;
 type RelationshipDefinition = import('@ember-data/model/-private/system/relationships/relationship-meta').RelationshipDefinition;
 /**
   @module @ember-data/store
@@ -19,7 +20,7 @@ type RelationshipDefinition = import('@ember-data/model/-private/system/relation
 
 type StableIdentifierOrString = StableRecordIdentifier | string;
 
-function metaIsRelationshipDefinition(meta: unknown): meta is RelationshipDefinition {
+function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
   return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
 }
 
