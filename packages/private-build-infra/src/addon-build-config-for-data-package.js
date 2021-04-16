@@ -32,6 +32,13 @@ function addonBuildConfigForDataPackage(PackageName) {
       }
     },
 
+    isDevelopingAddon() {
+      if (typeof this.parent.name === 'string' && this.parent.name === 'ember-data') {
+        return this.parent.isDevelopingAddon();
+      }
+      return this._super(...arguments);
+    },
+
     _warn(message) {
       let chalk = require('chalk');
       let warning = chalk.yellow('WARNING: ' + message);
