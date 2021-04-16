@@ -313,13 +313,13 @@ jobs:
           ]
         include:
           - partner: ember-data-change-tracker
-            continue-on-error: true
+            continue-on-error: false
           - partner: factory-guy
-            continue-on-error: true
+            continue-on-error: false
           - partner: model-fragments
-            continue-on-error: true
+            continue-on-error: false
           - partner: travis-web
-            continue-on-error: true
+            continue-on-error: false
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2-beta
