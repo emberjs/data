@@ -300,7 +300,6 @@ jobs:
       matrix:
         partner:
           [
-            ember-data-change-tracker,
             ember-data-relationship-tracker,
             ember-m3,
             ember-observer,
@@ -312,14 +311,10 @@ jobs:
             travis-web,
           ]
         include:
-          - partner: ember-data-change-tracker
-            continue-on-error: false
           - partner: factory-guy
-            continue-on-error: false
-          - partner: model-fragments
-            continue-on-error: false
+            continue-on-error: true
           - partner: travis-web
-            continue-on-error: false
+            continue-on-error: true
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2-beta
