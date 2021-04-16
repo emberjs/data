@@ -381,11 +381,9 @@ module.exports = {
     '(public) Ember.Inflector#irregular',
     '(public) Ember.Inflector#plural',
     '(public) Ember.Inflector#pluralize',
-    '(public) Ember.Inflector#purgedCache',
+    '(public) Ember.Inflector#purgeCache',
     '(public) Ember.Inflector#singular',
     '(public) Ember.Inflector#singularize',
     '(public) Ember.Inflector#uncountable',
-    '(public) String#pluralize',
-    '(public) String#singularize',
   ],
 };
