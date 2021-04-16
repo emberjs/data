@@ -130,7 +130,7 @@ function analyzeDiff(diff) {
   if (delta > 0) {
     if (delta > library_failure_threshold && compressedDelta > 0) {
       failures.push(
-        `The size of the library ${diff.name} has increased by ${formatBytes(delta)} (${formatBytes(
+        `🛑 The size of the library ${diff.name} has increased by ${formatBytes(delta)} (${formatBytes(
           compressedDelta
         )} compressed) which exceeds the failure threshold of ${library_failure_threshold} bytes.`
       );
@@ -141,7 +141,7 @@ function analyzeDiff(diff) {
     if (pkg.currentSize < pkg.newSize) {
       let delta = pkg.newSize - pkg.currentSize;
       if (delta > package_warn_threshold) {
-        warnings.push(`The uncompressed size of the package ${pkg.name} has increased by ${formatBytes(delta)}.`);
+        warnings.push(`⚠️ The uncompressed size of the package ${pkg.name} has increased by ${formatBytes(delta)}.`);
       }
     }
   });
@@ -250,19 +250,19 @@ if (failures.length) {
 
   // no changes to report
   if (delta === 0) {
-    console.log(`\n<details>\n  <summary>${diff.name} has not changed in size</summary>`);
+    console.log(`\n<details>\n  <summary>☑️ ${diff.name} has not changed in size</summary>`);
 
     // we shrank in absolute bytes
   } else if (delta < 0) {
     if (compressedDelta <= 0) {
       console.log(
-        `\n<details>\n  <summary>${diff.name} shrank by ${formatBytes(delta)} (${formatBytes(
+        `\n<details>\n  <summary>✅ ${diff.name} shrank by ${formatBytes(delta)} (${formatBytes(
           compressedDelta
         )} compressed)</summary>`
       );
     } else {
       console.log(
-        `\n<details>\n  <summary>${diff.name} shrank by ${formatBytes(
+        `\n<details>\n  <summary>☑️ ${diff.name} shrank by ${formatBytes(
           delta
         )} but the compressed size increased slighty (${formatBytes(compressedDelta)} compressed)</summary>`
       );
