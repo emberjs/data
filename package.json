@@ -32,7 +32,7 @@
     "test-external:ember-observer": "./bin/test-external-partner-project.js ember-observer https://github.com/emberobserver/client.git --noLockFile",
     "test-external:travis-web": "./bin/test-external-partner-project.js travis-web https://github.com/travis-ci/travis-web.git",
     "test-external:storefront": "./bin/test-external-partner-project.js storefront https://github.com/embermap/ember-data-storefront.git",
-    "test-external:factory-guy": "./bin/test-external-partner-project.js factory-guy https://github.com/danielspaniel/ember-data-factory-guy.git",
+    "test-external:factory-guy": "./bin/test-external-partner-project.js factory-guy https://github.com/adopted-ember-addons/ember-data-factory-guy.git",
     "test-external:ilios-frontend": "./bin/test-external-partner-project.js ilios-frontend https://github.com/ilios/frontend.git --skipSmokeTest",
     "test-external:ember-resource-metadata": "./bin/test-external-partner-project.js ember-resource-metadata https://github.com/ef4/ember-resource-metadata.git --noLockFile",
     "test-external:ember-data-relationship-tracker": "./bin/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
