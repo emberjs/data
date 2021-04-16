@@ -634,7 +634,7 @@ module('integration/unload - Unloading Records', function(hooks) {
       'one boat record is known'
     );
     assert.ok(knownBoats.models[0] === initialBoatInternalModel, 'We still have our boat');
-    assert.true(initialBoatInternalModel.isEmpty(), 'Model is in the empty state');
+    assert.true(initialBoatInternalModel.currentState.isEmpty, 'Model is in the empty state');
     assert.deepEqual(
       idsFromOrderedSet(relationshipState.canonicalMembers),
       ['1'],

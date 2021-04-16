@@ -217,7 +217,7 @@ export default class BelongsToReference extends Reference {
     let resource = this._resource();
     if (resource && resource.data) {
       let inverseInternalModel = this.store._internalModelForResource(resource.data);
-      if (inverseInternalModel && inverseInternalModel.isLoaded()) {
+      if (inverseInternalModel && inverseInternalModel.currentState.isLoaded) {
         return inverseInternalModel.getRecord();
       }
     }

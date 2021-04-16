@@ -233,10 +233,6 @@ export default class InternalModel {
     }
   }
 
-  get type() {
-    return this.modelClass;
-  }
-
   get recordReference() {
     if (this._recordReference === null) {
       this._recordReference = new RecordReference(this.store, this.identifier);
@@ -266,12 +262,12 @@ export default class InternalModel {
     // models to rematerialize their records.
 
     // eager checks to avoid instantiating record data if we are empty or loading
-    if (this.isEmpty()) {
+    if (this.currentState.isEmpty) {
       return true;
     }
 
     if (RECORD_DATA_STATE) {
-      if (this.isLoading()) {
+      if (this.currentState.isLoading) {
         return false;
       }
     }
@@ -305,31 +301,6 @@ export default class InternalModel {
     }
   }
 
-  isRecordInUse() {
-    let record = this._record;
-    return record && !(record.get('isDestroyed') || record.get('isDestroying'));
-  }
-
-  isEmpty() {
-    return this.currentState.isEmpty;
-  }
-
-  isLoading() {
-    return this.currentState.isLoading;
-  }
-
-  isLoaded() {
-    return this.currentState.isLoaded;
-  }
-
-  hasDirtyAttributes() {
-    return this.currentState.hasDirtyAttributes;
-  }
-
-  isSaving() {
-    return this.currentState.isSaving;
-  }
-
   isDeleted() {
     if (RECORD_DATA_STATE) {
       if (this._recordData.isDeleted) {
@@ -352,16 +323,6 @@ export default class InternalModel {
     } else {
       return this.currentState.isNew;
     }
-  }
-
-  isValid() {
-    if (!RECORD_DATA_ERRORS) {
-      return this.currentState.isValid;
-    }
-  }
-
-  dirtyType() {
-    return this.currentState.dirtyType;
   }
 
   getRecord(properties?) {
@@ -480,7 +441,7 @@ export default class InternalModel {
     }
 
     // move to an empty never-loaded state
-    this.updateRecordArrays();
+    this.store.recordArrayManager.recordDidChange(this.identifier);
     this._recordData.unloadRecord();
     this._record = null;
     this.isReloading = false;
@@ -644,10 +605,6 @@ export default class InternalModel {
     }
   }
 
-  eachRelationship(callback, binding) {
-    return this.modelClass.eachRelationship(callback, binding);
-  }
-
   _findBelongsTo(key, resource, relationshipMeta, options) {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
@@ -787,7 +744,7 @@ export default class InternalModel {
       return this._updatePromiseProxyFor('hasMany', key, { promise, content: manyArray });
     } else {
       assert(
-        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany({ async: true })')`,
+        `You looked up the '${key}' relationship on a '${this.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany({ async: true })')`,
         !manyArray.anyUnloaded()
       );
 
@@ -886,24 +843,12 @@ export default class InternalModel {
     this._isDestroyed = true;
   }
 
-  eachAttribute(callback, binding) {
-    return this.modelClass.eachAttribute(callback, binding);
-  }
-
-  inverseFor(key) {
-    return this.modelClass.inverseFor(key);
-  }
-
   setupData(data) {
     let changedKeys = this._recordData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
     }
-    this.pushedData();
-  }
-
-  getAttributeValue(key) {
-    return this._recordData.getAttr(key);
+    this.send('pushedData');
   }
 
   setDirtyHasMany(key, records) {
@@ -924,7 +869,7 @@ export default class InternalModel {
       }
     }
 
-    let currentValue = this.getAttributeValue(key);
+    let currentValue = this._recordData.getAttr(key);
     if (currentValue !== value) {
       this._recordData.setDirtyAttribute(key, value);
       let isDirty = this._recordData.isAttrDirty(key);
@@ -953,43 +898,6 @@ export default class InternalModel {
     return new Snapshot(options || {}, this.identifier, this.store);
   }
 
-  /*
-    @method loadingData
-    @private
-    @param {Promise} promise
-  */
-  loadingData(promise?) {
-    if (REQUEST_SERVICE) {
-      this.send('loadingData');
-    } else {
-      this.send('loadingData', promise);
-    }
-  }
-
-  /*
-    @method loadedData
-    @private
-  */
-  loadedData() {
-    this.send('loadedData');
-  }
-
-  /*
-    @method notFound
-    @private
-  */
-  notFound() {
-    this.send('notFound');
-  }
-
-  /*
-    @method pushedData
-    @private
-  */
-  pushedData() {
-    this.send('pushedData');
-  }
-
   hasChangedAttributes() {
     if (REQUEST_SERVICE) {
       if (!this.__recordData) {
@@ -997,7 +905,7 @@ export default class InternalModel {
         return false;
       }
     } else {
-      if (this.isLoading() && !this.isReloading) {
+      if (this.currentState.isLoading && !this.isReloading) {
         // no need to calculate changed attributes when calling `findRecord`
         return false;
       }
@@ -1019,7 +927,7 @@ export default class InternalModel {
         return {};
       }
     } else {
-      if (this.isLoading() && !this.isReloading) {
+      if (this.currentState.isLoading && !this.isReloading) {
         // no need to calculate changed attributes when calling `findRecord`
         return {};
       }
@@ -1150,7 +1058,7 @@ export default class InternalModel {
       }
     }
     if (!key || key === 'isDeletionCommitted') {
-      this.updateRecordArrays();
+      this.store.recordArrayManager.recordDidChange(this.identifier);
     }
   }
 
@@ -1343,16 +1251,6 @@ export default class InternalModel {
     return { type: internalModel.modelName, id: internalModel.id };
   }
 
-  /*
-    Used to notify the store to update FilteredRecordArray membership.
-
-    @method updateRecordArrays
-    @private
-  */
-  updateRecordArrays() {
-    this.store.recordArrayManager.recordDidChange(this.identifier);
-  }
-
   setId(id: string) {
     let didChange = id !== this._id;
 
@@ -1418,7 +1316,7 @@ export default class InternalModel {
     let changedKeys = this._recordData.didCommit(data);
 
     this.send('didCommit');
-    this.updateRecordArrays();
+    this.store.recordArrayManager.recordDidChange(this.identifier);
 
     if (!data) {
       return;
@@ -1428,18 +1326,6 @@ export default class InternalModel {
     } else {
       this._record._notifyProperties(changedKeys);
     }
-  }
-
-  addErrorMessageToAttribute(attribute, message) {
-    get(this.getRecord(), 'errors')._add(attribute, message);
-  }
-
-  removeErrorMessageFromAttribute(attribute) {
-    get(this.getRecord(), 'errors')._remove(attribute);
-  }
-
-  clearErrorMessages() {
-    get(this.getRecord(), 'errors')._clear();
   }
 
   hasErrors() {
@@ -1469,7 +1355,7 @@ export default class InternalModel {
         if (!this._recordData.getErrors) {
           for (attribute in parsedErrors) {
             if (hasOwnProperty.call(parsedErrors, attribute)) {
-              this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
+              this.getRecord().errors._add(attribute, parsedErrors[attribute]);
             }
           }
         }
@@ -1489,7 +1375,7 @@ export default class InternalModel {
 
       for (attribute in parsedErrors) {
         if (hasOwnProperty.call(parsedErrors, attribute)) {
-          this.addErrorMessageToAttribute(attribute, parsedErrors[attribute]);
+          this.getRecord().errors._add(attribute, parsedErrors[attribute]);
         }
       }
 

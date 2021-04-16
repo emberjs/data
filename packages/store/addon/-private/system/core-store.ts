@@ -631,7 +631,7 @@ abstract class CoreStore extends Service {
         const factory = internalModelFactoryFor(this);
         const internalModel = factory.build({ type: normalizedModelName, id: properties.id });
 
-        internalModel.loadedData();
+        internalModel.send('loadedData');
         // TODO this exists just to proxy `isNew` to RecordData which is weird
         internalModel.didCreateRecord();
 
@@ -1114,17 +1114,17 @@ abstract class CoreStore extends Service {
   }
 
   _findEmptyInternalModel(internalModel, options) {
-    if (internalModel.isEmpty()) {
+    if (internalModel.currentState.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
 
     //TODO double check about reloading
     if (!REQUEST_SERVICE) {
-      if (internalModel.isLoading()) {
+      if (internalModel.currentState.isLoading) {
         return internalModel._promiseProxy;
       }
     } else {
-      if (internalModel.isLoading()) {
+      if (internalModel.currentState.isLoading) {
         return this._scheduleFetch(internalModel, options);
       }
     }
@@ -1183,7 +1183,7 @@ abstract class CoreStore extends Service {
       typeof adapter.findRecord === 'function'
     );
 
-    return _find(adapter, this, internalModel.type, internalModel.id, internalModel, options);
+    return _find(adapter, this, internalModel.modelClass, internalModel.id, internalModel, options);
   }
 
   _scheduleFetchMany(internalModels, options) {
@@ -1199,7 +1199,7 @@ abstract class CoreStore extends Service {
   _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
     // TODO  remove this once we don't rely on state machine
-    internalModel.loadingData();
+    internalModel.send('loadingData');
     let identifier = internalModel.identifier;
 
     assertIdentifierHasId(identifier);
@@ -1222,8 +1222,8 @@ abstract class CoreStore extends Service {
       },
       error => {
         // TODO  remove this once we don't rely on state machine
-        internalModel.notFound();
-        if (internalModel.isEmpty()) {
+        internalModel.send('notFound');
+        if (internalModel.currentState.isEmpty) {
           internalModel.unloadRecord();
         }
         throw error;
@@ -1267,7 +1267,7 @@ abstract class CoreStore extends Service {
 
       let promise = resolver.promise;
 
-      internalModel.loadingData(promise);
+      internalModel.send('loadingData', promise);
       if (this._pendingFetch.size === 0) {
         emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
       }
@@ -1622,7 +1622,7 @@ abstract class CoreStore extends Service {
     const identifier = identifierCacheFor(this).peekRecordIdentifier(resource);
     const internalModel = identifier && internalModelFactoryFor(this).peek(identifier);
 
-    return !!internalModel && internalModel.isLoaded();
+    return !!internalModel && internalModel.currentState.isLoaded;
   }
 
   /**
@@ -1843,7 +1843,7 @@ abstract class CoreStore extends Service {
           return pendingRequests[0][RequestPromise].then(() => internalModel.getRecord());
         }
       } else {
-        if (internalModel.isLoading()) {
+        if (internalModel.currentState.isLoading) {
           return internalModel._promiseProxy.then(() => {
             return internalModel.getRecord();
           });
@@ -3211,7 +3211,7 @@ abstract class CoreStore extends Service {
     let internalModel;
     if (isCreate === true) {
       internalModel = internalModelFactoryFor(this).build({ type: identifier.type, id: null });
-      internalModel.loadedData();
+      internalModel.send('loadedData');
       internalModel.didCreateRecord();
     } else {
       internalModel = internalModelFactoryFor(this).lookup(identifier as StableRecordIdentifier);
@@ -3822,7 +3822,7 @@ function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelations
     // treat as collection
     // check for unloaded records
     let hasEmptyRecords = resource.data.reduce((hasEmptyModel, resourceIdentifier) => {
-      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).isEmpty();
+      return hasEmptyModel || internalModelForRelatedResource(store, cache, resourceIdentifier).currentState.isEmpty;
     }, false);
 
     return !hasEmptyRecords;
@@ -3832,7 +3832,7 @@ function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelations
       return true;
     } else {
       const internalModel = internalModelForRelatedResource(store, cache, resource.data);
-      return !internalModel.isEmpty();
+      return !internalModel.currentState.isEmpty;
     }
   }
 }

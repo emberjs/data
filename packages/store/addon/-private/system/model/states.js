@@ -324,7 +324,7 @@ const DirtyState = {
     },
 
     didSetProperty(internalModel, context) {
-      internalModel.removeErrorMessageFromAttribute(context.name);
+      internalModel.getRecord().errors._remove(context.name);
 
       didSetProperty(internalModel, context);
 
@@ -338,12 +338,12 @@ const DirtyState = {
     pushedData() {},
 
     willCommit(internalModel) {
-      internalModel.clearErrorMessages();
+      clearErrorMessages(internalModel);
       internalModel.transitionTo('inFlight');
     },
 
     rolledBack(internalModel) {
-      internalModel.clearErrorMessages();
+      clearErrorMessages(internalModel);
       internalModel.transitionTo('loaded.saved');
       internalModel.triggerLater('ready');
     },
@@ -397,7 +397,7 @@ const createdState = dirtyState({
   isNew: true,
 
   setup(internalModel) {
-    internalModel.updateRecordArrays();
+    internalModel.store.recordArrayManager.recordDidChange(internalModel.identifier);
   },
 });
 
@@ -454,7 +454,7 @@ updatedState.uncommitted.deleteRecord = function(internalModel) {
 };
 
 updatedState.invalid.rolledBack = function(internalModel) {
-  internalModel.clearErrorMessages();
+  clearErrorMessages(internalModel);
   internalModel.transitionTo('loaded.saved');
   internalModel.triggerLater('rolledBack');
 };
@@ -628,7 +628,7 @@ const RootState = {
 
     // TRANSITIONS
     setup(internalModel) {
-      internalModel.updateRecordArrays();
+      internalModel.store.recordArrayManager.recordDidChange(internalModel.identifier);
     },
 
     // SUBSTATES
@@ -715,7 +715,7 @@ const RootState = {
       isValid: false,
 
       didSetProperty(internalModel, context) {
-        internalModel.removeErrorMessageFromAttribute(context.name);
+        internalModel.getRecord().errors._remove(context.name);
 
         didSetProperty(internalModel, context);
 
@@ -730,7 +730,7 @@ const RootState = {
       willCommit() {},
 
       rolledBack(internalModel) {
-        internalModel.clearErrorMessages();
+        clearErrorMessages(internalModel);
         internalModel.transitionTo('loaded.saved');
         internalModel.triggerLater('ready');
       },
@@ -768,6 +768,10 @@ function wireState(object, parent, name) {
   }
 
   return object;
+}
+
+function clearErrorMessages(internalModel) {
+  internalModel.getRecord().errors._clear();
 }
 
 export default wireState(RootState, null, 'root');

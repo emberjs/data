@@ -24,10 +24,6 @@ function getDefaultValue(record, options, key) {
   }
 }
 
-function hasValue(internalModel, key) {
-  return recordDataFor(internalModel).hasAttr(key);
-}
-
 /**
   `attr` defines an attribute on a [Model](/ember-data/release/classes/Model).
   By default, attributes are passed through as-is, however you can specify an
@@ -52,7 +48,7 @@ function hasValue(internalModel, key) {
   export default class UserModel extends Model {
     @attr('string') username;
     @attr('string') email;
-    @attr('boolean', { defaultValue: false }) verified; 
+    @attr('boolean', { defaultValue: false }) verified;
   }
   ```
 
@@ -140,9 +136,9 @@ function attr(type, options) {
           );
         }
       }
-      let internalModel = this._internalModel;
-      if (hasValue(internalModel, key)) {
-        return internalModel.getAttributeValue(key);
+      let recordData = recordDataFor(this);
+      if (recordData.hasAttr(key)) {
+        return recordData.getAttr(key);
       } else {
         return getDefaultValue(this, options, key);
       }

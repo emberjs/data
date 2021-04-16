@@ -156,7 +156,7 @@ export default class RecordReference extends Reference {
   value(): RecordInstance | null {
     if (this._id !== null) {
       let internalModel = internalModelForReference(this);
-      if (internalModel && internalModel.isLoaded()) {
+      if (internalModel && internalModel.currentState.isLoaded) {
         return internalModel.getRecord();
       }
     }
