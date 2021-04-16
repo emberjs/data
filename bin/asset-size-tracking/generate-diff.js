@@ -33,12 +33,23 @@ if (!NEW_DATA_FILE) {
 
 function getDiff(oldLibrary, newLibrary) {
   const compressionDelta = newLibrary.compressedSize - oldLibrary.compressedSize;
+  const libDelta = newLibrary.absoluteSize - oldLibrary.absoluteSize;
 
+  /*
+    The idea here is that because compression is not directly correlated
+    to bytes and because compression on smaller subsets behaves differently
+    than on the overall project, we take the overall compressed size change
+    and assign it a share based on the relative byte change.
+
+    note:
+    Compression behaves in ways you may not expect. Removing some bytes may
+    actually reduce compressibility and result in a larger compressed output.
+   */
   function getRelativeDeltaForItem(item) {
-    const itemDelta = item.newSize - item.currentSize;
-    const libDelta = newLibrary.absoluteSize - oldLibrary.absoluteSize;
-    const itemDeltaRelativeSize = itemDelta / libDelta;
-    const relativeDelta = itemDeltaRelativeSize * compressionDelta;
+    const itemDelta = item.newSize - item.currentSize; // our absolute change
+    const itemDeltaRelativeSize = itemDelta / libDelta; // divided by the overall absolute change
+    const relativeDelta = itemDeltaRelativeSize * compressionDelta; // times the overall compressed change
+
     return relativeDelta;
   }
 
@@ -113,12 +124,13 @@ function analyzeDiff(diff) {
   let failures = [];
   let warnings = [];
 
-  if (diff.currentSize < diff.newSize) {
-    let delta = diff.newSize - diff.currentSize;
-    let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
+  let delta = diff.newSize - diff.currentSize;
+  let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
+
+  if (delta > 0) {
     if (delta > library_failure_threshold && compressedDelta > 0) {
       failures.push(
-        `The size of the library ${diff.name} has increased by ${formatBytes(delta)} (${formatBytes(
+        `🛑 The size of the library ${diff.name} has increased by ${formatBytes(delta)} (${formatBytes(
           compressedDelta
         )} compressed) which exceeds the failure threshold of ${library_failure_threshold} bytes.`
       );
@@ -129,7 +141,7 @@ function analyzeDiff(diff) {
     if (pkg.currentSize < pkg.newSize) {
       let delta = pkg.newSize - pkg.currentSize;
       if (delta > package_warn_threshold) {
-        warnings.push(`The uncompressed size of the package ${pkg.name} has increased by ${formatBytes(delta)}.`);
+        warnings.push(`⚠️ The uncompressed size of the package ${pkg.name} has increased by ${formatBytes(delta)}.`);
       }
     }
   });
@@ -175,7 +187,7 @@ function formatDelta(item, isCompressed = false) {
   if (delta < 0) {
     return chalk.green(`${formatBytes(delta)}`);
   } else {
-    return chalk.red(`+${formatBytes(delta)}`);
+    return chalk.red(`${formatBytes(delta)}`);
   }
 }
 
@@ -187,6 +199,9 @@ function humanizeNumber(n) {
     if (s.charAt(s.length - 2) === '0') {
       s = n.toFixed(0);
     }
+  }
+  if (n > 0) {
+    s = '+' + s;
   }
   return s;
 }
@@ -230,28 +245,51 @@ if (failures.length) {
   console.log('\n</details>');
   process.exit(1);
 } else {
-  let delta = diff.currentSize - diff.newSize;
+  let delta = -1 * (diff.currentSize - diff.newSize);
+  let compressedDelta = -1 * (diff.currentSizeCompressed - diff.newSizeCompressed);
+
+  // no changes to report
   if (delta === 0) {
-    console.log(`\n<details>\n  <summary>${diff.name} has not changed in size</summary>`);
-  } else if (delta > 0) {
-    console.log(
-      `\n<details>\n  <summary>${diff.name} shrank by ${formatBytes(delta)} (${formatBytes(
-        diff.currentSizeCompressed - diff.newSizeCompressed
-      )} compressed)</summary>`
-    );
+    console.log(`\n<details>\n  <summary>☑️ ${diff.name} has not changed in size</summary>`);
+
+    // we shrank in absolute bytes
+  } else if (delta < 0) {
+    if (compressedDelta <= 0) {
+      console.log(
+        `\n<details>\n  <summary>✅ ${diff.name} shrank by ${formatBytes(delta)} (${formatBytes(
+          compressedDelta
+        )} compressed)</summary>`
+      );
+    } else {
+      console.log(
+        `\n<details>\n  <summary>☑️ ${diff.name} shrank by ${formatBytes(
+          delta
+        )} but the compressed size increased slighty (${formatBytes(compressedDelta)} compressed)</summary>`
+      );
+    }
+
+    // we increased in absolute bytes
   } else {
-    let compressedDelta = diff.newSizeCompressed - diff.currentSizeCompressed;
-    if (-1 * delta < library_failure_threshold) {
+    // the increase wasn't much to talk about
+    if (delta < library_failure_threshold) {
       console.log(
         `\n<details>\n  <summary>${diff.name} increased by ${formatBytes(-1 * delta)} (${formatBytes(
           compressedDelta
         )} compressed) which is within the allowed tolerance of ${library_failure_threshold} bytes uncompressed</summary>`
       );
-    } else {
+      //the increase was enough to talk about but compressed somehow went down
+    } else if (compressedDelta < 0) {
       console.log(
         `\n<details>\n  <summary>${diff.name} increased by ${formatBytes(
-          -1 * delta
-        )} uncompressed but decreased by ${formatBytes(-1 * compressedDelta)} compressed</summary>`
+          delta
+        )} uncompressed but decreased by ${formatBytes(compressedDelta)} compressed</summary>`
+      );
+      // we increased
+    } else {
+      console.log(
+        `\n<details>\n  <summary>${diff.name} increased by ${formatBytes(delta)} uncompressed (${formatBytes(
+          compressedDelta
+        )} compressed)</summary>`
       );
     }
   }
