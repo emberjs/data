@@ -150,6 +150,17 @@ function addonBuildConfigForDataPackage(PackageName) {
       this._setupBabelOptions();
 
       let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
+      let externalDeps = this.externalDependenciesForPrivateModule();
+
+      // don't print this for consumers
+      if (this.isDevelopingAddon()) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Rolling up ${this.name} private modules with the following external dependencies: ['${externalDeps.join(
+            "', '"
+          )}']`
+        );
+      }
 
       let privateTree = rollupPrivateModule(tree, {
         packageName: PackageName,
