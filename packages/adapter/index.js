@@ -9,6 +9,6 @@ const addonBaseConfig = addonBuildConfigForDataPackage(name);
 module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: true,
   externalDependenciesForPrivateModule() {
-    return ['require', 'ember-inflector', '@ember/string'];
+    return ['require', 'ember-inflector', '@ember/debug', '@ember/string'];
   },
 });
