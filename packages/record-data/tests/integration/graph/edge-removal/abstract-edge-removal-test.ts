@@ -29,7 +29,7 @@ async function test(name: string, callback) {
 type TestConfig = import('./helpers').TestConfig;
 type Context = import('./setup').Context;
 
-module('Integration | Graph | Nodes', function(hooks) {
+module('Integration | Graph | Edge Removal', function(hooks) {
   setupGraphTest(hooks);
 
   /**

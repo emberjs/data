@@ -5,6 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { graphFor } from '@ember-data/record-data/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('integration/relationships/inverse_relationships - Inverse Relationships', function(hooks) {
@@ -679,16 +680,13 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     await settled();
 
-    assert.deepEqual(
-      comment._internalModel.__recordData.__relationships.initializedRelationships,
-      {},
-      'relationships are cleared'
-    );
-    assert.equal(
-      comment._internalModel.__recordData.__implicitRelationships,
-      null,
-      'implicitRelationships are cleared'
-    );
+    const identifier = comment._internalModel.identifier;
+    const relationships = graphFor(store._storeWrapper).get(identifier);
+    const implicitRelationships = graphFor(store._storeWrapper).getImplicit(identifier);
+    const initializedRelationships = relationships.initializedRelationships;
+
+    assert.deepEqual(Object.keys(initializedRelationships), [], 'relationships are cleared');
+    assert.deepEqual(Object.keys(implicitRelationships), [], 'implicitRelationships are cleared');
     assert.ok(comment._internalModel.__recordData.isDestroyed, 'recordData is destroyed');
   });
 });

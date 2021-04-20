@@ -24,7 +24,7 @@ function guidFor(obj): string {
     return NULL_POINTER;
   }
 
-  return obj.clientId || obj.lid;
+  return obj.lid;
 }
 
 export default class OrderedSet<T> {
@@ -44,7 +44,7 @@ export default class OrderedSet<T> {
 
   add(obj: T | null): OrderedSet<T> {
     let guid = guidFor(obj);
-    assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
+    assert(`Expected ${obj} to have an lid`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
     let list = this.list;
 
@@ -58,7 +58,7 @@ export default class OrderedSet<T> {
 
   delete(obj: T | null): boolean {
     let guid = guidFor(obj);
-    assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
+    assert(`Expected ${obj} to have an lid`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
     let list = this.list;
 
@@ -80,7 +80,7 @@ export default class OrderedSet<T> {
       return false;
     }
     let guid = guidFor(obj);
-    assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
+    assert(`Expected ${obj} to have an lid`, typeof guid === 'string' && guid !== '');
     return this.presenceSet[guid] === obj;
   }
 
@@ -103,7 +103,7 @@ export default class OrderedSet<T> {
 
   addWithIndex(obj: T | null, idx?: number) {
     let guid = guidFor(obj);
-    assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
+    assert(`Expected ${obj} to have an lid`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
     let list = this.list;
 
@@ -126,7 +126,7 @@ export default class OrderedSet<T> {
 
   deleteWithIndex(obj: T | null, idx?: number): boolean {
     let guid = guidFor(obj);
-    assert(`Expected ${obj} to have an clientId`, typeof guid === 'string' && guid !== '');
+    assert(`Expected ${obj} to have an lid`, typeof guid === 'string' && guid !== '');
     let presenceSet = this.presenceSet;
     let list = this.list;
 

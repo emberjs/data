@@ -10,6 +10,7 @@ import { setupRenderingTest } from 'ember-qunit';
 import { ServerError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { implicitRelationshipsFor } from '@ember-data/record-data/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 
@@ -259,7 +260,9 @@ module('async belongs-to rendering tests', function(hooks) {
         },
       });
 
-      const implicitRelationships = pete._internalModel.__recordData.__implicitRelationships;
+      const storeWrapper = store._storeWrapper;
+      const identifier = pete._internalModel.identifier;
+      const implicitRelationships = implicitRelationshipsFor(storeWrapper, identifier);
       const implicitKeys = Object.keys(implicitRelationships);
       const petOwnerImplicit = implicitRelationships[implicitKeys[0]];
 

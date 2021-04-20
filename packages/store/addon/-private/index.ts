@@ -38,7 +38,6 @@ export { default as SnapshotRecordArray } from './system/snapshot-record-array';
 // New
 export { default as recordDataFor, removeRecordDataFor } from './system/record-data-for';
 export { default as RecordDataStoreWrapper } from './system/store/record-data-store-wrapper';
-export { upgradeForInternal } from './system/ts-upgrade-map';
 export { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './system/store/common';
 
 // for Model

@@ -1,33 +1,35 @@
 import { assert, inspect } from '@ember/debug';
 import { isNone } from '@ember/utils';
+import { DEBUG } from '@glimmer/env';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+import { identifierCacheFor } from '@ember-data/store/-private';
 
-import Relationship from './relationship';
+import Relationship, { isNew } from './relationship';
 
-type Store = import('@ember-data/store/-private/system/core-store').default;
+type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
 type ExistingResourceIdentifierObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
-type RelationshipRecordData = import('../../ts-interfaces/relationship-record-data').RelationshipRecordData;
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type DefaultSingleResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
 
 export default class BelongsToRelationship extends Relationship {
-  declare inverseRecordData: RelationshipRecordData | null;
-  declare canonicalState: RelationshipRecordData | null;
+  declare inverseRecordData: StableRecordIdentifier | null;
+  declare canonicalState: StableRecordIdentifier | null;
 
   constructor(
-    store: Store,
+    store: RecordDataStoreWrapper,
     inverseKey: string | null,
     relationshipMeta: RelationshipSchema,
-    recordData: RelationshipRecordData,
+    identifier: StableRecordIdentifier,
     inverseIsAsync: boolean
   ) {
-    super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
+    super(store, inverseKey, relationshipMeta, identifier, inverseIsAsync);
     this.inverseRecordData = null;
     this.canonicalState = null;
   }
 
-  setRecordData(recordData: RelationshipRecordData) {
+  setRecordData(recordData: StableRecordIdentifier | null) {
     if (recordData) {
       this.addRecordData(recordData);
     } else if (this.inverseRecordData) {
@@ -39,7 +41,7 @@ export default class BelongsToRelationship extends Relationship {
     this.setRelationshipIsEmpty(false);
   }
 
-  setCanonicalRecordData(recordData: RelationshipRecordData) {
+  setCanonicalRecordData(recordData: StableRecordIdentifier) {
     if (recordData) {
       this.addCanonicalRecordData(recordData);
     } else if (this.canonicalState) {
@@ -48,7 +50,7 @@ export default class BelongsToRelationship extends Relationship {
     this.flushCanonicalLater();
   }
 
-  addCanonicalRecordData(recordData: RelationshipRecordData) {
+  addCanonicalRecordData(recordData: StableRecordIdentifier) {
     if (this.canonicalMembers.has(recordData)) {
       return;
     }
@@ -68,7 +70,7 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChange();
   }
 
-  removeCompletelyFromOwn(recordData: RelationshipRecordData) {
+  removeCompletelyFromOwn(recordData: StableRecordIdentifier) {
     super.removeCompletelyFromOwn(recordData);
 
     if (this.canonicalState === recordData) {
@@ -89,7 +91,7 @@ export default class BelongsToRelationship extends Relationship {
   flushCanonical() {
     //temporary fix to not remove newly created records if server returned null.
     //TODO remove once we have proper diffing
-    if (this.inverseRecordData && this.inverseRecordData.isNew() && !this.canonicalState) {
+    if (this.inverseRecordData && isNew(this.inverseRecordData) && !this.canonicalState) {
       this.willSync = false;
       return;
     }
@@ -100,13 +102,20 @@ export default class BelongsToRelationship extends Relationship {
     super.flushCanonical();
   }
 
-  addRecordData(recordData: RelationshipRecordData) {
+  addRecordData(recordData: StableRecordIdentifier) {
     if (this.members.has(recordData)) {
       return;
     }
 
-    // TODO Igor cleanup
-    assertPolymorphicType(this.recordData, this.relationshipMeta, recordData, this.store);
+    // TODO @runspired can we just delete this now?
+    if (DEBUG && this.relationshipMeta.type !== this.recordData.type) {
+      assertPolymorphicType(
+        this.store.recordDataFor(this.recordData.type, this.recordData.id, this.recordData.lid),
+        this.relationshipMeta,
+        this.store.recordDataFor(recordData.type, recordData.id, recordData.lid),
+        this.store._store
+      );
+    }
 
     if (this.inverseRecordData) {
       this.removeRecordData(this.inverseRecordData);
@@ -117,7 +126,7 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChange();
   }
 
-  removeRecordDataFromOwn(recordData: RelationshipRecordData) {
+  removeRecordDataFromOwn(recordData: StableRecordIdentifier) {
     if (!this.members.has(recordData)) {
       return;
     }
@@ -134,11 +143,11 @@ export default class BelongsToRelationship extends Relationship {
 
   notifyBelongsToChange() {
     let recordData = this.recordData;
-    let storeWrapper = this.recordData.storeWrapper;
-    storeWrapper.notifyBelongsToChange(recordData.modelName, recordData.id, recordData.clientId, this.key);
+    let storeWrapper = this.store;
+    storeWrapper.notifyBelongsToChange(recordData.type, recordData.id, recordData.lid, this.key);
   }
 
-  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
+  removeCanonicalRecordDataFromOwn(recordData: StableRecordIdentifier, idx?: number) {
     if (!this.canonicalMembers.has(recordData)) {
       return;
     }
@@ -157,7 +166,7 @@ export default class BelongsToRelationship extends Relationship {
     let data;
     let payload: any = {};
     if (this.inverseRecordData) {
-      data = this.inverseRecordData.getResourceIdentifier();
+      data = this.inverseRecordData;
     }
     if (this.inverseRecordData === null && this.hasAnyRelationshipData) {
       data = null;
@@ -191,7 +200,7 @@ export default class BelongsToRelationship extends Relationship {
     );
 
     if (recordData !== null) {
-      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id, data.lid);
+      recordData = identifierCacheFor(this.store._store).getOrCreateRecordIdentifier(data);
     }
     this.setCanonicalRecordData(recordData);
   }

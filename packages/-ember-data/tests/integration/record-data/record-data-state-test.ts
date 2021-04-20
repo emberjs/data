@@ -99,7 +99,7 @@ class TestRecordData implements RecordData {
   isAttrDirty(key: string) {
     return false;
   }
-  removeFromInverseRelationships(isNew: boolean) {}
+  removeFromInverseRelationships() {}
 
   _initRecordCreateOptions(options) {
     return {};

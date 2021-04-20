@@ -44,7 +44,7 @@ export interface RecordData {
 
   // ----- unspecced
   isAttrDirty(key: string): boolean;
-  removeFromInverseRelationships(isNew: boolean): void;
+  removeFromInverseRelationships(): void;
   hasAttr(key: string): boolean;
 
   isRecordInUse(): boolean;

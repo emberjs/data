@@ -4,8 +4,7 @@ import { resolve } from 'rsvp';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
-import recordDataFor from '../record-data-for';
-import { internalModelFactoryFor } from '../store/internal-model-factory';
+import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
 import Reference, { internalModelForReference } from './reference';
 
 /**
@@ -184,17 +183,17 @@ export default class HasManyReference extends Reference {
 
       let internalModel = internalModelForReference(this);
 
-      let internalModels = array.map(obj => {
+      let identifiers = array.map(obj => {
         let record = this.store.push(obj);
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
           assertPolymorphicType(internalModel, relationshipMeta, record._internalModel, this.store);
         }
-        return recordDataFor(record);
+        return recordIdentifierFor(record);
       });
 
-      this.hasManyRelationship.computeChanges(internalModels);
+      this.hasManyRelationship.computeChanges(identifiers);
 
       return internalModel.getHasMany(this.hasManyRelationship.key);
       // TODO IGOR it seems wrong that we were returning the many array here
@@ -211,8 +210,8 @@ export default class HasManyReference extends Reference {
     let members = this.hasManyRelationship.members.toArray();
 
     //TODO Igor cleanup
-    return members.every(recordData => {
-      let internalModel = this.store._internalModelForResource(recordData.getResourceIdentifier());
+    return members.every(identifier => {
+      let internalModel = this.store._internalModelForResource(identifier);
       return internalModel.currentState.isLoaded === true;
     });
   }

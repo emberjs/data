@@ -6,6 +6,7 @@ import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import recordDataFor from './record-data-for';
 
@@ -19,29 +20,13 @@ type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
 type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
 type AttributeSchema = import('../ts-interfaces/record-data-schemas').AttributeSchema;
 type RelationshipSchema = import('../ts-interfaces/record-data-schemas').RelationshipSchema;
-type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
 type HasManyRelationship = import('@ember-data/record-data/-private/relationships/state/has-many').default;
 type BelongsToRelationship = import('@ember-data/record-data/-private/relationships/state/belongs-to').default;
-type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
 type Store = import('./core-store').default;
 type RecordId = string | null;
 
-function relationshipsFor(instance: Snapshot): Relationships {
-  let i = (instance as unknown) as PrivateSnapshot;
-  // TODO this cast is not safe but it is the assumption of the current
-  // state of the code. We need to update this class to handle CUSTOM_MODEL_CLASS
-  // requirements.
-  let recordData = i._internalModel._recordData as RelationshipRecordData;
-
-  return recordData._relationships;
-}
-
 function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModelSchema {
   return (schema as DSModelSchema).isModel === true;
-}
-
-function relationshipStateFor(instance: Snapshot, propertyName: string): BelongsToRelationship | HasManyRelationship {
-  return relationshipsFor(instance).get(propertyName);
 }
 
 type ProtoExntends<T, U> = U & Omit<T, keyof U>;
@@ -321,10 +306,25 @@ export default class Snapshot implements Snapshot {
     );
 
     // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
+    // this check is not a regression in behavior because relationships don't currently
+    // function without access to intimate API contracts between RecordData and InternalModel.
+    // This is a requirement we should fix as soon as the relationship layer does not require
+    // this intimate API usage.
+    if (!HAS_RECORD_DATA_PACKAGE) {
+      assert(`snapshot.belongsTo only supported when using the package @ember-data/record-data`);
+    }
 
-    // TODO @runspired instead of casting here either generify relationship state or
-    // provide a mechanism on relationship state by which to narrow.
-    relationship = relationshipStateFor(this, keyName) as BelongsToRelationship;
+    const relationshipStateFor = require('@ember-data/record-data/-private').relationshipStateFor;
+    const { identifier } = CUSTOM_MODEL_CLASS ? this : this._internalModel;
+    relationship = relationshipStateFor(this._store._storeWrapper, identifier, keyName) as BelongsToRelationship;
+    assert(
+      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
+      relationship
+    );
+    assert(
+      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but that relationship is a hasMany.`,
+      relationship.kind === 'belongsTo'
+    );
 
     let value = relationship.getData();
     let data = value && value.data;
@@ -404,10 +404,25 @@ export default class Snapshot implements Snapshot {
     );
 
     // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
+    // this check is not a regression in behavior because relationships don't currently
+    // function without access to intimate API contracts between RecordData and InternalModel.
+    // This is a requirement we should fix as soon as the relationship layer does not require
+    // this intimate API usage.
+    if (!HAS_RECORD_DATA_PACKAGE) {
+      assert(`snapshot.hasMany only supported when using the package @ember-data/record-data`);
+    }
 
-    // TODO @runspired instead of casting here either generify relationship state or
-    // provide a mechanism on relationship state by which to narrow.
-    relationship = relationshipStateFor(this, keyName) as HasManyRelationship;
+    const relationshipStateFor = require('@ember-data/record-data/-private').relationshipStateFor;
+    const { identifier } = CUSTOM_MODEL_CLASS ? this : this._internalModel;
+    relationship = relationshipStateFor(this._store._storeWrapper, identifier, keyName) as HasManyRelationship;
+    assert(
+      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
+      relationship
+    );
+    assert(
+      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but that relationship is a belongsTo.`,
+      relationship.kind === 'hasMany'
+    );
 
     let value = relationship.getData();
 
