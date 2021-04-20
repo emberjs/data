@@ -16,6 +16,9 @@ export interface DSModel extends RecordInstance, EmberObject {
   eachAttribute<T>(callback: (this: T, key: string, meta: AttributeSchema) => void, binding?: T): void;
   invalidErrorsChanged(errors: JsonApiValidationError[]): void;
   [key: string]: unknown;
+  isDeleted: boolean;
+  deleteRecord(): void;
+  unloadRecord(): void;
 }
 
 // Implemented by both ShimModelClass and DSModel

@@ -1,3 +1,6 @@
+import { assert } from '@ember/debug';
+
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type RecordData = import('../ts-interfaces/record-data').RecordData;
 /*
  * Returns the RecordData instance associated with a given
@@ -19,11 +22,26 @@ interface InternalModel {
 type DSModelOrSnapshot = { _internalModel: InternalModel };
 type Reference = { internalModel: InternalModel };
 
-type Instance = InternalModel | RecordData | DSModelOrSnapshot | Reference;
+type Instance = StableRecordIdentifier | InternalModel | RecordData | DSModelOrSnapshot | Reference;
 
+const IdentifierCache = new WeakMap<StableRecordIdentifier, RecordData>();
+
+export function setRecordDataFor(identifier: StableRecordIdentifier, recordData: RecordData) {
+  assert(`Illegal set of identifier`, !IdentifierCache.has(identifier));
+  IdentifierCache.set(identifier, recordData);
+}
+
+export function removeRecordDataFor(identifier) {
+  IdentifierCache.delete(identifier);
+}
+
+export default function recordDataFor(instance: StableRecordIdentifier): RecordData | null;
 export default function recordDataFor(instance: Instance): RecordData;
 export default function recordDataFor(instance: object): null;
 export default function recordDataFor(instance: Instance | object): RecordData | null {
+  if (IdentifierCache.has(instance as StableRecordIdentifier)) {
+    return IdentifierCache.get(instance as StableRecordIdentifier) as RecordData;
+  }
   let internalModel =
     (instance as DSModelOrSnapshot)._internalModel || (instance as Reference).internalModel || instance;
 
