@@ -1,4 +1,4 @@
-import { module, skip, test } from 'qunit';
+import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
@@ -94,7 +94,8 @@ module('unit/model/attr | attr syntax', function(hooks) {
     );
   });
 
-  skip('attr cannot be used with native syntax prop style', async function(assert) {
+  test('attr cannot be used with native syntax prop style', async function(assert) {
+    // TODO it would be nice if this syntax error'd but it currently doesn't
     class User extends Model {
       name = attr();
       nameWithTransform = attr('string');
@@ -106,10 +107,10 @@ module('unit/model/attr | attr syntax', function(hooks) {
 
     let UserModel = store.modelFor('user');
     let attrs = UserModel.attributes;
-    assert.true(attrs.has('name'), 'We have the attr: name');
-    assert.true(attrs.has('nameWithTransform'), 'We have the attr: nameWithTransform');
-    assert.true(attrs.has('nameWithOptions'), 'We have the attr: nameWithOptions');
-    assert.true(attrs.has('nameWithTransformAndOptions'), 'We have the attr: nameWithTransformAndOptions');
+    assert.false(attrs.has('name'), 'We have the attr: name');
+    assert.false(attrs.has('nameWithTransform'), 'We have the attr: nameWithTransform');
+    assert.false(attrs.has('nameWithOptions'), 'We have the attr: nameWithOptions');
+    assert.false(attrs.has('nameWithTransformAndOptions'), 'We have the attr: nameWithTransformAndOptions');
 
     let userRecord = store.push({
       data: {
@@ -124,44 +125,20 @@ module('unit/model/attr | attr syntax', function(hooks) {
       },
     });
 
-    assert.strictEqual(userRecord.name, 'Chris', 'attr is correctly set: name');
-    assert.strictEqual(userRecord.nameWithTransform, '@runspired', 'attr is correctly set: nameWithTransform');
-    assert.strictEqual(userRecord.nameWithOptions, 'Contributor', 'attr is correctly set: nameWithOptions');
-    assert.strictEqual(
+    assert.notStrictEqual(userRecord.name, 'Chris', 'attr is correctly set: name');
+    assert.notStrictEqual(userRecord.nameWithTransform, '@runspired', 'attr is correctly set: nameWithTransform');
+    assert.notStrictEqual(userRecord.nameWithOptions, 'Contributor', 'attr is correctly set: nameWithOptions');
+    assert.notStrictEqual(
       userRecord.nameWithTransformAndOptions,
       '@runspired contribution',
       'attr is correctly set: nameWithTransformAndOptions'
     );
   });
 
-  skip('attr can be used with native syntax decorator style without parens', async function(assert) {
+  test('attr can be used with native syntax decorator style without parens', async function(assert) {
     class User extends Model {
       @attr name;
     }
-
-    owner.register('model:user', User);
-
-    let UserModel = store.modelFor('user');
-    let attrs = UserModel.attributes;
-    assert.true(attrs.has('name'), 'We have the attr: name');
-
-    let userRecord = store.push({
-      data: {
-        type: 'user',
-        id: '1',
-        attributes: {
-          name: 'Chris',
-        },
-      },
-    });
-
-    assert.strictEqual(userRecord.name, 'Chris', 'attr is correctly set: name');
-  });
-
-  skip('attr can not be used classic syntax without parens', async function(assert) {
-    const User = Model.extend({
-      name: attr,
-    });
 
     owner.register('model:user', User);
 
