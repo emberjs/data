@@ -120,6 +120,14 @@ class Model extends EmberObject {
   init(...args) {
     super.init(...args);
 
+    if (DEBUG) {
+      if (!this._internalModel) {
+        throw new EmberError(
+          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
+        );
+      }
+    }
+
     if (RECORD_DATA_ERRORS) {
       this._invalidRequests = [];
     }
@@ -2258,12 +2266,6 @@ if (DEBUG) {
   Model.reopen({
     init() {
       this._super(...arguments);
-
-      if (!this._internalModel) {
-        throw new EmberError(
-          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
-        );
-      }
 
       if (DEPRECATE_EVENTED_API_USAGE) {
         this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
