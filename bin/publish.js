@@ -404,7 +404,7 @@ async function main() {
   if (!options.skipPublish) {
     const tarballs = collectTarballPaths();
     const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
-    if (!npmAuthTokenInEnv) {
+    if (!npmAuthTokenInEnv && !options.dryRun) {
       if (process.env.CI) {
         throw new Error('No NODE_AUTH_TOKEN environment variable, cannot continue publishing.');
       }
