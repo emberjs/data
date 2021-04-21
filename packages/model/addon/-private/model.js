@@ -519,6 +519,27 @@ class Model extends EmberObject {
     @property id
     @type {String}
   */
+  @dependentKeyCompat
+  get id() {
+    // the _internalModel guard exists, because some dev-only deprecation code
+    // (addListener via validatePropertyInjections) invokes toString before the
+    // object is real.
+    if (DEBUG) {
+      if (!this._internalModel) {
+        return void 0;
+      }
+    }
+    // consume the tracked tag
+    this._internalModel._tag;
+    return this._internalModel.id;
+  }
+  set id(id) {
+    const normalizedId = coerceId(id);
+
+    if (normalizedId !== null) {
+      this._internalModel.setId(normalizedId);
+    }
+  }
 
   /**
     @property currentState
@@ -2061,34 +2082,6 @@ Model.prototype._internalModel = null;
 Model.prototype.currentState = null;
 Model.prototype.store = null;
 
-const ID_DESCRIPTOR = {
-  configurable: false,
-  set(id) {
-    const normalizedId = coerceId(id);
-
-    if (normalizedId !== null) {
-      this._internalModel.setId(normalizedId);
-    }
-  },
-
-  get() {
-    // the _internalModel guard exists, because some dev-only deprecation code
-    // (addListener via validatePropertyInjections) invokes toString before the
-    // object is real.
-    if (DEBUG) {
-      if (!this._internalModel) {
-        return;
-      }
-    }
-    // consume the tracked tag
-    this._internalModel._tag;
-    return this._internalModel.id;
-  },
-};
-dependentKeyCompat(ID_DESCRIPTOR);
-
-Object.defineProperty(Model.prototype, 'id', ID_DESCRIPTOR);
-
 if (HAS_DEBUG_PACKAGE) {
   /**
    Provides info about the model for debugging purposes
@@ -2296,6 +2289,7 @@ if (DEBUG) {
         );
       }
 
+      const ID_DESCRIPTOR = lookupDescriptor(Model.prototype, 'id');
       let idDesc = lookupDescriptor(this, 'id');
 
       if (idDesc.get !== ID_DESCRIPTOR.get) {

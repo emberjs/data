@@ -2,7 +2,7 @@ import { getOwner, setOwner } from '@ember/application';
 import { A, default as EmberArray } from '@ember/array';
 import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
-import { get, set } from '@ember/object';
+import { get, notifyPropertyChange, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
@@ -61,6 +61,11 @@ function relationshipsFor(instance: InternalModel): Relationships {
 
 function relationshipStateFor(instance: InternalModel, propertyName: string) {
   return relationshipsFor(instance).get(propertyName);
+}
+
+const STABLE_UNTRACKED_OBJ = {};
+function flushSyncObservers() {
+  notifyPropertyChange(STABLE_UNTRACKED_OBJ, '-tracking-prop');
 }
 
 const { hasOwnProperty } = Object.prototype;
@@ -234,6 +239,7 @@ export default class InternalModel {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
       identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
       this._tag = ''; // dirty tag
+      flushSyncObservers();
       // TODO Show deprecation for private api, this is currently used by ember-m3
     }
   }
@@ -486,6 +492,7 @@ export default class InternalModel {
     this.isReloading = true;
     if (this.hasRecord) {
       set(this._record, 'isReloading', true);
+      flushSyncObservers();
     }
   }
 
@@ -493,6 +500,7 @@ export default class InternalModel {
     this.isReloading = false;
     if (this.hasRecord) {
       set(this._record, 'isReloading', false);
+      flushSyncObservers();
     }
   }
 
@@ -1147,6 +1155,7 @@ export default class InternalModel {
     this.currentState = state;
     if (this.hasRecord) {
       set(this._record, 'currentState', state);
+      flushSyncObservers();
     }
 
     for (i = 0, l = setups.length; i < l; i++) {
@@ -1301,7 +1310,7 @@ export default class InternalModel {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'identity');
       } else {
-        this.notifyPropertyChange('id');
+        flushSyncObservers();
       }
     }
     this._isUpdatingId = false;
