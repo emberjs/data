@@ -39,14 +39,12 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies for master
         run: yarn install --frozen-lockfile --non-interactive
-      - name: Get next alpha version
-        run: echo "NEXT_VERSION=$(node bin/determine-next-alpha-version/find-next.js)" >> $GITHUB_ENV
       - name: Make sure git user is setup
         run: |
           git config --local user.email 'cron@example.com'
           git config --local user.name 'Ember Data Cron CI'
       - name: Publish with script
-        run: node bin/publish.js --version=${{ env.NEXT_VERSION }}
+        run: node bin/publish.js canary --autoAlphaVersion
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Push branch + tag
