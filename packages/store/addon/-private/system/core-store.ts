@@ -2569,7 +2569,7 @@ abstract class CoreStore extends Service {
           operation = 'updateRecord';
         }
       } else {
-        if (internalModel.currentState.stateName === 'root.deleted.saved') {
+        if (internalModel.currentState.stateName.indexOf('root.deleted.saved') === 0) {
           resolver.resolve();
           continue;
         } else if (internalModel.isNew()) {
@@ -2698,9 +2698,9 @@ abstract class CoreStore extends Service {
     let internalModel = internalModelFactoryFor(this).lookup(resource, data);
 
     // store.push will be from empty
-    // findRecord will be from root.loading
+    // findRecord will be from root.loading.{empty,preloaded}
     // all else will be updates
-    const isLoading = internalModel.currentState.stateName === 'root.loading';
+    const isLoading = internalModel.currentState.stateName.indexOf('root.loading') === 0;
     const isUpdate = internalModel.currentState.isEmpty === false && !isLoading;
 
     // exclude store.push (root.empty) case

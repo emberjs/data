@@ -276,7 +276,7 @@ export default class InternalModel {
     if (RECORD_DATA_STATE) {
       isRecordFullyDeleted = this._isRecordFullyDeleted();
     } else {
-      isRecordFullyDeleted = this.currentState.stateName === 'root.deleted.saved';
+      isRecordFullyDeleted = this.currentState.stateName.indexOf('root.deleted.saved') === 0;
     }
     return this._isDematerializing || this.hasScheduledDestroy() || this.isDestroyed || isRecordFullyDeleted;
   }
@@ -293,7 +293,7 @@ export default class InternalModel {
       ) {
         return true;
       } else {
-        return this.currentState.stateName === 'root.deleted.saved';
+        return this.currentState.stateName.indexOf('root.deleted.saved') === 0;
       }
     } else {
       // assert here
@@ -446,7 +446,12 @@ export default class InternalModel {
     this._record = null;
     this.isReloading = false;
     this.error = null;
-    this.currentState = RootState.empty;
+
+    if (this.currentState.isDeleted && !this.currentState.isDirty) {
+      this.currentState = RootState.empty.deleted;
+    } else {
+      this.currentState = RootState.empty;
+    }
   }
 
   deleteRecord() {
@@ -1204,6 +1209,9 @@ export default class InternalModel {
     @param {Object} preload
   */
   preloadData(preload) {
+    if (this.currentState.isEmpty) {
+      this.transitionTo('empty.preloaded');
+    }
     let jsonPayload: JsonApiResource = {};
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach(key => {

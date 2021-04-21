@@ -416,7 +416,7 @@ const updatedState = dirtyState({
 });
 
 function createdStateDeleteRecord(internalModel) {
-  internalModel.transitionTo('deleted.saved');
+  internalModel.transitionTo('deleted.saved.new');
   internalModel.send('invokeLifecycleCallbacks');
 }
 
@@ -469,6 +469,7 @@ const RootState = {
   isDeleted: false,
   isNew: false,
   isValid: true,
+  isPreloaded: false,
 
   // DEFAULT EVENTS
 
@@ -491,12 +492,21 @@ const RootState = {
   empty: {
     isEmpty: true,
 
+    deleted: {
+      isDeleted: true,
+    },
+
+    preloaded: {
+      isPreloaded: true,
+    },
+
     // EVENTS
     loadingData(internalModel, promise) {
       if (!REQUEST_SERVICE) {
         internalModel._promiseProxy = promise;
       }
-      internalModel.transitionTo('loading');
+      // internalModel.transitionTo('loading');
+      internalModel.transitionTo(this.isPreloaded ? 'loading.preloaded' : 'loading.empty');
     },
 
     loadedData(internalModel) {
@@ -527,6 +537,14 @@ const RootState = {
 
     exit(internalModel) {
       internalModel._promiseProxy = null;
+    },
+
+    empty: {
+      isEmpty: true,
+    },
+
+    preloaded: {
+      isPreloaded: true,
     },
 
     loadingData() {},
@@ -697,8 +715,12 @@ const RootState = {
       // FLAGS
       isDirty: false,
 
+      new: {
+        isNew: true,
+      },
+
       setup(internalModel) {
-        internalModel.removeFromInverseRelationships();
+        internalModel.removeFromInverseRelationships(internalModel.currentState.isNew);
       },
 
       invokeLifecycleCallbacks(internalModel) {

@@ -2,6 +2,7 @@
 
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
+import settled from '@ember/test-helpers/settled';
 
 import { module, test } from 'qunit';
 import { all, Promise as EmberPromise } from 'rsvp';
@@ -223,7 +224,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
       record.deleteRecord();
     });
 
-    assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
+    assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved.new');
     assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
@@ -269,8 +270,48 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
       record.destroyRecord();
     });
 
-    assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
+    assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved.new');
     assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
+  });
+
+  test('unloading a deleted persisted record should transition it to root.empty.deleted', async function(assert) {
+    class TestAdapter {
+      static create() {
+        return new this();
+      }
+
+      deleteRecord() {
+        return { data: null };
+      }
+    }
+    this.owner.register('adapter:person', TestAdapter);
+    const store = this.owner.lookup('service:store');
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: { name: 'Rosemary Sweet Thoburn' },
+      },
+    });
+    const im = person._internalModel;
+    person.deleteRecord();
+    assert.true(person.currentState.isDeleted, 'we are deleted before the save');
+    assert.equal(person.currentState.stateName, 'root.deleted.uncommitted', 'our deletion is uncommitted');
+    let promise = person.save();
+
+    assert.true(person.currentState.isDeleted, 'we are deleted during the save');
+    assert.equal(person.currentState.stateName, 'root.deleted.inFlight', 'our deletion is in-flight');
+    await promise;
+    assert.true(person.currentState.isDeleted, 'we are deleted after the save');
+    assert.equal(person.currentState.stateName, 'root.deleted.saved', 'our deletion was persisted');
+    person.unloadRecord();
+    await settled();
+    assert.true(person.currentState.isDeleted, 'we are deleted after the unload');
+    assert.equal(person.currentState.stateName, 'root.deleted.saved', 'the record reflects the deleted state');
+
+    // destroy divorces the state of the internal-model from the state of the record.
+    assert.true(im.currentState.isDeleted, 'we are internally deleted after the unload');
+    assert.equal(im.currentState.stateName, 'root.empty.deleted', 'the internal state is empty.deleted');
   });
 
   test('Will resolve destroy and save in same loop', function(assert) {
