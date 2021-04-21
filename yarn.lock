@@ -7493,6 +7493,10 @@ eslint-module-utils@^2.6.0:
     debug "^2.6.9"
     pkg-dir "^2.0.0"
 
+"eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
+  version "0.0.0"
+  uid ""
+
 eslint-plugin-ember@^10.3.0:
   version "10.3.0"
   resolved "https://registry.npmjs.org/eslint-plugin-ember/-/eslint-plugin-ember-10.3.0.tgz#2e53ad334dc7f7f66f6cba890b9c01a64817d1c1"
