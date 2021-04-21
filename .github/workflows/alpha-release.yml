@@ -1,8 +1,7 @@
 name: Alpha Releases
 
-on:
-  schedule:
-    - cron: '0 20 * * 3' # weekly (Wednesday) 12 PM PST
+on: pull_request
+
 
 jobs:
   test:
