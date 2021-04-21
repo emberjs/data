@@ -32,8 +32,6 @@ const cliArgs = require('command-line-args');
 const semver = require('semver');
 const debug = require('debug')('publish-packages');
 
-const determineNextAlpha = require('./determine-next-alpha-version/find-next');
-
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
@@ -372,16 +370,7 @@ async function main() {
     // --force-publish ensures that all packages release a new version regardless
     // of whether changes have occurred in them
     // --yes skips the prompt for confirming the version
-    if (options.autoAlphaVersion) {
-      if (options.channel !== 'canary') {
-        throw new Error('--autoAlphaVersion can only be used with canary channel');
-      }
-      nextVersion = determineNextAlpha();
-      console.log(`Using ${nextVersion} as the next version for alpha release`);
-    } else {
-      nextVersion = retrieveNextVersion(options);
-    }
-
+    nextVersion = retrieveNextVersion(options);
     let lernaCommand = `lerna version ${nextVersion} --force-publish --exact --yes`;
     if (options.dryRun) {
       lernaCommand += ' --no-git-tag-version --no-push';
