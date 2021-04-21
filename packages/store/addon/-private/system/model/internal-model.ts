@@ -229,6 +229,14 @@ export default class InternalModel {
   get id(): string | null {
     return this.identifier.id;
   }
+  set id(value: string | null) {
+    if (value !== this._id) {
+      let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
+      identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
+      this._tag = ''; // dirty tag
+      // TODO Show deprecation for private api, this is currently used by ember-m3
+    }
+  }
 
   get modelClass() {
     if (this.store.modelFor) {
