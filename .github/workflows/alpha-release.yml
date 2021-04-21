@@ -1,7 +1,8 @@
 name: Alpha Releases
 
-on: pull_request
-
+on:
+  schedule:
+    - cron: '0 20 * * 3' # weekly (Wednesday) 12 PM PST
 
 jobs:
   test:
@@ -43,7 +44,7 @@ jobs:
           git config --local user.email 'cron@example.com'
           git config --local user.name 'Ember Data Cron CI'
       - name: Publish with script
-        run: node bin/publish.js canary --autoAlphaVersion
+        run: node bin/publish.js canary --autoAlphaVersion --dryRun
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Push branch + tag

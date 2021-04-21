@@ -97,6 +97,7 @@ function getConfig() {
     { name: 'bumpMinor', type: Boolean, defaultValue: false },
     { name: 'force', type: Boolean, defaultValue: false },
     { name: 'autoAlphaVersion', type: Boolean, defaultValue: false },
+    { name: 'dryRun', type: Boolean, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
   const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
@@ -377,7 +378,12 @@ async function main() {
       nextVersion = retrieveNextVersion(options);
     }
 
-    execWithLog(`lerna version ${nextVersion} --force-publish --exact --yes`, true);
+    let lernaCommand = `lerna version ${nextVersion} --force-publish --exact --yes`;
+    if (options.dryRun) {
+      lernaCommand += ' --no-git-tag-version --no-push';
+    }
+
+    execWithLog(lernaCommand, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
@@ -395,7 +401,6 @@ async function main() {
     const tarballs = collectTarballPaths();
     const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
     if (!npmAuthTokenInEnv) {
-      console.log('No NODE_AUTH_TOKEN environment variable. Prompting for OTP.');
       if (process.env.CI) {
         throw new Error('No NODE_AUTH_TOKEN environment variable, cannot continue publishing.');
       }
