@@ -1,6 +1,7 @@
 import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
 import EmberObject, { computed, get } from '@ember/object';
+import { dependentKeyCompat } from '@ember/object/compat';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
@@ -175,6 +176,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  @dependentKeyCompat
   get isEmpty() {
     return this._internalModel.currentState.isEmpty;
   }
@@ -189,6 +191,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  @dependentKeyCompat
   get isLoading() {
     return this._internalModel.currentState.isLoading;
   }
@@ -213,7 +216,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-
+  @dependentKeyCompat
   get isLoaded() {
     return this._internalModel.currentState.isLoaded;
   }
@@ -242,6 +245,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  @dependentKeyCompat
   get hasDirtyAttributes() {
     return this._internalModel.currentState.isDirty;
   }
@@ -268,6 +272,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  @dependentKeyCompat
   get isSaving() {
     return this._internalModel.currentState.isSaving;
   }
@@ -309,6 +314,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  @dependentKeyCompat
   get isDeleted() {
     if (RECORD_DATA_STATE) {
       // currently we call notifyPropertyChange from
@@ -345,6 +351,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  @dependentKeyCompat
   get isNew() {
     if (RECORD_DATA_STATE) {
       // currently we call notifyPropertyChange from
@@ -370,6 +377,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  @dependentKeyCompat
   get isValid() {
     if (RECORD_DATA_ERRORS) {
       return !(this.errors.length > 0);
@@ -405,6 +413,7 @@ class Model extends EmberObject {
     @type {String}
     @readOnly
   */
+  @dependentKeyCompat
   get dirtyType() {
     return this._internalModel.currentState.dirtyType;
   }
@@ -2137,6 +2146,7 @@ const ID_DESCRIPTOR = {
     return this._internalModel.id;
   },
 };
+dependentKeyCompat(ID_DESCRIPTOR);
 
 Object.defineProperty(Model.prototype, 'id', ID_DESCRIPTOR);
 
