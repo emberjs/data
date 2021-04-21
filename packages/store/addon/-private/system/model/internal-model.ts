@@ -2,10 +2,11 @@ import { getOwner, setOwner } from '@ember/application';
 import { A, default as EmberArray } from '@ember/array';
 import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
-import { get, set } from '@ember/object';
+import { get, notifyPropertyChange, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
+import { tracked } from '@glimmer/tracking';
 
 import RSVP, { Promise } from 'rsvp';
 
@@ -60,6 +61,11 @@ function relationshipsFor(instance: InternalModel): Relationships {
 
 function relationshipStateFor(instance: InternalModel, propertyName: string) {
   return relationshipsFor(instance).get(propertyName);
+}
+
+const STABLE_UNTRACKED_OBJ = {};
+function flushSyncObservers() {
+  notifyPropertyChange(STABLE_UNTRACKED_OBJ, '-tracking-prop');
 }
 
 const { hasOwnProperty } = Object.prototype;
@@ -136,7 +142,6 @@ function extractPivotName(name) {
 */
 export default class InternalModel {
   declare _id: string | null;
-  declare _tag: number;
   declare modelName: string;
   declare clientId: string;
   declare __recordData: RecordData | null;
@@ -147,6 +152,7 @@ export default class InternalModel {
   declare isReloading: boolean;
   declare _doNotDestroy: boolean;
   declare isDestroying: boolean;
+  declare _isUpdatingId: boolean;
 
   // Not typed yet
   declare _promiseProxy: any;
@@ -165,15 +171,14 @@ export default class InternalModel {
   declare _retainedManyArrayCache: ConfidentDict<ManyArray>;
   declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
   declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
-  declare currentState: any;
   declare error: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
-    this._tag = 0;
     this._id = identifier.id;
+    this._isUpdatingId = false;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
 
@@ -194,6 +199,10 @@ export default class InternalModel {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
 
+    this._record = null;
+    this.isReloading = false;
+    this.error = null;
+
     // caches for lazy getters
     this._modelClass = null;
     this.__recordArrays = null;
@@ -202,7 +211,6 @@ export default class InternalModel {
 
     this.isReloading = false;
     this.error = null;
-    this.currentState = RootState.empty;
 
     // other caches
     // class fields have [[DEFINE]] semantics which are significantly slower than [[SET]] semantics here
@@ -214,16 +222,25 @@ export default class InternalModel {
     this._deferredTriggers = [];
   }
 
+  @tracked currentState: any = RootState.empty;
+  /*
+     A tag which when dirtied allows things tracking a record's ID
+     to recompute. When we update this we must also flushSyncObservers
+     for pre-4.0 compat so we still call notifyPropertyChange('id')
+     on the record
+  */
+  @tracked _tag: string = '';
+
   get id(): string | null {
     return this.identifier.id;
   }
-
   set id(value: string | null) {
     if (value !== this._id) {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
       identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
-      set(this, '_tag', this._tag + 1);
-      // TODO Show deprecation for private api
+      this._tag = ''; // dirty tag
+      flushSyncObservers();
+      // TODO Show deprecation for private api, this is currently used by ember-m3
     }
   }
 
@@ -475,6 +492,7 @@ export default class InternalModel {
     this.isReloading = true;
     if (this.hasRecord) {
       set(this._record, 'isReloading', true);
+      flushSyncObservers();
     }
   }
 
@@ -482,6 +500,7 @@ export default class InternalModel {
     this.isReloading = false;
     if (this.hasRecord) {
       set(this._record, 'isReloading', false);
+      flushSyncObservers();
     }
   }
 
@@ -1136,6 +1155,7 @@ export default class InternalModel {
     this.currentState = state;
     if (this.hasRecord) {
       set(this._record, 'currentState', state);
+      flushSyncObservers();
     }
 
     for (i = 0, l = setups.length; i < l; i++) {
@@ -1251,14 +1271,33 @@ export default class InternalModel {
     return { type: internalModel.modelName, id: internalModel.id };
   }
 
-  setId(id: string) {
+  /**
+   * calling `store.setRecordId` is necessary to update
+   * the cache index for this record if we have changed.
+   *
+   * However, since the store is not aware of whether the update
+   * is from us (via user set) or from a push of new data
+   * it will also call us so that we can notify and update state.
+   *
+   * When it does so it calls with `fromCache` so that we can
+   * short-circuit instead of cycling back.
+   *
+   * This differs from the short-circuit in the `_isUpdatingId`
+   * case in that the the cache can originate the call to setId,
+   * so on first entry we will still need to do our own update.
+   */
+  setId(id: string, fromCache: boolean = false) {
+    if (this._isUpdatingId === true) {
+      return;
+    }
+    this._isUpdatingId = true;
     let didChange = id !== this._id;
-
     this._id = id;
-    set(this, '_tag', this._tag + 1);
 
     if (didChange && id !== null) {
-      this.store.setRecordId(this.modelName, id, this.clientId);
+      if (!fromCache) {
+        this.store.setRecordId(this.modelName, id, this.clientId);
+      }
       // internal set of ID to get it to RecordData from DS.Model
       // if we are within create we may not have a recordData yet.
       if (this.__recordData && this._recordData.__setId) {
@@ -1267,12 +1306,14 @@ export default class InternalModel {
     }
 
     if (didChange && this.hasRecord) {
+      this._tag = ''; // dirty tag
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'identity');
       } else {
-        this.notifyPropertyChange('id');
+        flushSyncObservers();
       }
     }
+    this._isUpdatingId = false;
   }
 
   didError(error) {

@@ -2,8 +2,6 @@ import { assert, inspect, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
-import { normalizeModelName } from '@ember-data/store';
-
 import { computedMacroWithOptionalParams } from './util';
 
 /**
@@ -119,10 +117,6 @@ function belongsTo(modelName, options) {
   } else {
     opts = options;
     userEnteredModelName = modelName;
-  }
-
-  if (typeof userEnteredModelName === 'string') {
-    userEnteredModelName = normalizeModelName(userEnteredModelName);
   }
 
   assert(

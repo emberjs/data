@@ -5,8 +5,6 @@ import { assert, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
-import { normalizeModelName } from '@ember-data/store';
-
 import { computedMacroWithOptionalParams } from './util';
 
 /**
@@ -165,10 +163,6 @@ function hasMany(type, options) {
   );
 
   options = options || {};
-
-  if (typeof type === 'string') {
-    type = normalizeModelName(type);
-  }
 
   // Metadata about relationships is stored on the meta of
   // the relationship. This is used for introspection and

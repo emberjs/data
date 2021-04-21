@@ -1163,6 +1163,14 @@
     "@handlebars/parser" "^1.1.0"
     simple-html-tokenizer "^0.5.10"
 
+"@glimmer/tracking@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/@glimmer/tracking/-/tracking-1.0.4.tgz#f1bc1412fe5e2236d0f8d502994a8f88af1bbb21"
+  integrity sha512-F+oT8I55ba2puSGIzInmVrv/8QA2PcK1VD+GWgFMhF6WC97D+uZX7BFg+a3s/2N4FVBq5KHE+QxZzgazM151Yw==
+  dependencies:
+    "@glimmer/env" "^0.1.7"
+    "@glimmer/validator" "^0.44.0"
+
 "@glimmer/util@0.65.2":
   version "0.65.2"
   resolved "https://registry.npmjs.org/@glimmer/util/-/util-0.65.2.tgz#da9c6fa68a117ac1cb74fc79dad3eaa40d9cd4cb"
@@ -1189,6 +1197,11 @@
   dependencies:
     "@glimmer/env" "^0.1.7"
     "@glimmer/global-context" "0.65.2"
+
+"@glimmer/validator@^0.44.0":
+  version "0.44.0"
+  resolved "https://registry.npmjs.org/@glimmer/validator/-/validator-0.44.0.tgz#03d127097dc9cb23052cdb7fcae59d0a9dca53e1"
+  integrity sha512-i01plR0EgFVz69GDrEuFgq1NheIjZcyTy3c7q+w7d096ddPVeVcRzU3LKaqCfovvLJ+6lJx40j45ecycASUUyw==
 
 "@glimmer/vm-babel-plugins@0.77.5":
   version "0.77.5"

@@ -3,11 +3,11 @@ module.exports = {
     '@ember-data/adapter',
     '@ember-data/canary-features',
     '@ember-data/debug',
-    '@ember-data/model',
-    '@ember-data/store',
     '@ember-data/deprecations',
+    '@ember-data/model',
     '@ember-data/record-data',
-    '@ember-data/serializer'
+    '@ember-data/serializer',
+    '@ember-data/store',
   ],
   classitems: [
     '(private) @ember-data/adapter BuildURLMixin#_buildURL',
@@ -32,7 +32,6 @@ module.exports = {
     '(private) @ember-data/model Model#_notifyProperties',
     '(private) @ember-data/model Model#create',
     '(private) @ember-data/model Model#currentState',
-    '(private) @ember-data/model Model#recordData',
     '(private) @ember-data/model Model#send',
     '(private) @ember-data/model Model#transitionTo',
     '(private) @ember-data/model Model#trigger',
