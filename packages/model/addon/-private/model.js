@@ -117,8 +117,8 @@ function computeOnce(target, key, desc) {
   @uses EmberData.DeprecatedEvented
 */
 class Model extends EmberObject {
-  constructor(args) {
-    super(args);
+  init(...args) {
+    super.init(...args);
 
     if (RECORD_DATA_ERRORS) {
       this._invalidRequests = [];
