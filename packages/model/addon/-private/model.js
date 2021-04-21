@@ -2099,6 +2099,12 @@ class Model extends EmberObject {
   }
 }
 
+// this is required to prevent `init` from passing
+// the values initialized during create to `setUnknownProperty`
+Model.prototype._internalModel = null;
+Model.prototype.currentState = null;
+Model.prototype.store = null;
+
 const ID_DESCRIPTOR = {
   configurable: false,
   set(id) {
