@@ -230,15 +230,6 @@ export default class InternalModel {
     return this.identifier.id;
   }
 
-  set id(value: string | null) {
-    if (value !== this._id) {
-      let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
-      identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
-      this._tag = ''; // dirty tag
-      // TODO Show deprecation for private api
-    }
-  }
-
   get modelClass() {
     if (this.store.modelFor) {
       return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));

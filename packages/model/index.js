@@ -21,6 +21,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/debug',
       '@ember/error',
       '@ember/object',
+      '@ember/object/compat',
       '@ember/object/computed',
       '@ember/polyfills',
       '@ember/utils',
