@@ -261,7 +261,7 @@ export async function testFinalState(
   const chrisBestFriend = graph.get(chrisIdentifier).get('bestFriends');
   const chrisState = stateOf(chrisBestFriend);
 
-  // this one specific case gets it's own WAT
+  // this specific case gets it's own WAT
   // this is something ideally a refactor should do away with.
   const isUnloadOfImplictAsyncHasManyWithLocalChange =
     config.isUnloadAsDelete && config.dirtyLocal && config.async && config.relType === 'hasMany' && config.inverseNull;
@@ -270,6 +270,10 @@ export async function testFinalState(
   // in this case we don't care if sync/async
   const isUnloadOfImplictHasManyWithLocalChange =
     config.isUnloadAsDelete && config.dirtyLocal && config.relType === 'hasMany' && config.inverseNull;
+
+  // a final WAT likely related to the first two, persisted delete w/o unload of
+  // a sync hasMany with local changes is not cleared. This final WAT is handled
+  // within the abstract-edge-removal-test configuration.
 
   // in the dirtyLocal and useCreate case there is no remote data
   const chrisRemoteRemoved = config.dirtyLocal || config.useCreate || statuses.removed;

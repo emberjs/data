@@ -1,10 +1,30 @@
 import { assign } from '@ember/polyfills';
 import settled from '@ember/test-helpers/settled';
 
-import { module, test } from 'qunit';
+import { module, test as runTest } from 'qunit';
 
 import { setInitialState, testFinalState } from './helpers';
 import { setupGraphTest } from './setup';
+
+/**
+ * qunit-console-grouper groups by test but includes setup/teardown
+ * and in-test as all one block. Adding this grouping allows us to
+ * clearly notice when a log came during the test vs during setup/teardown.
+ *
+ * We should upstream this behavior to qunit-console-grouper
+ */
+async function test(name: string, callback) {
+  const fn = async function(...args) {
+    console.groupCollapsed(name); // eslint-disable-line no-console
+    try {
+      await callback.call(this, ...args);
+    } finally {
+      console.groupEnd(); // eslint-disable-line no-console
+      console.log(`====(Begin Test Teardown)====`); // eslint-disable-line no-console
+    }
+  };
+  return runTest(name, fn);
+}
 
 type TestConfig = import('./helpers').TestConfig;
 type Context = import('./setup').Context;
