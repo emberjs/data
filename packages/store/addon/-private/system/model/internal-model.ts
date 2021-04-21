@@ -137,7 +137,6 @@ function extractPivotName(name) {
 */
 export default class InternalModel {
   declare _id: string | null;
-  declare _tag: number;
   declare modelName: string;
   declare clientId: string;
   declare __recordData: RecordData | null;
@@ -174,7 +173,6 @@ export default class InternalModel {
       _getModelPackage();
     }
     this._id = identifier.id;
-    this._tag = 0;
     this._isUpdatingId = false;
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
@@ -220,6 +218,13 @@ export default class InternalModel {
   }
 
   @tracked currentState: any = RootState.empty;
+  /*
+     A tag which when dirtied allows things tracking a record's ID
+     to recompute. When we update this we must also flushSyncObservers
+     for pre-4.0 compat so we still call notifyPropertyChange('id')
+     on the record
+  */
+  @tracked _tag: string = '';
 
   get id(): string | null {
     return this.identifier.id;
@@ -229,7 +234,7 @@ export default class InternalModel {
     if (value !== this._id) {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
       identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
-      set(this, '_tag', this._tag + 1);
+      this._tag = ''; // dirty tag
       // TODO Show deprecation for private api
     }
   }
@@ -1258,6 +1263,21 @@ export default class InternalModel {
     return { type: internalModel.modelName, id: internalModel.id };
   }
 
+  /**
+   * calling `store.setRecordId` is necessary to update
+   * the cache index for this record if we have changed.
+   *
+   * However, since the store is not aware of whether the update
+   * is from us (via user set) or from a push of new data
+   * it will also call us so that we can notify and update state.
+   *
+   * When it does so it calls with `fromCache` so that we can
+   * short-circuit instead of cycling back.
+   *
+   * This differs from the short-circuit in the `_isUpdatingId`
+   * case in that the the cache can originate the call to setId,
+   * so on first entry we will still need to do our own update.
+   */
   setId(id: string, fromCache: boolean = false) {
     if (this._isUpdatingId === true) {
       return;
@@ -1278,7 +1298,7 @@ export default class InternalModel {
     }
 
     if (didChange && this.hasRecord) {
-      set(this, '_tag', this._tag + 1);
+      this._tag = ''; // dirty tag
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'identity');
       } else {

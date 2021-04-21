@@ -84,6 +84,11 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   return possibleRelationships;
 }
 
+/**
+ * This decorator allows us to lazily compute
+ * an expensive getter on first-access and therafter
+ * never recompute it.
+ */
 function computeOnce(target, key, desc) {
   const cache = new WeakMap();
   let getter = desc.get;
@@ -112,16 +117,8 @@ function computeOnce(target, key, desc) {
   @uses EmberData.DeprecatedEvented
 */
 class Model extends EmberObject {
-  init() {
-    super.init(...arguments);
-
-    if (DEBUG) {
-      if (!this._internalModel) {
-        throw new EmberError(
-          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
-        );
-      }
-    }
+  constructor(args) {
+    super(args);
 
     if (RECORD_DATA_ERRORS) {
       this._invalidRequests = [];
@@ -2101,9 +2098,6 @@ class Model extends EmberObject {
     return `model:${get(this, 'modelName')}`;
   }
 }
-Model.prototype._internalModel = null;
-Model.prototype.currentState = null;
-Model.prototype.store = null;
 
 const ID_DESCRIPTOR = {
   configurable: false,
@@ -2124,7 +2118,8 @@ const ID_DESCRIPTOR = {
         return;
       }
     }
-    get(this._internalModel, '_tag');
+    // consume the tracked tag
+    this._internalModel._tag;
     return this._internalModel.id;
   },
 };
@@ -2257,6 +2252,12 @@ if (DEBUG) {
   Model.reopen({
     init() {
       this._super(...arguments);
+
+      if (!this._internalModel) {
+        throw new EmberError(
+          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
+        );
+      }
 
       if (DEPRECATE_EVENTED_API_USAGE) {
         this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;

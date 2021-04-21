@@ -12,7 +12,7 @@ type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 */
 
 function typeForRelationshipMeta(meta) {
-  let modelName = normalizeModelName(meta.type);
+  let modelName = normalizeModelName(meta.type || meta.key);
 
   if (meta.kind === 'hasMany') {
     modelName = singularize(modelName);

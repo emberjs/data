@@ -2,8 +2,6 @@ import { assert, inspect, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
-import { normalizeModelName } from '@ember-data/store';
-
 import { computedMacroWithOptionalParams } from './util';
 
 /**
@@ -112,20 +110,28 @@ import { computedMacroWithOptionalParams } from './util';
   @return {Ember.computed} relationship
 */
 function belongsTo(modelName, options) {
+  let opts, userEnteredModelName;
+  if (typeof modelName === 'object') {
+    opts = modelName;
+    userEnteredModelName = undefined;
+  } else {
+    opts = options;
+    userEnteredModelName = modelName;
+  }
+
   assert(
     'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
-      inspect(modelName) +
+      inspect(userEnteredModelName) +
       ". E.g., to define a relation to the Person model, use belongsTo('person')",
-    typeof modelName !== 'string'
+    typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
   );
 
-  modelName = normalizeModelName(modelName);
-  options = options || {};
+  opts = opts || {};
 
   let meta = {
-    type: modelName,
+    type: userEnteredModelName,
     isRelationship: true,
-    options,
+    options: opts,
     kind: 'belongsTo',
     name: 'Belongs To',
     key: null,
@@ -139,7 +145,7 @@ function belongsTo(modelName, options) {
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );
         }
-        if (Object.prototype.hasOwnProperty.call(options, 'serialize')) {
+        if (Object.prototype.hasOwnProperty.call(opts, 'serialize')) {
           warn(
             `You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See Serializer and it's implementations https://api.emberjs.com/ember-data/release/classes/Serializer`,
             false,
@@ -149,7 +155,7 @@ function belongsTo(modelName, options) {
           );
         }
 
-        if (Object.prototype.hasOwnProperty.call(options, 'embedded')) {
+        if (Object.prototype.hasOwnProperty.call(opts, 'embedded')) {
           warn(
             `You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See EmbeddedRecordsMixin https://api.emberjs.com/ember-data/release/classes/EmbeddedRecordsMixin`,
             false,
