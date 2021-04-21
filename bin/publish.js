@@ -24,12 +24,15 @@ Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const process = require('process');
 
 const chalk = require('chalk');
 const execa = require('execa');
 const cliArgs = require('command-line-args');
 const semver = require('semver');
 const debug = require('debug')('publish-packages');
+
+const determineNextAlpha = require('./determine-next-alpha-version/find-next');
 
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
@@ -93,6 +96,7 @@ function getConfig() {
     { name: 'bumpMajor', type: Boolean, defaultValue: false },
     { name: 'bumpMinor', type: Boolean, defaultValue: false },
     { name: 'force', type: Boolean, defaultValue: false },
+    { name: 'autoAlphaVersion', type: Boolean, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
   const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
@@ -111,9 +115,7 @@ function getConfig() {
   return options;
 }
 
-const options = getConfig();
-
-function assertGitIsClean() {
+function assertGitIsClean(options) {
   let status = execWithLog('git status');
 
   if (!status.match(/^nothing to commit/m)) {
@@ -193,7 +195,7 @@ function assertGitIsClean() {
   }
 }
 
-function retrieveNextVersion() {
+function retrieveNextVersion(options) {
   /*
 
   A brief rundown of how version updates flow through the branches.
@@ -303,27 +305,41 @@ function question(prompt) {
     cli.question(prompt, resolve);
   });
 }
-let cli = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
 
-function publishPackage(distTag, otp, tarball) {
-  execWithLog(`npm publish ${tarball} --tag=${distTag} --access=public --otp=${otp}`);
+/**
+ * If otp is passed add it as a parameter to the publish command else assume authentication is setup either
+ * as environment variable
+ *
+ * @param {string} distTag - Use this tag on npm for this instance
+ * @param {string} tarball - Path to the tarball
+ * @param {string} otp - Token to make publish requests to npm
+ */
+function publishPackage(distTag, tarball, otp) {
+  let cmd = `npm publish ${tarball} --tag=${distTag} --access=public`;
+
+  if (otp) {
+    cmd += ` --otp=${otp}`;
+  }
+
+  execWithLog(cmd);
 }
 
-async function confirmPublish(tarballs, nextVersion) {
-  let otp = await getOTPToken();
+async function confirmPublish(tarballs, options, promptOtp = true) {
+  let otp;
+
+  if (promptOtp) {
+    otp = await getOTPToken();
+  }
 
   for (let tarball of tarballs) {
     try {
-      publishPackage(options.distTag, otp, tarball);
+      publishPackage(options.distTag, tarball, otp);
     } catch (e) {
       // the token is outdated, we need another one
       if (e.message.includes('E401') || e.message.includes('EOTP')) {
         otp = await getOTPToken();
 
-        publishPackage(options.distTag, otp, tarball);
+        publishPackage(options.distTag, tarball, otp);
       } else {
         throw e;
       }
@@ -332,13 +348,17 @@ async function confirmPublish(tarballs, nextVersion) {
 }
 
 async function main() {
-  assertGitIsClean();
+  const options = getConfig();
+
+  assertGitIsClean(options);
+
   if (!options.skipSmokeTest) {
     execWithLog(`yarn run lint:js && yarn run test`, debug.enabled);
     console.log(`✅ ` + chalk.cyan(`Project passes Smoke Test`));
   } else {
     console.log(`⚠️ ` + chalk.grey(`Skipping Smoke Test`));
   }
+
   let nextVersion = options.currentVersion;
   if (!options.skipVersion) {
     // https://github.com/lerna/lerna/tree/master/commands/version#--exact
@@ -347,12 +367,22 @@ async function main() {
     // --force-publish ensures that all packages release a new version regardless
     // of whether changes have occurred in them
     // --yes skips the prompt for confirming the version
-    nextVersion = retrieveNextVersion();
+    if (options.autoAlphaVersion) {
+      if (options.channel !== 'canary') {
+        throw new Error('--autoAlphaVersion can only be used with canary channel');
+      }
+      nextVersion = determineNextAlpha();
+      console.log(`Using ${nextVersion} as the next version for alpha release`);
+    } else {
+      nextVersion = retrieveNextVersion(options);
+    }
+
     execWithLog(`lerna version ${nextVersion} --force-publish --exact --yes`, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
   }
+
   if (!options.skipPack) {
     cleanProject();
     packAllPackages();
@@ -360,14 +390,28 @@ async function main() {
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Packaging`));
   }
+
   if (!options.skipPublish) {
     const tarballs = collectTarballPaths();
-    await confirmPublish(tarballs, nextVersion);
+    const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
+    if (!npmAuthTokenInEnv) {
+      console.log('No NODE_AUTH_TOKEN environment variable. Prompting for OTP.');
+      if (process.env.CI) {
+        throw new Error('No NODE_AUTH_TOKEN environment variable, cannot continue publishing.');
+      }
+    }
+    // Assume human ran script if token is missing
+    await confirmPublish(tarballs, options, !npmAuthTokenInEnv);
     console.log(`✅ ` + chalk.cyan(`Successfully Published ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Publishing`));
   }
 }
+
+let cli = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
 main()
   .finally(() => cli.close())
