@@ -296,8 +296,21 @@ Twitter the Crosslinking the announcement to the following Discord channels.
 Congrats, you are finished!
 
 #### Canary Auto Publish
-New canary versions are published to npm every Wednesday at 12pm PST by the `Alpha Release` GitHub action. Depending on the
+New canary versions are published to npm every Wednesday at 12pm PST by the `Alpha Release` GitHub action.
+It tries to be 1 minor version above last beta release and 2 minors above last release.  Depending on the
 current latest versions returned by `npm view ember-data versions --json`, the next version chosen will be:
-1. If current version is a minor version release such as `3.15.0`, the version picked for the next alpha is `3.15.1-alpha.0`
-2. If current version is an alpha release such as `3.15.1-alpha.0`, the version picked for the next alpha is `3.15.1-alpha.1`
-3. If there exists a beta release with a higher release version than the latest alpha, the alpha versioning will restart with that release.
+
+1. If latest published is a release version such as `3.15.0`, the version picked for the next alpha is `3.17.0-alpha.0`
+2. If latest published is an alpha release such as `3.15.0-alpha.0`, the version picked for the next alpha is `3.15.0-alpha.1`
+3. If latest published is a beta such as `3.20.0-beta.0`, the version picked for the next alpha is `3.21.0-alpha.0`
+
+Patches are ignored and are not taken into account when determining the next alpha version.
+
+See unit test for function that determines next alpha versions for examples located in `bin/determine-next-alpha-version/next-alpha-util-test.js`.
+
+*If the next version of a release is a major bump*, it is very important that a beta or alpha is released by a human. The
+script will only bump minors based off the history of published versions.
+
+To try out the script that will be executed in the GitHub action, use:
+`node bin/publish.js canary --dryRun --autoAlphaVersion --force --skipSmokeTest`. The `--dryRun` param will skip auto committing the
+version change and publishing.

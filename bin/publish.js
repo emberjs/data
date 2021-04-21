@@ -32,6 +32,8 @@ const cliArgs = require('command-line-args');
 const semver = require('semver');
 const debug = require('debug')('publish-packages');
 
+const determineNextAlpha = require('./determine-next-alpha-version/find-next');
+
 const projectRoot = path.resolve(__dirname, '../');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
@@ -94,7 +96,8 @@ function getConfig() {
     { name: 'bumpMajor', type: Boolean, defaultValue: false },
     { name: 'bumpMinor', type: Boolean, defaultValue: false },
     { name: 'force', type: Boolean, defaultValue: false },
-    { name: 'useVersion', type: String, defaultValue: false },
+    { name: 'autoAlphaVersion', type: Boolean, defaultValue: false },
+    { name: 'dryRun', type: Boolean, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
   const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
@@ -325,21 +328,25 @@ function publishPackage(distTag, tarball, otp) {
 async function confirmPublish(tarballs, options, promptOtp = true) {
   let otp;
 
-  if (promptOtp) {
+  if (promptOtp && !options.dryRun) {
     otp = await getOTPToken();
   }
 
   for (let tarball of tarballs) {
-    try {
-      publishPackage(options.distTag, tarball, otp);
-    } catch (e) {
-      // the token is outdated, we need another one
-      if (e.message.includes('E401') || e.message.includes('EOTP')) {
-        otp = await getOTPToken();
-
+    if (options.dryRun) {
+      console.log('Would have published', tarball, 'with tag', options.distTag);
+    } else {
+      try {
         publishPackage(options.distTag, tarball, otp);
-      } else {
-        throw e;
+      } catch (e) {
+        // the token is outdated, we need another one
+        if (e.message.includes('E401') || e.message.includes('EOTP')) {
+          otp = await getOTPToken();
+
+          publishPackage(options.distTag, tarball, otp);
+        } else {
+          throw e;
+        }
       }
     }
   }
@@ -365,16 +372,22 @@ async function main() {
     // --force-publish ensures that all packages release a new version regardless
     // of whether changes have occurred in them
     // --yes skips the prompt for confirming the version
-    if (options.useVersion) {
-      if (semver.valid(options.useVersion)) {
-        nextVersion = options.useVersion;
-      } else {
-        throw Error(`Version "${options.useVersion}" is not a valid semantic version.`);
+    if (options.autoAlphaVersion) {
+      if (options.channel !== 'canary') {
+        throw new Error('--autoAlphaVersion can only be used with canary channel');
       }
+      nextVersion = determineNextAlpha();
+      console.log(`Using ${nextVersion} as the next version for alpha release`);
     } else {
       nextVersion = retrieveNextVersion(options);
     }
-    execWithLog(`lerna version ${nextVersion} --force-publish --exact --yes`, true);
+
+    let lernaCommand = `lerna version ${nextVersion} --force-publish --exact --yes`;
+    if (options.dryRun) {
+      lernaCommand += ' --no-git-tag-version --no-push';
+    }
+
+    execWithLog(lernaCommand, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
@@ -392,8 +405,6 @@ async function main() {
     const tarballs = collectTarballPaths();
     const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
     if (!npmAuthTokenInEnv) {
-      console.log('No NODE_AUTH_TOKEN environment variable. Prompting for OTP.');
-
       if (process.env.CI) {
         throw new Error('No NODE_AUTH_TOKEN environment variable, cannot continue publishing.');
       }
