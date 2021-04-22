@@ -6,7 +6,7 @@ import { get, notifyPropertyChange, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
-import { cached, tracked } from '@glimmer/tracking';
+import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import RSVP, { Promise } from 'rsvp';
@@ -1014,6 +1014,7 @@ export default class InternalModel {
           //
           //  that said, also not clear why we haven't moved this to retainedmanyarray so maybe that's the bit that's just not working
           manyArray.retrieveLatest();
+          this._record.notifyPropertyChange(key);
         }
       }
     }
@@ -1580,7 +1581,7 @@ function _notifyProperties(target, keys) {
     let key;
     for (let i = 0, length = keys.length; i < length; i++) {
       key = keys[i];
-      target.notifyPropertyChange(key);
+      target.notifyPropertyChange(key, true);
     }
   });
 }

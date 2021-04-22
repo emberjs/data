@@ -114,6 +114,7 @@ export default class ManyRelationship extends Relationship {
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
+    let originalState = this.currentState.slice();
     let newRecordDatas = this.currentState.filter(
       // only add new internalModels which are not yet in the canonical state of this
       // relationship (a new internalModel can be in the canonical state if it has
@@ -129,10 +130,24 @@ export default class ManyRelationship extends Relationship {
       this._manyArray.flushCanonical(toSet);
     }
     */
+    let stateDidChange = !(originalState.length === toSet.length);
     this.currentState = toSet;
     super.flushCanonical();
-    // Once we clean up all the flushing, we will be left with at least the notifying part
-    this.notifyHasManyChange();
+
+    // avoid overly notifying if we didn't actually change anything.
+    if (!stateDidChange) {
+      for (let i = 0; i < originalState.length; i++) {
+        if (originalState[i] !== toSet[i]) {
+          stateDidChange = true;
+          break;
+        }
+      }
+    }
+
+    if (stateDidChange) {
+      // Once we clean up all the flushing, we will be left with at least the notifying part
+      this.notifyHasManyChange();
+    }
   }
 
   //TODO(Igor) idx not used currently, fix

@@ -726,6 +726,9 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       name: DS.attr('string'),
       hobby: DS.belongsTo('hobby', { serialize: true, async: true }),
     });
+    Person.toString = () => {
+      return 'model:person';
+    };
 
     this.owner.register('model:hobby', Hobby);
     this.owner.register('model:person', Person);
@@ -735,46 +738,9 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'hobby',
-            id: '1',
-            attributes: {
-              name: 'fishing',
-            },
-          },
-          {
-            type: 'hobby',
-            id: '2',
-            attributes: {
-              name: 'coding',
-            },
-          },
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              hobby: {
-                data: { type: 'hobby', id: '1' },
-              },
-            },
-          },
-        ],
-      });
-    });
-
-    return run(() => {
-      return store.findRecord('person', 1).then(person => {
-        assert.expectWarning(() => {
-          get(person, 'hobby');
-        }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See Serializer and it's implementations/);
-      });
-    });
+    assert.expectWarning(() => {
+      store.modelFor('person');
+    }, /You provided a serialize option on the "hobby" property in the "model:person" class, this belongs in the serializer. See Serializer and it's implementations/);
   });
 
   testInDebug('belongsTo gives a warning when provided with an embedded option', function(assert) {
@@ -786,55 +752,19 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       name: DS.attr('string'),
       hobby: DS.belongsTo('hobby', { embedded: true, async: true }),
     });
+    Person.toString = () => {
+      return 'model:person';
+    };
 
     this.owner.register('model:hobby', Hobby);
     this.owner.register('model:person', Person);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
-
     adapter.shouldBackgroundReloadRecord = () => false;
-
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'hobby',
-            id: '1',
-            attributes: {
-              name: 'fishing',
-            },
-          },
-          {
-            type: 'hobby',
-            id: '2',
-            attributes: {
-              name: 'coding',
-            },
-          },
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              hobby: {
-                data: { type: 'hobby', id: '1' },
-              },
-            },
-          },
-        ],
-      });
-    });
-
-    return run(() => {
-      return store.findRecord('person', 1).then(person => {
-        assert.expectWarning(() => {
-          get(person, 'hobby');
-        }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See EmbeddedRecordsMixin/);
-      });
-    });
+    assert.expectWarning(() => {
+      store.modelFor('person');
+    }, /You provided an embedded option on the "hobby" property in the "model:person" class, this belongs in the serializer. See EmbeddedRecordsMixin/);
   });
 
   test('belongsTo should be async by default', function(assert) {

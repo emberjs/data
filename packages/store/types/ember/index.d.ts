@@ -9,3 +9,5 @@ export function _setClassicDecorator(
 ): void;
 
 export function changeProperties(fn: () => void): void;
+
+export function meta(obj: any): any;

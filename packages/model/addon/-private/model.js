@@ -1,6 +1,6 @@
 import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, notifyPropertyChange } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
@@ -27,6 +27,8 @@ import {
 import Errors from './errors';
 import { relationshipFromMeta } from './system/relationships/relationship-meta';
 
+const { changeProperties, meta: metaFor } = Ember;
+
 const DEBUG__STR = Date.now();
 const RecordMeta = new WeakMap();
 const SchemaCache = new WeakMap();
@@ -46,7 +48,7 @@ function cacheFor(map, key, debugProp) {
   return v;
 }
 
-export function getRecordMeta(record) {
+function getRecordMeta(record) {
   return cacheFor(RecordMeta, record, 'recordMeta');
 }
 
@@ -68,13 +70,18 @@ class Tag {
     this.rev++;
   }
   consume(v) {
-    this.dirty;
+    this.dirty; // subscribe
     this.isDirty = false;
-    this.value = v;
+    this.value = v; // set cached value
   }
 }
 
-export function getTag(record, key: string) {
+const STABLE_UNTRACKED_OBJ = {};
+function flushSyncObservers() {
+  notifyPropertyChange(STABLE_UNTRACKED_OBJ, '-tracking-prop');
+}
+
+function getTag(record, key) {
   const rm = getRecordMeta(record);
   rm.tags = rm.tags || {};
   return (rm.tags[key] = rm.tags[key] || new Tag());
@@ -85,7 +92,8 @@ export function tagged(target, key, desc) {
   const setter = desc.set;
   desc.get = function() {
     let tag = getTag(this, key);
-    if (tag.isDirty && !this.isDestroyed && !this.isDestroying) {
+    if (tag.isDirty) {
+      // TODO it would be nice to no-op for && !this.isDestroyed && !this.isDestroying here
       tag.consume(getter.call(this));
     }
 
@@ -98,6 +106,12 @@ export function tagged(target, key, desc) {
       tag.notify();
     };
   }
+  dependentKeyCompat(desc);
+  // enable Model.reopen to overwrite an existing prop
+  desc.teardown = () => {
+    metaFor(target).removeDescriptors(key);
+  };
+  metaFor(target).writeDescriptors(key, desc);
   return desc;
 }
 
@@ -108,8 +122,6 @@ function getWithDefault(meta, prop, value) {
   }
   return v;
 }
-
-const { changeProperties } = Ember;
 
 function isInvalidError(error) {
   return error && error.isAdapterError === true && error.code === 'InvalidError';
@@ -403,10 +415,20 @@ class Model extends EmberObject {
   notifyPropertyChange(key, silent) {
     let meta = getRecordMeta(this);
     if (meta.tags && meta.tags[key]) {
-      if (!silent) {
-        meta.tags[key].notify();
+      // notify the tracked world
+      meta.tags[key].notify();
+      let propMeta = this.constructor.metaForProperty(key);
+
+      // if we are doing a batch update (silent) or if the relationship has a PromiseProxy we must
+      // notify underlying chains the old fashioned way.
+      if (silent || (propMeta && propMeta.isRelationship && propMeta.options.async !== false)) {
+        super.notifyPropertyChange(key);
+      } else {
+        // notify old world of computeds and observers
+        flushSyncObservers();
       }
     } else {
+      // this isn't a prop we manage so pass-thru
       super.notifyPropertyChange(key);
     }
   }
@@ -2125,7 +2147,7 @@ class Model extends EmberObject {
    */
   static toString() {
     let name = this.modelName;
-    if (!name && this.name !== 'Function') {
+    if (!name && this.name !== 'Function' && this.name !== 'Class') {
       name = this.name;
     }
     return `model:${name}`;

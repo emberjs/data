@@ -46,9 +46,10 @@ interface PropertyMeta {
   kind: string;
   name: string;
   /**
+   * Alias of name
    * @deprecated
    */
-  key: string;
+  key?: string;
   isRelationship?: true;
   isAttribute?: true;
 }
@@ -57,7 +58,7 @@ const assertProps =
   DEBUG &&
   function assertProps(target, meta) {
     const { name, kind, options } = meta;
-    if (['_internalModel', 'recordData', 'currentState'].indexOf(name) !== -1) {
+    if (['_internalModel', 'currentState'].indexOf(name) !== -1) {
       throw new Error(
         `'${name}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${target.toString()}`
       );
@@ -93,7 +94,7 @@ export function makeDecorator(kind, descriptor) {
 
     if (kind !== 'attribute') {
       assert(
-        `The first argument to a ${kind} must be a string representing a model type, not an instance of ${inspect(
+        `The first argument to ${kind} must be a string representing a model type, not an instance of ${inspect(
           type
         )}. E.g., to define a relation to the Comment model, use ${kind}('comment')`,
         typeof type === 'string' || typeof type === 'undefined'
@@ -112,7 +113,6 @@ export function makeDecorator(kind, descriptor) {
       options,
       kind: kind,
       name: '',
-      key: '',
     };
     const schemaKind = kind === 'attribute' ? 'attributes' : 'relationships';
     if (kind !== 'attribute') {
@@ -123,7 +123,9 @@ export function makeDecorator(kind, descriptor) {
 
     function buildDescriptor(target, key) {
       meta.name = key;
-      meta.key = key;
+      if (meta.isRelationship) {
+        meta.key = key;
+      }
       if (DEBUG && assertProps) {
         assertProps(target.constructor, meta);
       }

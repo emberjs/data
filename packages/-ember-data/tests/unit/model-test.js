@@ -772,7 +772,6 @@ module('unit/model - Model', function(hooks) {
           [prop]: DSattr('string'),
           name: DSattr('string'),
         });
-        this.owner.register('model:native-post', NativePost);
         this.owner.register('model:legacy-post', LegacyPost);
 
         const msg = `'${prop}' is a reserved property name on instances of classes extending Model.`;
