@@ -8,6 +8,7 @@ import { isEqual } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { removeRecordDataFor } from '@ember-data/store/-private';
 
 import coerceId from './coerce-id';
 import Relationships from './relationships/state/create';
@@ -450,6 +451,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
       for (let i = 0; i < relatedRecordDatas.length; ++i) {
         let recordData = relatedRecordDatas[i];
         if (!recordData.isDestroyed) {
+          // TODO @runspired we do not currently destroy RecordData instances *except* via this relationship
+          // traversal. This seems like an oversight since the store should be able to notify destroy.
+          removeRecordDataFor(recordData.identifier);
           recordData.destroy();
         }
       }

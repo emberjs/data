@@ -1,3 +1,4 @@
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type SingleResourceRelationship = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').SingleResourceRelationship;
 type CollectionResourceRelationship = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
 type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
@@ -21,6 +22,7 @@ export interface RelationshipRecordData extends RecordData {
   isNew(): boolean;
   modelName: string;
   storeWrapper: RecordDataStoreWrapper;
+  identifier: StableRecordIdentifier;
   id: string | null;
   clientId: string | null;
   isEmpty(): boolean;

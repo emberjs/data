@@ -29,6 +29,7 @@
     "ember-cli-typescript": "^4.1.0"
   },
   "devDependencies": {
+    "@ember-data/model": "3.28.0-alpha.0",
     "@ember-data/unpublished-test-infra": "3.28.0-alpha.0",
     "@ember/optional-features": "^1.3.0",
     "broccoli-asset-rev": "^3.0.0",
@@ -51,6 +52,7 @@
     "ember-try": "^1.4.0",
     "loader.js": "^4.7.0",
     "qunit": "^2.10.0",
+    "qunit-console-grouper": "^0.3.0",
     "qunit-dom": "^1.2.0",
     "silent-error": "^1.1.1"
   },
