@@ -10,10 +10,9 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model from '@ember-data/model';
-import { RecordData, relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
+import { relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-import { identifierCacheFor, recordDataFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;

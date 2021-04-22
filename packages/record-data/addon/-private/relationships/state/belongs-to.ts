@@ -143,8 +143,7 @@ export default class BelongsToRelationship extends Relationship {
 
   notifyBelongsToChange() {
     let recordData = this.recordData;
-    let storeWrapper = this.store;
-    storeWrapper.notifyBelongsToChange(recordData.type, recordData.id, recordData.lid, this.key);
+    this.store.notifyBelongsToChange(recordData.type, recordData.id, recordData.lid, this.key);
   }
 
   removeCanonicalRecordDataFromOwn(recordData: StableRecordIdentifier, idx?: number) {

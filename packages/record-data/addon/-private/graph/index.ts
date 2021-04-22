@@ -31,6 +31,18 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
   return graph;
 }
 
+/**
+ * Graph acts as the cache for relationship data. It allows for
+ * us to ask about and update relationships for a given Identifier
+ * without requiring other objects for that Identifier to be
+ * instantiated (such as `InternalModel`, `RecordData` or a `Record`)
+ *
+ * This also allows for us to make more substantive changes to relationships
+ * with increasingly minor alterations to other portions of the internals
+ * over time.
+ *
+ * @internal
+ */
 export class Graph {
   declare identifiers: Map<StableRecordIdentifier, Relationships>;
   declare store: RecordDataStoreWrapper;
@@ -60,29 +72,30 @@ export class Graph {
   /*
    implicit relationships are relationships which have not been declared but the inverse side exists on
    another record somewhere
-   For example if there was
+   
+   For example if there was:
 
    ```app/models/comment.js
    import Model, { attr } from '@ember-data/model';
 
-   export default Model.extend({
-     name: attr()
-   });
+   export default class Comment extends Model {
+     @attr text;
+   }
    ```
 
-   but there is also
+   and there is also:
 
    ```app/models/post.js
    import Model, { attr, hasMany } from '@ember-data/model';
 
-   export default Model.extend({
-     name: attr(),
-     comments: hasMany('comment')
-   });
+   export default class Post extends Model {
+     @attr title;
+     @hasMany('comment') comments;
+   }
    ```
 
-   would have a implicit post relationship in order to be do things like remove ourselves from the post
-   when we are deleted
+   Then we would have a implicit 'post' relationship for the comment record in order
+   to be do things like remove the comment from the post if the comment were to be deleted.
   */
   getImplicit(identifier: StableRecordIdentifier): RelationshipDict {
     let relationships = this.implicitMap.get(identifier);
