@@ -108,7 +108,7 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     // TODO @runspired can we just delete this now?
-    if (DEBUG && this.relationshipMeta.type !== this.recordData.type) {
+    if (DEBUG && this.relationshipMeta.type !== recordData.type) {
       assertPolymorphicType(
         this.store.recordDataFor(this.recordData.type, this.recordData.id, this.recordData.lid),
         this.relationshipMeta,

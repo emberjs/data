@@ -280,6 +280,9 @@ export default class Relationship {
         !(relationship as BelongsToRelationship).inverseRecordData ||
         this.recordData === (relationship as BelongsToRelationship).inverseRecordData
       ) {
+        if (!relationship) {
+          return; // TODO wtf happened here in all the rebasing
+        }
         relationship.inverseDidDematerialize(this.recordData);
       }
     });

@@ -63,7 +63,7 @@ export default class ManyRelationship extends Relationship {
 
     const { store } = this;
     // TODO Type this
-    if (DEBUG && this.recordData.type !== recordData.type) {
+    if (DEBUG && this.relationshipMeta.type !== recordData.type) {
       assertPolymorphicType(
         store.recordDataFor(this.recordData.type, this.recordData.id, this.recordData.lid),
         this.relationshipMeta,
