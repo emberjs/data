@@ -1,11 +1,7 @@
+import { makeDecorator } from './util';
 /**
   @module @ember-data/model
 */
-import { assert, inspect } from '@ember/debug';
-import { computed } from '@ember/object';
-import { DEBUG } from '@glimmer/env';
-
-import { computedMacroWithOptionalParams } from './util';
 
 /**
   `hasMany` is used to define One-To-Many and Many-To-Many
@@ -149,59 +145,15 @@ import { computedMacroWithOptionalParams } from './util';
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-function hasMany(type, options) {
-  if (typeof type === 'object') {
-    options = type;
-    type = undefined;
-  }
-
-  assert(
-    `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
-      type
-    )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
-    typeof type === 'string' || typeof type === 'undefined'
-  );
-
-  options = options || {};
-
-  // Metadata about relationships is stored on the meta of
-  // the relationship. This is used for introspection and
-  // serialization. Note that `key` is populated lazily
-  // the first time the CP is called.
-  let meta = {
-    type,
-    options,
-    isRelationship: true,
-    kind: 'hasMany',
-    name: 'Has Many',
-    key: null,
-  };
-
-  return computed({
-    get(key) {
-      if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
-          throw new Error(
-            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
-          );
-        }
-      }
+export default makeDecorator('hasMany', {
+  getter(key) {
+    return function() {
       return this._internalModel.getHasMany(key);
-    },
-    set(key, records) {
-      if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
-          throw new Error(
-            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
-          );
-        }
-      }
-      let internalModel = this._internalModel;
-      internalModel.setDirtyHasMany(key, records);
-
-      return internalModel.getHasMany(key);
-    },
-  }).meta(meta);
-}
-
-export default computedMacroWithOptionalParams(hasMany);
+    };
+  },
+  setter(key) {
+    return function(records) {
+      this._internalModel.setDirtyHasMany(key, records);
+    };
+  },
+});

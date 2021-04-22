@@ -6,7 +6,8 @@ import { get, notifyPropertyChange, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
-import { tracked } from '@glimmer/tracking';
+import { cached, tracked } from '@glimmer/tracking';
+import Ember from 'ember';
 
 import RSVP, { Promise } from 'rsvp';
 
@@ -50,6 +51,7 @@ type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private')
 /**
   @module @ember-data/store
 */
+const { changeProperties } = Ember;
 
 // once the presentation logic is moved into the Model package we can make
 // eliminate these lossy and redundant helpers
@@ -172,6 +174,7 @@ export default class InternalModel {
   declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
   declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
   declare error: any;
+  declare currentState: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
@@ -220,9 +223,9 @@ export default class InternalModel {
     this._relationshipProxyCache = Object.create(null);
     this.references = Object.create(null);
     this._deferredTriggers = [];
+    this.currentState = RootState.empty;
   }
 
-  @tracked currentState: any = RootState.empty;
   /*
      A tag which when dirtied allows things tracking a record's ID
      to recompute. When we update this we must also flushSyncObservers
@@ -355,7 +358,6 @@ export default class InternalModel {
           let createOptions: any = {
             store,
             _internalModel: this,
-            currentState: this.currentState,
           };
 
           if (!REQUEST_SERVICE) {
@@ -865,7 +867,7 @@ export default class InternalModel {
   setupData(data) {
     let changedKeys = this._recordData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
-      this._record._notifyProperties(changedKeys);
+      _notifyProperties(this._record, changedKeys);
     }
     this.send('pushedData');
   }
@@ -992,7 +994,7 @@ export default class InternalModel {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships');
       } else {
-        this._record.notifyHasManyAdded(key);
+        this._record.notifyPropertyChange(key);
       }
     }
   }
@@ -1022,7 +1024,7 @@ export default class InternalModel {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships');
       } else {
-        this._record.notifyBelongsToChange(key, this._record);
+        this._record.notifyPropertyChange(key);
       }
     }
   }
@@ -1094,7 +1096,7 @@ export default class InternalModel {
     this.send('rolledBack');
 
     if (this._record && dirtyKeys && dirtyKeys.length > 0) {
-      this._record._notifyProperties(dirtyKeys);
+      _notifyProperties(this._record, dirtyKeys);
     }
   }
 
@@ -1154,8 +1156,7 @@ export default class InternalModel {
 
     this.currentState = state;
     if (this.hasRecord) {
-      set(this._record, 'currentState', state);
-      flushSyncObservers();
+      this._record.notifyPropertyChange('currentState');
     }
 
     for (i = 0, l = setups.length; i < l; i++) {
@@ -1365,7 +1366,7 @@ export default class InternalModel {
     if (CUSTOM_MODEL_CLASS) {
       this.store._notificationManager.notify(this.identifier, 'attributes');
     } else {
-      this._record._notifyProperties(changedKeys);
+      _notifyProperties(this._record, changedKeys);
     }
   }
 
@@ -1569,4 +1570,17 @@ export function extractRecordDataFromRecord(recordOrPromiseRecord) {
   }
 
   return recordDataFor(recordOrPromiseRecord);
+}
+
+function _notifyProperties(target, keys) {
+  // changeProperties defers notifications until after the delegate
+  // and protects with a try...finally block
+  // previously used begin...endPropertyChanges but this is private API
+  changeProperties(() => {
+    let key;
+    for (let i = 0, length = keys.length; i < length; i++) {
+      key = keys[i];
+      target.notifyPropertyChange(key);
+    }
+  });
 }
