@@ -108,11 +108,13 @@ import { makeDecorator } from './util';
 export default makeDecorator('belongsTo', {
   getter(key) {
     return function() {
+      debugger;
       return this._internalModel.getBelongsTo(key);
     };
   },
   setter(key) {
     return function(value) {
+      debugger;
       this._internalModel.setDirtyBelongsTo(key, value);
     };
   },

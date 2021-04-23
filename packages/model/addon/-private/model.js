@@ -433,6 +433,15 @@ class Model extends EmberObject {
     }
   }
 
+  set(key, value) {
+    // prevent _setProp within Ember.set from reading before writing.
+    // when obj.set is called directly
+    if (this.constructor.fields.has(key)) {
+      this[key] = value;
+    }
+    super.set(key, value);
+  }
+
   /**
     If this property is `true` the record is in the `new` state. A
     record will be in the `new` state when it has been created on the
