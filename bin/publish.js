@@ -94,7 +94,6 @@ function getConfig() {
     { name: 'bumpMajor', type: Boolean, defaultValue: false },
     { name: 'bumpMinor', type: Boolean, defaultValue: false },
     { name: 'force', type: Boolean, defaultValue: false },
-    { name: 'autoAlphaVersion', type: Boolean, defaultValue: false },
     { name: 'dryRun', type: Boolean, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
