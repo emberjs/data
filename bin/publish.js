@@ -304,6 +304,10 @@ function question(prompt) {
     cli.question(prompt, resolve);
   });
 }
+let cli = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
 /**
  * If otp is passed add it as a parameter to the publish command else assume authentication is setup either
@@ -405,11 +409,6 @@ async function main() {
     console.log('⚠️ ' + chalk.grey(`Skipping Publishing`));
   }
 }
-
-let cli = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
 
 main()
   .finally(() => cli.close())

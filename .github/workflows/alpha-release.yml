@@ -41,8 +41,8 @@ jobs:
         run: yarn install --frozen-lockfile --non-interactive
       - name: Make sure git user is setup
         run: |
-          git config --local user.email 'cron@example.com'
-          git config --local user.name 'Ember Data Cron CI'
+          git config --local user.email 'tomster@emberjs.com'
+          git config --local user.name 'Ember.js Alpha Releaser'
       - name: Publish with script
         run: node bin/publish.js canary
         env:
