@@ -262,7 +262,7 @@ module('integration/references/has-many', function(hooks) {
             },
             relationships: {
               family: {
-                data: { type: 'family', id: '2' },
+                data: { type: 'family', id: '1' },
               },
             },
           },

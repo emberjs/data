@@ -79,7 +79,7 @@ class TestRecordData {
   isAttrDirty(key: string) {
     return false;
   }
-  removeFromInverseRelationships(isNew: boolean) {}
+  removeFromInverseRelationships() {}
 
   _initRecordCreateOptions(options) {}
   isNew() {

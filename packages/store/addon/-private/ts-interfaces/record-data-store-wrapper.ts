@@ -1,4 +1,4 @@
-import { BRAND_SYMBOL } from '../utils/brand';
+type RecordData = import('./record-data').RecordData;
 
 type RelationshipsSchema = import('./record-data-schemas').RelationshipsSchema;
 type AttributesSchema = import('./record-data-schemas').AttributesSchema;
@@ -15,7 +15,6 @@ export interface RecordDataStoreWrapper {
   /**
    * @internal
    */
-  [BRAND_SYMBOL]: 'RecordDataStoreWrapper';
 
   relationshipsDefinitionFor(modelName: string): RelationshipsSchema;
   attributesDefinitionFor(modelName: string): AttributesSchema;
@@ -40,7 +39,10 @@ export interface RecordDataStoreWrapper {
   notifyHasManyChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
   notifyHasManyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
 
-  recordDataFor(modelName: string, id: string, clientId?: string): unknown;
+  recordDataFor(type: string, id: string, lid?: string | null): RecordData;
+  recordDataFor(type: string, id: string | null, lid: string): RecordData;
+  recordDataFor(type: string): RecordData;
+  recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData;
 
   notifyBelongsToChange(modelName: string, id: string | null, clientId: string, key: string): void;
   notifyBelongsToChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;

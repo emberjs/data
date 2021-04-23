@@ -1,43 +1,41 @@
-import { upgradeForInternal } from '@ember-data/store/-private';
-
 import BelongsToRelationship from './belongs-to';
 import ManyRelationship from './has-many';
 
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
-type RelationshipRecordData = import('../../record-data').default;
+type Graph = import('../../graph').Graph;
 
 function createRelationshipFor(
   relationshipMeta: RelationshipSchema,
   storeWrapper: RecordDataStoreWrapper,
   identifier: StableRecordIdentifier,
-  key: string,
-  recordData: RelationshipRecordData
+  key: string
 ) {
   let inverseKey = storeWrapper.inverseForRelationship(identifier.type, key);
   let inverseIsAsync = storeWrapper.inverseIsAsyncForRelationship(identifier.type, key);
 
   if (relationshipMeta.kind === 'hasMany') {
-    return new ManyRelationship(storeWrapper._store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
+    return new ManyRelationship(storeWrapper, inverseKey, relationshipMeta, identifier, inverseIsAsync);
   } else {
-    return new BelongsToRelationship(storeWrapper._store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
+    return new BelongsToRelationship(storeWrapper, inverseKey, relationshipMeta, identifier, inverseIsAsync);
   }
 }
 
 export default class Relationships {
+  declare graph: Graph;
   declare _storeWrapper: RecordDataStoreWrapper;
   declare initializedRelationships: {
     [key: string]: BelongsToRelationship | ManyRelationship;
   };
   declare identifier: StableRecordIdentifier;
-  declare recordData: RelationshipRecordData;
 
-  constructor(recordData: RelationshipRecordData) {
-    this._storeWrapper = upgradeForInternal(recordData.storeWrapper);
+  constructor(identifier: StableRecordIdentifier, graph: Graph) {
+    this.graph = graph;
+    this.identifier = identifier;
     this.initializedRelationships = Object.create(null);
-    this.identifier = recordData.identifier;
-    this.recordData = recordData;
+    let storeWrapper = graph.store;
+    this._storeWrapper = storeWrapper;
   }
 
   has(key: string) {
@@ -60,13 +58,7 @@ export default class Relationships {
 
       if (rel) {
         // lazily instantiate relationship
-        relationship = relationships[key] = createRelationshipFor(
-          rel,
-          this._storeWrapper,
-          this.identifier,
-          key,
-          this.recordData
-        );
+        relationship = relationships[key] = createRelationshipFor(rel, this._storeWrapper, this.identifier, key);
       }
     }
 

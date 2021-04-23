@@ -17,7 +17,7 @@ import {
   REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
   REQUEST_SERVICE,
 } from '@ember-data/canary-features';
-import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
+import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import { identifierCacheFor } from '../../identifiers/cache';
 import coerceId from '../coerce-id';
@@ -39,8 +39,6 @@ type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api')
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
 type Store = import('../ds-model-store').default;
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
-type RelationshipRecordData = import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
-type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
@@ -50,18 +48,6 @@ type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private')
 /**
   @module @ember-data/store
 */
-
-// once the presentation logic is moved into the Model package we can make
-// eliminate these lossy and redundant helpers
-function relationshipsFor(instance: InternalModel): Relationships {
-  let recordData = recordDataFor(instance) as RelationshipRecordData;
-
-  return recordData._relationships;
-}
-
-function relationshipStateFor(instance: InternalModel, propertyName: string) {
-  return relationshipsFor(instance).get(propertyName);
-}
 
 const STABLE_UNTRACKED_OBJ = {};
 function flushSyncObservers() {
@@ -1204,8 +1190,10 @@ export default class InternalModel {
     triggers.length = 0;
   }
 
-  removeFromInverseRelationships(isNew = false) {
-    this._recordData.removeFromInverseRelationships(isNew);
+  removeFromInverseRelationships() {
+    if (this.__recordData) {
+      this._recordData.removeFromInverseRelationships();
+    }
   }
 
   /*
@@ -1463,8 +1451,14 @@ export default class InternalModel {
     let reference = this.references[name];
 
     if (!reference) {
-      // TODO IGOR AND DAVID REFACTOR
-      let relationship = relationshipStateFor(this, name);
+      if (!HAS_RECORD_DATA_PACKAGE) {
+        // TODO @runspired while this feels odd, it is not a regression in capability because we do
+        // not today support references pulling from RecordDatas other than our own
+        // because of the intimate API access involved. This is something we will need to redesign.
+        assert(`snapshot.belongsTo only supported for @ember-data/record-data`);
+      }
+      const relationshipStateFor = require('@ember-data/record-data/-private').relationshipStateFor;
+      const relationship = relationshipStateFor(this.store._storeWrapper, this.identifier, name);
 
       if (DEBUG && kind) {
         let modelName = this.modelName;

@@ -1,11 +1,11 @@
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import { identifierCacheFor } from '../../identifiers/cache';
-import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
-import { BRAND_SYMBOL } from '../../utils/brand';
 import constructResource from '../../utils/construct-resource';
 import { internalModelFactoryFor } from './internal-model-factory';
 
+type StoreWrapper = import('../../ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type CoreStore = import('../core-store').default;
 type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
@@ -24,12 +24,31 @@ function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is Relatio
   return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
 }
 
-export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
-  [BRAND_SYMBOL]: 'RecordDataStoreWrapper';
-  _willUpdateManyArrays: boolean;
-  private _pendingManyArrayUpdates: StableIdentifierOrString[];
+let peekGraph;
+if (HAS_RECORD_DATA_PACKAGE) {
+  let _peekGraph;
+  peekGraph = wrapper => {
+    _peekGraph = _peekGraph || require('@ember-data/record-data/-private').peekGraph;
+    return _peekGraph(wrapper);
+  };
+}
 
-  constructor(public _store: CoreStore) {
+export default class RecordDataStoreWrapper implements StoreWrapper {
+  /**
+   * @internal
+   */
+  declare _willUpdateManyArrays: boolean;
+  /**
+   * @internal
+   */
+  declare _pendingManyArrayUpdates: StableIdentifierOrString[];
+  /**
+   * @internal
+   */
+  declare _store: CoreStore;
+
+  constructor(_store: CoreStore) {
+    this._store = _store;
     this._willUpdateManyArrays = false;
     this._pendingManyArrayUpdates = [];
   }
@@ -239,6 +258,12 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
   disconnectRecord(type: string, id: string | null, lid?: string | null): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    if (HAS_RECORD_DATA_PACKAGE) {
+      let graph = peekGraph(this);
+      if (graph) {
+        graph.remove(identifier);
+      }
+    }
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
     if (internalModel) {
       internalModel.destroyFromRecordData();

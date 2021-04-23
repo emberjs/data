@@ -234,7 +234,7 @@ abstract class CoreStore extends Service {
   public _notificationManager: NotificationManager;
   private _adapterCache = Object.create(null);
   private _serializerCache = Object.create(null);
-  private _storeWrapper = new RecordDataStoreWrapper(this);
+  public _storeWrapper = new RecordDataStoreWrapper(this);
 
   /*
     Ember Data uses several specialized micro-queues for organizing
@@ -3159,6 +3159,10 @@ abstract class CoreStore extends Service {
   _createRecordData(identifier: StableRecordIdentifier): RecordData {
     const recordData = this.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this._storeWrapper);
     setRecordDataFor(identifier, recordData);
+    // TODO this is invalid for v2 recordData but required
+    // for v1 recordData. Remember to remove this once the
+    // RecordData manager handles converting recordData to identifier
+    setRecordIdentifier(recordData, identifier);
     return recordData;
   }
 
@@ -3210,7 +3214,7 @@ abstract class CoreStore extends Service {
    * @internal
    */
   recordDataFor(identifier: StableRecordIdentifier | { type: string }, isCreate: boolean): RecordData {
-    let internalModel;
+    let internalModel: InternalModel;
     if (isCreate === true) {
       internalModel = internalModelFactoryFor(this).build({ type: identifier.type, id: null });
       internalModel.send('loadedData');
@@ -3591,6 +3595,13 @@ abstract class CoreStore extends Service {
     identifierCacheFor(this).destroy();
 
     this.unloadAll();
+    if (HAS_RECORD_DATA_PACKAGE) {
+      const peekGraph = require('@ember-data/record-data/-private').peekGraph;
+      let graph = peekGraph(this);
+      if (graph) {
+        graph.destroy();
+      }
+    }
 
     if (DEBUG) {
       unregisterWaiter(this.__asyncWaiter);
