@@ -45,7 +45,7 @@ export default class RequestCache {
       this._pending[lid].push(request);
       this._triggerSubscriptions(request);
       promise.then(
-        result => {
+        (result) => {
           this._dequeue(lid, request);
           let finalizedRequest = {
             state: RequestStateEnum.fulfilled,
@@ -57,7 +57,7 @@ export default class RequestCache {
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
         },
-        error => {
+        (error) => {
           this._dequeue(lid, request);
           let finalizedRequest = {
             state: RequestStateEnum.rejected,
@@ -74,25 +74,25 @@ export default class RequestCache {
   }
 
   _triggerSubscriptions(req: InternalRequest) {
-    req[Touching].forEach(identifier => {
+    req[Touching].forEach((identifier) => {
       if (this._subscriptions[identifier.lid]) {
-        this._subscriptions[identifier.lid].forEach(callback => callback(req));
+        this._subscriptions[identifier.lid].forEach((callback) => callback(req));
       }
     });
   }
 
   _dequeue(lid: string, request: InternalRequest) {
-    this._pending[lid] = this._pending[lid].filter(req => req !== request);
+    this._pending[lid] = this._pending[lid].filter((req) => req !== request);
   }
 
   _addDone(request: InternalRequest) {
-    request[Touching].forEach(identifier => {
+    request[Touching].forEach((identifier) => {
       if (!this._done[identifier.lid]) {
         this._done[identifier.lid] = [];
       }
       // TODO add support for multiple
       let requestDataOp = request.request.data[0].op;
-      this._done[identifier.lid] = this._done[identifier.lid].filter(req => {
+      this._done[identifier.lid] = this._done[identifier.lid].filter((req) => {
         // TODO add support for multiple
         let data;
         if (req.request.data instanceof Array) {

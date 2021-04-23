@@ -32,16 +32,16 @@ class Person extends Model {
   lastName;
 }
 
-module('integration/mutations - Mutations Tests', function(hooks) {
+module('integration/mutations - Mutations Tests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
     this.owner.register('serializer:application', MinimalSerializer);
     this.owner.register('model:person', Person);
   });
 
-  test('store.deleteRecord calls adapter.deleteRecord if a record is deleted and then saved', async function(assert) {
+  test('store.deleteRecord calls adapter.deleteRecord if a record is deleted and then saved', async function (assert) {
     let deleteRecordCalled = 0;
     let store = this.owner.lookup('service:store');
     let expectedData = {
@@ -81,7 +81,7 @@ module('integration/mutations - Mutations Tests', function(hooks) {
     assert.equal(deleteRecordCalled, 1, 'deleteRecord is called once');
   });
 
-  test('store.deleteRecord calls adapter.deleteRecord if a newly created record is persisted, then deleted and then saved', async function(assert) {
+  test('store.deleteRecord calls adapter.deleteRecord if a newly created record is persisted, then deleted and then saved', async function (assert) {
     let createRecordCalled = 0;
     let deleteRecordCalled = 0;
     let store = this.owner.lookup('service:store');
@@ -142,7 +142,7 @@ module('integration/mutations - Mutations Tests', function(hooks) {
     assert.equal(deleteRecordCalled, 1, 'deleteRecord is called once');
   });
 
-  test('store.deleteRecord does not call adapter.deleteRecord if a newly created, unpersisted record is deleted and then saved', async function(assert) {
+  test('store.deleteRecord does not call adapter.deleteRecord if a newly created, unpersisted record is deleted and then saved', async function (assert) {
     let createRecordCalled = 0;
     let deleteRecordCalled = 0;
     let store = this.owner.lookup('service:store');
@@ -179,7 +179,7 @@ module('integration/mutations - Mutations Tests', function(hooks) {
     assert.equal(deleteRecordCalled, 0, 'adapter.deleteRecord is not called');
   });
 
-  test('record.save() calls adapter.createRecord if a newly created record unpersisted record is saved', async function(assert) {
+  test('record.save() calls adapter.createRecord if a newly created record unpersisted record is saved', async function (assert) {
     let createRecordCalled = 0;
     let store = this.owner.lookup('service:store');
     let expectedData = {
@@ -220,7 +220,7 @@ module('integration/mutations - Mutations Tests', function(hooks) {
     assert.equal(createRecordCalled, 1, 'createRecord is called once');
   });
 
-  test('record.save() calls adapter.createRecord then adapter.updateRecord if a newly created record record is saved, then saved again', async function(assert) {
+  test('record.save() calls adapter.createRecord then adapter.updateRecord if a newly created record record is saved, then saved again', async function (assert) {
     let createRecordCalled = 0;
     let updateRecord = 0;
     let store = this.owner.lookup('service:store');
@@ -285,7 +285,7 @@ module('integration/mutations - Mutations Tests', function(hooks) {
     assert.equal(updateRecord, 1, 'updateRecord is called once');
   });
 
-  test('record.save() calls adapter.updateRecord if an existing persisted record is saved', async function(assert) {
+  test('record.save() calls adapter.updateRecord if an existing persisted record is saved', async function (assert) {
     let createRecordCalled = 0;
     let updateRecord = 0;
     let store = this.owner.lookup('service:store');

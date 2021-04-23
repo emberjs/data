@@ -8,14 +8,14 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/system/relationships/relationship-payloads-manager (polymorphic)', function(hooks) {
+module('unit/system/relationships/relationship-payloads-manager (polymorphic)', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.store = this.owner.lookup('service:store');
   });
 
-  test('push one side is polymorphic, baseType then subTypes', function(assert) {
+  test('push one side is polymorphic, baseType then subTypes', function (assert) {
     const User = Model.extend({
       hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
     });
@@ -69,7 +69,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     assert.deepEqual(finalResult, ['hat', 'big-hat', 'small-hat'], 'We got all our hats!');
   });
 
-  test('push one side is polymorphic, subType then baseType', function(assert) {
+  test('push one side is polymorphic, subType then baseType', function (assert) {
     let User = Model.extend({
       hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
     });
@@ -119,12 +119,12 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
 
     const user = run(() => this.store.push(userData)),
       finalResult = user.get('hats').mapBy('type'),
-      expectedResults = included.map(m => m.type);
+      expectedResults = included.map((m) => m.type);
 
     assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
   });
 
-  test('push one side is polymorphic, different subtypes', function(assert) {
+  test('push one side is polymorphic, different subtypes', function (assert) {
     let User = Model.extend({
       hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
     });
@@ -175,12 +175,12 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
 
     const user = run(() => this.store.push(userData)),
       finalResult = user.get('hats').mapBy('type'),
-      expectedResults = included.map(m => m.type);
+      expectedResults = included.map((m) => m.type);
 
     assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
   });
 
-  test('push both sides are polymorphic', function(assert) {
+  test('push both sides are polymorphic', function (assert) {
     let User = Model.extend({
       hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
     });
@@ -228,14 +228,14 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       included: alienIncluded,
     };
 
-    const expectedAlienResults = alienIncluded.map(m => m.type),
+    const expectedAlienResults = alienIncluded.map((m) => m.type),
       alien = run(() => this.store.push(alienData)),
       alienFinalHats = alien.get('hats').mapBy('type');
 
     assert.deepEqual(alienFinalHats, expectedAlienResults, 'We got all alien hats!');
   });
 
-  test('handles relationships where both sides are polymorphic', function(assert) {
+  test('handles relationships where both sides are polymorphic', function (assert) {
     let Person = Model.extend({
       hats: hasMany('hat', {
         async: false,
@@ -316,13 +316,13 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     assert.equal(finalSmallResult.length, 2, 'We got all our hats!');
   });
 
-  test('handles relationships where both sides are polymorphic reflexive', function(assert) {
+  test('handles relationships where both sides are polymorphic reflexive', function (assert) {
     function link(a, b, relationshipName, recurse = true) {
       a.relationships = a.relationships || {};
       const rel = (a.relationships[relationshipName] = a.relationships[relationshipName] || {});
 
       if (Array.isArray(b)) {
-        rel.data = b.map(i => {
+        rel.data = b.map((i) => {
           let { type, id } = i;
 
           if (recurse === true) {
@@ -406,7 +406,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const familyResultReferences = boyInstance
       .get('family')
       .toArray()
-      .map(i => {
+      .map((i) => {
         return { type: i.constructor.modelName, id: i.id };
       });
     const twinResult = boyInstance.get('twin');
@@ -416,13 +416,13 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     assert.deepEqual(twinResultReference, expectedTwinReference, 'We linked twin correctly');
   });
 
-  test('handles relationships where both sides are polymorphic reflexive but the primary payload does not include linkage', function(assert) {
+  test('handles relationships where both sides are polymorphic reflexive but the primary payload does not include linkage', function (assert) {
     function link(a, b, relationshipName, recurse = true) {
       a.relationships = a.relationships || {};
       const rel = (a.relationships[relationshipName] = a.relationships[relationshipName] || {});
 
       if (Array.isArray(b)) {
-        rel.data = b.map(i => {
+        rel.data = b.map((i) => {
           let { type, id } = i;
 
           if (recurse === true) {
@@ -509,7 +509,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const familyResultReferences = boyInstance
       .get('family')
       .toArray()
-      .map(i => {
+      .map((i) => {
         return { type: i.constructor.modelName, id: i.id };
       });
     const twinResult = boyInstance.get('twin');
@@ -522,7 +522,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     assert.deepEqual(twinResultReference, expectedTwinReference, 'We linked twin correctly');
   });
 
-  test('push polymorphic self-referential non-reflexive relationship', function(assert) {
+  test('push polymorphic self-referential non-reflexive relationship', function (assert) {
     let Hat = Model.extend({
       type: attr('string'),
       hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
@@ -561,7 +561,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const finalHatsReferences = hat2
       .get('hats')
       .toArray()
-      .map(i => {
+      .map((i) => {
         return { type: i.constructor.modelName, id: i.id };
       });
     const hatResult = hat1.get('hat');
@@ -574,7 +574,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     assert.deepEqual(finalHatsReferences, expectedHatsReferences, 'We have hats on hat:2');
   });
 
-  test('push polymorphic self-referential circular non-reflexive relationship', function(assert) {
+  test('push polymorphic self-referential circular non-reflexive relationship', function (assert) {
     let Hat = Model.extend({
       type: attr('string'),
       hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
@@ -608,7 +608,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const finalHatsReferences = hat
       .get('hats')
       .toArray()
-      .map(i => {
+      .map((i) => {
         return { type: i.constructor.modelName, id: i.id };
       });
     const hatResult = hat.get('hat');
@@ -621,7 +621,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     assert.deepEqual(finalHatsReferences, expectedHatsReferences, 'We have hats on hat:2');
   });
 
-  test('polymorphic hasMany to types with separate id-spaces', function(assert) {
+  test('polymorphic hasMany to types with separate id-spaces', function (assert) {
     let User = Model.extend({
       hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
     });
@@ -669,16 +669,16 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const hats = user.get('hats');
 
     assert.deepEqual(
-      hats.map(h => h.constructor.modelName),
+      hats.map((h) => h.constructor.modelName),
       ['big-hat', 'small-hat']
     );
     assert.deepEqual(
-      hats.map(h => h.id),
+      hats.map((h) => h.id),
       ['1', '1']
     );
   });
 
-  test('polymorphic hasMany to types with separate id-spaces, from inverse payload', function(assert) {
+  test('polymorphic hasMany to types with separate id-spaces, from inverse payload', function (assert) {
     let User = Model.extend({
       hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
     });
@@ -725,16 +725,16 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const hats = user.get('hats');
 
     assert.deepEqual(
-      hats.map(h => h.constructor.modelName),
+      hats.map((h) => h.constructor.modelName),
       ['big-hat', 'small-hat']
     );
     assert.deepEqual(
-      hats.map(h => h.id),
+      hats.map((h) => h.id),
       ['1', '1']
     );
   });
 
-  test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces', function(assert) {
+  test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces', function (assert) {
     let Person = Model.extend({
       hats: hasMany('hat', {
         async: false,
@@ -814,7 +814,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const finalSmallResult = smallPerson.get('hats').toArray();
 
     assert.deepEqual(
-      finalBigResult.map(h => ({ type: h.constructor.modelName, id: h.get('id') })),
+      finalBigResult.map((h) => ({ type: h.constructor.modelName, id: h.get('id') })),
       [
         { type: 'big-hat', id: '1' },
         { type: 'small-hat', id: '1' },
@@ -825,7 +825,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     );
 
     assert.deepEqual(
-      finalSmallResult.map(h => ({ type: h.constructor.modelName, id: h.get('id') })),
+      finalSmallResult.map((h) => ({ type: h.constructor.modelName, id: h.get('id') })),
       [
         { type: 'big-hat', id: '3' },
         { type: 'small-hat', id: '3' },
@@ -834,7 +834,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     );
   });
 
-  testInDebug('Invalid inverses throw errors', function(assert) {
+  testInDebug('Invalid inverses throw errors', function (assert) {
     this.owner.register(
       'model:post',
       Model.extend({

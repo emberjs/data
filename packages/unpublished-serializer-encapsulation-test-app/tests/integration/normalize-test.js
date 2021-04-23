@@ -16,15 +16,15 @@ class Person extends Model {
   lastName;
 }
 
-module('integration/serializer - normalize method forwards to Serializer#normalize', function(hooks) {
+module('integration/serializer - normalize method forwards to Serializer#normalize', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function (assert) {
     this.owner.register('service:store', Store);
     this.owner.register('model:person', Person);
   });
 
-  test('Store#normalize calls Serializer#normalize', async function(assert) {
+  test('Store#normalize calls Serializer#normalize', async function (assert) {
     let normalizeCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -80,7 +80,7 @@ module('integration/serializer - normalize method forwards to Serializer#normali
     );
   });
 
-  testInDebug('Store#normalize throws an error if Serializer#normalize is not implemented', async function(assert) {
+  testInDebug('Store#normalize throws an error if Serializer#normalize is not implemented', async function (assert) {
     class TestMinimumSerializer extends EmberObject {}
     this.owner.register('serializer:application', TestMinimumSerializer);
 

@@ -11,10 +11,10 @@ import { modelHasAttributeOrRelationshipNamedType } from '@ember-data/serializer
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/utils', function(hooks) {
+module('unit/utils', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const Person = Model.extend();
     const User = Model.extend({
       messages: DS.hasMany('message', { async: false }),
@@ -37,7 +37,7 @@ module('unit/utils', function(hooks) {
     this.owner.register('mixin:medium', Medium);
   });
 
-  testInDebug('assertPolymorphicType works for subclasses', function(assert) {
+  testInDebug('assertPolymorphicType works for subclasses', function (assert) {
     let user, post, person;
     let store = this.owner.lookup('service:store');
 
@@ -85,7 +85,7 @@ module('unit/utils', function(hooks) {
     }, "The 'person' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name.");
   });
 
-  test('modelHasAttributeOrRelationshipNamedType', function(assert) {
+  test('modelHasAttributeOrRelationshipNamedType', function (assert) {
     let ModelWithTypeAttribute = Model.extend({
       type: DS.attr(),
     });
@@ -103,7 +103,7 @@ module('unit/utils', function(hooks) {
     assert.true(modelHasAttributeOrRelationshipNamedType(ModelWithTypeHasMany));
   });
 
-  testInDebug('assertPolymorphicType works for mixins', function(assert) {
+  testInDebug('assertPolymorphicType works for mixins', function (assert) {
     let post, video, person;
     let store = this.owner.lookup('service:store');
 

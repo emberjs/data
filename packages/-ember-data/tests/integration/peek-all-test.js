@@ -12,19 +12,19 @@ class Person extends Model {
   name;
 }
 
-module('integration/peek-all - DS.Store#peekAll()', function(hooks) {
+module('integration/peek-all - DS.Store#peekAll()', function (hooks) {
   setupTest(hooks);
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:person', Person);
     store = owner.lookup('service:store');
   });
 
-  test("store.peekAll('person') should return all records and should update with new ones", async function(assert) {
+  test("store.peekAll('person') should return all records and should update with new ones", async function (assert) {
     store.push({
       data: [
         {
@@ -64,7 +64,7 @@ module('integration/peek-all - DS.Store#peekAll()', function(hooks) {
     assert.equal(get(all, 'length'), 3);
   });
 
-  test('Calling store.peekAll() multiple times should update immediately', async function(assert) {
+  test('Calling store.peekAll() multiple times should update immediately', async function (assert) {
     assert.expect(3);
 
     assert.equal(get(store.peekAll('person'), 'length'), 0, 'should initially be empty');
@@ -82,7 +82,7 @@ module('integration/peek-all - DS.Store#peekAll()', function(hooks) {
     assert.equal(get(store.peekAll('person'), 'length'), 2, 'should contain two people');
   });
 
-  test('Calling store.peekAll() after creating a record should return correct data', async function(assert) {
+  test('Calling store.peekAll() after creating a record should return correct data', async function (assert) {
     assert.expect(1);
 
     store.createRecord('person', { name: 'Tomster' });

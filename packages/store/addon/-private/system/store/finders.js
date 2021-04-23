@@ -38,7 +38,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
   promise = guardDestroyedStore(promise, store, label);
 
   return promise.then(
-    adapterPayload => {
+    (adapterPayload) => {
       assert(
         `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
@@ -63,7 +63,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
 
       return store._push(payload);
     },
-    error => {
+    (error) => {
       internalModel.send('notFound');
       if (internalModel.currentState.isEmpty) {
         internalModel.unloadRecord();
@@ -76,7 +76,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
 }
 
 export function _findMany(adapter, store, modelName, ids, internalModels, optionsMap) {
-  let snapshots = A(internalModels.map(internalModel => internalModel.createSnapshot(optionsMap.get(internalModel))));
+  let snapshots = A(internalModels.map((internalModel) => internalModel.createSnapshot(optionsMap.get(internalModel))));
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
   let promise = adapter.findMany(store, modelClass, ids, snapshots);
   let label = `DS: Handle Adapter#findMany of '${modelName}'`;
@@ -88,7 +88,7 @@ export function _findMany(adapter, store, modelName, ids, internalModels, option
   promise = guardDestroyedStore(promise, store, label);
 
   return promise.then(
-    adapterPayload => {
+    (adapterPayload) => {
       assert(
         `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
@@ -286,7 +286,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
   return promise.then(
-    adapterPayload => {
+    (adapterPayload) => {
       assert(
         `You made a 'findHasMany' request for a ${internalModel.modelName}'s '${relationship.key}' relationship, using link '${link}' , but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
@@ -316,7 +316,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
   return promise.then(
-    adapterPayload => {
+    (adapterPayload) => {
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
@@ -343,7 +343,7 @@ export function _findAll(adapter, store, modelName, options) {
   promise = guardDestroyedStore(promise, store, label);
 
   return promise.then(
-    adapterPayload => {
+    (adapterPayload) => {
       assert(
         `You made a 'findAll' request for '${modelName}' records, but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
@@ -371,7 +371,7 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
   promise = guardDestroyedStore(promise, store, label);
 
   return promise.then(
-    adapterPayload => {
+    (adapterPayload) => {
       let serializer = store.serializerFor(modelName);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'query');
       let internalModels = store._push(payload);
@@ -380,7 +380,7 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
         'The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.',
         Array.isArray(internalModels)
       );
-      let identifiers = internalModels.map(im => im.identifier);
+      let identifiers = internalModels.map((im) => im.identifier);
       if (recordArray) {
         recordArray._setIdentifiers(identifiers, payload);
       } else {
@@ -407,7 +407,7 @@ export function _queryRecord(adapter, store, modelName, query, options) {
   promise = guardDestroyedStore(promise, store, label);
 
   return promise.then(
-    adapterPayload => {
+    (adapterPayload) => {
       let serializer = store.serializerFor(modelName);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'queryRecord');
 

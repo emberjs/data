@@ -20,10 +20,10 @@ class Dog extends Model {
   @attr('string') name;
 }
 
-module('unit/store/finders', function(hooks) {
+module('unit/store/finders', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('model:person', Person);
     this.owner.register('model:dog', Dog);
     this.owner.register('serializer:application', JSONAPISerializer.extend());
@@ -32,7 +32,7 @@ module('unit/store/finders', function(hooks) {
     this.adapter = this.store.adapterFor('application');
   });
 
-  test('findRecord does not load a serializer until the adapter promise resolves', async function(assert) {
+  test('findRecord does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
     let deferedFind = defer();
@@ -46,7 +46,7 @@ module('unit/store/finders', function(hooks) {
 
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
-    this.store.serializerFor = modelName => {
+    this.store.serializerFor = (modelName) => {
       if (modelName === 'person') {
         serializerLoaded = true;
       }
@@ -65,7 +65,7 @@ module('unit/store/finders', function(hooks) {
     assert.true(serializerLoaded, 'serializer is loaded');
   });
 
-  test('findMany does not load a serializer until the adapter promise resolves', async function(assert) {
+  test('findMany does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
     let deferedFind = defer();
@@ -79,7 +79,7 @@ module('unit/store/finders', function(hooks) {
 
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
-    this.store.serializerFor = modelName => {
+    this.store.serializerFor = (modelName) => {
       if (modelName === 'person') {
         serializerLoaded = true;
       }
@@ -103,7 +103,7 @@ module('unit/store/finders', function(hooks) {
     assert.true(serializerLoaded, 'serializer is loaded');
   });
 
-  test('findHasMany does not load a serializer until the adapter promise resolves', async function(assert) {
+  test('findHasMany does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
     let deferedFind = defer();
@@ -117,7 +117,7 @@ module('unit/store/finders', function(hooks) {
 
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
-    this.store.serializerFor = modelName => {
+    this.store.serializerFor = (modelName) => {
       if (modelName === 'dog') {
         serializerLoaded = true;
       }
@@ -156,7 +156,7 @@ module('unit/store/finders', function(hooks) {
     assert.true(serializerLoaded, 'serializer is loaded');
   });
 
-  test('findBelongsTo does not load a serializer until the adapter promise resolves', async function(assert) {
+  test('findBelongsTo does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
     let deferedFind = defer();
@@ -170,7 +170,7 @@ module('unit/store/finders', function(hooks) {
 
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
-    this.store.serializerFor = modelName => {
+    this.store.serializerFor = (modelName) => {
       if (modelName === 'dog') {
         serializerLoaded = true;
       }
@@ -205,7 +205,7 @@ module('unit/store/finders', function(hooks) {
     assert.true(serializerLoaded, 'serializer is loaded');
   });
 
-  test('findAll does not load a serializer until the adapter promise resolves', async function(assert) {
+  test('findAll does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
     let deferedFind = defer();
@@ -219,7 +219,7 @@ module('unit/store/finders', function(hooks) {
 
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
-    this.store.serializerFor = modelName => {
+    this.store.serializerFor = (modelName) => {
       if (modelName === 'person') {
         serializerLoaded = true;
       }
@@ -238,7 +238,7 @@ module('unit/store/finders', function(hooks) {
     assert.true(serializerLoaded, 'serializer is loaded');
   });
 
-  test('query does not load a serializer until the adapter promise resolves', async function(assert) {
+  test('query does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
     let deferedFind = defer();
@@ -252,7 +252,7 @@ module('unit/store/finders', function(hooks) {
 
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
-    this.store.serializerFor = modelName => {
+    this.store.serializerFor = (modelName) => {
       if (modelName === 'person') {
         serializerLoaded = true;
       }
@@ -271,7 +271,7 @@ module('unit/store/finders', function(hooks) {
     assert.true(serializerLoaded, 'serializer is loaded');
   });
 
-  test('queryRecord does not load a serializer until the adapter promise resolves', async function(assert) {
+  test('queryRecord does not load a serializer until the adapter promise resolves', async function (assert) {
     assert.expect(2);
 
     let deferedFind = defer();
@@ -285,7 +285,7 @@ module('unit/store/finders', function(hooks) {
 
     let serializerLoaded = false;
     let serializerFor = this.store.serializerFor;
-    this.store.serializerFor = modelName => {
+    this.store.serializerFor = (modelName) => {
       if (modelName === 'person') {
         serializerLoaded = true;
       }

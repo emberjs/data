@@ -10,7 +10,7 @@ import Store from '@ember-data/store';
 
 type RID = { type: string; id: string };
 
-module('Integration | Identifiers - single-table-inheritance polymorphic scenarios', function(hooks) {
+module('Integration | Identifiers - single-table-inheritance polymorphic scenarios', function (hooks) {
   /*
     In single-table polymorphism, each polymorphic type shares a common primaryKey field.
       This is typically implemented in Databases as a single-table of which `type` is
@@ -26,7 +26,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
   */
   setupTest(hooks);
 
-  module('single-table', function(hooks) {
+  module('single-table', function (hooks) {
     let store;
 
     class TestSerializer extends Serializer {
@@ -35,7 +35,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       }
     }
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       const { owner } = this;
 
       class Car extends Model {
@@ -61,7 +61,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       store = owner.lookup('service:store');
     });
 
-    test(`Identity of polymorphic relations can change type on first load`, async function(assert) {
+    test(`Identity of polymorphic relations can change type on first load`, async function (assert) {
       const { owner } = this;
       class TestAdapter extends Adapter {
         shouldBackgroundReloadRecord() {
@@ -88,7 +88,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       assert.strictEqual(cachedFerrari.constructor.modelName, 'ferrari', 'We cached the right type');
     });
 
-    test(`Identity of polymorphic relations can change type when in cache`, async function(assert) {
+    test(`Identity of polymorphic relations can change type when in cache`, async function (assert) {
       const { owner } = this;
       const requests: RID[] = [];
       const expectedRequests = [
@@ -150,7 +150,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
 
       const allCars = await topRecord.allCars;
       assert.deepEqual(
-        allCars.map(c => {
+        allCars.map((c) => {
           return { id: c.id, type: c.constructor.modelName };
         }),
         [

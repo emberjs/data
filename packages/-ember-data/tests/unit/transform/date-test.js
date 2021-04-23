@@ -2,13 +2,13 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-module('unit/transform - DateTransform', function(hooks) {
+module('unit/transform - DateTransform', function (hooks) {
   setupTest(hooks);
   const dateString = '2015-01-01T00:00:00.000Z';
   const dateInMillis = Date.parse(dateString);
   const date = new Date(dateString);
 
-  test('#serialize', async function(assert) {
+  test('#serialize', async function (assert) {
     const transform = this.owner.lookup('transform:date');
 
     assert.strictEqual(transform.serialize(null), null);
@@ -18,7 +18,7 @@ module('unit/transform - DateTransform', function(hooks) {
     assert.equal(transform.serialize(date), dateString);
   });
 
-  test('#deserialize', async function(assert) {
+  test('#deserialize', async function (assert) {
     const transform = this.owner.lookup('transform:date');
 
     // from String

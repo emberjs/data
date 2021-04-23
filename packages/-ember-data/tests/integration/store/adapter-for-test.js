@@ -19,16 +19,16 @@ class TestAdapter {
   }
 }
 
-module('integration/store - adapterFor', function(hooks) {
+module('integration/store - adapterFor', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     store = owner.lookup('service:store');
   });
 
-  test('when no adapter is available we throw an error', async function(assert) {
+  test('when no adapter is available we throw an error', async function (assert) {
     let { owner } = this;
     /*
       adapter:-json-api is the "last chance" fallback and is
@@ -36,7 +36,7 @@ module('integration/store - adapterFor', function(hooks) {
       here we override to ensure adapterFor will return `undefined`.
      */
     const lookup = owner.lookup;
-    owner.lookup = registrationName => {
+    owner.lookup = (registrationName) => {
       if (registrationName === 'adapter:-json-api') {
         return undefined;
       }
@@ -51,7 +51,7 @@ module('integration/store - adapterFor', function(hooks) {
     });
   });
 
-  test('we find and instantiate the application adapter', async function(assert) {
+  test('we find and instantiate the application adapter', async function (assert) {
     let { owner } = this;
     let didInstantiate = false;
 
@@ -76,7 +76,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(adapter === adapterAgain, 'Repeated calls to adapterFor return the same instance');
   });
 
-  test('multiple stores do not share adapters', async function(assert) {
+  test('multiple stores do not share adapters', async function (assert) {
     let { owner } = this;
     let didInstantiate = false;
 
@@ -104,7 +104,7 @@ module('integration/store - adapterFor', function(hooks) {
     otherStore.destroy();
   });
 
-  test('we can find and instantiate per-type adapters', async function(assert) {
+  test('we can find and instantiate per-type adapters', async function (assert) {
     let { owner } = this;
     let didInstantiateAppAdapter = false;
     let didInstantiatePersonAdapter = false;
@@ -136,7 +136,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(appAdapter !== adapter, 'We have separate adapters');
   });
 
-  test('we fallback to the application adapter when a per-type adapter is not found', async function(assert) {
+  test('we fallback to the application adapter when a per-type adapter is not found', async function (assert) {
     let { owner } = this;
     let didInstantiateAppAdapter = false;
 
@@ -160,7 +160,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(appAdapter === adapter, 'We fell back to the application adapter instance');
   });
 
-  test('we can specify a fallback adapter by name in place of the application adapter', async function(assert) {
+  test('we can specify a fallback adapter by name in place of the application adapter', async function (assert) {
     store.adapter = '-fallback';
     let { owner } = this;
 
@@ -192,7 +192,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(restAdapter === appAdapter, 'We fell back to the -fallback adapter instance for the application adapter');
   });
 
-  test('the application adapter has higher precedence than a fallback adapter defined via store.adapter', async function(assert) {
+  test('the application adapter has higher precedence than a fallback adapter defined via store.adapter', async function (assert) {
     store.adapter = '-fallback';
     let { owner } = this;
 
@@ -237,7 +237,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(restAdapter !== appAdapter, `We did not use the application adapter instance`);
   });
 
-  test('When the per-type, application and specified fallback adapters do not exist, we fallback to the -json-api adapter', async function(assert) {
+  test('When the per-type, application and specified fallback adapters do not exist, we fallback to the -json-api adapter', async function (assert) {
     store.adapter = '-not-a-real-adapter';
     let { owner } = this;
 
@@ -280,7 +280,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(jsonApiAdapter === adapter, 'We fell back to the -json-api adapter instance for the per-type adapter');
   });
 
-  test('adapters are destroyed', async function(assert) {
+  test('adapters are destroyed', async function (assert) {
     let { owner } = this;
     let didInstantiate = false;
     let didDestroy = false;

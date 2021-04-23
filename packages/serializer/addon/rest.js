@@ -178,7 +178,7 @@ const RESTSerializer = JSONSerializer.extend({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    makeArray(arrayHash).forEach(hash => {
+    makeArray(arrayHash).forEach((hash) => {
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
       if (included) {
@@ -326,7 +326,7 @@ const RESTSerializer = JSONSerializer.extend({
       }
 
       if (isSingle) {
-        data.forEach(resource => {
+        data.forEach((resource) => {
           /*
             Figures out if this is the primary record or not.
 
@@ -411,7 +411,7 @@ const RESTSerializer = JSONSerializer.extend({
       var type = store.modelFor(modelName);
       var typeSerializer = store.serializerFor(type.modelName);
 
-      makeArray(payload[prop]).forEach(hash => {
+      makeArray(payload[prop]).forEach((hash) => {
         let { data, included } = typeSerializer.normalize(type, hash, prop);
         documentHash.data.push(data);
         if (included) {

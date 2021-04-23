@@ -900,7 +900,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     let adapter = this;
     let maxURLLength = this.maxURLLength;
 
-    snapshots.forEach(snapshot => {
+    snapshots.forEach((snapshot) => {
       let baseUrl = adapter._stripIDFromURL(store, snapshot);
       if (!groups.has(baseUrl)) {
         groups.set(baseUrl, []);
@@ -914,7 +914,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       let baseUrl = adapter._stripIDFromURL(store, group[0]);
       let splitGroups: Snapshot[][] = [[]];
 
-      group.forEach(snapshot => {
+      group.forEach((snapshot) => {
         let additionalLength = encodeURIComponent(snapshot.id).length + paramNameLength;
         if (baseUrl.length + idsSize + additionalLength >= maxURLLength) {
           idsSize = 0;
@@ -935,7 +935,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       let paramNameLength = '&ids%5B%5D='.length;
       let splitGroups = splitGroupToFitInUrl(group, maxURLLength, paramNameLength);
 
-      splitGroups.forEach(splitGroup => groupsArray.push(splitGroup));
+      splitGroups.forEach((splitGroup) => groupsArray.push(splitGroup));
     });
 
     return groupsArray;
@@ -1083,13 +1083,13 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     } else {
       let hash: JQueryRequestInit = adapter.ajaxOptions(url, type, options);
 
-      return new RSVPPromise(function(resolve, reject) {
-        hash.success = function(payload, textStatus, jqXHR) {
+      return new RSVPPromise(function (resolve, reject) {
+        hash.success = function (payload, textStatus, jqXHR) {
           let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
           join(null, resolve, response);
         };
 
-        hash.error = function(jqXHR, textStatus, errorThrown) {
+        hash.error = function (jqXHR, textStatus, errorThrown) {
           let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
           join(null, reject, error);
         };
@@ -1502,9 +1502,9 @@ function ajaxOptions(options: JQueryRequestInit, adapter: RESTAdapter): JQueryRe
     options.data = JSON.stringify(options.data);
   }
 
-  options.beforeSend = function(xhr) {
+  options.beforeSend = function (xhr) {
     if (options.headers) {
-      Object.keys(options.headers).forEach(key => {
+      Object.keys(options.headers).forEach((key) => {
         let headerValue = options.headers && options.headers[key];
         const isString = (value: unknown): value is string => typeof value === 'string';
         if (isString(headerValue)) {
@@ -1523,7 +1523,7 @@ if (DEPRECATE_NAJAX) {
     @private
     @param {Object} options jQuery ajax options to be used for the najax request
   */
-  RESTAdapter.prototype._najaxRequest = function(options: JQueryAjaxSettings): void {
+  RESTAdapter.prototype._najaxRequest = function (options: JQueryAjaxSettings): void {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {

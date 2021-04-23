@@ -55,10 +55,10 @@ class TestAdapter extends JSONAPIAdapter {
   }
 }
 
-module('acceptance/tracking-model-id - tracking model id', function(hooks) {
+module('acceptance/tracking-model-id - tracking model id', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('service:store', Store);
     owner.register('model:widget', Widget);
@@ -68,7 +68,7 @@ module('acceptance/tracking-model-id - tracking model id', function(hooks) {
     owner.register('serializer:application', JSONAPISerializer);
   });
 
-  test("can track model id's without using get", async function(assert) {
+  test("can track model id's without using get", async function (assert) {
     let store = this.owner.lookup('service:store');
     store.createRecord('widget', { id: '1', name: 'Doodad' });
     store.createRecord('widget', { id: '3', name: 'Gizmo' });

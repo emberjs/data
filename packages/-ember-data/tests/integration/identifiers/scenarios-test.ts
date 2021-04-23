@@ -25,10 +25,10 @@ function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;
 }
 
-module('Integration | Identifiers - scenarios', function(hooks) {
+module('Integration | Identifiers - scenarios', function (hooks) {
   setupTest(hooks);
 
-  module('Secondary Cache based on an attribute', function(hooks) {
+  module('Secondary Cache based on an attribute', function (hooks) {
     let store;
     let calls;
     let isQuery = false;
@@ -69,7 +69,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       }
     }
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       const { owner } = this;
 
       class User extends Model {
@@ -150,14 +150,14 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       setIdentifierGenerationMethod(generationMethod);
     });
 
-    hooks.afterEach(function() {
+    hooks.afterEach(function () {
       setIdentifierGenerationMethod(null);
       setIdentifierResetMethod(null);
       setIdentifierUpdateMethod(null);
       setIdentifierForgetMethod(null);
     });
 
-    test(`findRecord id then queryRecord with username`, async function(assert) {
+    test(`findRecord id then queryRecord with username`, async function (assert) {
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
@@ -179,7 +179,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
     });
-    test(`queryRecord with username then findRecord with id`, async function(assert) {
+    test(`queryRecord with username then findRecord with id`, async function (assert) {
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = await store.findRecord('user', '1');
@@ -201,7 +201,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
         `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
       );
     });
-    test(`queryRecord with username and findRecord with id in parallel`, async function(assert) {
+    test(`queryRecord with username and findRecord with id in parallel`, async function (assert) {
       const recordByUsernamePromise1 = store.queryRecord('user', { username: '@runspired' });
       const recordByIdPromise = store.findRecord('user', '1');
       const recordByUsernamePromise2 = store.queryRecord('user', { username: '@runspired' });
@@ -234,7 +234,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
     });
   });
 
-  module('Secondary Cache using an attribute as an alternate id', function(hooks) {
+  module('Secondary Cache using an attribute as an alternate id', function (hooks) {
     let store;
     let calls;
     let isQuery = false;
@@ -272,7 +272,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       }
     }
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       const { owner } = this;
 
       class User extends Model {
@@ -365,14 +365,14 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       setIdentifierUpdateMethod(updateMethod);
     });
 
-    hooks.afterEach(function() {
+    hooks.afterEach(function () {
       setIdentifierGenerationMethod(null);
       setIdentifierResetMethod(null);
       setIdentifierUpdateMethod(null);
       setIdentifierForgetMethod(null);
     });
 
-    test(`findRecord by id then by username as id`, async function(assert) {
+    test(`findRecord by id then by username as id`, async function (assert) {
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.findRecord('user', '@runspired');
@@ -396,7 +396,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       );
     });
 
-    test(`findRecord by username as id then by id`, async function(assert) {
+    test(`findRecord by username as id then by id`, async function (assert) {
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = await store.findRecord('user', '1');
@@ -420,7 +420,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       );
     });
 
-    test(`findRecord username and findRecord id in parallel`, async function(assert) {
+    test(`findRecord username and findRecord id in parallel`, async function (assert) {
       const recordByUsernamePromise = store.findRecord('user', '@runspired');
       const recordByIdPromise = store.findRecord('user', '1');
 
@@ -457,7 +457,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       assert.strictEqual(identifier.id, '1', 'The identifier id is correct');
     });
 
-    test(`findRecord by username and again`, async function(assert) {
+    test(`findRecord by username and again`, async function (assert) {
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordByUsername2 = await store.findRecord('user', '@runspired');
@@ -510,7 +510,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
         cases with the scenario where records have multiple cache-keys in
         the "id" position.
     */
-    test(`findRecord by username and reload`, async function(assert) {
+    test(`findRecord by username and reload`, async function (assert) {
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordByUsername2 = await store.findRecord('user', '@runspired', { reload: true });
@@ -534,7 +534,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       );
     });
 
-    test(`push id then findRecord username`, async function(assert) {
+    test(`push id then findRecord username`, async function (assert) {
       const recordById = store.push({
         data: {
           type: 'user',
@@ -568,7 +568,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       );
     });
 
-    test(`findRecord username then push id`, async function(assert) {
+    test(`findRecord username then push id`, async function (assert) {
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = store.push({
@@ -601,7 +601,7 @@ module('Integration | Identifiers - scenarios', function(hooks) {
       );
     });
 
-    test(`secondary-key mutation`, async function(assert) {
+    test(`secondary-key mutation`, async function (assert) {
       const adapter = store.adapterFor('application');
       let hasSaved = false;
 

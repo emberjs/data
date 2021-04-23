@@ -11,7 +11,7 @@ function getDeprecations(compatVersion, isProd) {
   const { default: CURRENT_DEPRECATIONS } = requireEsm('@ember-data/private-build-infra/addon/current-deprecations.ts');
   const flags = {};
 
-  Object.keys(CURRENT_DEPRECATIONS).forEach(flag => {
+  Object.keys(CURRENT_DEPRECATIONS).forEach((flag) => {
     const deprecatedSince = CURRENT_DEPRECATIONS[flag];
     let flagState = true; // default to no code-stripping
 

@@ -50,7 +50,7 @@ class Library {
     this.packages = this.packages.sort((a, b) => {
       return a.compressedSize > b.compressedSize ? -1 : 1;
     });
-    this.packages.forEach(p => p.sort());
+    this.packages.forEach((p) => p.sort());
   }
   print(showModules) {
     console.log('\n\nAsset Size Report');
@@ -63,10 +63,10 @@ class Library {
       packages: this.packages.length,
       modules: this.packages.reduce((v, c) => v + c.modules.length, 0),
     });
-    this.packages.forEach(p => p.print());
+    this.packages.forEach((p) => p.print());
     if (showModules) {
-      this.packages.forEach(p => {
-        p.modules.forEach(m => {
+      this.packages.forEach((p) => {
+        p.modules.forEach((m) => {
           console.log('\n\n');
           console.log(m.code);
         });
@@ -82,9 +82,9 @@ class Library {
 
   static fromData(data) {
     const library = new Library(data.name);
-    data.packages.forEach(p => {
+    data.packages.forEach((p) => {
       const pkg = library.getPackage(p.name);
-      p.modules.forEach(m => {
+      p.modules.forEach((m) => {
         pkg.addModule(m.name, m.code);
       });
     });
@@ -153,7 +153,7 @@ class Package {
       }
     }
     console.log(line);
-    this.modules.forEach(s => s.print(longest + 4));
+    this.modules.forEach((s) => s.print(longest + 4));
   }
   toJSON() {
     return {

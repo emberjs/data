@@ -9,11 +9,11 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('inverse relationship load test', function(hooks) {
+module('inverse relationship load test', function (hooks) {
   let store;
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('service:store', Store);
     store = owner.lookup('service:store');
@@ -27,7 +27,7 @@ module('inverse relationship load test', function(hooks) {
     );
   });
 
-  test('one-to-many - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('one-to-many - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -116,7 +116,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -205,7 +205,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('one-to-many - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -295,7 +295,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many (left hand async, right hand sync) - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('one-to-many (left hand async, right hand sync) - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -386,7 +386,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many - findHasMany/null inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('one-to-many - findHasMany/null inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -466,7 +466,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2');
   });
 
-  test('one-to-one - findBelongsTo/implicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function(assert) {
+  test('one-to-one - findBelongsTo/implicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -538,7 +538,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(favoriteDog, null);
   });
 
-  test('one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function(assert) {
+  test('one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -610,7 +610,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(favoriteDog, null);
   });
 
-  test('one-to-one - findBelongsTo/explicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function(assert) {
+  test('one-to-one - findBelongsTo/explicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -682,7 +682,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(favoriteDog, null);
   });
 
-  test('one-to-one (left hand async, right hand sync) - findBelongsTo/explicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function(assert) {
+  test('one-to-one (left hand async, right hand sync) - findBelongsTo/explicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -754,7 +754,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(favoriteDog, null);
   });
 
-  test('one-to-one - findBelongsTo/null inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function(assert) {
+  test('one-to-one - findBelongsTo/null inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -818,7 +818,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(favoriteDog, null);
   });
 
-  test('many-to-many - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('many-to-many - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -899,7 +899,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
   });
 
-  test('many-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('many-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -980,7 +980,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
   });
 
-  test('many-to-many - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('many-to-many - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -1062,7 +1062,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
   });
 
-  test('many-to-many (left hand async, right hand sync) - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('many-to-many (left hand async, right hand sync) - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -1144,7 +1144,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
   });
 
-  test('many-to-one - findBelongsTo/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('many-to-one - findBelongsTo/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -1216,7 +1216,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record deleted removed from belongsTo relationship');
   });
 
-  test('many-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('many-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -1288,7 +1288,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record deleted removed from belongsTo relationship');
   });
 
-  test('many-to-one - findBelongsTo/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('many-to-one - findBelongsTo/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -1361,7 +1361,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record deleted removed from belongsTo relationship');
   });
 
-  test('many-to-one (left hand async, right hand sync) - findBelongsTo/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function(assert) {
+  test('many-to-one (left hand async, right hand sync) - findBelongsTo/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
     let { owner } = this;
 
     owner.register(
@@ -1436,7 +1436,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'one-to-many - findHasMany/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -1545,7 +1545,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -1654,7 +1654,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'one-to-many - findHasMany/implicit inverse - fixes null relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -1757,7 +1757,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - fixes null relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -1860,7 +1860,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'one-to-one - findBelongsTo/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -1955,7 +1955,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2051,7 +2051,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'one-to-one - findBelongsTo/implicit inverse - fixes null relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2144,7 +2144,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - fixes null relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2237,7 +2237,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-one - findBelongsTo/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2325,7 +2325,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-one (left hand async, right hand sync) - findBelongsTo/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2413,7 +2413,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-one - findBelongsTo/implicitInverse - fixes null relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2496,7 +2496,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-one (left hand async, right hand sync) - findBelongsTo/implicitInverse - fixes null relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2579,7 +2579,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-many - findHasMany/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2755,7 +2755,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -2931,7 +2931,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-many - findHasMany/implicitInverse - fixes empty relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -3053,7 +3053,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes empty relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -3175,7 +3175,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-many - findHasMany/implicitInverse - fixes null relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -3296,7 +3296,7 @@ module('inverse relationship load test', function(hooks) {
 
   testInDebug(
     'many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes null relationship information from the payload and deprecates',
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
 
       owner.register(
@@ -3415,7 +3415,7 @@ module('inverse relationship load test', function(hooks) {
     }
   );
 
-  test('one-to-many - ids/non-link/implicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function(assert) {
+  test('one-to-many - ids/non-link/implicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -3513,7 +3513,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function(assert) {
+  test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -3611,7 +3611,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many - ids/non-link/explicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function(assert) {
+  test('one-to-many - ids/non-link/explicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -3710,7 +3710,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function(assert) {
+  test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -3809,7 +3809,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many - ids/non-link/null inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function(assert) {
+  test('one-to-many - ids/non-link/null inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -3891,7 +3891,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function(assert) {
+  test('one-to-many - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -4017,7 +4017,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(person2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function(assert) {
+  test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -4143,7 +4143,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(person2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies null as the relationship value in the response', async function(assert) {
+  test('one-to-many - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies null as the relationship value in the response', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -4246,7 +4246,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(personDogs.get('length'), 0);
   });
 
-  test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies null as the relationship value in the response', async function(assert) {
+  test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies null as the relationship value in the response', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -4349,7 +4349,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(personDogs.get('length'), 0);
   });
 
-  test('one-to-many - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function(assert) {
+  test('one-to-many - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -4475,7 +4475,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function(assert) {
+  test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
     let { owner } = this;
 
     const scooby = {
@@ -4601,7 +4601,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
-  test("loading belongsTo doesn't remove inverse relationship for other instances", async function(assert) {
+  test("loading belongsTo doesn't remove inverse relationship for other instances", async function (assert) {
     let { owner } = this;
 
     const scooby = {

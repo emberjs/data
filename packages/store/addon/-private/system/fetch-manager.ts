@@ -131,12 +131,12 @@ export default class FetchManager {
     promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
     promise = promise.then(
-      adapterPayload => {
+      (adapterPayload) => {
         if (adapterPayload) {
           return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         }
       },
-      function(error) {
+      function (error) {
         if (error && error.isAdapterError === true && error.code === 'InvalidError') {
           let parsedErrors = error.errors;
 
@@ -189,7 +189,7 @@ export default class FetchManager {
 
     // We already have a pending fetch for this
     if (pendingFetches) {
-      let matchingPendingFetch = pendingFetches.find(fetch => fetch.identifier.id === identifier.id);
+      let matchingPendingFetch = pendingFetches.find((fetch) => fetch.identifier.id === identifier.id);
       if (matchingPendingFetch) {
         return matchingPendingFetch.resolver.promise;
       }
@@ -266,7 +266,7 @@ export default class FetchManager {
 
     promise = guardDestroyedStore(promise, this._store, label);
     promise = promise.then(
-      adapterPayload => {
+      (adapterPayload) => {
         assert(
           `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
           !!payloadIsNotBlank(adapterPayload)
@@ -288,7 +288,7 @@ export default class FetchManager {
 
         return payload;
       },
-      error => {
+      (error) => {
         throw error;
       },
       `DS: Extract payload of '${modelName}'`
@@ -339,7 +339,7 @@ export default class FetchManager {
     if (missingSnapshots.length) {
       warn(
         'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-          missingSnapshots.map(r => r.id).join('", "') +
+          missingSnapshots.map((r) => r.id).join('", "') +
           '" ]',
         false,
         {
@@ -379,7 +379,7 @@ export default class FetchManager {
     optionsMap
   ) {
     let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
-    let ids = snapshots.map(s => s.id);
+    let ids = snapshots.map((s) => s.id);
     let promise = adapter.findMany(store, modelClass, ids, A(snapshots));
     let label = `DS: Handle Adapter#findMany of '${modelName}'`;
 
@@ -390,7 +390,7 @@ export default class FetchManager {
     promise = guardDestroyedStore(promise, store, label);
 
     return promise.then(
-      adapterPayload => {
+      (adapterPayload) => {
         assert(
           `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
           !!payloadIsNotBlank(adapterPayload)
@@ -424,10 +424,10 @@ export default class FetchManager {
     let store = this._store;
     if (totalInGroup > 1) {
       this._findMany(adapter, store, modelName, group, groupedSnapshots, optionsMap)
-        .then(payloads => {
+        .then((payloads) => {
           this.handleFoundRecords(seeking, payloads, groupedSnapshots);
         })
-        .catch(error => {
+        .catch((error) => {
           this.rejectFetchedItems(seeking, groupedSnapshots, error);
         });
     } else if (ids.length === 1) {

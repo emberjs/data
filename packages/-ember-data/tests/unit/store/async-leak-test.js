@@ -17,11 +17,11 @@ class Person extends Model {
   name;
 }
 
-module('unit/store async-waiter and leak detection', function(hooks) {
+module('unit/store async-waiter and leak detection', function (hooks) {
   let store;
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('service:store', Store);
     owner.register('model:person', Person);
@@ -37,16 +37,16 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     store.shouldTrackAsyncRequests = true;
   });
 
-  test('the waiter properly waits for pending requests', async function(assert) {
+  test('the waiter properly waits for pending requests', async function (assert) {
     let findRecordWasInvoked;
-    let findRecordWasInvokedPromise = new Promise(resolveStep => {
+    let findRecordWasInvokedPromise = new Promise((resolveStep) => {
       findRecordWasInvoked = resolveStep;
     });
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         findRecord() {
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             findRecordWasInvoked();
 
             setTimeout(() => {
@@ -71,16 +71,16 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 
-  test('waiter can be turned off', async function(assert) {
+  test('waiter can be turned off', async function (assert) {
     let findRecordWasInvoked;
-    let findRecordWasInvokedPromise = new Promise(resolveStep => {
+    let findRecordWasInvokedPromise = new Promise((resolveStep) => {
       findRecordWasInvoked = resolveStep;
     });
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         findRecord() {
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             findRecordWasInvoked();
 
             setTimeout(() => {
@@ -109,10 +109,10 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 
-  test('waiter works even when the adapter rejects', async function(assert) {
+  test('waiter works even when the adapter rejects', async function (assert) {
     assert.expect(4);
     let findRecordWasInvoked;
-    let findRecordWasInvokedPromise = new Promise(resolveStep => {
+    let findRecordWasInvokedPromise = new Promise((resolveStep) => {
       findRecordWasInvoked = resolveStep;
     });
     this.owner.register(
@@ -144,7 +144,7 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 
-  test('waiter works even when the adapter throws', async function(assert) {
+  test('waiter works even when the adapter throws', async function (assert) {
     assert.expect(4);
     let waiter = store.__asyncWaiter;
     this.owner.register(
@@ -166,9 +166,9 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     assert.true(waiter(), 'We return true to end waiting when no requests are pending');
   });
 
-  test('when the store is torn down too early, we throw an error', async function(assert) {
+  test('when the store is torn down too early, we throw an error', async function (assert) {
     let next;
-    let stepPromise = new Promise(resolveStep => {
+    let stepPromise = new Promise((resolveStep) => {
       next = resolveStep;
     });
     this.owner.register(
@@ -176,7 +176,7 @@ module('unit/store async-waiter and leak detection', function(hooks) {
       JSONAPIAdapter.extend({
         findRecord() {
           next();
-          stepPromise = new Promise(resolveStep => {
+          stepPromise = new Promise((resolveStep) => {
             next = resolveStep;
           }).then(() => {
             return { data: { type: 'person', id: '1' } };
@@ -196,7 +196,7 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     assert.false(waiter(), 'We return false to keep waiting while requests are pending');
 
     // needed for LTS 2.16
-    Ember.Test.adapter.exception = e => {
+    Ember.Test.adapter.exception = (e) => {
       throw e;
     };
 
@@ -212,9 +212,9 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     assert.true(waiter(), 'We return true because the waiter is cleared');
   });
 
-  test('when the store is torn down too early, but the waiter behavior is turned off, we emit a warning', async function(assert) {
+  test('when the store is torn down too early, but the waiter behavior is turned off, we emit a warning', async function (assert) {
     let next;
-    let stepPromise = new Promise(resolveStep => {
+    let stepPromise = new Promise((resolveStep) => {
       next = resolveStep;
     });
     this.owner.register(
@@ -222,7 +222,7 @@ module('unit/store async-waiter and leak detection', function(hooks) {
       JSONAPIAdapter.extend({
         findRecord() {
           next();
-          stepPromise = new Promise(resolveStep => {
+          stepPromise = new Promise((resolveStep) => {
             next = resolveStep;
           }).then(() => {
             return { data: { type: 'person', id: '1' } };
@@ -259,9 +259,9 @@ module('unit/store async-waiter and leak detection', function(hooks) {
     assert.true(waiter(), 'We return true because the waiter is cleared');
   });
 
-  test('when configured, pending requests have useful stack traces', async function(assert) {
+  test('when configured, pending requests have useful stack traces', async function (assert) {
     let stepResolve;
-    let stepPromise = new Promise(resolveStep => {
+    let stepPromise = new Promise((resolveStep) => {
       stepResolve = resolveStep;
     });
     let fakeId = 1;
@@ -269,7 +269,7 @@ module('unit/store async-waiter and leak detection', function(hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         findRecord() {
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             stepResolve();
 
             setTimeout(() => {

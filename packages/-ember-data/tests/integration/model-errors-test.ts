@@ -22,7 +22,7 @@ class Tag extends Model {
 class ErrorList extends Component<{ model: Model; field: string }> {
   get errors() {
     const { model, field } = this.args;
-    return model.errors.errorsFor(field).map(error => error.message);
+    return model.errors.errorsFor(field).map((error) => error.message);
   }
 }
 
@@ -38,17 +38,17 @@ interface CurrentTestContext extends TestContext {
   tag: Tag;
 }
 
-module('integration/model.errors', function(hooks) {
+module('integration/model.errors', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:tag', Tag);
     owner.register('component:error-list', setComponentTemplate(template, ErrorList));
   });
 
-  test('Model errors are autotracked', async function(this: CurrentTestContext, assert) {
+  test('Model errors are autotracked', async function (this: CurrentTestContext, assert) {
     this.tag = this.owner.lookup('service:store').createRecord('tag');
     // @ts-ignore
     const errors = get(this.tag, 'errors');

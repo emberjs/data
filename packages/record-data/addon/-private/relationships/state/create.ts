@@ -44,7 +44,7 @@ export default class Relationships {
 
   forEach(cb) {
     let rels = this.initializedRelationships;
-    Object.keys(rels).forEach(name => {
+    Object.keys(rels).forEach((name) => {
       cb(name, rels[name]);
     });
   }

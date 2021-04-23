@@ -10,10 +10,10 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 class Person extends Model {
   @attr name;
 }
-module('integration/adapter/handle-response', function(hooks) {
+module('integration/adapter/handle-response', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('model:person', Person);
     this.owner.register('serializer:application', JSONAPISerializer);
 
@@ -21,14 +21,14 @@ module('integration/adapter/handle-response', function(hooks) {
     this.server = new Pretender();
   });
 
-  hooks.afterEach(function() {
+  hooks.afterEach(function () {
     if (this.server) {
       this.server.shutdown();
       this.server = null;
     }
   });
 
-  test('handleResponse is called with normal response', async function(assert) {
+  test('handleResponse is called with normal response', async function (assert) {
     let handleResponseCalled = 0;
 
     let samplePayload = {
@@ -50,7 +50,7 @@ module('integration/adapter/handle-response', function(hooks) {
       ],
     };
 
-    this.server.get('/people', function() {
+    this.server.get('/people', function () {
       return [200, { 'Content-Type': 'application/json' }, JSON.stringify(samplePayload)];
     });
 
@@ -69,14 +69,14 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is called with empty array response', async function(assert) {
+  test('handleResponse is called with empty array response', async function (assert) {
     let handleResponseCalled = 0;
 
     let samplePayload = {
       data: [],
     };
 
-    this.server.get('/people', function() {
+    this.server.get('/people', function () {
       return [200, { 'Content-Type': 'application/json' }, JSON.stringify(samplePayload)];
     });
 
@@ -95,10 +95,10 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is called on empty string response', async function(assert) {
+  test('handleResponse is called on empty string response', async function (assert) {
     let handleResponseCalled = 0;
 
-    this.server.get('/people', function() {
+    this.server.get('/people', function () {
       return [200, { 'Content-Type': 'application/json' }, ''];
     });
 
@@ -122,10 +122,10 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is not called on invalid response', async function(assert) {
+  test('handleResponse is not called on invalid response', async function (assert) {
     let handleResponseCalled = 0;
 
-    this.server.get('/people', function() {
+    this.server.get('/people', function () {
       return [200, { 'Content-Type': 'application/json' }, 'bogus response'];
     });
 
@@ -149,10 +149,10 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 0, 'handle response is not called');
   });
 
-  test('handleResponse is called on empty string response with 400 status', async function(assert) {
+  test('handleResponse is called on empty string response with 400 status', async function (assert) {
     let handleResponseCalled = 0;
 
-    this.server.get('/people', function() {
+    this.server.get('/people', function () {
       return [400, { 'Content-Type': 'application/json' }, ''];
     });
 
@@ -176,12 +176,12 @@ module('integration/adapter/handle-response', function(hooks) {
     assert.equal(handleResponseCalled, 1, 'handle response is called');
   });
 
-  test('handleResponse is called with correct parameters on string response with 422 status', async function(assert) {
+  test('handleResponse is called with correct parameters on string response with 422 status', async function (assert) {
     let handleResponseCalled = 0;
 
     let errorObject = { errors: {} };
 
-    this.server.get('/people', function() {
+    this.server.get('/people', function () {
       return [422, { 'Content-Type': 'application/json' }, JSON.stringify(errorObject)];
     });
 

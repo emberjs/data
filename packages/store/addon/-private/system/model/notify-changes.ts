@@ -11,7 +11,7 @@ export default function notifyChanges(
   store: Store
 ) {
   if (value === 'attributes') {
-    record.eachAttribute(key => {
+    record.eachAttribute((key) => {
       let currentValue = cacheFor(record, key);
       let internalModel = store._internalModelForResource(identifier);
       if (currentValue !== internalModel._recordData.getAttr(key)) {

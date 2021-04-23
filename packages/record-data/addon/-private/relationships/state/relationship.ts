@@ -262,7 +262,7 @@ export default class Relationship {
 
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
-    this.forAllMembers(inverseIdentifier => {
+    this.forAllMembers((inverseIdentifier) => {
       let recordData = inverseIdentifier && peekRecordData(inverseIdentifier);
       if (!recordData || !inverseIdentifier) {
         return;
@@ -354,11 +354,11 @@ export default class Relationship {
   }
 
   removeRecordDatas(recordDatas: StableRecordIdentifier[]) {
-    recordDatas.forEach(recordData => this.removeRecordData(recordData));
+    recordDatas.forEach((recordData) => this.removeRecordData(recordData));
   }
 
   addRecordDatas(recordDatas: StableRecordIdentifier[], idx?: number) {
-    recordDatas.forEach(recordData => {
+    recordDatas.forEach((recordData) => {
       this.addRecordData(recordData, idx);
       if (idx !== undefined) {
         idx++;
@@ -537,7 +537,7 @@ export default class Relationship {
 
     let unload;
     if (!this.inverseIsImplicit) {
-      unload = inverseRecordData => {
+      unload = (inverseRecordData) => {
         const id = guidFor(inverseRecordData);
 
         if (seen[id] === undefined) {
@@ -549,7 +549,7 @@ export default class Relationship {
         }
       };
     } else {
-      unload = inverseRecordData => {
+      unload = (inverseRecordData) => {
         const id = guidFor(inverseRecordData);
 
         if (seen[id] === undefined) {

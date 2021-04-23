@@ -23,7 +23,7 @@ export default function configureAssertAllDeprecations() {
       if (typeof assert.test.expected === 'number') {
         assert.test.expected += 1;
       }
-      assert.expectNoDeprecation(undefined, undefined, deprecation => {
+      assert.expectNoDeprecation(undefined, undefined, (deprecation) => {
         // only assert EmberData deprecations
         const id = deprecation.options.id.toLowerCase();
         const isEmberDataDeprecation =
@@ -47,7 +47,7 @@ export default function configureAssertAllDeprecations() {
     // ensure we don't regress quietly
     // this plays nicely with `expectDeprecation`
     if (DEBUG) {
-      QUnit.config.modules.forEach(mod => {
+      QUnit.config.modules.forEach((mod) => {
         const hooks = (mod.hooks.afterEach = mod.hooks.afterEach || []);
 
         if (mod.tests.length !== 0) {
@@ -57,7 +57,7 @@ export default function configureAssertAllDeprecations() {
     }
   });
 
-  QUnit.done(function() {
+  QUnit.done(function () {
     if (ASSERT_ALL_DEPRECATIONS) {
       QUnit.config.deprecations = ALL_ASSERTED_DEPRECATIONS;
     }

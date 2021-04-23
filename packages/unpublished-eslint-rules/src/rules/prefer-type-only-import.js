@@ -89,7 +89,7 @@ function isMaybeUsage(identifier, imports) {
   return specifiers for a declaration that were-not-used by any JS code
 */
 function getSpecifiersNotUsedByJS(declaration, used) {
-  return declaration.specifiers.filter(s => used[s.local.name] !== true);
+  return declaration.specifiers.filter((s) => used[s.local.name] !== true);
 }
 
 /*
@@ -98,7 +98,7 @@ function getSpecifiersNotUsedByJS(declaration, used) {
  specifiers that were-used-as-types
 */
 function getTypeOnlySpecifiers(specifiers, usedTypes) {
-  return specifiers.filter(s => usedTypes[s.local.name]);
+  return specifiers.filter((s) => usedTypes[s.local.name]);
 }
 
 /*
@@ -106,7 +106,7 @@ function getTypeOnlySpecifiers(specifiers, usedTypes) {
   some of which may be unused as either types or in JS code
 */
 function getRemainingSpecifiers(declaration, typeSpecifiers) {
-  return declaration.specifiers.filter(s => typeSpecifiers.indexOf(s) === -1);
+  return declaration.specifiers.filter((s) => typeSpecifiers.indexOf(s) === -1);
 }
 
 /*
@@ -192,7 +192,7 @@ function reportRuleViolation(violation) {
         // no more ES imports remain after we remove this one
         changes.push(fixer.insertTextBeforeRange(declaration.range, newTypeImports));
       }
-      rangesToRemove.forEach(range => {
+      rangesToRemove.forEach((range) => {
         changes.push(fixer.removeRange(range));
       });
       return changes;
@@ -211,7 +211,7 @@ function lintDeclarationForTypeOnlyImports(declaration, usageData, context) {
   }
 
   let remaining = getRemainingSpecifiers(declaration, typeOnlyImports);
-  let importStatements = typeOnlyImports.map(specifier => {
+  let importStatements = typeOnlyImports.map((specifier) => {
     let name = specifier.local.name;
     let info = imports[name];
     let realName = info.isDefault ? 'default' : info.imported.name;
@@ -244,7 +244,7 @@ function lintDeclarationForTypeOnlyImports(declaration, usageData, context) {
     rangesToRemove = [range];
   } else {
     let removedRanges = [];
-    typeOnlyImports.forEach(specifier => {
+    typeOnlyImports.forEach((specifier) => {
       removedRanges.push(getRangeToRemove(specifier));
     });
     rangesToRemove = collapseRanges(removedRanges);

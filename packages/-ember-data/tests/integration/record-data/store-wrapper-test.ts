@@ -92,12 +92,12 @@ let CustomStore = Store.extend({
 
 let houseHash, houseHash2;
 
-module('integration/store-wrapper - RecordData StoreWrapper tests', function(hooks) {
+module('integration/store-wrapper - RecordData StoreWrapper tests', function (hooks) {
   setupTest(hooks);
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     houseHash = {
       type: 'house',
@@ -122,7 +122,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     owner.register('service:store', CustomStore);
   });
 
-  test('Relationship definitions', async function(assert) {
+  test('Relationship definitions', async function (assert) {
     assert.expect(7);
     let { owner } = this;
 
@@ -222,7 +222,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     });
   });
 
-  test('RecordDataFor', async function(assert) {
+  test('RecordDataFor', async function (assert) {
     assert.expect(3);
     let { owner } = this;
 
@@ -270,7 +270,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     assert.equal(count, 2, 'two TestRecordDatas have been created');
   });
 
-  test('recordDataFor - create new', async function(assert) {
+  test('recordDataFor - create new', async function (assert) {
     assert.expect(3);
     let { owner } = this;
     let count = 0;
@@ -330,7 +330,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     assert.equal(count, 2, 'two TestRecordDatas have been created');
   });
 
-  test('setRecordId', async function(assert) {
+  test('setRecordId', async function (assert) {
     assert.expect(1);
     let { owner } = this;
 
@@ -367,7 +367,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     );
   });
 
-  test('isRecordInUse', async function(assert) {
+  test('isRecordInUse', async function (assert) {
     assert.expect(2);
     let { owner } = this;
 
@@ -407,7 +407,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function(hoo
     store.createRecord('house');
   });
 
-  test('disconnectRecord', async function(assert) {
+  test('disconnectRecord', async function (assert) {
     assert.expect(1);
     let { owner } = this;
     let wrapper;

@@ -7,10 +7,10 @@ import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('integration/adapter/record_persistence - Persisting Records', function(hooks) {
+module('integration/adapter/record_persistence - Persisting Records', function (hooks) {
   setupTest(hooks);
 
-  test("When a store is committed, the adapter's `updateRecord` method should be called with records that have been changed.", async function(assert) {
+  test("When a store is committed, the adapter's `updateRecord` method should be called with records that have been changed.", async function (assert) {
     assert.expect(2);
 
     const Person = Model.extend({
@@ -31,7 +31,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.updateRecord = function(_store, type, snapshot) {
+    adapter.updateRecord = function (_store, type, snapshot) {
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
       assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
 
@@ -53,7 +53,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     await tom.save();
   });
 
-  test("When a store is committed, the adapter's `createRecord` method should be called with records that have been created.", async function(assert) {
+  test("When a store is committed, the adapter's `createRecord` method should be called with records that have been created.", async function (assert) {
     assert.expect(2);
 
     const Person = Model.extend({
@@ -76,7 +76,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
 
     let tom;
 
-    adapter.createRecord = function(_store, type, snapshot) {
+    adapter.createRecord = function (_store, type, snapshot) {
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
       assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
 
@@ -88,7 +88,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     return await tom.save();
   });
 
-  test('After a created record has been assigned an ID, finding a record by that ID returns the original record.', async function(assert) {
+  test('After a created record has been assigned an ID, finding a record by that ID returns the original record.', async function (assert) {
     assert.expect(1);
 
     const Person = Model.extend({
@@ -111,7 +111,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
 
     let tom;
 
-    adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function (store, type, snapshot) {
       return resolve({ data: { id: 1, type: 'person', attributes: { name: 'Tom Dale' } } });
     };
 
@@ -123,7 +123,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     assert.strictEqual(tom, retrievedTom, 'The retrieved record is the same as the created record');
   });
 
-  test("when a store is committed, the adapter's `deleteRecord` method should be called with records that have been deleted.", async function(assert) {
+  test("when a store is committed, the adapter's `deleteRecord` method should be called with records that have been deleted.", async function (assert) {
     const Person = Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
@@ -142,7 +142,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.deleteRecord = function(_store, type, snapshot) {
+    adapter.deleteRecord = function (_store, type, snapshot) {
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
       assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
 
@@ -168,7 +168,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     assert.true(tom.isDeleted, 'record is marked as deleted');
   });
 
-  test('An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.', async function(assert) {
+  test('An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.', async function (assert) {
     const Person = Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
@@ -187,7 +187,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.updateRecord = function(_store, _type, snapshot) {
+    adapter.updateRecord = function (_store, _type, snapshot) {
       if (snapshot.id === '1') {
         return resolve({
           data: {
@@ -264,7 +264,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     );
   });
 
-  test('An adapter can notify the store that records were deleted by calling `didSaveRecords`.', async function(assert) {
+  test('An adapter can notify the store that records were deleted by calling `didSaveRecords`.', async function (assert) {
     const Person = Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
@@ -319,7 +319,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
     assert.true(yehuda.isDeleted, 'Yehuda is marked as deleted');
   });
 
-  test('Create record response does not have to include the type property', async function(assert) {
+  test('Create record response does not have to include the type property', async function (assert) {
     assert.expect(2);
 
     const Person = Model.extend({
@@ -349,7 +349,7 @@ module('integration/adapter/record_persistence - Persisting Records', function(h
 
     let tom;
 
-    adapter.createRecord = function(_store, type, snapshot) {
+    adapter.createRecord = function (_store, type, snapshot) {
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
       assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
 

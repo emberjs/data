@@ -15,10 +15,10 @@ function startsWith(str, substr) {
   return str.indexOf(substr) === 0;
 }
 
-module('@ember-data/model klass.modelName', function(hooks) {
+module('@ember-data/model klass.modelName', function (hooks) {
   setupTest(hooks);
 
-  test('Extending a model properly sets the modelName', function(assert) {
+  test('Extending a model properly sets the modelName', function (assert) {
     const { owner } = this;
     class Animal extends Model {
       @attr() species;

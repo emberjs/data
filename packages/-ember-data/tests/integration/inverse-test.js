@@ -6,21 +6,21 @@ import Model, { attr, belongsTo } from '@ember-data/model';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function stringify(string) {
-  return function() {
+  return function () {
     return string;
   };
 }
 
-module('integration/inverse_test - inverseFor', function(hooks) {
+module('integration/inverse_test - inverseFor', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     store = owner.lookup('service:store');
   });
 
-  test('Finds the inverse when there is only one possible available', function(assert) {
+  test('Finds the inverse when there is only one possible available', function (assert) {
     class User extends Model {
       @attr()
       name;
@@ -70,7 +70,7 @@ module('integration/inverse_test - inverseFor', function(hooks) {
     );
   });
 
-  test('Finds the inverse when only one side has defined it manually', function(assert) {
+  test('Finds the inverse when only one side has defined it manually', function (assert) {
     class User extends Model {
       @attr()
       name;
@@ -139,7 +139,7 @@ module('integration/inverse_test - inverseFor', function(hooks) {
     );
   });
 
-  test('Returns null if inverse relationship it is manually set with a different relationship key', function(assert) {
+  test('Returns null if inverse relationship it is manually set with a different relationship key', function (assert) {
     class User extends Model {
       @attr()
       name;
@@ -175,7 +175,7 @@ module('integration/inverse_test - inverseFor', function(hooks) {
     assert.equal(user.inverseFor('job', store), null, 'There is no inverse');
   });
 
-  testInDebug('Errors out if you define 2 inverses to the same model', function(assert) {
+  testInDebug('Errors out if you define 2 inverses to the same model', function (assert) {
     class User extends Model {
       @attr()
       name;
@@ -215,7 +215,7 @@ module('integration/inverse_test - inverseFor', function(hooks) {
     }, /Assertion Failed: You defined the 'job' relationship on model:user, but you defined the inverse relationships of type model:job multiple times/i);
   });
 
-  test('Caches findInverseFor return value', function(assert) {
+  test('Caches findInverseFor return value', function (assert) {
     assert.expect(1);
     class User extends Model {
       @attr()
@@ -250,14 +250,14 @@ module('integration/inverse_test - inverseFor', function(hooks) {
     let job = store.modelFor('job');
 
     let inverseForUser = job.inverseFor('user', store);
-    job.findInverseFor = function() {
+    job.findInverseFor = function () {
       assert.ok(false, 'Find is not called anymore');
     };
 
     assert.equal(inverseForUser, job.inverseFor('user', store), 'Inverse cached succesfully');
   });
 
-  testInDebug('Errors out if you do not define an inverse for a reflexive relationship', function(assert) {
+  testInDebug('Errors out if you do not define an inverse for a reflexive relationship', function (assert) {
     class ReflexiveModel extends Model {
       @belongsTo('reflexive-model', { async: false })
       reflexiveProp;

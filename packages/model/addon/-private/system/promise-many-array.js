@@ -51,7 +51,7 @@ export function promiseManyArray(promise, label) {
 }
 
 function proxyToContent(method) {
-  return function() {
+  return function () {
     return get(this, 'content')[method](...arguments);
   };
 }

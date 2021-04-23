@@ -54,7 +54,7 @@ export function errorsHashToArray(errors) {
   let out = [];
 
   if (isPresent(errors)) {
-    Object.keys(errors).forEach(key => {
+    Object.keys(errors).forEach((key) => {
       let messages = makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
         let title = 'Invalid Attribute';
@@ -119,7 +119,7 @@ export function errorsArrayToHash(errors) {
   let out = {};
 
   if (isPresent(errors)) {
-    errors.forEach(error => {
+    errors.forEach((error) => {
       if (error.source && error.source.pointer) {
         let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
 

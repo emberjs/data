@@ -27,7 +27,7 @@ function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is Relatio
 let peekGraph;
 if (HAS_RECORD_DATA_PACKAGE) {
   let _peekGraph;
-  peekGraph = wrapper => {
+  peekGraph = (wrapper) => {
     _peekGraph = _peekGraph || require('@ember-data/record-data/-private').peekGraph;
     return _peekGraph(wrapper);
   };

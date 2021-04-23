@@ -8,10 +8,10 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('integration/adapter/find - Finding Records', function(hooks) {
+module('integration/adapter/find - Finding Records', function (hooks) {
   setupTest(hooks);
 
-  testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', async function(assert) {
+  testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -31,7 +31,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     }, `You cannot pass 'null' as id to the store's find method`);
   });
 
-  test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function(assert) {
+  test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function (assert) {
     assert.expect(2);
 
     const Person = Model.extend({
@@ -72,7 +72,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     store.findRecord('person', '1');
   });
 
-  test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', async function(assert) {
+  test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -82,7 +82,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     this.owner.register('serializer:application', JSONAPISerializer.extend());
 
     let resolveFindRecordPromise;
-    let findRecordPromise = new Promise(resolve => (resolveFindRecordPromise = resolve));
+    let findRecordPromise = new Promise((resolve) => (resolveFindRecordPromise = resolve));
 
     this.owner.register(
       'adapter:person',
@@ -95,12 +95,12 @@ module('integration/adapter/find - Finding Records', function(hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    let firstPlayerRequest = store.findRecord('person', '1').then(function(firstPlayerRequest) {
+    let firstPlayerRequest = store.findRecord('person', '1').then(function (firstPlayerRequest) {
       assert.strictEqual(firstPlayerRequest.id, '1');
       assert.strictEqual(firstPlayerRequest.name, 'Totono Grisales');
     });
 
-    let secondPlayerRequest = store.findRecord('person', '1').then(function(secondPlayerRequest) {
+    let secondPlayerRequest = store.findRecord('person', '1').then(function (secondPlayerRequest) {
       assert.strictEqual(secondPlayerRequest.id, '1');
       assert.strictEqual(secondPlayerRequest.name, 'Totono Grisales');
     });
@@ -118,7 +118,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     await allSettled([firstPlayerRequest, secondPlayerRequest]);
   });
 
-  test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', async function(assert) {
+  test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -145,7 +145,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     }
   });
 
-  test('When a single record is requested, and the promise is rejected, the record should be unloaded.', async function(assert) {
+  test('When a single record is requested, and the promise is rejected, the record should be unloaded.', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -173,7 +173,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     }
   });
 
-  testInDebug('When a single record is requested, and the payload is blank', async function(assert) {
+  testInDebug('When a single record is requested, and the payload is blank', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -201,7 +201,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     }
   });
 
-  testInDebug('When multiple records are requested, and the payload is blank', async function(assert) {
+  testInDebug('When multiple records are requested, and the payload is blank', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -230,7 +230,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     }
   });
 
-  testInDebug('warns when returned record has different id', async function(assert) {
+  testInDebug('warns when returned record has different id', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });
@@ -262,7 +262,7 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     }, /You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/);
   });
 
-  testInDebug('coerces ids before warning when returned record has different id', async function(assert) {
+  testInDebug('coerces ids before warning when returned record has different id', async function (assert) {
     const Person = Model.extend({
       name: attr('string'),
     });

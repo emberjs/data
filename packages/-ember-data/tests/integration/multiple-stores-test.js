@@ -10,10 +10,10 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
-module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
+module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const SuperVillain = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -35,7 +35,7 @@ module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
     this.owner.register('store:store-b', Store);
   });
 
-  test('should be able to push into multiple stores', async function(assert) {
+  test('should be able to push into multiple stores', async function (assert) {
     this.owner.register(
       'adapter:home-planet',
       RESTAdapter.extend({
@@ -68,7 +68,7 @@ module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
     assert.equal(homePlanet.name, 'Saturn');
   });
 
-  test('embedded records should be created in multiple stores', function(assert) {
+  test('embedded records should be created in multiple stores', function (assert) {
     this.owner.register(
       'serializer:home-planet',
       RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -160,7 +160,7 @@ module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
     assert.true(cigarStore.hasRecordForId('super-villain', '1'), 'superVillain should exist in store:store-b');
   });
 
-  test('each store should have a unique instance of the serializers', function(assert) {
+  test('each store should have a unique instance of the serializers', function (assert) {
     this.owner.register('serializer:home-planet', RESTSerializer.extend({}));
 
     const andromedaStore = this.owner.lookup('store:store-a');
@@ -178,7 +178,7 @@ module('integration/multiple_stores - Multiple Stores Tests', function(hooks) {
     assert.notEqual(andromedaSerializer, cigarSerializer, 'andromedaStore and cigarStore should be unique instances');
   });
 
-  test('each store should have a unique instance of the adapters', function(assert) {
+  test('each store should have a unique instance of the adapters', function (assert) {
     this.owner.register('adapter:home-planet', Adapter.extend({}));
 
     const andromedaStore = this.owner.lookup('store:store-a');

@@ -6,10 +6,10 @@ import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import Store from '@ember-data/store';
 
 if (CUSTOM_MODEL_CLASS) {
-  module('modelFor without @ember-data/model', function(hooks) {
+  module('modelFor without @ember-data/model', function (hooks) {
     setupTest(hooks);
 
-    test('We can call modelFor', function(assert) {
+    test('We can call modelFor', function (assert) {
       this.owner.register(
         'service:store',
         class TestStore extends Store {
@@ -61,7 +61,7 @@ if (CUSTOM_MODEL_CLASS) {
       }
     });
 
-    test('modelFor returns a stable reference', function(assert) {
+    test('modelFor returns a stable reference', function (assert) {
       this.owner.register(
         'service:store',
         class TestStore extends Store {

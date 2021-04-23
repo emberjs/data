@@ -30,9 +30,9 @@ class Car extends Model {
   person;
 }
 
-module('integration/record_array_manager', function(hooks) {
+module('integration/record_array_manager', function (hooks) {
   setupTest(hooks);
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('adapter:application', RESTAdapter);
     owner.register('model:car', Car);
@@ -47,7 +47,7 @@ module('integration/record_array_manager', function(hooks) {
 
     let summary = { called: [] };
 
-    obj[methodName] = function() {
+    obj[methodName] = function () {
       let result = old.apply(obj, arguments);
       if (callback) {
         callback.apply(obj, arguments);
@@ -59,7 +59,7 @@ module('integration/record_array_manager', function(hooks) {
     return summary;
   }
 
-  test('destroying the store correctly cleans everything up', async function(assert) {
+  test('destroying the store correctly cleans everything up', async function (assert) {
     store.push({
       data: {
         type: 'car',
@@ -130,11 +130,11 @@ module('integration/record_array_manager', function(hooks) {
     assert.equal(adapterPopulatedSummary.called.length, 1, 'adapterPopulated.willDestroy called once');
   });
 
-  test('batch liveRecordArray changes', async function(assert) {
+  test('batch liveRecordArray changes', async function (assert) {
     let cars = store.peekAll('car');
     let arrayContentWillChangeCount = 0;
 
-    cars.arrayContentWillChange = function(startIndex, removeCount, addedCount) {
+    cars.arrayContentWillChange = function (startIndex, removeCount, addedCount) {
       arrayContentWillChangeCount++;
       assert.equal(startIndex, 0, 'expected 0 startIndex');
       assert.equal(removeCount, 0, 'expected 0 removed');
@@ -174,7 +174,7 @@ module('integration/record_array_manager', function(hooks) {
 
     assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
 
-    cars.arrayContentWillChange = function(startIndex, removeCount, addedCount) {
+    cars.arrayContentWillChange = function (startIndex, removeCount, addedCount) {
       arrayContentWillChangeCount++;
       assert.equal(startIndex, 2, 'expected a start index of TWO');
       assert.equal(removeCount, 0, 'expected no removes');
@@ -215,10 +215,10 @@ module('integration/record_array_manager', function(hooks) {
 
     assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
     // reset function so it doesn't execute after test finishes and store is torn down
-    cars.arrayContentWillChange = function() {};
+    cars.arrayContentWillChange = function () {};
   });
 
-  test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', async function(assert) {
+  test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', async function (assert) {
     store.push({
       data: {
         type: 'car',
@@ -240,7 +240,7 @@ module('integration/record_array_manager', function(hooks) {
     assert.equal(manager._adapterPopulatedRecordArrays.length, 0);
   });
 
-  test('createRecordArray', function(assert) {
+  test('createRecordArray', function (assert) {
     let recordArray = manager.createRecordArray('foo');
 
     assert.equal(recordArray.modelName, 'foo');
@@ -250,7 +250,7 @@ module('integration/record_array_manager', function(hooks) {
     assert.deepEqual(recordArray.toArray(), []);
   });
 
-  test('createRecordArray with optional content', function(assert) {
+  test('createRecordArray with optional content', function (assert) {
     let record = store.push({
       data: {
         type: 'car',
@@ -272,17 +272,17 @@ module('integration/record_array_manager', function(hooks) {
     assert.deepEqual(recordArray.toArray(), [record], 'toArray works');
   });
 
-  test('liveRecordArrayFor always return the same array for a given type', function(assert) {
+  test('liveRecordArrayFor always return the same array for a given type', function (assert) {
     assert.equal(manager.liveRecordArrayFor('foo'), manager.liveRecordArrayFor('foo'));
   });
 
-  test('liveRecordArrayFor create with content', function(assert) {
+  test('liveRecordArrayFor create with content', function (assert) {
     assert.expect(6);
 
     let createRecordArrayCalled = 0;
     let superCreateRecordArray = manager.createRecordArray;
 
-    manager.createRecordArray = function(modelName, internalModels) {
+    manager.createRecordArray = function (modelName, internalModels) {
       createRecordArrayCalled++;
       assert.equal(modelName, 'car');
       assert.equal(internalModels.length, 1);

@@ -23,11 +23,11 @@ class User extends Model {
 
 class Occupation extends Model {}
 
-module('[@ember-data/model] unit - relationships', function(hooks) {
+module('[@ember-data/model] unit - relationships', function (hooks) {
   let store;
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:occupation', Occupation);
@@ -38,14 +38,14 @@ module('[@ember-data/model] unit - relationships', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('exposes a hash of the relationships on a model', function(assert) {
+  test('exposes a hash of the relationships on a model', function (assert) {
     let Person = store.modelFor('person');
 
     let relationships = get(Person, 'relationships');
     function extractDetails(key) {
       let descs = relationships.get(key);
 
-      return descs.map(desc => {
+      return descs.map((desc) => {
         return {
           kind: desc.kind,
           name: desc.name,
@@ -69,7 +69,7 @@ module('[@ember-data/model] unit - relationships', function(hooks) {
     );
   });
 
-  test('relationshipNames a hash of the relationships on a model with type as a key', function(assert) {
+  test('relationshipNames a hash of the relationships on a model with type as a key', function (assert) {
     assert.deepEqual(
       get(Person, 'relationshipNames'),
       {
@@ -80,15 +80,15 @@ module('[@ember-data/model] unit - relationships', function(hooks) {
     );
   });
 
-  test('eachRelatedType() iterates over relations without duplication', function(assert) {
+  test('eachRelatedType() iterates over relations without duplication', function (assert) {
     let relations = [];
 
-    Person.eachRelatedType(modelName => relations.push(modelName));
+    Person.eachRelatedType((modelName) => relations.push(modelName));
 
     assert.deepEqual(relations, ['occupation', 'person'], 'eachRelatedType() did not return duplicate modelNames');
   });
 
-  test('normalizing belongsTo relationship names', function(assert) {
+  test('normalizing belongsTo relationship names', function (assert) {
     let User = store.modelFor('user');
 
     const relationships = get(User, 'relationships');
@@ -100,7 +100,7 @@ module('[@ember-data/model] unit - relationships', function(hooks) {
     assert.equal(relationship.meta.name, 'userProfile', 'relationship name has not been changed');
   });
 
-  test('normalizing hasMany relationship names', function(assert) {
+  test('normalizing hasMany relationship names', function (assert) {
     let store;
     let { owner } = this;
 
@@ -130,7 +130,7 @@ module('[@ember-data/model] unit - relationships', function(hooks) {
   });
 
   if (gte('3.10.0')) {
-    test('decorators works without parens', function(assert) {
+    test('decorators works without parens', function (assert) {
       let store;
       let { owner } = this;
 

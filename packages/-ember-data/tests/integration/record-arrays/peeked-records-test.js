@@ -17,15 +17,15 @@ const Person = Model.extend({
   },
 });
 
-module('integration/peeked-records', function(hooks) {
+module('integration/peeked-records', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('model:person', Person);
     store = this.owner.lookup('service:store');
   });
 
-  test('repeated calls to peekAll in separate run-loops works as expected', function(assert) {
+  test('repeated calls to peekAll in separate run-loops works as expected', function (assert) {
     let peekedRecordArray = run(() => store.peekAll('person'));
     let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
 
@@ -65,7 +65,7 @@ module('integration/peeked-records', function(hooks) {
     );
   });
 
-  test('peekAll in the same run-loop as push works as expected', function(assert) {
+  test('peekAll in the same run-loop as push works as expected', function (assert) {
     let peekedRecordArray = run(() => store.peekAll('person'));
     let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
 
@@ -106,7 +106,7 @@ module('integration/peeked-records', function(hooks) {
     );
   });
 
-  test('newly created records notify the array as expected', function(assert) {
+  test('newly created records notify the array as expected', function (assert) {
     let peekedRecordArray = run(() => store.peekAll('person'));
     let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
     let aNewlyCreatedRecord = store.createRecord('person', {
@@ -122,40 +122,7 @@ module('integration/peeked-records', function(hooks) {
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
   });
 
-  test('immediately peeking newly created records works as expected', function(assert) {
-    let peekedRecordArray = run(() => store.peekAll('person'));
-    let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-    let aNewlyCreatedRecord = store.createRecord('person', {
-      name: 'James',
-    });
-
-    assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state when a new record is created');
-
-    run(() => {
-      aNewlyCreatedRecord.unloadRecord();
-      store.peekAll('person');
-    });
-
-    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
-  });
-
-  test('unloading newly created records notify the array as expected', function(assert) {
-    let peekedRecordArray = run(() => store.peekAll('person'));
-    let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-    let aNewlyCreatedRecord = store.createRecord('person', {
-      name: 'James',
-    });
-
-    assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state when a new record is created');
-
-    run(() => {
-      aNewlyCreatedRecord.unloadRecord();
-    });
-
-    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
-  });
-
-  test('immediately peeking after unloading newly created records works as expected', function(assert) {
+  test('immediately peeking newly created records works as expected', function (assert) {
     let peekedRecordArray = run(() => store.peekAll('person'));
     let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
     let aNewlyCreatedRecord = store.createRecord('person', {
@@ -172,7 +139,40 @@ module('integration/peeked-records', function(hooks) {
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
   });
 
-  test('unloadAll followed by peekAll in the same run-loop works as expected', function(assert) {
+  test('unloading newly created records notify the array as expected', function (assert) {
+    let peekedRecordArray = run(() => store.peekAll('person'));
+    let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
+    let aNewlyCreatedRecord = store.createRecord('person', {
+      name: 'James',
+    });
+
+    assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state when a new record is created');
+
+    run(() => {
+      aNewlyCreatedRecord.unloadRecord();
+    });
+
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
+  });
+
+  test('immediately peeking after unloading newly created records works as expected', function (assert) {
+    let peekedRecordArray = run(() => store.peekAll('person'));
+    let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
+    let aNewlyCreatedRecord = store.createRecord('person', {
+      name: 'James',
+    });
+
+    assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state when a new record is created');
+
+    run(() => {
+      aNewlyCreatedRecord.unloadRecord();
+      store.peekAll('person');
+    });
+
+    assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is unloaded');
+  });
+
+  test('unloadAll followed by peekAll in the same run-loop works as expected', function (assert) {
     let peekedRecordArray = run(() => store.peekAll('person'));
     let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
 
@@ -230,7 +230,7 @@ module('integration/peeked-records', function(hooks) {
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state has not changed any further');
   });
 
-  test('push+materialize => unloadAll => push+materialize works as expected', function(assert) {
+  test('push+materialize => unloadAll => push+materialize works as expected', function (assert) {
     function push() {
       run(() => {
         store.push({
@@ -279,7 +279,7 @@ module('integration/peeked-records', function(hooks) {
     assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state now has records again');
   });
 
-  test('push-without-materialize => unloadAll => push-without-materialize works as expected', function(assert) {
+  test('push-without-materialize => unloadAll => push-without-materialize works as expected', function (assert) {
     function _push() {
       run(() => {
         store._push({

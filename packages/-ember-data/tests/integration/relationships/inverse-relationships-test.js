@@ -8,20 +8,20 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { graphFor } from '@ember-data/record-data/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('integration/relationships/inverse_relationships - Inverse Relationships', function(hooks) {
+module('integration/relationships/inverse_relationships - Inverse Relationships', function (hooks) {
   setupTest(hooks);
 
   let store;
   let register;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const { owner } = this;
 
     store = owner.lookup('service:store');
     register = owner.register.bind(owner);
   });
 
-  test('When a record is added to a has-many relationship, the inverse belongsTo is determined automatically', async function(assert) {
+  test('When a record is added to a has-many relationship, the inverse belongsTo is determined automatically', async function (assert) {
     class Post extends Model {
       @hasMany('comment', { async: false })
       comments;
@@ -44,7 +44,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(comment.get('post'), post, 'post was set on the comment');
   });
 
-  test('Inverse relationships can be explicitly nullable', function(assert) {
+  test('Inverse relationships can be explicitly nullable', function (assert) {
     class User extends Model {
       @hasMany('post', { inverse: 'participants', async: false })
       posts;
@@ -69,7 +69,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
   });
 
-  test('Null inverses are excluded from potential relationship resolutions', function(assert) {
+  test('Null inverses are excluded from potential relationship resolutions', function (assert) {
     class User extends Model {
       @hasMany('post', { async: false })
       posts;
@@ -94,7 +94,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
   });
 
-  test('When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly', async function(assert) {
+  test('When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly', async function (assert) {
     class Post extends Model {
       @hasMany('comment', { inverse: 'redPost', async: false })
       comments;
@@ -133,7 +133,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
   });
 
-  test("When a record's belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function(assert) {
+  test("When a record's belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function (assert) {
     class Post extends Model {
       @hasMany('comment', { async: false })
       meComments;
@@ -171,7 +171,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(post.get('everyoneWeKnowComments.length'), 0, 'everyoneWeKnowComments has no posts');
   });
 
-  test('When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used', async function(assert) {
+  test('When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used', async function (assert) {
     class Post extends Model {
       @belongsTo('comment', { async: false })
       bestComment;
@@ -203,7 +203,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(post2.get('bestComment'), comment);
   });
 
-  test('When setting a belongsTo, the OneToOne invariant is transitive', async function(assert) {
+  test('When setting a belongsTo, the OneToOne invariant is transitive', async function (assert) {
     class Post extends Model {
       @belongsTo('comment', { async: false })
       bestComment;
@@ -234,7 +234,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(post2.get('bestComment'), comment);
   });
 
-  test('When setting a belongsTo, the OneToOne invariant is commutative', async function(assert) {
+  test('When setting a belongsTo, the OneToOne invariant is commutative', async function (assert) {
     class Post extends Model {
       @belongsTo('comment', { async: false })
       bestComment;
@@ -265,7 +265,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(comment2.get('post'), post);
   });
 
-  test('OneToNone relationship works', async function(assert) {
+  test('OneToNone relationship works', async function (assert) {
     assert.expect(3);
 
     class Post extends Model {
@@ -295,7 +295,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(comment.get('post'), post1, 'the post is re-set to the first one');
   });
 
-  test('When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly', async function(assert) {
+  test('When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly', async function (assert) {
     class User extends Model {
       @hasMany('message', { async: false, inverse: 'redUser', polymorphic: true })
       messages;
@@ -344,7 +344,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
   });
 
-  test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", async function(assert) {
+  test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", async function (assert) {
     class User extends Model {
       @hasMany('message', { polymorphic: true, async: false })
       meMessages;
@@ -387,7 +387,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
   });
 
-  test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function(assert) {
+  test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function (assert) {
     class Message extends Model {
       @hasMany('comment', { inverse: null, async: false })
       meMessages;
@@ -430,7 +430,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
   });
 
-  testInDebug("Inverse relationships that don't exist throw a nice error for a hasMany", async function(assert) {
+  testInDebug("Inverse relationships that don't exist throw a nice error for a hasMany", async function (assert) {
     class User extends Model {}
 
     class Comment extends Model {}
@@ -448,13 +448,13 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     store.createRecord('comment');
 
-    assert.expectAssertion(function() {
+    assert.expectAssertion(function () {
       post = store.createRecord('post');
       post.get('comments');
     }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
   });
 
-  testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", async function(assert) {
+  testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", async function (assert) {
     class User extends Model {}
 
     class Comment extends Model {}
@@ -471,13 +471,13 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     let post;
     store.createRecord('user');
 
-    assert.expectAssertion(function() {
+    assert.expectAssertion(function () {
       post = store.createRecord('post');
       post.get('user');
     }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
   });
 
-  test('inverseFor is only called when inverse is not null', async function(assert) {
+  test('inverseFor is only called when inverse is not null', async function (assert) {
     assert.expect(2);
 
     class Post extends Model {
@@ -505,19 +505,19 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     register('model:User', User);
     register('model:Message', Message);
 
-    Post.inverseFor = function() {
+    Post.inverseFor = function () {
       assert.notOk(true, 'Post model inverseFor is not called');
     };
 
-    Comment.inverseFor = function() {
+    Comment.inverseFor = function () {
       assert.notOk(true, 'Comment model inverseFor is not called');
     };
 
-    Message.inverseFor = function() {
+    Message.inverseFor = function () {
       assert.ok(true, 'Message model inverseFor is called');
     };
 
-    User.inverseFor = function() {
+    User.inverseFor = function () {
       assert.ok(true, 'User model inverseFor is called');
     };
 
@@ -621,7 +621,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
   testInDebug(
     "Inverse null relationships with models that don't exist throw a nice error if trying to use that relationship",
-    function(assert) {
+    function (assert) {
       class User extends Model {
         @belongsTo('post', { inverse: null })
         post;
@@ -638,7 +638,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     }
   );
 
-  test('No inverse configuration - should default to a null inverse', async function(assert) {
+  test('No inverse configuration - should default to a null inverse', async function (assert) {
     class User extends Model {}
 
     class Comment extends Model {
@@ -654,7 +654,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.equal(comment.inverseFor('user'), null, 'Defaults to a null inverse');
   });
 
-  test('Unload a destroyed record should clean the relations', async function(assert) {
+  test('Unload a destroyed record should clean the relations', async function (assert) {
     assert.expect(3);
 
     class Post extends Model {

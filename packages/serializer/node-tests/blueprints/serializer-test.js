@@ -16,19 +16,19 @@ const expect = chai.expect;
 const enableOctane = setupTestEnvironment.enableOctane;
 const enableClassic = setupTestEnvironment.enableClassic;
 
-describe('Acceptance: generate and destroy serializer blueprints', function() {
+describe('Acceptance: generate and destroy serializer blueprints', function () {
   setupTestHooks(this);
 
-  describe('classic', function() {
+  describe('classic', function () {
     enableClassic();
-    beforeEach(function() {
+    beforeEach(function () {
       return emberNew();
     });
 
-    it('serializer', function() {
+    it('serializer', function () {
       let args = ['serializer', 'foo'];
 
-      return emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/foo.js'))
           .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
           .to.contain('export default JSONAPISerializer.extend(');
@@ -37,11 +37,11 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    it('serializer extends application serializer if it exists', function() {
+    it('serializer extends application serializer if it exists', function () {
       let args = ['serializer', 'foo'];
 
       return emberGenerate(['serializer', 'application']).then(() =>
-        emberGenerateDestroy(args, _file => {
+        emberGenerateDestroy(args, (_file) => {
           expect(_file('app/serializers/foo.js'))
             .to.contain("import ApplicationSerializer from './application';")
             .to.contain('export default ApplicationSerializer.extend({');
@@ -51,10 +51,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       );
     });
 
-    it('serializer with --base-class', function() {
+    it('serializer with --base-class', function () {
       let args = ['serializer', 'foo', '--base-class=bar'];
 
-      return emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/foo.js'))
           .to.contain("import BarSerializer from './bar';")
           .to.contain('export default BarSerializer.extend({');
@@ -63,16 +63,16 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    xit('serializer throws when --base-class is same as name', function() {
+    xit('serializer throws when --base-class is same as name', function () {
       let args = ['serializer', 'foo', '--base-class=foo'];
 
       return expect(emberGenerate(args)).to.be.rejectedWith(SilentError, /Serializers cannot extend from themself/);
     });
 
-    it('serializer when is named "application"', function() {
+    it('serializer when is named "application"', function () {
       let args = ['serializer', 'application'];
 
-      return emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/application.js'))
           .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
           .to.contain('export default JSONAPISerializer.extend({');
@@ -83,16 +83,16 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    it('serializer-test', function() {
+    it('serializer-test', function () {
       let args = ['serializer-test', 'foo'];
 
-      return emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, (_file) => {
         expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
       });
     });
 
-    describe('serializer-test with ember-cli-qunit@4.1.0', function() {
-      beforeEach(function() {
+    describe('serializer-test with ember-cli-qunit@4.1.0', function () {
+      beforeEach(function () {
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-qunit', delete: true },
@@ -100,8 +100,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
-      it('serializer-test-test foo', function() {
-        return emberGenerateDestroy(['serializer-test', 'foo'], _file => {
+      it('serializer-test-test foo', function () {
+        return emberGenerateDestroy(['serializer-test', 'foo'], (_file) => {
           expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/foo-default.js')
           );
@@ -109,8 +109,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    describe('with ember-cli-mocha v0.12+', function() {
-      beforeEach(function() {
+    describe('with ember-cli-mocha v0.12+', function () {
+      beforeEach(function () {
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-mocha', dev: true },
@@ -118,10 +118,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
-      it('serializer-test for mocha v0.12+', function() {
+      it('serializer-test for mocha v0.12+', function () {
         let args = ['serializer-test', 'foo'];
 
-        return emberGenerateDestroy(args, _file => {
+        return emberGenerateDestroy(args, (_file) => {
           expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/foo-mocha-0.12.js')
           );
@@ -129,8 +129,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    describe('with ember-mocha v0.14+', function() {
-      beforeEach(function() {
+    describe('with ember-mocha v0.14+', function () {
+      beforeEach(function () {
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-mocha', dev: true },
@@ -138,10 +138,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         generateFakePackageManifest('ember-mocha', '0.14.0');
       });
 
-      it('serializer-test for mocha v0.14+', function() {
+      it('serializer-test for mocha v0.14+', function () {
         let args = ['serializer-test', 'foo'];
 
-        return emberGenerateDestroy(args, _file => {
+        return emberGenerateDestroy(args, (_file) => {
           expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/mocha-rfc232.js')
           );
@@ -150,17 +150,17 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
     });
   });
 
-  describe('octane', function() {
+  describe('octane', function () {
     enableOctane();
 
-    beforeEach(function() {
+    beforeEach(function () {
       return emberNew();
     });
 
-    it('serializer', function() {
+    it('serializer', function () {
       let args = ['serializer', 'foo'];
 
-      return emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/foo.js'))
           .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
           .to.contain('export default class FooSerializer extends JSONAPISerializer {');
@@ -169,11 +169,11 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    it('serializer extends application serializer if it exists', function() {
+    it('serializer extends application serializer if it exists', function () {
       let args = ['serializer', 'foo'];
 
       return emberGenerate(['serializer', 'application']).then(() =>
-        emberGenerateDestroy(args, _file => {
+        emberGenerateDestroy(args, (_file) => {
           expect(_file('app/serializers/foo.js'))
             .to.contain("import ApplicationSerializer from './application';")
             .to.contain('export default class FooSerializer extends ApplicationSerializer {');
@@ -183,10 +183,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       );
     });
 
-    it('serializer with --base-class', function() {
+    it('serializer with --base-class', function () {
       let args = ['serializer', 'foo', '--base-class=bar'];
 
-      return emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/foo.js'))
           .to.contain("import BarSerializer from './bar';")
           .to.contain('export default class FooSerializer extends BarSerializer');
@@ -195,16 +195,16 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    xit('serializer throws when --base-class is same as name', function() {
+    xit('serializer throws when --base-class is same as name', function () {
       let args = ['serializer', 'foo', '--base-class=foo'];
 
       return expect(emberGenerate(args)).to.be.rejectedWith(SilentError, /Serializers cannot extend from themself/);
     });
 
-    it('serializer when is named "application"', function() {
+    it('serializer when is named "application"', function () {
       let args = ['serializer', 'application'];
 
-      return emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/application.js'))
           .to.contain(`import JSONAPISerializer from '@ember-data/serializer/json-api';`)
           .to.contain('export default class ApplicationSerializer extends JSONAPISerializer {');
@@ -215,16 +215,16 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    it('serializer-test', function() {
+    it('serializer-test', function () {
       let args = ['serializer-test', 'foo'];
 
-      return emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, (_file) => {
         expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
       });
     });
 
-    describe('serializer-test with ember-cli-qunit@4.1.0', function() {
-      beforeEach(function() {
+    describe('serializer-test with ember-cli-qunit@4.1.0', function () {
+      beforeEach(function () {
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-qunit', delete: true },
@@ -232,8 +232,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
-      it('serializer-test-test foo', function() {
-        return emberGenerateDestroy(['serializer-test', 'foo'], _file => {
+      it('serializer-test-test foo', function () {
+        return emberGenerateDestroy(['serializer-test', 'foo'], (_file) => {
           expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/foo-default.js')
           );
@@ -241,8 +241,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    describe('with ember-cli-mocha v0.12+', function() {
-      beforeEach(function() {
+    describe('with ember-cli-mocha v0.12+', function () {
+      beforeEach(function () {
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-mocha', dev: true },
@@ -250,10 +250,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
 
-      it('serializer-test for mocha v0.12+', function() {
+      it('serializer-test for mocha v0.12+', function () {
         let args = ['serializer-test', 'foo'];
 
-        return emberGenerateDestroy(args, _file => {
+        return emberGenerateDestroy(args, (_file) => {
           expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/foo-mocha-0.12.js')
           );
@@ -261,8 +261,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       });
     });
 
-    describe('with ember-mocha v0.14+', function() {
-      beforeEach(function() {
+    describe('with ember-mocha v0.14+', function () {
+      beforeEach(function () {
         modifyPackages([
           { name: 'ember-qunit', delete: true },
           { name: 'ember-mocha', dev: true },
@@ -270,10 +270,10 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         generateFakePackageManifest('ember-mocha', '0.14.0');
       });
 
-      it('serializer-test for mocha v0.14+', function() {
+      it('serializer-test for mocha v0.14+', function () {
         let args = ['serializer-test', 'foo'];
 
-        return emberGenerateDestroy(args, _file => {
+        return emberGenerateDestroy(args, (_file) => {
           expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
             fixture(__dirname, 'serializer-test/mocha-rfc232.js')
           );

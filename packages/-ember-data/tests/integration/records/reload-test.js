@@ -10,11 +10,11 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 
-module('integration/reload - Reloading Records', function(hooks) {
+module('integration/reload - Reloading Records', function (hooks) {
   let store;
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     class Person extends Model {
       @attr()
       updatedAt;
@@ -40,7 +40,7 @@ module('integration/reload - Reloading Records', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test("When a single record is requested, the adapter's find method should be called unless it's loaded.", async function(assert) {
+  test("When a single record is requested, the adapter's find method should be called unless it's loaded.", async function (assert) {
     let count = 0;
     let reloadOptions = {
       adapterOptions: {
@@ -90,7 +90,7 @@ module('integration/reload - Reloading Records', function(hooks) {
     await store.findRecord('person', '1');
   });
 
-  test('When a record is reloaded and fails, it can try again', async function(assert) {
+  test('When a record is reloaded and fails, it can try again', async function (assert) {
     let tom = store.push({
       data: {
         type: 'person',
@@ -137,7 +137,7 @@ module('integration/reload - Reloading Records', function(hooks) {
     assert.equal(tom.get('name'), 'Thomas Dale', 'the updates apply');
   });
 
-  test('When a record is loaded a second time, isLoaded stays true', async function(assert) {
+  test('When a record is loaded a second time, isLoaded stays true', async function (assert) {
     assert.expect(3);
     function getTomDale() {
       return {
@@ -187,7 +187,7 @@ module('integration/reload - Reloading Records', function(hooks) {
     person.removeObserver('isLoaded', isLoadedDidChange);
   });
 
-  test('When a record is reloaded, its async hasMany relationships still work', async function(assert) {
+  test('When a record is reloaded, its async hasMany relationships still work', async function (assert) {
     class Person extends Model {
       @attr()
       name;
@@ -255,8 +255,8 @@ module('integration/reload - Reloading Records', function(hooks) {
     assert.deepEqual(tags.mapBy('name'), ['hipster', 'hair'], 'The tags are still there');
   });
 
-  module('Reloading via relationship reference and { type, id }', function() {
-    test('When a sync belongsTo relationship has been loaded, it can still be reloaded via the reference', async function(assert) {
+  module('Reloading via relationship reference and { type, id }', function () {
+    test('When a sync belongsTo relationship has been loaded, it can still be reloaded via the reference', async function (assert) {
       assert.expect(2);
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
@@ -313,7 +313,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       assert.ok(owner === ownerViaRef, 'We received the same reference via reload');
     });
 
-    test('When a sync belongsTo relationship has not been loaded, it can still be reloaded via the reference', async function(assert) {
+    test('When a sync belongsTo relationship has not been loaded, it can still be reloaded via the reference', async function (assert) {
       assert.expect(2);
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
@@ -361,7 +361,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       assert.ok(owner === ownerViaRef, 'We received the same reference via reload');
     });
 
-    test('When a sync hasMany relationship has been loaded, it can still be reloaded via the reference', async function(assert) {
+    test('When a sync hasMany relationship has been loaded, it can still be reloaded via the reference', async function (assert) {
       assert.expect(2);
       class Pet extends Model {
         @hasMany('person', { async: false, inverse: null })
@@ -418,7 +418,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
 
-    test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function(assert) {
+    test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function (assert) {
       assert.expect(2);
       class Pet extends Model {
         @hasMany('person', { async: false, inverse: null })
@@ -467,8 +467,8 @@ module('integration/reload - Reloading Records', function(hooks) {
     });
   });
 
-  module('Reloading via relationship reference and links', function() {
-    test('When a sync belongsTo relationship has been loaded, it can still be reloaded via the reference', async function(assert) {
+  module('Reloading via relationship reference and links', function () {
+    test('When a sync belongsTo relationship has been loaded, it can still be reloaded via the reference', async function (assert) {
       assert.expect(2);
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
@@ -528,7 +528,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       assert.ok(owner === ownerViaRef, 'We received the same reference via reload');
     });
 
-    test('When a sync belongsTo relationship has not been loaded, it can still be reloaded via the reference', async function(assert) {
+    test('When a sync belongsTo relationship has not been loaded, it can still be reloaded via the reference', async function (assert) {
       assert.expect(2);
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
@@ -579,7 +579,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       assert.ok(owner === ownerViaRef, 'We received the same reference via reload');
     });
 
-    test('When a sync hasMany relationship has been loaded, it can still be reloaded via the reference', async function(assert) {
+    test('When a sync hasMany relationship has been loaded, it can still be reloaded via the reference', async function (assert) {
       assert.expect(2);
       class Pet extends Model {
         @hasMany('person', { async: false, inverse: null })
@@ -641,7 +641,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
 
-    test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function(assert) {
+    test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function (assert) {
       assert.expect(2);
       class Pet extends Model {
         @hasMany('person', { async: false, inverse: null })

@@ -2,8 +2,8 @@ import { module, test } from 'qunit';
 
 import { fetchOptions } from '@ember-data/adapter/rest';
 
-module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
-  test("fetchOptions removes undefined query params when method is POST and 'data' is an object", function(assert) {
+module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
+  test("fetchOptions removes undefined query params when method is POST and 'data' is an object", function (assert) {
     assert.expect(1);
 
     const dataAsObject = {
@@ -25,7 +25,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     assert.deepEqual(options.body, '{"a":1,"c":3,"d":null,"e":0,"f":false}');
   });
 
-  test('fetchOptions sets the request body correctly when the method is not GET or HEAD', function(assert) {
+  test('fetchOptions sets the request body correctly when the method is not GET or HEAD', function (assert) {
     assert.expect(3);
 
     const baseOptions = {
@@ -49,7 +49,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     assert.equal(options.body, JSON.stringify(baseOptions.data), 'DELETE request has the correct body');
   });
 
-  test("fetchOptions sets the request body correctly when the method is POST and 'data' is a string", function(assert) {
+  test("fetchOptions sets the request body correctly when the method is POST and 'data' is a string", function (assert) {
     assert.expect(1);
 
     // Tests stringified objects.
@@ -64,7 +64,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     assert.equal(options.body, stringifiedData);
   });
 
-  test('fetchOptions does not set a request body when the method is GET or HEAD', function(assert) {
+  test('fetchOptions does not set a request body when the method is GET or HEAD', function (assert) {
     assert.expect(4);
 
     const baseOptions = {
@@ -97,7 +97,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     );
   });
 
-  test("fetchOptions correctly processes an empty 'data' object", function(assert) {
+  test("fetchOptions correctly processes an empty 'data' object", function (assert) {
     assert.expect(2);
 
     const getData = {
@@ -119,7 +119,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     assert.equal(postOptions.body, '{}', "'options.body' is an empty object");
   });
 
-  test("fetchOptions sets the request body correctly when 'data' is FormData", function(assert) {
+  test("fetchOptions sets the request body correctly when 'data' is FormData", function (assert) {
     assert.expect(1);
 
     const formData = new FormData();
@@ -133,7 +133,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     assert.strictEqual(postOptions.body, formData, "'options.body' is the FormData passed in");
   });
 
-  test("fetchOptions sets the request body correctly when 'data' is a String", function(assert) {
+  test("fetchOptions sets the request body correctly when 'data' is a String", function (assert) {
     assert.expect(1);
 
     let stringBody = JSON.stringify({ a: 1, b: 2, c: 3 });
@@ -147,7 +147,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     assert.equal(postOptions.body, stringBody, "'options.body' is the String passed in");
   });
 
-  test("fetchOptions sets credentials when 'credentials' is empty", function(assert) {
+  test("fetchOptions sets credentials when 'credentials' is empty", function (assert) {
     assert.expect(1);
 
     const postData = {
@@ -160,7 +160,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     assert.equal(postOptions.credentials, 'same-origin', "'options.credentials' is 'same-origin'");
   });
 
-  test("fetchOptions sets credentials when 'credentials' is not empty", function(assert) {
+  test("fetchOptions sets credentials when 'credentials' is not empty", function (assert) {
     assert.expect(1);
 
     let credentials = 'include';
@@ -175,7 +175,7 @@ module('unit/adapters/rest-adapter/fetch-options', function(hooks) {
     assert.equal(postOptions.credentials, credentials, "'options.credentials' is 'include'");
   });
 
-  test('fetchOptions serializes query params to the url', function(assert) {
+  test('fetchOptions serializes query params to the url', function (assert) {
     assert.expect(1);
 
     const postData = {

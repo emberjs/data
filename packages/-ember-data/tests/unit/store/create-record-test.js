@@ -7,10 +7,10 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-module('unit/store/createRecord - Store creating records', function(hooks) {
+module('unit/store/createRecord - Store creating records', function (hooks) {
   setupTest(hooks);
 
-  test(`doesn't modify passed in properties hash`, function(assert) {
+  test(`doesn't modify passed in properties hash`, function (assert) {
     const Post = Model.extend({
       title: attr(),
       author: belongsTo('author', { async: false, inverse: 'post' }),
@@ -74,7 +74,7 @@ module('unit/store/createRecord - Store creating records', function(hooks) {
     assert.deepEqual(properties, propertiesClone, 'The properties hash is not modified');
   });
 
-  test('allow passing relationships as well as attributes', function(assert) {
+  test('allow passing relationships as well as attributes', function (assert) {
     const Record = Model.extend({
       title: attr('string'),
     });
@@ -128,10 +128,10 @@ module('unit/store/createRecord - Store creating records', function(hooks) {
   });
 });
 
-module('unit/store/createRecord - Store with models by dash', function(hooks) {
+module('unit/store/createRecord - Store with models by dash', function (hooks) {
   setupTest(hooks);
 
-  test('creating a record by dasherize string finds the model', function(assert) {
+  test('creating a record by dasherize string finds the model', function (assert) {
     const SomeThing = Model.extend({
       foo: attr('string'),
     });

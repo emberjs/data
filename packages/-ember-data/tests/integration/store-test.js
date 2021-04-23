@@ -38,7 +38,7 @@ Car.reopenClass({
 });
 
 function ajaxResponse(value) {
-  return function(url, verb, hash) {
+  return function (url, verb, hash) {
     return resolve(deepCopy(value));
   };
 }
@@ -48,7 +48,7 @@ function tap(obj, methodName, callback) {
 
   let summary = { called: [] };
 
-  obj[methodName] = function() {
+  obj[methodName] = function () {
     let result = old.apply(obj, arguments);
     if (callback) {
       callback.apply(obj, arguments);
@@ -60,10 +60,10 @@ function tap(obj, methodName, callback) {
   return summary;
 }
 
-module('integration/store - destroy', function(hooks) {
+module('integration/store - destroy', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('model:car', Car);
     this.owner.register('model:person', Person);
 
@@ -71,7 +71,7 @@ module('integration/store - destroy', function(hooks) {
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test("destroying record during find doesn't cause unexpected error (find resolves)", async function(assert) {
+  test("destroying record during find doesn't cause unexpected error (find resolves)", async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -104,7 +104,7 @@ module('integration/store - destroy', function(hooks) {
     }
   });
 
-  test("destroying record during find doesn't cause unexpected error (find rejects)", async function(assert) {
+  test("destroying record during find doesn't cause unexpected error (find rejects)", async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -131,16 +131,16 @@ module('integration/store - destroy', function(hooks) {
     }
   });
 
-  testInDebug('find calls do not resolve when the store is destroyed', async function(assert) {
+  testInDebug('find calls do not resolve when the store is destroyed', async function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
     let next;
-    let nextPromise = new Promise(resolve => (next = resolve));
+    let nextPromise = new Promise((resolve) => (next = resolve));
     let TestAdapter = DS.Adapter.extend({
       findRecord() {
         next();
-        nextPromise = new Promise(resolve => {
+        nextPromise = new Promise((resolve) => {
           next = resolve;
         }).then(() => {
           return {
@@ -154,12 +154,12 @@ module('integration/store - destroy', function(hooks) {
     this.owner.register('adapter:application', TestAdapter);
 
     // needed for LTS 2.16
-    Ember.Test.adapter.exception = e => {
+    Ember.Test.adapter.exception = (e) => {
       throw e;
     };
 
     store.shouldTrackAsyncRequests = true;
-    store.push = function() {
+    store.push = function () {
       assert('The test should have destroyed the store by now', store.isDestroyed);
 
       throw new Error("We shouldn't be pushing data into the store when it is destroyed");
@@ -184,7 +184,7 @@ module('integration/store - destroy', function(hooks) {
     assert.ok(false, 'we should never make it here');
   });
 
-  test('destroying the store correctly cleans everything up', async function(assert) {
+  test('destroying the store correctly cleans everything up', async function (assert) {
     let car, person;
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -228,7 +228,7 @@ module('integration/store - destroy', function(hooks) {
     let carWillDestroy = tap(car, 'willDestroy');
     let carsWillDestroy = tap(car.get('person.cars'), 'willDestroy');
 
-    adapter.query = function() {
+    adapter.query = function () {
       return {
         data: [
           {
@@ -274,11 +274,11 @@ module('integration/store - destroy', function(hooks) {
   });
 });
 
-module('integration/store - findRecord', function(hooks) {
+module('integration/store - findRecord', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('model:car', Car);
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
@@ -286,7 +286,7 @@ module('integration/store - findRecord', function(hooks) {
     store.shouldTrackAsyncRequests = true;
   });
 
-  test('store#findRecord fetches record from server when cached record is not present', async function(assert) {
+  test('store#findRecord fetches record from server when cached record is not present', async function (assert) {
     assert.expect(2);
 
     let adapter = store.adapterFor('application');
@@ -310,7 +310,7 @@ module('integration/store - findRecord', function(hooks) {
     assert.strictEqual(car.get('make'), 'BMC', 'Car with id=20 is now loaded');
   });
 
-  test('store#findRecord returns cached record immediately and reloads record in the background', async function(assert) {
+  test('store#findRecord returns cached record immediately and reloads record in the background', async function (assert) {
     assert.expect(4);
 
     let adapter = store.adapterFor('application');
@@ -355,7 +355,7 @@ module('integration/store - findRecord', function(hooks) {
     assert.strictEqual(car.get('model'), 'Princess', 'Updated car record is returned');
   });
 
-  test('store#findRecord { reload: true } ignores cached record and reloads record from server', async function(assert) {
+  test('store#findRecord { reload: true } ignores cached record and reloads record from server', async function (assert) {
     assert.expect(2);
 
     const testAdapter = DS.RESTAdapter.extend({
@@ -398,7 +398,7 @@ module('integration/store - findRecord', function(hooks) {
     assert.strictEqual(car.model, 'Princess', 'cached record ignored, record reloaded via server');
   });
 
-  test('store#findRecord { reload: true } ignores cached record and reloads record from server even after previous findRecord', async function(assert) {
+  test('store#findRecord { reload: true } ignores cached record and reloads record from server even after previous findRecord', async function (assert) {
     assert.expect(5);
 
     let calls = 0;
@@ -443,7 +443,7 @@ module('integration/store - findRecord', function(hooks) {
     assert.strictEqual(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
   });
 
-  test('store#findRecord { backgroundReload: false } returns cached record and does not reload in the background', async function(assert) {
+  test('store#findRecord { backgroundReload: false } returns cached record and does not reload in the background', async function (assert) {
     assert.expect(2);
 
     const testAdapter = DS.RESTAdapter.extend({
@@ -478,7 +478,7 @@ module('integration/store - findRecord', function(hooks) {
     assert.strictEqual(car.model, 'Mini', 'car record was not reloaded');
   });
 
-  test('store#findRecord { backgroundReload: true } returns cached record and reloads record in background', async function(assert) {
+  test('store#findRecord { backgroundReload: true } returns cached record and reloads record in background', async function (assert) {
     assert.expect(2);
 
     const testAdapter = DS.RESTAdapter.extend({
@@ -502,7 +502,7 @@ module('integration/store - findRecord', function(hooks) {
       },
     });
 
-    adapter.ajax = async function() {
+    adapter.ajax = async function () {
       await resolve();
 
       return deepCopy({
@@ -528,7 +528,7 @@ module('integration/store - findRecord', function(hooks) {
     assert.strictEqual(car.model, 'Princess', 'car record was reloaded');
   });
 
-  test('store#findRecord { backgroundReload: false } is ignored if adapter.shouldReloadRecord is true', async function(assert) {
+  test('store#findRecord { backgroundReload: false } is ignored if adapter.shouldReloadRecord is true', async function (assert) {
     assert.expect(2);
 
     const testAdapter = DS.RESTAdapter.extend({
@@ -556,7 +556,7 @@ module('integration/store - findRecord', function(hooks) {
       },
     });
 
-    adapter.ajax = async function() {
+    adapter.ajax = async function () {
       await resolve();
 
       return deepCopy({
@@ -579,12 +579,12 @@ module('integration/store - findRecord', function(hooks) {
     assert.strictEqual(car.get('model'), 'Princess', 'Car record is reloaded immediately (not in the background)');
   });
 
-  test('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', function(assert) {
+  test('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', function (assert) {
     const badValues = ['', undefined, null, NaN, false];
 
     assert.expect(badValues.length);
 
-    badValues.map(item => {
+    badValues.map((item) => {
       assert.expectAssertion(() => {
         store.findRecord('car', item);
       }, `Expected id to be a string or number, received ${String(item)}`);
@@ -592,10 +592,10 @@ module('integration/store - findRecord', function(hooks) {
   });
 });
 
-module('integration/store - findAll', function(hooks) {
+module('integration/store - findAll', function (hooks) {
   setupTest(hooks);
 
-  test('Using store#findAll with no records triggers a query', async function(assert) {
+  test('Using store#findAll with no records triggers a query', async function (assert) {
     assert.expect(2);
 
     this.owner.register('model:car', Car);
@@ -631,7 +631,7 @@ module('integration/store - findAll', function(hooks) {
     assert.strictEqual(cars.length, 2, 'Two car were fetched');
   });
 
-  test('Using store#findAll with existing records performs a query in the background, updating existing records and returning new ones', async function(assert) {
+  test('Using store#findAll with existing records performs a query in the background, updating existing records and returning new ones', async function (assert) {
     assert.expect(4);
 
     this.owner.register('model:car', Car);
@@ -653,13 +653,13 @@ module('integration/store - findAll', function(hooks) {
     });
 
     let resolvefindAll;
-    let resolvefindAllPromise = new Promise(resolve => (resolvefindAll = resolve));
+    let resolvefindAllPromise = new Promise((resolve) => (resolvefindAll = resolve));
 
     adapter.ajax = () => {
       resolvefindAll();
-      resolvefindAllPromise = new Promise(function(resolve) {
+      resolvefindAllPromise = new Promise(function (resolve) {
         resolvefindAll = resolve;
-      }).then(function() {
+      }).then(function () {
         return {
           cars: [
             {
@@ -700,7 +700,7 @@ module('integration/store - findAll', function(hooks) {
     assert.equal(mini.model, 'New Mini', 'Existing records have been updated');
   });
 
-  test('store#findAll { backgroundReload: false } skips shouldBackgroundReloadAll, returns cached records & does not reload in the background', async function(assert) {
+  test('store#findAll { backgroundReload: false } skips shouldBackgroundReloadAll, returns cached records & does not reload in the background', async function (assert) {
     assert.expect(4);
 
     let testAdapter = DS.RESTAdapter.extend({
@@ -743,7 +743,7 @@ module('integration/store - findAll', function(hooks) {
     assert.equal(cars.firstObject.model, 'Mini', 'correct cached car record is returned again');
   });
 
-  test('store#findAll { backgroundReload: true } skips shouldBackgroundReloadAll, returns cached records, & reloads in background', async function(assert) {
+  test('store#findAll { backgroundReload: true } skips shouldBackgroundReloadAll, returns cached records, & reloads in background', async function (assert) {
     assert.expect(5);
 
     let testAdapter = DS.RESTAdapter.extend({
@@ -803,7 +803,7 @@ module('integration/store - findAll', function(hooks) {
     assert.equal(cars.lastObject.model, 'Isetta', 'new record added to the store');
   });
 
-  test('store#findAll { backgroundReload: false } is ignored if adapter.shouldReloadAll is true', async function(assert) {
+  test('store#findAll { backgroundReload: false } is ignored if adapter.shouldReloadAll is true', async function (assert) {
     assert.expect(5);
 
     let testAdapter = DS.RESTAdapter.extend({
@@ -863,7 +863,7 @@ module('integration/store - findAll', function(hooks) {
     assert.equal(cars.lastObject.model, 'Isetta', 'second car record was loaded');
   });
 
-  test('store#findAll should eventually return all known records even if they are not in the adapter response', async function(assert) {
+  test('store#findAll should eventually return all known records even if they are not in the adapter response', async function (assert) {
     assert.expect(5);
 
     this.owner.register('model:car', Car);
@@ -895,13 +895,13 @@ module('integration/store - findAll', function(hooks) {
     });
 
     let resolvefindAll;
-    let resolvefindAllPromise = new Promise(resolve => (resolvefindAll = resolve));
+    let resolvefindAllPromise = new Promise((resolve) => (resolvefindAll = resolve));
 
     adapter.ajax = () => {
       resolvefindAll();
-      resolvefindAllPromise = new Promise(function(resolve) {
+      resolvefindAllPromise = new Promise(function (resolve) {
         resolvefindAll = resolve;
-      }).then(function() {
+      }).then(function () {
         return {
           cars: [
             {
@@ -935,7 +935,7 @@ module('integration/store - findAll', function(hooks) {
     assert.equal(mini.model, 'New Mini', 'Existing records have been updated');
   });
 
-  test('Using store#fetch on an empty record calls find', async function(assert) {
+  test('Using store#fetch on an empty record calls find', async function (assert) {
     assert.expect(2);
 
     this.owner.register('model:car', Car);
@@ -982,7 +982,7 @@ module('integration/store - findAll', function(hooks) {
     assert.equal(car.make, 'BMCW', 'Car with id=20 is now loaded');
   });
 
-  test('Using store#adapterFor should not throw an error when looking up the application adapter', function(assert) {
+  test('Using store#adapterFor should not throw an error when looking up the application adapter', function (assert) {
     assert.expect(1);
 
     this.owner.register('model:car', Car);
@@ -1000,7 +1000,7 @@ module('integration/store - findAll', function(hooks) {
     }
   });
 
-  test('Using store#serializerFor should not throw an error when looking up the application serializer', function(assert) {
+  test('Using store#serializerFor should not throw an error when looking up the application serializer', function (assert) {
     assert.expect(1);
 
     this.owner.register('model:car', Car);
@@ -1019,10 +1019,10 @@ module('integration/store - findAll', function(hooks) {
   });
 });
 
-module('integration/store - deleteRecord', function(hooks) {
+module('integration/store - deleteRecord', function (hooks) {
   setupTest(hooks);
 
-  test('Using store#deleteRecord should mark the model for removal', function(assert) {
+  test('Using store#deleteRecord should mark the model for removal', function (assert) {
     assert.expect(3);
 
     this.owner.register('model:person', Person);
@@ -1054,7 +1054,7 @@ module('integration/store - deleteRecord', function(hooks) {
     assert.ok(person.isDeleted, 'expect person to be isDeleted');
   });
 
-  test('Store should accept a null value for `data`', function(assert) {
+  test('Store should accept a null value for `data`', function (assert) {
     assert.expect(0);
 
     this.owner.register('adapter:application', RESTAdapter.extend());
@@ -1069,7 +1069,7 @@ module('integration/store - deleteRecord', function(hooks) {
     }
   });
 
-  testInDebug('store#findRecord that returns an array should assert', async function(assert) {
+  testInDebug('store#findRecord that returns an array should assert', async function (assert) {
     const ApplicationAdapter = DS.JSONAPIAdapter.extend({
       findRecord() {
         return { data: [] };
@@ -1087,73 +1087,75 @@ module('integration/store - deleteRecord', function(hooks) {
     }, /expected the primary data returned from a 'findRecord' response to be an object but instead it found an array/);
   });
 
-  testInDebug('store#didSaveRecord should assert when the response to a save does not include the id', async function(
-    assert
-  ) {
-    this.owner.register('model:car', Car);
-    this.owner.register('adapter:application', RESTAdapter.extend());
-    this.owner.register('serializer:application', RESTSerializer.extend());
+  testInDebug(
+    'store#didSaveRecord should assert when the response to a save does not include the id',
+    async function (assert) {
+      this.owner.register('model:car', Car);
+      this.owner.register('adapter:application', RESTAdapter.extend());
+      this.owner.register('serializer:application', RESTSerializer.extend());
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.createRecord = function() {
-      return {};
-    };
+      adapter.createRecord = function () {
+        return {};
+      };
 
-    let car = store.createRecord('car');
+      let car = store.createRecord('car');
 
-    await assert.expectAssertion(async () => {
-      await car.save();
-    }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
+      await assert.expectAssertion(async () => {
+        await car.save();
+      }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
 
-    // This is here to transition the model out of the inFlight state to avoid
-    // throwing another error when the test context is torn down, which tries
-    // to unload the record, which is not allowed when record is inFlight.
-    car._internalModel.transitionTo('loaded.saved');
-  });
+      // This is here to transition the model out of the inFlight state to avoid
+      // throwing another error when the test context is torn down, which tries
+      // to unload the record, which is not allowed when record is inFlight.
+      car._internalModel.transitionTo('loaded.saved');
+    }
+  );
 });
 
-module('integration/store - queryRecord', function(hooks) {
+module('integration/store - queryRecord', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('model:car', Car);
     this.owner.register('adapter:application', DS.Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  testInDebug('store#queryRecord should assert when normalized payload of adapter has an array of data', async function(
-    assert
-  ) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let serializer = store.serializerFor('application');
+  testInDebug(
+    'store#queryRecord should assert when normalized payload of adapter has an array of data',
+    async function (assert) {
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
+      let serializer = store.serializerFor('application');
 
-    adapter.queryRecord = function() {
-      return {
-        cars: [{ id: 1 }],
+      adapter.queryRecord = function () {
+        return {
+          cars: [{ id: 1 }],
+        };
       };
-    };
 
-    serializer.normalizeQueryRecordResponse = function() {
-      return {
-        data: [{ id: 1, type: 'car' }],
+      serializer.normalizeQueryRecordResponse = function () {
+        return {
+          data: [{ id: 1, type: 'car' }],
+        };
       };
-    };
 
-    await assert.expectAssertion(async () => {
-      await store.queryRecord('car', {});
-    }, /Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array./);
-  });
+      await assert.expectAssertion(async () => {
+        await store.queryRecord('car', {});
+      }, /Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array./);
+    }
+  );
 
-  test('The store should trap exceptions that are thrown from adapter#findRecord', async function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#findRecord', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.findRecord = function() {
+    adapter.findRecord = function () {
       throw new Error('Refusing to find record');
     };
 
@@ -1164,13 +1166,13 @@ module('integration/store - queryRecord', function(hooks) {
     }
   });
 
-  test('The store should trap exceptions that are thrown from adapter#findAll', async function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#findAll', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.findAll = function() {
+    adapter.findAll = function () {
       throw new Error('Refusing to find all records');
     };
 
@@ -1181,13 +1183,13 @@ module('integration/store - queryRecord', function(hooks) {
     }
   });
 
-  test('The store should trap exceptions that are thrown from adapter#query', async function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#query', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.query = function() {
+    adapter.query = function () {
       throw new Error('Refusing to query records');
     };
 
@@ -1198,13 +1200,13 @@ module('integration/store - queryRecord', function(hooks) {
     }
   });
 
-  test('The store should trap exceptions that are thrown from adapter#queryRecord', async function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#queryRecord', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.queryRecord = function() {
+    adapter.queryRecord = function () {
       throw new Error('Refusing to query record');
     };
 
@@ -1215,13 +1217,13 @@ module('integration/store - queryRecord', function(hooks) {
     }
   });
 
-  test('The store should trap exceptions that are thrown from adapter#createRecord', async function(assert) {
+  test('The store should trap exceptions that are thrown from adapter#createRecord', async function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.createRecord = function() {
+    adapter.createRecord = function () {
       throw new Error('Refusing to serialize');
     };
 

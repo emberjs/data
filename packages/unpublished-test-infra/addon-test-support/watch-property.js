@@ -73,7 +73,7 @@ export function watchProperties(obj, propertyNames) {
   }
 
   function unwatch() {
-    Object.keys(watched).forEach(propertyName => {
+    Object.keys(watched).forEach((propertyName) => {
       removeObserver(obj, propertyName, watched[propertyName]);
     });
   }
@@ -88,7 +88,7 @@ QUnit.assert.watchedPropertyCounts = function assertWatchedPropertyCount(watched
 
   let counters = watchedObject.counters;
 
-  Object.keys(expectedCounts).forEach(propertyName => {
+  Object.keys(expectedCounts).forEach((propertyName) => {
     let counter = counters[propertyName];
     let expectedCount = expectedCounts[propertyName];
     let assertionText = label;

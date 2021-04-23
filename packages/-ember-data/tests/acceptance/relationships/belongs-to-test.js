@@ -47,7 +47,7 @@ class TestAdapter extends JSONAPIAdapter {
 
   pause() {
     this.isPaused = true;
-    this.pausePromise = new Promise(resolve => {
+    this.pausePromise = new Promise((resolve) => {
       this._resume = resolve;
     });
   }
@@ -198,7 +198,7 @@ function makePeopleWithRelationshipData() {
   ];
 
   let peopleHash = {};
-  people.forEach(person => {
+  people.forEach((person) => {
     peopleHash[person.id] = person;
   });
 
@@ -208,12 +208,12 @@ function makePeopleWithRelationshipData() {
   };
 }
 
-module('async belongs-to rendering tests', function(hooks) {
+module('async belongs-to rendering tests', function (hooks) {
   let store;
   let adapter;
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
@@ -231,14 +231,14 @@ module('async belongs-to rendering tests', function(hooks) {
     adapter = store.adapterFor('application');
   });
 
-  module('for local changes', function(hooks) {
-    hooks.beforeEach(function() {
+  module('for local changes', function (hooks) {
+    hooks.beforeEach(function () {
       let { owner } = this;
       owner.register('model:person', Person);
       owner.register('model:pet', Pet);
     });
 
-    test('record is removed from implicit relationships when destroyed', async function(assert) {
+    test('record is removed from implicit relationships when destroyed', async function (assert) {
       const pete = store.push({
         data: {
           type: 'person',
@@ -323,7 +323,7 @@ module('async belongs-to rendering tests', function(hooks) {
       await settled();
     });
 
-    test('async belongsTo returns correct new value after a local change', async function(assert) {
+    test('async belongsTo returns correct new value after a local change', async function (assert) {
       let chris = store.push({
         data: {
           type: 'person',
@@ -404,8 +404,8 @@ module('async belongs-to rendering tests', function(hooks) {
     });
   });
 
-  module('for data-no-link scenarios', function() {
-    test('We can render an async belongs-to', async function(assert) {
+  module('for data-no-link scenarios', function () {
+    test('We can render an async belongs-to', async function (assert) {
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
@@ -423,7 +423,7 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
 
-    test('We can delete an async belongs-to', async function(assert) {
+    test('We can delete an async belongs-to', async function (assert) {
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
@@ -453,7 +453,7 @@ module('async belongs-to rendering tests', function(hooks) {
       );
     });
 
-    test('Re-rendering an async belongsTo does not cause a new fetch', async function(assert) {
+    test('Re-rendering an async belongsTo does not cause a new fetch', async function (assert) {
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
@@ -477,7 +477,7 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
 
-    test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
+    test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function (assert) {
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
@@ -490,7 +490,7 @@ module('async belongs-to rendering tests', function(hooks) {
 
       let originalOnError = Ember.onerror;
       let hasFired = false;
-      Ember.onerror = function(e) {
+      Ember.onerror = function (e) {
         if (!hasFired) {
           hasFired = true;
           assert.ok(true, 'Children promise did reject');
@@ -542,7 +542,7 @@ module('async belongs-to rendering tests', function(hooks) {
       Ember.onerror = originalOnError;
     });
 
-    test('accessing a linked async belongs-to whose fetch fails does not error for null proxy content', async function(assert) {
+    test('accessing a linked async belongs-to whose fetch fails does not error for null proxy content', async function (assert) {
       assert.expect(3);
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({

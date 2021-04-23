@@ -8,11 +8,11 @@ import Model from '@ember-data/model';
 import Store from '@ember-data/store';
 import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/store/asserts - DS.Store methods produce useful assertion messages', function(hooks) {
+module('unit/store/asserts - DS.Store methods produce useful assertion messages', function (hooks) {
   let store;
 
   setupTest(hooks);
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('model:foo', Model.extend());
     owner.register('service:store', Store);
@@ -37,10 +37,10 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'serializerFor',
   ];
 
-  test('Calling Store methods with no modelName asserts', function(assert) {
+  test('Calling Store methods with no modelName asserts', function (assert) {
     assert.expect(MODEL_NAME_METHODS.length);
 
-    MODEL_NAME_METHODS.forEach(methodName => {
+    MODEL_NAME_METHODS.forEach((methodName) => {
       assert.expectAssertion(() => {
         store[methodName](null);
       }, new RegExp(`You need to pass a model name to the store's ${methodName} method`));
@@ -80,12 +80,12 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'serializerFor',
   ];
 
-  test('Calling Store methods after the store has been destroyed asserts', function(assert) {
+  test('Calling Store methods after the store has been destroyed asserts', function (assert) {
     store.shouldAssertMethodCallsOnDestroyedStore = true;
     assert.expect(STORE_ENTRY_METHODS.length);
     run(() => store.destroy());
 
-    STORE_ENTRY_METHODS.forEach(methodName => {
+    STORE_ENTRY_METHODS.forEach((methodName) => {
       assert.expectAssertion(() => {
         store[methodName]();
       }, `Attempted to call store.${methodName}(), but the store instance has already been destroyed.`);
@@ -94,14 +94,14 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
 
   const STORE_TEARDOWN_METHODS = ['unloadAll', 'modelFor', '_modelFactoryFor'];
 
-  test('Calling Store teardown methods during destroy does not assert, but calling other methods does', function(assert) {
+  test('Calling Store teardown methods during destroy does not assert, but calling other methods does', function (assert) {
     store.shouldAssertMethodCallsOnDestroyedStore = true;
     assert.expect(STORE_ENTRY_METHODS.length - STORE_TEARDOWN_METHODS.length);
 
     run(() => {
       store.destroy();
 
-      STORE_ENTRY_METHODS.forEach(methodName => {
+      STORE_ENTRY_METHODS.forEach((methodName) => {
         if (STORE_TEARDOWN_METHODS.indexOf(methodName) !== -1) {
           store[methodName]('foo');
         } else {

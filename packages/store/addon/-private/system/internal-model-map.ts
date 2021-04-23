@@ -45,7 +45,7 @@ export default class InternalModelMap {
   }
 
   get recordIdentifiers(): StableRecordIdentifier[] {
-    return this._models.map(m => m.identifier);
+    return this._models.map((m) => m.identifier);
   }
 
   set(id: string, internalModel: InternalModel): void {

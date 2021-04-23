@@ -86,7 +86,7 @@ module.exports = useEditionDetector({
       }
     }
 
-    let needsDeduplicated = needs.filter(function(need, i) {
+    let needsDeduplicated = needs.filter(function (need, i) {
       return needs.indexOf(need) === i;
     });
     needs = '  needs: [' + needsDeduplicated.join(', ') + ']';

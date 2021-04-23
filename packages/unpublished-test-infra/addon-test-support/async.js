@@ -11,7 +11,7 @@ export function wait(callback, timeout) {
     done();
   }, timeout || 200);
 
-  return function() {
+  return function () {
     window.clearTimeout(timer);
 
     let args = arguments;
@@ -27,7 +27,7 @@ export function wait(callback, timeout) {
 
 export function asyncEqual(a, b, message) {
   return all([resolve(a), resolve(b)]).then(
-    this.wait(array => {
+    this.wait((array) => {
       let actual = array[0];
       let expected = array[1];
       let result = actual === expected;

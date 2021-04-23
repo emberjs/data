@@ -9,20 +9,20 @@ export default function additionalLegacyAsserts() {
   assert.asyncEqual = asyncEqual;
   assert.invokeAsync = invokeAsync;
 
-  assert.assertClean = function(promise) {
+  assert.assertClean = function (promise) {
     return promise.then(
-      this.wait(record => {
+      this.wait((record) => {
         this.equal(record.get('hasDirtyAttributes'), false, 'The record is now clean');
         return record;
       })
     );
   };
 
-  assert.contains = function(array, item) {
+  assert.contains = function (array, item) {
     this.ok(array.indexOf(item) !== -1, `array contains ${item}`);
   };
 
-  assert.without = function(array, item) {
+  assert.without = function (array, item) {
     this.ok(array.indexOf(item) === -1, `array doesn't contain ${item}`);
   };
 }

@@ -1,1 +1,1 @@
-export default function(moduleName: string): any;
+export default function (moduleName: string): any;

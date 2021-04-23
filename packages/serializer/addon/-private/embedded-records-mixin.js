@@ -419,7 +419,7 @@ export default Mixin.create({
     let serializedKey = this.keyForAttribute(relationship.key, 'serialize');
     let hasMany = snapshot.hasMany(relationship.key);
 
-    json[serializedKey] = A(hasMany).map(function(recordSnapshot) {
+    json[serializedKey] = A(hasMany).map(function (recordSnapshot) {
       //
       // I'm sure I'm being utterly naive here. Probably id is a configurable property and
       // type too, and the modelName has to be normalized somehow.

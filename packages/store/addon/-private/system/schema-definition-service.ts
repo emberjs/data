@@ -18,7 +18,7 @@ type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null
 let _modelForMixin: ModelForMixin;
 if (HAS_MODEL_PACKAGE) {
   let _found;
-  _modelForMixin = function() {
+  _modelForMixin = function () {
     if (!_found) {
       _found = require('@ember-data/model/-private')._modelForMixin;
     }

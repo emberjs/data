@@ -5,10 +5,10 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('unit/adapters/json-api-adapter/ajax-options - building requests', function(hooks) {
+module('unit/adapters/json-api-adapter/ajax-options - building requests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register(
       'adapter:application',
       class extends JSONAPIAdapter {
@@ -18,7 +18,7 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('ajaxOptions() adds Accept when no other headers exist', function(assert) {
+  test('ajaxOptions() adds Accept when no other headers exist', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
 
     let url = 'example.com';
@@ -35,27 +35,7 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
     );
   });
 
-  test('ajaxOptions() adds Accept header to existing headers', function(assert) {
-    let adapter = this.owner.lookup('adapter:application');
-
-    adapter.headers = { 'Other-key': 'Other Value' };
-
-    let url = 'example.com';
-    let type = 'GET';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = ajaxOptions.headers;
-
-    assert.deepEqual(
-      receivedHeaders,
-      {
-        Accept: 'application/vnd.api+json',
-        'Other-key': 'Other Value',
-      },
-      'headers assigned'
-    );
-  });
-
-  test('ajaxOptions() adds Accept header to existing computed properties headers', function(assert) {
+  test('ajaxOptions() adds Accept header to existing headers', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = { 'Other-key': 'Other Value' };
@@ -75,7 +55,27 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
     );
   });
 
-  test('ajaxOptions() does not overwrite passed value of Accept headers', function(assert) {
+  test('ajaxOptions() adds Accept header to existing computed properties headers', function (assert) {
+    let adapter = this.owner.lookup('adapter:application');
+
+    adapter.headers = { 'Other-key': 'Other Value' };
+
+    let url = 'example.com';
+    let type = 'GET';
+    let ajaxOptions = adapter.ajaxOptions(url, type, {});
+    let receivedHeaders = ajaxOptions.headers;
+
+    assert.deepEqual(
+      receivedHeaders,
+      {
+        Accept: 'application/vnd.api+json',
+        'Other-key': 'Other Value',
+      },
+      'headers assigned'
+    );
+  });
+
+  test('ajaxOptions() does not overwrite passed value of Accept headers', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = { 'Other-Key': 'Other Value', Accept: 'application/json' };
@@ -95,7 +95,7 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
     );
   });
 
-  test('ajaxOptions() headers are set POST', function(assert) {
+  test('ajaxOptions() headers are set POST', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = {};
@@ -115,7 +115,7 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
     );
   });
 
-  test('ajaxOptions() does not override with existing headers["Content-Type"] POST', function(assert) {
+  test('ajaxOptions() does not override with existing headers["Content-Type"] POST', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
@@ -135,7 +135,7 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
     );
   });
 
-  test('ajaxOptions() can override with options.contentType POST', function(assert) {
+  test('ajaxOptions() can override with options.contentType POST', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = {};

@@ -192,9 +192,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
         if (relationshipData.links) {
           let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-          let relationship = graphFor(this.storeWrapper)
-            .get(this.identifier)
-            .get(relationshipName);
+          let relationship = graphFor(this.storeWrapper).get(this.identifier).get(relationshipName);
           warn(
             `You pushed a record of type '${this.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
             isAsync || relationshipData.data || relationship.hasAnyRelationshipData,
@@ -357,34 +355,24 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
   // get ResourceIdentifiers for "current state"
   getHasMany(key): DefaultCollectionResourceRelationship {
-    return (graphFor(this.storeWrapper)
-      .get(this.identifier)
-      .get(key) as ManyRelationship).getData();
+    return (graphFor(this.storeWrapper).get(this.identifier).get(key) as ManyRelationship).getData();
   }
 
   // set a new "current state" via ResourceIdentifiers
   setDirtyHasMany(key, recordDatas: RecordData[]) {
-    let relationship = graphFor(this.storeWrapper)
-      .get(this.identifier)
-      .get(key);
+    let relationship = graphFor(this.storeWrapper).get(this.identifier).get(key);
     relationship.clear();
     relationship.addRecordDatas(recordDatas.map(recordIdentifierFor));
   }
 
   // append to "current state" via RecordDatas
   addToHasMany(key, recordDatas: RecordData[], idx) {
-    graphFor(this.storeWrapper)
-      .get(this.identifier)
-      .get(key)
-      .addRecordDatas(recordDatas.map(recordIdentifierFor), idx);
+    graphFor(this.storeWrapper).get(this.identifier).get(key).addRecordDatas(recordDatas.map(recordIdentifierFor), idx);
   }
 
   // remove from "current state" via RecordDatas
   removeFromHasMany(key, recordDatas: RecordData[]) {
-    graphFor(this.storeWrapper)
-      .get(this.identifier)
-      .get(key)
-      .removeRecordDatas(recordDatas.map(recordIdentifierFor));
+    graphFor(this.storeWrapper).get(this.identifier).get(key).removeRecordDatas(recordDatas.map(recordIdentifierFor));
   }
 
   commitWasRejected(identifier?, errors?: JsonApiValidationError[]) {
@@ -407,15 +395,13 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   getBelongsTo(key: string): DefaultSingleResourceRelationship {
-    return (graphFor(this.storeWrapper)
-      .get(this.identifier)
-      .get(key) as BelongsToRelationship).getData();
+    return (graphFor(this.storeWrapper).get(this.identifier).get(key) as BelongsToRelationship).getData();
   }
 
   setDirtyBelongsTo(key: string, recordData: RecordData) {
-    (graphFor(this.storeWrapper)
-      .get(this.identifier)
-      .get(key) as BelongsToRelationship).setRecordData(recordData ? recordIdentifierFor(recordData) : null);
+    (graphFor(this.storeWrapper).get(this.identifier).get(key) as BelongsToRelationship).setRecordData(
+      recordData ? recordIdentifierFor(recordData) : null
+    );
   }
 
   setDirtyAttribute(key: string, value: any) {
@@ -502,7 +488,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
     const relationships = graphFor(this.storeWrapper).get(this.identifier);
     const initializedRelationships = relationships.initializedRelationships;
-    const initializedRelationshipsArr = Object.keys(initializedRelationships).map(key => initializedRelationships[key]);
+    const initializedRelationshipsArr = Object.keys(initializedRelationships).map(
+      (key) => initializedRelationships[key]
+    );
 
     let i = 0;
     let j = 0;
@@ -716,7 +704,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
     if (graph.implicitMap.has(identifier)) {
       const implicitRelationships = graph.getImplicit(identifier);
-      Object.keys(implicitRelationships).forEach(key => {
+      Object.keys(implicitRelationships).forEach((key) => {
         const rel = implicitRelationships[key];
 
         rel.removeCompletelyFromInverse();

@@ -15,12 +15,12 @@ class Person extends Model {
 
 class CustomStore extends Store {}
 
-module('integration/store/package-import', function(hooks) {
+module('integration/store/package-import', function (hooks) {
   setupTest(hooks);
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:person', Person);
@@ -29,7 +29,7 @@ module('integration/store/package-import', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('Store push works with an import from @ember-data/store', async function(assert) {
+  test('Store push works with an import from @ember-data/store', async function (assert) {
     store.push({
       data: [
         {

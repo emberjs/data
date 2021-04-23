@@ -375,7 +375,7 @@ abstract class CoreStore extends Service {
       }
 
       this._trackedAsyncRequests = [];
-      this._trackAsyncRequestStart = label => {
+      this._trackAsyncRequestStart = (label) => {
         let trace =
           'set `store.generateStackTracesForTrackedRequests = true;` to get a detailed trace for where this request originated';
 
@@ -395,7 +395,7 @@ abstract class CoreStore extends Service {
         this._trackedAsyncRequests.push(token);
         return token;
       };
-      this._trackAsyncRequestEnd = token => {
+      this._trackAsyncRequestEnd = (token) => {
         let index = this._trackedAsyncRequests.indexOf(token);
 
         if (index === -1) {
@@ -1206,7 +1206,7 @@ abstract class CoreStore extends Service {
 
     let promise = this._fetchManager.scheduleFetch(identifier, options, generateStackTrace);
     return promise.then(
-      payload => {
+      (payload) => {
         // ensure that regardless of id returned we assign to the correct record
         if (payload.data && !Array.isArray(payload.data)) {
           payload.data.lid = identifier.lid;
@@ -1220,7 +1220,7 @@ abstract class CoreStore extends Service {
           return internalModel;
         }
       },
-      error => {
+      (error) => {
         // TODO  remove this once we don't rely on state machine
         internalModel.send('notFound');
         if (internalModel.currentState.isEmpty) {
@@ -1359,7 +1359,7 @@ abstract class CoreStore extends Service {
       if (missingInternalModels.length) {
         warn(
           'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-            missingInternalModels.map(r => r.id).join('", "') +
+            missingInternalModels.map((r) => r.id).join('", "') +
             '" ]',
           false,
           {
@@ -1431,12 +1431,12 @@ abstract class CoreStore extends Service {
         }
 
         if (totalInGroup > 1) {
-          (function(groupedInternalModels) {
+          (function (groupedInternalModels) {
             _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
-              .then(function(foundInternalModels) {
+              .then(function (foundInternalModels) {
                 handleFoundRecords(foundInternalModels, groupedInternalModels);
               })
-              .catch(function(error) {
+              .catch(function (error) {
                 rejectInternalModels(groupedInternalModels, error);
               });
           })(groupedInternalModels);
@@ -1548,9 +1548,7 @@ abstract class CoreStore extends Service {
 
     if (this.hasRecordForId(type, normalizedId)) {
       const resource = constructResource(type, normalizedId);
-      return internalModelFactoryFor(this)
-        .lookup(resource)
-        .getRecord();
+      return internalModelFactoryFor(this).lookup(resource).getRecord();
     } else {
       return null;
     }
@@ -1647,9 +1645,7 @@ abstract class CoreStore extends Service {
 
     const resource = constructResource(modelName, ensureStringId(id));
 
-    return internalModelFactoryFor(this)
-      .lookup(resource)
-      .getRecord();
+    return internalModelFactoryFor(this).lookup(resource).getRecord();
   }
 
   /**
@@ -1743,7 +1739,7 @@ abstract class CoreStore extends Service {
 
     // fetch using data, pulling from local cache if possible
     if (!shouldForceReload && !relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
-      let internalModels = resource.data.map(json => this._internalModelForResource(json));
+      let internalModels = resource.data.map((json) => this._internalModelForResource(json));
 
       return this.findMany(internalModels, options);
     }
@@ -1752,7 +1748,7 @@ abstract class CoreStore extends Service {
 
     // fetch by data
     if (hasData || hasLocalPartialData) {
-      let internalModels = resource.data.map(json => this._internalModelForResource(json));
+      let internalModels = resource.data.map((json) => this._internalModelForResource(json));
 
       return this._scheduleFetchMany(internalModels, options);
     }
@@ -1765,7 +1761,7 @@ abstract class CoreStore extends Service {
   _getHasManyByJsonApiResource(resource) {
     let internalModels = [];
     if (resource && resource.data) {
-      internalModels = resource.data.map(reference => this._internalModelForResource(reference));
+      internalModels = resource.data.map((reference) => this._internalModelForResource(reference));
     }
     return internalModels;
   }
@@ -1802,7 +1798,7 @@ abstract class CoreStore extends Service {
       return resolve(null);
     }
     return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
-      internalModel => {
+      (internalModel) => {
         return internalModel ? internalModel.getRecord() : null;
       }
     );
@@ -1837,7 +1833,7 @@ abstract class CoreStore extends Service {
         // Temporary fix for requests already loading until we move this inside the fetch manager
         let pendingRequests = this.getRequestStateService()
           .getPendingRequestsForRecord(internalModel.identifier)
-          .filter(req => req.type === 'query');
+          .filter((req) => req.type === 'query');
 
         if (pendingRequests.length > 0) {
           return pendingRequests[0][RequestPromise].then(() => internalModel.getRecord());
@@ -2104,7 +2100,7 @@ abstract class CoreStore extends Service {
     );
 
     return promiseObject(
-      _queryRecord(adapter, this, normalizedModelName, query, adapterOptionsWrapper).then(internalModel => {
+      _queryRecord(adapter, this, normalizedModelName, query, adapterOptionsWrapper).then((internalModel) => {
         // the promise returned by store.queryRecord is expected to resolve with
         // an instance of Model
         if (internalModel) {
@@ -2500,7 +2496,7 @@ abstract class CoreStore extends Service {
 
       let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
       let promise = fetchManagerPromise.then(
-        payload => {
+        (payload) => {
           /*
         Note to future spelunkers hoping to optimize.
         We rely on this `run` to create a run loop if needed
@@ -2888,7 +2884,7 @@ abstract class CoreStore extends Service {
     let pushed = this._push(data);
 
     if (Array.isArray(pushed)) {
-      let records = pushed.map(internalModel => internalModel.getRecord());
+      let records = pushed.map((internalModel) => internalModel.getRecord());
       return records;
     }
 
@@ -2972,23 +2968,23 @@ abstract class CoreStore extends Service {
           let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
           let attributes = this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
           // Check unknown attributes
-          unknownAttributes = Object.keys(data.attributes || {}).filter(key => {
+          unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
             return !attributes[key];
           });
 
           // Check unknown relationships
-          unknownRelationships = Object.keys(data.relationships || {}).filter(key => {
+          unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
             return !relationships[key];
           });
         } else {
           let modelClass = this.modelFor(modelName);
           // Check unknown attributes
-          unknownAttributes = Object.keys(data.attributes || {}).filter(key => {
+          unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
             return !get(modelClass, 'fields').has(key);
           });
 
           // Check unknown relationships
-          unknownRelationships = Object.keys(data.relationships || {}).filter(key => {
+          unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
             return !get(modelClass, 'fields').has(key);
           });
         }
@@ -3613,12 +3609,12 @@ abstract class CoreStore extends Service {
         if (shouldTrack) {
           throw new Error(
             'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-              tracked.map(o => o.label).join('\n\t - ')
+              tracked.map((o) => o.label).join('\n\t - ')
           );
         } else {
           warn(
             'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-              tracked.map(o => o.label).join('\n\t - '),
+              tracked.map((o) => o.label).join('\n\t - '),
             false,
             {
               id: 'ds.async.leak.detected',
@@ -3672,10 +3668,11 @@ if (DEPRECATE_DEFAULT_ADAPTER) {
   defineProperty(
     CoreStore.prototype,
     'defaultAdapter',
-    computed('adapter', function() {
+    computed('adapter', function () {
       deprecate(
-        `store.adapterFor(modelName) resolved the ("${this.adapter ||
-          '-json-api'}") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
+        `store.adapterFor(modelName) resolved the ("${
+          this.adapter || '-json-api'
+        }") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
         false,
         {
           id: 'ember-data:default-adapter',
@@ -3720,7 +3717,7 @@ function _commit(adapter, store, operation, snapshot) {
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
   return promise.then(
-    adapterPayload => {
+    (adapterPayload) => {
       /*
       Note to future spelunkers hoping to optimize.
       We rely on this `run` to create a run loop if needed
@@ -3748,7 +3745,7 @@ function _commit(adapter, store, operation, snapshot) {
 
       return internalModel;
     },
-    function(error) {
+    function (error) {
       if (error && error.isAdapterError === true && error.code === 'InvalidError') {
         let parsedErrors;
 

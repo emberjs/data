@@ -2,10 +2,10 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-module('unit/transform - StringTransform', function(hooks) {
+module('unit/transform - StringTransform', function (hooks) {
   setupTest(hooks);
 
-  test('#serialize', async function(assert) {
+  test('#serialize', async function (assert) {
     const transform = this.owner.lookup('transform:string');
 
     assert.strictEqual(transform.serialize(null), null);
@@ -15,7 +15,7 @@ module('unit/transform - StringTransform', function(hooks) {
     assert.equal(transform.serialize(1), '1');
   });
 
-  test('#deserialize', async function(assert) {
+  test('#deserialize', async function (assert) {
     const transform = this.owner.lookup('transform:string');
 
     assert.strictEqual(transform.deserialize(null), null);

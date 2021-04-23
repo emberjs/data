@@ -8,10 +8,10 @@ import { setupTest } from 'ember-qunit';
 
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('integration/serializers/json-api-serializer - JSONAPISerializer', function(hooks) {
+module('integration/serializers/json-api-serializer - JSONAPISerializer', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const User = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
@@ -53,11 +53,11 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     this.owner.register('serializer:application', DS.JSONAPISerializer.extend());
   });
 
-  test('Calling pushPayload works', function(assert) {
+  test('Calling pushPayload works', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
-    run(function() {
+    run(function () {
       serializer.pushPayload(store, {
         data: {
           type: 'users',
@@ -113,7 +113,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  testInDebug('Warns when normalizing an unknown type', function(assert) {
+  testInDebug('Warns when normalizing an unknown type', function (assert) {
     let store = this.owner.lookup('service:store');
     let User = store.modelFor('user');
 
@@ -127,14 +127,14 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       },
     };
 
-    assert.expectWarning(function() {
-      run(function() {
+    assert.expectWarning(function () {
+      run(function () {
         store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
       });
     }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
   });
 
-  testInDebug('Warns when normalizing payload with unknown type included', function(assert) {
+  testInDebug('Warns when normalizing payload with unknown type included', function (assert) {
     let store = this.owner.lookup('service:store');
     let User = store.modelFor('user');
 
@@ -163,14 +163,14 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       ],
     };
 
-    assert.expectWarning(function() {
-      run(function() {
+    assert.expectWarning(function () {
+      run(function () {
         store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
       });
     }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
   });
 
-  testInDebug('Warns but does not fail when pushing payload with unknown type included', function(assert) {
+  testInDebug('Warns but does not fail when pushing payload with unknown type included', function (assert) {
     let store = this.owner.lookup('service:store');
 
     var documentHash = {
@@ -193,8 +193,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       ],
     };
 
-    assert.expectWarning(function() {
-      run(function() {
+    assert.expectWarning(function () {
+      run(function () {
         store.pushPayload(documentHash);
       });
     }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
@@ -203,7 +203,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
   });
 
-  testInDebug('Errors when pushing payload with unknown type included in relationship', function(assert) {
+  testInDebug('Errors when pushing payload with unknown type included in relationship', function (assert) {
     let store = this.owner.lookup('service:store');
 
     var documentHash = {
@@ -222,14 +222,14 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       },
     };
 
-    assert.expectAssertion(function() {
-      run(function() {
+    assert.expectAssertion(function () {
+      run(function () {
         store.pushPayload(documentHash);
       });
     }, /No model was found for 'unknown-type'/);
   });
 
-  testInDebug('Warns when normalizing with type missing', function(assert) {
+  testInDebug('Warns when normalizing with type missing', function (assert) {
     let store = this.owner.lookup('service:store');
     let User = store.modelFor('user');
 
@@ -242,14 +242,14 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       },
     };
 
-    assert.expectAssertion(function() {
-      run(function() {
+    assert.expectAssertion(function () {
+      run(function () {
         store.serializerFor('user').normalizeResponse(store, User, documentHash, '1', 'findRecord');
       });
     }, /Encountered a resource object with an undefined type/);
   });
 
-  test('Serializer should respect the attrs hash when extracting attributes and relationships', function(assert) {
+  test('Serializer should respect the attrs hash when extracting attributes and relationships', function (assert) {
     this.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
@@ -296,7 +296,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     assert.deepEqual(user.data.relationships.company.data, { id: '2', type: 'company' });
   });
 
-  test('Serializer should respect the attrs hash when serializing attributes and relationships', function(assert) {
+  test('Serializer should respect the attrs hash when serializing attributes and relationships', function (assert) {
     this.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
@@ -311,7 +311,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     let store = this.owner.lookup('service:store');
     var company, user;
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'company',
@@ -336,7 +336,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     assert.equal(payload.data.attributes['title_attribute_key'], 'director');
   });
 
-  test('Serializer should respect the attrs hash when extracting attributes with not camelized keys', function(assert) {
+  test('Serializer should respect the attrs hash when extracting attributes with not camelized keys', function (assert) {
     this.owner.register(
       'serializer:project',
       DS.JSONAPISerializer.extend({
@@ -364,7 +364,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     assert.equal(project.data.attributes['company-name'], 'Tilde Inc.');
   });
 
-  test('Serializer should respect the attrs hash when serializing attributes with not camelized keys', function(assert) {
+  test('Serializer should respect the attrs hash when serializing attributes with not camelized keys', function (assert) {
     this.owner.register(
       'serializer:project',
       DS.JSONAPISerializer.extend({
@@ -381,7 +381,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     assert.equal(payload.data.attributes['company_name'], 'Tilde Inc.');
   });
 
-  test('options are passed to transform for serialization', function(assert) {
+  test('options are passed to transform for serialization', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -389,7 +389,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     this.owner.register(
       'transform:custom',
       DS.Transform.extend({
-        serialize: function(deserialized, options) {
+        serialize: function (deserialized, options) {
           assert.deepEqual(options, { custom: 'config' });
         },
       })
@@ -406,19 +406,19 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     store.serializerFor('user').serialize(user._createSnapshot());
   });
 
-  testInDebug('Warns when defining extractMeta()', function(assert) {
-    assert.expectWarning(function() {
+  testInDebug('Warns when defining extractMeta()', function (assert) {
+    assert.expectWarning(function () {
       DS.JSONAPISerializer.extend({
         extractMeta() {},
       }).create();
     }, /You've defined 'extractMeta' in/);
   });
 
-  test('a belongsTo relationship that is not set will not be in the relationships key', function(assert) {
+  test('a belongsTo relationship that is not set will not be in the relationships key', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
-    run(function() {
+    run(function () {
       serializer.pushPayload(store, {
         data: {
           type: 'handles',
@@ -438,11 +438,11 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  test('a belongsTo relationship that is set to null will show as null in the relationships key', function(assert) {
+  test('a belongsTo relationship that is set to null will show as null in the relationships key', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
-    run(function() {
+    run(function () {
       serializer.pushPayload(store, {
         data: {
           type: 'handles',
@@ -468,11 +468,11 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  test('a belongsTo relationship set to a new record will not show in the relationships key', function(assert) {
+  test('a belongsTo relationship set to a new record will not show in the relationships key', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
-    run(function() {
+    run(function () {
       serializer.pushPayload(store, {
         data: {
           type: 'handles',
@@ -494,7 +494,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  test('it should serialize a hasMany relationship', function(assert) {
+  test('it should serialize a hasMany relationship', function (assert) {
     this.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
@@ -506,7 +506,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     let store = this.owner.lookup('service:store');
 
-    run(function() {
+    run(function () {
       store.serializerFor('user').pushPayload(store, {
         data: {
           type: 'users',
@@ -552,7 +552,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  test('it should not include new records when serializing a hasMany relationship', function(assert) {
+  test('it should not include new records when serializing a hasMany relationship', function (assert) {
     this.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
@@ -564,7 +564,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     let store = this.owner.lookup('service:store');
 
-    run(function() {
+    run(function () {
       store.serializerFor('user').pushPayload(store, {
         data: {
           type: 'users',
@@ -611,7 +611,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  test('it should not include any records when serializing a hasMany relationship if they are all new', function(assert) {
+  test('it should not include any records when serializing a hasMany relationship if they are all new', function (assert) {
     this.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
@@ -623,7 +623,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     let store = this.owner.lookup('service:store');
 
-    run(function() {
+    run(function () {
       store.serializerFor('user').pushPayload(store, {
         data: {
           type: 'users',
@@ -655,7 +655,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  test('it should include an empty list when serializing an empty hasMany relationship', function(assert) {
+  test('it should include an empty list when serializing an empty hasMany relationship', function (assert) {
     this.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
@@ -667,7 +667,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     let store = this.owner.lookup('service:store');
 
-    run(function() {
+    run(function () {
       store.serializerFor('user').pushPayload(store, {
         data: {
           type: 'users',
@@ -714,21 +714,21 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     });
   });
 
-  testInDebug('Asserts when combined with EmbeddedRecordsMixin', function(assert) {
-    assert.expectAssertion(function() {
+  testInDebug('Asserts when combined with EmbeddedRecordsMixin', function (assert) {
+    assert.expectAssertion(function () {
       DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();
     }, /You've used the EmbeddedRecordsMixin in/);
   });
 
-  testInDebug('Allows EmbeddedRecordsMixin if isEmbeddedRecordsMixinCompatible is true', function(assert) {
-    assert.expectNoAssertion(function() {
+  testInDebug('Allows EmbeddedRecordsMixin if isEmbeddedRecordsMixinCompatible is true', function (assert) {
+    assert.expectNoAssertion(function () {
       DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin, {
         isEmbeddedRecordsMixinCompatible: true,
       }).create();
     });
   });
 
-  testInDebug('Asserts when normalized attribute key is not found in payload but original key is', function(assert) {
+  testInDebug('Asserts when normalized attribute key is not found in payload but original key is', function (assert) {
     let store = this.owner.lookup('service:store');
     let User = store.modelFor('user');
 
@@ -742,29 +742,32 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       },
     };
 
-    assert.expectAssertion(function() {
+    assert.expectAssertion(function () {
       store.serializerFor('user').normalizeResponse(store, User, jsonHash, '1', 'findRecord');
     }, /Your payload for 'user' contains 'firstName', but your serializer is setup to look for 'first-name'/);
   });
 
-  testInDebug('Asserts when normalized relationship key is not found in payload but original key is', function(assert) {
-    let store = this.owner.lookup('service:store');
-    let User = store.modelFor('user');
+  testInDebug(
+    'Asserts when normalized relationship key is not found in payload but original key is',
+    function (assert) {
+      let store = this.owner.lookup('service:store');
+      let User = store.modelFor('user');
 
-    var jsonHash = {
-      data: {
-        type: 'users',
-        id: '1',
-        relationships: {
-          reportsTo: {
-            data: null,
+      var jsonHash = {
+        data: {
+          type: 'users',
+          id: '1',
+          relationships: {
+            reportsTo: {
+              data: null,
+            },
           },
         },
-      },
-    };
+      };
 
-    assert.expectAssertion(function() {
-      store.serializerFor('user').normalizeResponse(store, User, jsonHash, '1', 'findRecord');
-    }, /Your payload for 'user' contains 'reportsTo', but your serializer is setup to look for 'reports-to'/);
-  });
+      assert.expectAssertion(function () {
+        store.serializerFor('user').normalizeResponse(store, User, jsonHash, '1', 'findRecord');
+      }, /Your payload for 'user' contains 'reportsTo', but your serializer is setup to look for 'reports-to'/);
+    }
+  );
 });

@@ -9,12 +9,12 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('integration - Client Id Generation', function(hooks) {
+module('integration - Client Id Generation', function (hooks) {
   setupTest(hooks);
   let store;
   let adapter;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     class Comment extends Model {
@@ -44,18 +44,18 @@ module('integration - Client Id Generation', function(hooks) {
     adapter = store.adapterFor('application');
   });
 
-  test('If an adapter implements the `generateIdForRecord` method, the store should be able to assign IDs without saving to the persistence layer.', async function(assert) {
+  test('If an adapter implements the `generateIdForRecord` method, the store should be able to assign IDs without saving to the persistence layer.', async function (assert) {
     assert.expect(6);
 
     let idCount = 1;
 
-    adapter.generateIdForRecord = function(passedStore, record) {
+    adapter.generateIdForRecord = function (passedStore, record) {
       assert.ok(store === passedStore, 'store is the first parameter');
 
       return 'id-' + idCount++;
     };
 
-    adapter.createRecord = function(store, modelClass, snapshot) {
+    adapter.createRecord = function (store, modelClass, snapshot) {
       let type = modelClass.modelName;
 
       if (type === 'comment') {
@@ -89,19 +89,19 @@ module('integration - Client Id Generation', function(hooks) {
     await post.save();
   });
 
-  test('empty string and undefined ids should coerce to null', async function(assert) {
+  test('empty string and undefined ids should coerce to null', async function (assert) {
     assert.expect(6);
     let idCount = 0;
     let id = 1;
     let ids = [undefined, ''];
 
-    adapter.generateIdForRecord = function(passedStore, record) {
+    adapter.generateIdForRecord = function (passedStore, record) {
       assert.ok(store === passedStore, 'store is the first parameter');
 
       return ids[idCount++];
     };
 
-    adapter.createRecord = function(store, type, record) {
+    adapter.createRecord = function (store, type, record) {
       assert.equal(typeof get(record, 'id'), 'object', 'correct type');
       return resolve({ data: { id: id++, type: type.modelName } });
     };

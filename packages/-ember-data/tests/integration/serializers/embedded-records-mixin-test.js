@@ -7,11 +7,11 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('integration/embedded-records-mixin', function(hooks) {
+module('integration/embedded-records-mixin', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     const SuperVillain = Model.extend({
@@ -66,8 +66,8 @@ module('integration/embedded-records-mixin', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  module('Normalize using findRecord', function() {
-    test('normalizeResponse with embedded objects', async function(assert) {
+  module('Normalize using findRecord', function () {
+    test('normalizeResponse with embedded objects', async function (assert) {
       this.owner.register(
         'serializer:home-planet',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -122,7 +122,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       assert.deepEqual(normalizedJsonApi, expectedOutput, 'We normalized to json-api and extracted the super-villain');
     });
 
-    test('normalizeResponse with embedded objects inside embedded objects', async function(assert) {
+    test('normalizeResponse with embedded objects inside embedded objects', async function (assert) {
       this.owner.register(
         'serializer:home-planet',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -207,7 +207,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with embedded objects of same type', async function(assert) {
+    test('normalizeResponse with embedded objects of same type', async function (assert) {
       this.owner.register(
         'serializer:comment',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -285,7 +285,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with embedded objects inside embedded objects of same type', async function(assert) {
+    test('normalizeResponse with embedded objects inside embedded objects of same type', async function (assert) {
       this.owner.register(
         'serializer:comment',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -383,7 +383,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with embedded objects of same type, but from separate attributes', async function(assert) {
+    test('normalizeResponse with embedded objects of same type, but from separate attributes', async function (assert) {
       let { owner } = this;
       const HomePlanetKlass = Model.extend({
         name: attr('string'),
@@ -496,7 +496,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with multiply-nested belongsTo', async function(assert) {
+    test('normalizeResponse with multiply-nested belongsTo', async function (assert) {
       let { owner } = this;
       owner.register(
         'serializer:evil-minion',
@@ -587,7 +587,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with polymorphic hasMany and custom primary key', async function(assert) {
+    test('normalizeResponse with polymorphic hasMany and custom primary key', async function (assert) {
       let { owner } = this;
       const SuperVillainClass = Model.extend({
         firstName: attr('string'),
@@ -683,7 +683,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with polymorphic belongsTo', async function(assert) {
+    test('normalizeResponse with polymorphic belongsTo', async function (assert) {
       let { owner } = this;
       const SuperVillainClass = Model.extend({
         firstName: attr('string'),
@@ -753,7 +753,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with polymorphic belongsTo and custom primary key', async function(assert) {
+    test('normalizeResponse with polymorphic belongsTo and custom primary key', async function (assert) {
       let { owner } = this;
       const SuperVillainClass = Model.extend({
         firstName: attr('string'),
@@ -832,7 +832,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalize with custom belongsTo primary key', async function(assert) {
+    test('normalize with custom belongsTo primary key', async function (assert) {
       let { owner } = this;
       owner.register(
         'serializer:evil-minion',
@@ -893,8 +893,8 @@ module('integration/embedded-records-mixin', function(hooks) {
     });
   });
 
-  module('Normalize using findAll', function() {
-    test('normalizeResponse with embedded objects', async function(assert) {
+  module('Normalize using findAll', function () {
+    test('normalizeResponse with embedded objects', async function (assert) {
       this.owner.register(
         'serializer:home-planet',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -956,7 +956,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with embedded objects with custom primary key', async function(assert) {
+    test('normalizeResponse with embedded objects with custom primary key', async function (assert) {
       let { owner } = this;
       owner.register(
         'serializer:super-villain',
@@ -1022,7 +1022,7 @@ module('integration/embedded-records-mixin', function(hooks) {
     });
 
     // TODO this is a super weird test, probably not a valid scenario to have any guarantees around
-    test('normalizeResponse with embedded objects with identical relationship and attribute key ', async function(assert) {
+    test('normalizeResponse with embedded objects with identical relationship and attribute key ', async function (assert) {
       this.owner.register(
         'serializer:home-planet',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1105,7 +1105,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       assert.deepEqual(normalizedJsonApi, expectedOutput, 'when the key for a relationship and an attribute collide, ');
     });
 
-    test('normalizeResponse with embedded objects of same type as primary type', async function(assert) {
+    test('normalizeResponse with embedded objects of same type as primary type', async function (assert) {
       this.owner.register(
         'serializer:comment',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1186,7 +1186,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with embedded objects of same type, but from separate attributes', async function(assert) {
+    test('normalizeResponse with embedded objects of same type, but from separate attributes', async function (assert) {
       let { owner } = this;
       const HomePlanetClass = Model.extend({
         name: attr('string'),
@@ -1379,7 +1379,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with embedded object (belongsTo relationship)', async function(assert) {
+    test('normalizeResponse with embedded object (belongsTo relationship)', async function (assert) {
       this.owner.register(
         'serializer:super-villain',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1453,7 +1453,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       );
     });
 
-    test('normalizeResponse with polymorphic hasMany', async function(assert) {
+    test('normalizeResponse with polymorphic hasMany', async function (assert) {
       let { owner } = this;
 
       const SuperVillainClass = Model.extend({
@@ -1541,8 +1541,8 @@ module('integration/embedded-records-mixin', function(hooks) {
     });
   });
 
-  module('Serialize', function() {
-    test('serialize supports serialize:false on non-relationship properties', async function(assert) {
+  module('Serialize', function () {
+    test('serialize supports serialize:false on non-relationship properties', async function (assert) {
       this.owner.register(
         'serializer:super-villain',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1568,7 +1568,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       assert.deepEqual(serializedRestJson, expectedOutput, 'We do not serialize attrs defined with serialize:false');
     });
 
-    test('Mixin can be used with RESTSerializer which does not define keyForAttribute', async function(assert) {
+    test('Mixin can be used with RESTSerializer which does not define keyForAttribute', async function (assert) {
       this.owner.register(
         'serializer:super-villain',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1627,7 +1627,7 @@ module('integration/embedded-records-mixin', function(hooks) {
       assert.deepEqual(serializedRestJson, expectedOutput, 'we serialize correctly');
     });
 
-    test('serializing relationships with an embedded and without calls super when not attr not present', async function(assert) {
+    test('serializing relationships with an embedded and without calls super when not attr not present', async function (assert) {
       let { owner } = this;
       let calledSerializeBelongsTo = false;
       let calledSerializeHasMany = false;
@@ -1717,8 +1717,8 @@ module('integration/embedded-records-mixin', function(hooks) {
       assert.ok(calledSerializeHasMany);
     });
 
-    module('Serialize hasMany', function() {
-      test('serialize with embedded objects (hasMany relationship)', async function(assert) {
+    module('Serialize hasMany', function () {
+      test('serialize with embedded objects (hasMany relationship)', async function (assert) {
         this.owner.register(
           'serializer:home-planet',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1760,7 +1760,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serialize with embedded objects and a custom keyForAttribute (hasMany relationship)', async function(assert) {
+      test('serialize with embedded objects and a custom keyForAttribute (hasMany relationship)', async function (assert) {
         this.owner.register(
           'serializer:home-planet',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1805,7 +1805,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      testInDebug('serialize with embedded objects (unknown hasMany relationship)', async function(assert) {
+      testInDebug('serialize with embedded objects (unknown hasMany relationship)', async function (assert) {
         this.owner.register(
           'serializer:home-planet',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1832,14 +1832,14 @@ module('integration/embedded-records-mixin', function(hooks) {
           villains: [],
         };
 
-        assert.expectWarning(function() {
+        assert.expectWarning(function () {
           serializedRestJson = serializer.serialize(league._createSnapshot());
         }, /The embedded relationship 'villains' is undefined for 'home-planet' with id '123'. Please include it in your original payload./);
 
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialize the missing hasMany to an empty array');
       });
 
-      test('serialize with embedded objects (hasMany relationship) supports serialize:false', async function(assert) {
+      test('serialize with embedded objects (hasMany relationship) supports serialize:false', async function (assert) {
         this.owner.register(
           'serializer:home-planet',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1869,7 +1869,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We do not serialize the hasMany');
       });
 
-      test('serialize with (new) embedded objects (hasMany relationship)', async function(assert) {
+      test('serialize with (new) embedded objects (hasMany relationship)', async function (assert) {
         this.owner.register(
           'serializer:home-planet',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1908,7 +1908,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serialize with embedded objects (hasMany relationships, including related objects not embedded)', async function(assert) {
+      test('serialize with embedded objects (hasMany relationships, including related objects not embedded)', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -1957,7 +1957,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We only embed relationships we are told to embed');
       });
 
-      test('serialize has many relationship using the `ids-and-types` strategy', async function(assert) {
+      test('serialize has many relationship using the `ids-and-types` strategy', async function (assert) {
         let { owner } = this;
         const NormalMinion = Model.extend({
           name: attr('string'),
@@ -2015,7 +2015,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized both ids and types for the hasMany');
       });
 
-      test('serializing embedded hasMany respects remapped attrs key', async function(assert) {
+      test('serializing embedded hasMany respects remapped attrs key', async function (assert) {
         let { owner } = this;
         owner.register(
           'serializer:home-planet',
@@ -2060,7 +2060,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serializing ids hasMany respects remapped attrs key', async function(assert) {
+      test('serializing ids hasMany respects remapped attrs key', async function (assert) {
         let { owner } = this;
         owner.register(
           'serializer:home-planet',
@@ -2097,8 +2097,8 @@ module('integration/embedded-records-mixin', function(hooks) {
       });
     });
 
-    module('Serialize belongsTo', function() {
-      test('serialize with embedded object (belongsTo relationship)', async function(assert) {
+    module('Serialize belongsTo', function () {
+      test('serialize with embedded object (belongsTo relationship)', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2140,7 +2140,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serialize with embedded object (polymorphic belongsTo relationship)', async function(assert) {
+      test('serialize with embedded object (polymorphic belongsTo relationship)', async function (assert) {
         let { owner } = this;
         owner.register(
           'serializer:super-villain',
@@ -2199,7 +2199,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serialize with embedded object (belongsTo relationship) works with different primaryKeys', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship) works with different primaryKeys', async function (assert) {
         let { owner } = this;
         owner.register(
           'serializer:super-villain',
@@ -2253,7 +2253,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serialize with embedded object (belongsTo relationship, new no id)', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship, new no id)', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2289,7 +2289,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput);
       });
 
-      test('serialize with embedded object (polymorphic belongsTo relationship) supports serialize:ids', async function(assert) {
+      test('serialize with embedded object (polymorphic belongsTo relationship) supports serialize:ids', async function (assert) {
         let { owner } = this;
         const SuperVillain = Model.extend({
           firstName: attr('string'),
@@ -2334,7 +2334,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialize the polymorphic type');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function (assert) {
         let { owner } = this;
         const SuperVillain = Model.extend({
           firstName: attr('string'),
@@ -2381,7 +2381,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialize the id');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function (assert) {
         let { owner } = this;
         const SuperVillain = Model.extend({
           firstName: attr('string'),
@@ -2432,7 +2432,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:ids', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:ids', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2467,7 +2467,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2502,7 +2502,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2537,7 +2537,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:false', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:false', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2575,7 +2575,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified', async function(assert) {
+      test('serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified', async function (assert) {
         this.owner.register('serializer:super-villain', RESTSerializer.extend(EmbeddedRecordsMixin));
 
         // records with an id, persisted
@@ -2603,7 +2603,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
-      test('when related record is not present, serialize embedded record (with a belongsTo relationship) as null', async function(assert) {
+      test('when related record is not present, serialize embedded record (with a belongsTo relationship) as null', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2636,7 +2636,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serializing belongsTo correctly removes embedded foreign key', async function(assert) {
+      test('serializing belongsTo correctly removes embedded foreign key', async function (assert) {
         let { owner } = this;
         const SecretWeaponClass = Model.extend({
           name: attr('string'),
@@ -2681,7 +2681,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         );
       });
 
-      test('serializing embedded belongsTo respects remapped attrs key', async function(assert) {
+      test('serializing embedded belongsTo respects remapped attrs key', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2712,7 +2712,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'we respect the remapped attrs key when serializing');
       });
 
-      test('serializing id belongsTo respects remapped attrs key', async function(assert) {
+      test('serializing id belongsTo respects remapped attrs key', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {

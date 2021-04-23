@@ -22,7 +22,7 @@ const PromiseBelongsTo = PromiseObject.extend({
   // we don't proxy meta because we would need to proxy it to the relationship state container
   //  however, meta on relationships does not trigger change notifications.
   //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`
-  meta: computed(function() {
+  meta: computed(function () {
     assert(
       'You attempted to access meta on the promise for the async belongsTo relationship ' +
         `${this.get('_belongsToState').modelName}:${this.get('_belongsToState').key}'.` +

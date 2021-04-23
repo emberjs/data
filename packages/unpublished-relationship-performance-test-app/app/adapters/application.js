@@ -12,7 +12,7 @@ export default class ApplicationMockAdapter extends EmberObject {
   shouldBackgroundReloadAll() {
     return false;
   }
-  deleteRecord = function() {
+  deleteRecord = function () {
     return EmberPromise.resolve();
   };
 }
@@ -83,15 +83,15 @@ function createCarsPayload(n) {
 }
 
 function getColorResources() {
-  return COLORS.map(name => createJsonApiResource(`urn:color:${FIXTURE_ID++}`, 'color', { name }));
+  return COLORS.map((name) => createJsonApiResource(`urn:color:${FIXTURE_ID++}`, 'color', { name }));
 }
 
 function getSizeResources() {
-  return SIZES.map(name => createJsonApiResource(`urn:size:${FIXTURE_ID++}`, 'size', { name }));
+  return SIZES.map((name) => createJsonApiResource(`urn:size:${FIXTURE_ID++}`, 'size', { name }));
 }
 
 function getTypeResources() {
-  return TYPES.map(name => createJsonApiResource(`urn:type:${FIXTURE_ID++}`, 'type', { name }));
+  return TYPES.map((name) => createJsonApiResource(`urn:type:${FIXTURE_ID++}`, 'type', { name }));
 }
 
 function createJsonApiResource(id, type, attributes) {

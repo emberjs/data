@@ -19,10 +19,10 @@ class Person extends Model {
 
 module(
   'integration/errors - errors in JSON:API format "just work" with no extractErrors hook on the serializer',
-  function(hooks) {
+  function (hooks) {
     setupTest(hooks);
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       this.owner.register('service:store', Store);
       this.owner.register('model:person', Person);
       this.owner.register(
@@ -35,7 +35,7 @@ module(
       );
     });
 
-    test('can retrieve errors after findRecord', async function(assert) {
+    test('can retrieve errors after findRecord', async function (assert) {
       class TestAdapter extends JSONAPIAdapter {
         defaultSerializer = 'application';
 
@@ -66,7 +66,7 @@ module(
       assert.equal(errors[0].detail, 'file not found', 'error detail is correct');
     });
 
-    test('can retrieve errors after save', async function(assert) {
+    test('can retrieve errors after save', async function (assert) {
       class TestAdapter extends JSONAPIAdapter {
         defaultSerializer = 'application';
 

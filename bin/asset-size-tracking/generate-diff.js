@@ -62,7 +62,7 @@ function getDiff(oldLibrary, newLibrary) {
     compressionDelta,
     packages: {},
   };
-  oldLibrary.packages.forEach(pkg => {
+  oldLibrary.packages.forEach((pkg) => {
     diff.packages[pkg.name] = {
       name: pkg.name,
       currentSize: pkg.absoluteSize,
@@ -72,7 +72,7 @@ function getDiff(oldLibrary, newLibrary) {
       modules: {},
     };
     let modules = diff.packages[pkg.name].modules;
-    pkg.modules.forEach(m => {
+    pkg.modules.forEach((m) => {
       modules[m.name] = {
         name: m.name,
         currentSize: m.absoluteSize,
@@ -82,7 +82,7 @@ function getDiff(oldLibrary, newLibrary) {
       };
     });
   });
-  newLibrary.packages.forEach(pkg => {
+  newLibrary.packages.forEach((pkg) => {
     diff.packages[pkg.name] = diff.packages[pkg.name] || {
       name: pkg.name,
       currentSize: 0,
@@ -94,7 +94,7 @@ function getDiff(oldLibrary, newLibrary) {
     diff.packages[pkg.name].newSize = pkg.absoluteSize;
     diff.packages[pkg.name].newSizeCompressed = pkg.compressedSize;
     let modules = diff.packages[pkg.name].modules;
-    pkg.modules.forEach(m => {
+    pkg.modules.forEach((m) => {
       modules[m.name] = modules[m.name] || {
         name: m.name,
         currentSize: 0,
@@ -107,10 +107,10 @@ function getDiff(oldLibrary, newLibrary) {
     });
   });
   diff.packages = Object.values(diff.packages);
-  diff.packages.forEach(pkg => {
+  diff.packages.forEach((pkg) => {
     pkg.compressionDelta = getRelativeDeltaForItem(pkg);
     pkg.modules = Object.values(pkg.modules);
-    pkg.modules.forEach(m => {
+    pkg.modules.forEach((m) => {
       m.compressionDelta = getRelativeDeltaForItem(m);
     });
   });
@@ -137,7 +137,7 @@ function analyzeDiff(diff) {
     }
   }
 
-  diff.packages.forEach(pkg => {
+  diff.packages.forEach((pkg) => {
     if (pkg.currentSize < pkg.newSize) {
       let delta = pkg.newSize - pkg.currentSize;
       if (delta > package_warn_threshold) {
@@ -152,9 +152,9 @@ function analyzeDiff(diff) {
 function printDiff(diff) {
   console.log('\n```\n');
   printItem(diff);
-  diff.packages.forEach(pkg => {
+  diff.packages.forEach((pkg) => {
     printItem(pkg, 2);
-    pkg.modules.forEach(m => {
+    pkg.modules.forEach((m) => {
       printItem(m, 4);
     });
   });
@@ -230,13 +230,13 @@ if (failures.length) {
   console.log(`\n<details>\n  <summary>${failures[0]}</summary>`);
   if (failures.length > 1) {
     console.log('\nFailed Checks\n-----------------------');
-    failures.forEach(f => {
+    failures.forEach((f) => {
       console.log(f);
     });
   }
   if (warnings.length) {
     console.log('\nWarnings\n-----------------------');
-    warnings.forEach(w => {
+    warnings.forEach((w) => {
       console.log(w);
     });
   }
@@ -295,7 +295,7 @@ if (failures.length) {
   }
   if (warnings.length) {
     console.log('\nWarnings\n-----------------------');
-    warnings.forEach(w => {
+    warnings.forEach((w) => {
       console.log(w);
     });
   } else {

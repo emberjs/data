@@ -31,16 +31,16 @@ class Person extends Model {
   lastName;
 }
 
-module('integration/generate-id - GenerateIdForRecord Tests', function(hooks) {
+module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
     this.owner.register('serializer:application', MinimalSerializer);
     this.owner.register('model:person', Person);
   });
 
-  test('store.createRecord calls adapter.generateIdForRecord if defined and we use this ID for the record', async function(assert) {
+  test('store.createRecord calls adapter.generateIdForRecord if defined and we use this ID for the record', async function (assert) {
     let generateIdForRecordCalled = 0;
     let seq = 0;
 
@@ -77,7 +77,7 @@ module('integration/generate-id - GenerateIdForRecord Tests', function(hooks) {
     });
   });
 
-  test('store.createRecord does not error if adapter.generateIdForRecord is undefined.', async function(assert) {
+  test('store.createRecord does not error if adapter.generateIdForRecord is undefined.', async function (assert) {
     let store = this.owner.lookup('service:store');
     let expectedData = {
       data: {

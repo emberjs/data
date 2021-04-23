@@ -18,11 +18,11 @@ import { recordDataFor } from '@ember-data/store/-private';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/model - Model', function(hooks) {
+module('unit/model - Model', function (hooks) {
   setupTest(hooks);
   let store, adapter;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     class Person extends Model {
@@ -48,8 +48,8 @@ module('unit/model - Model', function(hooks) {
     adapter = store.adapterFor('application');
   });
 
-  module('currentState', function() {
-    test('supports pushedData in root.deleted.uncommitted', async function(assert) {
+  module('currentState', function () {
+    test('supports pushedData in root.deleted.uncommitted', async function (assert) {
       let record = store.push({
         data: {
           type: 'person',
@@ -73,7 +73,7 @@ module('unit/model - Model', function(hooks) {
       );
     });
 
-    test('supports canonical updates via pushedData in root.deleted.saved', async function(assert) {
+    test('supports canonical updates via pushedData in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
         return resolve({ data: null });
       };
@@ -116,7 +116,7 @@ module('unit/model - Model', function(hooks) {
       assert.ok(get(record, 'isArchived') === true, 'The record reflects the update to canonical state');
     });
 
-    test('Does not support dirtying in root.deleted.saved', async function(assert) {
+    test('Does not support dirtying in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
         return resolve({ data: null });
       };
@@ -167,7 +167,7 @@ module('unit/model - Model', function(hooks) {
       assert.ok(get(record, 'isArchived') === false, 'The record reflects canonical state');
     });
 
-    test('currentState is accessible when the record is created', async function(assert) {
+    test('currentState is accessible when the record is created', async function (assert) {
       let record = store.push({
         data: {
           type: 'person',
@@ -183,8 +183,8 @@ module('unit/model - Model', function(hooks) {
     });
   });
 
-  module('ID', function() {
-    test('a record reports its unique id via the `id` property', async function(assert) {
+  module('ID', function () {
+    test('a record reports its unique id via the `id` property', async function (assert) {
       store.push({
         data: {
           type: 'person',
@@ -197,7 +197,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(record, 'id'), 1, 'reports id as id by default');
     });
 
-    test("a record's id is included in its toString representation", async function(assert) {
+    test("a record's id is included in its toString representation", async function (assert) {
       let person = store.push({
         data: {
           type: 'person',
@@ -212,7 +212,7 @@ module('unit/model - Model', function(hooks) {
       );
     });
 
-    testInDebug('trying to use `id` as an attribute should raise', async function(assert) {
+    testInDebug('trying to use `id` as an attribute should raise', async function (assert) {
       class TestModel extends Model {
         @attr('number')
         id;
@@ -241,7 +241,7 @@ module('unit/model - Model', function(hooks) {
       }, /You may not set 'id' as an attribute on your model/);
     });
 
-    test(`a collision of a record's id with object function's name`, async function(assert) {
+    test(`a collision of a record's id with object function's name`, async function (assert) {
       // see https://github.com/emberjs/ember.js/issues/4792 for an explanation of this test
       //   and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/watch
       // this effectively tests that our identityMap does not choke on IDs that are method names
@@ -251,7 +251,7 @@ module('unit/model - Model', function(hooks) {
       let hasWatchMethod = Object.prototype.watch;
       try {
         if (!hasWatchMethod) {
-          Object.prototype.watch = function() {};
+          Object.prototype.watch = function () {};
         }
 
         store.push({
@@ -271,7 +271,7 @@ module('unit/model - Model', function(hooks) {
       }
     });
 
-    test('can ask if record with a given id is loaded', async function(assert) {
+    test('can ask if record with a given id is loaded', async function (assert) {
       store.push({
         data: [
           {
@@ -304,7 +304,7 @@ module('unit/model - Model', function(hooks) {
       assert.false(store.hasRecordForId('person', 4), 'should not have person with id 4');
     });
 
-    test('setting the id during createRecord should correctly update the id', async function(assert) {
+    test('setting the id during createRecord should correctly update the id', async function (assert) {
       let person = store.createRecord('person', { id: 'john' });
 
       assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
@@ -314,7 +314,7 @@ module('unit/model - Model', function(hooks) {
       assert.ok(person === record, 'The cache has an entry for john');
     });
 
-    test('setting the id after createRecord should correctly update the id', async function(assert) {
+    test('setting the id after createRecord should correctly update the id', async function (assert) {
       let person = store.createRecord('person');
 
       assert.equal(person.get('id'), null, 'initial created model id should be null');
@@ -328,7 +328,7 @@ module('unit/model - Model', function(hooks) {
       assert.ok(person === record, 'The cache has an entry for john');
     });
 
-    testInDebug('mutating the id after createRecord but before save works', async function(assert) {
+    testInDebug('mutating the id after createRecord but before save works', async function (assert) {
       let person = store.createRecord('person', { id: 'chris' });
 
       assert.equal(person.get('id'), 'chris', 'initial created model id should be null');
@@ -347,10 +347,10 @@ module('unit/model - Model', function(hooks) {
       assert.ok(john === null, 'The cache has no entry for john');
     });
 
-    test('updating the id with store.setRecordId should work correctly when the id property is watched', async function(assert) {
+    test('updating the id with store.setRecordId should work correctly when the id property is watched', async function (assert) {
       const OddPerson = Model.extend({
         name: DSattr('string'),
-        idComputed: computed('id', function() {
+        idComputed: computed('id', function () {
           return this.get('id');
         }),
       });
@@ -371,16 +371,16 @@ module('unit/model - Model', function(hooks) {
       assert.equal(person.id, 'john', 'new id should be correctly set.');
     });
 
-    test('ID mutation (complicated)', async function(assert) {
+    test('ID mutation (complicated)', async function (assert) {
       let idChange = 0;
       let compChange = 0;
       const OddPerson = Model.extend({
         name: DSattr('string'),
-        idComputed: computed('id', function() {
+        idComputed: computed('id', function () {
           // we intentionally don't access the id here
           return 'not-the-id:' + compChange++;
         }),
-        idDidChange: observer('id', function() {
+        idDidChange: observer('id', function () {
           idChange++;
         }),
       });
@@ -408,7 +408,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
     });
 
-    test('an ID of 0 is allowed', async function(assert) {
+    test('an ID of 0 is allowed', async function (assert) {
       store.push({
         data: {
           type: 'person',
@@ -427,8 +427,8 @@ module('unit/model - Model', function(hooks) {
     });
   });
 
-  module('@attr()', function() {
-    test('a Model does not require an attribute type', async function(assert) {
+  module('@attr()', function () {
+    test('a Model does not require an attribute type', async function (assert) {
       class NativeTag extends Model {
         @attr()
         name;
@@ -447,7 +447,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(legacyTag, 'name'), 'test legacy', 'the value is persisted');
     });
 
-    test('a Model can have a defaultValue without an attribute type', async function(assert) {
+    test('a Model can have a defaultValue without an attribute type', async function (assert) {
       class NativeTag extends Model {
         @attr({ defaultValue: 'unknown native tag' })
         name;
@@ -466,7 +466,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(legacyTag, 'name'), 'unknown legacy tag', 'the default value is found');
     });
 
-    test('a defaultValue for an attribute can be a function', async function(assert) {
+    test('a defaultValue for an attribute can be a function', async function (assert) {
       class Tag extends Model {
         @attr('string', {
           defaultValue() {
@@ -481,7 +481,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
     });
 
-    test('a defaultValue function gets the record, options, and key', async function(assert) {
+    test('a defaultValue function gets the record, options, and key', async function (assert) {
       assert.expect(2);
       class Tag extends Model {
         @attr('string', {
@@ -500,7 +500,7 @@ module('unit/model - Model', function(hooks) {
       get(tag, 'createdAt');
     });
 
-    testInDebug('We assert when defaultValue is a constant non-primitive instance', async function(assert) {
+    testInDebug('We assert when defaultValue is a constant non-primitive instance', async function (assert) {
       class Tag extends Model {
         @attr({ defaultValue: [] })
         tagInfo;
@@ -515,9 +515,9 @@ module('unit/model - Model', function(hooks) {
     });
   });
 
-  module('Attribute Transforms', function() {
+  module('Attribute Transforms', function () {
     function converts(testName, type, provided, expected, options = {}) {
-      test(testName, async function(assert) {
+      test(testName, async function (assert) {
         let { owner } = this;
         class TestModel extends Model {
           @attr(type, options)
@@ -536,7 +536,7 @@ module('unit/model - Model', function(hooks) {
     }
 
     function convertsFromServer(testName, type, provided, expected) {
-      test(testName, async function(assert) {
+      test(testName, async function (assert) {
         let { owner } = this;
         class TestModel extends Model {
           @attr(type)
@@ -558,7 +558,7 @@ module('unit/model - Model', function(hooks) {
     }
 
     function convertsWhenSet(testName, type, provided, expected) {
-      test(testName, async function(assert) {
+      test(testName, async function (assert) {
         let { owner } = this;
         class TestModel extends Model {
           @attr(type)
@@ -580,14 +580,14 @@ module('unit/model - Model', function(hooks) {
       });
     }
 
-    module('String', function() {
+    module('String', function () {
       converts('string-to-string', 'string', 'Scumbag Tom', 'Scumbag Tom');
       converts('number-to-string', 'string', 1, '1');
       converts('empty-string-to-empty-string', 'string', '', '');
       converts('null-to-null', 'string', null, null);
     });
 
-    module('Number', function() {
+    module('Number', function () {
       converts('string-1-to-number-1', 'number', '1', 1);
       converts('string-0-to-number-0', 'number', '0', 0);
       converts('1-to-1', 'number', 1, 1);
@@ -598,7 +598,7 @@ module('unit/model - Model', function(hooks) {
       converts('boolean-false-to-0', 'number', false, 0);
     });
 
-    module('Boolean', function() {
+    module('Boolean', function () {
       converts('string-1-to-true', 'boolean', '1', true);
       converts('empty-string-to-false', 'boolean', '', false);
       converts('number-1-to-true', 'boolean', 1, true);
@@ -612,7 +612,7 @@ module('unit/model - Model', function(hooks) {
       converts('boolean-false-to-false', 'boolean', false, false);
     });
 
-    module('Date', function() {
+    module('Date', function () {
       converts('null-to-null', 'date', null, null);
       converts('undefined-to-undefined', 'date', undefined, undefined);
 
@@ -624,7 +624,7 @@ module('unit/model - Model', function(hooks) {
     });
   });
 
-  module('Evented', function() {
+  module('Evented', function () {
     deprecatedTest(
       'an event listener can be added to a record',
       {
@@ -632,9 +632,9 @@ module('unit/model - Model', function(hooks) {
         count: 1,
         until: '4.0',
       },
-      async function(assert) {
+      async function (assert) {
         let count = 0;
-        let F = function() {
+        let F = function () {
           count++;
         };
 
@@ -663,9 +663,9 @@ module('unit/model - Model', function(hooks) {
         count: 0,
         until: '4.0',
       },
-      async function(assert) {
+      async function (assert) {
         let count = 0;
-        let F = function() {
+        let F = function () {
           count++;
         };
         let record = store.createRecord('person');
@@ -687,9 +687,9 @@ module('unit/model - Model', function(hooks) {
         count: 0,
         until: '4.0',
       },
-      async function(assert) {
+      async function (assert) {
         let eventMethodArgs = null;
-        let F = function() {
+        let F = function () {
           eventMethodArgs = arguments;
         };
         let record = store.createRecord('person');
@@ -704,7 +704,7 @@ module('unit/model - Model', function(hooks) {
       }
     );
 
-    testInDebug('defining record lifecycle event methods on a model class is deprecated', async function(assert) {
+    testInDebug('defining record lifecycle event methods on a model class is deprecated', async function (assert) {
       class EngineerModel extends Model {
         becameError() {}
         becameInvalid() {}
@@ -733,8 +733,8 @@ module('unit/model - Model', function(hooks) {
     });
   });
 
-  module('Reserved Props', function() {
-    testInDebug(`don't allow setting of readOnly state props`, async function(assert) {
+  module('Reserved Props', function () {
+    testInDebug(`don't allow setting of readOnly state props`, async function (assert) {
       let record = store.createRecord('person');
 
       assert.expectAssertion(() => {
@@ -762,7 +762,7 @@ module('unit/model - Model', function(hooks) {
     function testReservedProperty(prop) {
       let testName = `A subclass of Model cannot use the reserved property '${prop}'`;
 
-      testInDebug(testName, async function(assert) {
+      testInDebug(testName, async function (assert) {
         const NativePost = PROP_MAP[prop];
         const LegacyPost = Model.extend({
           [prop]: DSattr('string'),
@@ -777,7 +777,7 @@ module('unit/model - Model', function(hooks) {
           () => {
             store.createRecord('native-post', { name: 'TomHuda' });
           },
-          function(e) {
+          function (e) {
             return e.message.indexOf(msg) === 0;
           },
           'We throw for native-style classes'
@@ -787,7 +787,7 @@ module('unit/model - Model', function(hooks) {
           () => {
             store.createRecord('legacy-post', { name: 'TomHuda' });
           },
-          function(e) {
+          function (e) {
             return e.message.indexOf(msg) === 0;
           },
           'We throw for legacy-style classes'
@@ -797,7 +797,7 @@ module('unit/model - Model', function(hooks) {
 
     ['_internalModel', 'currentState'].forEach(testReservedProperty);
 
-    testInDebug('A subclass of Model throws an error when calling create() directly', async function(assert) {
+    testInDebug('A subclass of Model throws an error when calling create() directly', async function (assert) {
       class NativePerson extends Model {}
       const LegacyPerson = Model.extend({});
 
@@ -819,8 +819,8 @@ module('unit/model - Model', function(hooks) {
     });
   });
 
-  module('init()', function() {
-    test('ensure model exits loading state, materializes data and fulfills promise only after data is available', async function(assert) {
+  module('init()', function () {
+    test('ensure model exits loading state, materializes data and fulfills promise only after data is available', async function (assert) {
       assert.expect(2);
       adapter.findRecord = () =>
         resolve({
@@ -837,7 +837,7 @@ module('unit/model - Model', function(hooks) {
       assert.true(get(person, 'isLoaded'), 'model is loaded');
     });
 
-    test('Pushing a record into the store should transition new records to the loaded state', async function(assert) {
+    test('Pushing a record into the store should transition new records to the loaded state', async function (assert) {
       let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
 
       assert.true(person.get('isNew'), 'createRecord should put records into the new state');
@@ -862,7 +862,7 @@ module('unit/model - Model', function(hooks) {
       );
     });
 
-    test('internalModel is ready by `init`', async function(assert) {
+    test('internalModel is ready by `init`', async function (assert) {
       let nameDidChange = 0;
 
       class OddNativePerson extends Model {
@@ -895,7 +895,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(person.get('name'), 'my-name-set-in-init');
     });
 
-    test('accessing attributes during init should not throw an error', async function(assert) {
+    test('accessing attributes during init should not throw an error', async function (assert) {
       const Person = Model.extend({
         name: DSattr('string'),
 
@@ -910,14 +910,14 @@ module('unit/model - Model', function(hooks) {
     });
   });
 
-  module('toJSON()', function(hooks) {
+  module('toJSON()', function (hooks) {
     deprecatedTest(
       'A Model can be JSONified',
       {
         id: 'ember-data:model.toJSON',
         until: '4.0',
       },
-      async function(assert) {
+      async function (assert) {
         let record = store.createRecord('person', { name: 'TomHuda' });
 
         assert.deepEqual(record.toJSON(), {
@@ -939,7 +939,7 @@ module('unit/model - Model', function(hooks) {
         id: 'ember-data:model.toJSON',
         until: '4.0',
       },
-      async function(assert) {
+      async function (assert) {
         class Author extends Model {
           @hasMany('post', { async: false, inverse: 'author' })
           posts;
@@ -977,8 +977,8 @@ module('unit/model - Model', function(hooks) {
     );
   });
 
-  module('Updating', function() {
-    test('a Model can update its attributes', async function(assert) {
+  module('Updating', function () {
+    test('a Model can update its attributes', async function (assert) {
       assert.expect(1);
 
       let person = store.push({
@@ -995,7 +995,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(person, 'name'), 'Brohuda Katz', 'setting took hold');
     });
 
-    test(`clearing the value when a Model's defaultValue was in use works`, async function(assert) {
+    test(`clearing the value when a Model's defaultValue was in use works`, async function (assert) {
       class Tag extends Model {
         @attr('string', { defaultValue: 'unknown' })
         name;
@@ -1010,7 +1010,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(tag, 'name'), null, `null doesn't shadow defaultValue`);
     });
 
-    test(`a Model can define 'setUnknownProperty'`, async function(assert) {
+    test(`a Model can define 'setUnknownProperty'`, async function (assert) {
       class NativeTag extends Model {
         @attr('string')
         name;
@@ -1052,7 +1052,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(nativeTag, 'name'), 'new', 'setUnknownProperty was triggered');
     });
 
-    test('setting a property to undefined on a newly created record should not impact the current state', async function(assert) {
+    test('setting a property to undefined on a newly created record should not impact the current state', async function (assert) {
       class Tag extends Model {
         @attr('string')
         tagInfo;
@@ -1074,7 +1074,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
     });
 
-    test('setting a property back to its original value removes the property from the `_attributes` hash', async function(assert) {
+    test('setting a property back to its original value removes the property from the `_attributes` hash', async function (assert) {
       let person = store.push({
         data: {
           type: 'person',
@@ -1098,8 +1098,8 @@ module('unit/model - Model', function(hooks) {
     });
   });
 
-  module('Mutation', function() {
-    test('can have properties and non-specified properties set on it', async function(assert) {
+  module('Mutation', function () {
+    test('can have properties and non-specified properties set on it', async function (assert) {
       let record = store.createRecord('person', { isDrugAddict: false, notAnAttr: 'my value' });
       set(record, 'name', 'bar');
       set(record, 'anotherNotAnAttr', 'my other value');
@@ -1110,7 +1110,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(record, 'name'), 'bar', 'property was set on the record');
     });
 
-    test('setting a property on a record that has not changed does not cause it to become dirty', async function(assert) {
+    test('setting a property on a record that has not changed does not cause it to become dirty', async function (assert) {
       store.push({
         data: {
           type: 'person',
@@ -1135,7 +1135,7 @@ module('unit/model - Model', function(hooks) {
       );
     });
 
-    test('resetting a property on a record cause it to become clean again', async function(assert) {
+    test('resetting a property on a record cause it to become clean again', async function (assert) {
       store.push({
         data: {
           type: 'person',
@@ -1160,8 +1160,8 @@ module('unit/model - Model', function(hooks) {
       assert.false(person.get('hasDirtyAttributes'), 'record becomes clean after resetting property to the old value');
     });
 
-    test('resetting a property to the current in-flight value causes it to become clean when the save completes', async function(assert) {
-      adapter.updateRecord = function() {
+    test('resetting a property to the current in-flight value causes it to become clean when the save completes', async function (assert) {
+      adapter.updateRecord = function () {
         return resolve();
       };
 
@@ -1193,7 +1193,7 @@ module('unit/model - Model', function(hooks) {
       assert.false(person.get('hasDirtyAttributes'), 'The person is now clean');
     });
 
-    test('a record becomes clean again only if all changed properties are reset', async function(assert) {
+    test('a record becomes clean again only if all changed properties are reset', async function (assert) {
       store.push({
         data: {
           type: 'person',
@@ -1224,7 +1224,7 @@ module('unit/model - Model', function(hooks) {
       );
     });
 
-    test('an invalid record becomes clean again if changed property is reset', async function(assert) {
+    test('an invalid record becomes clean again if changed property is reset', async function (assert) {
       adapter.updateRecord = () => {
         return reject(
           new InvalidError([
@@ -1273,7 +1273,7 @@ module('unit/model - Model', function(hooks) {
         });
     });
 
-    test('an invalid record stays dirty if only invalid property is reset', async function(assert) {
+    test('an invalid record stays dirty if only invalid property is reset', async function (assert) {
       adapter.updateRecord = () => {
         return reject(
           new InvalidError([
@@ -1320,7 +1320,7 @@ module('unit/model - Model', function(hooks) {
         });
     });
 
-    test('it should cache attributes', async function(assert) {
+    test('it should cache attributes', async function (assert) {
       class Post extends Model {
         @attr('string')
         updatedAt;
@@ -1349,7 +1349,7 @@ module('unit/model - Model', function(hooks) {
       );
     });
 
-    test('changedAttributes() return correct values', async function(assert) {
+    test('changedAttributes() return correct values', async function (assert) {
       class Mascot extends Model {
         @attr('string')
         name;
@@ -1388,7 +1388,7 @@ module('unit/model - Model', function(hooks) {
       assert.equal(Object.keys(mascot.changedAttributes()).length, 0, 'after rollback attributes there are no changes');
     });
 
-    test('changedAttributes() works while the record is being saved', async function(assert) {
+    test('changedAttributes() works while the record is being saved', async function (assert) {
       assert.expect(1);
       class Mascot extends Model {
         @attr('string')
@@ -1400,7 +1400,7 @@ module('unit/model - Model', function(hooks) {
       }
 
       this.owner.register('model:mascot', Mascot);
-      adapter.createRecord = function() {
+      adapter.createRecord = function () {
         assert.deepEqual(cat.changedAttributes(), {
           name: [undefined, 'Argon'],
           likes: [undefined, 'Cheese'],
@@ -1420,7 +1420,7 @@ module('unit/model - Model', function(hooks) {
       await cat.save();
     });
 
-    test('changedAttributes() works while the record is being updated', async function(assert) {
+    test('changedAttributes() works while the record is being updated', async function (assert) {
       assert.expect(1);
       let cat;
 
@@ -1434,7 +1434,7 @@ module('unit/model - Model', function(hooks) {
       }
 
       this.owner.register('model:mascot', Mascot);
-      adapter.updateRecord = function() {
+      adapter.updateRecord = function () {
         assert.deepEqual(cat.changedAttributes(), {
           name: ['Argon', 'Helia'],
           likes: ['Cheese', 'Mussels'],
@@ -1463,7 +1463,7 @@ module('unit/model - Model', function(hooks) {
     });
 
     if (gte('3.10.0')) {
-      test('@attr decorator works without parens', async function(assert) {
+      test('@attr decorator works without parens', async function (assert) {
         assert.expect(1);
         let cat;
 
@@ -1472,7 +1472,7 @@ module('unit/model - Model', function(hooks) {
         }
 
         this.owner.register('model:mascot', Mascot);
-        adapter.updateRecord = function() {
+        adapter.updateRecord = function () {
           assert.deepEqual(cat.changedAttributes(), {
             name: ['Argon', 'Helia'],
           });
@@ -1499,8 +1499,8 @@ module('unit/model - Model', function(hooks) {
     }
   });
 
-  module('Misc', function() {
-    testInDebug('Calling record.attr() asserts', async function(assert) {
+  module('Misc', function () {
+    testInDebug('Calling record.attr() asserts', async function (assert) {
       let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
 
       assert.expectAssertion(() => {

@@ -13,10 +13,10 @@ import Model, { attr, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
-module('integration/relationships/many_to_many_test - ManyToMany relationships', function(hooks) {
+module('integration/relationships/many_to_many_test - ManyToMany relationships', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const User = Model.extend({
       name: attr('string'),
       topics: hasMany('topic', { async: true }),
@@ -45,7 +45,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     Server loading tests
   */
 
-  test('Loading from one hasMany side reflects on the other hasMany side - async', function(assert) {
+  test('Loading from one hasMany side reflects on the other hasMany side - async', function (assert) {
     let store = this.owner.lookup('service:store');
 
     run(() => {
@@ -87,13 +87,13 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return topic.get('users').then(fetchedUsers => {
+      return topic.get('users').then((fetchedUsers) => {
         assert.equal(fetchedUsers.get('length'), 1, 'User relationship was set up correctly');
       });
     });
   });
 
-  test('Relationship is available from one hasMany side even if only loaded from the other hasMany side - sync', function(assert) {
+  test('Relationship is available from one hasMany side even if only loaded from the other hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
     var account;
@@ -133,7 +133,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
   });
 
-  test('Fetching a hasMany where a record was removed reflects on the other hasMany side - async', function(assert) {
+  test('Fetching a hasMany where a record was removed reflects on the other hasMany side - async', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let user, topic;
@@ -169,10 +169,10 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return user.get('topics').then(fetchedTopics => {
+      return user.get('topics').then((fetchedTopics) => {
         assert.equal(fetchedTopics.get('length'), 0, 'Topics were removed correctly');
         assert.equal(fetchedTopics.objectAt(0), null, "Topics can't be fetched");
-        return topic.get('users').then(fetchedUsers => {
+        return topic.get('users').then((fetchedUsers) => {
           assert.equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
           assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
         });
@@ -180,7 +180,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
   });
 
-  test('Fetching a hasMany where a record was removed reflects on the other hasMany side - sync', function(assert) {
+  test('Fetching a hasMany where a record was removed reflects on the other hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let account, user;
@@ -239,7 +239,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     Local edits
   */
 
-  test('Pushing to a hasMany reflects on the other hasMany side - async', function(assert) {
+  test('Pushing to a hasMany reflects on the other hasMany side - async', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -273,16 +273,16 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return topic.get('users').then(fetchedUsers => {
+      return topic.get('users').then((fetchedUsers) => {
         fetchedUsers.pushObject(user);
-        return user.get('topics').then(fetchedTopics => {
+        return user.get('topics').then((fetchedTopics) => {
           assert.equal(fetchedTopics.get('length'), 1, 'User relationship was set up correctly');
         });
       });
     });
   });
 
-  test('Pushing to a hasMany reflects on the other hasMany side - sync', function(assert) {
+  test('Pushing to a hasMany reflects on the other hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let account, stanley;
@@ -313,7 +313,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
   });
 
-  test('Removing a record from a hasMany reflects on the other hasMany side - async', function(assert) {
+  test('Removing a record from a hasMany reflects on the other hasMany side - async', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let user, topic;
@@ -349,10 +349,10 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return user.get('topics').then(fetchedTopics => {
+      return user.get('topics').then((fetchedTopics) => {
         assert.equal(fetchedTopics.get('length'), 1, 'Topics were setup correctly');
         fetchedTopics.removeObject(topic);
-        return topic.get('users').then(fetchedUsers => {
+        return topic.get('users').then((fetchedUsers) => {
           assert.equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
           assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
         });
@@ -360,7 +360,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
   });
 
-  test('Removing a record from a hasMany reflects on the other hasMany side - sync', function(assert) {
+  test('Removing a record from a hasMany reflects on the other hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let account, user;
@@ -407,7 +407,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     Rollback Attributes tests
   */
 
-  test('Rollbacking attributes for a deleted record that has a ManyToMany relationship works correctly - async', function(assert) {
+  test('Rollbacking attributes for a deleted record that has a ManyToMany relationship works correctly - async', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let user, topic;
@@ -448,11 +448,11 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      let users = topic.get('users').then(fetchedUsers => {
+      let users = topic.get('users').then((fetchedUsers) => {
         assert.equal(fetchedUsers.get('length'), 1, 'Users are still there');
       });
 
-      let topics = user.get('topics').then(fetchedTopics => {
+      let topics = user.get('topics').then((fetchedTopics) => {
         assert.equal(fetchedTopics.get('length'), 1, 'Topic got rollbacked into the user');
       });
 
@@ -460,7 +460,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
   });
 
-  test('Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function(assert) {
+  test('Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let account, user;
@@ -503,7 +503,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
   });
 
-  test('Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async', function(assert) {
+  test('Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let user, topic;
@@ -522,16 +522,16 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
 
     return run(() => {
-      return user.get('topics').then(fetchedTopics => {
+      return user.get('topics').then((fetchedTopics) => {
         fetchedTopics.pushObject(topic);
         topic.rollbackAttributes();
 
-        let users = topic.get('users').then(fetchedUsers => {
+        let users = topic.get('users').then((fetchedUsers) => {
           assert.equal(fetchedUsers.get('length'), 0, 'Users got removed');
           assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
         });
 
-        let topics = user.get('topics').then(fetchedTopics => {
+        let topics = user.get('topics').then((fetchedTopics) => {
           assert.equal(fetchedTopics.get('length'), 0, 'Topics got removed');
           assert.equal(fetchedTopics.objectAt(0), null, "Topic can't be fetched");
         });
@@ -541,7 +541,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     });
   });
 
-  test('Deleting an unpersisted record via rollbackAttributes that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function(assert) {
+  test('Deleting an unpersisted record via rollbackAttributes that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let account, user;
@@ -570,7 +570,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
 
   todo(
     'Re-loading a removed record should re add it to the relationship when the removed record is the last one in the relationship',
-    function(assert) {
+    function (assert) {
       assert.expect(4);
 
       let store = this.owner.lookup('service:store');
@@ -656,13 +656,13 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
 
       assert.todo.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');
       assert.todo.deepEqual(
-        users.map(r => get(r, 'id')),
+        users.map((r) => get(r, 'id')),
         ['1'],
         'Accounts were updated correctly (ui state)'
       );
       assert.equal(state.length, 2, 'Accounts were updated correctly (server state)');
       assert.deepEqual(
-        state.map(r => r.id),
+        state.map((r) => r.id),
         ['1', '2'],
         'Accounts were updated correctly (server state)'
       );

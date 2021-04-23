@@ -8,7 +8,7 @@ export default class IndexRoute extends Route {
   }
 
   setupController(controller, model) {
-    let tree = buildTree(model.map(person => person.toNode()));
+    let tree = buildTree(model.map((person) => person.toNode()));
     super.setupController(controller, tree);
   }
 }

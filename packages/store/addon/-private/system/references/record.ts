@@ -132,7 +132,7 @@ export default class RecordReference extends Reference {
     @return a promise for the value (record or relationship)
   */
   push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): RSVP.Promise<RecordInstance> {
-    return resolve(objectOrPromise).then(data => {
+    return resolve(objectOrPromise).then((data) => {
       return this.store.push(data);
     });
   }

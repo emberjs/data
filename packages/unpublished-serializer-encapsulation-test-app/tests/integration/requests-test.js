@@ -9,10 +9,10 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
 
-module('integration/requests - running requests with minimum serializer', function(hooks) {
+module('integration/requests - running requests with minimum serializer', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function (assert) {
     this.owner.register('service:store', Store);
     this.owner.register(
       'model:person',
@@ -22,7 +22,7 @@ module('integration/requests - running requests with minimum serializer', functi
     );
   });
 
-  test('findAll calls normalizeResponse', async function(assert) {
+  test('findAll calls normalizeResponse', async function (assert) {
     let normalizeResponseCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -62,7 +62,7 @@ module('integration/requests - running requests with minimum serializer', functi
     assert.deepEqual(response.mapBy('id'), ['urn:person:1'], 'response is expected response');
   });
 
-  test('findRecord calls normalizeResponse', async function(assert) {
+  test('findRecord calls normalizeResponse', async function (assert) {
     let normalizeResponseCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -116,7 +116,7 @@ module('integration/requests - running requests with minimum serializer', functi
     assert.deepEqual(response.name, 'John', 'response is expected response');
   });
 
-  test('query calls normalizeResponse', async function(assert) {
+  test('query calls normalizeResponse', async function (assert) {
     let normalizeResponseCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -156,7 +156,7 @@ module('integration/requests - running requests with minimum serializer', functi
     assert.deepEqual(response.mapBy('id'), ['urn:person:1'], 'response is expected response');
   });
 
-  test('queryRecord calls normalizeResponse', async function(assert) {
+  test('queryRecord calls normalizeResponse', async function (assert) {
     let normalizeResponseCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {

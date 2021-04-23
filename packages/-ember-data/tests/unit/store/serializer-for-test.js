@@ -8,10 +8,10 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 let store, Person;
 
-module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
+module('unit/store/serializer_for - DS.Store#serializerFor', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     Person = DS.Model.extend({});
 
     this.owner.register('model:person', Person);
@@ -19,7 +19,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
     store = this.owner.lookup('service:store');
   });
 
-  test('Calling serializerFor looks up `serializer:<type>` from the container', function(assert) {
+  test('Calling serializerFor looks up `serializer:<type>` from the container', function (assert) {
     const PersonSerializer = DS.JSONSerializer.extend();
 
     this.owner.register('serializer:person', PersonSerializer);
@@ -30,7 +30,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
     );
   });
 
-  test('Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer', function(assert) {
+  test('Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer', function (assert) {
     const ApplicationSerializer = DS.JSONSerializer.extend();
 
     this.owner.register('serializer:application', ApplicationSerializer);
@@ -47,7 +47,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
       id: 'ember-data:default-serializer',
       until: '4.0',
     },
-    function(assert) {
+    function (assert) {
       assert.ok(
         store.serializerFor('person') instanceof DS.JSONSerializer,
         'serializer returned from serializerFor is an instance of DS.JSONSerializer'
@@ -55,7 +55,7 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function(hooks) {
     }
   );
 
-  testInDebug('Calling serializerFor with a model class should assert', function(assert) {
+  testInDebug('Calling serializerFor with a model class should assert', function (assert) {
     assert.expectAssertion(() => {
       store.serializerFor(Person);
     }, /Passing classes to store.serializerFor has been removed/);

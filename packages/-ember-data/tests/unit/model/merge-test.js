@@ -10,10 +10,10 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('unit/model/merge - Merging', function(hooks) {
+module('unit/model/merge - Merging', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const Person = Model.extend({
       name: attr(),
       city: attr(),
@@ -25,7 +25,7 @@ module('unit/model/merge - Merging', function(hooks) {
     this.store = this.owner.lookup('service:store');
   });
 
-  test('When a record is in flight, changes can be made', function(assert) {
+  test('When a record is in flight, changes can be made', function (assert) {
     assert.expect(3);
 
     const ApplicationAdapter = Adapter.extend({
@@ -46,14 +46,14 @@ module('unit/model/merge - Merging', function(hooks) {
 
       person.set('name', 'Thomas Dale');
 
-      return save.then(person => {
+      return save.then((person) => {
         assert.true(person.get('hasDirtyAttributes'), 'The person is still dirty');
         assert.equal(person.get('name'), 'Thomas Dale', 'The changes made still apply');
       });
     });
   });
 
-  test('Make sure snapshot is created at save time not at flush time', function(assert) {
+  test('Make sure snapshot is created at save time not at flush time', function (assert) {
     assert.expect(5);
 
     const ApplicationAdapter = Adapter.extend({
@@ -89,20 +89,20 @@ module('unit/model/merge - Merging', function(hooks) {
 
       assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes applied on top');
 
-      return promise.then(person => {
+      return promise.then((person) => {
         assert.true(person.get('hasDirtyAttributes'), 'The person is still dirty');
         assert.equal(person.get('name'), 'Tomasz Dale', 'The local changes apply');
       });
     });
   });
 
-  test('When a record is in flight, pushes are applied underneath the in flight changes', function(assert) {
+  test('When a record is in flight, pushes are applied underneath the in flight changes', function (assert) {
     assert.expect(6);
 
     const ApplicationAdapter = Adapter.extend({
       updateRecord(store, type, snapshot) {
         // Make sure saving isn't resolved synchronously
-        return new EmberPromise(resolve => {
+        return new EmberPromise((resolve) => {
           next(null, resolve, {
             data: {
               id: 1,
@@ -152,7 +152,7 @@ module('unit/model/merge - Merging', function(hooks) {
       assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes applied on top');
       assert.equal(person.get('city'), 'PDX', 'the pushed change is available');
 
-      return promise.then(person => {
+      return promise.then((person) => {
         assert.true(person.get('hasDirtyAttributes'), 'The person is still dirty');
         assert.equal(person.get('name'), 'Tomasz Dale', 'The local changes apply');
         assert.equal(person.get('city'), 'Portland', 'The updates from the server apply on top of the previous pushes');
@@ -160,7 +160,7 @@ module('unit/model/merge - Merging', function(hooks) {
     });
   });
 
-  test('When a record is dirty, pushes are overridden by local changes', function(assert) {
+  test('When a record is dirty, pushes are overridden by local changes', function (assert) {
     let person;
 
     run(() => {
@@ -199,7 +199,7 @@ module('unit/model/merge - Merging', function(hooks) {
     assert.equal(person.get('city'), 'Portland', 'if there are no local changes, the new data applied');
   });
 
-  test('When a record is invalid, pushes are overridden by local changes', async function(assert) {
+  test('When a record is invalid, pushes are overridden by local changes', async function (assert) {
     const ApplicationAdapter = Adapter.extend({
       updateRecord() {
         return reject(new InvalidError());
@@ -255,7 +255,7 @@ module('unit/model/merge - Merging', function(hooks) {
     assert.equal(person.get('city'), 'Prague', 'if there are no local changes, the new data applied');
   });
 
-  test('A record with no changes can still be saved', function(assert) {
+  test('A record with no changes can still be saved', function (assert) {
     assert.expect(1);
 
     const ApplicationAdapter = Adapter.extend({
@@ -279,13 +279,13 @@ module('unit/model/merge - Merging', function(hooks) {
     });
 
     return run(() => {
-      return person.save().then(foo => {
+      return person.save().then((foo) => {
         assert.equal(person.get('name'), 'Thomas Dale', 'the updates occurred');
       });
     });
   });
 
-  test('A dirty record can be reloaded', function(assert) {
+  test('A dirty record can be reloaded', function (assert) {
     assert.expect(3);
 
     const ApplicationAdapter = Adapter.extend({

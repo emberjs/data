@@ -63,7 +63,7 @@ class MinimalSerializer extends EmberObject {
 
     if (hasMany && hasMany.length) {
       let value = {
-        data: hasMany.map(snap => ({
+        data: hasMany.map((snap) => ({
           id: snap.id,
           type: snap.modelName,
         })),
@@ -89,17 +89,17 @@ class Comment extends Model {
   post;
 }
 
-module('integration/belongs-to - Belongs To Tests', function(hooks) {
+module('integration/belongs-to - Belongs To Tests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
     this.owner.register('serializer:application', MinimalSerializer);
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
   });
 
-  test('if a belongsTo relationship has a link but no data (findBelongsTo is defined)', async function(assert) {
+  test('if a belongsTo relationship has a link but no data (findBelongsTo is defined)', async function (assert) {
     let findRecordCalled = 0;
     let findBelongsToCalled = 0;
 
@@ -180,41 +180,42 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
     assert.deepEqual(post.serialize(), expectedResult, 'findBelongsTo returns expected result');
   });
 
-  testInDebug('if a belongsTo relationship has a link but no data (findBelongsTo is undefined)', async function(
-    assert
-  ) {
-    let initialRecord = {
-      data: {
-        id: '3',
-        type: 'comment',
-        attributes: {
-          text: 'You rock',
-        },
-        relationships: {
-          post: {
-            links: {
-              related: 'https://example.com/api/post/2',
+  testInDebug(
+    'if a belongsTo relationship has a link but no data (findBelongsTo is undefined)',
+    async function (assert) {
+      let initialRecord = {
+        data: {
+          id: '3',
+          type: 'comment',
+          attributes: {
+            text: 'You rock',
+          },
+          relationships: {
+            post: {
+              links: {
+                related: 'https://example.com/api/post/2',
+              },
             },
           },
         },
-      },
-    };
+      };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+      let { owner } = this;
+      let store = owner.lookup('service:store');
 
-    class TestFindBelongsToAdapter extends EmberObject {}
+      class TestFindBelongsToAdapter extends EmberObject {}
 
-    owner.register('adapter:application', TestFindBelongsToAdapter);
+      owner.register('adapter:application', TestFindBelongsToAdapter);
 
-    let comment = store.push(initialRecord);
+      let comment = store.push(initialRecord);
 
-    await assert.expectAssertion(async function() {
-      await comment.get('post');
-    }, /You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'/);
-  });
+      await assert.expectAssertion(async function () {
+        await comment.get('post');
+      }, /You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'/);
+    }
+  );
 
-  test('if a belongsTo relationship has data but not a link (findBelongsTo is defined)', async function(assert) {
+  test('if a belongsTo relationship has data but not a link (findBelongsTo is defined)', async function (assert) {
     let findRecordCalled = 0;
     let findBelongsToCalled = 0;
 
@@ -294,7 +295,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
   });
 
-  test('if a belongsTo relationship has data but not a link (findBelongsTo is not defined)', async function(assert) {
+  test('if a belongsTo relationship has data but not a link (findBelongsTo is not defined)', async function (assert) {
     let findRecordCalled = 0;
 
     let initialRecord = {
@@ -368,7 +369,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
   });
 
-  test('if a belongsTo relationship has a link and data (findBelongsTo is defined)', async function(assert) {
+  test('if a belongsTo relationship has a link and data (findBelongsTo is defined)', async function (assert) {
     let findRecordCalled = 0;
     let findBelongsToCalled = 0;
 
@@ -453,7 +454,7 @@ module('integration/belongs-to - Belongs To Tests', function(hooks) {
     assert.deepEqual(post.serialize(), expectedResult, 'findBelongsTo returns expected result');
   });
 
-  test('if a belongsTo relationship has link and data (findBelongsTo is not defined)', async function(assert) {
+  test('if a belongsTo relationship has link and data (findBelongsTo is not defined)', async function (assert) {
     let findRecordCalled = 0;
 
     let initialRecord = {

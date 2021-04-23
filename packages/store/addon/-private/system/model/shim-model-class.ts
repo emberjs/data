@@ -32,8 +32,8 @@ export default class ShimModelClass implements ModelSchema {
     let attrs = this.__store._attributesDefinitionFor(this.modelName);
     let relationships = this.__store._relationshipsDefinitionFor(this.modelName);
     let fields = new Map<string, 'attribute' | 'belongsTo' | 'hasMany'>();
-    Object.keys(attrs).forEach(key => fields.set(key, 'attribute'));
-    Object.keys(relationships).forEach(key => fields.set(key, relationships[key]!.kind));
+    Object.keys(attrs).forEach((key) => fields.set(key, 'attribute'));
+    Object.keys(relationships).forEach((key) => fields.set(key, relationships[key]!.kind));
     return fields;
   }
 
@@ -49,21 +49,21 @@ export default class ShimModelClass implements ModelSchema {
 
   eachAttribute<T>(callback: (this: T, key: string, attribute: AttributeSchema) => void, binding?: T) {
     let attrDefs = this.__store._attributesDefinitionFor(this.modelName);
-    Object.keys(attrDefs).forEach(key => {
+    Object.keys(attrDefs).forEach((key) => {
       callback.call(binding, key, attrDefs[key]);
     });
   }
 
   eachRelationship<T>(callback: (this: T, key: string, relationship: RelationshipSchema) => void, binding?: T) {
     let relationshipDefs = this.__store._relationshipsDefinitionFor(this.modelName);
-    Object.keys(relationshipDefs).forEach(key => {
+    Object.keys(relationshipDefs).forEach((key) => {
       callback.call(binding, key, relationshipDefs[key]);
     });
   }
 
   eachTransformedAttribute<T>(callback: (this: T, key: string, relationship: RelationshipSchema) => void, binding?: T) {
     let relationshipDefs = this.__store._relationshipsDefinitionFor(this.modelName);
-    Object.keys(relationshipDefs).forEach(key => {
+    Object.keys(relationshipDefs).forEach((key) => {
       if (relationshipDefs[key]!.type) {
         callback.call(binding, key, relationshipDefs[key]);
       }

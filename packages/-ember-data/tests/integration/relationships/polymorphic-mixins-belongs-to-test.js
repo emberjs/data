@@ -12,10 +12,10 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 module(
   'integration/relationships/polymorphic_mixins_belongs_to_test - Polymorphic belongsTo relationships with mixins',
-  function(hooks) {
+  function (hooks) {
     setupTest(hooks);
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       const User = Model.extend({
         name: attr('string'),
         bestMessage: belongsTo('message', { async: true, polymorphic: true }),
@@ -43,11 +43,11 @@ module(
     Server loading tests
   */
 
-    test('Relationship is available from the belongsTo side even if only loaded from the inverse side - async', function(assert) {
+    test('Relationship is available from the belongsTo side even if only loaded from the inverse side - async', function (assert) {
       let store = this.owner.lookup('service:store');
 
       var user, video;
-      run(function() {
+      run(function () {
         store.push({
           data: [
             {
@@ -74,10 +74,10 @@ module(
         user = store.peekRecord('user', 1);
         video = store.peekRecord('video', 2);
       });
-      run(function() {
-        user.get('bestMessage').then(function(message) {
+      run(function () {
+        user.get('bestMessage').then(function (message) {
           assert.equal(message, video, 'The message was loaded correctly');
-          message.get('user').then(function(fetchedUser) {
+          message.get('user').then(function (fetchedUser) {
             assert.equal(fetchedUser, user, 'The inverse was setup correctly');
           });
         });
@@ -87,11 +87,11 @@ module(
     /*
     Local edits
   */
-    test('Setting the polymorphic belongsTo gets propagated to the inverse side - async', function(assert) {
+    test('Setting the polymorphic belongsTo gets propagated to the inverse side - async', function (assert) {
       let store = this.owner.lookup('service:store');
 
       var user, video;
-      run(function() {
+      run(function () {
         store.push({
           data: [
             {
@@ -114,12 +114,12 @@ module(
         video = store.peekRecord('video', 2);
       });
 
-      run(function() {
+      run(function () {
         user.set('bestMessage', video);
-        video.get('user').then(function(fetchedUser) {
+        video.get('user').then(function (fetchedUser) {
           assert.equal(fetchedUser, user, 'user got set correctly');
         });
-        user.get('bestMessage').then(function(message) {
+        user.get('bestMessage').then(function (message) {
           assert.equal(message, video, 'The message was set correctly');
         });
       });
@@ -127,11 +127,11 @@ module(
 
     testInDebug(
       'Setting the polymorphic belongsTo with an object that does not implement the mixin errors out',
-      function(assert) {
+      function (assert) {
         let store = this.owner.lookup('service:store');
 
         var user, video;
-        run(function() {
+        run(function () {
           store.push({
             data: [
               {
@@ -154,21 +154,21 @@ module(
           video = store.peekRecord('not-message', 2);
         });
 
-        run(function() {
-          assert.expectAssertion(function() {
+        run(function () {
+          assert.expectAssertion(function () {
             user.set('bestMessage', video);
           }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message'/);
         });
       }
     );
 
-    test('Setting the polymorphic belongsTo gets propagated to the inverse side - model injections true', function(assert) {
+    test('Setting the polymorphic belongsTo gets propagated to the inverse side - model injections true', function (assert) {
       assert.expect(2);
 
       let store = this.owner.lookup('service:store');
 
       var user, video;
-      run(function() {
+      run(function () {
         store.push({
           data: [
             {
@@ -191,12 +191,12 @@ module(
         video = store.peekRecord('video', 2);
       });
 
-      run(function() {
+      run(function () {
         user.set('bestMessage', video);
-        video.get('user').then(function(fetchedUser) {
+        video.get('user').then(function (fetchedUser) {
           assert.equal(fetchedUser, user, 'user got set correctly');
         });
-        user.get('bestMessage').then(function(message) {
+        user.get('bestMessage').then(function (message) {
           assert.equal(message, video, 'The message was set correctly');
         });
       });
@@ -204,11 +204,11 @@ module(
 
     testInDebug(
       'Setting the polymorphic belongsTo with an object that does not implement the mixin errors out - model injections true',
-      function(assert) {
+      function (assert) {
         let store = this.owner.lookup('service:store');
 
         var user, video;
-        run(function() {
+        run(function () {
           store.push({
             data: [
               {
@@ -231,8 +231,8 @@ module(
           video = store.peekRecord('not-message', 2);
         });
 
-        run(function() {
-          assert.expectAssertion(function() {
+        run(function () {
+          assert.expectAssertion(function () {
             user.set('bestMessage', video);
           }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message'/);
         });

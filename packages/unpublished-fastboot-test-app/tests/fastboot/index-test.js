@@ -35,10 +35,10 @@ const people = [
   },
 ];
 
-module('FastBoot | index', function(hooks) {
+module('FastBoot | index', function (hooks) {
   setup(hooks);
 
-  test('it renders a page...', async function(assert) {
+  test('it renders a page...', async function (assert) {
     await mockServer.get('/api/people', people);
     await visit('/');
 

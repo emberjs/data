@@ -33,16 +33,16 @@ class Person extends Model {
   lastName;
 }
 
-module('integration/coalescing - Coalescing Tests', function(hooks) {
+module('integration/coalescing - Coalescing Tests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
     this.owner.register('serializer:application', MinimalSerializer);
     this.owner.register('model:person', Person);
   });
 
-  test('coalesceFindRequests is true and findMany is not defined', async function(assert) {
+  test('coalesceFindRequests is true and findMany is not defined', async function (assert) {
     let findRecordCalled = 0;
 
     let expectedResults = [
@@ -95,16 +95,16 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let promises = expectedResults.map(result => result.data.id).map(id => store.findRecord('person', id));
+    let promises = expectedResults.map((result) => result.data.id).map((id) => store.findRecord('person', id));
     let records = await all(promises);
 
-    let serializedRecords = records.map(record => record.serialize());
+    let serializedRecords = records.map((record) => record.serialize());
 
     assert.equal(findRecordCalled, 2, 'findRecord is called twice');
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
   });
 
-  test('coalesceFindRequests is true and findMany is defined', async function(assert) {
+  test('coalesceFindRequests is true and findMany is defined', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
     let groupRecordsForFindManyCalled = 0;
@@ -151,7 +151,7 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Person, 'model is passed to findMany');
 
-        let expectedIds = expectedResultsCopy.data.map(record => record.id);
+        let expectedIds = expectedResultsCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -170,11 +170,11 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let promises = expectedResults.data.map(result => result.id).map(id => store.findRecord('person', id));
+    let promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
     let records = await all(promises);
 
-    let serializedRecords = records.toArray().map(record => record.serialize());
-    expectedResults = expectedResults.data.map(result => ({ data: result }));
+    let serializedRecords = records.toArray().map((record) => record.serialize());
+    expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
     assert.equal(findManyCalled, 1, 'findMany is called once');
@@ -182,7 +182,7 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
   });
 
-  test('coalesceFindRequests is true and findMany is defined but groupRecordsForFindMany is undefined', async function(assert) {
+  test('coalesceFindRequests is true and findMany is defined but groupRecordsForFindMany is undefined', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
@@ -224,7 +224,7 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Person, 'model is passed to findMany');
 
-        let expectedIds = expectedResultsCopy.data.map(record => record.id);
+        let expectedIds = expectedResultsCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -238,18 +238,18 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let promises = expectedResults.data.map(result => result.id).map(id => store.findRecord('person', id));
+    let promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
     let records = await all(promises);
 
-    let serializedRecords = records.toArray().map(record => record.serialize());
-    expectedResults = expectedResults.data.map(result => ({ data: result }));
+    let serializedRecords = records.toArray().map((record) => record.serialize());
+    expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
     assert.equal(findManyCalled, 1, 'findMany is called once');
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
   });
 
-  test('coalesceFindRequests is false', async function(assert) {
+  test('coalesceFindRequests is false', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
     let groupRecordsForFindManyCalled = 0;
@@ -313,10 +313,10 @@ module('integration/coalescing - Coalescing Tests', function(hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let promises = expectedResults.map(result => result.data.id).map(id => store.findRecord('person', id));
+    let promises = expectedResults.map((result) => result.data.id).map((id) => store.findRecord('person', id));
     let records = await all(promises);
 
-    let serializedRecords = records.map(record => record.serialize());
+    let serializedRecords = records.map((record) => record.serialize());
 
     assert.equal(findRecordCalled, 2, 'findRecord is called twice');
     assert.equal(findManyCalled, 0, 'findMany is not called');

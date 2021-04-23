@@ -102,7 +102,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @type {MapWithDefault}
     @private
   */
-  errorsByAttributeName: computed(function() {
+  errorsByAttributeName: computed(function () {
     return new Map();
   }),
 
@@ -165,7 +165,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @type {Array}
     @private
   */
-  content: computed(function() {
+  content: computed(function () {
     return A();
   }),
 
@@ -420,12 +420,12 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     let errorsByAttributeName = get(this, 'errorsByAttributeName');
     let attributes = [];
 
-    errorsByAttributeName.forEach(function(_, attribute) {
+    errorsByAttributeName.forEach(function (_, attribute) {
       attributes.push(attribute);
     });
 
     errorsByAttributeName.clear();
-    attributes.forEach(attribute => {
+    attributes.forEach((attribute) => {
       this.notifyPropertyChange(attribute);
     });
 

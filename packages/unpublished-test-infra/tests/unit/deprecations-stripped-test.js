@@ -6,8 +6,8 @@ import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/dep
 
 const { compatWith } = config;
 
-module('test compatWith', function() {
-  test('deprecation strips', function(assert) {
+module('test compatWith', function () {
+  test('deprecation strips', function (assert) {
     let deprecation_stripped = true;
 
     if (DEPRECATE_EVENTED_API_USAGE) {

@@ -63,7 +63,7 @@ class MinimalSerializer extends EmberObject {
 
     if (hasMany && hasMany.length) {
       let value = {
-        data: hasMany.map(snap => ({
+        data: hasMany.map((snap) => ({
           id: snap.id,
           type: snap.modelName,
         })),
@@ -124,17 +124,17 @@ let expectedResult = {
   ],
 };
 
-module('integration/has-many - Has Many Tests', function(hooks) {
+module('integration/has-many - Has Many Tests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
     this.owner.register('serializer:application', MinimalSerializer);
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
   });
 
-  test('if a hasMany relationship has a link but no data (findHasMany is defined)', async function(assert) {
+  test('if a hasMany relationship has a link but no data (findHasMany is defined)', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
     let findHasManyCalled = 0;
@@ -195,7 +195,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
 
     let comments = await post.get('comments');
     let serializedComments = {
-      data: comments.toArray().map(comment => comment.serialize().data),
+      data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
@@ -204,7 +204,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'findHasMany returns expected result');
   });
 
-  testInDebug('if a hasMany relationship has a link but no data (findHasMany is undefined)', async function(assert) {
+  testInDebug('if a hasMany relationship has a link but no data (findHasMany is undefined)', async function (assert) {
     let initialRecord = {
       data: {
         id: '2',
@@ -231,12 +231,12 @@ module('integration/has-many - Has Many Tests', function(hooks) {
 
     let post = store.push(initialRecord);
 
-    await assert.expectAssertion(async function() {
+    await assert.expectAssertion(async function () {
       await post.get('comments');
     }, /You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'/);
   });
 
-  test('if a hasMany relationship has data but not a link (coalescing is off, findHasMany is defined)', async function(assert) {
+  test('if a hasMany relationship has data but not a link (coalescing is off, findHasMany is defined)', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
     let findHasManyCalled = 0;
@@ -304,7 +304,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let post = store.push(initialRecord);
     let comments = await post.get('comments');
     let serializedComments = {
-      data: comments.toArray().map(comment => comment.serialize().data),
+      data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
     assert.equal(findRecordCalled, 2, 'findRecord is called twice');
@@ -313,7 +313,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
-  test('if a hasMany relationship has data but not a link (coalescing is off, findHasMany is not defined)', async function(assert) {
+  test('if a hasMany relationship has data but not a link (coalescing is off, findHasMany is not defined)', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
@@ -376,7 +376,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let post = store.push(initialRecord);
     let comments = await post.get('comments');
     let serializedComments = {
-      data: comments.toArray().map(comment => comment.serialize().data),
+      data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
     assert.equal(findRecordCalled, 2, 'findRecord is called twice');
@@ -384,7 +384,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
-  test('if a hasMany relationship has data but not a link (coalescing is on, findHasMany is defined)', async function(assert) {
+  test('if a hasMany relationship has data but not a link (coalescing is on, findHasMany is defined)', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
     let findHasManyCalled = 0;
@@ -442,7 +442,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Comment, 'model is passed to findMany');
 
-        let expectedIds = expectedResultCopy.data.map(record => record.id);
+        let expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -459,7 +459,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let post = store.push(initialRecord);
     let comments = await post.get('comments');
     let serializedComments = {
-      data: comments.toArray().map(comment => comment.serialize().data),
+      data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
@@ -468,7 +468,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
-  test('if a hasMany relationship has data but not a link (coalescing is on, findHasMany is not defined)', async function(assert) {
+  test('if a hasMany relationship has data but not a link (coalescing is on, findHasMany is not defined)', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
@@ -521,7 +521,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Comment, 'model is passed to findMany');
 
-        let expectedIds = expectedResultCopy.data.map(record => record.id);
+        let expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -538,7 +538,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let post = store.push(initialRecord);
     let comments = await post.get('comments');
     let serializedComments = {
-      data: comments.toArray().map(comment => comment.serialize().data),
+      data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
@@ -546,7 +546,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
-  test('if a hasMany relationship has link and data (findHasMany is defined)', async function(assert) {
+  test('if a hasMany relationship has link and data (findHasMany is defined)', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
     let findHasManyCalled = 0;
@@ -617,7 +617,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
 
     let comments = await post.get('comments');
     let serializedComments = {
-      data: comments.toArray().map(comment => comment.serialize().data),
+      data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
@@ -626,7 +626,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'findHasMany returns expected result');
   });
 
-  test('if a hasMany relationship has link and data (coalescing is on, findHasMany is not defined)', async function(assert) {
+  test('if a hasMany relationship has link and data (coalescing is on, findHasMany is not defined)', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
@@ -682,7 +682,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Comment, 'model is passed to findMany');
 
-        let expectedIds = expectedResultCopy.data.map(record => record.id);
+        let expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -699,7 +699,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let post = store.push(initialRecord);
     let comments = await post.get('comments');
     let serializedComments = {
-      data: comments.toArray().map(comment => comment.serialize().data),
+      data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
@@ -707,7 +707,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
-  test('if a hasMany relationship has link and data (coalescing is off, findHasMany is not defined)', async function(assert) {
+  test('if a hasMany relationship has link and data (coalescing is off, findHasMany is not defined)', async function (assert) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
@@ -770,7 +770,7 @@ module('integration/has-many - Has Many Tests', function(hooks) {
     let post = store.push(initialRecord);
     let comments = await post.get('comments');
     let serializedComments = {
-      data: comments.toArray().map(comment => comment.serialize().data),
+      data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
     assert.equal(findRecordCalled, 2, 'findRecord is called twice');

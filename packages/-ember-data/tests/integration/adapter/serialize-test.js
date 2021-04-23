@@ -6,10 +6,10 @@ import Adapter from '@ember-data/adapter';
 import Model from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('integration/adapter/serialize - DS.Adapter integration test', function(hooks) {
+module('integration/adapter/serialize - DS.Adapter integration test', function (hooks) {
   setupTest(hooks);
 
-  test('serialize() is delegated to the serializer', function(assert) {
+  test('serialize() is delegated to the serializer', function (assert) {
     assert.expect(1);
 
     const Person = Model.extend();
@@ -22,7 +22,7 @@ module('integration/adapter/serialize - DS.Adapter integration test', function(h
     let adapter = store.adapterFor('application');
     let serializer = store.serializerFor('application');
 
-    serializer.serialize = function(snapshot, options) {
+    serializer.serialize = function (snapshot, options) {
       assert.deepEqual(options, { foo: 'bar' });
     };
 

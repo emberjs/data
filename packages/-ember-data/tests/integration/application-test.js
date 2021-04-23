@@ -11,10 +11,10 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-module('integration/application - Injecting a Custom Store', function(hooks) {
+module('integration/application - Injecting a Custom Store', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.unregister('service:store');
@@ -24,18 +24,18 @@ module('integration/application - Injecting a Custom Store', function(hooks) {
     owner.register('controller:application', Controller.extend());
   });
 
-  test('If a Store property exists on an Application, it should be instantiated.', async function(assert) {
+  test('If a Store property exists on an Application, it should be instantiated.', async function (assert) {
     let store = this.owner.lookup('service:store');
     assert.ok(store.isCustom === true, 'the custom store was instantiated');
   });
 
-  test('If a store is instantiated, it should be made available to each controller.', async function(assert) {
+  test('If a store is instantiated, it should be made available to each controller.', async function (assert) {
     let fooController = this.owner.lookup('controller:foo');
     let isCustom = fooController.get('store.isCustom');
     assert.ok(isCustom, 'the custom store was injected');
   });
 
-  test('The JSONAPIAdapter is the default adapter when no custom adapter is provided', async function(assert) {
+  test('The JSONAPIAdapter is the default adapter when no custom adapter is provided', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -43,10 +43,10 @@ module('integration/application - Injecting a Custom Store', function(hooks) {
   });
 });
 
-module('integration/application - Injecting the Default Store', function(hooks) {
+module('integration/application - Injecting the Default Store', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('controller:foo', Controller.extend());
@@ -54,25 +54,25 @@ module('integration/application - Injecting the Default Store', function(hooks) 
     owner.register('controller:application', Controller.extend());
   });
 
-  test('If a Store property exists on an Application, it should be instantiated.', async function(assert) {
+  test('If a Store property exists on an Application, it should be instantiated.', async function (assert) {
     let store = this.owner.lookup('service:store');
     assert.ok(store instanceof Store, 'the store was instantiated');
   });
 
-  test('If a store is instantiated, it should be made available to each controller.', async function(assert) {
+  test('If a store is instantiated, it should be made available to each controller.', async function (assert) {
     let fooController = this.owner.lookup('controller:foo');
     assert.ok(fooController.get('store') instanceof Store, 'the store was injected');
   });
 
-  test('the DS namespace should be accessible', async function(assert) {
+  test('the DS namespace should be accessible', async function (assert) {
     assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');
   });
 });
 
-module('integration/application - Using the store as a service', function(hooks) {
+module('integration/application - Using the store as a service', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('controller:foo', Controller.extend());
@@ -82,12 +82,12 @@ module('integration/application - Using the store as a service', function(hooks)
     owner.register('service:second-store', Store);
   });
 
-  test('The store can be injected as a service', async function(assert) {
+  test('The store can be injected as a service', async function (assert) {
     let doodleService = this.owner.lookup('service:doodle');
     assert.ok(doodleService.get('store') instanceof Store, 'the store can be used as a service');
   });
 
-  test('There can be multiple store services', function(assert) {
+  test('There can be multiple store services', function (assert) {
     let doodleService = this.owner.lookup('service:doodle');
     let store = doodleService.get('store');
     let secondService = this.owner.lookup('service:second-store');
@@ -97,8 +97,8 @@ module('integration/application - Using the store as a service', function(hooks)
   });
 });
 
-module('integration/application - Attaching initializer', function(hooks) {
-  hooks.beforeEach(function() {
+module('integration/application - Attaching initializer', function (hooks) {
+  hooks.beforeEach(function () {
     this.TestApplication = Application.extend();
     this.TestApplication.initializer({
       name: 'ember-data',
@@ -109,7 +109,7 @@ module('integration/application - Attaching initializer', function(hooks) {
     this.owner = null;
   });
 
-  test('ember-data initializer is run', async function(assert) {
+  test('ember-data initializer is run', async function (assert) {
     let ran = false;
 
     this.TestApplication.initializer({
@@ -127,7 +127,7 @@ module('integration/application - Attaching initializer', function(hooks) {
     assert.ok(ran, 'ember-data initializer was found');
   });
 
-  test('ember-data initializer does not register the store service when it was already registered', async function(assert) {
+  test('ember-data initializer does not register the store service when it was already registered', async function (assert) {
     let AppStore = Store.extend({
       isCustomStore: true,
     });

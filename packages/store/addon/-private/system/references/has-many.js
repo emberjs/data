@@ -123,7 +123,7 @@ export default class HasManyReference extends Reference {
 
     let ids = [];
     if (resource.data) {
-      ids = resource.data.map(data => data.id);
+      ids = resource.data.map((data) => data.id);
     }
 
     return ids;
@@ -174,7 +174,7 @@ export default class HasManyReference extends Reference {
    @return {ManyArray}
    */
   push(objectOrPromise) {
-    return resolve(objectOrPromise).then(payload => {
+    return resolve(objectOrPromise).then((payload) => {
       let array = payload;
 
       if (typeof payload === 'object' && payload.data) {
@@ -183,7 +183,7 @@ export default class HasManyReference extends Reference {
 
       let internalModel = internalModelForReference(this);
 
-      let identifiers = array.map(obj => {
+      let identifiers = array.map((obj) => {
         let record = this.store.push(obj);
 
         if (DEBUG) {
@@ -210,7 +210,7 @@ export default class HasManyReference extends Reference {
     let members = this.hasManyRelationship.members.toArray();
 
     //TODO Igor cleanup
-    return members.every(identifier => {
+    return members.every((identifier) => {
       let internalModel = this.store._internalModelForResource(identifier);
       return internalModel.currentState.isLoaded === true;
     });

@@ -150,7 +150,7 @@ function makePeopleWithRelationshipData() {
   ];
 
   let peopleHash = {};
-  people.forEach(person => {
+  people.forEach((person) => {
     peopleHash[person.id] = person;
   });
 
@@ -164,8 +164,8 @@ function makePeopleWithRelationshipLinks(removeData = true) {
   let people = makePeopleWithRelationshipData();
   let linkPayloads = (people.links = {});
 
-  people.all.map(person => {
-    Object.keys(person.relationships).forEach(relName => {
+  people.all.map((person) => {
+    Object.keys(person.relationships).forEach((relName) => {
       let rel = person.relationships[relName];
       let data = rel.data;
 
@@ -174,7 +174,7 @@ function makePeopleWithRelationshipLinks(removeData = true) {
       }
 
       if (Array.isArray(data)) {
-        data = data.map(ref => people.dict[ref.id]);
+        data = data.map((ref) => people.dict[ref.id]);
       } else {
         if (data !== null) {
           data = people.dict[data.id];
@@ -193,12 +193,12 @@ function makePeopleWithRelationshipLinks(removeData = true) {
   return people;
 }
 
-module('async has-many rendering tests', function(hooks) {
+module('async has-many rendering tests', function (hooks) {
   let store;
   let adapter;
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('model:person', Person);
     owner.register('adapter:application', TestAdapter);
@@ -208,8 +208,8 @@ module('async has-many rendering tests', function(hooks) {
     adapter = store.adapterFor('application');
   });
 
-  module('for data-no-link scenarios', function() {
-    test('We can render an async hasMany', async function(assert) {
+  module('for data-no-link scenarios', function () {
+    test('We can render an async hasMany', async function (assert) {
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -231,12 +231,12 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map(e => e.textContent);
+      let names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
-    test('Re-rendering an async hasMany does not cause a new fetch', async function(assert) {
+    test('Re-rendering an async hasMany does not cause a new fetch', async function (assert) {
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -259,7 +259,7 @@ module('async has-many rendering tests', function(hooks) {
     `);
 
       let items = findAll('li');
-      let names = items.map(e => e.textContent);
+      let names = items.map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
@@ -270,12 +270,12 @@ module('async has-many rendering tests', function(hooks) {
 
       this.set('parent', parent);
 
-      names = findAll('li').map(e => e.textContent);
+      names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
-    test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
+    test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function (assert) {
       assert.expect(11);
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
@@ -291,7 +291,7 @@ module('async has-many rendering tests', function(hooks) {
       this.set('parent', parent);
 
       let originalOnError = Ember.onerror;
-      Ember.onerror = function(e) {
+      Ember.onerror = function (e) {
         assert.ok(true, 'Children promise did reject');
         assert.equal(
           e.message,
@@ -308,7 +308,7 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map(e => e.textContent);
+      let names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
 
@@ -329,8 +329,8 @@ module('async has-many rendering tests', function(hooks) {
     });
   });
 
-  module('for link-no-data scenarios', function() {
-    test('We can render an async hasMany with a link', async function(assert) {
+  module('for link-no-data scenarios', function () {
+    test('We can render an async hasMany with a link', async function (assert) {
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -349,12 +349,12 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map(e => e.textContent);
+      let names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
-    test('Re-rendering an async hasMany with a link does not cause a new fetch', async function(assert) {
+    test('Re-rendering an async hasMany with a link does not cause a new fetch', async function (assert) {
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -374,7 +374,7 @@ module('async has-many rendering tests', function(hooks) {
     `);
 
       let items = findAll('li');
-      let names = items.map(e => e.textContent);
+      let names = items.map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
@@ -385,12 +385,12 @@ module('async has-many rendering tests', function(hooks) {
 
       this.set('parent', parent);
 
-      names = findAll('li').map(e => e.textContent);
+      names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
-    test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
+    test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function (assert) {
       assert.expect(11);
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
@@ -407,7 +407,7 @@ module('async has-many rendering tests', function(hooks) {
       this.set('parent', parent);
 
       let originalOnError = Ember.onerror;
-      Ember.onerror = function(e) {
+      Ember.onerror = function (e) {
         assert.ok(true, 'Children promise did reject');
         assert.equal(
           e.message,
@@ -424,7 +424,7 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map(e => e.textContent);
+      let names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, [], 'We rendered no names');
 
@@ -448,8 +448,8 @@ module('async has-many rendering tests', function(hooks) {
     });
   });
 
-  module('for link-and-data scenarios', function() {
-    test('We can render an async hasMany with a link and data', async function(assert) {
+  module('for link-and-data scenarios', function () {
+    test('We can render an async hasMany with a link and data', async function (assert) {
       let people = makePeopleWithRelationshipLinks(false);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -468,12 +468,12 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map(e => e.textContent);
+      let names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
-    test('Rendering an async hasMany with a link and data where data has been side-loaded does not fetch the link', async function(assert) {
+    test('Rendering an async hasMany with a link and data where data has been side-loaded does not fetch the link', async function (assert) {
       let people = makePeopleWithRelationshipLinks(false);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -494,12 +494,12 @@ module('async has-many rendering tests', function(hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map(e => e.textContent);
+      let names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
 
-    test('Re-rendering an async hasMany with a link and data does not cause a new fetch', async function(assert) {
+    test('Re-rendering an async hasMany with a link and data does not cause a new fetch', async function (assert) {
       let people = makePeopleWithRelationshipLinks(false);
       let parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -519,7 +519,7 @@ module('async has-many rendering tests', function(hooks) {
     `);
 
       let items = findAll('li');
-      let names = items.map(e => e.textContent);
+      let names = items.map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
 
@@ -530,19 +530,19 @@ module('async has-many rendering tests', function(hooks) {
 
       this.set('parent', parent);
 
-      names = findAll('li').map(e => e.textContent);
+      names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
   });
 });
 
-module('autotracking has-many', function(hooks) {
+module('autotracking has-many', function (hooks) {
   setupRenderingTest(hooks);
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('model:person', Person);
     owner.register('adapter:application', TestAdapter);
@@ -551,7 +551,7 @@ module('autotracking has-many', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('We can re-render a pojo', async function(assert) {
+  test('We can re-render a pojo', async function (assert) {
     class ChildrenList extends Component {
       @service store;
 
@@ -591,22 +591,22 @@ module('autotracking has-many', function(hooks) {
 
     await render(hbs`<ChildrenList @model={{this.model}} />`);
 
-    let names = findAll('li').map(e => e.textContent);
+    let names = findAll('li').map((e) => e.textContent);
 
     assert.deepEqual(names, [], 'rendered no children');
 
     await click('#createChild');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB'], 'rendered 1 child');
 
     await click('#createChild');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
   });
 
-  test('We can re-render hasMany', async function(assert) {
+  test('We can re-render hasMany', async function (assert) {
     class ChildrenList extends Component {
       @service store;
 
@@ -640,22 +640,22 @@ module('autotracking has-many', function(hooks) {
 
     await render(hbs`<ChildrenList @person={{this.person}} />`);
 
-    let names = findAll('li').map(e => e.textContent);
+    let names = findAll('li').map((e) => e.textContent);
 
     assert.deepEqual(names, [], 'rendered no children');
 
     await click('#createChild');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB'], 'rendered 1 child');
 
     await click('#createChild');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
   });
 
-  test('We can re-render hasMany with sort computed macro', async function(assert) {
+  test('We can re-render hasMany with sort computed macro', async function (assert) {
     class ChildrenList extends Component {
       @service store;
 
@@ -688,22 +688,22 @@ module('autotracking has-many', function(hooks) {
 
     await render(hbs`<ChildrenList @person={{this.person}} />`);
 
-    let names = findAll('li').map(e => e.textContent);
+    let names = findAll('li').map((e) => e.textContent);
 
     assert.deepEqual(names, [], 'rendered no children');
 
     await click('#createChild');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB'], 'rendered 1 child');
 
     await click('#createChild');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
   });
 
-  test('We can re-render hasMany with objectAt', async function(assert) {
+  test('We can re-render hasMany with objectAt', async function (assert) {
     class ChildrenList extends Component {
       @service store;
 
@@ -743,12 +743,12 @@ module('autotracking has-many', function(hooks) {
     assert.dom('h2').hasText('RGB', 'renders first child');
   });
 
-  test('We can re-render hasMany with native map', async function(assert) {
+  test('We can re-render hasMany with native map', async function (assert) {
     class ChildrenList extends Component {
       @service store;
 
       get children() {
-        return this.args.person.children.map(child => child);
+        return this.args.person.children.map((child) => child);
       }
 
       @action
@@ -777,22 +777,22 @@ module('autotracking has-many', function(hooks) {
 
     await render(hbs`<ChildrenList @person={{this.person}} />`);
 
-    let names = findAll('li').map(e => e.textContent);
+    let names = findAll('li').map((e) => e.textContent);
 
     assert.deepEqual(names, [], 'rendered no children');
 
     await click('#createChild');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB'], 'rendered 1 child');
 
     await click('#createChild');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
   });
 
-  test('We can re-render hasMany with peekAll', async function(assert) {
+  test('We can re-render hasMany with peekAll', async function (assert) {
     class PeopleList extends Component {
       @service store;
 
@@ -803,7 +803,7 @@ module('autotracking has-many', function(hooks) {
       }
 
       get allPeople() {
-        return this.model.people.map(child => child);
+        return this.model.people.map((child) => child);
       }
 
       @action
@@ -830,18 +830,18 @@ module('autotracking has-many', function(hooks) {
 
     await render(hbs`<PeopleList />`);
 
-    let names = findAll('li').map(e => e.textContent);
+    let names = findAll('li').map((e) => e.textContent);
 
     assert.deepEqual(names, ['Doodad'], 'rendered no people');
 
     await click('#createPerson');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['Doodad', 'RGB'], 'rendered 1 person');
 
     await click('#createPerson');
 
-    names = findAll('li').map(e => e.textContent);
+    names = findAll('li').map((e) => e.textContent);
     assert.deepEqual(names, ['Doodad', 'RGB', 'RGB'], 'rendered 2 people');
   });
 });

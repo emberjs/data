@@ -24,11 +24,11 @@ import { identifierCacheFor } from '@ember-data/store/-private';
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type ExistingResourceObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
 
-module('Integration | Identifiers - configuration', function(hooks) {
+module('Integration | Identifiers - configuration', function (hooks) {
   setupTest(hooks);
   let store: Store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const { owner } = this;
 
     owner.register('adapter:application', JSONAPIAdapter.extend());
@@ -65,14 +65,14 @@ module('Integration | Identifiers - configuration', function(hooks) {
     setIdentifierGenerationMethod(generationMethod);
   });
 
-  hooks.afterEach(function() {
+  hooks.afterEach(function () {
     setIdentifierGenerationMethod(null);
     setIdentifierResetMethod(null);
     setIdentifierUpdateMethod(null);
     setIdentifierForgetMethod(null);
   });
 
-  test(`The configured generation method is used for pushed records`, async function(assert) {
+  test(`The configured generation method is used for pushed records`, async function (assert) {
     const record = store.push({
       data: {
         type: 'user',
@@ -88,7 +88,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     assert.strictEqual(identifier.lid, 'remote:user:1', 'We receive the expected identifier for an existing record');
   });
 
-  test(`The configured generation method is used for newly created records`, async function(assert) {
+  test(`The configured generation method is used for newly created records`, async function (assert) {
     let localIdInc = 9000;
     const generationMethod = (resource: ExistingResourceObject) => {
       if (typeof resource.type !== 'string' || resource.type.length < 1) {
@@ -120,7 +120,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     );
   });
 
-  test(`The configured update method is called when newly created records are committed`, async function(assert) {
+  test(`The configured update method is called when newly created records are committed`, async function (assert) {
     class TestSerializer extends Serializer {
       normalizeResponse(_, __, payload) {
         return payload;
@@ -173,7 +173,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     assert.ok(updateMethodCalls === 1, 'We made a single call to our update method');
   });
 
-  test(`The configured update method is called when newly created records with an id are committed`, async function(assert) {
+  test(`The configured update method is called when newly created records with an id are committed`, async function (assert) {
     class TestSerializer extends Serializer {
       normalizeResponse(_, __, payload) {
         return payload;
@@ -226,7 +226,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     assert.ok(updateMethodCalls === 1, 'We made a single call to our update method after save');
   });
 
-  test(`The configured update method is called when existing records are saved successfully`, async function(assert) {
+  test(`The configured update method is called when existing records are saved successfully`, async function (assert) {
     class TestSerializer extends Serializer {
       normalizeResponse(_, __, payload) {
         return payload;
@@ -291,7 +291,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     assert.ok(updateMethodCalls === 1, 'We made a single call to our update method after save');
   });
 
-  test(`The reset method is called when the application is destroyed`, async function(assert) {
+  test(`The reset method is called when the application is destroyed`, async function (assert) {
     let resetMethodCalled = false;
 
     setIdentifierResetMethod(() => {
@@ -302,7 +302,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     assert.ok(resetMethodCalled, 'We called the reset method when the application was torn down');
   });
 
-  test(`The forget method called when an identifier is "merged" with another`, async function(assert) {
+  test(`The forget method called when an identifier is "merged" with another`, async function (assert) {
     class TestSerializer extends Serializer {
       normalizeResponse(_, __, payload) {
         return payload;
@@ -334,12 +334,12 @@ module('Integration | Identifiers - configuration', function(hooks) {
     let forgetMethodCalls = 0;
     let expectedIdentifier;
 
-    let testMethod = identifier => {
+    let testMethod = (identifier) => {
       forgetMethodCalls++;
       assert.ok(expectedIdentifier === identifier, `We forgot the expected identifier ${expectedIdentifier}`);
     };
 
-    setIdentifierForgetMethod(identifier => {
+    setIdentifierForgetMethod((identifier) => {
       testMethod(identifier);
     });
 
@@ -390,7 +390,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     testMethod = () => {};
   });
 
-  test(`The forget method is called when a record deletion is fully persisted and the record unloaded`, async function(assert) {
+  test(`The forget method is called when a record deletion is fully persisted and the record unloaded`, async function (assert) {
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = () => {
@@ -402,7 +402,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     let forgetMethodCalls = 0;
     let expectedIdentifier;
 
-    setIdentifierForgetMethod(identifier => {
+    setIdentifierForgetMethod((identifier) => {
       forgetMethodCalls++;
       assert.ok(expectedIdentifier === identifier, `We forgot the expected identifier ${expectedIdentifier}`);
     });
@@ -436,7 +436,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     assert.strictEqual(forgetMethodCalls, 1, 'We called the forget method');
   });
 
-  test(`The forget method is called when a record unload results in full removal`, async function(assert) {
+  test(`The forget method is called when a record unload results in full removal`, async function (assert) {
     let forgetMethodCalls = 0;
     const expectedIdentifiers: StableRecordIdentifier[] = [];
 
@@ -465,7 +465,7 @@ module('Integration | Identifiers - configuration', function(hooks) {
     owner.register('model:retainer', Retainer);
     owner.register('model:retained-record', RetainedRecord);
 
-    setIdentifierForgetMethod(identifier => {
+    setIdentifierForgetMethod((identifier) => {
       forgetMethodCalls++;
       let expectedIdentifier = expectedIdentifiers.shift();
       assert.ok(expectedIdentifier === identifier, `We forgot the expected identifier ${expectedIdentifier}`);

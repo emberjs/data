@@ -8,11 +8,11 @@ import Model, { attr } from '@ember-data/model';
 import Serializer from '@ember-data/serializer';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
-module('Integration | Identifiers - recordIdentifierFor', function(hooks) {
+module('Integration | Identifiers - recordIdentifierFor', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const { owner } = this;
     owner.register(`service:store`, Store);
 
@@ -24,7 +24,7 @@ module('Integration | Identifiers - recordIdentifierFor', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test(`It works for newly created records`, async function(assert) {
+  test(`It works for newly created records`, async function (assert) {
     const record = store.createRecord('user', { name: 'Chris' });
     assert.strictEqual(record.name, 'Chris', 'We created a record');
     const identifier = recordIdentifierFor(record);
@@ -34,7 +34,7 @@ module('Integration | Identifiers - recordIdentifierFor', function(hooks) {
     assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
   });
 
-  test(`Saving newly created records updates the associated id on the identifier`, async function(assert) {
+  test(`Saving newly created records updates the associated id on the identifier`, async function (assert) {
     class TestAdapter extends Adapter {
       createRecord() {
         return resolve({
@@ -72,7 +72,7 @@ module('Integration | Identifiers - recordIdentifierFor', function(hooks) {
     assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
   });
 
-  test(`It works for existing records`, async function(assert) {
+  test(`It works for existing records`, async function (assert) {
     const record = store.push({
       data: {
         type: 'user',

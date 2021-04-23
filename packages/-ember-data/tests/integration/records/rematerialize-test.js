@@ -11,15 +11,15 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
-module('integration/unload - Rematerializing Unloaded Records', function(hooks) {
+module('integration/unload - Rematerializing Unloaded Records', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('a sync belongs to relationship to an unloaded record can restore that record', function(assert) {
+  test('a sync belongs to relationship to an unloaded record can restore that record', function (assert) {
     const Person = Model.extend({
       name: attr('string'),
       cars: hasMany('car', { async: false }),
@@ -122,7 +122,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     assert.notEqual(rematerializedPerson, adam, 'the person is rematerialized, not recycled');
   });
 
-  test('an async has many relationship to an unloaded record can restore that record', function(assert) {
+  test('an async has many relationship to an unloaded record can restore that record', function (assert) {
     assert.expect(16);
 
     const Person = Model.extend({
@@ -173,7 +173,7 @@ module('integration/unload - Rematerializing Unloaded Records', function(hooks) 
     };
 
     let adapterCalls = 0;
-    adapter.findRecord = function(store, model, param) {
+    adapter.findRecord = function (store, model, param) {
       assert.ok(true, `adapter called ${++adapterCalls}x`);
 
       let data;

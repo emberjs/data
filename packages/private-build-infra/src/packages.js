@@ -37,7 +37,7 @@ function getPackages(app) {
   const { default: POSSIBLE_PACKAGES } = requireEsm('@ember-data/private-build-infra/addon/available-packages.ts');
   const flags = {};
 
-  Object.keys(POSSIBLE_PACKAGES).forEach(flag => {
+  Object.keys(POSSIBLE_PACKAGES).forEach((flag) => {
     const packageName = POSSIBLE_PACKAGES[flag];
     let hasPackage = app ? detectPackage(app.project, packageName) : true;
 

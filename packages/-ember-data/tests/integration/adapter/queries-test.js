@@ -10,15 +10,15 @@ import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('integration/adapter/queries - Queries', function(hooks) {
+module('integration/adapter/queries - Queries', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  testInDebug('It raises an assertion when no type is passed', function(assert) {
+  testInDebug('It raises an assertion when no type is passed', function (assert) {
     const Person = Model.extend();
 
     this.owner.register('model:person', Person);
@@ -30,7 +30,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
     }, "You need to pass a model name to the store's query method");
   });
 
-  testInDebug('It raises an assertion when no query hash is passed', function(assert) {
+  testInDebug('It raises an assertion when no query hash is passed', function (assert) {
     const Person = Model.extend();
 
     this.owner.register('model:person', Person);
@@ -42,7 +42,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
     }, "You need to pass a query hash to the store's query method");
   });
 
-  test('When a query is made, the adapter should receive a record array it can populate with the results of the query.', async function(assert) {
+  test('When a query is made, the adapter should receive a record array it can populate with the results of the query.', async function (assert) {
     const Person = Model.extend({ name: attr() });
 
     this.owner.register('model:person', Person);
@@ -50,7 +50,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.query = function(store, type, query, recordArray) {
+    adapter.query = function (store, type, query, recordArray) {
       assert.equal(type, Person, 'the query method is called with the correct type');
 
       return EmberPromise.resolve({
@@ -82,7 +82,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
     assert.equal(queryResults.objectAt(1).name, 'Brohuda Katz', "the second record is 'Brohuda Katz'");
   });
 
-  test('a query can be updated via `update()`', async function(assert) {
+  test('a query can be updated via `update()`', async function (assert) {
     assert.expect(8);
 
     const Person = Model.extend();
@@ -92,7 +92,7 @@ module('integration/adapter/queries - Queries', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.query = function() {
+    adapter.query = function () {
       return resolve({ data: [{ id: 'first', type: 'person' }] });
     };
 
@@ -104,10 +104,10 @@ module('integration/adapter/queries - Queries', function(hooks) {
 
     let resolveQueryPromise;
 
-    adapter.query = function() {
+    adapter.query = function () {
       assert.ok(true, 'query is called a second time');
 
-      return new EmberPromise(resolve => {
+      return new EmberPromise((resolve) => {
         resolveQueryPromise = resolve;
       });
     };
@@ -129,26 +129,27 @@ module('integration/adapter/queries - Queries', function(hooks) {
     assert.equal(personsQuery.firstObject.id, 'second', 'Now it is a different person');
   });
 
-  testInDebug('The store asserts when query is made and the adapter responses with a single record.', async function(
-    assert
-  ) {
-    const Person = Model.extend({ name: attr() });
+  testInDebug(
+    'The store asserts when query is made and the adapter responses with a single record.',
+    async function (assert) {
+      const Person = Model.extend({ name: attr() });
 
-    this.owner.register('model:person', Person);
+      this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+      let store = this.owner.lookup('service:store');
+      let adapter = store.adapterFor('application');
 
-    adapter.query = function(store, type, query, recordArray) {
-      assert.equal(type, Person, 'the query method is called with the correct type');
+      adapter.query = function (store, type, query, recordArray) {
+        assert.equal(type, Person, 'the query method is called with the correct type');
 
-      return resolve({
-        data: { id: 1, type: 'person', attributes: { name: 'Peter Wagenet' } },
-      });
-    };
+        return resolve({
+          data: { id: 1, type: 'person', attributes: { name: 'Peter Wagenet' } },
+        });
+      };
 
-    await assert.expectAssertion(async () => {
-      await store.query('person', { page: 1 });
-    }, /The response to store.query is expected to be an array but it was a single record/);
-  });
+      await assert.expectAssertion(async () => {
+        await store.query('person', { page: 1 });
+      }, /The response to store.query is expected to be an array but it was a single record/);
+    }
+  );
 });

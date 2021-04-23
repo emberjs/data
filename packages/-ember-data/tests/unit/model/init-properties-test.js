@@ -52,10 +52,10 @@ function setupModels(owner, testState) {
   return { adapter, store };
 }
 
-module('unit/model - init properties', function(hooks) {
+module('unit/model - init properties', function (hooks) {
   setupTest(hooks);
 
-  test('createRecord(properties) makes properties available during record init', function(assert) {
+  test('createRecord(properties) makes properties available during record init', function (assert) {
     assert.expect(4);
     let comment;
     let author;
@@ -103,7 +103,7 @@ module('unit/model - init properties', function(hooks) {
     });
   });
 
-  test('store.push() makes properties available during record init', function(assert) {
+  test('store.push() makes properties available during record init', function (assert) {
     assert.expect(3);
 
     function testState(types, record) {
@@ -154,7 +154,7 @@ module('unit/model - init properties', function(hooks) {
     );
   });
 
-  test('store.findRecord(type, id) makes properties available during record init', function(assert) {
+  test('store.findRecord(type, id) makes properties available during record init', function (assert) {
     assert.expect(3);
 
     function testState(types, record) {
@@ -207,7 +207,7 @@ module('unit/model - init properties', function(hooks) {
     run(() => store.findRecord('post', '1'));
   });
 
-  test('store.queryRecord(type, query) makes properties available during record init', function(assert) {
+  test('store.queryRecord(type, query) makes properties available during record init', function (assert) {
     assert.expect(3);
 
     function testState(types, record) {
@@ -260,14 +260,14 @@ module('unit/model - init properties', function(hooks) {
     run(() => store.queryRecord('post', { id: '1' }));
   });
 
-  test('Model class does not get properties passed to setUknownProperty accidentally', function(assert) {
+  test('Model class does not get properties passed to setUknownProperty accidentally', function (assert) {
     assert.expect(2);
     // If we end up passing additional properties to init in modelClasses, we will need to come up with a strategy for
     // how to get setUnknownProperty to continue working
 
     const Post = Model.extend({
       title: attr(),
-      setUnknownProperty: function(key, value) {
+      setUnknownProperty: function (key, value) {
         assert.equal(key, 'randomProp', 'Passed the correct key to setUknownProperty');
         assert.equal(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
       },

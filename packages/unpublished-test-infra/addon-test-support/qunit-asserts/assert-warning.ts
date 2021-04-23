@@ -50,7 +50,7 @@ interface AssertNoneResult {
  */
 function verifyWarning(config: WarningConfig, label?: string): AssertSomeResult {
   // TODO optionally throw if `until` is the current version or older than current version
-  let matchedWarnings = WARNINGS_FOR_TEST.filter(warning => {
+  let matchedWarnings = WARNINGS_FOR_TEST.filter((warning) => {
     let isMatched = warning.options.id === config.id;
     if (!isMatched && config.message) {
       // TODO when we hit this we should throw an error in the near future
@@ -58,7 +58,7 @@ function verifyWarning(config: WarningConfig, label?: string): AssertSomeResult 
     }
     return isMatched;
   });
-  WARNINGS_FOR_TEST = WARNINGS_FOR_TEST.filter(warning => {
+  WARNINGS_FOR_TEST = WARNINGS_FOR_TEST.filter((warning) => {
     matchedWarnings.indexOf(warning) === -1;
   });
   HANDLED_WARNINGS_FOR_TEST.push(...matchedWarnings);
@@ -106,19 +106,19 @@ export function configureWarningHandler() {
   }
   HAS_REGISTERED = true;
 
-  QUnit.testStart(function() {
+  QUnit.testStart(function () {
     WARNINGS_FOR_TEST = [];
     HANDLED_WARNINGS_FOR_TEST = [];
   });
 
-  registerWarnHandler(function(message, options /*, next*/) {
+  registerWarnHandler(function (message, options /*, next*/) {
     if (WARNINGS_FOR_TEST) {
       WARNINGS_FOR_TEST.push({ message, options });
     }
     // we do not call next to avoid spamming the console
   });
 
-  QUnit.assert.expectWarning = async function(
+  QUnit.assert.expectWarning = async function (
     cb: () => unknown,
     config: string | RegExp | WarningConfig,
     label?: string
@@ -165,7 +165,7 @@ export function configureWarningHandler() {
     WARNINGS_FOR_TEST = origWarnings.concat(WARNINGS_FOR_TEST);
   };
 
-  QUnit.assert.expectNoWarning = async function(cb, label?: string) {
+  QUnit.assert.expectNoWarning = async function (cb, label?: string) {
     let origWarnings = WARNINGS_FOR_TEST;
 
     if (cb) {

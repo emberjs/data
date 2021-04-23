@@ -35,27 +35,27 @@ function setupReloadTest(options) {
       super(...arguments);
 
       if (options.shouldReloadAll !== undefined) {
-        this.shouldReloadAll = function() {
+        this.shouldReloadAll = function () {
           this.shouldReloadAllCalled++;
           return options.shouldReloadAll;
         };
       }
 
       if (options.shouldReloadRecord !== undefined) {
-        this.shouldReloadRecord = function() {
+        this.shouldReloadRecord = function () {
           this.shouldReloadRecordCalled++;
           return options.shouldReloadRecord;
         };
       }
       if (options.shouldBackgroundReloadAll !== undefined) {
-        this.shouldBackgroundReloadAll = function() {
+        this.shouldBackgroundReloadAll = function () {
           this.shouldBackgroundReloadAllCalled++;
           return options.shouldBackgroundReloadAll;
         };
       }
 
       if (options.shouldBackgroundReloadRecord !== undefined) {
-        this.shouldBackgroundReloadRecord = function() {
+        this.shouldBackgroundReloadRecord = function () {
           this.shouldBackgroundReloadRecordCalled++;
           return options.shouldBackgroundReloadRecord;
         };
@@ -78,17 +78,17 @@ function setupReloadTest(options) {
   this.adapter = this.owner.lookup('adapter:application');
 }
 
-module('integration/reload - Reloading Tests', function(hooks) {
+module('integration/reload - Reloading Tests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
     this.owner.register('serializer:application', MinimalSerializer);
     this.owner.register('model:person', Person);
   });
 
-  module('adapter.shouldReloadAll', function() {
-    test('adapter.shouldReloadAll is not called when store.findAll is called with a reload: false flag', async function(assert) {
+  module('adapter.shouldReloadAll', function () {
+    test('adapter.shouldReloadAll is not called when store.findAll is called with a reload: false flag', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
         shouldBackgroundReloadAll: false,
@@ -100,7 +100,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 0, 'no request is made');
     });
 
-    test('adapter.shouldReloadAll is not called when store.findAll is called with a reload: true flag', async function(assert) {
+    test('adapter.shouldReloadAll is not called when store.findAll is called with a reload: true flag', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
         shouldBackgroundReloadAll: false,
@@ -112,7 +112,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('store.findAll does not error if adapter.shouldReloadAll is not defined (records are present)', async function(assert) {
+    test('store.findAll does not error if adapter.shouldReloadAll is not defined (records are present)', async function (assert) {
       setupReloadTest.call(this, {
         shouldBackgroundReloadAll: false,
       });
@@ -133,7 +133,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
 
-    test('store.findAll does not error if adapter.shouldReloadAll is not defined (records are absent)', async function(assert) {
+    test('store.findAll does not error if adapter.shouldReloadAll is not defined (records are absent)', async function (assert) {
       setupReloadTest.call(this, {
         shouldBackgroundReloadAll: false,
       });
@@ -143,7 +143,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldReloadAll is called when store.findAll is called without a reload flag (shouldReloadAll is false)', async function(assert) {
+    test('adapter.shouldReloadAll is called when store.findAll is called without a reload flag (shouldReloadAll is false)', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
         shouldBackgroundReloadAll: false,
@@ -155,7 +155,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
 
-    test('adapter.shouldReloadAll is called when store.findAll is called without a reload flag (shouldReloadAll is false)', async function(assert) {
+    test('adapter.shouldReloadAll is called when store.findAll is called without a reload flag (shouldReloadAll is false)', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: true,
         shouldBackgroundReloadAll: false,
@@ -168,8 +168,8 @@ module('integration/reload - Reloading Tests', function(hooks) {
     });
   });
 
-  module('adapter.shouldBackgroundReloadAll', function() {
-    test('adapter.shouldBackgroundReloadAll is not called called when store.findAll is called with reload: true flag (but we do make request)', async function(assert) {
+  module('adapter.shouldBackgroundReloadAll', function () {
+    test('adapter.shouldBackgroundReloadAll is not called called when store.findAll is called with reload: true flag (but we do make request)', async function (assert) {
       setupReloadTest.call(this, {});
 
       await this.store.findAll('person', { reload: true });
@@ -178,7 +178,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadAll is not called called when store.findAll is called and adaptershouldReloadAll() returns true (but we do make request)', async function(assert) {
+    test('adapter.shouldBackgroundReloadAll is not called called when store.findAll is called and adaptershouldReloadAll() returns true (but we do make request)', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: true,
       });
@@ -189,7 +189,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadAll is not called when store.findAll is called with backroundReload: true', async function(assert) {
+    test('adapter.shouldBackgroundReloadAll is not called when store.findAll is called with backroundReload: true', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
       });
@@ -200,7 +200,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadAll is not called when store.findAll is called with backroundReload: false', async function(assert) {
+    test('adapter.shouldBackgroundReloadAll is not called when store.findAll is called with backroundReload: false', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
       });
@@ -211,7 +211,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
 
-    test('store.findAll does not error if adapter.shouldBackgroundReloadAll is undefined and backgroundReload is not present.', async function(assert) {
+    test('store.findAll does not error if adapter.shouldBackgroundReloadAll is undefined and backgroundReload is not present.', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
       });
@@ -221,7 +221,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadAll is called when store.findAll is called and there is no backgroundReload flag (returns true)', async function(assert) {
+    test('adapter.shouldBackgroundReloadAll is called when store.findAll is called and there is no backgroundReload flag (returns true)', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
         shouldBackgroundReloadAll: true,
@@ -233,7 +233,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadAll is called when store.findAll is called and there is no backgroundReload flag (returns false)', async function(assert) {
+    test('adapter.shouldBackgroundReloadAll is called when store.findAll is called and there is no backgroundReload flag (returns false)', async function (assert) {
       setupReloadTest.call(this, {
         shouldReloadAll: false,
         shouldBackgroundReloadAll: false,
@@ -246,8 +246,8 @@ module('integration/reload - Reloading Tests', function(hooks) {
     });
   });
 
-  module('adapter.shouldReloadRecord', function() {
-    test('adapter.shouldReloadRecord is not called when store.findRecord is called for an unloaded record (but we do make request)', async function(assert) {
+  module('adapter.shouldReloadRecord', function () {
+    test('adapter.shouldReloadRecord is not called when store.findRecord is called for an unloaded record (but we do make request)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -274,7 +274,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldReloadRecord is not called when store.findRecord is called for a never loaded record (but we do make request)', async function(assert) {
+    test('adapter.shouldReloadRecord is not called when store.findRecord is called for a never loaded record (but we do make request)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -297,7 +297,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldReloadRecord is not called when store.findRecord is called with a reload flag (but we do make request if reload is true)', async function(assert) {
+    test('adapter.shouldReloadRecord is not called when store.findRecord is called with a reload flag (but we do make request if reload is true)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -322,7 +322,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldReloadRecord is not called when store.findRecord is called with a reload flag (and we do not make request if reload is false)', async function(assert) {
+    test('adapter.shouldReloadRecord is not called when store.findRecord is called with a reload flag (and we do not make request if reload is false)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -347,7 +347,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
 
-    test('if adapter.shouldReloadRecord is undefined, we default to false and do not make a request', async function(assert) {
+    test('if adapter.shouldReloadRecord is undefined, we default to false and do not make a request', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -372,7 +372,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
 
-    test('adapter.shouldReloadRecord is called when store.findRecord is called without a reload flag (shouldReloadRecord returns true)', async function(assert) {
+    test('adapter.shouldReloadRecord is called when store.findRecord is called without a reload flag (shouldReloadRecord returns true)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -398,7 +398,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldReloadRecord is called when store.findRecord is called without a reload flag (shouldReloadRecord returns false)', async function(assert) {
+    test('adapter.shouldReloadRecord is called when store.findRecord is called without a reload flag (shouldReloadRecord returns false)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -425,8 +425,8 @@ module('integration/reload - Reloading Tests', function(hooks) {
     });
   });
 
-  module('adapter.shouldBackgroundReloadRecord', function() {
-    test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called for an unloaded record (but we do make request)', async function(assert) {
+  module('adapter.shouldBackgroundReloadRecord', function () {
+    test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called for an unloaded record (but we do make request)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -452,7 +452,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called for a never loaded record (but we do make request)', async function(assert) {
+    test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called for a never loaded record (but we do make request)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -474,7 +474,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadRecord is not called called when store.findRecord is called with reload: true flag (but we do make request)', async function(assert) {
+    test('adapter.shouldBackgroundReloadRecord is not called called when store.findRecord is called with reload: true flag (but we do make request)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -498,7 +498,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadRecord is not called called when store.findRecord is called and shouldReloadRecord returns true (but we do make request)', async function(assert) {
+    test('adapter.shouldBackgroundReloadRecord is not called called when store.findRecord is called and shouldReloadRecord returns true (but we do make request)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -523,7 +523,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called with backroundReload as an option (backgroundReload is true)', async function(assert) {
+    test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called with backroundReload as an option (backgroundReload is true)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -547,7 +547,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called with backroundReload as an option (backgroundReload is false)', async function(assert) {
+    test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called with backroundReload as an option (backgroundReload is false)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -571,7 +571,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 0, 'no ajax request is made');
     });
 
-    test('store.findRecord does not error if adapter.shouldBackgroundReloadRecord is undefined and backgroundReload is not present.', async function(assert) {
+    test('store.findRecord does not error if adapter.shouldBackgroundReloadRecord is undefined and backgroundReload is not present.', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -594,7 +594,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadRecord is called when store.findRecord is called and there is no backgroundReload flag (adapter.shouldBackgroundReloadRecord() returns true)', async function(assert) {
+    test('adapter.shouldBackgroundReloadRecord is called when store.findRecord is called and there is no backgroundReload flag (adapter.shouldBackgroundReloadRecord() returns true)', async function (assert) {
       let payload = {
         data: {
           id: '1',
@@ -619,7 +619,7 @@ module('integration/reload - Reloading Tests', function(hooks) {
       assert.equal(this.adapter.requestsMade, 1, 'an ajax request is made');
     });
 
-    test('adapter.shouldBackgroundReloadRecord is called when store.findRecord is called and there is no backgroundReload flag (adapter.shouldBackgroundReloadRecord() returns false)', async function(assert) {
+    test('adapter.shouldBackgroundReloadRecord is called when store.findRecord is called and there is no backgroundReload flag (adapter.shouldBackgroundReloadRecord() returns false)', async function (assert) {
       let payload = {
         data: {
           id: '1',

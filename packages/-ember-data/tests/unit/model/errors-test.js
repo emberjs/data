@@ -8,8 +8,8 @@ const AssertPrototype = QUnit.assert;
 
 let errors;
 
-module('unit/model/errors', function(hooks) {
-  hooks.beforeEach(function() {
+module('unit/model/errors', function (hooks) {
+  hooks.beforeEach(function () {
     errors = DS.Errors.create();
   });
 
@@ -33,7 +33,7 @@ module('unit/model/errors', function(hooks) {
     this.ok(false, 'unexpected send : ' + eventName);
   }.bind(AssertPrototype);
 
-  testInDebug('add error', function(assert) {
+  testInDebug('add error', function (assert) {
     errors.trigger = assert.becameInvalid;
     errors.add('firstName', 'error');
     errors.trigger = assert.unexpectedSend;
@@ -47,7 +47,7 @@ module('unit/model/errors', function(hooks) {
     assert.equal(errors.get('length'), 4, 'it has 4 errors');
   });
 
-  testInDebug('get error', function(assert) {
+  testInDebug('get error', function (assert) {
     assert.ok(errors.get('firstObject') === undefined, 'returns undefined');
     errors.trigger = assert.becameInvalid;
     errors.add('firstName', 'error');
@@ -69,7 +69,7 @@ module('unit/model/errors', function(hooks) {
     assert.deepEqual(errors.get('messages'), ['error', 'error2', 'error3']);
   });
 
-  testInDebug('remove error', function(assert) {
+  testInDebug('remove error', function (assert) {
     errors.trigger = assert.becameInvalid;
     errors.add('firstName', 'error');
     errors.trigger = assert.becameValid;
@@ -81,7 +81,7 @@ module('unit/model/errors', function(hooks) {
     errors.remove('firstName');
   });
 
-  testInDebug('remove same errors fromm different attributes', function(assert) {
+  testInDebug('remove same errors fromm different attributes', function (assert) {
     errors.trigger = assert.becameInvalid;
     errors.add('firstName', 'error');
     errors.add('lastName', 'error');
@@ -94,7 +94,7 @@ module('unit/model/errors', function(hooks) {
     assert.ok(errors.get('isEmpty'), 'it is empty');
   });
 
-  testInDebug('clear errors', function(assert) {
+  testInDebug('clear errors', function (assert) {
     errors.trigger = assert.becameInvalid;
     errors.add('firstName', ['error', 'error1']);
     assert.equal(errors.get('length'), 2, 'it has 2 errors');

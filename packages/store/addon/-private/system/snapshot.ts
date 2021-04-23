@@ -145,7 +145,7 @@ export default class Snapshot implements Snapshot {
       attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName));
     }
     if (CUSTOM_MODEL_CLASS) {
-      attrs.forEach(keyName => {
+      attrs.forEach((keyName) => {
         if (schemaIsDSModel(this.type)) {
           // if the schema is for a DSModel then the instance is too
           attributes[keyName] = get(record as DSModel, keyName);
@@ -155,7 +155,7 @@ export default class Snapshot implements Snapshot {
       });
     } else {
       // When CUSTOM_MODEL_CLASS is false `record` must be DSModel
-      (record as DSModel).eachAttribute(keyName => (attributes[keyName] = get(record as DSModel, keyName)));
+      (record as DSModel).eachAttribute((keyName) => (attributes[keyName] = get(record as DSModel, keyName)));
     }
 
     return attributes;
@@ -428,7 +428,7 @@ export default class Snapshot implements Snapshot {
 
     if (value.data) {
       results = [];
-      value.data.forEach(member => {
+      value.data.forEach((member) => {
         let internalModel = store._internalModelForResource(member);
         if (!internalModel.isDeleted()) {
           if (returnModeIsIds) {
@@ -470,7 +470,7 @@ export default class Snapshot implements Snapshot {
   eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
     if (CUSTOM_MODEL_CLASS) {
       let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.identifier);
-      Object.keys(attrDefs).forEach(key => {
+      Object.keys(attrDefs).forEach((key) => {
         callback.call(binding, key, attrDefs[key]);
       });
     } else {
@@ -498,7 +498,7 @@ export default class Snapshot implements Snapshot {
   eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
     if (CUSTOM_MODEL_CLASS) {
       let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.identifier);
-      Object.keys(relationshipDefs).forEach(key => {
+      Object.keys(relationshipDefs).forEach((key) => {
         callback.call(binding, key, relationshipDefs[key]);
       });
     } else {

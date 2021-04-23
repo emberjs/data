@@ -6,10 +6,10 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-module('Debug', function(hooks) {
+module('Debug', function (hooks) {
   setupTest(hooks);
 
-  test('_debugInfo groups the attributes and relationships correctly', function(assert) {
+  test('_debugInfo groups the attributes and relationships correctly', function (assert) {
     const MaritalStatus = Model.extend({
       name: attr('string'),
     });
@@ -42,7 +42,7 @@ module('Debug', function(hooks) {
     assert.deepEqual(propertyInfo.groups[2].properties, ['posts']);
   });
 
-  test('_debugInfo supports arbitray relationship types', function(assert) {
+  test('_debugInfo supports arbitray relationship types', function (assert) {
     const MaritalStatus = Model.extend({
       name: attr('string'),
     });

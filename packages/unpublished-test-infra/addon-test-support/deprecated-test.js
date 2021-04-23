@@ -43,7 +43,7 @@ export function deprecatedTest(testName, deprecation, testCallback) {
   if (gte(VERSION, deprecation.until)) {
     testFn(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, interceptor);
   } else {
-    testFn(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, function(assert) {
+    testFn(`DEPRECATION ${deprecation.id} until ${deprecation.until} | ${testName}`, function (assert) {
       if (deprecation.refactor === true) {
         assert.ok(false, 'This test includes use of a deprecated feature that should now be refactored.');
       } else {

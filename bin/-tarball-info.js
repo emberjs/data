@@ -127,7 +127,7 @@ function convertPackageNameToTarballName(str) {
   return str;
 }
 
-packages.forEach(localName => {
+packages.forEach((localName) => {
   const pkgDir = path.join(packagesDir, localName);
   const pkgPath = path.join(pkgDir, 'package.json');
   let pkgInfo;
@@ -178,7 +178,7 @@ function insertTarballsToPackageJson(fileLocation, options = {}) {
     pkgInfo.version = `${pkgInfo.version}-sha.${CurrentSha}`;
   }
 
-  AllPackages.forEach(packageName => {
+  AllPackages.forEach((packageName) => {
     const pkg = OurPackages[packageName];
 
     if (pkgInfo.dependencies && pkgInfo.dependencies[packageName] !== undefined) {

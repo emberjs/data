@@ -17,11 +17,11 @@ import { DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS } from '@ember-data/private-bu
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 
-module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(hooks) {
+module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (hooks) {
   setupTest(hooks);
 
-  module('rolledBack hook', function(hooks) {
-    hooks.beforeEach(function() {
+  module('rolledBack hook', function (hooks) {
+    hooks.beforeEach(function () {
       const Person = DS.Model.extend({
         firstName: DS.attr(),
         lastName: DS.attr(),
@@ -40,13 +40,13 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       this.owner.register('adapter:application', Adapter.extend());
       this.owner.register('serializer:application', JSONAPISerializer.extend());
     });
-    hooks.afterEach(function(assert) {
+    hooks.afterEach(function (assert) {
       assert.expectDeprecation({
         id: 'ember-data:record-lifecycle-event-methods',
       });
     });
 
-    test('changes to attributes can be rolled back', function(assert) {
+    test('changes to attributes can be rolled back', function (assert) {
       let store = this.owner.lookup('service:store');
       let person;
 
@@ -81,7 +81,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       }
     });
 
-    test('changes to unassigned attributes can be rolled back', function(assert) {
+    test('changes to unassigned attributes can be rolled back', function (assert) {
       let store = this.owner.lookup('service:store');
       let person;
 
@@ -116,13 +116,13 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       }
     });
 
-    test('changes to attributes made after a record is in-flight only rolls back the local changes', function(assert) {
+    test('changes to attributes made after a record is in-flight only rolls back the local changes', function (assert) {
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');
 
-      adapter.updateRecord = function(store, type, snapshot) {
+      adapter.updateRecord = function (store, type, snapshot) {
         // Make sure the save is async
-        return new EmberPromise(resolve => later(null, resolve, 15));
+        return new EmberPromise((resolve) => later(null, resolve, 15));
       };
 
       let person = run(() => {
@@ -170,11 +170,11 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       });
     });
 
-    test("a record's changes can be made if it fails to save", function(assert) {
+    test("a record's changes can be made if it fails to save", function (assert) {
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');
 
-      adapter.updateRecord = function(store, type, snapshot) {
+      adapter.updateRecord = function (store, type, snapshot) {
         return reject();
       };
 
@@ -198,14 +198,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
 
       assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas']);
 
-      run(function() {
-        person.save().then(null, function() {
+      run(function () {
+        person.save().then(null, function () {
           assert.true(person.get('isError'));
           assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas']);
           if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
             assert.equal(person.get('rolledBackCount'), 0);
           }
-          run(function() {
+          run(function () {
             person.rollbackAttributes();
           });
 
@@ -219,11 +219,11 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       });
     });
 
-    test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function(assert) {
+    test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function (assert) {
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');
 
-      adapter.deleteRecord = function(store, type, snapshot) {
+      adapter.deleteRecord = function (store, type, snapshot) {
         return reject();
       };
 
@@ -278,7 +278,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       });
     });
 
-    test(`new record's attributes can be rollbacked`, function(assert) {
+    test(`new record's attributes can be rollbacked`, function (assert) {
       let store = this.owner.lookup('service:store');
       let person = store.createRecord('person', { id: 1 });
 
@@ -298,7 +298,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       }
     });
 
-    test(`invalid new record's attributes can be rollbacked`, function(assert) {
+    test(`invalid new record's attributes can be rollbacked`, function (assert) {
       let error = new DS.InvalidError([
         {
           detail: 'is invalid',
@@ -322,7 +322,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       assert.true(person.get('hasDirtyAttributes'), 'must be dirty');
 
       return run(() => {
-        return person.save().catch(reason => {
+        return person.save().catch((reason) => {
           assert.equal(error, reason);
           assert.false(person.get('isValid'));
 
@@ -338,7 +338,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       });
     });
 
-    test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function(assert) {
+    test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function (assert) {
       let adapter = DS.RESTAdapter.extend({
         ajax(url, type, hash) {
           let error = new DS.InvalidError();
@@ -393,7 +393,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       });
     });
 
-    test(`deleted record's attributes can be rollbacked`, function(assert) {
+    test(`deleted record's attributes can be rollbacked`, function (assert) {
       let store = this.owner.lookup('service:store');
 
       let person, people;
@@ -422,13 +422,13 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       assert.false(person.get('hasDirtyAttributes'), 'must not be dirty');
     });
 
-    test("invalid record's attributes can be rollbacked", async function(assert) {
+    test("invalid record's attributes can be rollbacked", async function (assert) {
       class Dog extends Model {
         @attr() name;
       }
       if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
         Dog.prototype.rolledBackCount = 0;
-        Dog.prototype.rolledBack = function() {
+        Dog.prototype.rolledBack = function () {
           this.incrementProperty('rolledBackCount');
         };
       }
@@ -461,7 +461,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
       });
       dog.set('name', 'is a dwarf planet');
 
-      addObserver(dog, 'errors.name', function() {
+      addObserver(dog, 'errors.name', function () {
         assert.ok(true, 'errors.name did change');
       });
 
@@ -497,7 +497,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     });
   });
 
-  test(`invalid record's attributes rolled back to correct state after set`, async function(assert) {
+  test(`invalid record's attributes rolled back to correct state after set`, async function (assert) {
     class Dog extends Model {
       @attr() name;
       @attr() breed;
@@ -533,7 +533,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     dog.set('name', 'is a dwarf planet');
     dog.set('breed', 'planet');
 
-    addObserver(dog, 'errors.name', function() {
+    addObserver(dog, 'errors.name', function () {
       assert.ok(true, 'errors.name did change');
     });
 
@@ -563,7 +563,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     }
   });
 
-  test(`when destroying a record setup the record state to invalid, the record's attributes can be rollbacked`, function(assert) {
+  test(`when destroying a record setup the record state to invalid, the record's attributes can be rollbacked`, function (assert) {
     const Dog = DS.Model.extend({
       name: DS.attr(),
     });
@@ -601,7 +601,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
     });
 
     return run(() => {
-      return dog.destroyRecord().catch(reason => {
+      return dog.destroyRecord().catch((reason) => {
         assert.equal(reason, error);
 
         assert.false(dog.get('isError'), 'must not be error');

@@ -6,10 +6,10 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-module('unit/store/hasRecordForId - Store hasRecordForId', function(hooks) {
+module('unit/store/hasRecordForId - Store hasRecordForId', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -25,7 +25,7 @@ module('unit/store/hasRecordForId - Store hasRecordForId', function(hooks) {
     this.owner.register('model:phone-number', PhoneNumber);
   });
 
-  test('hasRecordForId should return false for records in the empty state ', function(assert) {
+  test('hasRecordForId should return false for records in the empty state ', function (assert) {
     let store = this.owner.lookup('service:store');
 
     run(() => {
@@ -49,7 +49,7 @@ module('unit/store/hasRecordForId - Store hasRecordForId', function(hooks) {
     });
   });
 
-  test('hasRecordForId should return true for records in the loaded state ', function(assert) {
+  test('hasRecordForId should return true for records in the loaded state ', function (assert) {
     let store = this.owner.lookup('service:store');
 
     run(() => {

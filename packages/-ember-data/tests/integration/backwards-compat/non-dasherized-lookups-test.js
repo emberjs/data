@@ -11,10 +11,10 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module(
   'integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code finders',
-  function(hooks) {
+  function (hooks) {
     setupTest(hooks);
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       const PostNote = Model.extend({
         name: attr('string'),
       });
@@ -30,7 +30,7 @@ module(
       this.owner.register('serializer:application', JSONAPISerializer.extend());
     });
 
-    test('can lookup records using camelCase strings', function(assert) {
+    test('can lookup records using camelCase strings', function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
@@ -48,13 +48,13 @@ module(
       });
 
       run(() => {
-        store.findRecord('postNote', 1).then(postNote => {
+        store.findRecord('postNote', 1).then((postNote) => {
           assert.equal(get(postNote, 'name'), 'Ember Data', 'record found');
         });
       });
     });
 
-    test('can lookup records using under_scored strings', function(assert) {
+    test('can lookup records using under_scored strings', function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
@@ -72,7 +72,7 @@ module(
       });
 
       run(() => {
-        store.findRecord('post_note', 1).then(postNote => {
+        store.findRecord('post_note', 1).then((postNote) => {
           assert.equal(get(postNote, 'name'), 'Ember Data', 'record found');
         });
       });
@@ -82,10 +82,10 @@ module(
 
 module(
   'integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code relationship macros',
-  function(hooks) {
+  function (hooks) {
     setupTest(hooks);
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       const PostNote = Model.extend({
         notePost: belongsTo('note-post', { async: false }),
 
@@ -113,7 +113,7 @@ module(
       this.owner.register('serializer:application', JSONAPISerializer.extend());
     });
 
-    test('looks up belongsTo using camelCase strings', function(assert) {
+    test('looks up belongsTo using camelCase strings', function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
@@ -145,13 +145,13 @@ module(
       });
 
       run(() => {
-        store.findRecord('post-note', 1).then(postNote => {
+        store.findRecord('post-note', 1).then((postNote) => {
           assert.equal(get(postNote, 'notePost.name'), 'Inverse', 'inverse record found');
         });
       });
     });
 
-    test('looks up belongsTo using under_scored strings', function(assert) {
+    test('looks up belongsTo using under_scored strings', function (assert) {
       assert.expect(1);
 
       let store = this.owner.lookup('service:store');
@@ -182,7 +182,7 @@ module(
       });
 
       run(() => {
-        store.findRecord('long_model_name', 1).then(longModelName => {
+        store.findRecord('long_model_name', 1).then((longModelName) => {
           const postNotes = get(longModelName, 'postNotes').toArray();
 
           assert.deepEqual(postNotes, [store.peekRecord('postNote', 1)], 'inverse records found');

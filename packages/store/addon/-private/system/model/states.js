@@ -401,12 +401,12 @@ const createdState = dirtyState({
   },
 });
 
-createdState.invalid.rolledBack = function(internalModel) {
+createdState.invalid.rolledBack = function (internalModel) {
   internalModel.transitionTo('deleted.saved');
   internalModel.triggerLater('rolledBack');
 };
 
-createdState.uncommitted.rolledBack = function(internalModel) {
+createdState.uncommitted.rolledBack = function (internalModel) {
   internalModel.transitionTo('deleted.saved');
   internalModel.triggerLater('rolledBack');
 };
@@ -424,23 +424,23 @@ createdState.uncommitted.deleteRecord = createdStateDeleteRecord;
 
 createdState.invalid.deleteRecord = createdStateDeleteRecord;
 
-createdState.uncommitted.rollback = function(internalModel) {
+createdState.uncommitted.rollback = function (internalModel) {
   DirtyState.uncommitted.rollback.apply(this, arguments);
   internalModel.transitionTo('deleted.saved');
 };
 
-createdState.uncommitted.pushedData = function(internalModel) {
+createdState.uncommitted.pushedData = function (internalModel) {
   internalModel.transitionTo('loaded.updated.uncommitted');
   internalModel.triggerLater('didLoad');
 };
 
-createdState.uncommitted.propertyWasReset = function() {};
+createdState.uncommitted.propertyWasReset = function () {};
 
 function assertAgainstUnloadRecord(internalModel) {
   assert('You can only unload a record which is not inFlight. `' + internalModel + '`', false);
 }
 
-updatedState.invalid.becameValid = function(internalModel) {
+updatedState.invalid.becameValid = function (internalModel) {
   // we're eagerly transition into the loaded.saved state, even though we could
   // be still dirty; but the setup hook of the loaded.saved state checks for
   // dirty attributes and transitions into the corresponding dirty state
@@ -449,11 +449,11 @@ updatedState.invalid.becameValid = function(internalModel) {
 
 updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
 
-updatedState.uncommitted.deleteRecord = function(internalModel) {
+updatedState.uncommitted.deleteRecord = function (internalModel) {
   internalModel.transitionTo('deleted.uncommitted');
 };
 
-updatedState.invalid.rolledBack = function(internalModel) {
+updatedState.invalid.rolledBack = function (internalModel) {
   clearErrorMessages(internalModel);
   internalModel.transitionTo('loaded.saved');
   internalModel.triggerLater('rolledBack');

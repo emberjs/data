@@ -18,16 +18,16 @@ const Person = Model.extend({
   },
 });
 
-module('integration/record-arrays/adapter_populated_record_array - AdapterPopulatedRecordArray', function(hooks) {
+module('integration/record-arrays/adapter_populated_record_array - AdapterPopulatedRecordArray', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('when a record is deleted in an adapter populated record array, it should be removed', async function(assert) {
+  test('when a record is deleted in an adapter populated record array, it should be removed', async function (assert) {
     const ApplicationAdapter = Adapter.extend({
       deleteRecord() {
         return Promise.resolve();
@@ -68,7 +68,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     let results = store.push(payload);
 
     recordArray._setIdentifiers(
-      results.map(r => recordIdentifierFor(r)),
+      results.map((r) => recordIdentifierFor(r)),
       payload
     );
 
@@ -81,7 +81,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     assert.equal(recordArray.get('length'), 2, 'expected recordArray to contain exactly 2 records');
   });
 
-  test('stores the metadata off the payload', async function(assert) {
+  test('stores the metadata off the payload', async function (assert) {
     let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
 
@@ -116,13 +116,13 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     let results = store.push(payload);
     recordArray._setIdentifiers(
-      results.map(r => recordIdentifierFor(r)),
+      results.map((r) => recordIdentifierFor(r)),
       payload
     );
     assert.equal(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
   });
 
-  test('stores the links off the payload', async function(assert) {
+  test('stores the links off the payload', async function (assert) {
     let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
 
@@ -157,7 +157,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     let results = store.push(payload);
     recordArray._setIdentifiers(
-      results.map(r => recordIdentifierFor(r)),
+      results.map((r) => recordIdentifierFor(r)),
       payload
     );
 
@@ -168,7 +168,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     );
   });
 
-  test('recordArray.replace() throws error', async function(assert) {
+  test('recordArray.replace() throws error', async function (assert) {
     let store = this.owner.lookup('service:store');
     let recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray('person', null);
 
@@ -183,7 +183,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     );
   });
 
-  test('pass record array to adapter.query regardless of arity', async function(assert) {
+  test('pass record array to adapter.query regardless of arity', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -194,7 +194,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       ],
     };
 
-    adapter.query = function(store, type, query) {
+    adapter.query = function (store, type, query) {
       // Due to #6232, we now expect 5 arguments regardless of arity
       assert.equal(arguments.length, 5, 'expect 5 arguments in query');
       return payload;
@@ -202,14 +202,14 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     await store.query('person', {});
 
-    adapter.query = function(store, type, query, recordArray) {
+    adapter.query = function (store, type, query, recordArray) {
       assert.equal(arguments.length, 5);
       return payload;
     };
     store.query('person', {});
   });
 
-  test('pass record array to adapter.query regardless of arity', async function(assert) {
+  test('pass record array to adapter.query regardless of arity', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -224,7 +224,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     let superCreateAdapterPopulatedRecordArray = store.recordArrayManager.createAdapterPopulatedRecordArray;
 
-    store.recordArrayManager.createStore = function(modelName, query, internalModels, _payload) {
+    store.recordArrayManager.createStore = function (modelName, query, internalModels, _payload) {
       assert.equal(arguments.length === 4);
 
       assert.equal(modelName, 'person');
@@ -234,7 +234,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
     };
 
-    adapter.query = function(store, type, query) {
+    adapter.query = function (store, type, query) {
       // Due to #6232, we now expect 5 arguments regardless of arity
       assert.equal(arguments.length, 5);
       return payload;
@@ -242,12 +242,12 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     await store.query('person', actualQuery);
 
-    adapter.query = function(store, type, query, _recordArray) {
+    adapter.query = function (store, type, query, _recordArray) {
       assert.equal(arguments.length, 5);
       return payload;
     };
 
-    store.recordArrayManager.createStore = function(modelName, query) {
+    store.recordArrayManager.createStore = function (modelName, query) {
       assert.equal(arguments.length === 2);
 
       assert.equal(modelName, 'person');
@@ -258,7 +258,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     store.query('person', actualQuery);
   });
 
-  test('loadRecord re-syncs internalModels recordArrays', async function(assert) {
+  test('loadRecord re-syncs internalModels recordArrays', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -269,7 +269,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       ],
     };
 
-    adapter.query = function(store, type, query, recordArray) {
+    adapter.query = function (store, type, query, recordArray) {
       return payload;
     };
 
@@ -298,7 +298,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     );
   });
 
-  test('when an adapter populated record gets updated the array contents are also updated', async function(assert) {
+  test('when an adapter populated record gets updated the array contents are also updated', async function (assert) {
     assert.expect(8);
 
     let queryArr, findArray;
@@ -307,13 +307,13 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     let array = [{ id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } }];
 
     // resemble server side filtering
-    adapter.query = function(store, type, query, recordArray) {
+    adapter.query = function (store, type, query, recordArray) {
       return { data: array.slice(query.slice) };
     };
 
     // implement findAll to further test that query updates won't muddle
     // with the non-query record arrays
-    adapter.findAll = function(store, type, sinceToken) {
+    adapter.findAll = function (store, type, sinceToken) {
       return { data: array.slice(0) };
     };
 

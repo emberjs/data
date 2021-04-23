@@ -63,7 +63,7 @@ let PromiseManyArray: PromiseManyArray;
 let _found = false;
 let _getModelPackage: () => boolean;
 if (HAS_MODEL_PACKAGE) {
-  _getModelPackage = function() {
+  _getModelPackage = function () {
     if (!_found) {
       let modelPackage = require('@ember-data/model/-private');
       ({ ManyArray, PromiseBelongsTo, PromiseManyArray } = modelPackage);
@@ -420,13 +420,13 @@ export default class InternalModel {
         this._record.destroy();
       }
 
-      Object.keys(this._relationshipProxyCache).forEach(key => {
+      Object.keys(this._relationshipProxyCache).forEach((key) => {
         if (this._relationshipProxyCache[key].destroy) {
           this._relationshipProxyCache[key].destroy();
         }
         delete this._relationshipProxyCache[key];
       });
-      Object.keys(this._manyArrayCache).forEach(key => {
+      Object.keys(this._manyArrayCache).forEach((key) => {
         let manyArray = (this._retainedManyArrayCache[key] = this._manyArrayCache[key]);
         delete this._manyArrayCache[key];
 
@@ -501,16 +501,16 @@ export default class InternalModel {
       return internalModel.store
         ._reloadRecord(internalModel, options)
         .then(
-          function() {
+          function () {
             //TODO NOW seems like we shouldn't need to do this
             return internalModel;
           },
-          function(error) {
+          function (error) {
             throw error;
           },
           'DS: Model#reload complete, update flags'
         )
-        .finally(function() {
+        .finally(function () {
           internalModel.finishedReloading();
         });
     } else {
@@ -518,21 +518,21 @@ export default class InternalModel {
       let internalModel = this;
       let promiseLabel = 'DS: Model#reload of ' + this;
 
-      return new Promise(function(resolve) {
+      return new Promise(function (resolve) {
         internalModel.send('reloadRecord', { resolve, options });
       }, promiseLabel)
         .then(
-          function() {
+          function () {
             internalModel.didCleanError();
             return internalModel;
           },
-          function(error) {
+          function (error) {
             internalModel.didError(error);
             throw error;
           },
           'DS: Model#reload complete, update flags'
         )
-        .finally(function() {
+        .finally(function () {
           internalModel.finishedReloading();
         });
     }
@@ -613,8 +613,8 @@ export default class InternalModel {
   _findBelongsTo(key, resource, relationshipMeta, options) {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
-      internalModel => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
-      e => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
+      (internalModel) => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
+      (e) => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
     );
   }
 
@@ -725,8 +725,8 @@ export default class InternalModel {
         return manyArray;
       })
       .then(
-        manyArray => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, manyArray, null),
-        e => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, null, e)
+        (manyArray) => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, manyArray, null),
+        (e) => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, null, e)
       );
     this._relationshipPromisesCache[key] = loadingPromise;
     return loadingPromise;
@@ -839,7 +839,7 @@ export default class InternalModel {
       !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying')
     );
     this.isDestroying = true;
-    Object.keys(this._retainedManyArrayCache).forEach(key => {
+    Object.keys(this._retainedManyArrayCache).forEach((key) => {
       this._retainedManyArrayCache[key].destroy();
       delete this._retainedManyArrayCache[key];
     });
@@ -1214,7 +1214,7 @@ export default class InternalModel {
   preloadData(preload) {
     let jsonPayload: JsonApiResource = {};
     //TODO(Igor) consider the polymorphic case
-    Object.keys(preload).forEach(key => {
+    Object.keys(preload).forEach((key) => {
       let preloadValue = get(preload, key);
       let relationshipMeta = this.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
@@ -1238,7 +1238,7 @@ export default class InternalModel {
     let data;
     if (relationshipMeta.kind === 'hasMany') {
       assert('You need to pass in an array to set a hasMany property on a record', Array.isArray(preloadValue));
-      data = preloadValue.map(value => this._convertPreloadRelationshipToJSON(value, modelClass));
+      data = preloadValue.map((value) => this._convertPreloadRelationshipToJSON(value, modelClass));
     } else {
       data = this._convertPreloadRelationshipToJSON(preloadValue, modelClass);
     }
@@ -1538,8 +1538,8 @@ export function assertRecordsPassedToHasMany(records) {
   );
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(records)}`,
-    (function() {
-      return A(records).every(record => hasOwnProperty.call(record, '_internalModel') === true);
+    (function () {
+      return A(records).every((record) => hasOwnProperty.call(record, '_internalModel') === true);
     })()
   );
 }

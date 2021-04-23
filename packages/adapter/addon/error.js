@@ -98,13 +98,13 @@ function AdapterError(errors, message = 'Adapter operation failed') {
 export default AdapterError;
 
 function extendFn(ErrorClass) {
-  return function({ message: defaultMessage } = {}) {
+  return function ({ message: defaultMessage } = {}) {
     return extend(ErrorClass, defaultMessage);
   };
 }
 
 function extend(ParentErrorClass, defaultMessage) {
-  let ErrorClass = function(errors, message) {
+  let ErrorClass = function (errors, message) {
     assert('`AdapterError` expects json-api formatted errors array.', Array.isArray(errors || []));
     ParentErrorClass.call(this, errors, message || defaultMessage);
   };

@@ -47,7 +47,7 @@ export function configureAssertionHandler() {
   }
   HAS_REGISTERED = true;
 
-  QUnit.assert.expectAssertion = async function(
+  QUnit.assert.expectAssertion = async function (
     cb: () => unknown,
     matcher: string | RegExp,
     label?: string
@@ -76,7 +76,7 @@ export function configureAssertionHandler() {
     this.pushResult(outcome);
   };
 
-  QUnit.assert.expectNoAssertion = async function(cb: () => unknown, label?: string) {
+  QUnit.assert.expectNoAssertion = async function (cb: () => unknown, label?: string) {
     let outcome;
     try {
       let result = cb();

@@ -4,10 +4,10 @@ import { setupTest } from 'ember-qunit';
 
 import Model from '@ember-data/model';
 
-module('unit/store/has-model-For', function(hooks) {
+module('unit/store/has-model-For', function (hooks) {
   setupTest(hooks);
 
-  test(`hasModelFor correctly normalizes`, function(assert) {
+  test(`hasModelFor correctly normalizes`, function (assert) {
     this.owner.register('model:one-foo', Model.extend({}));
     this.owner.register('model:two-foo', Model.extend({}));
 

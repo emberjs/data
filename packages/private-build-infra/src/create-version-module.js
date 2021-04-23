@@ -29,7 +29,7 @@ function calculateVersion() {
   return packageVersion + suffix;
 }
 
-module.exports = function(compatVersion) {
+module.exports = function (compatVersion) {
   return createFile(
     'version.js',
     'export default "' +
