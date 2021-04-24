@@ -24,6 +24,7 @@ Inspiration from https://github.com/glimmerjs/glimmer-vm/commit/01e68d7dddf28ac3
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const process = require('process');
 
 const chalk = require('chalk');
 const execa = require('execa');
@@ -93,6 +94,7 @@ function getConfig() {
     { name: 'bumpMajor', type: Boolean, defaultValue: false },
     { name: 'bumpMinor', type: Boolean, defaultValue: false },
     { name: 'force', type: Boolean, defaultValue: false },
+    { name: 'dryRun', type: Boolean, defaultValue: false },
   ];
   const options = cliArgs(optionsDefinitions, { argv });
   const currentProjectVersion = require(path.join(__dirname, '../lerna.json')).version;
@@ -111,9 +113,7 @@ function getConfig() {
   return options;
 }
 
-const options = getConfig();
-
-function assertGitIsClean() {
+function assertGitIsClean(options) {
   let status = execWithLog('git status');
 
   if (!status.match(/^nothing to commit/m)) {
@@ -193,7 +193,7 @@ function assertGitIsClean() {
   }
 }
 
-function retrieveNextVersion() {
+function retrieveNextVersion(options) {
   /*
 
   A brief rundown of how version updates flow through the branches.
@@ -308,37 +308,63 @@ let cli = readline.createInterface({
   output: process.stdout,
 });
 
-function publishPackage(distTag, otp, tarball) {
-  execWithLog(`npm publish ${tarball} --tag=${distTag} --access=public --otp=${otp}`);
+/**
+ * If otp is passed add it as a parameter to the publish command else assume authentication is setup either
+ * as environment variable
+ *
+ * @param {string} distTag - Use this tag on npm for this instance
+ * @param {string} tarball - Path to the tarball
+ * @param {string} otp - Token to make publish requests to npm
+ */
+function publishPackage(distTag, tarball, otp) {
+  let cmd = `npm publish ${tarball} --tag=${distTag} --access=public`;
+
+  if (otp) {
+    cmd += ` --otp=${otp}`;
+  }
+
+  execWithLog(cmd);
 }
 
-async function confirmPublish(tarballs, nextVersion) {
-  let otp = await getOTPToken();
+async function confirmPublish(tarballs, options, promptOtp = true) {
+  let otp;
+
+  if (promptOtp && !options.dryRun) {
+    otp = await getOTPToken();
+  }
 
   for (let tarball of tarballs) {
-    try {
-      publishPackage(options.distTag, otp, tarball);
-    } catch (e) {
-      // the token is outdated, we need another one
-      if (e.message.includes('E401') || e.message.includes('EOTP')) {
-        otp = await getOTPToken();
+    if (options.dryRun) {
+      console.log('Would have published', tarball, 'with tag', options.distTag);
+    } else {
+      try {
+        publishPackage(options.distTag, tarball, otp);
+      } catch (e) {
+        // the token is outdated, we need another one
+        if (e.message.includes('E401') || e.message.includes('EOTP')) {
+          otp = await getOTPToken();
 
-        publishPackage(options.distTag, otp, tarball);
-      } else {
-        throw e;
+          publishPackage(options.distTag, tarball, otp);
+        } else {
+          throw e;
+        }
       }
     }
   }
 }
 
 async function main() {
-  assertGitIsClean();
+  const options = getConfig();
+
+  assertGitIsClean(options);
+
   if (!options.skipSmokeTest) {
     execWithLog(`yarn run lint:js && yarn run test`, debug.enabled);
     console.log(`✅ ` + chalk.cyan(`Project passes Smoke Test`));
   } else {
     console.log(`⚠️ ` + chalk.grey(`Skipping Smoke Test`));
   }
+
   let nextVersion = options.currentVersion;
   if (!options.skipVersion) {
     // https://github.com/lerna/lerna/tree/master/commands/version#--exact
@@ -347,12 +373,18 @@ async function main() {
     // --force-publish ensures that all packages release a new version regardless
     // of whether changes have occurred in them
     // --yes skips the prompt for confirming the version
-    nextVersion = retrieveNextVersion();
-    execWithLog(`lerna version ${nextVersion} --force-publish --exact --yes`, true);
+    nextVersion = retrieveNextVersion(options);
+    let lernaCommand = `lerna version ${nextVersion} --force-publish --exact --yes`;
+    if (options.dryRun) {
+      lernaCommand += ' --no-git-tag-version --no-push';
+    }
+
+    execWithLog(lernaCommand, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Versioning`));
   }
+
   if (!options.skipPack) {
     cleanProject();
     packAllPackages();
@@ -360,9 +392,17 @@ async function main() {
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Packaging`));
   }
+
   if (!options.skipPublish) {
     const tarballs = collectTarballPaths();
-    await confirmPublish(tarballs, nextVersion);
+    const npmAuthTokenInEnv = !!process.env.NODE_AUTH_TOKEN;
+    if (!npmAuthTokenInEnv && !options.dryRun) {
+      if (process.env.CI) {
+        throw new Error('No NODE_AUTH_TOKEN environment variable, cannot continue publishing.');
+      }
+    }
+    // Assume human ran script if token is missing
+    await confirmPublish(tarballs, options, !npmAuthTokenInEnv);
     console.log(`✅ ` + chalk.cyan(`Successfully Published ${nextVersion}`));
   } else {
     console.log('⚠️ ' + chalk.grey(`Skipping Publishing`));
