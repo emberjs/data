@@ -4,8 +4,8 @@ import { module, test } from 'qunit';
 
 import { SnapshotRecordArray } from 'ember-data/-private';
 
-module('Unit - snapshot-record-array', function() {
-  test('constructor', function(assert) {
+module('Unit - snapshot-record-array', function () {
+  test('constructor', function (assert) {
     let array = A([1, 2]);
     array.type = 'some type';
     let meta = {};
@@ -23,13 +23,13 @@ module('Unit - snapshot-record-array', function() {
     assert.equal(snapshot.include, 'include me');
   });
 
-  test('#snapshot', function(assert) {
+  test('#snapshot', function (assert) {
     let array = A([1, 2]);
     let didTakeSnapshot = 0;
     let snapshotTaken = {};
 
     array.type = 'some type';
-    array._takeSnapshot = function() {
+    array._takeSnapshot = function () {
       didTakeSnapshot++;
       return snapshotTaken;
     };
@@ -49,7 +49,7 @@ module('Unit - snapshot-record-array', function() {
     assert.equal(didTakeSnapshot, 1, 'still only one snapshot should have been taken');
   });
 
-  test('SnapshotRecordArray.type loads the class lazily', function(assert) {
+  test('SnapshotRecordArray.type loads the class lazily', function (assert) {
     let array = A([1, 2]);
     let typeLoaded = false;
 

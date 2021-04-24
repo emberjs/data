@@ -372,8 +372,8 @@ class RecordArrayManager {
   }
 
   willDestroy() {
-    Object.keys(this._liveRecordArrays).forEach(modelName => this._liveRecordArrays[modelName].destroy());
-    this._adapterPopulatedRecordArrays.forEach(entry => entry.destroy());
+    Object.keys(this._liveRecordArrays).forEach((modelName) => this._liveRecordArrays[modelName].destroy());
+    this._adapterPopulatedRecordArrays.forEach((entry) => entry.destroy());
     this.isDestroyed = true;
   }
 
@@ -427,7 +427,7 @@ const updateLiveRecordArray = function updateLiveRecordArray(store, recordArray,
 const pushIdentifiers = function pushIdentifiers(recordArray, identifiers, cache) {
   if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._pushIdentifiers) {
     // deprecate('not allowed to use this intimate api any more');
-    recordArray._pushInternalModels(identifiers.map(i => peekIMCache(cache, i)));
+    recordArray._pushInternalModels(identifiers.map((i) => peekIMCache(cache, i)));
   } else {
     recordArray._pushIdentifiers(identifiers);
   }
@@ -435,7 +435,7 @@ const pushIdentifiers = function pushIdentifiers(recordArray, identifiers, cache
 const removeIdentifiers = function removeIdentifiers(recordArray, identifiers, cache) {
   if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._removeIdentifiers) {
     // deprecate('not allowed to use this intimate api any more');
-    recordArray._removeInternalModels(identifiers.map(i => peekIMCache(cache, i)));
+    recordArray._removeInternalModels(identifiers.map((i) => peekIMCache(cache, i)));
   } else {
     recordArray._removeIdentifiers(identifiers);
   }
@@ -452,7 +452,7 @@ const removeFromAll = function removeFromAll(store, identifier) {
   const recordArrays = recordArraysForIdentifier(identifier);
   const cache = internalModelFactoryFor(store);
 
-  recordArrays.forEach(function(recordArray) {
+  recordArrays.forEach(function (recordArray) {
     removeIdentifiers(recordArray, [identifier], cache);
   });
 

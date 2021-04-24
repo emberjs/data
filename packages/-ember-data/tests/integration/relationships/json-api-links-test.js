@@ -13,10 +13,10 @@ import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy'
 
 const { Model, attr, hasMany, belongsTo } = DS;
 
-module('integration/relationship/json-api-links | Relationship state updates', function(hooks) {
+module('integration/relationship/json-api-links | Relationship state updates', function (hooks) {
   setupTest(hooks);
 
-  test('Loading link with inverse:null on other model caches the two ends separately', function(assert) {
+  test('Loading link with inverse:null on other model caches the two ends separately', function (assert) {
     const User = DS.Model.extend({
       organisation: belongsTo('organisation', { inverse: null }),
     });
@@ -73,14 +73,14 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     );
 
     return run(() => {
-      return store.findRecord('user', 1).then(user1 => {
+      return store.findRecord('user', 1).then((user1) => {
         assert.ok(user1, 'user should be populated');
 
-        return store.findRecord('organisation', 2).then(org2FromFind => {
+        return store.findRecord('organisation', 2).then((org2FromFind) => {
           assert.equal(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
           assert.equal(user1.belongsTo('organisation').id(), 1, `user's belongsTo has its id populated`);
 
-          return user1.get('organisation').then(orgFromUser => {
+          return user1.get('organisation').then((orgFromUser) => {
             assert.false(
               user1.belongsTo('organisation').belongsToRelationship.relationshipIsStale,
               'user should have loaded its belongsTo relationship'
@@ -94,7 +94,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     });
   });
 
-  test('Pushing child record should not mark parent:children as loaded', function(assert) {
+  test('Pushing child record should not mark parent:children as loaded', function (assert) {
     let Child = DS.Model.extend({
       parent: belongsTo('parent', { inverse: 'children' }),
     });
@@ -150,7 +150,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     });
   });
 
-  test('pushing has-many payloads with data (no links), then more data (no links) works as expected', function(assert) {
+  test('pushing has-many payloads with data (no links), then more data (no links) works as expected', function (assert) {
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -225,7 +225,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     run(() => get(Chris, 'pets'));
   });
 
-  test('pushing has-many payloads with data (no links), then links (no data) works as expected', function(assert) {
+  test('pushing has-many payloads with data (no links), then links (no data) works as expected', function (assert) {
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -310,7 +310,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     run(() => get(Chris, 'pets'));
   });
 
-  test('pushing has-many payloads with links (no data), then data (no links) works as expected', function(assert) {
+  test('pushing has-many payloads with links (no data), then data (no links) works as expected', function (assert) {
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -397,7 +397,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     run(() => get(Chris, 'pets'));
   });
 
-  test('pushing has-many payloads with links, then links again works as expected', function(assert) {
+  test('pushing has-many payloads with links, then links again works as expected', function (assert) {
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -486,7 +486,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     run(() => get(Chris, 'pets'));
   });
 
-  test('pushing has-many payloads with links and data works as expected', function(assert) {
+  test('pushing has-many payloads with links and data works as expected', function (assert) {
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -557,7 +557,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     run(() => get(Chris, 'pets'));
   });
 
-  test('pushing has-many payloads with links, then one with links and data works as expected', function(assert) {
+  test('pushing has-many payloads with links, then one with links and data works as expected', function (assert) {
     const User = Model.extend({
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
     });
@@ -648,10 +648,10 @@ module('integration/relationship/json-api-links | Relationship state updates', f
   });
 });
 
-module('integration/relationship/json-api-links | Relationship fetching', function(hooks) {
+module('integration/relationship/json-api-links | Relationship fetching', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const User = Model.extend({
       name: attr(),
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
@@ -695,7 +695,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     Used for situations when even initially we should fetch via link
    */
   function shouldFetchLinkTests(description, payloads) {
-    test(`get+reload hasMany with ${description}`, function(assert) {
+    test(`get+reload hasMany with ${description}`, function (assert) {
       assert.expect(3);
 
       let store = this.owner.lookup('service:store');
@@ -722,7 +722,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       run(() => pets.reload());
     });
 
-    test(`get+unload+get hasMany with ${description}`, function(assert) {
+    test(`get+unload+get hasMany with ${description}`, function (assert) {
       assert.expect(3);
 
       let store = this.owner.lookup('service:store');
@@ -764,7 +764,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       }
     });
 
-    test(`get+reload belongsTo with ${description}`, function(assert) {
+    test(`get+reload belongsTo with ${description}`, function (assert) {
       assert.expect(3);
 
       let store = this.owner.lookup('service:store');
@@ -806,7 +806,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       run(() => home.reload());
     });
 
-    test(`get+unload+get belongsTo with ${description}`, function(assert) {
+    test(`get+unload+get belongsTo with ${description}`, function (assert) {
       assert.expect(3);
 
       let store = this.owner.lookup('service:store');
@@ -837,7 +837,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       assert.ok(!!home, 'We found our home');
 
       if (!homeRelWasEmpty) {
-        run(() => home.then(h => h.unloadRecord()));
+        run(() => home.then((h) => h.unloadRecord()));
         run(() => user.get('home'));
       } else {
         assert.ok(true, `We cant dirty a relationship we have no knowledge of`);
@@ -979,7 +979,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     situations should be done via link
    */
   function shouldReloadWithLinkTests(description, payloads) {
-    test(`get+reload hasMany with ${description}`, function(assert) {
+    test(`get+reload hasMany with ${description}`, function (assert) {
       assert.expect(2);
 
       let store = this.owner.lookup('service:store');
@@ -1007,7 +1007,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       run(() => pets.reload());
     });
 
-    test(`get+unload+get hasMany with ${description}`, function(assert) {
+    test(`get+unload+get hasMany with ${description}`, function (assert) {
       assert.expect(2);
 
       let store = this.owner.lookup('service:store');
@@ -1036,7 +1036,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       run(() => user.get('pets'));
     });
 
-    test(`get+reload belongsTo with ${description}`, function(assert) {
+    test(`get+reload belongsTo with ${description}`, function (assert) {
       assert.expect(2);
 
       let store = this.owner.lookup('service:store');
@@ -1064,7 +1064,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       run(() => home.reload());
     });
 
-    test(`get+unload+get belongsTo with ${description}`, function(assert) {
+    test(`get+unload+get belongsTo with ${description}`, function (assert) {
       assert.expect(2);
 
       let store = this.owner.lookup('service:store');
@@ -1086,7 +1086,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       let user = run(() => store.push(deepCopy(payloads.user)));
       run(() => store.push(deepCopy(payloads.home)));
       let home;
-      run(() => user.get('home').then(h => (home = h)));
+      run(() => user.get('home').then((h) => (home = h)));
 
       assert.ok(!!home, 'We found our home');
 
@@ -1292,7 +1292,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
    */
 
   // data, no links
-  test(`get+reload hasMany with data, no links`, function(assert) {
+  test(`get+reload hasMany with data, no links`, function (assert) {
     assert.expect(3);
 
     let store = this.owner.lookup('service:store');
@@ -1353,7 +1353,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     run(() => pets.reload());
   });
 
-  test(`get+unload+get hasMany with data, no links`, function(assert) {
+  test(`get+unload+get hasMany with data, no links`, function (assert) {
     assert.expect(3);
 
     let store = this.owner.lookup('service:store');
@@ -1415,7 +1415,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     run(() => user.get('pets'));
   });
 
-  test(`get+reload belongsTo with data, no links`, function(assert) {
+  test(`get+reload belongsTo with data, no links`, function (assert) {
     assert.expect(3);
 
     let store = this.owner.lookup('service:store');
@@ -1476,7 +1476,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     run(() => home.reload());
   });
 
-  test(`get+unload+get belongsTo with data, no links`, function(assert) {
+  test(`get+unload+get belongsTo with data, no links`, function (assert) {
     assert.expect(3);
 
     let store = this.owner.lookup('service:store');
@@ -1534,12 +1534,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.then(h => h.unloadRecord()));
+    run(() => home.then((h) => h.unloadRecord()));
     run(() => user.get('home'));
   });
 
   // missing data setup from the other side, no links
-  test(`get+reload hasMany with missing data setup from the other side, no links`, function(assert) {
+  test(`get+reload hasMany with missing data setup from the other side, no links`, function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1609,7 +1609,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     run(() => pets.reload());
   });
-  test(`get+unload+get hasMany with missing data setup from the other side, no links`, function(assert) {
+  test(`get+unload+get hasMany with missing data setup from the other side, no links`, function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1685,7 +1685,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     run(() => user.get('pets'));
   });
 
-  test(`get+reload belongsTo with missing data setup from the other side, no links`, function(assert) {
+  test(`get+reload belongsTo with missing data setup from the other side, no links`, function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1755,7 +1755,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     run(() => home.reload());
   });
-  test(`get+unload+get belongsTo with missing data setup from the other side, no links`, function(assert) {
+  test(`get+unload+get belongsTo with missing data setup from the other side, no links`, function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -1823,12 +1823,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.then(h => h.unloadRecord()));
+    run(() => home.then((h) => h.unloadRecord()));
     run(() => user.get('home'));
   });
 
   // empty data, no links
-  test(`get+reload hasMany with empty data, no links`, function(assert) {
+  test(`get+reload hasMany with empty data, no links`, function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1875,7 +1875,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   /*
     Ad hoc situations where we do have a link
    */
-  test('We should not fetch a hasMany relationship with links that we know is empty', function(assert) {
+  test('We should not fetch a hasMany relationship with links that we know is empty', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -1961,7 +1961,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     run(() => user2.get('pets'));
   });
 
-  test('We should not fetch a sync hasMany relationship with a link that is missing the data member', function(assert) {
+  test('We should not fetch a sync hasMany relationship with a link that is missing the data member', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -2007,7 +2007,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     assert.ok(true, 'We reached the end of the test');
   });
 
-  test('We should not fetch a sync belongsTo relationship with a link that is missing the data member', function(assert) {
+  test('We should not fetch a sync belongsTo relationship with a link that is missing the data member', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');

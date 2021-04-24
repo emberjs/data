@@ -118,7 +118,7 @@ export class Graph {
 
     const implicit = this.implicitMap.get(identifier);
     if (implicit) {
-      Object.keys(implicit).forEach(key => {
+      Object.keys(implicit).forEach((key) => {
         let rel = implicit[key];
         destroyRelationship(rel);
       });

@@ -10,8 +10,8 @@ import Adapter from '@ember-data/adapter';
 import Model, { belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('PromiseManyArray', function() {
-  test('.reload should NOT leak the internal promise, rather return another promiseArray', function(assert) {
+module('PromiseManyArray', function () {
+  test('.reload should NOT leak the internal promise, rather return another promiseArray', function (assert) {
     assert.expect(2);
 
     let content = A();
@@ -26,10 +26,10 @@ module('PromiseManyArray', function() {
 
     assert.ok(reloaded instanceof DS.PromiseManyArray);
 
-    return reloaded.then(value => assert.equal(content, value));
+    return reloaded.then((value) => assert.equal(content, value));
   });
 
-  test('.reload should be stable', function(assert) {
+  test('.reload should be stable', function (assert) {
     assert.expect(19);
 
     let content = A();
@@ -62,7 +62,7 @@ module('PromiseManyArray', function() {
       assert.ok(reloaded instanceof DS.PromiseManyArray);
       assert.equal(reloaded, array);
 
-      return reloaded.then(value => {
+      return reloaded.then((value) => {
         assert.false(array.get('isRejected'), 'should NOT be rejected');
         assert.false(array.get('isPending'), 'should NOT be pending');
         assert.true(array.get('isSettled'), 'should be settled');
@@ -73,7 +73,7 @@ module('PromiseManyArray', function() {
     });
   });
 
-  test('.set to new promise should be like reload', function(assert) {
+  test('.set to new promise should be like reload', function (assert) {
     assert.expect(18);
 
     let content = A([1, 2, 3]);
@@ -104,7 +104,7 @@ module('PromiseManyArray', function() {
 
       assert.ok(array instanceof DS.PromiseManyArray);
 
-      return array.then(value => {
+      return array.then((value) => {
         assert.false(array.get('isRejected'), 'should NOT be rejected');
         assert.false(array.get('isPending'), 'should NOT be pending');
         assert.true(array.get('isSettled'), 'should be settled');
@@ -116,7 +116,7 @@ module('PromiseManyArray', function() {
   });
 });
 
-module('unit/PromiseBelongsTo', function(hooks) {
+module('unit/PromiseBelongsTo', function (hooks) {
   setupTest(hooks);
 
   class Parent extends Model {
@@ -147,7 +147,7 @@ module('unit/PromiseBelongsTo', function(hooks) {
     }
   }
 
-  test('meta property exists', function(assert) {
+  test('meta property exists', function (assert) {
     const { owner } = this;
     owner.register('model:parent', Parent);
     owner.register('model:child', Child);

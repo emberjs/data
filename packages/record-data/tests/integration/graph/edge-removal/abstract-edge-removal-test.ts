@@ -14,7 +14,7 @@ import { setupGraphTest } from './setup';
  * We should upstream this behavior to qunit-console-grouper
  */
 async function test(name: string, callback) {
-  const fn = async function(...args) {
+  const fn = async function (...args) {
     console.groupCollapsed(name); // eslint-disable-line no-console
     try {
       await callback.call(this, ...args);
@@ -29,7 +29,7 @@ async function test(name: string, callback) {
 type TestConfig = import('./helpers').TestConfig;
 type Context = import('./setup').Context;
 
-module('Integration | Graph | Edge Removal', function(hooks) {
+module('Integration | Graph | Edge Removal', function (hooks) {
   setupGraphTest(hooks);
 
   /**
@@ -94,11 +94,11 @@ module('Integration | Graph | Edge Removal', function(hooks) {
       relType: 'hasMany',
       inverseNull: true,
     },
-  ].map(v => (Object.freeze ? Object.freeze(v) : v) as TestConfig);
+  ].map((v) => (Object.freeze ? Object.freeze(v) : v) as TestConfig);
 
-  module('Unpersisted Deletion of Record does not remove it from the graph', function() {
+  module('Unpersisted Deletion of Record does not remove it from the graph', function () {
     function unpersistedDeletionTest(config: TestConfig) {
-      test(config.name, async function(this: Context, assert) {
+      test(config.name, async function (this: Context, assert) {
         const testState = await setInitialState(this, config, assert);
         const { john } = testState;
 
@@ -129,19 +129,19 @@ module('Integration | Graph | Edge Removal', function(hooks) {
     }
 
     TestScenarios.forEach(unpersistedDeletionTest);
-    TestScenarios.forEach(testConfig => {
+    TestScenarios.forEach((testConfig) => {
       const config = assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
       unpersistedDeletionTest(config);
     });
-    TestScenarios.forEach(testConfig => {
+    TestScenarios.forEach((testConfig) => {
       const config = assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
       unpersistedDeletionTest(config);
     });
   });
 
-  module('Unload of a Record does not remove it from the graph', function() {
+  module('Unload of a Record does not remove it from the graph', function () {
     function unloadTest(_config: TestConfig) {
-      test(_config.name, async function(this: Context, assert) {
+      test(_config.name, async function (this: Context, assert) {
         const config = assign({}, _config, { isUnloadAsDelete: true });
         const testState = await setInitialState(this, config, assert);
         const { john } = testState;
@@ -185,19 +185,19 @@ module('Integration | Graph | Edge Removal', function(hooks) {
     }
 
     TestScenarios.forEach(unloadTest);
-    TestScenarios.forEach(testConfig => {
+    TestScenarios.forEach((testConfig) => {
       const config = assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
       unloadTest(config);
     });
-    TestScenarios.forEach(testConfig => {
+    TestScenarios.forEach((testConfig) => {
       const config = assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
       unloadTest(config);
     });
   });
 
-  module('Persisted Deletion w/o dematerialization of Record removes it from the graph', function(hooks) {
+  module('Persisted Deletion w/o dematerialization of Record removes it from the graph', function (hooks) {
     function persistedDeletionTest(config: TestConfig) {
-      test(config.name, async function(this: Context, assert) {
+      test(config.name, async function (this: Context, assert) {
         const testState = await setInitialState(this, config, assert);
         const { john } = testState;
 
@@ -231,19 +231,19 @@ module('Integration | Graph | Edge Removal', function(hooks) {
     }
 
     TestScenarios.forEach(persistedDeletionTest);
-    TestScenarios.forEach(testConfig => {
+    TestScenarios.forEach((testConfig) => {
       const config = assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
       persistedDeletionTest(config);
     });
-    TestScenarios.forEach(testConfig => {
+    TestScenarios.forEach((testConfig) => {
       const config = assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
       persistedDeletionTest(config);
     });
   });
 
-  module('Persisted Deletion + dematerialization of Record removes it from the graph and cleans up', function(hooks) {
+  module('Persisted Deletion + dematerialization of Record removes it from the graph and cleans up', function (hooks) {
     function persistedDeletionUnloadedTest(config: TestConfig) {
-      test(config.name, async function(this: Context, assert) {
+      test(config.name, async function (this: Context, assert) {
         const testState = await setInitialState(this, config, assert);
         const { john } = testState;
 
@@ -259,11 +259,11 @@ module('Integration | Graph | Edge Removal', function(hooks) {
     }
 
     TestScenarios.forEach(persistedDeletionUnloadedTest);
-    TestScenarios.forEach(testConfig => {
+    TestScenarios.forEach((testConfig) => {
       const config = assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
       persistedDeletionUnloadedTest(config);
     });
-    TestScenarios.forEach(testConfig => {
+    TestScenarios.forEach((testConfig) => {
       const config = assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
       persistedDeletionUnloadedTest(config);
     });

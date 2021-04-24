@@ -18,10 +18,10 @@ class Tag extends Model {
   name;
 }
 
-module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
+module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
   setupTest(hooks);
 
-  test('default initial state', async function(assert) {
+  test('default initial state', async function (assert) {
     let recordArray = RecordArray.create({ modelName: 'recordType' });
 
     assert.false(get(recordArray, 'isLoaded'), 'record is not loaded');
@@ -31,7 +31,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     assert.strictEqual(get(recordArray, 'store'), null, 'no store with recordArray');
   });
 
-  test('custom initial state', async function(assert) {
+  test('custom initial state', async function (assert) {
     let content = A();
     let store = {};
     let recordArray = RecordArray.create({
@@ -48,7 +48,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     assert.equal(get(recordArray, 'store'), store);
   });
 
-  test('#replace() throws error', async function(assert) {
+  test('#replace() throws error', async function (assert) {
     let recordArray = RecordArray.create({ modelName: 'recordType' });
 
     assert.throws(
@@ -60,7 +60,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     );
   });
 
-  test('#objectAtContent', async function(assert) {
+  test('#objectAtContent', async function (assert) {
     this.owner.register('model:tag', Tag);
     let store = this.owner.lookup('service:store');
 
@@ -83,7 +83,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
 
     let recordArray = RecordArray.create({
       modelName: 'recordType',
-      content: A(records.map(r => recordIdentifierFor(r))),
+      content: A(records.map((r) => recordIdentifierFor(r))),
       store,
     });
 
@@ -94,7 +94,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     assert.strictEqual(recordArray.objectAtContent(3), undefined);
   });
 
-  test('#update', async function(assert) {
+  test('#update', async function (assert) {
     let findAllCalled = 0;
     let deferred = RSVP.defer();
 
@@ -124,13 +124,13 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
 
     assert.true(get(recordArray, 'isUpdating'), 'should be updating');
 
-    return updateResult.then(result => {
+    return updateResult.then((result) => {
       assert.equal(result, 'return value');
       assert.false(get(recordArray, 'isUpdating'), 'should no longer be updating');
     });
   });
 
-  test('#update while updating', async function(assert) {
+  test('#update while updating', async function (assert) {
     let findAllCalled = 0;
     let deferred = RSVP.defer();
     const store = {
@@ -162,13 +162,13 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
 
     assert.true(get(recordArray, 'isUpdating'), 'should be updating');
 
-    return updateResult1.then(result => {
+    return updateResult1.then((result) => {
       assert.equal(result, 'return value');
       assert.false(get(recordArray, 'isUpdating'), 'should no longer be updating');
     });
   });
 
-  test('#_pushIdentifiers', async function(assert) {
+  test('#_pushIdentifiers', async function (assert) {
     let content = A();
     let recordArray = RecordArray.create({
       content,
@@ -218,7 +218,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     );
   });
 
-  test('#_removeIdentifiers', async function(assert) {
+  test('#_removeIdentifiers', async function (assert) {
     let content = A();
     let recordArray = RecordArray.create({
       content,
@@ -291,7 +291,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     assert.deepEqual(recordArray.get('content'), [], 'now contains no models');
   });
 
-  test('#save', async function(assert) {
+  test('#save', async function (assert) {
     this.owner.register('model:tag', Tag);
     let store = this.owner.lookup('service:store');
 
@@ -340,7 +340,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     assert.equal(r.id, result.id, 'save promise should fulfill with the original recordArray');
   });
 
-  test('#destroy', async function(assert) {
+  test('#destroy', async function (assert) {
     let didUnregisterRecordArray = 0;
     let didDissociatieFromOwnRecords = 0;
     this.owner.register('model:tag', Tag);
@@ -355,7 +355,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     });
 
     const set = new Set();
-    set.delete = array => {
+    set.delete = (array) => {
       didDissociatieFromOwnRecords++;
       assert.equal(array, recordArray);
     };
@@ -395,7 +395,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     assert.true(get(recordArray, 'isDestroyed'), 'should be destroyed');
   });
 
-  test('#_createSnapshot', async function(assert) {
+  test('#_createSnapshot', async function (assert) {
     this.owner.register('model:tag', Tag);
     let store = this.owner.lookup('service:store');
 
@@ -413,7 +413,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     });
 
     let recordArray = RecordArray.create({
-      content: A(records.map(r => recordIdentifierFor(r))),
+      content: A(records.map((r) => recordIdentifierFor(r))),
       store,
     });
 
@@ -432,7 +432,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
     );
   });
 
-  test('#destroy second', async function(assert) {
+  test('#destroy second', async function (assert) {
     let didUnregisterRecordArray = 0;
     let didDissociatieFromOwnRecords = 0;
 
@@ -449,7 +449,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function(hooks) {
 
     // TODO: this will be removed once we fix ownership related memory leaks.
     const set = new Set();
-    set.delete = array => {
+    set.delete = (array) => {
       didDissociatieFromOwnRecords++;
       assert.equal(array, recordArray);
     };

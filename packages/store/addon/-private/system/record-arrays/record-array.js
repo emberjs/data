@@ -13,9 +13,7 @@ import SnapshotRecordArray from '../snapshot-record-array';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
 function recordForIdentifier(store, identifier) {
-  return internalModelFactoryFor(store)
-    .lookup(identifier)
-    .getRecord();
+  return internalModelFactoryFor(store).lookup(identifier).getRecord();
 }
 
 /**
@@ -104,7 +102,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
    @property type
    @type Model
    */
-  type: computed('modelName', function() {
+  type: computed('modelName', function () {
     if (!this.modelName) {
       return null;
     }
@@ -235,7 +233,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     @internal
   */
   _dissociateFromOwnRecords() {
-    this.get('content').forEach(identifier => {
+    this.get('content').forEach((identifier) => {
       let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
 
       if (recordArrays) {
@@ -271,10 +269,8 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     @internal
   */
   _takeSnapshot() {
-    return get(this, 'content').map(identifier =>
-      internalModelFactoryFor(this.store)
-        .lookup(identifier)
-        .createSnapshot()
+    return get(this, 'content').map((identifier) =>
+      internalModelFactoryFor(this.store).lookup(identifier).createSnapshot()
     );
   },
 });

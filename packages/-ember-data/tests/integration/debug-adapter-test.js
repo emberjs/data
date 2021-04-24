@@ -16,12 +16,12 @@ class Post extends Model {
   title;
 }
 
-module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
+module('integration/debug-adapter - DS.DebugAdapter', function (hooks) {
   setupTest(hooks);
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:post', Post);
@@ -34,7 +34,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     owner.register('data-adapter:main', _adapter);
   });
 
-  test('Watching Model Types', async function(assert) {
+  test('Watching Model Types', async function (assert) {
     assert.expect(5);
     let { owner } = this;
     let debugAdapter = owner.lookup('data-adapter:main');
@@ -63,7 +63,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     });
   });
 
-  test('Watching Records', async function(assert) {
+  test('Watching Records', async function (assert) {
     let { owner } = this;
     let debugAdapter = owner.lookup('data-adapter:main');
     let addedRecords, updatedRecords, removedRecords;
@@ -87,13 +87,13 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       },
     });
 
-    let recordsAdded = function(wrappedRecords) {
+    let recordsAdded = function (wrappedRecords) {
       addedRecords = wrappedRecords;
     };
-    let recordsUpdated = function(wrappedRecords) {
+    let recordsUpdated = function (wrappedRecords) {
       updatedRecords = wrappedRecords;
     };
-    let recordsRemoved = function(...args) {
+    let recordsRemoved = function (...args) {
       // in 3.26 there is only 1 argument - the record removed
       // below 3.26, it is 2 arguments - the index and count removed
       // https://github.com/emberjs/ember.js/pull/19379
@@ -178,7 +178,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     }
   });
 
-  test('Column names', function(assert) {
+  test('Column names', function (assert) {
     let { owner } = this;
     let debugAdapter = owner.lookup('data-adapter:main');
     class Person extends Model {

@@ -91,13 +91,13 @@ export default DataAdapter.extend({
     });
 
     // Overwrite _createRecordData so newly added models will get added to the list
-    store._createRecordData = identifier => {
+    store._createRecordData = (identifier) => {
       this.watchTypeIfUnseen(store, discoveredTypes, identifier.type, typesAdded, typesUpdated, _releaseMethods);
       return __createRecordData.call(store, identifier);
     };
 
     let release = () => {
-      _releaseMethods.forEach(fn => fn());
+      _releaseMethods.forEach((fn) => fn());
       store._createRecordData = __createRecordData;
       // reset the list so the models can be added if the inspector is re-opened
       // the entries are set to false instead of removed, since the models still exist in the app
@@ -142,11 +142,7 @@ export default DataAdapter.extend({
     @return {String} Human readable string based on the attribute name
   */
   columnNameToDesc(name) {
-    return capitalize(
-      underscore(name)
-        .replace(/_/g, ' ')
-        .trim()
-    );
+    return capitalize(underscore(name).replace(/_/g, ' ').trim());
   },
 
   /**
@@ -217,7 +213,7 @@ export default DataAdapter.extend({
     let count = 0;
     let columnValues = { id: get(record, 'id') };
 
-    record.eachAttribute(key => {
+    record.eachAttribute((key) => {
       if (count++ > this.attributeLimit) {
         return false;
       }
@@ -237,8 +233,8 @@ export default DataAdapter.extend({
   getRecordKeywords(record) {
     let keywords = [];
     let keys = A(['id']);
-    record.eachAttribute(key => keys.push(key));
-    keys.forEach(key => keywords.push(get(record, key)));
+    record.eachAttribute((key) => keys.push(key));
+    keys.forEach((key) => keywords.push(get(record, key)));
     return keywords;
   },
 
@@ -292,21 +288,21 @@ export default DataAdapter.extend({
     let releaseMethods = A();
     let keysToObserve = A(['id', 'isNew', 'hasDirtyAttributes']);
 
-    record.eachAttribute(key => keysToObserve.push(key));
+    record.eachAttribute((key) => keysToObserve.push(key));
     let adapter = this;
 
-    keysToObserve.forEach(function(key) {
-      let handler = function() {
+    keysToObserve.forEach(function (key) {
+      let handler = function () {
         recordUpdated(adapter.wrapRecord(record));
       };
       addObserver(record, key, handler);
-      releaseMethods.push(function() {
+      releaseMethods.push(function () {
         removeObserver(record, key, handler);
       });
     });
 
-    let release = function() {
-      releaseMethods.forEach(fn => fn());
+    let release = function () {
+      releaseMethods.forEach((fn) => fn());
     };
 
     return release;

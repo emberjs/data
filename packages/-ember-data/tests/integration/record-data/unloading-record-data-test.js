@@ -24,11 +24,11 @@ class Pet extends Model {
   name;
 }
 
-module('RecordData Compatibility', function(hooks) {
+module('RecordData Compatibility', function (hooks) {
   let store;
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
@@ -107,7 +107,7 @@ module('RecordData Compatibility', function(hooks) {
     getBelongsTo() {}
   }
 
-  test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function(assert) {
+  test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function (assert) {
     const originalCreateRecordDataFor = store.createRecordDataFor;
     store.createRecordDataFor = function provideCustomRecordData(modelName, id, lid, storeWrapper) {
       if (modelName === 'pet') {
@@ -165,7 +165,7 @@ module('RecordData Compatibility', function(hooks) {
     }
   });
 
-  test(`store.unloadRecord on a record with custom RecordData with relationship to a record with default RecordData does not error`, async function(assert) {
+  test(`store.unloadRecord on a record with custom RecordData with relationship to a record with default RecordData does not error`, async function (assert) {
     const originalCreateRecordDataFor = store.createModelDataFor;
     store.createModelDataFor = function provideCustomRecordData(modelName, id, lid, storeWrapper) {
       if (modelName === 'pet') {
@@ -221,7 +221,7 @@ module('RecordData Compatibility', function(hooks) {
     }
   });
 
-  test(`store.findRecord does not eagerly instantiate record data`, async function(assert) {
+  test(`store.findRecord does not eagerly instantiate record data`, async function (assert) {
     let recordDataInstances = 0;
     class TestRecordData extends CustomRecordData {
       constructor() {
@@ -230,7 +230,7 @@ module('RecordData Compatibility', function(hooks) {
       }
     }
 
-    store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
+    store.createRecordDataFor = function (modelName, id, lid, storeWrapper) {
       return new TestRecordData(modelName, id, lid, storeWrapper);
     };
     this.owner.register(

@@ -17,12 +17,12 @@ export default async function createTrackingContext(owner, props) {
 
     get ___value() {
       this.count;
-      return testKeys.map(key => this[key]);
+      return testKeys.map((key) => this[key]);
     }
   }
 
   let defs = {};
-  testKeys.forEach(key => (defs[key] = Object.getOwnPropertyDescriptor(props, key)));
+  testKeys.forEach((key) => (defs[key] = Object.getOwnPropertyDescriptor(props, key)));
 
   Object.defineProperties(TestComponent.prototype, defs);
 

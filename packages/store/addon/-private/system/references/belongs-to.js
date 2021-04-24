@@ -131,7 +131,7 @@ export default class BelongsToReference extends Reference {
    */
   push(objectOrPromise) {
     // TODO deprecate thenable support
-    return resolve(objectOrPromise).then(data => {
+    return resolve(objectOrPromise).then((data) => {
       let record;
 
       if (DEPRECATE_BELONGS_TO_REFERENCE_PUSH && peekRecordIdentifier(data)) {
@@ -341,7 +341,7 @@ export default class BelongsToReference extends Reference {
    */
   reload(options) {
     let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-    return parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
+    return parentInternalModel.reloadBelongsTo(this.key, options).then((internalModel) => {
       return this.value();
     });
   }

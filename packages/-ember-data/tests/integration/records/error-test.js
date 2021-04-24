@@ -9,10 +9,10 @@ import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('integration/records/error', function(hooks) {
+module('integration/records/error', function (hooks) {
   setupTest(hooks);
 
-  testInDebug('adding errors during root.loaded.created.invalid works', function(assert) {
+  testInDebug('adding errors during root.loaded.created.invalid works', function (assert) {
     const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -68,7 +68,7 @@ module('integration/records/error', function(hooks) {
     );
   });
 
-  testInDebug('adding errors root.loaded.created.invalid works', function(assert) {
+  testInDebug('adding errors root.loaded.created.invalid works', function (assert) {
     const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -117,7 +117,7 @@ module('integration/records/error', function(hooks) {
     );
   });
 
-  testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function(assert) {
+  testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function (assert) {
     const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -151,7 +151,7 @@ module('integration/records/error', function(hooks) {
     assert.deepEqual(person.errors.toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
 
-  testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(assert) {
+  testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function (assert) {
     const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -184,7 +184,7 @@ module('integration/records/error', function(hooks) {
     assert.deepEqual(person.errors.toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
 
-  test('using setProperties to clear errors', async function(assert) {
+  test('using setProperties to clear errors', async function (assert) {
     const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),

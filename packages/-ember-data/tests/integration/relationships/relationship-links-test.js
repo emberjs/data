@@ -8,17 +8,17 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
 
-module('JSON:API links access on relationships', function(hooks) {
+module('JSON:API links access on relationships', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const { owner } = this;
     owner.register('service:store', Store);
     store = owner.lookup('service:store');
   });
 
-  test('We can access links from a hasMany', async function(assert) {
+  test('We can access links from a hasMany', async function (assert) {
     class ApplicationAdapter extends EmberObject {
       findRecord() {}
       findHasMany() {
@@ -96,7 +96,7 @@ module('JSON:API links access on relationships', function(hooks) {
     assert.strictEqual(links.self, '/the/original/path', 'The self link is correctly available');
   });
 
-  test('We preserve { href } link objects', async function(assert) {
+  test('We preserve { href } link objects', async function (assert) {
     class ApplicationAdapter extends EmberObject {
       findRecord() {}
       findHasMany() {
@@ -174,7 +174,7 @@ module('JSON:API links access on relationships', function(hooks) {
     assert.deepEqual(links.self, { href: '/the/original/path' }, 'The self link is correctly available');
   });
 
-  test('We unwrap the { href } link object when related link is accessed directly', async function(assert) {
+  test('We unwrap the { href } link object when related link is accessed directly', async function (assert) {
     class ApplicationAdapter extends EmberObject {
       findRecord() {}
       findHasMany() {
@@ -240,7 +240,7 @@ module('JSON:API links access on relationships', function(hooks) {
     assert.deepEqual(links.related, { href: '/the/related/link' }, 'The related link is correctly available');
   });
 
-  test('Links in the top-level of a relationship-document update the relationship links', async function(assert) {
+  test('Links in the top-level of a relationship-document update the relationship links', async function (assert) {
     class ApplicationAdapter extends EmberObject {
       findRecord() {}
       findHasMany() {

@@ -13,10 +13,10 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('integration/deletedRecord - Deleting Records', function(hooks) {
+module('integration/deletedRecord - Deleting Records', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const Person = Model.extend({
       name: attr('string'),
       toString: () => 'Person',
@@ -27,18 +27,18 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('records should not be removed from record arrays just after deleting, but only after committing them', function(assert) {
+  test('records should not be removed from record arrays just after deleting, but only after committing them', function (assert) {
     let adam, dave;
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.deleteRecord = function() {
+    adapter.deleteRecord = function () {
       return EmberPromise.resolve();
     };
 
     var all;
-    run(function() {
+    run(function () {
       store.push({
         data: [
           {
@@ -74,7 +74,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     assert.equal(all.get('length'), 1, '1 record in array after deleteRecord and save');
   });
 
-  test('deleting a record that is part of a hasMany removes it from the hasMany recordArray', function(assert) {
+  test('deleting a record that is part of a hasMany removes it from the hasMany recordArray', function (assert) {
     let group;
     let person;
     const Group = Model.extend({
@@ -89,11 +89,11 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.deleteRecord = function() {
+    adapter.deleteRecord = function () {
       return EmberPromise.resolve();
     };
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'group',
@@ -133,22 +133,22 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     assert.equal(group.get('people.length'), 2, 'expected 2 related records before delete');
     assert.equal(person.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
 
-    run(function() {
+    run(function () {
       person.destroyRecord();
     });
 
     assert.equal(group.get('people.length'), 1, 'expected 1 related records after delete');
   });
 
-  test('records can be deleted during record array enumeration', function(assert) {
+  test('records can be deleted during record array enumeration', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.deleteRecord = function() {
+    adapter.deleteRecord = function () {
       return EmberPromise.resolve();
     };
 
-    run(function() {
+    run(function () {
       store.push({
         data: [
           {
@@ -175,8 +175,8 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     // pre-condition
     assert.equal(all.get('length'), 2, 'expected 2 records');
 
-    run(function() {
-      all.forEach(function(record) {
+    run(function () {
+      all.forEach(function (record) {
         record.destroyRecord();
       });
     });
@@ -185,13 +185,13 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     assert.equal(all.objectAt(0), null, "can't get any records");
   });
 
-  test('Deleting an invalid newly created record should remove it from the store', function(assert) {
+  test('Deleting an invalid newly created record should remove it from the store', function (assert) {
     var record;
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.createRecord = function() {
+    adapter.createRecord = function () {
       return EmberPromise.reject(
         new InvalidError([
           {
@@ -205,7 +205,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
       );
     };
 
-    run(function() {
+    run(function () {
       record = store.createRecord('person', { name: 'pablobm' });
       // Invalidate the record to put it in the `root.loaded.created.invalid` state
       record.save().catch(() => {});
@@ -219,7 +219,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     );
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    run(function() {
+    run(function () {
       record.deleteRecord();
     });
 
@@ -227,17 +227,17 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
-  test('Destroying an invalid newly created record should remove it from the store', function(assert) {
+  test('Destroying an invalid newly created record should remove it from the store', function (assert) {
     let record;
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.deleteRecord = function() {
+    adapter.deleteRecord = function () {
       assert.fail("The adapter's deletedRecord method should not be called when the record was created locally.");
     };
 
-    adapter.createRecord = function() {
+    adapter.createRecord = function () {
       return EmberPromise.reject(
         new InvalidError([
           {
@@ -251,7 +251,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
       );
     };
 
-    run(function() {
+    run(function () {
       record = store.createRecord('person', { name: 'pablobm' });
       // Invalidate the record to put it in the `root.loaded.created.invalid` state
       record.save().catch(() => {});
@@ -265,7 +265,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     );
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    run(function() {
+    run(function () {
       record.destroyRecord();
     });
 
@@ -273,7 +273,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
-  test('Will resolve destroy and save in same loop', function(assert) {
+  test('Will resolve destroy and save in same loop', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -282,7 +282,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
 
     assert.expect(1);
 
-    adapter.createRecord = function() {
+    adapter.createRecord = function () {
       assert.ok(true, 'save operation resolves');
       return EmberPromise.resolve({
         data: {
@@ -295,7 +295,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     adam = store.createRecord('person', { name: 'Adam Sunderland' });
     dave = store.createRecord('person', { name: 'Dave Sunderland' });
 
-    run(function() {
+    run(function () {
       promises = [adam.destroyRecord(), dave.save()];
     });
 

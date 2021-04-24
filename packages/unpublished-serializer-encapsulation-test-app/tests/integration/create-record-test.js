@@ -30,15 +30,15 @@ class Person extends Model {
   }
 }
 
-module('integration/create-record - running createRecord with minimum serializer', function(hooks) {
+module('integration/create-record - running createRecord with minimum serializer', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function (assert) {
     this.owner.register('service:store', Store);
     this.owner.register('model:person', Person);
   });
 
-  test('save after createRecord calls normalizeResponse and serialize', async function(assert) {
+  test('save after createRecord calls normalizeResponse and serialize', async function (assert) {
     let serializeCalled = 0;
     let normalizeResponseCalled = 0;
 
@@ -126,7 +126,7 @@ module('integration/create-record - running createRecord with minimum serializer
     });
   });
 
-  test('save after createRecord calls normalizeResponse and serializeIntoHash if implemented', async function(assert) {
+  test('save after createRecord calls normalizeResponse and serializeIntoHash if implemented', async function (assert) {
     let serializeCalled = 0;
     let serializeIntoHashCalled = 0;
     let normalizeResponseCalled = 0;

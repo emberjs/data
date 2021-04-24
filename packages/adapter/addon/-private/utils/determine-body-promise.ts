@@ -66,5 +66,5 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
 export function determineBodyPromise(response: Response, requestData: RequestData): Promise<Payload> {
   // response.text() may resolve or reject
   // it is a native promise, may not have finally
-  return continueOnReject(response.text()).then(payload => _determineContent(response, requestData, payload));
+  return continueOnReject(response.text()).then((payload) => _determineContent(response, requestData, payload));
 }

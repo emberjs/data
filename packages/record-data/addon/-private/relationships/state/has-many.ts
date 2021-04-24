@@ -130,7 +130,7 @@ export default class ManyRelationship extends Relationship {
       // been 'acknowleged' to be in the relationship via a store.push)
 
       //TODO Igor deal with this
-      recordData => isNew(recordData) && toSet.indexOf(recordData) === -1
+      (recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1
     );
     toSet = toSet.concat(newRecordDatas);
 

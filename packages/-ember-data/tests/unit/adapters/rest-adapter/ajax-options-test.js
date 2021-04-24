@@ -10,10 +10,10 @@ import RESTSerializer from '@ember-data/serializer/rest';
 
 let Person, Place;
 
-module('unit/adapters/rest-adapter/ajax-options - building requests', function(hooks) {
+module('unit/adapters/rest-adapter/ajax-options - building requests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
 
@@ -29,7 +29,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     this.owner.register('serializer:application', RESTSerializer.extend());
   });
 
-  test('When an id is searched, the correct url should be generated', function(assert) {
+  test('When an id is searched, the correct url should be generated', function (assert) {
     assert.expect(2);
 
     let store = this.owner.lookup('service:store');
@@ -37,7 +37,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
 
     let count = 0;
 
-    adapter.ajax = function(url, method) {
+    adapter.ajax = function (url, method) {
       if (count === 0) {
         assert.equal(url, '/people/1', 'should create the correct url');
       }
@@ -53,13 +53,13 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
-  test(`id's should be sanatized`, function(assert) {
+  test(`id's should be sanatized`, function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.ajax = function(url, method) {
+    adapter.ajax = function (url, method) {
       assert.equal(url, '/people/..%2Fplace%2F1', 'should create the correct url');
       return resolve();
     };
@@ -67,7 +67,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     return run(() => adapter.findRecord(store, Person, '../place/1', {}));
   });
 
-  test('ajaxOptions() headers are set', function(assert) {
+  test('ajaxOptions() headers are set', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -91,7 +91,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     );
   });
 
-  test('ajaxOptions() do not serializes data when GET', function(assert) {
+  test('ajaxOptions() do not serializes data when GET', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -111,7 +111,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
-  test('ajaxOptions() serializes data when not GET', function(assert) {
+  test('ajaxOptions() serializes data when not GET', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -132,7 +132,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
-  test('ajaxOptions() can provide own headers["Content-Type"]', function(assert) {
+  test('ajaxOptions() can provide own headers["Content-Type"]', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -158,7 +158,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
-  test('ajaxOptions() can provide own contentType in options', function(assert) {
+  test('ajaxOptions() can provide own contentType in options', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -183,7 +183,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
-  test('ajaxOptions() empty data', function(assert) {
+  test('ajaxOptions() empty data', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -200,7 +200,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
-  test('ajaxOptions() headers take precedence over adapter headers', function(assert) {
+  test('ajaxOptions() headers take precedence over adapter headers', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -227,11 +227,11 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
-  test('_fetchRequest() returns a promise', function(assert) {
+  test('_fetchRequest() returns a promise', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    let noop = function() {};
+    let noop = function () {};
 
     return run(() => {
       let fetchPlacePromise = adapter._fetchRequest({
@@ -246,8 +246,8 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
     });
   });
 
-  module('ajax-options - ajax', function(hooks) {
-    hooks.beforeEach(function() {
+  module('ajax-options - ajax', function (hooks) {
+    hooks.beforeEach(function () {
       this.owner.register(
         'adapter:application',
         class extends RESTAdapter {
@@ -256,7 +256,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       );
     });
 
-    test('ajaxOptions() Content-Type is not set with ajax GET', function(assert) {
+    test('ajaxOptions() Content-Type is not set with ajax GET', function (assert) {
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');
 
@@ -267,7 +267,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       assert.notOk(ajaxOptions.contentType, 'contentType not set with GET');
     });
 
-    test('ajaxOptions() Content-Type is not set with ajax POST no data', function(assert) {
+    test('ajaxOptions() Content-Type is not set with ajax POST no data', function (assert) {
       let store = this.owner.lookup('service:store');
       let adapter = store.adapterFor('application');
 
@@ -278,7 +278,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       assert.notOk(ajaxOptions.contentType, 'contentType not set with POST no data');
     });
 
-    test('ajaxOptions() Content-Type is set with ajax POST with data if not useFetch', function(assert) {
+    test('ajaxOptions() Content-Type is set with ajax POST with data if not useFetch', function (assert) {
       let store = this.owner.lookup('service:store');
       this.owner.register(
         'adapter:application',
@@ -295,7 +295,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
       assert.equal(ajaxOptions.contentType, 'application/json; charset=utf-8', 'contentType is set with POST');
     });
 
-    test('ajaxOptions() Content-Type is set with ajax POST with data if useFetch', function(assert) {
+    test('ajaxOptions() Content-Type is set with ajax POST with data if useFetch', function (assert) {
       let store = this.owner.lookup('service:store');
       this.owner.register(
         'adapter:application',

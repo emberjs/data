@@ -29,15 +29,15 @@ class Person extends Model {
   }
 }
 
-module('integration/push-payload - pushPayload method forwards to Serializer#pushPayload', function(hooks) {
+module('integration/push-payload - pushPayload method forwards to Serializer#pushPayload', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function (assert) {
     this.owner.register('service:store', Store);
     this.owner.register('model:person', Person);
   });
 
-  test('Store#pushPayload calls Serializer#pushPayload', async function(assert) {
+  test('Store#pushPayload calls Serializer#pushPayload', async function (assert) {
     let pushPayloadCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -87,23 +87,26 @@ module('integration/push-payload - pushPayload method forwards to Serializer#pus
     );
   });
 
-  testInDebug('Store#pushPayload throws an error if Serializer#pushPayload is not implemented', async function(assert) {
-    class TestMinimumSerializer extends EmberObject {}
-    this.owner.register('serializer:application', TestMinimumSerializer);
+  testInDebug(
+    'Store#pushPayload throws an error if Serializer#pushPayload is not implemented',
+    async function (assert) {
+      class TestMinimumSerializer extends EmberObject {}
+      this.owner.register('serializer:application', TestMinimumSerializer);
 
-    const store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-    assert.throws(() => {
-      store.pushPayload('person', {
-        data: {
-          id: '1',
-          type: 'person',
-          attributes: {
-            firstName: 'John',
-            lastName: 'Smith',
+      assert.throws(() => {
+        store.pushPayload('person', {
+          data: {
+            id: '1',
+            type: 'person',
+            attributes: {
+              firstName: 'John',
+              lastName: 'Smith',
+            },
           },
-        },
-      });
-    }, /You must define a pushPayload method in your serializer in order to call store.pushPayload/);
-  });
+        });
+      }, /You must define a pushPayload method in your serializer in order to call store.pushPayload/);
+    }
+  );
 });

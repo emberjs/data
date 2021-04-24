@@ -111,7 +111,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       let compatVersion = this.getEmberDataConfig().compatWith || null;
 
       let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost(), compatVersion);
-      let plugins = existingPlugins.map(plugin => {
+      let plugins = existingPlugins.map((plugin) => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
       plugins = plugins.concat(customPlugins.plugins);
@@ -156,7 +156,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       tree = this.debugTree(tree, 'input');
       this._setupBabelOptions();
 
-      let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
+      let babel = this.addons.find((addon) => addon.name === 'ember-cli-babel');
       let externalDeps = this.externalDependenciesForPrivateModule();
 
       // don't print this for consumers

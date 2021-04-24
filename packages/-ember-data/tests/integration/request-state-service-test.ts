@@ -24,19 +24,19 @@ class Person extends Model {
 }
 
 if (REQUEST_SERVICE) {
-  module('integration/request-state-service - Request State Service', function(hooks) {
+  module('integration/request-state-service - Request State Service', function (hooks) {
     setupTest(hooks);
 
     let store: Store;
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       let { owner } = this;
       owner.register('model:person', Person);
       owner.register('serializer:application', JSONSerializer);
       store = owner.lookup('service:store');
     });
 
-    test('getPendingRequest and getLastRequest return correct inflight and fulfilled requests', async function(assert) {
+    test('getPendingRequest and getLastRequest return correct inflight and fulfilled requests', async function (assert) {
       assert.expect(10);
 
       let normalizedHash = {
@@ -141,7 +141,7 @@ if (REQUEST_SERVICE) {
       );
     });
 
-    test('can subscribe to events for an identifier', async function(assert) {
+    test('can subscribe to events for an identifier', async function (assert) {
       assert.expect(9);
 
       const personHash = {
@@ -200,7 +200,7 @@ if (REQUEST_SERVICE) {
         options: {},
       };
 
-      requestService.subscribeForRecord(identifier, request => {
+      requestService.subscribeForRecord(identifier, (request) => {
         if (count === 0) {
           assert.equal(request.state, 'pending', 'request is pending');
           assert.equal(request.type, 'query', 'request is a query');

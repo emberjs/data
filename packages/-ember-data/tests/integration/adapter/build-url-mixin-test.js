@@ -11,20 +11,20 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
-module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', function(hooks) {
+module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', function (hooks) {
   setupTest(hooks);
 
   let store, adapter, Post, Comment, passedUrl;
 
   function ajaxResponse(value) {
-    adapter.ajax = function(url, verb, hash) {
+    adapter.ajax = function (url, verb, hash) {
       passedUrl = url;
 
       return resolve(deepCopy(value));
     };
   }
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     const PostModel = Model.extend({
       name: attr('string'),
@@ -49,7 +49,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     passedUrl = null;
   });
 
-  test('buildURL - with host and namespace', async function(assert) {
+  test('buildURL - with host and namespace', async function (assert) {
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
@@ -62,7 +62,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1');
   });
 
-  test('buildURL - with relative paths in links', async function(assert) {
+  test('buildURL - with relative paths in links', async function (assert) {
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
@@ -80,7 +80,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
-  test('buildURL - with absolute paths in links', async function(assert) {
+  test('buildURL - with absolute paths in links', async function (assert) {
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
@@ -98,7 +98,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
-  test('buildURL - with absolute paths in links and protocol relative host', async function(assert) {
+  test('buildURL - with absolute paths in links and protocol relative host', async function (assert) {
     adapter.setProperties({
       host: '//example.com',
       namespace: 'api/v1',
@@ -115,7 +115,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, '//example.com/api/v1/posts/1/comments');
   });
 
-  test('buildURL - with absolute paths in links and host is /', async function(assert) {
+  test('buildURL - with absolute paths in links and host is /', async function (assert) {
     adapter.setProperties({
       host: '/',
       namespace: 'api/v1',
@@ -132,7 +132,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
   });
 
-  test('buildURL - with full URLs in links', async function(assert) {
+  test('buildURL - with full URLs in links', async function (assert) {
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
@@ -156,7 +156,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
-  test('buildURL - with camelized names', async function(assert) {
+  test('buildURL - with camelized names', async function (assert) {
     adapter.setProperties({
       pathForType(type) {
         let decamelized = decamelize(type);
@@ -170,10 +170,10 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, '/super_users/1');
   });
 
-  test('buildURL - buildURL takes a record from find', async function(assert) {
+  test('buildURL - buildURL takes a record from find', async function (assert) {
     Comment.reopen({ post: belongsTo('post', { async: false }) });
 
-    adapter.buildURL = function(type, id, snapshot) {
+    adapter.buildURL = function (type, id, snapshot) {
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
     };
 
@@ -191,11 +191,11 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, '/posts/2/comments/1');
   });
 
-  test('buildURL - buildURL takes the records from findMany', async function(assert) {
+  test('buildURL - buildURL takes the records from findMany', async function (assert) {
     Comment.reopen({ post: belongsTo('post', { async: false }) });
     Post.reopen({ comments: hasMany('comment', { async: true }) });
 
-    adapter.buildURL = function(type, ids, snapshots) {
+    adapter.buildURL = function (type, ids, snapshots) {
       if (Array.isArray(snapshots)) {
         return '/posts/' + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/';
       }
@@ -224,9 +224,9 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, '/posts/2/comments/');
   });
 
-  test('buildURL - buildURL takes a record from create', async function(assert) {
+  test('buildURL - buildURL takes a record from create', async function (assert) {
     Comment.reopen({ post: belongsTo('post', { async: false }) });
-    adapter.buildURL = function(type, id, snapshot) {
+    adapter.buildURL = function (type, id, snapshot) {
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
     };
 
@@ -244,9 +244,9 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, '/posts/2/comments/');
   });
 
-  test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', async function(assert) {
+  test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', async function (assert) {
     Comment.reopen({ post: belongsTo('post', { async: true }) });
-    adapter.buildURL = function(type, id, snapshot) {
+    adapter.buildURL = function (type, id, snapshot) {
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
     };
 
@@ -270,9 +270,9 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, '/posts/2/comments/');
   });
 
-  test('buildURL - buildURL takes a record from update', async function(assert) {
+  test('buildURL - buildURL takes a record from update', async function (assert) {
     Comment.reopen({ post: belongsTo('post', { async: false }) });
-    adapter.buildURL = function(type, id, snapshot) {
+    adapter.buildURL = function (type, id, snapshot) {
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
     };
 
@@ -296,10 +296,10 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, '/posts/2/comments/1');
   });
 
-  test('buildURL - buildURL takes a record from delete', async function(assert) {
+  test('buildURL - buildURL takes a record from delete', async function (assert) {
     Comment.reopen({ post: belongsTo('post', { async: false }) });
     Post.reopen({ comments: hasMany('comment', { async: false }) });
-    adapter.buildURL = function(type, id, snapshot) {
+    adapter.buildURL = function (type, id, snapshot) {
       return 'posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
     };
 
@@ -325,7 +325,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     assert.equal(passedUrl, 'posts/2/comments/1');
   });
 
-  test('buildURL - with absolute namespace', async function(assert) {
+  test('buildURL - with absolute namespace', async function (assert) {
     adapter.setProperties({
       namespace: '/api/v1',
     });

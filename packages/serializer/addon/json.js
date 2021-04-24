@@ -583,7 +583,7 @@ const JSONSerializer = Serializer.extend({
     let attributeKey;
     let attributes = {};
 
-    modelClass.eachAttribute(key => {
+    modelClass.eachAttribute((key) => {
       attributeKey = this.keyForAttribute(key, 'deserialize');
       if (resourceHash[attributeKey] !== undefined) {
         attributes[key] = resourceHash[attributeKey];
@@ -1391,7 +1391,7 @@ const JSONSerializer = Serializer.extend({
 
       this.normalizeUsingDeclaredMapping(typeClass, payload);
 
-      typeClass.eachAttribute(name => {
+      typeClass.eachAttribute((name) => {
         let key = this.keyForAttribute(name, 'deserialize');
         if (key !== name && payload[key] !== undefined) {
           payload[name] = payload[key];
@@ -1399,7 +1399,7 @@ const JSONSerializer = Serializer.extend({
         }
       });
 
-      typeClass.eachRelationship(name => {
+      typeClass.eachRelationship((name) => {
         let key = this.keyForRelationship(name, 'deserialize');
         if (key !== name && payload[key] !== undefined) {
           payload[name] = payload[key];

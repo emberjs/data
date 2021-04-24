@@ -9,11 +9,11 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Serializer from '@ember-data/serializer';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
-module('Integration | Identifiers - lid reflection', function(hooks) {
+module('Integration | Identifiers - lid reflection', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const { owner } = this;
     owner.register(`service:store`, Store);
 
@@ -26,7 +26,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test(`We can access the lid when serializing a record`, async function(assert) {
+  test(`We can access the lid when serializing a record`, async function (assert) {
     class TestSerializer extends Serializer {
       serialize(snapshot) {
         // TODO should snapshots have direct access to the identifier?
@@ -51,7 +51,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     assert.strictEqual(serialized.lid, identifier.lid, 'We have the right lid');
   });
 
-  test(`A newly created record can receive a payload by lid (no save ever called)`, async function(assert) {
+  test(`A newly created record can receive a payload by lid (no save ever called)`, async function (assert) {
     const record = store.createRecord('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
 
@@ -77,7 +77,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     assert.strictEqual(record.name, '@cthoburn', 'After rollback we use the clean name');
   });
 
-  test(`A newly created record can receive a payload by lid (after save, before Adapter.createRecord resolves)`, async function(assert) {
+  test(`A newly created record can receive a payload by lid (after save, before Adapter.createRecord resolves)`, async function (assert) {
     const adapterPromise = defer();
     const beganSavePromise = defer();
     class TestSerializer extends Serializer {
@@ -146,7 +146,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     assert.strictEqual(record.name, '@runspired', 'After we finish we use the most recent clean name');
   });
 
-  test('hasMany() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function(assert) {
+  test('hasMany() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function (assert) {
     class Ingredient extends Model {
       @attr name;
       @belongsTo('cake') cake;
@@ -221,7 +221,7 @@ module('Integration | Identifiers - lid reflection', function(hooks) {
     assert.equal(cake.ingredients.objectAt(0).name, 'Cheese');
   });
 
-  test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function(assert) {
+  test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function (assert) {
     class Topping extends Model {
       @attr name;
     }

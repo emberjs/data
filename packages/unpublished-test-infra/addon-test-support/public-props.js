@@ -5,8 +5,8 @@ export default function publicProps(publicArgs, obj) {
   return assign.apply(
     this,
     [{}].concat(
-      Object.keys(obj).map(key => ({
-        [key]: assign.apply(this, [{}].concat(publicArgs.map(prop => ({ [prop]: obj[key][prop] })))),
+      Object.keys(obj).map((key) => ({
+        [key]: assign.apply(this, [{}].concat(publicArgs.map((prop) => ({ [prop]: obj[key][prop] })))),
       }))
     )
   );

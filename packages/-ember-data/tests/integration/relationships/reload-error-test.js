@@ -7,7 +7,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo } from '@ember-data/model';
 
-module('Relationships | unloading new records', function(hooks) {
+module('Relationships | unloading new records', function (hooks) {
   setupTest(hooks);
   let store;
   let entryNode;
@@ -36,7 +36,7 @@ module('Relationships | unloading new records', function(hooks) {
     @belongsTo('node', { inverse: null, async: true }) relatedGraph;
   }
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const { owner } = this;
     owner.register('model:node', Node);
     owner.register('adapter:application', ErrorAdapter);
@@ -67,7 +67,7 @@ module('Relationships | unloading new records', function(hooks) {
     });
   });
 
-  test('Reloading a sync belongsTo returns the error thrown', async function(assert) {
+  test('Reloading a sync belongsTo returns the error thrown', async function (assert) {
     try {
       await entryNode.belongsTo('parent').reload();
       assert.ok(false, 'No error thrown');
@@ -76,7 +76,7 @@ module('Relationships | unloading new records', function(hooks) {
     }
   });
 
-  test('Reloading an async belongsTo returns the error thrown', async function(assert) {
+  test('Reloading an async belongsTo returns the error thrown', async function (assert) {
     try {
       await entryNode.belongsTo('relatedGraph').reload();
       assert.ok(false, 'No error thrown');

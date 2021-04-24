@@ -253,7 +253,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     let attributes = {};
 
     if (resourceHash.attributes) {
-      modelClass.eachAttribute(key => {
+      modelClass.eachAttribute((key) => {
         let attributeKey = this.keyForAttribute(key, 'deserialize');
         if (resourceHash.attributes[attributeKey] !== undefined) {
           attributes[key] = resourceHash.attributes[attributeKey];
@@ -540,7 +540,7 @@ const JSONAPISerializer = JSONSerializer.extend({
         }
 
         // only serialize has many relationships that are not new
-        let nonNewHasMany = hasMany.filter(item => item.record && !item.record.get('isNew'));
+        let nonNewHasMany = hasMany.filter((item) => item.record && !item.record.get('isNew'));
         let data = new Array(nonNewHasMany.length);
 
         for (let i = 0; i < nonNewHasMany.length; i++) {

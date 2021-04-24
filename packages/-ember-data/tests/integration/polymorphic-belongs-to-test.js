@@ -4,11 +4,11 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo } from '@ember-data/model';
 
-module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(hooks) {
+module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     class Book extends Model {
       @attr()
@@ -37,7 +37,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
     store = owner.lookup('service:store');
   });
 
-  test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', function(assert) {
+  test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', function (assert) {
     let payload = {
       data: {
         type: 'book',
@@ -82,7 +82,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
     assert.strictEqual(book.get('author'), null);
   });
 
-  test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', function(assert) {
+  test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', function (assert) {
     let payload = {
       data: {
         type: 'async-book',
@@ -124,12 +124,12 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function(ho
 
     return book
       .get('author')
-      .then(author => {
+      .then((author) => {
         assert.equal(author.get('id'), 1);
         store.push(payloadThatResetsBelongToRelationship);
         return book.get('author');
       })
-      .then(author => {
+      .then((author) => {
         assert.strictEqual(author, null);
       });
   });

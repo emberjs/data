@@ -14,7 +14,7 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordDataFor } from '@ember-data/store/-private';
 
 function idsFromOrderedSet(set) {
-  return set.list.map(i => i.id);
+  return set.list.map((i) => i.id);
 }
 
 const { attr, belongsTo, hasMany, Model } = DS;
@@ -94,43 +94,43 @@ const Boat = Model.extend({
   name: attr('string'),
   person: belongsTo('person', { async: true }),
 });
-Boat.toString = function() {
+Boat.toString = function () {
   return 'Boat';
 };
 
 const Bike = Model.extend({
   name: DS.attr(),
 });
-Bike.toString = function() {
+Bike.toString = function () {
   return 'Bike';
 };
 
 const Book = Model.extend({
   person: belongsTo('person', { async: true }),
 });
-Book.toString = function() {
+Book.toString = function () {
   return 'Book';
 };
 
 const Spoon = Model.extend({
   person: belongsTo('person', { async: true }),
 });
-Spoon.toString = function() {
+Spoon.toString = function () {
   return 'Spoon';
 };
 
 const Show = Model.extend({
   person: belongsTo('person', { async: false }),
 });
-Show.toString = function() {
+Show.toString = function () {
   return 'Show';
 };
 
-module('integration/unload - Unloading Records', function(hooks) {
+module('integration/unload - Unloading Records', function (hooks) {
   setupTest(hooks);
   let store, adapter;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register(`model:person`, Person);
@@ -150,9 +150,9 @@ module('integration/unload - Unloading Records', function(hooks) {
     adapter = store.adapterFor('application');
   });
 
-  test('can unload a single record', function(assert) {
+  test('can unload a single record', function (assert) {
     let adam;
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'person',
@@ -186,7 +186,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(store.peekAll('person').get('length'), 1, 'one person record loaded');
     assert.equal(store._internalModelsFor('person').length, 1, 'one person internalModel loaded');
 
-    run(function() {
+    run(function () {
       adam.unloadRecord();
     });
 
@@ -194,11 +194,11 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(store._internalModelsFor('person').length, 0, 'no person internalModels');
   });
 
-  test('can unload all records for a given type', function(assert) {
+  test('can unload all records for a given type', function (assert) {
     assert.expect(10);
 
     let car;
-    run(function() {
+    run(function () {
       store.push({
         data: [
           {
@@ -243,7 +243,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(store.peekAll('car').get('length'), 1, 'one car record loaded');
     assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
-    run(function() {
+    run(function () {
       car.get('person');
       store.unloadAll('person');
     });
@@ -253,7 +253,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
     assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           id: 1,
@@ -285,10 +285,10 @@ module('integration/unload - Unloading Records', function(hooks) {
     // assert.equal(person.get('name'), 'Richard II', 'Inverse can load relationship after the record is unloaded');
   });
 
-  test('can unload all records', function(assert) {
+  test('can unload all records', function (assert) {
     assert.expect(8);
 
-    run(function() {
+    run(function () {
       store.push({
         data: [
           {
@@ -333,7 +333,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(store.peekAll('car').get('length'), 1, 'one car record loaded');
     assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
-    run(function() {
+    run(function () {
       store.unloadAll();
     });
 
@@ -343,10 +343,10 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(store._internalModelsFor('car').length, 0, 'zero car internalModels loaded');
   });
 
-  test('removes findAllCache after unloading all records', function(assert) {
+  test('removes findAllCache after unloading all records', function (assert) {
     assert.expect(4);
 
-    run(function() {
+    run(function () {
       store.push({
         data: [
           {
@@ -372,7 +372,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
     assert.equal(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
 
-    run(function() {
+    run(function () {
       store.peekAll('person');
       store.unloadAll('person');
     });
@@ -381,8 +381,8 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
   });
 
-  test('unloading all records also updates record array from peekAll()', function(assert) {
-    run(function() {
+  test('unloading all records also updates record array from peekAll()', function (assert) {
+    run(function () {
       store.push({
         data: [
           {
@@ -408,7 +408,7 @@ module('integration/unload - Unloading Records', function(hooks) {
 
     assert.equal(all.get('length'), 2);
 
-    run(function() {
+    run(function () {
       store.unloadAll('person');
     });
     assert.equal(all.get('length'), 0);
@@ -429,7 +429,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     };
   }
 
-  test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', function(assert) {
+  test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', function (assert) {
     assert.expect(15);
 
     let person = run(() =>
@@ -498,7 +498,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via relationship reload)', function(assert) {
+  test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via relationship reload)', function (assert) {
     assert.expect(17);
 
     adapter.findRecord = (store, type, id) => {
@@ -571,7 +571,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('(regression) unloadRecord followed by push in the same run-loop', function(assert) {
+  test('(regression) unloadRecord followed by push in the same run-loop', function (assert) {
     let person = run(() =>
       store.push({
         data: {
@@ -598,12 +598,12 @@ module('integration/unload - Unloading Records', function(hooks) {
 
     // ensure we loaded the people and boats
     assert.deepEqual(
-      knownPeople.models.map(m => m.id),
+      knownPeople.models.map((m) => m.id),
       ['1'],
       'one person record is loaded'
     );
     assert.deepEqual(
-      knownBoats.models.map(m => m.id),
+      knownBoats.models.map((m) => m.id),
       ['1'],
       'one boat record is loaded'
     );
@@ -624,12 +624,12 @@ module('integration/unload - Unloading Records', function(hooks) {
 
     // ensure that our new state is correct
     assert.deepEqual(
-      knownPeople.models.map(m => m.id),
+      knownPeople.models.map((m) => m.id),
       ['1'],
       'one person record is loaded'
     );
     assert.deepEqual(
-      knownBoats.models.map(m => m.id),
+      knownBoats.models.map((m) => m.id),
       ['1'],
       'one boat record is known'
     );
@@ -681,7 +681,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('unloading a disconnected subgraph clears the relevant internal models', function(assert) {
+  test('unloading a disconnected subgraph clears the relevant internal models', function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
 
     run(() => {
@@ -753,12 +753,12 @@ module('integration/unload - Unloading Records', function(hooks) {
       let origCheck = internalModel._checkForOrphanedInternalModels;
       let origCleanup = recordData._cleanupOrphanedRecordDatas;
 
-      internalModel._checkForOrphanedInternalModels = function() {
+      internalModel._checkForOrphanedInternalModels = function () {
         ++checkOrphanCalls;
         return origCheck.apply(record._internalModel, arguments);
       };
 
-      recordData._cleanupOrphanedRecordDatas = function() {
+      recordData._cleanupOrphanedRecordDatas = function () {
         ++cleanupOrphanCalls;
         return origCleanup.apply(recordData, arguments);
       };
@@ -786,11 +786,11 @@ module('integration/unload - Unloading Records', function(hooks) {
       });
   });
 
-  test('Unloading a record twice only schedules destroy once', function(assert) {
+  test('Unloading a record twice only schedules destroy once', function (assert) {
     let record;
 
     // populate initial record
-    run(function() {
+    run(function () {
       record = store.push({
         data: {
           type: 'person',
@@ -804,7 +804,7 @@ module('integration/unload - Unloading Records', function(hooks) {
 
     const internalModel = record._internalModel;
 
-    run(function() {
+    run(function () {
       store.unloadRecord(record);
       store.unloadRecord(record);
       internalModel.cancelDestroy();
@@ -813,11 +813,11 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.false(internalModel.isDestroyed, 'We cancelled destroy');
   });
 
-  test('Cancelling destroy leaves the record in the empty state', function(assert) {
+  test('Cancelling destroy leaves the record in the empty state', function (assert) {
     let record;
 
     // populate initial record
-    run(function() {
+    run(function () {
       record = store.push({
         data: {
           type: 'person',
@@ -832,7 +832,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     const internalModel = record._internalModel;
     assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
-    run(function() {
+    run(function () {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
       assert.false(internalModel.isDestroyed, 'the internal model is not destroyed');
@@ -846,7 +846,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are still unloaded after unloadRecord');
   });
 
-  test('after unloading a record, the record can be fetched again immediately', function(assert) {
+  test('after unloading a record, the record can be fetched again immediately', function (assert) {
     // stub findRecord
     adapter.findRecord = () => {
       return {
@@ -901,7 +901,7 @@ module('integration/unload - Unloading Records', function(hooks) {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
       assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
-      return store.findRecord('person', '1').then(newRecord => {
+      return store.findRecord('person', '1').then((newRecord) => {
         assert.ok(internalModel === newRecord._internalModel, 'the old internalModel is reused');
         assert.equal(
           newRecord._internalModel.currentState.stateName,
@@ -912,7 +912,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
   });
 
-  test('after unloading a record, the record can be fetched again immediately (purge relationship)', function(assert) {
+  test('after unloading a record, the record can be fetched again immediately (purge relationship)', function (assert) {
     // stub findRecord
     adapter.findRecord = () => {
       return {
@@ -978,7 +978,7 @@ module('integration/unload - Unloading Records', function(hooks) {
         'Expected the previous internal model tobe unloaded'
       );
 
-      return store.findRecord('person', '1').then(record => {
+      return store.findRecord('person', '1').then((record) => {
         assert.equal(record.get('cars.length'), 0, 'Expected relationship to be cleared by the new push');
         assert.ok(internalModel === record._internalModel, 'the old internalModel is reused');
         assert.equal(
@@ -990,7 +990,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
   });
 
-  test('after unloading a record, the record can be fetched again immediately (with relationships)', function(assert) {
+  test('after unloading a record, the record can be fetched again immediately (with relationships)', function (assert) {
     // stub findRecord
     adapter.findRecord = () => {
       return {
@@ -1042,7 +1042,7 @@ module('integration/unload - Unloading Records', function(hooks) {
       assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
       assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
 
-      let wait = store.findRecord('person', '1').then(newRecord => {
+      let wait = store.findRecord('person', '1').then((newRecord) => {
         assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
         assert.ok(newRecord.get('bike') === bike, 'the newRecord should retain knowledge of the bike');
       });
@@ -1055,7 +1055,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     return wait;
   });
 
-  test('after unloading a record, the record can be fetched again soon there after', function(assert) {
+  test('after unloading a record, the record can be fetched again soon there after', function (assert) {
     let record;
 
     // stub findRecord
@@ -1072,7 +1072,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     };
 
     // populate initial record
-    run(function() {
+    run(function () {
       record = store.push({
         data: {
           type: 'person',
@@ -1087,13 +1087,13 @@ module('integration/unload - Unloading Records', function(hooks) {
     let internalModel = record._internalModel;
     assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
-    run(function() {
+    run(function () {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
       assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
     });
 
-    run(function() {
+    run(function () {
       store.findRecord('person', '1');
     });
 
@@ -1103,7 +1103,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
   });
 
-  test('after unloading a record, the record can be saved again immediately', function(assert) {
+  test('after unloading a record, the record can be saved again immediately', function (assert) {
     assert.expect(0);
 
     const data = {
@@ -1130,7 +1130,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
   });
 
-  test('after unloading a record, pushing a new copy will setup relationships', function(assert) {
+  test('after unloading a record, pushing a new copy will setup relationships', function (assert) {
     const personData = {
       data: {
         type: 'person',
@@ -1176,7 +1176,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(adam.get('cars.length'), 1, 'pushing car again setups inverse relationship');
   });
 
-  test('1:1 sync unload', function(assert) {
+  test('1:1 sync unload', function (assert) {
     run(() =>
       store.push({
         data: {
@@ -1245,7 +1245,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.equal(house.get('person.id'), 1, 'after unloading, relationship can be restored');
   });
 
-  test('1:many sync unload 1 side', function(assert) {
+  test('1:many sync unload 1 side', function (assert) {
     run(() =>
       store.push({
         data: {
@@ -1339,7 +1339,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.deepEqual(person.get('cars').mapBy('id'), ['2', '3'], 'after unloading, relationship can be restored');
   });
 
-  test('1:many sync unload many side', function(assert) {
+  test('1:many sync unload many side', function (assert) {
     run(() =>
       store.push({
         data: {
@@ -1431,7 +1431,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.deepEqual(person.get('cars').mapBy('id'), ['2', '3'], 'after unloading, relationship can be restored');
   });
 
-  test('many:many sync unload', function(assert) {
+  test('many:many sync unload', function (assert) {
     run(() =>
       store.push({
         data: [
@@ -1565,7 +1565,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     assert.deepEqual(group4.get('people').mapBy('id'), ['1', '2'], 'after unloading, relationship can be restored');
   });
 
-  test('1:1 async unload', function(assert) {
+  test('1:1 async unload', function (assert) {
     let findRecordCalls = 0;
 
     adapter.findRecord = (store, type, id) => {
@@ -1602,7 +1602,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     return run(() =>
       person
         .get('mortgage')
-        .then(asyncRecord => {
+        .then((asyncRecord) => {
           mortgage = asyncRecord;
           return mortgage.get('person');
         })
@@ -1616,7 +1616,7 @@ module('integration/unload - Unloading Records', function(hooks) {
 
           return person.get('mortgage');
         })
-        .then(refetchedMortgage => {
+        .then((refetchedMortgage) => {
           assert.notEqual(mortgage, refetchedMortgage, 'the previously loaded record is not reused');
 
           assert.equal(person.belongsTo('mortgage').id(), '2', 'unload async is not treated as delete');
@@ -1626,7 +1626,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('1:many async unload 1 side', function(assert) {
+  test('1:many async unload 1 side', function (assert) {
     let findRecordCalls = 0;
     let findManyCalls = 0;
 
@@ -1691,10 +1691,10 @@ module('integration/unload - Unloading Records', function(hooks) {
     return run(() =>
       person
         .get('boats')
-        .then(asyncRecords => {
+        .then((asyncRecords) => {
           boats = asyncRecords;
           [boat2, boat3] = boats.toArray();
-          return EmberPromise.all([boat2, boat3].map(b => b.get('person')));
+          return EmberPromise.all([boat2, boat3].map((b) => b.get('person')));
         })
         .then(() => {
           assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'initially relationship established lhs');
@@ -1711,7 +1711,7 @@ module('integration/unload - Unloading Records', function(hooks) {
 
           return boat2.get('person');
         })
-        .then(refetchedPerson => {
+        .then((refetchedPerson) => {
           assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
 
           assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'unload async is not treated as delete');
@@ -1724,7 +1724,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('1:many async unload many side', function(assert) {
+  test('1:many async unload many side', function (assert) {
     let findManyCalls = 0;
 
     adapter.coalesceFindRequests = true;
@@ -1775,10 +1775,10 @@ module('integration/unload - Unloading Records', function(hooks) {
     return run(() =>
       person
         .get('boats')
-        .then(asyncRecords => {
+        .then((asyncRecords) => {
           boats = asyncRecords;
           [boat2, boat3] = boats.toArray();
-          return EmberPromise.all([boat2, boat3].map(b => b.get('person')));
+          return EmberPromise.all([boat2, boat3].map((b) => b.get('person')));
         })
         .then(() => {
           assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'initially relationship established lhs');
@@ -1799,7 +1799,7 @@ module('integration/unload - Unloading Records', function(hooks) {
 
           return person.get('boats');
         })
-        .then(refetchedBoats => {
+        .then((refetchedBoats) => {
           assert.false(boats.isDestroyed, 'previous ManyArray is not immediately destroyed after refetch');
           assert.true(boats.isDestroying, 'previous ManyArray is being destroyed immediately after refetch');
           assert.deepEqual(refetchedBoats.mapBy('id'), ['2', '3'], 'boats refetched');
@@ -1813,7 +1813,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
   });
 
-  test('many:many async unload', function(assert) {
+  test('many:many async unload', function (assert) {
     let findManyCalls = 0;
 
     adapter.coalesceFindRequests = true;
@@ -1885,10 +1885,10 @@ module('integration/unload - Unloading Records', function(hooks) {
     return run(() =>
       person1
         .get('friends')
-        .then(asyncRecords => {
+        .then((asyncRecords) => {
           person1Friends = asyncRecords;
           [person3, person4] = person1Friends.toArray();
-          return EmberPromise.all([person2, person3, person4].map(b => b.get('friends')));
+          return EmberPromise.all([person2, person3, person4].map((b) => b.get('friends')));
         })
         .then(() => {
           assert.deepEqual(person1.hasMany('friends').ids(), ['3', '4'], 'initially relationship established lhs');
@@ -1908,14 +1908,14 @@ module('integration/unload - Unloading Records', function(hooks) {
 
           return person1.get('friends');
         })
-        .then(refetchedFriends => {
+        .then((refetchedFriends) => {
           assert.false(person1Friends.isDestroyed, 'previous ManyArray is not immediately destroyed after refetch');
           assert.true(person1Friends.isDestroying, 'previous ManyArray is being destroyed immediately after refetch');
           assert.deepEqual(refetchedFriends.mapBy('id'), ['3', '4'], 'friends refetched');
           assert.deepEqual(person1.hasMany('friends').ids(), ['3', '4'], 'unload async is not treated as delete');
 
           assert.deepEqual(
-            refetchedFriends.map(p => p.hasMany('friends').ids()),
+            refetchedFriends.map((p) => p.hasMany('friends').ids()),
             [
               ['1', '2'],
               ['1', '2'],
@@ -1930,7 +1930,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
   });
 
-  test('1 sync : 1 async unload sync side', function(assert) {
+  test('1 sync : 1 async unload sync side', function (assert) {
     run(() =>
       store.push({
         data: {
@@ -2001,7 +2001,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
   });
 
-  test('1 sync : 1 async unload async side', function(assert) {
+  test('1 sync : 1 async unload async side', function (assert) {
     let findRecordCalls = 0;
 
     adapter.findRecord = (store, type, id) => {
@@ -2056,7 +2056,7 @@ module('integration/unload - Unloading Records', function(hooks) {
 
           return book.get('person');
         })
-        .then(refetchedPerson => {
+        .then((refetchedPerson) => {
           assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
 
           assert.equal(book.belongsTo('person').id(), '1', 'unload async is not treated as delete');
@@ -2066,7 +2066,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('1 async : many sync unload sync side', function(assert) {
+  test('1 async : many sync unload sync side', function (assert) {
     run(() =>
       store.push({
         data: {
@@ -2166,7 +2166,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('1 async : many sync unload async side', function(assert) {
+  test('1 async : many sync unload async side', function (assert) {
     let findRecordCalls = 0;
 
     adapter.coalesceFindRequests = true;
@@ -2234,7 +2234,7 @@ module('integration/unload - Unloading Records', function(hooks) {
       assert.equal(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
       return spoon2.get('person');
-    }).then(refetchedPerson => {
+    }).then((refetchedPerson) => {
       assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
 
       assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['2', '3'], 'unload async is not treated as delete');
@@ -2245,7 +2245,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
   });
 
-  test('1 sync : many async unload async side', function(assert) {
+  test('1 sync : many async unload async side', function (assert) {
     let findManyCalls = 0;
 
     adapter.coalesceFindRequests = true;
@@ -2297,7 +2297,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     return run(() =>
       person
         .get('favoriteShows')
-        .then(asyncRecords => {
+        .then((asyncRecords) => {
           shows = asyncRecords;
           [show2, show3] = shows.toArray();
 
@@ -2319,7 +2319,7 @@ module('integration/unload - Unloading Records', function(hooks) {
 
           return person.get('favoriteShows');
         })
-        .then(refetchedShows => {
+        .then((refetchedShows) => {
           assert.false(shows.isDestroyed, 'previous ManyArray is not immediately destroyed after refetch');
           assert.true(shows.isDestroying, 'previous ManyArray is being destroyed immediately after refetch');
           assert.deepEqual(refetchedShows.mapBy('id'), ['2', '3'], 'shows refetched');
@@ -2332,7 +2332,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
   });
 
-  test('1 sync : many async unload sync side', function(assert) {
+  test('1 sync : many async unload sync side', function (assert) {
     let findManyCalls = 0;
 
     adapter.coalesceFindRequests = true;
@@ -2384,7 +2384,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     return run(() =>
       person
         .get('favoriteShows')
-        .then(asyncRecords => {
+        .then((asyncRecords) => {
           shows = asyncRecords;
           [show2, show3] = shows.toArray();
 
@@ -2446,7 +2446,7 @@ module('integration/unload - Unloading Records', function(hooks) {
 
           return person.get('favoriteShows');
         })
-        .then(refetchedShows => {
+        .then((refetchedShows) => {
           assert.notEqual(refetchedShows, shows, 'ManyArray not reused');
           assert.deepEqual(refetchedShows.mapBy('id'), ['2', '3'], 'unload async not treated as a delete');
 
@@ -2455,7 +2455,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     );
   });
 
-  test('unload invalidates link promises', function(assert) {
+  test('unload invalidates link promises', function (assert) {
     let isUnloaded = false;
     adapter.coalesceFindRequests = false;
 
@@ -2515,7 +2515,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     return run(() =>
       person
         .get('boats')
-        .then(asyncRecords => {
+        .then((asyncRecords) => {
           boats = asyncRecords;
           [boat2, boat3] = boats.toArray();
         })
@@ -2535,13 +2535,13 @@ module('integration/unload - Unloading Records', function(hooks) {
         .then(() => {
           return run(() => person.get('boats'));
         })
-        .then(newBoats => {
+        .then((newBoats) => {
           assert.equal(newBoats.length, 1, 'new ManyArray has only 1 boat after unload');
         })
     );
   });
 
-  test('fetching records cancels unloading', function(assert) {
+  test('fetching records cancels unloading', function (assert) {
     adapter.findRecord = (store, type, id) => {
       assert.equal(type, Person, 'findRecord(_, type) is correct');
       assert.deepEqual(id, '1', 'findRecord(_, _, id) is correct');
@@ -2563,6 +2563,6 @@ module('integration/unload - Unloading Records', function(hooks) {
       })
     );
 
-    return run(() => store.findRecord('person', 1, { backgroundReload: true }).then(person => person.unloadRecord()));
+    return run(() => store.findRecord('person', 1, { backgroundReload: true }).then((person) => person.unloadRecord()));
   });
 });

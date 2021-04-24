@@ -7,11 +7,11 @@ import Store from '@ember-data/store';
 
 function assertPackageNotPresent(packageName, assert) {
   const entries = Object.keys(require.entries);
-  const entriesFromPackage = entries.filter(m => m.indexOf(packageName) === 0);
+  const entriesFromPackage = entries.filter((m) => m.indexOf(packageName) === 0);
   const importedDependencies = {};
-  const entriesImportingPackage = entries.filter(m => {
+  const entriesImportingPackage = entries.filter((m) => {
     const deps = require.entries[m].deps;
-    const moduleDeps = deps.filter(d => d.indexOf(packageName) === 0);
+    const moduleDeps = deps.filter((d) => d.indexOf(packageName) === 0);
 
     if (moduleDeps.length) {
       importedDependencies[m] = moduleDeps;
@@ -34,17 +34,17 @@ function assertPackageNotPresent(packageName, assert) {
   );
 }
 
-module('Record-data Encapsulation - Smoke Tests', function(hooks) {
+module('Record-data Encapsulation - Smoke Tests', function (hooks) {
   setupTest(hooks);
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
   });
 
-  test('No @ember-data/record-data modules are present', function(assert) {
+  test('No @ember-data/record-data modules are present', function (assert) {
     assertPackageNotPresent('@ember-data/record-data', assert);
   });
 
-  test('No ember-data modules are present', function(assert) {
+  test('No ember-data modules are present', function (assert) {
     assertPackageNotPresent('ember-data', assert);
   });
 });

@@ -29,11 +29,11 @@ class Person extends Model {
   }
 }
 
-module('integration/adapter/find-all - Finding All Records of a Type', function(hooks) {
+module('integration/adapter/find-all - Finding All Records of a Type', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:person', Person);
@@ -42,7 +42,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     store = owner.lookup('service:store');
   });
 
-  test("When all records for a type are requested, the store should call the adapter's `findAll` method.", async function(assert) {
+  test("When all records for a type are requested, the store should call the adapter's `findAll` method.", async function (assert) {
     assert.expect(5);
     let adapter = store.adapterFor('person');
 
@@ -80,7 +80,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     );
   });
 
-  test('When all records for a type are requested, a rejection should reject the promise', async function(assert) {
+  test('When all records for a type are requested, a rejection should reject the promise', async function (assert) {
     assert.expect(5);
     let adapter = store.adapterFor('person');
 
@@ -114,7 +114,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     assert.equal(all.objectAt(0).get('name'), 'Braaaahm Dale', 'the first item in the record array is Braaaahm Dale');
   });
 
-  test('When all records for a type are requested, records that are already loaded should be returned immediately.', async function(assert) {
+  test('When all records for a type are requested, records that are already loaded should be returned immediately.', async function (assert) {
     assert.expect(3);
 
     // Load a record from the server
@@ -146,7 +146,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     );
   });
 
-  test('When all records for a type are requested, records that are created on the client should be added to the record array.', async function(assert) {
+  test('When all records for a type are requested, records that are created on the client should be added to the record array.', async function (assert) {
     assert.expect(3);
 
     let allRecords = store.peekAll('person');
@@ -170,7 +170,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     );
   });
 
-  testInDebug('When all records are requested, assert the payload is not blank', async function(assert) {
+  testInDebug('When all records are requested, assert the payload is not blank', async function (assert) {
     let adapter = store.adapterFor('person');
     adapter.findAll = () => resolve({});
 
@@ -179,7 +179,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     }, /You made a 'findAll' request for 'person' records, but the adapter's response did not have any data/);
   });
 
-  test('isUpdating is true while records are fetched', async function(assert) {
+  test('isUpdating is true while records are fetched', async function (assert) {
     let findAllDeferred = defer();
     let adapter = store.adapterFor('person');
     adapter.findAll = () => findAllDeferred.promise;
@@ -197,7 +197,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     let persons = store.peekAll('person');
     assert.equal(persons.get('length'), 1);
 
-    let promise = store.findAll('person').then(persons => {
+    let promise = store.findAll('person').then((persons) => {
       assert.false(persons.get('isUpdating'));
       assert.equal(persons.get('length'), 2);
       return persons;
@@ -210,7 +210,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     await promise;
   });
 
-  test('isUpdating is true while records are fetched in the background', async function(assert) {
+  test('isUpdating is true while records are fetched in the background', async function (assert) {
     let findAllDeferred = defer();
     let adapter = store.adapterFor('person');
     adapter.findAll = () => {
@@ -247,7 +247,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     assert.equal(persons.get('length'), 2);
   });
 
-  test('isUpdating is false if records are not fetched in the background', async function(assert) {
+  test('isUpdating is false if records are not fetched in the background', async function (assert) {
     let findAllDeferred = defer();
     let adapter = store.adapterFor('person');
     adapter.findAll = () => {

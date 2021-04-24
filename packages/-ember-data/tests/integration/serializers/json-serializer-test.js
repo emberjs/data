@@ -14,10 +14,10 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 var Post, Comment, Favorite;
 
-module('integration/serializer/json - JSONSerializer', function(hooks) {
+module('integration/serializer/json - JSONSerializer', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     Post = DS.Model.extend({
       title: DS.attr('string'),
       comments: DS.hasMany('comment', { inverse: null, async: false }),
@@ -36,7 +36,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     this.owner.register('serializer:application', JSONSerializer.extend());
   });
 
-  test("serialize doesn't include ID when includeId is false", function(assert) {
+  test("serialize doesn't include ID when includeId is false", function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
@@ -52,7 +52,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test("serialize doesn't include relationship if not aware of one", function(assert) {
+  test("serialize doesn't include relationship if not aware of one", function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let post = store.createRecord('post', { title: 'Rails is omakase' });
@@ -63,7 +63,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('serialize includes id when includeId is true', function(assert) {
+  test('serialize includes id when includeId is true', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let post = store.createRecord('post', { title: 'Rails is omakase', comments: [] });
@@ -81,7 +81,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('serializeAttribute', function(assert) {
+  test('serializeAttribute', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let post = store.createRecord('post', { title: 'Rails is omakase' });
@@ -94,7 +94,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('serializeAttribute respects keyForAttribute', function(assert) {
+  test('serializeAttribute respects keyForAttribute', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -113,7 +113,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(json, { TITLE: 'Rails is omakase' });
   });
 
-  test('serializeBelongsTo', function(assert) {
+  test('serializeBelongsTo', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let post = store.createRecord('post', { title: 'Rails is omakase', id: '1' });
@@ -125,7 +125,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(json, { post: '1' });
   });
 
-  test('serializeBelongsTo with null', function(assert) {
+  test('serializeBelongsTo with null', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: null });
@@ -142,7 +142,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     );
   });
 
-  test('async serializeBelongsTo with null', function(assert) {
+  test('async serializeBelongsTo with null', function (assert) {
     Comment.reopen({
       post: DS.belongsTo('post', { async: true }),
     });
@@ -163,7 +163,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     );
   });
 
-  test('serializeBelongsTo respects keyForRelationship', function(assert) {
+  test('serializeBelongsTo respects keyForRelationship', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -185,7 +185,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('serializeHasMany respects keyForRelationship', function(assert) {
+  test('serializeHasMany respects keyForRelationship', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -203,7 +203,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       id: '1',
     });
 
-    run(function() {
+    run(function () {
       post.get('comments').pushObject(comment);
     });
 
@@ -216,7 +216,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('serializeHasMany omits unknown relationships on pushed record', function(assert) {
+  test('serializeHasMany omits unknown relationships on pushed record', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let post = run(() =>
@@ -237,7 +237,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.notOk(json.hasOwnProperty('comments'), 'Does not add the relationship key to json');
   });
 
-  test('shouldSerializeHasMany', function(assert) {
+  test('shouldSerializeHasMany', function (assert) {
     let store = this.owner.lookup('service:store');
     let post = store.createRecord('post', { title: 'Rails is omakase', id: '1' });
     store.createRecord('comment', { body: 'Omakase is delicious', post: post, id: '1' });
@@ -251,7 +251,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.ok(shouldSerialize, 'shouldSerializeHasMany correctly identifies with hasMany relationship');
   });
 
-  test('serializeIntoHash', function(assert) {
+  test('serializeIntoHash', function (assert) {
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
     let post = store.createRecord('post', { title: 'Rails is omakase', comments: [] });
@@ -265,7 +265,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('serializePolymorphicType sync', function(assert) {
+  test('serializePolymorphicType sync', function (assert) {
     assert.expect(1);
 
     this.owner.register(
@@ -290,7 +290,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       .serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { polymorphic: true } });
   });
 
-  test('serializePolymorphicType async', function(assert) {
+  test('serializePolymorphicType async', function (assert) {
     assert.expect(1);
 
     Comment.reopen({
@@ -315,7 +315,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
       .serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { async: true, polymorphic: true } });
   });
 
-  test('normalizeResponse normalizes each record in the array', function(assert) {
+  test('normalizeResponse normalizes each record in the array', function (assert) {
     var postNormalizeCount = 0;
     var posts = [
       { id: '1', title: 'Rails is omakase' },
@@ -334,14 +334,14 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    run(function() {
+    run(function () {
       store.serializerFor('post').normalizeResponse(store, Post, posts, null, 'findAll');
     });
 
     assert.equal(postNormalizeCount, 2, 'two posts are normalized');
   });
 
-  test('Serializer should respect the attrs hash when extracting records', function(assert) {
+  test('Serializer should respect the attrs hash when extracting records', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -368,7 +368,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     ]);
   });
 
-  test('Serializer should map `attrs` attributes directly when keyForAttribute also has a transform', function(assert) {
+  test('Serializer should map `attrs` attributes directly when keyForAttribute also has a transform', function (assert) {
     const Post = DS.Model.extend({
       authorName: DS.attr('string'),
     });
@@ -397,7 +397,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.equal(post.data.attributes.authorName, 'DHH');
   });
 
-  test('Serializer should respect the attrs hash when serializing records', function(assert) {
+  test('Serializer should respect the attrs hash when serializing records', function (assert) {
     Post.reopen({
       parentPost: DS.belongsTo('post', { inverse: null, async: true }),
     });
@@ -434,7 +434,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.equal(payload.my_parent, '2');
   });
 
-  test('Serializer respects if embedded model has an attribute named "type" - #3726', function(assert) {
+  test('Serializer respects if embedded model has an attribute named "type" - #3726', function (assert) {
     this.owner.register('serializer:child', DS.JSONSerializer);
     this.owner.register(
       'serializer:parent',
@@ -480,7 +480,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     ]);
   });
 
-  test('Serializer respects if embedded model has a relationship named "type" - #3726', function(assert) {
+  test('Serializer respects if embedded model has a relationship named "type" - #3726', function (assert) {
     this.owner.register('serializer:child', DS.JSONSerializer);
     this.owner.register(
       'serializer:parent',
@@ -532,7 +532,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     ]);
   });
 
-  test('Serializer respects `serialize: false` on the attrs hash', function(assert) {
+  test('Serializer respects `serialize: false` on the attrs hash', function (assert) {
     assert.expect(2);
 
     this.owner.register(
@@ -552,7 +552,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.notOk(payload.hasOwnProperty('[object Object]'), 'Does not add some random key like [object Object]');
   });
 
-  test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function(assert) {
+  test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function (assert) {
     assert.expect(1);
 
     this.owner.register(
@@ -575,7 +575,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
-  test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function(assert) {
+  test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function (assert) {
     assert.expect(1);
 
     this.owner.register(
@@ -598,7 +598,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
-  test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function(assert) {
+  test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function (assert) {
     assert.expect(1);
 
     this.owner.register(
@@ -621,7 +621,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
-  test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function(assert) {
+  test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function (assert) {
     assert.expect(1);
 
     this.owner.register(
@@ -644,7 +644,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.notOk(payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
   });
 
-  test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', function(assert) {
+  test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', function (assert) {
     assert.expect(1);
 
     this.owner.register(
@@ -660,7 +660,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     let post = store.createRecord('post', { title: 'Rails is omakase' });
     let comment = store.createRecord('comment', { body: 'Omakase is delicious', post: post });
 
-    run(function() {
+    run(function () {
       post.get('comments').pushObject(comment);
     });
 
@@ -671,7 +671,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.ok(payload.hasOwnProperty(serializedProperty), 'Add the key to instance');
   });
 
-  test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` property', function(assert) {
+  test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` property', function (assert) {
     assert.expect(1);
 
     this.owner.register(
@@ -694,7 +694,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.ok(payload.hasOwnProperty(serializedProperty), 'Add the key to instance');
   });
 
-  test('Serializer should merge attrs from superclasses', function(assert) {
+  test('Serializer should merge attrs from superclasses', function (assert) {
     assert.expect(4);
     Post.reopen({
       description: DS.attr('string'),
@@ -730,7 +730,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.notOk(payload.base_another_string_key, 'overwritten key is not added');
   });
 
-  test('Serializer should respect the primaryKey attribute when extracting records', function(assert) {
+  test('Serializer should respect the primaryKey attribute when extracting records', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -746,7 +746,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.equal(post.data.attributes.title, 'Rails is omakase');
   });
 
-  test('Serializer should respect the primaryKey attribute when serializing records', function(assert) {
+  test('Serializer should respect the primaryKey attribute when serializing records', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -761,7 +761,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.equal(payload._ID_, '1');
   });
 
-  test('Serializer should respect keyForAttribute when extracting records', function(assert) {
+  test('Serializer should respect keyForAttribute when extracting records', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -779,7 +779,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.equal(post.data.attributes.title, 'Rails is omakase');
   });
 
-  test('Serializer should respect keyForRelationship when extracting records', function(assert) {
+  test('Serializer should respect keyForRelationship when extracting records', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -796,7 +796,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(post.data.relationships.comments.data, [{ id: '1', type: 'comment' }]);
   });
 
-  test('Calling normalize should normalize the payload (only the passed keys)', function(assert) {
+  test('Calling normalize should normalize the payload (only the passed keys)', function (assert) {
     assert.expect(1);
 
     var Person = DS.Model.extend({
@@ -848,7 +848,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('serializeBelongsTo with async polymorphic', function(assert) {
+  test('serializeBelongsTo with async polymorphic', function (assert) {
     var json = {};
     var expected = { post: '1', postTYPE: 'post' };
 
@@ -874,7 +874,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(json, expected, 'returned JSON is correct');
   });
 
-  test('extractErrors respects custom key mappings', function(assert) {
+  test('extractErrors respects custom key mappings', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -907,7 +907,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('extractErrors expects error information located on the errors property of payload', function(assert) {
+  test('extractErrors expects error information located on the errors property of payload', function (assert) {
     this.owner.register('serializer:post', DS.JSONSerializer.extend());
 
     var payload = {
@@ -926,7 +926,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(errors, { title: ['title errors'] });
   });
 
-  test('extractErrors leaves payload untouched if it has no errors property', function(assert) {
+  test('extractErrors leaves payload untouched if it has no errors property', function (assert) {
     this.owner.register('serializer:post', DS.JSONSerializer.extend());
 
     var payload = {
@@ -939,7 +939,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(errors, { untouchedSinceNoErrorsSiblingPresent: ['true'] });
   });
 
-  test('normalizeResponse should extract meta using extractMeta', function(assert) {
+  test('normalizeResponse should extract meta using extractMeta', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -966,7 +966,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
   });
 
-  test('normalizeResponse returns empty `included` payload by default', function(assert) {
+  test('normalizeResponse returns empty `included` payload by default', function (assert) {
     this.owner.register('serializer:post', DS.JSONSerializer.extend());
 
     var jsonHash = {
@@ -980,7 +980,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(post.included, []);
   });
 
-  test('normalizeResponse returns empty `included` payload when relationship is undefined', function(assert) {
+  test('normalizeResponse returns empty `included` payload when relationship is undefined', function (assert) {
     this.owner.register('serializer:post', DS.JSONSerializer.extend());
 
     var jsonHash = {
@@ -995,7 +995,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     assert.deepEqual(post.included, []);
   });
 
-  test('normalizeResponse respects `included` items (single response)', function(assert) {
+  test('normalizeResponse respects `included` items (single response)', function (assert) {
     this.owner.register('serializer:comment', DS.JSONSerializer);
     this.owner.register(
       'serializer:post',
@@ -1024,7 +1024,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     ]);
   });
 
-  test('normalizeResponse respects `included` items (array response)', function(assert) {
+  test('normalizeResponse respects `included` items (array response)', function (assert) {
     this.owner.register('serializer:comment', DS.JSONSerializer);
     this.owner.register(
       'serializer:post',
@@ -1061,7 +1061,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     ]);
   });
 
-  testInDebug('normalizeResponse ignores unmapped attributes', function(assert) {
+  testInDebug('normalizeResponse ignores unmapped attributes', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({
@@ -1080,19 +1080,19 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    assert.expectWarning(function() {
+    assert.expectWarning(function () {
       var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
       assert.equal(post.data.attributes.title, 'Rails is omakase');
     }, /There is no attribute or relationship with the name/);
   });
 
-  test('options are passed to transform for serialization', function(assert) {
+  test('options are passed to transform for serialization', function (assert) {
     assert.expect(1);
 
     this.owner.register(
       'transform:custom',
       DS.Transform.extend({
-        serialize: function(deserialized, options) {
+        serialize: function (deserialized, options) {
           assert.deepEqual(options, { custom: 'config' });
         },
       })
@@ -1111,13 +1111,13 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     serializer.serialize(post._createSnapshot());
   });
 
-  test('options are passed to transform for normalization', function(assert) {
+  test('options are passed to transform for normalization', function (assert) {
     assert.expect(1);
 
     this.owner.register(
       'transform:custom',
       DS.Transform.extend({
-        deserialize: function(serialized, options) {
+        deserialize: function (serialized, options) {
           assert.deepEqual(options, { custom: 'config' });
         },
       })
@@ -1137,7 +1137,7 @@ module('integration/serializer/json - JSONSerializer', function(hooks) {
     });
   });
 
-  test('Serializer should respect the attrs hash in links', function(assert) {
+  test('Serializer should respect the attrs hash in links', function (assert) {
     this.owner.register(
       'serializer:post',
       DS.JSONSerializer.extend({

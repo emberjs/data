@@ -2,10 +2,10 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-module('unit/transform - BooleanTransform', function(hooks) {
+module('unit/transform - BooleanTransform', function (hooks) {
   setupTest(hooks);
 
-  test('#serialize', async function(assert) {
+  test('#serialize', async function (assert) {
     const transform = this.owner.lookup('transform:boolean');
 
     assert.strictEqual(
@@ -32,7 +32,7 @@ module('unit/transform - BooleanTransform', function(hooks) {
     assert.false(transform.serialize(false), 'we serialize false to false');
   });
 
-  test('#deserialize', async function(assert) {
+  test('#deserialize', async function (assert) {
     const transform = this.owner.lookup('transform:boolean');
 
     assert.strictEqual(

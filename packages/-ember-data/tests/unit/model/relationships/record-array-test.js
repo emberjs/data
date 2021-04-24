@@ -8,10 +8,10 @@ import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
 
-module('unit/model/relationships - RecordArray', function(hooks) {
+module('unit/model/relationships - RecordArray', function (hooks) {
   setupTest(hooks);
 
-  test('updating the content of a RecordArray updates its content', async function(assert) {
+  test('updating the content of a RecordArray updates its content', async function (assert) {
     let Tag = DS.Model.extend({
       name: DS.attr('string'),
     });
@@ -47,7 +47,7 @@ module('unit/model/relationships - RecordArray', function(hooks) {
       ],
     });
     tags = DS.RecordArray.create({
-      content: A(records.map(r => recordIdentifierFor(r)).slice(0, 2)),
+      content: A(records.map((r) => recordIdentifierFor(r)).slice(0, 2)),
       store: store,
       modelName: 'tag',
     });
@@ -60,9 +60,9 @@ module('unit/model/relationships - RecordArray', function(hooks) {
       'content',
       A(
         records
-          .map(r => r._internalModel)
+          .map((r) => r._internalModel)
           .slice(1, 3)
-          .map(im => im.identifier)
+          .map((im) => im.identifier)
       )
     );
 
@@ -70,7 +70,7 @@ module('unit/model/relationships - RecordArray', function(hooks) {
     assert.equal(get(tag, 'name'), 'smarmy', 'the lookup was updated');
   });
 
-  test('can create child record from a hasMany relationship', async function(assert) {
+  test('can create child record from a hasMany relationship', async function (assert) {
     assert.expect(3);
 
     const Tag = DS.Model.extend({
@@ -106,12 +106,6 @@ module('unit/model/relationships - RecordArray', function(hooks) {
 
     assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
     assert.equal(get(person, 'tags.length'), 1, 'tag is added to the parent record');
-    assert.equal(
-      get(person, 'tags')
-        .objectAt(0)
-        .get('name'),
-      'cool',
-      'tag values are passed along'
-    );
+    assert.equal(get(person, 'tags').objectAt(0).get('name'), 'cool', 'tag values are passed along');
   });
 });

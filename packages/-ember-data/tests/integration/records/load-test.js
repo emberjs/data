@@ -19,18 +19,18 @@ class Person extends Model {
   bestFriend;
 }
 
-module('integration/load - Loading Records', function(hooks) {
+module('integration/load - Loading Records', function (hooks) {
   let store;
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('service:store', Store);
     owner.register('model:person', Person);
     store = owner.lookup('service:store');
   });
 
-  test('When loading a record fails, the record is not left behind', async function(assert) {
+  test('When loading a record fails, the record is not left behind', async function (assert) {
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
@@ -45,7 +45,7 @@ module('integration/load - Loading Records', function(hooks) {
     });
   });
 
-  todo('Empty records remain in the empty state while data is being fetched', async function(assert) {
+  todo('Empty records remain in the empty state while data is being fetched', async function (assert) {
     let payloads = [
       {
         data: {

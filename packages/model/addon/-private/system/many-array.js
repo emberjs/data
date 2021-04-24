@@ -144,7 +144,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   // TODO: if(DEBUG)
   anyUnloaded() {
     // Use `filter[0]` as opposed to `find` because of IE11
-    let unloaded = this.currentState.filter(im => im._isDematerializing || !im.currentState.isLoaded)[0];
+    let unloaded = this.currentState.filter((im) => im._isDematerializing || !im.currentState.isLoaded)[0];
     return !!unloaded;
   },
 
@@ -222,7 +222,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       internalModels = this.currentState.slice(idx, idx + amt);
       this.get('recordData').removeFromHasMany(
         this.get('key'),
-        internalModels.map(im => recordDataFor(im))
+        internalModels.map((im) => recordDataFor(im))
       );
     }
     if (objects) {
@@ -232,7 +232,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       );
       this.get('recordData').addToHasMany(
         this.get('key'),
-        objects.map(obj => recordDataFor(obj)),
+        objects.map((obj) => recordDataFor(obj)),
         idx
       );
     }

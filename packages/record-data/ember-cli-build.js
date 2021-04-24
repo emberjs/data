@@ -2,7 +2,7 @@
 
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
-module.exports = function(defaults) {
+module.exports = function (defaults) {
   const isProd = process.env.EMBER_ENV === 'production';
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
   let app = new EmberAddon(defaults, {

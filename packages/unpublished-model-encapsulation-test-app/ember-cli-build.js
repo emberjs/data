@@ -4,7 +4,7 @@
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
-module.exports = function(defaults) {
+module.exports = function (defaults) {
   const isProd = process.env.EMBER_ENV === 'production';
   // allows testing with env config for stripping all deprecations
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;

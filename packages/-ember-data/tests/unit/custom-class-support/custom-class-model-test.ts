@@ -17,10 +17,10 @@ type Snapshot = import('ember-data/-private').Snapshot;
 
 let CustomStore, store, schemaDefinition;
 if (CUSTOM_MODEL_CLASS) {
-  module('unit/model - Custom Class Model', function(hooks) {
+  module('unit/model - Custom Class Model', function (hooks) {
     setupTest(hooks);
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
       let { owner } = this;
 
       class Person {
@@ -69,7 +69,7 @@ if (CUSTOM_MODEL_CLASS) {
       owner.unregister('service:store');
     });
 
-    test('notification manager', function(assert) {
+    test('notification manager', function (assert) {
       assert.expect(9);
       let notificationCount = 0;
       let identifier;
@@ -113,7 +113,7 @@ if (CUSTOM_MODEL_CLASS) {
       assert.equal(notificationCount, 4, 'called notification callback');
     });
 
-    test('record creation and teardown', function(assert) {
+    test('record creation and teardown', function (assert) {
       assert.expect(5);
       let returnValue;
       let CreationStore = CustomStore.extend({
@@ -134,7 +134,7 @@ if (CUSTOM_MODEL_CLASS) {
       assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
     });
 
-    test('recordData lookup', function(assert) {
+    test('recordData lookup', function (assert) {
       assert.expect(1);
       let rd;
       let CreationStore = CustomStore.extend({
@@ -169,7 +169,7 @@ if (CUSTOM_MODEL_CLASS) {
       store.createRecord('person', { name: 'chris' });
     });
 
-    test('attribute and relationship with custom schema definition', async function(assert) {
+    test('attribute and relationship with custom schema definition', async function (assert) {
       assert.expect(18);
       this.owner.register(
         'adapter:application',
@@ -271,7 +271,7 @@ if (CUSTOM_MODEL_CLASS) {
       await person.save();
     });
 
-    test('hasModelFor with custom schema definition', async function(assert) {
+    test('hasModelFor with custom schema definition', async function (assert) {
       assert.expect(4);
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
@@ -298,7 +298,7 @@ if (CUSTOM_MODEL_CLASS) {
       assert.false(store._hasModelFor('boat'), 'hasModelFor matches schema hook when false');
     });
 
-    test('store.saveRecord', async function(assert) {
+    test('store.saveRecord', async function (assert) {
       assert.expect(1);
       this.owner.register(
         'adapter:application',
@@ -316,7 +316,7 @@ if (CUSTOM_MODEL_CLASS) {
       assert.equal(person, promisePerson, 'save promise resolves with the same record');
     });
 
-    test('store.deleteRecord', async function(assert) {
+    test('store.deleteRecord', async function (assert) {
       let rd: RecordDataRecordWrapper;
       assert.expect(9);
       this.owner.register(
@@ -352,7 +352,7 @@ if (CUSTOM_MODEL_CLASS) {
       assert.true(rd!.isDeletionCommitted!(), 'deletion has been commited');
     });
 
-    test('record serialize', function(assert) {
+    test('record serialize', function (assert) {
       assert.expect(1);
       this.owner.register(
         'adapter:application',
@@ -438,7 +438,7 @@ if (CUSTOM_MODEL_CLASS) {
       );
     });
 
-    test('relationshipReferenceFor belongsTo', async function(assert) {
+    test('relationshipReferenceFor belongsTo', async function (assert) {
       assert.expect(3);
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
@@ -501,7 +501,7 @@ if (CUSTOM_MODEL_CLASS) {
       assert.equal(relationship.parent.id(), '7', 'house relationship parent found');
     });
 
-    test('relationshipReferenceFor hasMany', async function(assert) {
+    test('relationshipReferenceFor hasMany', async function (assert) {
       assert.expect(3);
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');

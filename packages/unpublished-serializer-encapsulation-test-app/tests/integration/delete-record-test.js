@@ -30,15 +30,15 @@ class Person extends Model {
   }
 }
 
-module('integration/delete-record - running deleteRecord with minimum serializer', function(hooks) {
+module('integration/delete-record - running deleteRecord with minimum serializer', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function (assert) {
     this.owner.register('service:store', Store);
     this.owner.register('model:person', Person);
   });
 
-  test('save after deleting record does not call normalizeResponse and serialize', async function(assert) {
+  test('save after deleting record does not call normalizeResponse and serialize', async function (assert) {
     let normalizeResponseCalled = 0;
     let _payloads = [
       {
@@ -107,7 +107,7 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     assert.equal(normalizeResponseCalled, 1, 'normalizeResponse called once');
   });
 
-  test('save after deleting record does not call normalizeResponse and serializeIntoHash if implemented', async function(assert) {
+  test('save after deleting record does not call normalizeResponse and serializeIntoHash if implemented', async function (assert) {
     let serializeCalled = 0;
     let serializeIntoHashCalled = 0;
     let normalizeResponseCalled = 0;
@@ -188,7 +188,7 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     assert.equal(serializeCalled, 0, 'serialize not called');
   });
 
-  test('save after deleting record does call normalizeResponse if response provided', async function(assert) {
+  test('save after deleting record does call normalizeResponse if response provided', async function (assert) {
     let normalizeResponseCalled = 0;
     let _payloads = [
       {

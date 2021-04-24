@@ -9,10 +9,10 @@ import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('integration/records/collection_save - Save Collection of Records', function(hooks) {
+module('integration/records/collection_save - Save Collection of Records', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const Post = Model.extend({
       title: attr('string'),
     });
@@ -22,7 +22,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('Collection will resolve save on success', function(assert) {
+  test('Collection will resolve save on success', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -35,7 +35,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
 
     let posts = store.peekAll('post');
 
-    adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function (store, type, snapshot) {
       return resolve({ data: { id: id++, type: 'post' } });
     };
 
@@ -46,7 +46,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     });
   });
 
-  test('Collection will reject save on error', function(assert) {
+  test('Collection will reject save on error', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -55,7 +55,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
 
     let posts = store.peekAll('post');
 
-    adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function (store, type, snapshot) {
       return reject();
     };
 
@@ -66,7 +66,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     });
   });
 
-  test('Retry is allowed in a failure handler', function(assert) {
+  test('Retry is allowed in a failure handler', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -78,7 +78,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     let count = 0;
     let id = 1;
 
-    adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function (store, type, snapshot) {
       if (count++ === 0) {
         return reject();
       } else {
@@ -86,7 +86,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
       }
     };
 
-    adapter.updateRecord = function(store, type, snapshot) {
+    adapter.updateRecord = function (store, type, snapshot) {
       return resolve({ data: { id: snapshot.id, type: 'post' } });
     };
 
@@ -94,7 +94,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
       return posts
         .save()
         .catch(() => posts.save())
-        .then(post => {
+        .then((post) => {
           // the ID here is '2' because the second post saves on the first attempt,
           // while the first post saves on the second attempt
           assert.equal(posts.get('firstObject.id'), '2', 'The post ID made it through');
@@ -102,7 +102,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
     });
   });
 
-  test('Collection will reject save on invalid', function(assert) {
+  test('Collection will reject save on invalid', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
@@ -113,7 +113,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
 
     let posts = store.peekAll('post');
 
-    adapter.createRecord = function(store, type, snapshot) {
+    adapter.createRecord = function (store, type, snapshot) {
       return reject({ title: 'invalid' });
     };
 

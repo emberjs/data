@@ -250,7 +250,7 @@ function convertPackageNameToTarballName(str) {
 
 function collectTarballPaths() {
   const tarballs = [];
-  packages.forEach(localName => {
+  packages.forEach((localName) => {
     const pkgDir = path.join(packagesDir, localName);
     const pkgPath = path.join(pkgDir, 'package.json');
     const pkgInfo = require(pkgPath);
@@ -263,7 +263,7 @@ function collectTarballPaths() {
 }
 
 function packAllPackages() {
-  packages.forEach(localName => {
+  packages.forEach((localName) => {
     const pkgDir = path.join(packagesDir, localName);
     const pkgPath = path.join(pkgDir, 'package.json');
     const pkgInfo = require(pkgPath);
@@ -299,7 +299,7 @@ async function getOTPToken() {
   return token.trim();
 }
 function question(prompt) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     cli.question(prompt, resolve);
   });
 }
@@ -411,7 +411,7 @@ async function main() {
 
 main()
   .finally(() => cli.close())
-  .catch(reason => {
+  .catch((reason) => {
     console.error(reason);
     process.exit(1);
   });

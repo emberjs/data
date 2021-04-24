@@ -34,17 +34,17 @@ class TestSerializer {
   }
 }
 
-module('integration/store - serializerFor', function(hooks) {
+module('integration/store - serializerFor', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     store = owner.lookup('service:store');
   });
 
-  test('when no serializer is available we throw an error', async function(assert) {
+  test('when no serializer is available we throw an error', async function (assert) {
     let { owner } = this;
     /*
       serializer:-default is the "last chance" fallback and is
@@ -52,7 +52,7 @@ module('integration/store - serializerFor', function(hooks) {
       here we override to ensure serializerFor will return `undefined`.
      */
     const lookup = owner.lookup;
-    owner.lookup = registrationName => {
+    owner.lookup = (registrationName) => {
       if (registrationName === 'serializer:-default') {
         return undefined;
       }
@@ -79,7 +79,7 @@ module('integration/store - serializerFor', function(hooks) {
     }, /Assertion Failed: No serializer was found for 'person' and no 'application' serializer was found as a fallback/);
   });
 
-  test('we find and instantiate the application serializer', async function(assert) {
+  test('we find and instantiate the application serializer', async function (assert) {
     let { owner } = this;
     let didInstantiate = false;
 
@@ -104,7 +104,7 @@ module('integration/store - serializerFor', function(hooks) {
     assert.ok(serializer === serializerAgain, 'Repeated calls to serializerFor return the same instance');
   });
 
-  test('multiple stores do not share serializers', async function(assert) {
+  test('multiple stores do not share serializers', async function (assert) {
     let { owner } = this;
     let didInstantiate = false;
 
@@ -132,7 +132,7 @@ module('integration/store - serializerFor', function(hooks) {
     otherStore.destroy();
   });
 
-  test('we can find and instantiate per-type serializers', async function(assert) {
+  test('we can find and instantiate per-type serializers', async function (assert) {
     let { owner } = this;
     let didInstantiateAppSerializer = false;
     let didInstantiatePersonSerializer = false;
@@ -164,7 +164,7 @@ module('integration/store - serializerFor', function(hooks) {
     assert.ok(appSerializer !== serializer, 'We have separate serializers');
   });
 
-  test('we fallback to the application serializer when a per-type serializer is not found', async function(assert) {
+  test('we fallback to the application serializer when a per-type serializer is not found', async function (assert) {
     let { owner } = this;
     let didInstantiateAppSerializer = false;
 
@@ -188,7 +188,7 @@ module('integration/store - serializerFor', function(hooks) {
     assert.ok(appSerializer === serializer, 'We fell back to the application serializer instance');
   });
 
-  module('Adapter Fallback', function() {
+  module('Adapter Fallback', function () {
     deprecatedTest(
       'we can specify a fallback serializer on the adapter when there is no application serializer',
       {
@@ -196,7 +196,7 @@ module('integration/store - serializerFor', function(hooks) {
         count: 1,
         until: '4.0',
       },
-      async function(assert) {
+      async function (assert) {
         let { owner } = this;
         let personAdapterDidInit = false;
         let fallbackSerializerDidInit = false;
@@ -242,7 +242,7 @@ module('integration/store - serializerFor', function(hooks) {
         id: 'ember-data:default-serializer',
         until: '4.0',
       },
-      async function(assert) {
+      async function (assert) {
         let { owner } = this;
         let appAdapterDidInit = false;
         let personAdapterDidInit = false;
@@ -318,7 +318,7 @@ module('integration/store - serializerFor', function(hooks) {
         id: 'ember-data:default-serializer',
         until: '4.0',
       },
-      async function(assert) {
+      async function (assert) {
         let { owner } = this;
         let appAdapterDidInit = false;
         let fallbackSerializerDidInit = false;
@@ -384,7 +384,7 @@ module('integration/store - serializerFor', function(hooks) {
       count: 4,
       until: '4.0',
     },
-    async function(assert) {
+    async function (assert) {
       let { owner } = this;
       let appAdapterDidInit = false;
       let defaultSerializerDidInit = false;
@@ -456,7 +456,7 @@ module('integration/store - serializerFor', function(hooks) {
     }
   );
 
-  test('serializers are destroyed', async function(assert) {
+  test('serializers are destroyed', async function (assert) {
     let { owner } = this;
     let didInstantiate = false;
     let didDestroy = false;

@@ -11,10 +11,10 @@ let passedUrl, passedVerb, passedHash;
 
 let User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
 
-module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) {
+module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     User = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
@@ -84,7 +84,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     passedVerb = [];
     passedHash = [];
 
-    adapter.ajax = function(url, verb, hash) {
+    adapter.ajax = function (url, verb, hash) {
       index = counter++;
 
       passedUrl[index] = url;
@@ -95,7 +95,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     };
   }
 
-  test('find a single record', async function(assert) {
+  test('find a single record', async function (assert) {
     assert.expect(3);
 
     ajaxResponse([
@@ -117,7 +117,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(post.get('title'), 'Ember.js rocks', 'Title for record is correct');
   });
 
-  test('find all records with sideloaded relationships', async function(assert) {
+  test('find all records with sideloaded relationships', async function (assert) {
     assert.expect(9);
 
     ajaxResponse([
@@ -214,7 +214,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     );
   });
 
-  test('find many records', async function(assert) {
+  test('find many records', async function (assert) {
     assert.expect(4);
 
     ajaxResponse([
@@ -240,7 +240,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(posts.get('firstObject.title'), 'Ember.js rocks', 'Sets correct title to record');
   });
 
-  test('queryRecord - primary data being a single record', async function(assert) {
+  test('queryRecord - primary data being a single record', async function (assert) {
     ajaxResponse([
       {
         data: {
@@ -259,7 +259,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(post.get('title'), 'Ember.js rocks', 'Sets correct title to record');
   });
 
-  test('queryRecord - primary data being null', async function(assert) {
+  test('queryRecord - primary data being null', async function (assert) {
     ajaxResponse([
       {
         data: null,
@@ -272,7 +272,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.strictEqual(post, null, 'Returns null when adapter response is null');
   });
 
-  testInDebug('queryRecord - primary data being an array throws an assertion', async function(assert) {
+  testInDebug('queryRecord - primary data being an array throws an assertion', async function (assert) {
     ajaxResponse([
       {
         data: [
@@ -289,7 +289,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     }, 'Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.');
   });
 
-  test('find a single record with belongsTo link as object { related }', async function(assert) {
+  test('find a single record with belongsTo link as object { related }', async function (assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -337,7 +337,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(author.lastName, 'Katz', 'Sets correct lastName to record');
   });
 
-  test('find a single record with belongsTo link as object { data }', async function(assert) {
+  test('find a single record with belongsTo link as object { data }', async function (assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -382,7 +382,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(author.lastName, 'Katz', 'Sets correct lastName to record');
   });
 
-  test('find a single record with belongsTo link as object { data } (polymorphic)', async function(assert) {
+  test('find a single record with belongsTo link as object { data } (polymorphic)', async function (assert) {
     assert.expect(8);
 
     ajaxResponse([
@@ -434,7 +434,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.true(company.coffee, 'Sets correct value for coffee attribute');
   });
 
-  test('find a single record with sideloaded belongsTo link as object { data }', async function(assert) {
+  test('find a single record with sideloaded belongsTo link as object { data }', async function (assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -480,7 +480,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(author.lastName, 'Katz', 'Record lastName is correct');
   });
 
-  test('find a single record with hasMany link as object { related }', async function(assert) {
+  test('find a single record with hasMany link as object { related }', async function (assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -534,7 +534,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(comments.get('lastObject.text'), 'This is the second comment', 'Second comment text is correct');
   });
 
-  test('find a single record with hasMany link as object { data }', async function(assert) {
+  test('find a single record with hasMany link as object { data }', async function (assert) {
     assert.expect(8);
 
     ajaxResponse([
@@ -590,7 +590,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(comments.get('lastObject.text'), 'This is the second comment', 'Second comment text is correct');
   });
 
-  test('find a single record with hasMany link as object { data } (polymorphic)', async function(assert) {
+  test('find a single record with hasMany link as object { data } (polymorphic)', async function (assert) {
     assert.expect(9);
 
     ajaxResponse([
@@ -650,7 +650,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(handles.get('lastObject.nickname'), '@wycats', 'Second handle nickname is correct');
   });
 
-  test('find a single record with sideloaded hasMany link as object { data }', async function(assert) {
+  test('find a single record with sideloaded hasMany link as object { data }', async function (assert) {
     assert.expect(7);
 
     ajaxResponse([
@@ -704,7 +704,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(comments.get('lastObject.text'), 'This is the second comment', 'Second comment text is correct');
   });
 
-  test('find a single record with sideloaded hasMany link as object { data } (polymorphic)', async function(assert) {
+  test('find a single record with sideloaded hasMany link as object { data } (polymorphic)', async function (assert) {
     assert.expect(8);
 
     ajaxResponse([
@@ -761,7 +761,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     assert.equal(handles.get('lastObject.nickname'), '@wycats');
   });
 
-  test('create record', async function(assert) {
+  test('create record', async function (assert) {
     assert.expect(3);
 
     ajaxResponse([
@@ -827,7 +827,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     });
   });
 
-  test('update record', async function(assert) {
+  test('update record', async function (assert) {
     assert.expect(3);
 
     ajaxResponse([
@@ -901,7 +901,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     });
   });
 
-  test('update record - serialize hasMany', async function(assert) {
+  test('update record - serialize hasMany', async function (assert) {
     assert.expect(3);
 
     ajaxResponse([
@@ -987,7 +987,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function(hooks) 
     });
   });
 
-  test('fetching a belongsTo relationship link that returns null', async function(assert) {
+  test('fetching a belongsTo relationship link that returns null', async function (assert) {
     assert.expect(3);
 
     ajaxResponse([

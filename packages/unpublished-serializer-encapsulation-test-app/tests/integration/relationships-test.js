@@ -25,16 +25,16 @@ class Comment extends Post {
   post;
 }
 
-module('integration/relationships - running requests for async relatonships with minimum serializer', function(hooks) {
+module('integration/relationships - running requests for async relatonships with minimum serializer', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
   });
 
-  test('accessing an async hasMany relationship without links results in serializer.normalizeResponse being called with the requestType findMany', async function(assert) {
+  test('accessing an async hasMany relationship without links results in serializer.normalizeResponse being called with the requestType findMany', async function (assert) {
     let normalizeResponseCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -121,7 +121,7 @@ module('integration/relationships - running requests for async relatonships with
     assert.deepEqual(comments.mapBy('message'), ['Message 1', 'Message 2'], 'response is expected response');
   });
 
-  test('accessing an async hasMany relationship with links results in serializer.normalizeResponse being called with the requestType findHasMany', async function(assert) {
+  test('accessing an async hasMany relationship with links results in serializer.normalizeResponse being called with the requestType findHasMany', async function (assert) {
     let normalizeResponseCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -185,7 +185,7 @@ module('integration/relationships - running requests for async relatonships with
     assert.deepEqual(comments.mapBy('message'), ['Message 1', 'Message 2'], 'response is expected response');
   });
 
-  test('accessing an async belongsTo relationship with links results in serializer.normalizeResponse being called with the requestType findBelongsTo', async function(assert) {
+  test('accessing an async belongsTo relationship with links results in serializer.normalizeResponse being called with the requestType findBelongsTo', async function (assert) {
     let normalizeResponseCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {

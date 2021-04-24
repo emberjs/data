@@ -19,7 +19,7 @@ function _deepCopy(oldObject, seen) {
 function copyObject(oldObject, seen) {
   let newObject = {};
 
-  Object.keys(oldObject).forEach(key => {
+  Object.keys(oldObject).forEach((key) => {
     let value = oldObject[key];
     let newValue = isPrimitive(value) ? value : seen.get(value);
 

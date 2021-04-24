@@ -13,10 +13,10 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 let store, tryToFind;
 
-module('unit/store/unload - Store unloading records', function(hooks) {
+module('unit/store/unload - Store unloading records', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let Record = Model.extend({
       title: attr('string'),
       wasFetched: attr('boolean'),
@@ -46,7 +46,7 @@ module('unit/store/unload - Store unloading records', function(hooks) {
     store = this.owner.lookup('service:store');
   });
 
-  testInDebug('unload a dirty record asserts', function(assert) {
+  testInDebug('unload a dirty record asserts', function (assert) {
     assert.expect(2);
 
     run(() => {
@@ -68,7 +68,7 @@ module('unit/store/unload - Store unloading records', function(hooks) {
       assert.equal(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
 
       assert.expectAssertion(
-        function() {
+        function () {
           record.unloadRecord();
         },
         'You can only unload a record which is not inFlight. `' + record._internalModel.toString() + '`',
@@ -82,7 +82,7 @@ module('unit/store/unload - Store unloading records', function(hooks) {
     });
   });
 
-  test('unload a record', function(assert) {
+  test('unload a record', function (assert) {
     assert.expect(2);
 
     return run(() => {
@@ -96,7 +96,7 @@ module('unit/store/unload - Store unloading records', function(hooks) {
         },
       });
 
-      return store.findRecord('record', 1).then(record => {
+      return store.findRecord('record', 1).then((record) => {
         assert.equal(get(record, 'id'), 1, 'found record with id 1');
 
         run(() => store.unloadRecord(record));
@@ -110,7 +110,7 @@ module('unit/store/unload - Store unloading records', function(hooks) {
     });
   });
 
-  test('unload followed by create of the same type + id', function(assert) {
+  test('unload followed by create of the same type + id', function (assert) {
     let record = store.createRecord('record', { id: 1 });
 
     assert.ok(store.recordForId('record', 1) === record, 'record should exactly equal');
@@ -123,10 +123,10 @@ module('unit/store/unload - Store unloading records', function(hooks) {
   });
 });
 
-module('Store - unload record with relationships', function(hooks) {
+module('Store - unload record with relationships', function (hooks) {
   setupTest(hooks);
 
-  test('can commit store after unload record with relationships', function(assert) {
+  test('can commit store after unload record with relationships', function (assert) {
     assert.expect(1);
 
     const Brand = Model.extend({
@@ -231,7 +231,7 @@ module('Store - unload record with relationships', function(hooks) {
       .then(() => {
         return store.findRecord('product', 1);
       })
-      .then(product => {
+      .then((product) => {
         assert.equal(
           product.get('description'),
           'cuisinart',

@@ -33,16 +33,16 @@ class Person extends Model {
   lastName;
 }
 
-module('integration/queries - Queries Tests', function(hooks) {
+module('integration/queries - Queries Tests', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('service:store', Store);
     this.owner.register('serializer:application', MinimalSerializer);
     this.owner.register('model:person', Person);
   });
 
-  test('store.findRecord calls adapter.findRecord w/correct args', async function(assert) {
+  test('store.findRecord calls adapter.findRecord w/correct args', async function (assert) {
     let findRecordCalled = 0;
     let expectedResult = {
       data: {
@@ -85,7 +85,7 @@ module('integration/queries - Queries Tests', function(hooks) {
     assert.deepEqual(record.serialize(), expectedResult, 'findRecord returns expected result');
   });
 
-  test('store.findAll calls adapter.findAll w/correct args', async function(assert) {
+  test('store.findAll calls adapter.findAll w/correct args', async function (assert) {
     let findAllCalled = 0;
     let expectedResult = {
       data: [
@@ -134,14 +134,14 @@ module('integration/queries - Queries Tests', function(hooks) {
 
     let manyArray = await store.findAll('person');
 
-    let result = manyArray.toArray().map(person => person.serialize());
-    expectedResult = expectedResult.data.map(person => ({ data: person }));
+    let result = manyArray.toArray().map((person) => person.serialize());
+    expectedResult = expectedResult.data.map((person) => ({ data: person }));
 
     assert.equal(findAllCalled, 1, 'findAll is called once');
     assert.deepEqual(result, expectedResult, 'findAll returns expected result');
   });
 
-  test('store.queryRecord calls adapter.queryRecord w/correct args', async function(assert) {
+  test('store.queryRecord calls adapter.queryRecord w/correct args', async function (assert) {
     let queryRecordCalled = 0;
     let expectedResult = {
       data: {
@@ -177,7 +177,7 @@ module('integration/queries - Queries Tests', function(hooks) {
     assert.deepEqual(record.serialize(), expectedResult, 'queryRecord returns expected result');
   });
 
-  test('store.query calls adapter.query w/correct args', async function(assert) {
+  test('store.query calls adapter.query w/correct args', async function (assert) {
     let queryCalled = 0;
     let expectedResult = {
       data: [
@@ -220,8 +220,8 @@ module('integration/queries - Queries Tests', function(hooks) {
 
     let manyArray = await store.query('person', { firstName: 'Chris' });
 
-    let result = manyArray.toArray().map(person => person.serialize());
-    expectedResult = expectedResult.data.map(person => ({ data: person }));
+    let result = manyArray.toArray().map((person) => person.serialize());
+    expectedResult = expectedResult.data.map((person) => ({ data: person }));
 
     assert.equal(queryCalled, 1, 'query is called once');
     assert.deepEqual(result, expectedResult, 'query returns expected result');

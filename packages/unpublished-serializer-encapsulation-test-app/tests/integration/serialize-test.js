@@ -29,15 +29,15 @@ class Person extends Model {
   }
 }
 
-module('integration/serializer - serialize methods forward to Serializer#serialize', function(hooks) {
+module('integration/serializer - serialize methods forward to Serializer#serialize', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function (assert) {
     this.owner.register('service:store', Store);
     this.owner.register('model:person', Person);
   });
 
-  test('Model#serialize calls Serializer#serialize', async function(assert) {
+  test('Model#serialize calls Serializer#serialize', async function (assert) {
     let serializeCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -92,7 +92,7 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
     });
   });
 
-  test('Snapshot#serialize calls Serializer#serialize', async function(assert) {
+  test('Snapshot#serialize calls Serializer#serialize', async function (assert) {
     let serializeCalled = 0;
 
     class TestMinimumSerializer extends EmberObject {
@@ -148,7 +148,7 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
   });
 
   if (CUSTOM_MODEL_CLASS) {
-    test('Store#serializeRecord calls Serializer#serialize', async function(assert) {
+    test('Store#serializeRecord calls Serializer#serialize', async function (assert) {
       let serializeCalled = 0;
 
       class TestMinimumSerializer extends EmberObject {

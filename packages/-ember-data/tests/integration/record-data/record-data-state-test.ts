@@ -112,7 +112,7 @@ let CustomStore = Store.extend({
   },
 });
 
-module('integration/record-data - Record Data State', function(hooks) {
+module('integration/record-data - Record Data State', function (hooks) {
   if (!RECORD_DATA_STATE) {
     return;
   }
@@ -120,7 +120,7 @@ module('integration/record-data - Record Data State', function(hooks) {
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:person', Person);
@@ -129,7 +129,7 @@ module('integration/record-data - Record Data State', function(hooks) {
     owner.register('serializer:application', JSONAPISerializer);
   });
 
-  test('Record Data state saving', async function(assert) {
+  test('Record Data state saving', async function (assert) {
     assert.expect(3);
 
     let isDeleted, isNew, isDeletionCommitted;
@@ -211,7 +211,7 @@ module('integration/record-data - Record Data State', function(hooks) {
     assert.true(calledUpdate, 'called update if record isnt deleted or new');
   });
 
-  test('Record Data state record flags', async function(assert) {
+  test('Record Data state record flags', async function (assert) {
     assert.expect(9);
     let isDeleted, isNew, isDeletionCommitted;
     let calledSetIsDeleted = false;

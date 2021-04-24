@@ -8,10 +8,10 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('integration/store/query', function(hooks) {
+module('integration/store/query', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const Person = DS.Model.extend();
 
     this.owner.register('model:person', Person);
@@ -19,7 +19,7 @@ module('integration/store/query', function(hooks) {
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('meta is proxied correctly on the PromiseArray', function(assert) {
+  test('meta is proxied correctly on the PromiseArray', function (assert) {
     let store = this.owner.lookup('service:store');
 
     let defered = RSVP.defer();
@@ -34,13 +34,13 @@ module('integration/store/query', function(hooks) {
     );
 
     let result;
-    run(function() {
+    run(function () {
       result = store.query('person', {});
     });
 
     assert.notOk(result.get('meta.foo'), 'precond: meta is not yet set');
 
-    run(function() {
+    run(function () {
       defered.resolve({ data: [], meta: { foo: 'bar' } });
     });
 

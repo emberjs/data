@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
 
-module('Integration | Graph | Configuration', function(hooks) {
+module('Integration | Graph | Configuration', function (hooks) {
   setupTest(hooks);
 
   class MyStore extends Store {
@@ -13,14 +13,14 @@ module('Integration | Graph | Configuration', function(hooks) {
   }
 
   let store;
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function (assert) {
     const { owner } = this;
     owner.register('service:store', MyStore);
     store = owner.lookup('service:store');
     assert.strictEqual(store.isGraphStore, true, 'pre-cond, store registered correctly');
   });
 
-  test('graphFor util returns the same graph instance for repeated calls on the same store wrapper instance', async function(assert) {
+  test('graphFor util returns the same graph instance for repeated calls on the same store wrapper instance', async function (assert) {
     const wrapper = store._storeWrapper;
     const graph1 = graphFor(wrapper);
     const graph2 = graphFor(wrapper);
@@ -30,7 +30,7 @@ module('Integration | Graph | Configuration', function(hooks) {
     assert.strictEqual(graph2, graph3, 'We got the same instance the third time');
   });
 
-  test('graphFor util returns a new graph instance for each unique store wrapper', async function(assert) {
+  test('graphFor util returns a new graph instance for each unique store wrapper', async function (assert) {
     const { owner } = this;
     const wrapper1 = store._storeWrapper;
 
@@ -51,7 +51,7 @@ module('Integration | Graph | Configuration', function(hooks) {
     assert.notStrictEqual(graph2, graph3, 'The instance for store2 is not the same as store3');
   });
 
-  test('graphFor util returns the same graph instance for repeated calls on the same store instance', async function(assert) {
+  test('graphFor util returns the same graph instance for repeated calls on the same store instance', async function (assert) {
     const graph1 = graphFor(store);
     const graph2 = graphFor(store);
     const graph3 = graphFor(store);
@@ -60,7 +60,7 @@ module('Integration | Graph | Configuration', function(hooks) {
     assert.strictEqual(graph2, graph3, 'We got the same instance the third time');
   });
 
-  test('graphFor util returns a new graph instance for each unique store', async function(assert) {
+  test('graphFor util returns a new graph instance for each unique store', async function (assert) {
     const { owner } = this;
     owner.register('service:store2', MyStore);
     owner.register('service:store3', MyStore);
@@ -77,7 +77,7 @@ module('Integration | Graph | Configuration', function(hooks) {
     assert.notStrictEqual(graph2, graph3, 'The instance for store2 is not the same as store3');
   });
 
-  test('graphFor util returns the same graph instance for the store and storeWrapper', async function(assert) {
+  test('graphFor util returns the same graph instance for the store and storeWrapper', async function (assert) {
     const { owner } = this;
     const wrapper = store._storeWrapper;
     // lookup the wrapper first

@@ -8,7 +8,7 @@ import { resolve } from 'rsvp';
 */
 
 export function _bind(fn, ...args) {
-  return function() {
+  return function () {
     return fn.apply(undefined, args);
   };
 }
@@ -32,7 +32,7 @@ export function guardDestroyedStore(promise, store, label) {
   if (DEBUG) {
     token = store._trackAsyncRequestStart(label);
   }
-  let wrapperPromise = resolve(promise, label).then(v => promise);
+  let wrapperPromise = resolve(promise, label).then((v) => promise);
 
   return _guard(wrapperPromise, () => {
     if (DEBUG) {

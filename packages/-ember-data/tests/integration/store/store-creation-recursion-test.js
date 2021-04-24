@@ -4,10 +4,10 @@ import { setupTest } from 'ember-qunit';
 
 import Transform from '@ember-data/serializer/transform';
 
-module('integration/store/creation-recursion', function(hooks) {
+module('integration/store/creation-recursion', function (hooks) {
   setupTest(hooks);
 
-  test('store construction does not construct transforms', function(assert) {
+  test('store construction does not construct transforms', function (assert) {
     let storeFactory = this.owner.factoryFor('service:store');
 
     this.owner.unregister('service:store');

@@ -115,7 +115,7 @@ let CustomStore = Store.extend({
   },
 });
 
-module('integration/record-data - Custom RecordData Errors', function(hooks) {
+module('integration/record-data - Custom RecordData Errors', function (hooks) {
   if (!RECORD_DATA_ERRORS) {
     return;
   }
@@ -124,7 +124,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:person', Person);
@@ -133,7 +133,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
     owner.register('serializer:application', JSONAPISerializer);
   });
 
-  test('Record Data invalid errors', async function(assert) {
+  test('Record Data invalid errors', async function (assert) {
     assert.expect(2);
 
     const personHash = {
@@ -189,11 +189,11 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
     let person = store.peekRecord('person', '1');
     person.save().then(
       () => {},
-      err => {}
+      (err) => {}
     );
   });
 
-  test('Record Data adapter errors', async function(assert) {
+  test('Record Data adapter errors', async function (assert) {
     assert.expect(1);
     const personHash = {
       type: 'person',
@@ -233,11 +233,11 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
     let person = store.peekRecord('person', '1');
     await person.save().then(
       () => {},
-      err => {}
+      (err) => {}
     );
   });
 
-  test('Getting errors from Record Data shows up on the record', async function(assert) {
+  test('Getting errors from Record Data shows up on the record', async function (assert) {
     assert.expect(7);
     let storeWrapper;
     const personHash = {
@@ -283,10 +283,7 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
       data: [personHash],
     });
     let person = store.peekRecord('person', '1');
-    let nameError = person
-      .get('errors')
-      .errorsFor('name')
-      .get('firstObject');
+    let nameError = person.get('errors').errorsFor('name').get('firstObject');
     assert.equal(nameError.attribute, 'name', 'error shows up on name');
     assert.false(person.get('isValid'), 'person is not valid');
     errorsToReturn = [];
@@ -305,14 +302,11 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
     storeWrapper.notifyErrorsChange('person', '1');
     assert.false(person.get('isValid'), 'person is valid');
     assert.equal(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
-    let lastNameError = person
-      .get('errors')
-      .errorsFor('lastName')
-      .get('firstObject');
+    let lastNameError = person.get('errors').errorsFor('lastName').get('firstObject');
     assert.equal(lastNameError.attribute, 'lastName', 'error shows up on lastName');
   });
 
-  test('Record data which does not implement getErrors still works correctly with the default DS.Model', async function(assert) {
+  test('Record data which does not implement getErrors still works correctly with the default DS.Model', async function (assert) {
     assert.expect(4);
 
     const personHash = {
@@ -368,14 +362,11 @@ module('integration/record-data - Custom RecordData Errors', function(hooks) {
     let person = store.peekRecord('person', '1');
     await person.save().then(
       () => {},
-      err => {}
+      (err) => {}
     );
 
     assert.false(person.get('isValid'), 'rejecting the save invalidates the person');
-    let nameError = person
-      .get('errors')
-      .errorsFor('name')
-      .get('firstObject');
+    let nameError = person.get('errors').errorsFor('name').get('firstObject');
     assert.equal(nameError.attribute, 'name', 'error shows up on name');
   });
 });

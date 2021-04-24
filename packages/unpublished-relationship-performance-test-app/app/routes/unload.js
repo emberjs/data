@@ -25,7 +25,7 @@ export default Route.extend({
     parent
       .get('children')
       .toArray()
-      .forEach(child => child.unloadRecord());
+      .forEach((child) => child.unloadRecord());
     parent.unloadRecord();
 
     return new Promise((resolve, reject) => {

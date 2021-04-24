@@ -7,7 +7,7 @@ const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 const isProd = true;
 const compatWith = process.env.COMPAT_WITH || '0.0.0';
 
-module.exports = function(defaults) {
+module.exports = function (defaults) {
   let app = new EmberAddon(defaults, {
     emberData: {
       compatWith,

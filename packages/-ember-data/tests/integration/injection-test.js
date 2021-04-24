@@ -6,12 +6,12 @@ import { setupTest } from 'ember-qunit';
 
 import Model from '@ember-data/model';
 
-module('integration/injection factoryFor enabled', function(hooks) {
+module('integration/injection factoryFor enabled', function (hooks) {
   setupTest(hooks);
   let store;
   let Model;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     Model = {
       isModel: true,
@@ -20,7 +20,7 @@ module('integration/injection factoryFor enabled', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('modelFactoryFor', function(assert) {
+  test('modelFactoryFor', function (assert) {
     let { owner } = this;
     const trueFactory = owner.factoryFor('model:super-villain');
     const modelFactory = store._modelFactoryFor('super-villain');
@@ -28,7 +28,7 @@ module('integration/injection factoryFor enabled', function(hooks) {
     assert.strictEqual(modelFactory, trueFactory, 'expected the factory itself to be returned');
   });
 
-  test('modelFor', function(assert) {
+  test('modelFor', function (assert) {
     const modelClass = store.modelFor('super-villain');
 
     assert.strictEqual(modelClass, Model, 'expected the factory itself to be returned');
@@ -37,12 +37,12 @@ module('integration/injection factoryFor enabled', function(hooks) {
   });
 });
 
-module('integration/injection eager injections', function(hooks) {
+module('integration/injection eager injections', function (hooks) {
   setupTest(hooks);
   let store;
   let Apple = Service.extend();
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:foo', Model.extend());
@@ -52,7 +52,7 @@ module('integration/injection eager injections', function(hooks) {
     store = this.owner.lookup('service:store');
   });
 
-  test('did inject', async function(assert) {
+  test('did inject', async function (assert) {
     let foo = store.createRecord('foo');
     let apple = foo.get('apple');
     let appleService = this.owner.lookup('service:apple');

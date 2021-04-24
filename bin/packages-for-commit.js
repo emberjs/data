@@ -54,7 +54,7 @@ if (!fs.existsSync(TarballConfig.tarballDir)) {
 
 const AllPackages = Object.keys(OurPackages);
 const availablePackages = [];
-AllPackages.forEach(packageName => {
+AllPackages.forEach((packageName) => {
   const pkg = OurPackages[packageName];
 
   insertTarballsToPackageJson(pkg.fileLocation, {

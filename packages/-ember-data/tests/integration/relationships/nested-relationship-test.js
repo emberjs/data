@@ -8,10 +8,10 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-module('integration/relationships/nested_relationships_test - Nested relationships', function(hooks) {
+module('integration/relationships/nested_relationships_test - Nested relationships', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const Elder = Model.extend({
       name: attr('string'),
       middleAgers: hasMany('middle-ager'),
@@ -38,7 +38,7 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
     Server loading tests
   */
 
-  test('Sideloaded nested relationships load correctly', function(assert) {
+  test('Sideloaded nested relationships load correctly', function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -131,14 +131,14 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
     return run(() => {
       let kid = store.peekRecord('kid', '1');
 
-      return kid.get('middleAger').then(middleAger => {
+      return kid.get('middleAger').then((middleAger) => {
         assert.ok(middleAger, 'MiddleAger relationship was set up correctly');
 
         let middleAgerName = get(middleAger, 'name');
         assert.equal(middleAgerName, 'Middle Ager 1', 'MiddleAger name is there');
         assert.ok(middleAger.get('kids').includes(kid));
 
-        return middleAger.get('elder').then(elder => {
+        return middleAger.get('elder').then((elder) => {
           assert.notEqual(elder, null, 'Elder relationship was set up correctly');
           let elderName = get(elder, 'name');
           assert.equal(elderName, 'Elder 1', 'Elder name is there');

@@ -15,7 +15,7 @@ export function typesMapFor(store) {
 
 // override _createRecordData to add the known models to the typesMap
 const __createRecordData = Store.prototype._createRecordData;
-Store.prototype._createRecordData = function(identifier) {
+Store.prototype._createRecordData = function (identifier) {
   const typesMap = typesMapFor(this);
   if (!typesMap.has(identifier.type)) {
     typesMap.set(identifier.type, false);

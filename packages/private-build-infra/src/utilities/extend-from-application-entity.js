@@ -5,7 +5,7 @@ const stringUtil = require('ember-cli-string-utils');
 const SilentError = require('silent-error');
 const pathUtil = require('ember-cli-path-utils');
 
-module.exports = function(type, baseClass, options) {
+module.exports = function (type, baseClass, options) {
   let isAddon = options.inRepoAddon || options.project.isEmberCLIAddon();
 
   let entityName = options.entity.name;

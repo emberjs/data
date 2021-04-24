@@ -4,17 +4,17 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 
-module('unit/model/attr | attr syntax', function(hooks) {
+module('unit/model/attr | attr syntax', function (hooks) {
   setupTest(hooks);
 
   let store;
   let owner;
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     owner = this.owner;
     store = owner.lookup('service:store');
   });
 
-  test('attr can be used with classic syntax', async function(assert) {
+  test('attr can be used with classic syntax', async function (assert) {
     const User = Model.extend({
       name: attr(),
       nameWithTransform: attr('string'),
@@ -54,7 +54,7 @@ module('unit/model/attr | attr syntax', function(hooks) {
     );
   });
 
-  test('attr can be used with native syntax decorator style', async function(assert) {
+  test('attr can be used with native syntax decorator style', async function (assert) {
     class User extends Model {
       @attr() name;
       @attr('string') nameWithTransform;
@@ -94,7 +94,7 @@ module('unit/model/attr | attr syntax', function(hooks) {
     );
   });
 
-  test('attr cannot be used with native syntax prop style', async function(assert) {
+  test('attr cannot be used with native syntax prop style', async function (assert) {
     // TODO it would be nice if this syntax error'd but it currently doesn't
     class User extends Model {
       name = attr();
@@ -135,7 +135,7 @@ module('unit/model/attr | attr syntax', function(hooks) {
     );
   });
 
-  test('attr can be used with native syntax decorator style without parens', async function(assert) {
+  test('attr can be used with native syntax decorator style without parens', async function (assert) {
     class User extends Model {
       @attr name;
     }

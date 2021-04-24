@@ -26,7 +26,7 @@ export default Route.extend({
       parent
         .get('children')
         .toArray()
-        .map(child => child.destroyRecord().then(() => child.unloadRecord()))
+        .map((child) => child.destroyRecord().then(() => child.unloadRecord()))
     );
     const parentPromise = parent.destroyRecord().then(() => parent.unloadRecord());
 

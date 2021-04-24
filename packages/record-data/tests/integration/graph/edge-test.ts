@@ -7,19 +7,19 @@ import { graphFor, RecordData } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
 import { recordDataFor } from '@ember-data/store/-private';
 
-module('Integration | Graph | Edges', function(hooks) {
+module('Integration | Graph | Edges', function (hooks) {
   setupTest(hooks);
 
   let store;
   let graph;
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const { owner } = this;
     owner.register('service:store', Store);
     store = owner.lookup('service:store');
     graph = graphFor(store);
   });
 
-  module('Lazy instantiation of RecordData', function() {
+  module('Lazy instantiation of RecordData', function () {
     /**
      * Tests in this module affirm that the relationship graph does not
      * unnecessarily force materialization of RecordData instances. This
@@ -27,7 +27,7 @@ module('Integration | Graph | Edges', function(hooks) {
      * knowledge derived from it's inverses.
      */
 
-    test('accessing the relationships for an identifier does not instantiate record-data for that identifier', async function(assert) {
+    test('accessing the relationships for an identifier does not instantiate record-data for that identifier', async function (assert) {
       const { owner } = this;
       const { identifierCache } = store;
       class User extends Model {
@@ -87,7 +87,7 @@ module('Integration | Graph | Edges', function(hooks) {
       );
     });
 
-    test('working with a sync belongsTo relationship for an identifier does not instantiate record-data for that identifier', async function(assert) {
+    test('working with a sync belongsTo relationship for an identifier does not instantiate record-data for that identifier', async function (assert) {
       const { owner } = this;
       const { identifierCache } = store;
       class User extends Model {
@@ -157,7 +157,7 @@ module('Integration | Graph | Edges', function(hooks) {
       );
     });
 
-    test('working with an async belongsTo relationship for an identifier does not instantiate record-data for that identifier', async function(assert) {
+    test('working with an async belongsTo relationship for an identifier does not instantiate record-data for that identifier', async function (assert) {
       const { owner } = this;
       const { identifierCache } = store;
       class User extends Model {
@@ -227,7 +227,7 @@ module('Integration | Graph | Edges', function(hooks) {
       );
     });
 
-    test('working with a sync hasMany relationship for an identifier does not instantiate record-data for that identifier', async function(assert) {
+    test('working with a sync hasMany relationship for an identifier does not instantiate record-data for that identifier', async function (assert) {
       const { owner } = this;
       const { identifierCache } = store;
       class User extends Model {
@@ -314,7 +314,7 @@ module('Integration | Graph | Edges', function(hooks) {
       );
     });
 
-    test('working with an async hasMany relationship for an identifier does not instantiate record-data for that identifier', async function(assert) {
+    test('working with an async hasMany relationship for an identifier does not instantiate record-data for that identifier', async function (assert) {
       const { owner } = this;
       const { identifierCache } = store;
       class User extends Model {

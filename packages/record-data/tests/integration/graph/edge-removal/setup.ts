@@ -62,8 +62,8 @@ export function stateOf(rel: Relationship) {
     local = rel.inverseRecordData ? [rel.inverseRecordData] : [];
     remote = rel.canonicalState ? [rel.canonicalState] : [];
   } else {
-    local = rel.members.list.map(m => (m ? m : null));
-    remote = rel.canonicalMembers.list.map(m => (m ? m : null));
+    local = rel.members.list.map((m) => (m ? m : null));
+    remote = rel.canonicalMembers.list.map((m) => (m ? m : null));
   }
   return {
     local,
@@ -108,7 +108,7 @@ interface TestStore<T> extends CoreStore {
 
 export function setupGraphTest(hooks) {
   setupTest(hooks);
-  hooks.beforeEach(function(this: Context) {
+  hooks.beforeEach(function (this: Context) {
     this.owner.register('service:store', Store);
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', Serializer);

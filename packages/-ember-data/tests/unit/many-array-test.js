@@ -10,10 +10,10 @@ let store, Post, Tag;
 
 const { attr, hasMany, belongsTo } = DS;
 
-module('unit/many_array - DS.ManyArray', function(hooks) {
+module('unit/many_array - DS.ManyArray', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     Post = DS.Model.extend({
       title: attr('string'),
       tags: hasMany('tag', { async: false }),
@@ -42,7 +42,7 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
     store = this.owner.lookup('service:store');
   });
 
-  test('manyArray.save() calls save() on all records', function(assert) {
+  test('manyArray.save() calls save() on all records', function (assert) {
     assert.expect(3);
 
     Tag.reopen({
@@ -98,7 +98,7 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
     });
   });
 
-  test('manyArray trigger arrayContentChange functions with the correct values', function(assert) {
+  test('manyArray trigger arrayContentChange functions with the correct values', function (assert) {
     assert.expect(6);
 
     let willChangeStartIdx;
@@ -110,7 +110,7 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
 
     // override DS.ManyArray temp (cleanup occures in afterTest);
 
-    DS.ManyArray.proto().arrayContentWillChange = function(startIdx, removeAmt, addAmt) {
+    DS.ManyArray.proto().arrayContentWillChange = function (startIdx, removeAmt, addAmt) {
       willChangeStartIdx = startIdx;
       willChangeRemoveAmt = removeAmt;
       willChangeAddAmt = addAmt;
@@ -118,7 +118,7 @@ module('unit/many_array - DS.ManyArray', function(hooks) {
       return originalArrayContentWillChange.apply(this, arguments);
     };
 
-    DS.ManyArray.proto().arrayContentDidChange = function(startIdx, removeAmt, addAmt) {
+    DS.ManyArray.proto().arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
       assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
       assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
       assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');

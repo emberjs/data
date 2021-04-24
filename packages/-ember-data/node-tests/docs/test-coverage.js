@@ -7,9 +7,9 @@ const QUnit = require('qunit');
 
 const test = QUnit.test;
 
-QUnit.module('Docs coverage', function(hooks) {
+QUnit.module('Docs coverage', function (hooks) {
   let docs, expected;
-  hooks.before(function() {
+  hooks.before(function () {
     if (!process.env.REUSE_DOCS) {
       buildDocs();
     }
@@ -17,18 +17,18 @@ QUnit.module('Docs coverage', function(hooks) {
     expected = require('../fixtures/expected');
   });
 
-  QUnit.module('modules', function() {
-    test('We have all expected modules', function(assert) {
+  QUnit.module('modules', function () {
+    test('We have all expected modules', function (assert) {
       assert.deepEqual(Object.keys(docs.modules).sort(), expected.modules, 'We have all modules');
     });
   });
 
-  QUnit.module('classitems', function(hooks) {
+  QUnit.module('classitems', function (hooks) {
     let docsItems, expectedItems;
-    hooks.before(function() {
+    hooks.before(function () {
       docsItems = new Set(
         docs.classitems
-          .map(item => {
+          .map((item) => {
             // docs without internal and without a private flag are published as public by default
             let status =
               item.access || (Object.prototype.hasOwnProperty.call(item, 'internal') ? 'internal' : 'public');
@@ -42,7 +42,7 @@ QUnit.module('Docs coverage', function(hooks) {
       expectedItems = new Set(expected.classitems);
     });
 
-    test('No missing classitems', function(assert) {
+    test('No missing classitems', function (assert) {
       let missing = setDifference(expectedItems, docsItems);
       assert.emptySet(
         missing,
@@ -50,7 +50,7 @@ QUnit.module('Docs coverage', function(hooks) {
       );
     });
 
-    test('No extraneous classitems', function(assert) {
+    test('No extraneous classitems', function (assert) {
       let extraneous = setDifference(docsItems, expectedItems);
       assert.emptySet(
         extraneous,

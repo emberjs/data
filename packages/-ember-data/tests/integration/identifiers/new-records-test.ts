@@ -5,11 +5,11 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
-module('Integration | Identifiers - creating new records', function(hooks) {
+module('Integration | Identifiers - creating new records', function (hooks) {
   setupTest(hooks);
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const { owner } = this;
     owner.register(`service:store`, Store);
 
@@ -21,7 +21,7 @@ module('Integration | Identifiers - creating new records', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test(`We can peek before create`, async function(assert) {
+  test(`We can peek before create`, async function (assert) {
     let record = store.peekRecord('user', '1');
     assert.ok(record === null, 'peekRecord returns null');
 

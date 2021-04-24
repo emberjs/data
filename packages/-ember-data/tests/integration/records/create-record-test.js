@@ -26,11 +26,11 @@ class Pet extends Model {
   name;
 }
 
-module('Store.createRecord() coverage', function(hooks) {
+module('Store.createRecord() coverage', function (hooks) {
   let store;
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
     owner.register('service:store', Store);
     owner.register('model:person', Person);
@@ -38,7 +38,7 @@ module('Store.createRecord() coverage', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('unloading a newly created a record with a sync belongsTo relationship', async function(assert) {
+  test('unloading a newly created a record with a sync belongsTo relationship', async function (assert) {
     let chris = store.push({
       data: {
         id: '1',
@@ -65,7 +65,7 @@ module('Store.createRecord() coverage', function(hooks) {
     let pets = chris
       .get('pets')
       .toArray()
-      .map(pet => pet.get('name'));
+      .map((pet) => pet.get('name'));
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
     pet.unloadRecord();
@@ -76,11 +76,11 @@ module('Store.createRecord() coverage', function(hooks) {
     pets = chris
       .get('pets')
       .toArray()
-      .map(pet => pet.get('name'));
+      .map((pet) => pet.get('name'));
     assert.deepEqual(pets, [], 'Chris no longer has any pets');
   });
 
-  test('unloading a record with a sync hasMany relationship to a newly created record', async function(assert) {
+  test('unloading a record with a sync hasMany relationship to a newly created record', async function (assert) {
     let chris = store.push({
       data: {
         id: '1',
@@ -107,7 +107,7 @@ module('Store.createRecord() coverage', function(hooks) {
     let pets = chris
       .get('pets')
       .toArray()
-      .map(pet => pet.get('name'));
+      .map((pet) => pet.get('name'));
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
     chris.unloadRecord();
@@ -118,11 +118,11 @@ module('Store.createRecord() coverage', function(hooks) {
     pets = chris
       .get('pets')
       .toArray()
-      .map(pet => pet.get('name'));
+      .map((pet) => pet.get('name'));
     assert.deepEqual(pets, [], 'Chris no longer has any pets');
   });
 
-  test('creating and saving a record with relationships puts them into the correct state', async function(assert) {
+  test('creating and saving a record with relationships puts them into the correct state', async function (assert) {
     this.owner.register(
       'serializer:application',
       JSONAPISerializer.extend({

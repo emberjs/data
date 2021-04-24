@@ -8,14 +8,14 @@ import { setupTest } from 'ember-qunit';
 
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/store/peekRecord - Store peekRecord', function(hooks) {
+module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('model:person', DS.Model.extend());
   });
 
-  test('peekRecord should return the record if it is in the store ', function(assert) {
+  test('peekRecord should return the record if it is in the store ', function (assert) {
     let store = this.owner.lookup('service:store');
 
     run(() => {
@@ -33,7 +33,7 @@ module('unit/store/peekRecord - Store peekRecord', function(hooks) {
     });
   });
 
-  test('peekRecord should return null if the record is not in the store ', function(assert) {
+  test('peekRecord should return null if the record is not in the store ', function (assert) {
     let store = this.owner.lookup('service:store');
 
     run(() => {
@@ -45,7 +45,7 @@ module('unit/store/peekRecord - Store peekRecord', function(hooks) {
     });
   });
 
-  testInDebug('peekRecord should assert if not passed both model name and id', function(assert) {
+  testInDebug('peekRecord should assert if not passed both model name and id', function (assert) {
     let store = this.owner.lookup('service:store');
 
     run(() => {
@@ -55,7 +55,7 @@ module('unit/store/peekRecord - Store peekRecord', function(hooks) {
     });
   });
 
-  testInDebug('peekRecord should assert if passed a model class instead of model name', function(assert) {
+  testInDebug('peekRecord should assert if passed a model class instead of model name', function (assert) {
     let store = this.owner.lookup('service:store');
 
     run(() => {

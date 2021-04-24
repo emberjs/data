@@ -19,7 +19,7 @@ export default function promiseRecord(
   internalModelPromise: Promise<InternalModel>,
   label: string
 ): PromiseProxy<DSModel> {
-  let toReturn = internalModelPromise.then(internalModel => internalModel.getRecord());
+  let toReturn = internalModelPromise.then((internalModel) => internalModel.getRecord());
 
   return promiseObject(toReturn, label);
 }

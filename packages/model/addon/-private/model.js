@@ -63,7 +63,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
 
   let relationshipsForType = relationshipMap.get(type.modelName);
   let relationships = Array.isArray(relationshipsForType)
-    ? relationshipsForType.filter(relationship => {
+    ? relationshipsForType.filter((relationship) => {
         let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
         if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
@@ -94,7 +94,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
 function computeOnce(target, key, desc) {
   const cache = new WeakMap();
   let getter = desc.get;
-  desc.get = function() {
+  desc.get = function () {
     let meta = cache.get(this);
 
     if (!meta) {
@@ -135,7 +135,7 @@ class Model extends EmberObject {
     }
 
     if (REQUEST_SERVICE) {
-      this.store.getRequestStateService().subscribeForRecord(this._internalModel.identifier, request => {
+      this.store.getRequestStateService().subscribeForRecord(this._internalModel.identifier, (request) => {
         if (request.state === 'rejected') {
           // TODO filter out queries
           this._lastError = request;
@@ -158,9 +158,11 @@ class Model extends EmberObject {
 
   _notifyNetworkChanges() {
     if (REQUEST_SERVICE) {
-      ['isSaving', 'isValid', 'isError', 'adapterError', 'isReloading'].forEach(key => this.notifyPropertyChange(key));
+      ['isSaving', 'isValid', 'isError', 'adapterError', 'isReloading'].forEach((key) =>
+        this.notifyPropertyChange(key)
+      );
     } else {
-      ['isValid'].forEach(key => this.notifyPropertyChange(key));
+      ['isValid'].forEach((key) => this.notifyPropertyChange(key));
     }
   }
 
@@ -488,7 +490,7 @@ class Model extends EmberObject {
     if (REQUEST_SERVICE) {
       if (isReloading === undefined) {
         let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
-        let value = !!requests.find(req => req.request.data[0].options.isReloading);
+        let value = !!requests.find((req) => req.request.data[0].options.isReloading);
         meta.isReloading = value;
         return value;
       }
@@ -1461,7 +1463,7 @@ class Model extends EmberObject {
         return null;
       }
 
-      let filteredRelationships = possibleRelationships.filter(possibleRelationship => {
+      let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
         let optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
         return name === optionsForRelationship.inverse;
       });
@@ -1559,7 +1561,7 @@ class Model extends EmberObject {
     let relationshipsByName = this.relationshipsByName;
 
     // Loop through each computed property on the class
-    relationshipsByName.forEach(desc => {
+    relationshipsByName.forEach((desc) => {
       let { type } = desc;
 
       if (!map.has(type)) {
@@ -2099,7 +2101,7 @@ if (HAS_DEBUG_PACKAGE) {
    @for Model
    @private
    */
-  Model.prototype._debugInfo = function() {
+  Model.prototype._debugInfo = function () {
     let attributes = ['id'];
     let relationships = {};
     let expensiveProperties = [];
@@ -2301,7 +2303,7 @@ if (DEBUG) {
       if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
         let lifecycleDeprecations = lookupDeprecations(this.constructor);
 
-        _deprecatedLifecycleMethods.forEach(methodName => {
+        _deprecatedLifecycleMethods.forEach((methodName) => {
           if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
             deprecate(
               `You defined a \`${methodName}\` method for ${this.constructor.toString()} but lifecycle events for models have been deprecated.`,

@@ -54,7 +54,7 @@ Error.stackTraceLimit = 50;
  */
 function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSomeResult {
   // TODO optionally throw if `until` is the current version or older than current version
-  let matchedDeprecations = DEPRECATIONS_FOR_TEST.filter(deprecation => {
+  let matchedDeprecations = DEPRECATIONS_FOR_TEST.filter((deprecation) => {
     let isMatched = deprecation.options.id === config.id;
     if (!isMatched && config.message) {
       // TODO when we hit this we should throw an error in the near future
@@ -62,7 +62,7 @@ function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSom
     }
     return isMatched;
   });
-  DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter(deprecation => {
+  DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter((deprecation) => {
     return matchedDeprecations.indexOf(deprecation) === -1;
   });
   HANDLED_DEPRECATIONS_FOR_TEST.push(...matchedDeprecations);
@@ -87,7 +87,7 @@ function verifyNoDeprecation(filter?: (deprecation: FoundDeprecation) => boolean
 
   if (filter) {
     UNHANDLED_DEPRECATIONS = DEPRECATIONS_FOR_TEST.filter(filter);
-    DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter(deprecation => {
+    DEPRECATIONS_FOR_TEST = DEPRECATIONS_FOR_TEST.filter((deprecation) => {
       return UNHANDLED_DEPRECATIONS.indexOf(deprecation) === -1;
     });
   } else {
@@ -119,12 +119,12 @@ export function configureDeprecationHandler() {
   }
   HAS_REGISTERED = true;
 
-  QUnit.testStart(function() {
+  QUnit.testStart(function () {
     DEPRECATIONS_FOR_TEST = [];
     HANDLED_DEPRECATIONS_FOR_TEST = [];
   });
 
-  registerDeprecationHandler(function(message, options: DeprecationConfig /*, next*/) {
+  registerDeprecationHandler(function (message, options: DeprecationConfig /*, next*/) {
     options.stacktrace = new Error().stack;
     if (DEPRECATIONS_FOR_TEST) {
       DEPRECATIONS_FOR_TEST.push({ message, options });
@@ -132,7 +132,7 @@ export function configureDeprecationHandler() {
     // we do not call next to avoid spamming the console
   });
 
-  QUnit.assert.expectDeprecation = async function(
+  QUnit.assert.expectDeprecation = async function (
     cb: () => unknown,
     config: string | RegExp | DeprecationConfig,
     label?: string
@@ -180,7 +180,7 @@ export function configureDeprecationHandler() {
       DEPRECATIONS_FOR_TEST = origDeprecations.concat(DEPRECATIONS_FOR_TEST);
     }
   };
-  QUnit.assert.expectNoDeprecation = async function(
+  QUnit.assert.expectNoDeprecation = async function (
     cb?: () => unknown,
     label?: string,
     filter?: (deprecation: FoundDeprecation) => boolean

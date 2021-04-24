@@ -28,8 +28,8 @@ if (window.Testem) {
   window.Testem.useCustomAdapter(customQUnitAdapter);
 }
 
-QUnit.begin(function() {
-  RSVP.configure('onerror', reason => {
+QUnit.begin(function () {
+  RSVP.configure('onerror', (reason) => {
     // only print error messages if they're exceptions;
     // otherwise, let a future turn of the event loop
     // handle the error.

@@ -9,10 +9,10 @@ import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
-module('integration/records/property-changes - Property changes', function(hooks) {
+module('integration/records/property-changes - Property changes', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     const Person = Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -23,14 +23,14 @@ module('integration/records/property-changes - Property changes', function(hooks
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('Calling push with partial records trigger observers for just those attributes that changed', function(assert) {
+  test('Calling push with partial records trigger observers for just those attributes that changed', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
 
     var person;
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'person',
@@ -44,15 +44,15 @@ module('integration/records/property-changes - Property changes', function(hooks
       person = store.peekRecord('person', 'wat');
     });
 
-    person.addObserver('firstName', function() {
+    person.addObserver('firstName', function () {
       assert.ok(false, 'firstName observer should not be triggered');
     });
 
-    person.addObserver('lastName', function() {
+    person.addObserver('lastName', function () {
       assert.ok(true, 'lastName observer should be triggered');
     });
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'person',
@@ -66,14 +66,14 @@ module('integration/records/property-changes - Property changes', function(hooks
     });
   });
 
-  test('Calling push does not trigger observers for locally changed attributes with the same value', function(assert) {
+  test('Calling push does not trigger observers for locally changed attributes with the same value', function (assert) {
     assert.expect(0);
 
     let store = this.owner.lookup('service:store');
 
     var person;
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'person',
@@ -88,15 +88,15 @@ module('integration/records/property-changes - Property changes', function(hooks
       person.set('lastName', 'Katz!');
     });
 
-    person.addObserver('firstName', function() {
+    person.addObserver('firstName', function () {
       assert.ok(false, 'firstName observer should not be triggered');
     });
 
-    person.addObserver('lastName', function() {
+    person.addObserver('lastName', function () {
       assert.ok(false, 'lastName observer should not be triggered');
     });
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'person',
@@ -110,18 +110,18 @@ module('integration/records/property-changes - Property changes', function(hooks
     });
   });
 
-  test('Saving a record trigger observers for locally changed attributes with the same canonical value', function(assert) {
+  test('Saving a record trigger observers for locally changed attributes with the same canonical value', function (assert) {
     assert.expect(1);
     var person;
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.updateRecord = function(store, type, snapshot) {
+    adapter.updateRecord = function (store, type, snapshot) {
       return resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
     };
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'person',
@@ -136,27 +136,27 @@ module('integration/records/property-changes - Property changes', function(hooks
       person.set('lastName', 'Katz!');
     });
 
-    person.addObserver('firstName', function() {
+    person.addObserver('firstName', function () {
       assert.ok(false, 'firstName observer should not be triggered');
     });
 
-    person.addObserver('lastName', function() {
+    person.addObserver('lastName', function () {
       assert.ok(true, 'lastName observer should be triggered');
     });
 
-    run(function() {
+    run(function () {
       person.save();
     });
   });
 
-  test('store.push should not override a modified attribute', function(assert) {
+  test('store.push should not override a modified attribute', function (assert) {
     assert.expect(1);
 
     let store = this.owner.lookup('service:store');
 
     var person;
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'person',
@@ -171,15 +171,15 @@ module('integration/records/property-changes - Property changes', function(hooks
       person.set('lastName', 'Katz!');
     });
 
-    person.addObserver('firstName', function() {
+    person.addObserver('firstName', function () {
       assert.ok(true, 'firstName observer should be triggered');
     });
 
-    person.addObserver('lastName', function() {
+    person.addObserver('lastName', function () {
       assert.ok(false, 'lastName observer should not be triggered');
     });
 
-    run(function() {
+    run(function () {
       store.push({
         data: {
           type: 'person',

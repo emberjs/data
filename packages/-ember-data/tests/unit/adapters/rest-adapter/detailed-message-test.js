@@ -5,15 +5,15 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import RESTSerializer from '@ember-data/serializer/rest';
 
-module('unit/adapters/rest_adapter/detailed_message_test - RESTAdapter#generatedDetailedMessage', function(hooks) {
+module('unit/adapters/rest_adapter/detailed_message_test - RESTAdapter#generatedDetailedMessage', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
   });
 
-  test('generating a wonderfully friendly error message should work', function(assert) {
+  test('generating a wonderfully friendly error message should work', function (assert) {
     assert.expect(1);
 
     let adapter = this.owner.lookup('adapter:application');
@@ -38,7 +38,7 @@ module('unit/adapters/rest_adapter/detailed_message_test - RESTAdapter#generated
     );
   });
 
-  test('generating a friendly error message with a missing content-type header should work', function(assert) {
+  test('generating a friendly error message with a missing content-type header should work', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
 
     let friendlyMessage = adapter.generatedDetailedMessage(418, {}, `I'm a little teapot, short and stout`, {

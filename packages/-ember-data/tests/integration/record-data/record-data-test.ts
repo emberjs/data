@@ -98,12 +98,12 @@ let CustomStore = Store.extend({
 
 let houseHash, davidHash, runspiredHash, igorHash;
 
-module('integration/record-data - Custom RecordData Implementations', function(hooks) {
+module('integration/record-data - Custom RecordData Implementations', function (hooks) {
   setupTest(hooks);
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     houseHash = {
@@ -146,7 +146,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('A RecordData implementation that has the required spec methods should not error out', async function(assert) {
+  test('A RecordData implementation that has the required spec methods should not error out', async function (assert) {
     let { owner } = this;
     store = owner.lookup('service:store');
 
@@ -189,7 +189,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     assert.equal(get(all, 'length'), 3);
   });
 
-  test('Record Data push, create and save lifecycle', async function(assert) {
+  test('Record Data push, create and save lifecycle', async function (assert) {
     assert.expect(17);
     let called = 0;
     const personHash = {
@@ -330,7 +330,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     assert.equal(calledPush, 0, 'Did not call pushData');
   });
 
-  test('Record Data attribute settting', async function(assert) {
+  test('Record Data attribute settting', async function (assert) {
     let expectedCount = 11;
     if (RECORD_DATA_ERRORS) {
       expectedCount = 12;
@@ -408,7 +408,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     );
   });
 
-  test('Record Data controls belongsTo notifications', async function(assert) {
+  test('Record Data controls belongsTo notifications', async function (assert) {
     assert.expect(6);
 
     let { owner } = this;
@@ -462,7 +462,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     assert.equal(house.get('landlord.name'), 'David', 'belongsTo does not change if RD did not notify');
   });
 
-  test('Record Data custom belongsTo', async function(assert) {
+  test('Record Data custom belongsTo', async function (assert) {
     assert.expect(4);
     let { owner } = this;
 
@@ -517,7 +517,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     assert.equal(house.get('landlord.name'), 'Igor', 'RecordData sets the custom belongsTo value');
   });
 
-  test('Record Data controls hasMany notifications', async function(assert) {
+  test('Record Data controls hasMany notifications', async function (assert) {
     assert.expect(10);
 
     let { owner } = this;
@@ -604,7 +604,7 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     assert.deepEqual(people.toArray(), [david], 'setDirtyHasMany doesnt apply unless notified');
   });
 
-  test('Record Data supports custom hasMany handling', async function(assert) {
+  test('Record Data supports custom hasMany handling', async function (assert) {
     assert.expect(10);
     let { owner } = this;
 

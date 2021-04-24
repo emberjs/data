@@ -16,12 +16,12 @@ assert.flagIsFalse = function flagIsFalse(flag) {
 
 let rootState, stateName;
 
-module('unit/states - Flags for record states', function(hooks) {
-  hooks.beforeEach(function() {
+module('unit/states - Flags for record states', function (hooks) {
+  hooks.beforeEach(function () {
     rootState = DS.RootState;
   });
 
-  test('the empty state', function(assert) {
+  test('the empty state', function (assert) {
     stateName = 'empty';
     assert.flagIsFalse('isLoading');
     assert.flagIsFalse('isLoaded');
@@ -30,7 +30,7 @@ module('unit/states - Flags for record states', function(hooks) {
     assert.flagIsFalse('isDeleted');
   });
 
-  test('the loading state', function(assert) {
+  test('the loading state', function (assert) {
     stateName = 'loading';
     assert.flagIsTrue('isLoading');
     assert.flagIsFalse('isLoaded');
@@ -39,7 +39,7 @@ module('unit/states - Flags for record states', function(hooks) {
     assert.flagIsFalse('isDeleted');
   });
 
-  test('the loaded state', function(assert) {
+  test('the loaded state', function (assert) {
     stateName = 'loaded';
     assert.flagIsFalse('isLoading');
     assert.flagIsTrue('isLoaded');
@@ -48,7 +48,7 @@ module('unit/states - Flags for record states', function(hooks) {
     assert.flagIsFalse('isDeleted');
   });
 
-  test('the updated state', function(assert) {
+  test('the updated state', function (assert) {
     stateName = 'loaded.updated';
     assert.flagIsFalse('isLoading');
     assert.flagIsTrue('isLoaded');
@@ -57,7 +57,7 @@ module('unit/states - Flags for record states', function(hooks) {
     assert.flagIsFalse('isDeleted');
   });
 
-  test('the saving state', function(assert) {
+  test('the saving state', function (assert) {
     stateName = 'loaded.updated.inFlight';
     assert.flagIsFalse('isLoading');
     assert.flagIsTrue('isLoaded');
@@ -66,7 +66,7 @@ module('unit/states - Flags for record states', function(hooks) {
     assert.flagIsFalse('isDeleted');
   });
 
-  test('the deleted state', function(assert) {
+  test('the deleted state', function (assert) {
     stateName = 'deleted';
     assert.flagIsFalse('isLoading');
     assert.flagIsTrue('isLoaded');
@@ -75,7 +75,7 @@ module('unit/states - Flags for record states', function(hooks) {
     assert.flagIsTrue('isDeleted');
   });
 
-  test('the deleted.saving state', function(assert) {
+  test('the deleted.saving state', function (assert) {
     stateName = 'deleted.inFlight';
     assert.flagIsFalse('isLoading');
     assert.flagIsTrue('isLoaded');
@@ -84,7 +84,7 @@ module('unit/states - Flags for record states', function(hooks) {
     assert.flagIsTrue('isDeleted');
   });
 
-  test('the deleted.saved state', function(assert) {
+  test('the deleted.saved state', function (assert) {
     stateName = 'deleted.saved';
     assert.flagIsFalse('isLoading');
     assert.flagIsTrue('isLoaded');

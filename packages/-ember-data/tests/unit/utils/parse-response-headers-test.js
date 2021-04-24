@@ -5,14 +5,14 @@ import { parseResponseHeaders } from '@ember-data/adapter/-private';
 const CRLF = '\u000d\u000a';
 const LF = '\u000a';
 
-module('unit/adapters/parse-response-headers', function() {
-  test('returns an NULL Object when headersString is undefined', function(assert) {
+module('unit/adapters/parse-response-headers', function () {
+  test('returns an NULL Object when headersString is undefined', function (assert) {
     let headers = parseResponseHeaders(undefined);
 
     assert.deepEqual(headers, Object.create(null), 'NULL Object is returned');
   });
 
-  test('header parsing', function(assert) {
+  test('header parsing', function (assert) {
     let headersString = [
       'Content-Encoding: gzip',
       'content-type: application/json; charset=utf-8',
@@ -26,7 +26,7 @@ module('unit/adapters/parse-response-headers', function() {
     assert.equal(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
   });
 
-  test('field-name parsing', function(assert) {
+  test('field-name parsing', function (assert) {
     let headersString = [
       '  name-with-leading-whitespace: some value',
       'name-with-whitespace-before-colon : another value',
@@ -44,7 +44,7 @@ module('unit/adapters/parse-response-headers', function() {
     assert.equal(headers['uppercase-name'], 'yet another value', 'lowercases the field-name');
   });
 
-  test('field-value parsing', function(assert) {
+  test('field-value parsing', function (assert) {
     let headersString = [
       'value-with-leading-space: value with leading whitespace',
       'value-without-leading-space:value without leading whitespace',
@@ -69,7 +69,7 @@ module('unit/adapters/parse-response-headers', function() {
   });
   ('\r\nfoo: bar');
 
-  test('ignores headers that do not contain a colon', function(assert) {
+  test('ignores headers that do not contain a colon', function (assert) {
     let headersString = ['Content-Encoding: gzip', 'I am ignored because I do not contain a colon', 'apple: pie'].join(
       CRLF
     );
@@ -81,7 +81,7 @@ module('unit/adapters/parse-response-headers', function() {
     assert.equal(Object.keys(headers).length, 3, 'only has the three valid headers');
   });
 
-  test('tollerate extra new-lines', function(assert) {
+  test('tollerate extra new-lines', function (assert) {
     let headersString = CRLF + 'foo: bar';
     let headers = parseResponseHeaders(headersString);
 
@@ -89,7 +89,7 @@ module('unit/adapters/parse-response-headers', function() {
     assert.equal(Object.keys(headers).length, 1, 'only has the one valid header');
   });
 
-  test('works with only line feeds', function(assert) {
+  test('works with only line feeds', function (assert) {
     let headersString = [
       'Content-Encoding: gzip',
       'content-type: application/json; charset=utf-8',

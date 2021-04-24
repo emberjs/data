@@ -11,15 +11,15 @@ import Adapter from '@ember-data/adapter';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/model/relationships - DS.belongsTo', function(hooks) {
+module('unit/model/relationships - DS.belongsTo', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('belongsTo lazily loads relationships as needed', function(assert) {
+  test('belongsTo lazily loads relationships as needed', function (assert) {
     assert.expect(5);
 
     const Tag = DS.Model.extend({
@@ -81,7 +81,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
 
     return run(() => {
-      return store.findRecord('person', 1).then(person => {
+      return store.findRecord('person', 1).then((person) => {
         assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
         assert.true(get(person, 'tag') instanceof Tag, 'the tag property should return a tag');
@@ -97,7 +97,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
   });
 
-  test('belongsTo does not notify when it is initially reified', function(assert) {
+  test('belongsTo does not notify when it is initially reified', function (assert) {
     assert.expect(1);
 
     const Tag = DS.Model.extend({
@@ -163,7 +163,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
   });
 
-  test('async belongsTo relationships work when the data hash has not been loaded', function(assert) {
+  test('async belongsTo relationships work when the data hash has not been loaded', function (assert) {
     assert.expect(5);
 
     const Tag = DS.Model.extend({
@@ -181,7 +181,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Person) {
         assert.equal(id, 1, 'id should be 1');
 
@@ -203,21 +203,21 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     return run(() => {
       return store
         .findRecord('person', 1)
-        .then(person => {
+        .then((person) => {
           assert.equal(get(person, 'name'), 'Tom Dale', 'The person is now populated');
 
           return run(() => {
             return get(person, 'tag');
           });
         })
-        .then(tag => {
+        .then((tag) => {
           assert.equal(get(tag, 'name'), 'friendly', 'Tom Dale is now friendly');
           assert.true(get(tag, 'isLoaded'), 'Tom Dale is now loaded');
         });
     });
   });
 
-  test('async belongsTo relationships are not grouped with coalesceFindRequests=false', async function(assert) {
+  test('async belongsTo relationships are not grouped with coalesceFindRequests=false', async function (assert) {
     assert.expect(6);
 
     const Tag = DS.Model.extend({
@@ -266,11 +266,11 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       ],
     });
 
-    adapter.findMany = function() {
+    adapter.findMany = function () {
       throw new Error('findMany should not be called');
     };
 
-    adapter.findRecord = function(store, type, id) {
+    adapter.findRecord = function (store, type, id) {
       assert.equal(type.modelName, 'tag', 'modelName is tag');
 
       if (id === '3') {
@@ -293,7 +293,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     };
 
     let persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
-    let [tag1, tag2] = await Promise.all(persons.map(person => get(person, 'tag')));
+    let [tag1, tag2] = await Promise.all(persons.map((person) => get(person, 'tag')));
 
     assert.equal(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
     assert.true(get(tag1, 'isLoaded'), "Tom Dale's tag is now loaded");
@@ -302,7 +302,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     assert.true(get(tag2, 'isLoaded'), "Bob Dylan's tag is now loaded");
   });
 
-  test('async belongsTo relationships are grouped with coalesceFindRequests=true', async function(assert) {
+  test('async belongsTo relationships are grouped with coalesceFindRequests=true', async function (assert) {
     assert.expect(6);
 
     const Tag = DS.Model.extend({
@@ -351,7 +351,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       ],
     });
 
-    adapter.findMany = function(store, type, ids, snapshots) {
+    adapter.findMany = function (store, type, ids, snapshots) {
       assert.equal(type.modelName, 'tag', 'modelName is tag');
       assert.deepEqual(ids, ['3', '4'], 'it coalesces the find requests correctly');
 
@@ -371,12 +371,12 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       });
     };
 
-    adapter.findRecord = function() {
+    adapter.findRecord = function () {
       throw new Error('findRecord should not be called');
     };
 
     let persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
-    let [tag1, tag2] = await Promise.all(persons.map(person => get(person, 'tag')));
+    let [tag1, tag2] = await Promise.all(persons.map((person) => get(person, 'tag')));
 
     assert.equal(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
     assert.true(get(tag1, 'isLoaded'), "Tom Dale's tag is now loaded");
@@ -385,7 +385,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     assert.true(get(tag2, 'isLoaded'), "Bob Dylan's tag is now loaded");
   });
 
-  test('async belongsTo relationships work when the data hash has already been loaded', function(assert) {
+  test('async belongsTo relationships work when the data hash has already been loaded', function (assert) {
     assert.expect(3);
 
     const Tag = DS.Model.extend({
@@ -433,14 +433,14 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
       assert.equal(get(person, 'name'), 'Tom Dale', 'The person is now populated');
       return run(() => {
         return get(person, 'tag');
-      }).then(tag => {
+      }).then((tag) => {
         assert.equal(get(tag, 'name'), 'friendly', 'Tom Dale is now friendly');
         assert.true(get(tag, 'isLoaded'), 'Tom Dale is now loaded');
       });
     });
   });
 
-  test('when response to saving a belongsTo is a success but includes changes that reset the users change', function(assert) {
+  test('when response to saving a belongsTo is a success but includes changes that reset the users change', function (assert) {
     const Tag = DS.Model.extend();
     const User = DS.Model.extend({ tag: DS.belongsTo() });
 
@@ -472,7 +472,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
 
     run(() => user.set('tag', store.peekRecord('tag', '2')));
 
-    adapter.updateRecord = function() {
+    adapter.updateRecord = function () {
       return {
         data: {
           type: 'user',
@@ -490,13 +490,13 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     };
 
     return run(() => {
-      return user.save().then(user => {
+      return user.save().then((user) => {
         assert.equal(user.get('tag.id'), '1', 'expected new server state to be applied');
       });
     });
   });
 
-  test('calling createRecord and passing in an undefined value for a relationship should be treated as if null', function(assert) {
+  test('calling createRecord and passing in an undefined value for a relationship should be treated as if null', function (assert) {
     assert.expect(1);
 
     const Tag = DS.Model.extend({
@@ -520,13 +520,13 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     store.createRecord('person', { id: '1', tag: undefined });
 
     return run(() => {
-      return store.findRecord('person', '1').then(person => {
+      return store.findRecord('person', '1').then((person) => {
         assert.strictEqual(person.get('tag'), null, 'undefined values should return null relationships');
       });
     });
   });
 
-  test('When finding a hasMany relationship the inverse belongsTo relationship is available immediately', function(assert) {
+  test('When finding a hasMany relationship the inverse belongsTo relationship is available immediately', function (assert) {
     const Occupation = DS.Model.extend({
       description: DS.attr('string'),
       person: DS.belongsTo('person', { async: false }),
@@ -545,7 +545,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    adapter.findMany = function(store, type, ids, snapshots) {
+    adapter.findMany = function (store, type, ids, snapshots) {
       assert.equal(snapshots[0].belongsTo('person').id, '1');
       return {
         data: [
@@ -580,13 +580,13 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     return run(() => {
       return store
         .findRecord('person', 1)
-        .then(person => {
+        .then((person) => {
           assert.true(get(person, 'isLoaded'), 'isLoaded should be true');
           assert.equal(get(person, 'name'), 'Tom Dale', 'the person is still Tom Dale');
 
           return get(person, 'occupations');
         })
-        .then(occupations => {
+        .then((occupations) => {
           assert.equal(get(occupations, 'length'), 2, 'the list of occupations should have the correct length');
 
           assert.equal(get(occupations.objectAt(0), 'description'), 'fifth', 'the occupation is the fifth');
@@ -595,7 +595,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
   });
 
-  test('When finding a belongsTo relationship the inverse belongsTo relationship is available immediately', function(assert) {
+  test('When finding a belongsTo relationship the inverse belongsTo relationship is available immediately', function (assert) {
     assert.expect(1);
 
     const Occupation = DS.Model.extend({
@@ -614,7 +614,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.findRecord = function(store, type, id, snapshot) {
+    adapter.findRecord = function (store, type, id, snapshot) {
       assert.equal(snapshot.belongsTo('person').id, '1');
       return { data: { id: 5, type: 'occupation', attributes: { description: 'fifth' } } };
     };
@@ -639,7 +639,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     run(() => store.peekRecord('person', 1).get('occupation'));
   });
 
-  test('belongsTo supports relationships to models with id 0', function(assert) {
+  test('belongsTo supports relationships to models with id 0', function (assert) {
     assert.expect(5);
 
     const Tag = DS.Model.extend({
@@ -701,7 +701,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
 
     return run(() => {
-      return store.findRecord('person', 1).then(person => {
+      return store.findRecord('person', 1).then((person) => {
         assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
         assert.true(get(person, 'tag') instanceof Tag, 'the tag property should return a tag');
@@ -717,7 +717,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
   });
 
-  testInDebug('belongsTo gives a warning when provided with a serialize option', function(assert) {
+  testInDebug('belongsTo gives a warning when provided with a serialize option', function (assert) {
     const Hobby = DS.Model.extend({
       name: DS.attr('string'),
     });
@@ -769,7 +769,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
 
     return run(() => {
-      return store.findRecord('person', 1).then(person => {
+      return store.findRecord('person', 1).then((person) => {
         assert.expectWarning(() => {
           get(person, 'hobby');
         }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See Serializer and it's implementations/);
@@ -777,7 +777,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
   });
 
-  testInDebug('belongsTo gives a warning when provided with an embedded option', function(assert) {
+  testInDebug('belongsTo gives a warning when provided with an embedded option', function (assert) {
     const Hobby = DS.Model.extend({
       name: DS.attr('string'),
     });
@@ -829,7 +829,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
 
     return run(() => {
-      return store.findRecord('person', 1).then(person => {
+      return store.findRecord('person', 1).then((person) => {
         assert.expectWarning(() => {
           get(person, 'hobby');
         }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See EmbeddedRecordsMixin/);
@@ -837,7 +837,7 @@ module('unit/model/relationships - DS.belongsTo', function(hooks) {
     });
   });
 
-  test('belongsTo should be async by default', function(assert) {
+  test('belongsTo should be async by default', function (assert) {
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
       people: DS.hasMany('person', { async: false }),

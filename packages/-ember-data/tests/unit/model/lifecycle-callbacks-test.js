@@ -12,7 +12,7 @@ import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
-module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
+module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) {
   setupTest(hooks);
 
   deprecatedTest(
@@ -21,7 +21,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       id: 'ember-data:record-lifecycle-event-methods',
       until: '4.0',
     },
-    function(assert) {
+    function (assert) {
       assert.expect(3);
 
       const Person = Model.extend({
@@ -44,7 +44,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       let store = this.owner.lookup('service:store');
 
       return run(() => {
-        return store.findRecord('person', 1).then(person => {
+        return store.findRecord('person', 1).then((person) => {
           assert.equal(person.get('id'), '1', `The person's ID is available`);
           assert.equal(person.get('name'), 'Foo', `The person's properties are availablez`);
         });
@@ -58,7 +58,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       id: 'ember-data:record-lifecycle-event-methods',
       until: '4.0',
     },
-    function(assert) {
+    function (assert) {
       assert.expect(2);
 
       let didLoadCalled = 0;
@@ -90,7 +90,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       id: 'ember-data:record-lifecycle-event-methods',
       until: '4.0',
     },
-    function(assert) {
+    function (assert) {
       assert.expect(5);
 
       let callCount = 0;
@@ -127,7 +127,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
 
       return run(() => {
         return asyncPerson
-          .then(person => {
+          .then((person) => {
             return run(() => {
               person.set('bar', 'Bar');
               return person.save();
@@ -146,7 +146,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       id: 'ember-data:record-lifecycle-event-methods',
       until: '4.0',
     },
-    function(assert) {
+    function (assert) {
       assert.expect(5);
 
       let callCount = 0;
@@ -191,7 +191,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       id: 'ember-data:record-lifecycle-event-methods',
       until: '4.0',
     },
-    function(assert) {
+    function (assert) {
       assert.expect(5);
 
       let callCount = 0;
@@ -230,7 +230,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
 
       return run(() => {
         return asyncPerson
-          .then(person => {
+          .then((person) => {
             return run(() => {
               person.deleteRecord();
               return person.save();
@@ -249,7 +249,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       id: 'ember-data:record-lifecycle-event-methods',
       until: '4.0',
     },
-    function(assert) {
+    function (assert) {
       assert.expect(4);
 
       let callCount = 0;
@@ -285,7 +285,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       id: 'ember-data:record-lifecycle-event-methods',
       until: '4.0',
     },
-    function(assert) {
+    function (assert) {
       assert.expect(8);
 
       let callCount = 0;
@@ -334,10 +334,10 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function(hooks) {
       // Make sure that the error handler has a chance to attach before
       // save fails.
       return run(() => {
-        return asyncPerson.then(person => {
+        return asyncPerson.then((person) => {
           return run(() => {
             person.set('bar', 'Bar');
-            return person.save().catch(reason => {
+            return person.save().catch((reason) => {
               assert.ok(reason.isAdapterError, 'reason should have been an adapter error');
 
               assert.equal(reason.errors.length, 1, 'reason should have one error');

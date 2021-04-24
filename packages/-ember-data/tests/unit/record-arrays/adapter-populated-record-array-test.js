@@ -19,10 +19,10 @@ class Tag extends Model {
   name;
 }
 
-module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray', function(hooks) {
+module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray', function (hooks) {
   setupTest(hooks);
 
-  test('default initial state', async function(assert) {
+  test('default initial state', async function (assert) {
     let recordArray = AdapterPopulatedRecordArray.create({ modelName: 'recordType' });
 
     assert.false(recordArray.get('isLoaded'), 'expected isLoaded to be false');
@@ -33,7 +33,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.strictEqual(recordArray.get('links'), null, 'no links');
   });
 
-  test('custom initial state', async function(assert) {
+  test('custom initial state', async function (assert) {
     let content = A([]);
     let store = {};
     let recordArray = AdapterPopulatedRecordArray.create({
@@ -54,7 +54,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.strictEqual(recordArray.get('links'), 'foo');
   });
 
-  test('#replace() throws error', function(assert) {
+  test('#replace() throws error', function (assert) {
     let recordArray = AdapterPopulatedRecordArray.create({ modelName: 'recordType' });
 
     assert.throws(
@@ -66,7 +66,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     );
   });
 
-  test('#update uses _update enabling query specific behavior', async function(assert) {
+  test('#update uses _update enabling query specific behavior', async function (assert) {
     let queryCalled = 0;
     let deferred = RSVP.defer();
 
@@ -99,14 +99,14 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     assert.true(recordArray.get('isUpdating'), 'should be updating');
 
-    return updateResult.then(result => {
+    return updateResult.then((result) => {
       assert.equal(result, 'return value');
       assert.false(recordArray.get('isUpdating'), 'should no longer be updating');
     });
   });
 
   // TODO: is this method required, i suspect store._query should be refactor so this is not needed
-  test('#_setIdentifiers', async function(assert) {
+  test('#_setIdentifiers', async function (assert) {
     let didAddRecord = 0;
     function add(array) {
       didAddRecord++;
@@ -152,7 +152,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     let didLoad = 0;
     if (DEPRECATE_EVENTED_API_USAGE) {
-      recordArray.on('didLoad', function() {
+      recordArray.on('didLoad', function () {
         didLoad++;
       });
     }
@@ -187,7 +187,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     });
   });
 
-  test('change events when receiving a new query payload', async function(assert) {
+  test('change events when receiving a new query payload', async function (assert) {
     assert.expect(38);
 
     let arrayDidChange = 0;
@@ -245,18 +245,18 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     assert.equal(didAddRecord, 2, 'expected 2 didAddRecords');
     assert.deepEqual(
-      recordArray.map(x => x.name),
+      recordArray.map((x) => x.name),
       ['Scumbag Dale', 'Scumbag Katz']
     );
 
     assert.equal(arrayDidChange, 0, 'array should not yet have emitted a change event');
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
-    recordArray.addObserver('content', function() {
+    recordArray.addObserver('content', function () {
       contentDidChange++;
     });
 
-    recordArray.one('@array:change', function(array, startIdx, removeAmt, addAmt) {
+    recordArray.one('@array:change', function (array, startIdx, removeAmt, addAmt) {
       arrayDidChange++;
 
       // first time invoked
@@ -305,7 +305,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
     assert.deepEqual(
-      recordArray.map(x => x.name),
+      recordArray.map((x) => x.name),
       ['Scumbag Penner', 'Scumbag Hamilton']
     );
 
@@ -313,7 +313,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     contentDidChange = 0; // reset change event counter
     didAddRecord = 0;
 
-    recordArray.one('@array:change', function(array, startIdx, removeAmt, addAmt) {
+    recordArray.one('@array:change', function (array, startIdx, removeAmt, addAmt) {
       arrayDidChange++;
 
       assert.equal(array, recordArray, 'should be same recordArray as above');
@@ -352,7 +352,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
     assert.deepEqual(
-      recordArray.map(x => x.name),
+      recordArray.map((x) => x.name),
       ['Scumbag Penner']
     );
     assert.expectDeprecation({
