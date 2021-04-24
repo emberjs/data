@@ -1,3 +1,4 @@
+import { set } from '@ember/object';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -583,7 +584,8 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
     assert.expectAssertion(function() {
       run(function() {
-        stanley.set('bestFriend', resolve(igor));
+        // stanley.set('bestFriend', resolve(igor));
+        set(stanley, 'bestFriend', resolve(igor));
       });
     }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
   });

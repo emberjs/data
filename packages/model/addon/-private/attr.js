@@ -1,11 +1,9 @@
 import { assert } from '@ember/debug';
-import { computed } from '@ember/object';
-import { DEBUG } from '@glimmer/env';
 
 import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import { recordDataFor } from '@ember-data/store/-private';
 
-import { computedMacroWithOptionalParams } from './util';
+import { makeDecorator } from './util';
 
 /**
   @module @ember-data/model
@@ -13,7 +11,7 @@ import { computedMacroWithOptionalParams } from './util';
 
 function getDefaultValue(record, options, key) {
   if (typeof options.defaultValue === 'function') {
-    return options.defaultValue.apply(null, arguments);
+    return options.defaultValue.call(null, record, options, key);
   } else {
     let defaultValue = options.defaultValue;
     assert(
@@ -112,45 +110,20 @@ function getDefaultValue(record, options, key) {
   @param {Object} options a hash of options
   @return {Attribute}
 */
-function attr(type, options) {
-  if (typeof type === 'object') {
-    options = type;
-    type = undefined;
-  } else {
-    options = options || {};
-  }
-
-  let meta = {
-    type: type,
-    isAttribute: true,
-    kind: 'attribute',
-    options: options,
-  };
-
-  return computed({
-    get(key) {
-      if (DEBUG) {
-        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
-          throw new Error(
-            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
-          );
-        }
-      }
+export default makeDecorator('attribute', {
+  getter(key, meta) {
+    return function() {
       let recordData = recordDataFor(this);
       if (recordData.hasAttr(key)) {
-        return recordData.getAttr(key);
+        let v = recordData.getAttr(key);
+        return v;
       } else {
-        return getDefaultValue(this, options, key);
+        return getDefaultValue(this, meta.options, key);
       }
-    },
-    set(key, value) {
-      if (DEBUG) {
-        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
-          throw new Error(
-            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
-          );
-        }
-      }
+    };
+  },
+  setter(key) {
+    return function(value) {
       if (RECORD_DATA_ERRORS) {
         let oldValue = this._internalModel._recordData.getAttr(key);
         if (oldValue !== value) {
@@ -161,9 +134,7 @@ function attr(type, options) {
           this._markInvalidRequestAsClean();
         }
       }
-      return this._internalModel.setDirtyAttribute(key, value);
-    },
-  }).meta(meta);
-}
-
-export default computedMacroWithOptionalParams(attr);
+      this._internalModel.setDirtyAttribute(key, value);
+    };
+  },
+});

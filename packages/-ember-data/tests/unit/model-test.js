@@ -742,21 +742,25 @@ module('unit/model - Model', function(hooks) {
       }, /Cannot set property isLoaded of \[object Object\] which has only a getter/);
     });
 
-    class NativePostWithInternalModel extends Model {
-      @attr('string')
-      _internalModel;
-      @attr('string')
-      name;
-    }
-    class NativePostWithCurrentState extends Model {
-      @attr('string')
-      currentState;
-      @attr('string')
-      name;
-    }
+    const makeNativePostWithInternalModel = () => {
+      return class NativePostWithInternalModel extends Model {
+        @attr('string')
+        _internalModel;
+        @attr('string')
+        name;
+      };
+    };
+    const makeNativePostWithCurrentState = () => {
+      return class NativePostWithCurrentState extends Model {
+        @attr('string')
+        currentState;
+        @attr('string')
+        name;
+      };
+    };
     const PROP_MAP = {
-      _internalModel: NativePostWithInternalModel,
-      currentState: NativePostWithCurrentState,
+      _internalModel: makeNativePostWithInternalModel,
+      currentState: makeNativePostWithCurrentState,
     };
 
     function testReservedProperty(prop) {
@@ -768,14 +772,13 @@ module('unit/model - Model', function(hooks) {
           [prop]: DSattr('string'),
           name: DSattr('string'),
         });
-        this.owner.register('model:native-post', NativePost);
         this.owner.register('model:legacy-post', LegacyPost);
 
         const msg = `'${prop}' is a reserved property name on instances of classes extending Model.`;
 
         assert.throws(
           () => {
-            store.createRecord('native-post', { name: 'TomHuda' });
+            NativePost();
           },
           function(e) {
             return e.message.indexOf(msg) === 0;

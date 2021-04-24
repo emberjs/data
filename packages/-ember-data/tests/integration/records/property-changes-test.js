@@ -110,30 +110,34 @@ module('integration/records/property-changes - Property changes', function(hooks
     });
   });
 
-  test('Saving a record trigger observers for locally changed attributes with the same canonical value', function(assert) {
-    assert.expect(1);
-    var person;
+  test('Saving a record trigger observers for locally changed attributes with the same canonical value', async function(assert) {
+    assert.expect(3);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
+    let observerCount = 0;
 
     adapter.updateRecord = function(store, type, snapshot) {
-      return resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
-    };
-
-    run(function() {
-      store.push({
+      return resolve({
         data: {
-          type: 'person',
           id: 'wat',
+          type: 'person',
           attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
+            'last-name': 'Katz',
           },
         },
       });
-      person = store.peekRecord('person', 'wat');
-      person.set('lastName', 'Katz!');
+    };
+
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+      },
     });
 
     person.addObserver('firstName', function() {
@@ -141,12 +145,17 @@ module('integration/records/property-changes - Property changes', function(hooks
     });
 
     person.addObserver('lastName', function() {
-      assert.ok(true, 'lastName observer should be triggered');
+      observerCount++;
     });
 
-    run(function() {
-      person.save();
-    });
+    person.set('lastName', 'Katz!');
+
+    assert.strictEqual(observerCount, 1, 'lastName observer should be triggered');
+
+    await person.save();
+
+    assert.strictEqual(observerCount, 2, 'lastName observer should be triggered');
+    assert.strictEqual(person.lastName, 'Katz', 'We changed back to canonical');
   });
 
   test('store.push should not override a modified attribute', function(assert) {

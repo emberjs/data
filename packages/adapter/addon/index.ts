@@ -127,7 +127,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
   */
   findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<unknown> {
     if (DEBUG) {
-      throw new Error('You subclassed the Adapter class but missing a findRecord override');
+      throw new Error('You subclassed the Adapter class but are missing a findRecord override');
     }
 
     return RSVPPromise.resolve();

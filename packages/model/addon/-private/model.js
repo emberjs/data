@@ -1,9 +1,10 @@
 import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
-import EmberObject, { computed, get } from '@ember/object';
+import EmberObject, { computed, notifyPropertyChange } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
+import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
@@ -26,17 +27,92 @@ import {
 import Errors from './errors';
 import { relationshipFromMeta } from './system/relationships/relationship-meta';
 
+const { changeProperties, meta: metaFor } = Ember;
+
+const DEBUG__STR = Date.now();
 const RecordMeta = new WeakMap();
-function getRecordMeta(record) {
-  let meta = RecordMeta.get(record);
-  if (meta === undefined) {
-    meta = Object.create(null);
-    RecordMeta.set(record, meta);
+const SchemaCache = new WeakMap();
+
+function cacheFor(map, key, debugProp) {
+  let v = map.get(key);
+
+  if (!v) {
+    v = Object.create(null);
+    map.set(key, v);
+
     if (DEBUG) {
-      record.____recordMetaCache = meta;
+      key[`${debugProp}--${DEBUG__STR}`] = v;
     }
   }
-  return meta;
+
+  return v;
+}
+
+function getRecordMeta(record) {
+  return cacheFor(RecordMeta, record, 'recordMeta');
+}
+
+export function schemaCacheFor(klass) {
+  return cacheFor(SchemaCache, klass, 'schemaCache');
+}
+
+class Tag {
+  constructor() {
+    this.rev = 0;
+    this.isDirty = true;
+    this.value = undefined;
+  }
+  @tracked dirty = '';
+
+  notify() {
+    this.isDirty = true;
+    this.dirty = '';
+    this.rev++;
+  }
+  consume(v) {
+    this.dirty; // subscribe
+    this.isDirty = false;
+    this.value = v; // set cached value
+  }
+}
+
+const STABLE_UNTRACKED_OBJ = {};
+function flushSyncObservers() {
+  notifyPropertyChange(STABLE_UNTRACKED_OBJ, '-tracking-prop');
+}
+
+function getTag(record, key) {
+  const rm = getRecordMeta(record);
+  rm.tags = rm.tags || {};
+  return (rm.tags[key] = rm.tags[key] || new Tag());
+}
+
+export function tagged(target, key, desc) {
+  const getter = desc.get;
+  const setter = desc.set;
+  desc.get = function() {
+    let tag = getTag(this, key);
+    if (tag.isDirty) {
+      // TODO it would be nice to no-op for && !this.isDestroyed && !this.isDestroying here
+      tag.consume(getter.call(this));
+    }
+
+    return tag.value;
+  };
+  if (setter) {
+    desc.set = function(value) {
+      let tag = getTag(this, key);
+      setter.call(this, value);
+      tag.notify();
+    };
+  }
+  dependentKeyCompat(desc);
+  // enable Model.reopen to overwrite an existing prop
+  desc.teardown = () => {
+    metaFor(target).removeDescriptors(key);
+  };
+  metaFor(target).writeDescriptors(key, desc);
+  return desc;
 }
 
 function getWithDefault(meta, prop, value) {
@@ -46,8 +122,6 @@ function getWithDefault(meta, prop, value) {
   }
   return v;
 }
-
-const { changeProperties } = Ember;
 
 function isInvalidError(error) {
   return error && error.isAdapterError === true && error.code === 'InvalidError';
@@ -91,20 +165,22 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
  * an expensive getter on first-access and therafter
  * never recompute it.
  */
+const STATIC_KEY_RECALC = `static${Date.now()}`;
 function computeOnce(target, key, desc) {
   const cache = new WeakMap();
   let getter = desc.get;
   desc.get = function() {
+    let tag = getTag(this, STATIC_KEY_RECALC);
     let meta = cache.get(this);
 
     if (!meta) {
-      meta = { hasComputed: false, value: undefined };
+      meta = { rev: null, value: undefined };
       cache.set(this, meta);
     }
 
-    if (!meta.hasComputed) {
+    if (meta.rev !== tag.rev) {
       meta.value = getter.call(this);
-      meta.hasComputed = true;
+      meta.rev = tag.rev;
     }
 
     return meta.value;
@@ -164,6 +240,11 @@ class Model extends EmberObject {
     }
   }
 
+  @tagged
+  get currentState() {
+    return this._internalModel.currentState;
+  }
+
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -179,7 +260,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isEmpty() {
-    return this._internalModel.currentState.isEmpty;
+    return this.currentState.isEmpty;
   }
 
   /**
@@ -194,7 +275,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isLoading() {
-    return this._internalModel.currentState.isLoading;
+    return this.currentState.isLoading;
   }
   /**
     If this property is `true` the record is in the `loaded` state. A
@@ -219,7 +300,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isLoaded() {
-    return this._internalModel.currentState.isLoaded;
+    return this.currentState.isLoaded;
   }
 
   /**
@@ -248,7 +329,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get hasDirtyAttributes() {
-    return this._internalModel.currentState.isDirty;
+    return this.currentState.isDirty;
   }
 
   /**
@@ -275,7 +356,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isSaving() {
-    return this._internalModel.currentState.isSaving;
+    return this.currentState.isSaving;
   }
 
   /**
@@ -328,7 +409,37 @@ class Model extends EmberObject {
       }
     }
 
-    return this._internalModel.currentState.isDeleted;
+    return this.currentState.isDeleted;
+  }
+
+  notifyPropertyChange(key, silent) {
+    let meta = getRecordMeta(this);
+    if (meta.tags && meta.tags[key]) {
+      // notify the tracked world
+      meta.tags[key].notify();
+      let propMeta = this.constructor.metaForProperty(key);
+
+      // if we are doing a batch update (silent) or if the relationship has a PromiseProxy we must
+      // notify underlying chains the old fashioned way.
+      if (silent || (propMeta && propMeta.isRelationship && propMeta.options.async !== false)) {
+        super.notifyPropertyChange(key);
+      } else {
+        // notify old world of computeds and observers
+        flushSyncObservers();
+      }
+    } else {
+      // this isn't a prop we manage so pass-thru
+      super.notifyPropertyChange(key);
+    }
+  }
+
+  set(key, value) {
+    // prevent _setProp within Ember.set from reading before writing.
+    // when obj.set is called directly
+    if (this.constructor.fields.has(key)) {
+      this[key] = value;
+    }
+    super.set(key, value);
   }
 
   /**
@@ -365,7 +476,7 @@ class Model extends EmberObject {
       }
     }
 
-    return this._internalModel.currentState.isNew;
+    return this.currentState.isNew;
   }
 
   /**
@@ -384,7 +495,7 @@ class Model extends EmberObject {
       return !(this.errors.length > 0);
     }
 
-    return this._internalModel.currentState.isValid;
+    return this.currentState.isValid;
   }
 
   _markInvalidRequestAsClean() {
@@ -416,7 +527,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get dirtyType() {
-    return this._internalModel.currentState.dirtyType;
+    return this.currentState.dirtyType;
   }
 
   /**
@@ -868,6 +979,9 @@ class Model extends EmberObject {
     @private
   */
   _notifyProperties(keys) {
+    deprecate(`notifyProperties`, false, {
+      id: '@ember-data/model:deprecate-model#_notifyProperties',
+    });
     // changeProperties defers notifications until after the delegate
     // and protects with a try...finally block
     // previously used begin...endPropertyChanges but this is private API
@@ -1196,6 +1310,9 @@ class Model extends EmberObject {
   }
 
   notifyBelongsToChange(key) {
+    deprecate(`notifyBelongsToChange`, false, {
+      id: '@ember-data/model:deprecate-model#notifyBelongsToChange',
+    });
     this.notifyPropertyChange(key);
   }
   /**
@@ -1263,6 +1380,9 @@ class Model extends EmberObject {
   }
 
   notifyHasManyAdded(key) {
+    deprecate(`notifyHasManyAdded`, false, {
+      id: '@ember-data/model:deprecate-model#notifyHasManyAdded',
+    });
     //We need to notifyPropertyChange in the adding case because we need to make sure
     //we fetch the newly added record in case it is unloaded
     //TODO(Igor): Consider whether we could do this only if the record state is unloaded
@@ -1408,6 +1528,11 @@ class Model extends EmberObject {
       inverseMap[name] = inverse;
       return inverse;
     }
+  }
+
+  static metaForProperty(name) {
+    let rel = this.relationshipsByName.get(name);
+    return rel ? rel.meta : this.attributes.get(name);
   }
 
   //Calculate the inverse, ignoring the cache
@@ -1652,27 +1777,22 @@ class Model extends EmberObject {
 
    @property relatedTypes
    @static
-   @type Ember.Array
+   @type Array<string>
    @readOnly
    */
   @computeOnce
   static get relatedTypes() {
     let types = [];
 
-    let rels = this.relationshipsObject;
-    let relationships = Object.keys(rels);
-
     // create an array of the unique types involved
     // in relationships
-    for (let i = 0; i < relationships.length; i++) {
-      let name = relationships[i];
-      let meta = rels[name];
+    this.relationshipsByName.forEach((meta, name) => {
       let modelName = meta.type;
 
       if (types.indexOf(modelName) === -1) {
         types.push(modelName);
       }
-    }
+    });
 
     return types;
   }
@@ -1710,36 +1830,19 @@ class Model extends EmberObject {
 
    @property relationshipsByName
    @static
-   @type Map
+   @type
    @readOnly
    */
   @computeOnce
   static get relationshipsByName() {
-    let map = new Map();
-    let rels = this.relationshipsObject;
-    let relationships = Object.keys(rels);
-
-    for (let i = 0; i < relationships.length; i++) {
-      let key = relationships[i];
-      let value = rels[key];
-
-      map.set(value.key, value);
-    }
-
-    return map;
+    return walkProtoForSchema(this).relationships;
   }
 
   @computeOnce
   static get relationshipsObject() {
     let relationships = Object.create(null);
-    let modelName = this.modelName;
-    this.eachComputedProperty((name, meta) => {
-      if (meta.isRelationship) {
-        meta.key = name;
-        meta.name = name;
-        meta.parentModelName = modelName;
-        relationships[name] = relationshipFromMeta(meta);
-      }
+    this.relationshipsByName.forEach((meta, name) => {
+      relationships[name] = meta;
     });
     return relationships;
   }
@@ -1787,17 +1890,7 @@ class Model extends EmberObject {
    */
   @computeOnce
   static get fields() {
-    let map = new Map();
-
-    this.eachComputedProperty((name, meta) => {
-      if (meta.isRelationship) {
-        map.set(name, meta.kind);
-      } else if (meta.isAttribute) {
-        map.set(name, 'attribute');
-      }
-    });
-
-    return map;
+    return walkProtoForSchema(this).fields;
   }
 
   /**
@@ -1897,22 +1990,7 @@ class Model extends EmberObject {
    */
   @computeOnce
   static get attributes() {
-    let map = new Map();
-
-    this.eachComputedProperty((name, meta) => {
-      if (meta.isAttribute) {
-        assert(
-          "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: attr('<type>')` from " +
-            this.toString(),
-          name !== 'id'
-        );
-
-        meta.name = name;
-        map.set(name, meta);
-      }
-    });
-
-    return map;
+    return walkProtoForSchema(this).attributes;
   }
 
   /**
@@ -2065,6 +2143,11 @@ class Model extends EmberObject {
     });
   }
 
+  static reopen(...args) {
+    getTag(this, STATIC_KEY_RECALC).notify();
+    super.reopen(...args);
+  }
+
   /**
    Returns the name of the model class.
 
@@ -2072,14 +2155,17 @@ class Model extends EmberObject {
    @static
    */
   static toString() {
-    return `model:${get(this, 'modelName')}`;
+    let name = this.modelName;
+    if (!name && this.name !== 'Function' && this.name !== 'Class') {
+      name = this.name;
+    }
+    return `model:${name}`;
   }
 }
 
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
 Model.prototype._internalModel = null;
-Model.prototype.currentState = null;
 Model.prototype.store = null;
 
 if (HAS_DEBUG_PACKAGE) {
@@ -2283,7 +2369,10 @@ if (DEBUG) {
         );
       }
 
-      if (!isDefaultEmptyDescriptor(this, 'currentState') || this.currentState !== this._internalModel.currentState) {
+      if (
+        lookupDescriptor(Model.prototype, 'currentState').get !== lookupDescriptor(this, 'currentState').get ||
+        this._internalModel.currentState !== this.currentState
+      ) {
         throw new Error(
           `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
         );
@@ -2324,6 +2413,59 @@ if (DEBUG) {
       }
     },
   });
+}
+
+function walkProtoForSchema(klass) {
+  const tag = getTag(klass, STATIC_KEY_RECALC);
+  const klassCache = schemaCacheFor(klass);
+
+  if (klassCache._protoCache && !tag.isDirty) {
+    return klassCache._protoCache;
+  }
+  const attributes = new Map();
+  const relationships = new Map();
+  const fields = new Map();
+
+  klassCache._protoCache = {
+    attributes,
+    relationships,
+    fields,
+  };
+  const modelName = klass.modelName;
+
+  if (!modelName || tag.isDirty) {
+    klass.proto(); // allow us to be called without store.modelFor
+    tag.isDirty = false;
+  }
+
+  let cache = klassCache;
+  let inheritedKlass = klass;
+  do {
+    if (inheritedKlass === Model) {
+      break;
+    }
+    cache = schemaCacheFor(inheritedKlass);
+    if (cache.attributes) {
+      cache.attributes.forEach((v, k) => {
+        if (!attributes.has(k)) {
+          attributes.set(k, v);
+          fields.set(k, 'attribute');
+        }
+      });
+    }
+    if (cache.relationships) {
+      cache.relationships.forEach((v, k) => {
+        if (!relationships.has(k)) {
+          v.parentModelName = modelName;
+          let meta = relationshipFromMeta(v);
+          relationships.set(k, meta);
+          fields.set(k, v.kind);
+        }
+      });
+    }
+  } while ((inheritedKlass = inheritedKlass.__proto__));
+
+  return klassCache._protoCache;
 }
 
 export default Model;

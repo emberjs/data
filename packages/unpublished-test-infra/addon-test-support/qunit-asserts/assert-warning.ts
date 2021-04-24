@@ -58,23 +58,28 @@ function verifyWarning(config: WarningConfig, label?: string): AssertSomeResult 
     }
     return isMatched;
   });
+  // remove the handled warnings from WARNINGS_FOR_TEST
   WARNINGS_FOR_TEST = WARNINGS_FOR_TEST.filter(warning => {
-    matchedWarnings.indexOf(warning) === -1;
+    return matchedWarnings.indexOf(warning) === -1;
   });
   HANDLED_WARNINGS_FOR_TEST.push(...matchedWarnings);
 
   let expectedCount = typeof config.count === 'number' ? config.count : 1;
   let passed = matchedWarnings.length === expectedCount;
+  let message =
+    label ||
+    `Expected ${expectedCount} warning${expectedCount === 1 ? '' : 's'} for ${config.id} during test, ${
+      passed ? expectedCount : 'but ' + matchedWarnings.length
+    } warnings were found.`;
+  if (!passed) {
+    message += `\n\nOther warnings found:\n\t${WARNINGS_FOR_TEST.map(w => w.message).join('\n\t')}`;
+  }
 
   return {
     result: passed,
     actual: { id: config.id, count: matchedWarnings.length },
     expected: { id: config.id, count: expectedCount },
-    message:
-      label ||
-      `Expected ${expectedCount} warning${expectedCount === 1 ? '' : 's'} for ${config.id} during test, ${
-        passed ? expectedCount : 'but ' + matchedWarnings.length
-      } warnings were found.`,
+    message,
   };
 }
 
