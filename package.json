@@ -77,7 +77,7 @@
     "ember-cli-htmlbars": "^5.1.2",
     "ember-cli-inject-live-reload": "^2.0.2",
     "ember-cli-path-utils": "^1.0.0",
-    "ember-cli-pretender": "^3.2.0",
+    "ember-cli-pretender": "^4.0.0",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-template-lint": "^2.0.2",
