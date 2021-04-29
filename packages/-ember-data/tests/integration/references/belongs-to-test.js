@@ -48,7 +48,7 @@ module('integration/references/belongs-to', function (hooks) {
       run(function () {
         person.belongsTo('unknown-relationship');
       });
-    }, "There is no belongsTo relationship named 'unknown-relationship' on a model of modelClass 'person'");
+    }, 'Expected to find a relationship definition for person.unknown-relationship but none was found');
   });
 
   testInDebug(

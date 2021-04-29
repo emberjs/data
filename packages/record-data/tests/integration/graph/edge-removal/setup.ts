@@ -5,6 +5,8 @@ import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
 import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 
+type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
+
 type CollectionResourceDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceDocument;
 type EmptyResourceDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').EmptyResourceDocument;
 type JsonApiDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').JsonApiDocument;
@@ -13,7 +15,6 @@ type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsT
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type Relationship = import('@ember-data/record-data/-private').Relationship;
-type Relationships = import('@ember-data/record-data/-private/relationships/state/create').default;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 
 class AbstractMap {
@@ -21,29 +22,42 @@ class AbstractMap {
 
   has(identifier: StableRecordIdentifier) {
     let graph = graphFor(this.store._storeWrapper);
-    return this.isImplicit ? graph.implicitMap.has(identifier) : graph.identifiers.has(identifier);
+    return graph.identifiers.has(identifier);
   }
 }
 
 class AbstractGraph {
   public identifiers: AbstractMap;
-  public implicit: AbstractMap;
-  private cachedRelationships: WeakMap<StableRecordIdentifier, Relationships>;
-  private cachedImplicits: WeakMap<StableRecordIdentifier, Dict<Relationship>>;
+  public implicit: { has(identifier: StableRecordIdentifier): boolean };
 
   constructor(private store: CoreStore) {
     this.identifiers = new AbstractMap(store, false);
-    this.implicit = new AbstractMap(store, true);
-    this.cachedRelationships = new WeakMap();
-    this.cachedImplicits = new WeakMap();
+    this.implicit = {
+      has: (identifier) => {
+        return Object.keys(this.getImplicit(identifier)).length > 0;
+      },
+    };
   }
 
-  get(identifier: StableRecordIdentifier): Relationships {
-    return graphFor(this.store._storeWrapper).get(identifier);
+  get(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): ManyRelationship | BelongsToRelationship | Relationship {
+    return graphFor(this.store._storeWrapper).get(identifier, propertyName);
   }
 
   getImplicit(identifier: StableRecordIdentifier): Dict<Relationship> {
-    return graphFor(this.store._storeWrapper).getImplicit(identifier);
+    const rels = graphFor(this.store._storeWrapper).identifiers.get(identifier);
+    let implicits = Object.create(null);
+    if (rels) {
+      Object.keys(rels).forEach((key) => {
+        let rel = rels[key]!;
+        if (rel.definition.isImplicit) {
+          implicits[key] = rel;
+        }
+      });
+    }
+    return implicits;
   }
 }
 
@@ -51,16 +65,16 @@ function graphForTest(store: CoreStore) {
   return new AbstractGraph(store);
 }
 
-function isBelongsTo(rel: Relationship): rel is BelongsToRelationship {
-  return rel.kind === 'belongsTo';
+function isBelongsTo(rel: BelongsToRelationship | ManyRelationship | Relationship): rel is BelongsToRelationship {
+  return rel.definition.kind === 'belongsTo';
 }
 
-export function stateOf(rel: Relationship) {
+export function stateOf(rel: BelongsToRelationship | ManyRelationship | Relationship) {
   let local, remote;
   if (isBelongsTo(rel)) {
     // we cast these to array form to make the tests more legible
-    local = rel.inverseRecordData ? [rel.inverseRecordData] : [];
-    remote = rel.canonicalState ? [rel.canonicalState] : [];
+    local = rel.localState ? [rel.localState] : [];
+    remote = rel.remoteState ? [rel.remoteState] : [];
   } else {
     local = rel.members.list.map((m) => (m ? m : null));
     remote = rel.canonicalMembers.list.map((m) => (m ? m : null));

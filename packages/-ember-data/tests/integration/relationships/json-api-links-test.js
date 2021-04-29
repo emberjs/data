@@ -82,7 +82,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
           return user1.get('organisation').then((orgFromUser) => {
             assert.false(
-              user1.belongsTo('organisation').belongsToRelationship.relationshipIsStale,
+              user1.belongsTo('organisation').belongsToRelationship.state.isStale,
               'user should have loaded its belongsTo relationship'
             );
 
@@ -95,11 +95,11 @@ module('integration/relationship/json-api-links | Relationship state updates', f
   });
 
   test('Pushing child record should not mark parent:children as loaded', function (assert) {
-    let Child = DS.Model.extend({
+    const Child = DS.Model.extend({
       parent: belongsTo('parent', { inverse: 'children' }),
     });
 
-    let Parent = DS.Model.extend({
+    const Parent = DS.Model.extend({
       children: hasMany('child', { inverse: 'parent' }),
     });
 
@@ -110,44 +110,39 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
     let store = this.owner.lookup('service:store');
 
-    Parent = store.modelFor('parent');
-    Child = store.modelFor('child');
-
-    return run(() => {
-      const parent = store.push({
-        data: {
-          id: 'p1',
-          type: 'parent',
-          relationships: {
-            children: {
-              links: {
-                related: '/parent/1/children',
-              },
+    const parent = store.push({
+      data: {
+        id: 'p1',
+        type: 'parent',
+        relationships: {
+          children: {
+            links: {
+              related: '/parent/1/children',
             },
           },
         },
-      });
-
-      store.push({
-        data: {
-          id: 'c1',
-          type: 'child',
-          relationships: {
-            parent: {
-              data: {
-                id: 'p1',
-                type: 'parent',
-              },
-            },
-          },
-        },
-      });
-
-      assert.true(
-        parent.hasMany('children').hasManyRelationship.relationshipIsStale,
-        'parent should think that children still needs to be loaded'
-      );
+      },
     });
+
+    const state = parent.hasMany('children').hasManyRelationship.state;
+    assert.true(state.isStale, 'initial: parent should think that children still needs to be loaded');
+
+    store.push({
+      data: {
+        id: 'c1',
+        type: 'child',
+        relationships: {
+          parent: {
+            data: {
+              id: 'p1',
+              type: 'parent',
+            },
+          },
+        },
+      },
+    });
+
+    assert.true(state.isStale, 'final: parent should think that children still needs to be loaded');
   });
 
   test('pushing has-many payloads with data (no links), then more data (no links) works as expected', function (assert) {

@@ -627,8 +627,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
         post;
       }
 
-      register('model:User', User);
-
+      register('model:user', User);
       assert.expectAssertion(() => {
         store.createRecord('user', { post: null });
       }, /No model was found for 'post' and no schema handles the type/);
@@ -655,7 +654,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
   });
 
   test('Unload a destroyed record should clean the relations', async function (assert) {
-    assert.expect(3);
+    assert.expect(2);
 
     class Post extends Model {
       @hasMany('comment', { async: true })
@@ -667,8 +666,8 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
       post;
     }
 
-    register('model:Post', Post);
-    register('model:Comment', Comment);
+    register('model:post', Post);
+    register('model:comment', Comment);
 
     const comment = store.createRecord('comment');
     const post = store.createRecord('post');
@@ -681,12 +680,8 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     await settled();
 
     const identifier = comment._internalModel.identifier;
-    const relationships = graphFor(store._storeWrapper).get(identifier);
-    const implicitRelationships = graphFor(store._storeWrapper).getImplicit(identifier);
-    const initializedRelationships = relationships.initializedRelationships;
 
-    assert.deepEqual(Object.keys(initializedRelationships), [], 'relationships are cleared');
-    assert.deepEqual(Object.keys(implicitRelationships), [], 'implicitRelationships are cleared');
+    assert.false(graphFor(store._storeWrapper).identifiers.has(identifier), 'relationships are cleared');
     assert.ok(comment._internalModel.__recordData.isDestroyed, 'recordData is destroyed');
   });
 });

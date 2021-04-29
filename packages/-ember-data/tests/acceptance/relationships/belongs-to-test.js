@@ -10,9 +10,10 @@ import { setupRenderingTest } from 'ember-qunit';
 import { ServerError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { implicitRelationshipsFor } from '@ember-data/record-data/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+
+import { implicitRelationshipsFor } from '../../helpers/accessors';
 
 class Person extends Model {
   @attr()
@@ -511,19 +512,20 @@ module('async belongs-to rendering tests', function (hooks) {
 
       assert.equal(this.element.textContent.trim(), '', 'we have no parent');
 
-      let relationshipState = sedona.belongsTo('parent').belongsToRelationship;
+      const relationship = sedona.belongsTo('parent').belongsToRelationship;
+      const { state, definition } = relationship;
       let RelationshipPromiseCache = sedona._internalModel._relationshipPromisesCache;
       let RelationshipProxyCache = sedona._internalModel._relationshipProxyCache;
 
-      assert.true(relationshipState.isAsync, 'The relationship is async');
-      assert.false(relationshipState.relationshipIsEmpty, 'The relationship is not empty');
-      assert.true(relationshipState.hasDematerializedInverse, 'The relationship inverse is dematerialized');
-      assert.true(relationshipState.hasAnyRelationshipData, 'The relationship knows which record it needs');
+      assert.true(definition.isAsync, 'The relationship is async');
+      assert.false(state.isEmpty, 'The relationship is not empty');
+      assert.true(state.hasDematerializedInverse, 'The relationship inverse is dematerialized');
+      assert.true(state.hasReceivedData, 'The relationship knows which record it needs');
       assert.false(!!RelationshipPromiseCache['parent'], 'The relationship has no fetch promise');
-      assert.true(relationshipState.hasFailedLoadAttempt === true, 'The relationship has attempted a load');
-      assert.true(relationshipState.shouldForceReload === false, 'The relationship will not force a reload');
+      assert.true(state.hasFailedLoadAttempt === true, 'The relationship has attempted a load');
+      assert.true(state.shouldForceReload === false, 'The relationship will not force a reload');
       assert.true(!!RelationshipProxyCache['parent'], 'The relationship has a promise proxy');
-      assert.false(!!relationshipState.link, 'The relationship does not have a link');
+      assert.false(!!relationship.link, 'The relationship does not have a link');
 
       try {
         let result = await sedona.get('parent.content');

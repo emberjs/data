@@ -63,6 +63,10 @@ import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } fro
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
+type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
+type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
+
+type RelationshipState = import('@ember-data/record-data/-private/graph/-state').RelationshipState;
 type ShimModelClass = import('./model/shim-model-class').default;
 type Snapshot = import('./snapshot').default;
 type Backburner = import('@ember/runloop/-private/backburner').Backburner;
@@ -224,6 +228,8 @@ interface CoreStore {
   adapter: string;
 }
 
+type RelationshipEdge = Relationship | BelongsToRelationship | ManyRelationship;
+
 abstract class CoreStore extends Service {
   /**
    * EmberData specific backburner instance
@@ -246,7 +252,7 @@ abstract class CoreStore extends Service {
   // used for coalescing record save requests
   private _pendingSave: PendingSaveItem[] = [];
   // used for coalescing relationship updates
-  private _updatedRelationships: Relationship[] = [];
+  private _updatedRelationships: RelationshipEdge[] = [];
   // used for coalescing internal model updates
   private _updatedInternalModels: InternalModel[] = [];
 
@@ -1709,42 +1715,34 @@ abstract class CoreStore extends Service {
     }
     let adapter = this.adapterFor(relationshipMeta.type);
 
-    let {
-      relationshipIsStale,
-      hasDematerializedInverse,
-      hasAnyRelationshipData,
-      relationshipIsEmpty,
-      shouldForceReload,
-    } = resource._relationship;
+    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
+      .state as RelationshipState;
     const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
 
     let shouldFindViaLink =
       resource.links &&
       resource.links.related &&
       (typeof adapter.findHasMany === 'function' || typeof resource.data === 'undefined') &&
-      (shouldForceReload ||
-        hasDematerializedInverse ||
-        relationshipIsStale ||
-        (!allInverseRecordsAreLoaded && !relationshipIsEmpty));
+      (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
 
     // fetch via link
     if (shouldFindViaLink) {
       return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options);
     }
 
-    let preferLocalCache = hasAnyRelationshipData && !relationshipIsEmpty;
+    let preferLocalCache = hasReceivedData && !isEmpty;
 
     let hasLocalPartialData =
-      hasDematerializedInverse || (relationshipIsEmpty && Array.isArray(resource.data) && resource.data.length > 0);
+      hasDematerializedInverse || (isEmpty && Array.isArray(resource.data) && resource.data.length > 0);
 
     // fetch using data, pulling from local cache if possible
-    if (!shouldForceReload && !relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
+    if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
       let internalModels = resource.data.map((json) => this._internalModelForResource(json));
 
       return this.findMany(internalModels, options);
     }
 
-    let hasData = hasAnyRelationshipData && !relationshipIsEmpty;
+    let hasData = hasReceivedData && !isEmpty;
 
     // fetch by data
     if (hasData || hasLocalPartialData) {
@@ -1810,22 +1808,14 @@ abstract class CoreStore extends Service {
     }
 
     const internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
-    let {
-      relationshipIsStale,
-      hasDematerializedInverse,
-      hasAnyRelationshipData,
-      relationshipIsEmpty,
-      shouldForceReload,
-    } = resource._relationship;
+    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
+      .state as RelationshipState;
     const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
 
     let shouldFindViaLink =
       resource.links &&
       resource.links.related &&
-      (shouldForceReload ||
-        hasDematerializedInverse ||
-        relationshipIsStale ||
-        (!allInverseRecordsAreLoaded && !relationshipIsEmpty));
+      (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
 
     if (internalModel) {
       // short circuit if we are already loading
@@ -1852,13 +1842,13 @@ abstract class CoreStore extends Service {
       return this._fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options);
     }
 
-    let preferLocalCache = hasAnyRelationshipData && allInverseRecordsAreLoaded && !relationshipIsEmpty;
-    let hasLocalPartialData = hasDematerializedInverse || (relationshipIsEmpty && resource.data);
+    let preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
+    let hasLocalPartialData = hasDematerializedInverse || (isEmpty && resource.data);
     // null is explicit empty, undefined is "we don't know anything"
     let localDataIsEmpty = resource.data === undefined || resource.data === null;
 
     // fetch using data, pulling from local cache if possible
-    if (!shouldForceReload && !relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
+    if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
       /*
         We have canonical data, but our local state is empty
        */
@@ -3625,7 +3615,7 @@ abstract class CoreStore extends Service {
     }
   }
 
-  _updateRelationshipState(relationship: Relationship) {
+  _updateRelationshipState(relationship: Relationship | BelongsToRelationship | ManyRelationship) {
     if (this._updatedRelationships.push(relationship) !== 1) {
       return;
     }

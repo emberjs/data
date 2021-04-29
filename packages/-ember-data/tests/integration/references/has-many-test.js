@@ -50,7 +50,7 @@ module('integration/references/has-many', function (hooks) {
       run(function () {
         family.hasMany('unknown-relationship');
       });
-    }, "There is no hasMany relationship named 'unknown-relationship' on a model of modelClass 'family'");
+    }, 'Expected to find a relationship definition for family.unknown-relationship but none was found');
   });
 
   testInDebug(

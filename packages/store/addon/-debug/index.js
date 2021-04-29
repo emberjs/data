@@ -49,8 +49,9 @@ if (DEBUG) {
     let addedClass = store.modelFor(addedInternalModel.modelName);
 
     let assertionMessage = `The '${addedModelName}' type does not implement '${relationshipModelName}' and thus cannot be assigned to the '${key}' relationship in '${parentModelName}'. Make it a descendant of '${relationshipModelName}' or use a mixin of the same name.`;
+    let isPolymorphic = checkPolymorphic(relationshipClass, addedClass);
 
-    assert(assertionMessage, checkPolymorphic(relationshipClass, addedClass));
+    assert(assertionMessage, isPolymorphic);
   };
 }
 

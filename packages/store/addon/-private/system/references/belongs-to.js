@@ -25,7 +25,7 @@ export default class BelongsToReference extends Reference {
     super(store, parentIMOrIdentifier);
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
-    this.type = belongsToRelationship.relationshipMeta.type;
+    this.type = belongsToRelationship.definition.type;
     this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
     this.parentIdentifier = parentIMOrIdentifier;
 
@@ -151,13 +151,13 @@ export default class BelongsToReference extends Reference {
 
       assertPolymorphicType(
         internalModelForReference(this),
-        this.belongsToRelationship.relationshipMeta,
+        this.belongsToRelationship.definition,
         record._internalModel,
         this.store
       );
 
       //TODO Igor cleanup, maybe move to relationship push
-      this.belongsToRelationship.setCanonicalRecordData(recordIdentifierFor(record));
+      this.belongsToRelationship.updateData(recordIdentifierFor(record));
 
       return record;
     });

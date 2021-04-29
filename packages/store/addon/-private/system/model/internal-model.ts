@@ -637,7 +637,7 @@ export default class InternalModel {
     if (isAsync) {
       let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
 
-      if (resource._relationship.hasFailedLoadAttempt) {
+      if (resource._relationship.state.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key];
       }
 
@@ -683,7 +683,7 @@ export default class InternalModel {
     if (!manyArray) {
       let initialState = this.store._getHasManyByJsonApiResource(jsonApi);
       // TODO move this to a public api
-      let inverseIsAsync = jsonApi._relationship ? jsonApi._relationship._inverseIsAsync() : false;
+      let inverseIsAsync = jsonApi._relationship ? jsonApi._relationship.definition.inverseIsAsync : false;
       manyArray = ManyArray.create({
         store: this.store,
         type: this.store.modelFor(relationshipMeta.type),
@@ -740,7 +740,7 @@ export default class InternalModel {
     let manyArray = this.getManyArray(key, isAsync);
 
     if (isAsync) {
-      if (jsonApi!._relationship!.hasFailedLoadAttempt) {
+      if (jsonApi!._relationship!.state.hasFailedLoadAttempt) {
         return this._relationshipProxyCache[key];
       }
 
@@ -1447,7 +1447,7 @@ export default class InternalModel {
     return `<${this.modelName}:${this.id}>`;
   }
 
-  referenceFor(kind, name) {
+  referenceFor(kind: string | null, name: string) {
     let reference = this.references[name];
 
     if (!reference) {
@@ -1457,24 +1457,19 @@ export default class InternalModel {
         // because of the intimate API access involved. This is something we will need to redesign.
         assert(`snapshot.belongsTo only supported for @ember-data/record-data`);
       }
-      const relationshipStateFor = require('@ember-data/record-data/-private').relationshipStateFor;
-      const relationship = relationshipStateFor(this.store._storeWrapper, this.identifier, name);
+      const graphFor = require('@ember-data/record-data/-private').graphFor;
+      const relationship = graphFor(this.store._storeWrapper).get(this.identifier, name);
 
       if (DEBUG && kind) {
         let modelName = this.modelName;
-        assert(
-          `There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`,
-          !!relationship
-        );
-
-        let actualRelationshipKind = relationship.relationshipMeta.kind;
+        let actualRelationshipKind = relationship.definition.kind;
         assert(
           `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
           actualRelationshipKind === kind
         );
       }
 
-      let relationshipKind = relationship.relationshipMeta.kind;
+      let relationshipKind = relationship.definition.kind;
       let identifierOrInternalModel = this.identifier;
 
       if (relationshipKind === 'belongsTo') {
@@ -1514,7 +1509,7 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
     // for the sync belongsTo reload case there will be no proxy
     // for the async reload case there will be no proxy if the ui
     // has never been accessed
-    if (proxy && relationship.kind === 'belongsTo') {
+    if (proxy && relationship.definition.kind === 'belongsTo') {
       if (proxy.content && proxy.content.isDestroying) {
         proxy.set('content', null);
       }

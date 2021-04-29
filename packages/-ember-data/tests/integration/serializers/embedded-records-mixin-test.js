@@ -1642,7 +1642,7 @@ module('integration/embedded-records-mixin', function (hooks) {
           calledSerializeHasMany = true;
           let key = relationship.key;
           let payloadKey = this.keyForRelationship ? this.keyForRelationship(key, 'hasMany') : key;
-          let relationshipType = snapshot.type.determineRelationshipType(relationship);
+          let relationshipType = snapshot.type.determineRelationshipType(relationship, store);
           // "manyToOne" not supported in ActiveModelSerializer.prototype.serializeHasMany
           let relationshipTypes = ['manyToNone', 'manyToMany', 'manyToOne'];
           if (relationshipTypes.indexOf(relationshipType) > -1) {

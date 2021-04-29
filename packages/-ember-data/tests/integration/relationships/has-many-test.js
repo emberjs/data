@@ -12,11 +12,12 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { relationshipsFor, relationshipStateFor } from '@ember-data/record-data/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+
+import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
 
 module('integration/relationships/has_many - Has-Many Relationships', function (hooks) {
   setupTest(hooks);
@@ -1591,55 +1592,58 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
   });
 
-  test('Type can be inferred from the key of a hasMany relationship', function (assert) {
+  test('Type can be inferred from the key of a hasMany relationship', async function (assert) {
     assert.expect(1);
+
+    const User = Model.extend({
+      name: attr(),
+      contacts: hasMany({ inverse: null, async: false }),
+    });
+
+    const Contact = Model.extend({
+      name: attr(),
+      user: belongsTo('user', { async: false }),
+    });
+
+    this.owner.register('model:user', User);
+    this.owner.register('model:contact', Contact);
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    adapter.findRecord = function (store, type, ids, snapshots) {
+    adapter.findRecord = function () {
       return {
         data: {
-          id: 1,
+          id: '1',
           type: 'user',
           relationships: {
             contacts: {
-              data: [{ id: 1, type: 'contact' }],
+              data: [{ id: '1', type: 'contact' }],
             },
           },
         },
       };
     };
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            contacts: {
-              data: [{ type: 'contact', id: '1' }],
-            },
+    const user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          contacts: {
+            data: [{ type: 'contact', id: '1' }],
           },
         },
-        included: [
-          {
-            type: 'contact',
-            id: '1',
-          },
-        ],
-      });
+      },
+      included: [
+        {
+          type: 'contact',
+          id: '1',
+        },
+      ],
     });
-    run(function () {
-      store
-        .findRecord('user', 1)
-        .then(function (user) {
-          return user.get('contacts');
-        })
-        .then(function (contacts) {
-          assert.equal(contacts.get('length'), 1, 'The contacts relationship is correctly set up');
-        });
-    });
+    const contacts = await user.contacts;
+    assert.equal(contacts.get('length'), 1, 'The contacts relationship is correctly set up');
   });
 
   test('Type can be inferred from the key of an async hasMany relationship', function (assert) {
@@ -2835,7 +2839,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
 
     run(() => {
-      relationshipStateFor(post, 'comments').clear();
+      getRelationshipStateForRecord(post, 'comments').clear();
       let comments = A(store.peekAll('comment'));
       assert.deepEqual(comments.mapBy('post'), [null, null, null]);
     });
@@ -3052,8 +3056,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     return run(() => {
       return store.findRecord('chapter', 1).then((chapter) => {
-        let relationship = relationshipStateFor(chapter, 'pages');
-        assert.true(relationship.hasAnyRelationshipData, 'relationship has data');
+        let relationship = getRelationshipStateForRecord(chapter, 'pages');
+        assert.true(relationship.state.hasReceivedData, 'relationship has data');
       });
     });
   });
@@ -3084,8 +3088,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     return run(() => {
       return store.findRecord('chapter', 1).then((chapter) => {
-        let relationship = relationshipStateFor(chapter, 'pages');
-        assert.true(relationship.hasAnyRelationshipData, 'relationship has data');
+        let relationship = getRelationshipStateForRecord(chapter, 'pages');
+        assert.true(relationship.state.hasReceivedData, 'relationship has data');
       });
     });
   });
@@ -3117,8 +3121,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     return run(() => {
       return store.findRecord('chapter', 1).then((chapter) => {
-        let relationship = relationshipStateFor(chapter, 'pages');
-        assert.false(relationship.hasAnyRelationshipData, 'relationship does not have data');
+        let relationship = getRelationshipStateForRecord(chapter, 'pages');
+        assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
       });
     });
   });
@@ -3141,8 +3145,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     return run(() => {
       return store.findRecord('chapter', 1).then((chapter) => {
-        let relationship = relationshipStateFor(chapter, 'pages');
-        assert.false(relationship.hasAnyRelationshipData, 'relationship does not have data');
+        let relationship = getRelationshipStateForRecord(chapter, 'pages');
+        assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
       });
     });
   });
@@ -3159,16 +3163,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
     let page = store.createRecord('page');
 
-    let relationship = relationshipStateFor(chapter, 'pages');
-    assert.false(relationship.hasAnyRelationshipData, 'relationship does not have data');
+    let relationship = getRelationshipStateForRecord(chapter, 'pages');
+    assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
 
     chapter = store.createRecord('chapter', {
       title: 'The Story Begins',
       pages: [page],
     });
 
-    relationship = relationshipStateFor(chapter, 'pages');
-    assert.true(relationship.hasAnyRelationshipData, 'relationship has data');
+    relationship = getRelationshipStateForRecord(chapter, 'pages');
+    assert.true(relationship.state.hasReceivedData, 'relationship has data');
   });
 
   test('hasMany hasAnyRelationshipData sync created', function (assert) {
@@ -3176,17 +3180,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     let store = this.owner.lookup('service:store');
     let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    let relationship = relationshipStateFor(chapter, 'pages');
+    let relationship = getRelationshipStateForRecord(chapter, 'pages');
 
-    assert.false(relationship.hasAnyRelationshipData, 'relationship does not have data');
+    assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
 
     chapter = store.createRecord('chapter', {
       title: 'The Story Begins',
       pages: [store.createRecord('page')],
     });
-    relationship = relationshipStateFor(chapter, 'pages');
+    relationship = getRelationshipStateForRecord(chapter, 'pages');
 
-    assert.true(relationship.hasAnyRelationshipData, 'relationship has data');
+    assert.true(relationship.state.hasReceivedData, 'relationship has data');
   });
 
   test("Model's hasMany relationship should not be created during model creation", function (assert) {
@@ -3201,7 +3205,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         },
       });
       user = store.peekRecord('user', 1);
-      assert.notOk(relationshipsFor(user).has('messages'), 'Newly created record should not have relationships');
+      assert.notOk(hasRelationshipForRecord(user, 'messages'), 'Newly created record should not have relationships');
     });
   });
 
@@ -3213,7 +3217,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       user = store.createRecord('user');
       user.get('messages');
       assert.ok(
-        relationshipsFor(user).has('messages'),
+        hasRelationshipForRecord(user, 'messages'),
         'Newly created record with relationships in params passed in its constructor should have relationships'
       );
     });
@@ -3254,7 +3258,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
 
     run(() => {
-      assert.equal(relationshipStateFor(book, 'chapters').meta.where, 'the lefkada sea', 'meta is there');
+      assert.equal(getRelationshipStateForRecord(book, 'chapters').meta.where, 'the lefkada sea', 'meta is there');
     });
   });
 

@@ -23,7 +23,7 @@ export default class HasManyReference extends Reference {
     super(store, parentIMOrIdentifier);
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
-    this.type = hasManyRelationship.relationshipMeta.type;
+    this.type = hasManyRelationship.definition.type;
 
     this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
 
@@ -187,7 +187,7 @@ export default class HasManyReference extends Reference {
         let record = this.store.push(obj);
 
         if (DEBUG) {
-          let relationshipMeta = this.hasManyRelationship.relationshipMeta;
+          let relationshipMeta = this.hasManyRelationship.definition;
           assertPolymorphicType(internalModel, relationshipMeta, record._internalModel, this.store);
         }
         return recordIdentifierFor(record);
@@ -195,14 +195,14 @@ export default class HasManyReference extends Reference {
 
       this.hasManyRelationship.computeChanges(identifiers);
 
-      return internalModel.getHasMany(this.hasManyRelationship.key);
+      return internalModel.getHasMany(this.hasManyRelationship.definition.key);
       // TODO IGOR it seems wrong that we were returning the many array here
       //return this.hasManyRelationship.manyArray;
     });
   }
 
   _isLoaded() {
-    let hasRelationshipDataProperty = this.hasManyRelationship.hasAnyRelationshipData;
+    let hasRelationshipDataProperty = this.hasManyRelationship.state.hasReceivedData;
     if (!hasRelationshipDataProperty) {
       return false;
     }
