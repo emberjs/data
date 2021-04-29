@@ -114,7 +114,6 @@
     "git-repo-info": "^2.1.1",
     "github": "^1.1.1",
     "glob": "^7.1.6",
-    "har-remix": "^2.3.0",
     "json-typescript": "^1.1.2",
     "lerna": "^4.0.0",
     "loader.js": "^4.7.0",
