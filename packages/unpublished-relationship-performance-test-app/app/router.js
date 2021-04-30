@@ -12,6 +12,7 @@ Router.map(function () {
   this.route('add-children');
   this.route('unload');
   this.route('destroy');
+  this.route('unused-relationships');
 });
 
 export default Router;
