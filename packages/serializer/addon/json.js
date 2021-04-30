@@ -67,14 +67,18 @@ import { modelHasAttributeOrRelationshipNamedType } from './-private';
 
   The `JSONSerializer` normalization process follows these steps:
 
-    - `normalizeResponse` - entry method to the serializer.
-    - `normalizeCreateRecordResponse` - a `normalizeResponse` for a specific operation is called.
-    - `normalizeSingleResponse`|`normalizeArrayResponse` - for methods like `createRecord` we expect
-      a single record back, while for methods like `findAll` we expect multiple records back.
-    - `normalize` - `normalizeArrayResponse` iterates and calls `normalize` for each of its records while `normalizeSingle`
-      calls it once. This is the method you most likely want to subclass.
-    - `extractId` | `extractAttributes` | `extractRelationships` - `normalize` delegates to these methods to
-      turn the record payload into the JSON API format.
+    1. `normalizeResponse`
+        - entry method to the serializer.
+    2. `normalizeCreateRecordResponse`
+        - a `normalizeResponse` for a specific operation is called.
+    3. `normalizeSingleResponse`|`normalizeArrayResponse`
+        - for methods like `createRecord` we expect a single record back, while for methods like `findAll` we expect multiple records back.
+    4. `normalize`
+        - `normalizeArrayResponse` iterates and calls `normalize` for each of its records while `normalizeSingle`
+          calls it once. This is the method you most likely want to subclass.
+    5. `extractId` | `extractAttributes` | `extractRelationships`
+        - `normalize` delegates to these methods to
+          turn the record payload into the JSON API format.
 
   @class JSONSerializer
   @extends Serializer
