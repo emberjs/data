@@ -34,7 +34,7 @@ jobs:
               "materialization": {
                 "control": "http://localhost:4200/materialization",
                 "experiment": "http://localhost:4201/materialization",
-                "markers": "start-find-all,start-outer-materialization,stop-outer-materialization,end-find-all"
+                "markers": "start-find-all,start-materialization,end-materialization"
               },
               "unload": {
                 "control": "http://localhost:4200/unload",
