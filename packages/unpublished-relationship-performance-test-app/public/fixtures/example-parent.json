@@ -1,0 +1,60 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "type": "parent",
+      "attributes": {
+        "parentName": "parent name"
+      },
+      "relationships": {
+        "children": {
+          "data": [
+            {
+              "id": "1-0",
+              "type": "child"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "id": "1-0",
+      "type": "child",
+      "attributes": {
+        "childName": "child-1-0"
+      },
+      "relationships": {
+        "friends": {
+          "data": [
+            {
+              "id": "1-0",
+              "type": "child"
+            },
+            {
+              "id": "1-0",
+              "type": "child"
+            },
+            {
+              "id": "1-0",
+              "type": "child"
+            }
+          ]
+        },
+        "bestFriend": {
+          "data": {
+            "id": "1-0",
+            "type": "child"
+          }
+        },
+        "secondBestFriend": {
+          "data": {
+            "id": "1-0",
+            "type": "child"
+          }
+        }
+      }
+    }
+  ]
+}

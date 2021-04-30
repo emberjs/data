@@ -13,3 +13,5 @@ fs.writeFileSync(
   JSON.stringify(createParentPayload(2000, 500)),
   'utf-8'
 );
+fs.writeFileSync('./public/fixtures/example-car.json', JSON.stringify(createCarsPayload(1), null, 2));
+fs.writeFileSync('./public/fixtures/example-parent.json', JSON.stringify(createParentPayload(3, 3), null, 2));
