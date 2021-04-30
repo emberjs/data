@@ -18,7 +18,6 @@ jobs:
       - uses: actions/setup-node@v2-beta
         with:
           node-version: 12.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies for master
         run: yarn install --frozen-lockfile --non-interactive
       - name: Basic Tests
@@ -37,7 +36,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 12.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies for master
         run: yarn install --frozen-lockfile --non-interactive
       - name: Make sure git user is setup
