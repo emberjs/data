@@ -1,13 +1,11 @@
 import Route from '@ember/routing/route';
 
-import { createParentPayload } from '../utils/create-parent-payload';
-
 export default Route.extend({
-  model() {
+  async model() {
     performance.mark('start-data-generation');
 
-    const initialPayload = createParentPayload(19600);
-    const updatePayload = createParentPayload(20000);
+    const initialPayload = await fetch('./fixtures/add-children-initial.json').then((r) => r.json());
+    const updatePayload = await fetch('./fixtures/add-children-final.json').then((r) => r.json());
 
     performance.mark('start-push-initial-payload');
     this.store.push(initialPayload);
