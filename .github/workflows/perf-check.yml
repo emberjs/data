@@ -6,8 +6,8 @@ on:
       - master
 
 jobs:
-  relationship-performance-check:
-    name: 'Relationship Materialization'
+  performance-checks:
+    name: 'Performance Checks'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,13 +23,46 @@ jobs:
           originSha=$(git rev-parse HEAD^2)
           echo $originSha > tmp/sha-for-commit.txt
           git show --format=short --no-patch $originSha
-      - uses: tracerbench/tracerbench-compare-action@master
+      - uses: tracerbench/tracerbench-compare-action@update-configurability
         with:
           experiment-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-experiment
           experiment-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-experiment --port 4201
-          experiment-url: 'http://localhost:4201/materialization'
           control-build-command: yarn workspace relationship-performance-test-app ember build -e production --output-path dist-control
           control-serve-command: yarn workspace relationship-performance-test-app ember s --path dist-control
-          control-url: 'http://localhost:4200/materialization'
-          markers: 'start-find-all,start-outer-materialization,stop-outer-materialization,end-find-all'
-          fidelity: high
+          scenarios: |
+            {
+              "materialization": {
+                "control": "http://localhost:4200/materialization",
+                "experiment": "http://localhost:4201/materialization",
+                "markers": "start-find-all,start-outer-materialization,stop-outer-materialization,end-find-all"
+              },
+              "unload": {
+                "control": "http://localhost:4200/unload",
+                "experiment": "http://localhost:4201/unload",
+                "markers": "start-push-payload,start-unload-records,end-unload-records"
+              },
+              "destroy": {
+                "control": "http://localhost:4200/destroy",
+                "experiment": "http://localhost:4201/destroy",
+                "markers": "start-push-payload,start-destroy-records,end-destroy-records"
+              },
+              "add-children": {
+                "control": "http://localhost:4200/add-children",
+                "experiment": "http://localhost:4201/add-children",
+                "markers": "start-push-initial-payload,start-push-update-payload,end-push-update-payload"
+              }
+            }
+          fidelity: 60
+          upload-traces: true
+          upload-results: true
+      - name: Report TracerBench Results
+        if: failure() || success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMENT_MARKER="Performance Report for "
+          sha=$(cat tmp/sha-for-commit.txt)
+          node ./bin/perf-tracking/create-comment.js $sha > tracerbench-results/comment.txt
+          COMMENT_TEXT="@./tracerbench-results/comment.txt"
+          source bin/asset-size-tracking/src/post-comment.sh
+      
