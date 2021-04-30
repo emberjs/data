@@ -1,7 +1,12 @@
 import Route from '@ember/routing/route';
 
+import CARS_PAYLOAD from '../utils/generate-fixtures-for-materialization-scenario';
+
 export default Route.extend({
   model() {
+    // having imported this ensures fixture generation
+    // is not measured within start-find-all to end-find-all
+    CARS_PAYLOAD;
     performance.mark('start-find-all');
     return this.store.findAll('car', { reload: true }).then((cars) => {
       performance.mark('start-outer-materialization');
