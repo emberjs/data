@@ -8,3 +8,8 @@ fs.writeFileSync('./public/fixtures/add-children-final.json', JSON.stringify(cre
 fs.writeFileSync('./public/fixtures/destroy.json', JSON.stringify(createParentPayload(2000, 500)), 'utf-8');
 fs.writeFileSync('./public/fixtures/materialization.json', JSON.stringify(createCarsPayload(10000)), 'utf-8');
 fs.writeFileSync('./public/fixtures/unload.json', JSON.stringify(createParentPayload(2000, 500)), 'utf-8');
+fs.writeFileSync(
+  './public/fixtures/unused-relationships.json',
+  JSON.stringify(createParentPayload(2000, 500)),
+  'utf-8'
+);

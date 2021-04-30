@@ -50,6 +50,11 @@ jobs:
                 "control": "http://localhost:4200/add-children",
                 "experiment": "http://localhost:4201/add-children",
                 "markers": "start-push-initial-payload,start-push-update-payload,end-push-update-payload"
+              },
+              "unused-relationships": {
+                "control": "http://localhost:4200/unused-relationships",
+                "experiment": "http://localhost:4201/unused-relationships",
+                "markers": "start-push-payload,end-push-payload"
               }
             }
           fidelity: 60
