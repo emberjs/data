@@ -1,6 +1,6 @@
 const COLORS = ['red', 'white', 'black', 'pink', 'green', 'blue', 'yellow', 'orange', 'green', 'teal'];
 const SIZES = ['square', 'rectangle', 'circle', 'oval', 'cube', 'small', 'medium', 'large', 'extra large'];
-const TYPES = ['suv', 'sedan', 'minivan', 'electric', 'hybrid', 'truck', 'sport'];
+const MAKES = ['suv', 'sedan', 'minivan', 'electric', 'hybrid', 'truck', 'sport'];
 
 let FIXTURE_ID = 0;
 
@@ -26,7 +26,7 @@ function getRelatedResource(fixtures, index, id) {
 
 module.exports = function createCarsPayload(n) {
   const colors = getColorResources();
-  const types = getTypeResources();
+  const makes = getMakeResources();
   const sizes = getSizeResources();
   const data = new Array(n);
   for (let i = 0; i < n; i++) {
@@ -36,8 +36,8 @@ module.exports = function createCarsPayload(n) {
       type: 'car',
       attributes: {},
       relationships: {
-        type: {
-          data: getRelatedResource(types, i, id),
+        make: {
+          data: getRelatedResource(makes, i, id),
         },
         size: {
           data: getRelatedResource(sizes, i, id),
@@ -55,7 +55,7 @@ module.exports = function createCarsPayload(n) {
 
   const fixture = {
     data,
-    included: [].concat(colors, types, sizes),
+    included: [].concat(colors, makes, sizes),
   };
 
   return fixture;
@@ -69,8 +69,8 @@ function getSizeResources() {
   return SIZES.map((name) => createJsonApiResource(`urn:size:${FIXTURE_ID++}`, 'size', { name }));
 }
 
-function getTypeResources() {
-  return TYPES.map((name) => createJsonApiResource(`urn:type:${FIXTURE_ID++}`, 'type', { name }));
+function getMakeResources() {
+  return MAKES.map((name) => createJsonApiResource(`urn:make:${FIXTURE_ID++}`, 'make', { name }));
 }
 
 function createJsonApiResource(id, type, attributes) {

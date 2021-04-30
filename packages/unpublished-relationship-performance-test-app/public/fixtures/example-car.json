@@ -5,10 +5,10 @@
       "type": "car",
       "attributes": {},
       "relationships": {
-        "type": {
+        "make": {
           "data": {
-            "id": "urn:type:10036",
-            "type": "type"
+            "id": "urn:make:10036",
+            "type": "make"
           }
         },
         "size": {
@@ -138,8 +138,8 @@
       }
     },
     {
-      "id": "urn:type:10036",
-      "type": "type",
+      "id": "urn:make:10036",
+      "type": "make",
       "attributes": {
         "name": "suv"
       },
@@ -155,43 +155,43 @@
       }
     },
     {
-      "id": "urn:type:10037",
-      "type": "type",
+      "id": "urn:make:10037",
+      "type": "make",
       "attributes": {
         "name": "sedan"
       }
     },
     {
-      "id": "urn:type:10038",
-      "type": "type",
+      "id": "urn:make:10038",
+      "type": "make",
       "attributes": {
         "name": "minivan"
       }
     },
     {
-      "id": "urn:type:10039",
-      "type": "type",
+      "id": "urn:make:10039",
+      "type": "make",
       "attributes": {
         "name": "electric"
       }
     },
     {
-      "id": "urn:type:10040",
-      "type": "type",
+      "id": "urn:make:10040",
+      "type": "make",
       "attributes": {
         "name": "hybrid"
       }
     },
     {
-      "id": "urn:type:10041",
-      "type": "type",
+      "id": "urn:make:10041",
+      "type": "make",
       "attributes": {
         "name": "truck"
       }
     },
     {
-      "id": "urn:type:10042",
-      "type": "type",
+      "id": "urn:make:10042",
+      "type": "make",
       "attributes": {
         "name": "sport"
       }

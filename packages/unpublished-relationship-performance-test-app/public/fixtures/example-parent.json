@@ -12,6 +12,14 @@
             {
               "id": "1-0",
               "type": "child"
+            },
+            {
+              "id": "1-1",
+              "type": "child"
+            },
+            {
+              "id": "1-2",
+              "type": "child"
             }
           ]
         }
@@ -24,6 +32,80 @@
       "type": "child",
       "attributes": {
         "childName": "child-1-0"
+      },
+      "relationships": {
+        "friends": {
+          "data": [
+            {
+              "id": "1-1",
+              "type": "child"
+            },
+            {
+              "id": "1-1",
+              "type": "child"
+            },
+            {
+              "id": "1-1",
+              "type": "child"
+            }
+          ]
+        },
+        "bestFriend": {
+          "data": {
+            "id": "1-1",
+            "type": "child"
+          }
+        },
+        "secondBestFriend": {
+          "data": {
+            "id": "1-2",
+            "type": "child"
+          }
+        }
+      }
+    },
+    {
+      "id": "1-1",
+      "type": "child",
+      "attributes": {
+        "childName": "child-1-1"
+      },
+      "relationships": {
+        "friends": {
+          "data": [
+            {
+              "id": "1-2",
+              "type": "child"
+            },
+            {
+              "id": "1-2",
+              "type": "child"
+            },
+            {
+              "id": "1-2",
+              "type": "child"
+            }
+          ]
+        },
+        "bestFriend": {
+          "data": {
+            "id": "1-2",
+            "type": "child"
+          }
+        },
+        "secondBestFriend": {
+          "data": {
+            "id": "1-0",
+            "type": "child"
+          }
+        }
+      }
+    },
+    {
+      "id": "1-2",
+      "type": "child",
+      "attributes": {
+        "childName": "child-1-2"
       },
       "relationships": {
         "friends": {
@@ -50,7 +132,7 @@
         },
         "secondBestFriend": {
           "data": {
-            "id": "1-0",
+            "id": "1-1",
             "type": "child"
           }
         }

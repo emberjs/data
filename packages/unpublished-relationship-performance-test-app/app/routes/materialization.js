@@ -10,7 +10,7 @@ export default Route.extend({
         return {
           name: car.id,
           size: car.size.name,
-          type: car.type.name,
+          make: car.make.name,
           colors: car.colors.map((color) => color.name),
         };
       });
