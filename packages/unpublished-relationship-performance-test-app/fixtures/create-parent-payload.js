@@ -2,73 +2,99 @@
  * Creates a `parent` with `nrChildren` children and each `child` has `nrFriends` friends.
  * If `nrFriends > 0` then each child also has a `bestFriend` and a `secondBestFriend`.
  */
-module.exports = function createParentPayload(nrChildren, nrFriends) {
-  const parentId = '1';
-  const payload = {
-    data: [
-      {
-        id: parentId,
-        type: 'parent',
-        attributes: {
-          parentName: 'parent name',
-        },
-        relationships: {
-          children: {
-            data: [],
-          },
-        },
-      },
-    ],
-    included: [],
-  };
-  const childrenRel = payload.data[0].relationships.children.data;
-  const included = payload.included;
+module.exports = function createParentPayload(nrChildren = 0, nrFriends = 0) {
+  let childFixtureId = 1;
+  let parentFixtureId = 2;
 
-  for (let i = 0; i < nrChildren; i++) {
-    const childId = `${parentId}-${i}`;
-    let child = {
-      id: childId,
-      type: 'child',
-    };
-    childrenRel.push(child);
+  const PARENT = createJsonApiResource('parent', '1', {
+    parentName: 'Scott',
+  });
 
-    child = Object.assign({}, child, {
-      attributes: {
-        childName: `child-${childId}`,
-      },
+  const ALL_FRIENDS = new Array(nrChildren * nrFriends).fill(null).map((i) => {
+    const child = createJsonApiResource('child', `${childFixtureId++}`, {
+      childName: `Not Scott's child ${i + 1}`,
     });
-    included.push(child);
+    child.relationships = {
+      parent: {
+        data: { type: 'parent', id: `${parentFixtureId++}` },
+      },
+    };
+    return child;
+  });
 
+  let friendIndex = 0;
+  const ALL_CHILDREN = new Array(nrChildren).fill(null).map((i) => {
+    const child = createJsonApiResource('child', `${childFixtureId++}`, {
+      childName: `Scott child ${i + 1}`,
+    });
+    child.relationships = {
+      parent: {
+        data: { type: 'parent', id: '1' },
+      },
+    };
+
+    const childIdentifier = extractIdentifiers(child);
     if (nrFriends > 0) {
-      Object.assign(child, {
-        relationships: {
-          friends: {
-            data: [],
-          },
-          bestFriend: {
-            data: {
-              id: `${parentId}-${(i + 1) % nrChildren}`,
-              type: 'child',
-            },
-          },
-          secondBestFriend: {
-            data: {
-              id: `${parentId}-${(i + 2) % nrChildren}`,
-              type: 'child',
-            },
-          },
-        },
-      });
-
-      const friendsRel = child.relationships.friends.data;
-      for (let j = 0; j < nrFriends; j++) {
-        friendsRel.push({
-          id: `${parentId}-${(i + 1) % nrChildren}`,
-          type: 'child',
-        });
+      let bestFriend = ALL_FRIENDS[friendIndex];
+      child.relationships.bestFriend = {
+        data: extractIdentifiers(bestFriend),
+      };
+      bestFriend.relationships.bestFriend = {
+        data: childIdentifier,
+      };
+      const otherFriends = [];
+      child.relationships.friends = {
+        data: otherFriends,
+      };
+      for (let i = 0; i < nrFriends; i++) {
+        let friend = ALL_FRIENDS[friendIndex + i];
+        friend.relationships.friends = {
+          data: [childIdentifier],
+        };
+        otherFriends.push(extractIdentifiers(friend));
       }
     }
-  }
+    if (nrFriends > 1) {
+      let secondBestFriend = ALL_FRIENDS[friendIndex + 1];
+      child.relationships.secondBestFriend = {
+        data: extractIdentifiers(secondBestFriend),
+      };
+      secondBestFriend.relationships.secondBestFriend = {
+        data: childIdentifier,
+      };
+    }
+    friendIndex += nrFriends;
+
+    return child;
+  });
+
+  PARENT.relationships = {
+    children: {
+      data: extractIdentifiers(ALL_CHILDREN),
+    },
+  };
+
+  const payload = {
+    data: PARENT,
+    included: [].concat(ALL_CHILDREN, ALL_FRIENDS),
+  };
 
   return payload;
 };
+
+function extractIdentifiers(objOrArr) {
+  if (Array.isArray(objOrArr)) {
+    return objOrArr.map((o) => {
+      return { id: o.id, type: o.type };
+    });
+  }
+  return { id: objOrArr.id, type: objOrArr.type };
+}
+
+function createJsonApiResource(type, id, attributes) {
+  return {
+    type,
+    id,
+    attributes,
+  };
+}

@@ -1,138 +1,215 @@
 {
-  "data": [
-    {
-      "id": "1",
-      "type": "parent",
-      "attributes": {
-        "parentName": "parent name"
-      },
-      "relationships": {
-        "children": {
-          "data": [
-            {
-              "id": "1-0",
-              "type": "child"
-            },
-            {
-              "id": "1-1",
-              "type": "child"
-            },
-            {
-              "id": "1-2",
-              "type": "child"
-            }
-          ]
-        }
+  "data": {
+    "type": "parent",
+    "id": "1",
+    "attributes": {
+      "parentName": "Scott"
+    },
+    "relationships": {
+      "children": {
+        "data": [
+          {
+            "id": "5",
+            "type": "child"
+          },
+          {
+            "id": "6",
+            "type": "child"
+          }
+        ]
       }
     }
-  ],
+  },
   "included": [
     {
-      "id": "1-0",
       "type": "child",
+      "id": "5",
       "attributes": {
-        "childName": "child-1-0"
+        "childName": "Scott child 1"
       },
       "relationships": {
+        "parent": {
+          "data": {
+            "type": "parent",
+            "id": "1"
+          }
+        },
+        "bestFriend": {
+          "data": {
+            "id": "1",
+            "type": "child"
+          }
+        },
         "friends": {
           "data": [
             {
-              "id": "1-1",
+              "id": "1",
               "type": "child"
             },
             {
-              "id": "1-1",
-              "type": "child"
-            },
-            {
-              "id": "1-1",
+              "id": "2",
               "type": "child"
             }
           ]
         },
-        "bestFriend": {
-          "data": {
-            "id": "1-1",
-            "type": "child"
-          }
-        },
         "secondBestFriend": {
           "data": {
-            "id": "1-2",
+            "id": "2",
             "type": "child"
           }
         }
       }
     },
     {
-      "id": "1-1",
       "type": "child",
+      "id": "6",
       "attributes": {
-        "childName": "child-1-1"
+        "childName": "Scott child 1"
       },
       "relationships": {
+        "parent": {
+          "data": {
+            "type": "parent",
+            "id": "1"
+          }
+        },
+        "bestFriend": {
+          "data": {
+            "id": "3",
+            "type": "child"
+          }
+        },
         "friends": {
           "data": [
             {
-              "id": "1-2",
+              "id": "3",
               "type": "child"
             },
             {
-              "id": "1-2",
-              "type": "child"
-            },
-            {
-              "id": "1-2",
+              "id": "4",
               "type": "child"
             }
           ]
         },
-        "bestFriend": {
-          "data": {
-            "id": "1-2",
-            "type": "child"
-          }
-        },
         "secondBestFriend": {
           "data": {
-            "id": "1-0",
+            "id": "4",
             "type": "child"
           }
         }
       }
     },
     {
-      "id": "1-2",
       "type": "child",
+      "id": "1",
       "attributes": {
-        "childName": "child-1-2"
+        "childName": "Not Scott's child 1"
       },
       "relationships": {
+        "parent": {
+          "data": {
+            "type": "parent",
+            "id": "2"
+          }
+        },
+        "bestFriend": {
+          "data": {
+            "id": "5",
+            "type": "child"
+          }
+        },
         "friends": {
           "data": [
             {
-              "id": "1-0",
+              "id": "5",
               "type": "child"
-            },
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "child",
+      "id": "2",
+      "attributes": {
+        "childName": "Not Scott's child 1"
+      },
+      "relationships": {
+        "parent": {
+          "data": {
+            "type": "parent",
+            "id": "3"
+          }
+        },
+        "friends": {
+          "data": [
             {
-              "id": "1-0",
-              "type": "child"
-            },
-            {
-              "id": "1-0",
+              "id": "5",
               "type": "child"
             }
           ]
         },
+        "secondBestFriend": {
+          "data": {
+            "id": "5",
+            "type": "child"
+          }
+        }
+      }
+    },
+    {
+      "type": "child",
+      "id": "3",
+      "attributes": {
+        "childName": "Not Scott's child 1"
+      },
+      "relationships": {
+        "parent": {
+          "data": {
+            "type": "parent",
+            "id": "4"
+          }
+        },
         "bestFriend": {
           "data": {
-            "id": "1-0",
+            "id": "6",
             "type": "child"
           }
         },
+        "friends": {
+          "data": [
+            {
+              "id": "6",
+              "type": "child"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "child",
+      "id": "4",
+      "attributes": {
+        "childName": "Not Scott's child 1"
+      },
+      "relationships": {
+        "parent": {
+          "data": {
+            "type": "parent",
+            "id": "5"
+          }
+        },
+        "friends": {
+          "data": [
+            {
+              "id": "6",
+              "type": "child"
+            }
+          ]
+        },
         "secondBestFriend": {
           "data": {
-            "id": "1-1",
+            "id": "6",
             "type": "child"
           }
         }
