@@ -9,9 +9,8 @@ export default Route.extend({
     const payload = await fetch('./fixtures/destroy.json').then((r) => r.json());
 
     performance.mark('start-push-payload');
-    const result = this.store.push(payload);
+    const parent = this.store.push(payload);
     performance.mark('start-destroy-records');
-    const parent = result[0];
     const childrenPromise = all(
       parent
         .get('children')
