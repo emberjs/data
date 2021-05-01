@@ -1,11 +1,18 @@
-import Relationships from '../relationships/state/create';
+import { assert } from '@ember/debug';
 
+import BelongsToRelationship from '../relationships/state/belongs-to';
+import ManyRelationship from '../relationships/state/has-many';
+import Relationship from '../relationships/state/relationship';
+import { isLHS, upgradeDefinition } from './-edge-definition';
+
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+type EdgeCache = import('./-edge-definition').EdgeCache;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
-type Relationship = import('../relationships/state/relationship').default;
 type JsonApiRelationship = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiRelationship;
-type RelationshipDict = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<Relationship>;
+
+type RelationshipEdge = Relationship | ManyRelationship | BelongsToRelationship;
 
 const Graphs = new WeakMap<RecordDataStoreWrapper, Graph>();
 
@@ -44,32 +51,79 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
  * @internal
  */
 export class Graph {
-  declare identifiers: Map<StableRecordIdentifier, Relationships>;
+  declare _definitionCache: EdgeCache;
+  declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
+  declare identifiers: Map<StableRecordIdentifier, Dict<RelationshipEdge>>;
   declare store: RecordDataStoreWrapper;
   declare _queued: { belongsTo: any[]; hasMany: any[] };
   declare _nextFlush: boolean;
-  declare implicitMap: Map<StableRecordIdentifier, RelationshipDict>;
 
   constructor(store: RecordDataStoreWrapper) {
-    this.store = store;
+    this._definitionCache = Object.create(null);
+    this._potentialPolymorphicTypes = Object.create(null);
     this.identifiers = new Map();
-    this._nextFlush = false;
+    this.store = store;
     this._queued = { belongsTo: [], hasMany: [] };
-    this.implicitMap = new Map();
+    this._nextFlush = false;
   }
 
-  get(identifier: StableRecordIdentifier) {
+  has(identifier: StableRecordIdentifier, propertyName: string): boolean {
     let relationships = this.identifiers.get(identifier);
+    if (!relationships) {
+      return false;
+    }
+    return relationships[propertyName] !== undefined;
+  }
 
-    if (relationships === undefined) {
-      relationships = new Relationships(identifier, this);
+  get(identifier: StableRecordIdentifier, propertyName: string): RelationshipEdge {
+    assert(`expected propertyName`, propertyName);
+    let relationships = this.identifiers.get(identifier);
+    if (!relationships) {
+      relationships = Object.create(null) as Dict<RelationshipEdge>;
       this.identifiers.set(identifier, relationships);
     }
 
-    return relationships;
+    let relationship = relationships[propertyName];
+    if (!relationship) {
+      const info = upgradeDefinition(this, identifier, propertyName);
+      assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
+      const meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
+      const Klass =
+        meta.kind === 'hasMany' ? ManyRelationship : meta.kind === 'belongsTo' ? BelongsToRelationship : Relationship;
+      relationship = relationships[propertyName] = new Klass(this, meta, identifier);
+    }
+
+    return relationship;
+  }
+
+  /**
+   * Allows for the graph to dynamically discover polymorphic connections
+   * without needing to walk prototype chains.
+   *
+   * Used by edges when an added `type` does not match the expected `type`
+   * for that edge.
+   *
+   * Currently we assert before calling this. For a public API we will want
+   * to call out to the schema manager to ask if we should consider these
+   * types as equivalent for a given relationship.
+   */
+  registerPolymorphicType(type1: string, type2: string): void {
+    const typeCache = this._potentialPolymorphicTypes;
+    let t1 = typeCache[type1];
+    if (!t1) {
+      t1 = typeCache[type1] = Object.create(null);
+    }
+    t1![type2] = true;
+
+    let t2 = typeCache[type2];
+    if (!t2) {
+      t2 = typeCache[type2] = Object.create(null);
+    }
+    t2![type1] = true;
   }
 
   /*
+   TODO move this comment somewhere else
    implicit relationships are relationships which have not been declared but the inverse side exists on
    another record somewhere
    
@@ -97,46 +151,33 @@ export class Graph {
    Then we would have a implicit 'post' relationship for the comment record in order
    to be do things like remove the comment from the post if the comment were to be deleted.
   */
-  getImplicit(identifier: StableRecordIdentifier): RelationshipDict {
-    let relationships = this.implicitMap.get(identifier);
-
-    if (relationships === undefined) {
-      relationships = Object.create(null) as RelationshipDict;
-      this.implicitMap.set(identifier, relationships);
-    }
-
-    return relationships;
-  }
 
   unload(identifier: StableRecordIdentifier) {
     const relationships = this.identifiers.get(identifier);
 
     if (relationships) {
-      // cleanup doesn't mean the graph is invalid
-      relationships.forEach((name, rel) => destroyRelationship(rel));
-    }
-
-    const implicit = this.implicitMap.get(identifier);
-    if (implicit) {
-      Object.keys(implicit).forEach((key) => {
-        let rel = implicit[key];
+      // cleans up the graph but retains some nodes
+      // to allow for rematerialization
+      Object.keys(relationships).forEach((key) => {
+        let rel = relationships[key]!;
         destroyRelationship(rel);
+        if (rel.definition.isImplicit) {
+          delete relationships[key];
+        }
       });
-      this.implicitMap.delete(identifier);
     }
   }
 
   remove(identifier: StableRecordIdentifier) {
     this.unload(identifier);
     this.identifiers.delete(identifier);
-    this.implicitMap.delete(identifier);
   }
 
   push(identifier: StableRecordIdentifier, propertyName: string, payload: JsonApiRelationship) {
-    const relationship = this.get(identifier).get(propertyName);
+    const relationship = this.get(identifier, propertyName);
     const backburner = this.store._store._backburner;
 
-    this._queued[relationship.kind].push(relationship, payload);
+    this._queued[relationship.definition.kind].push(relationship, payload);
     if (this._nextFlush === false) {
       backburner.join(() => {
         // TODO this join seems to only be necessary for
@@ -165,7 +206,6 @@ export class Graph {
 
   destroy() {
     this.identifiers.clear();
-    this.implicitMap.clear();
     Graphs.delete(this.store);
     this.store = (null as unknown) as RecordDataStoreWrapper;
   }
@@ -184,7 +224,7 @@ export class Graph {
 function destroyRelationship(rel) {
   rel.recordDataDidDematerialize();
 
-  if (rel._inverseIsSync()) {
+  if (!rel.definition.inverseIsImplicit && !rel.definition.inverseIsAsync) {
     rel.removeAllRecordDatasFromOwn();
     rel.removeAllCanonicalRecordDatasFromOwn();
   }

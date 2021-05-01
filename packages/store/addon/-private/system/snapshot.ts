@@ -20,8 +20,6 @@ type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
 type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
 type AttributeSchema = import('../ts-interfaces/record-data-schemas').AttributeSchema;
 type RelationshipSchema = import('../ts-interfaces/record-data-schemas').RelationshipSchema;
-type HasManyRelationship = import('@ember-data/record-data/-private/relationships/state/has-many').default;
-type BelongsToRelationship = import('@ember-data/record-data/-private/relationships/state/belongs-to').default;
 type Store = import('./core-store').default;
 type RecordId = string | null;
 
@@ -286,7 +284,6 @@ export default class Snapshot implements Snapshot {
    */
   belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
     let returnModeIsId = !!(options && options.id);
-    let relationship: BelongsToRelationship;
     let inverseInternalModel: InternalModel | null;
     let result: Snapshot | RecordId | undefined;
     let store = this._internalModel.store;
@@ -314,16 +311,17 @@ export default class Snapshot implements Snapshot {
       assert(`snapshot.belongsTo only supported when using the package @ember-data/record-data`);
     }
 
-    const relationshipStateFor = require('@ember-data/record-data/-private').relationshipStateFor;
+    const graphFor = require('@ember-data/record-data/-private').graphFor;
     const { identifier } = CUSTOM_MODEL_CLASS ? this : this._internalModel;
-    relationship = relationshipStateFor(this._store._storeWrapper, identifier, keyName) as BelongsToRelationship;
+    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName);
+
     assert(
       `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
       relationship
     );
     assert(
       `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but that relationship is a hasMany.`,
-      relationship.kind === 'belongsTo'
+      relationship.definition.kind === 'belongsTo'
     );
 
     let value = relationship.getData();
@@ -383,7 +381,6 @@ export default class Snapshot implements Snapshot {
    */
   hasMany(keyName: string, options?: { ids?: boolean }): RecordId[] | Snapshot[] | undefined {
     let returnModeIsIds = !!(options && options.ids);
-    let relationship: HasManyRelationship;
     let results: RecordId[] | Snapshot[] | undefined;
     let cachedIds: RecordId[] | undefined = this._hasManyIds[keyName];
     let cachedSnapshots: Snapshot[] | undefined = this._hasManyRelationships[keyName];
@@ -412,16 +409,16 @@ export default class Snapshot implements Snapshot {
       assert(`snapshot.hasMany only supported when using the package @ember-data/record-data`);
     }
 
-    const relationshipStateFor = require('@ember-data/record-data/-private').relationshipStateFor;
+    const graphFor = require('@ember-data/record-data/-private').graphFor;
     const { identifier } = CUSTOM_MODEL_CLASS ? this : this._internalModel;
-    relationship = relationshipStateFor(this._store._storeWrapper, identifier, keyName) as HasManyRelationship;
+    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName);
     assert(
       `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
       relationship
     );
     assert(
       `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but that relationship is a belongsTo.`,
-      relationship.kind === 'hasMany'
+      relationship.definition.kind === 'hasMany'
     );
 
     let value = relationship.getData();

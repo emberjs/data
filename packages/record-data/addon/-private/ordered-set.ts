@@ -19,7 +19,7 @@ const NULL_POINTER = `null-${Date.now()}`;
  While we convert relationships to identifiers this will be something we
  will be forced to address.
 */
-function guidFor(obj): string {
+export function guidFor(obj): string {
   if (obj === null) {
     return NULL_POINTER;
   }

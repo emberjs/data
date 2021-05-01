@@ -148,8 +148,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   await settled();
 
   const chrisIdentifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-  const chrisBestFriend = graph.get(chrisIdentifier).get('bestFriends');
-  const johnBestFriend = graph.get(johnIdentifier).get('bestFriends');
+  const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
+  const johnBestFriend = graph.get(johnIdentifier, 'bestFriends');
 
   // pre-conds
   assert.strictEqual(chris.name, 'Chris', 'PreCond: We have chris');
@@ -189,8 +189,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
 
     assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'PreCond: Chris has one implicit relationship');
 
-    const chrisImplicitFriend = chrisImplicits[chrisBestFriend.inverseKey] as Relationship;
-    const johnImplicitFriend = johnImplicits[johnBestFriend.inverseKey] as Relationship;
+    const chrisImplicitFriend = chrisImplicits[chrisBestFriend.definition.inverseKey] as Relationship;
+    const johnImplicitFriend = johnImplicits[johnBestFriend.definition.inverseKey] as Relationship;
 
     assert.ok(chrisImplicitFriend, 'PreCond: Chris has an implicit best friend');
 
@@ -243,8 +243,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     john,
     chrisIdentifier,
     johnIdentifier,
-    chrisInverseKey: chrisBestFriend.inverseKey,
-    johnInverseKey: johnBestFriend.inverseKey,
+    chrisInverseKey: chrisBestFriend.definition.inverseKey,
+    johnInverseKey: johnBestFriend.definition.inverseKey,
   };
 }
 
@@ -258,18 +258,22 @@ export async function testFinalState(
   const { graph } = context;
   const { chrisIdentifier, johnIdentifier } = testState;
 
-  const chrisBestFriend = graph.get(chrisIdentifier).get('bestFriends');
+  const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
   const chrisState = stateOf(chrisBestFriend);
 
   // this specific case gets it's own WAT
   // this is something ideally a refactor should do away with.
   const isUnloadOfImplictAsyncHasManyWithLocalChange =
-    config.isUnloadAsDelete && config.dirtyLocal && config.async && config.relType === 'hasMany' && config.inverseNull;
+    !!config.isUnloadAsDelete &&
+    !!config.dirtyLocal &&
+    !!config.async &&
+    config.relType === 'hasMany' &&
+    !!config.inverseNull;
 
   // related to above another WAT that refactor should cleanup
   // in this case we don't care if sync/async
   const isUnloadOfImplictHasManyWithLocalChange =
-    config.isUnloadAsDelete && config.dirtyLocal && config.relType === 'hasMany' && config.inverseNull;
+    !!config.isUnloadAsDelete && !!config.dirtyLocal && config.relType === 'hasMany' && !!config.inverseNull;
 
   // a final WAT likely related to the first two, persisted delete w/o unload of
   // a sync hasMany with local changes is not cleared. This final WAT is handled
@@ -326,7 +330,7 @@ export async function testFinalState(
   if (OUTCOMES.johnCleared) {
     assert.false(graph.identifiers.has(johnIdentifier), 'Result: Relationships for John were cleared from the cache');
   } else {
-    const johnBestFriend = graph.get(johnIdentifier).get('bestFriends');
+    const johnBestFriend = graph.get(johnIdentifier, 'bestFriends');
     const johnState = stateOf(johnBestFriend);
 
     assert.deepEqual(

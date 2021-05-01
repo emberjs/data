@@ -1,5 +1,4 @@
 import { isNone } from '@ember/utils';
-import { DEBUG } from '@glimmer/env';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
@@ -7,9 +6,9 @@ import { identifierCacheFor } from '@ember-data/store/-private';
 
 import Relationship, { isNew } from './relationship';
 
-type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
+type UpgradedMeta = import('../../graph/-edge-definition').UpgradedMeta;
+type Graph = import('../../graph').Graph;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
 type DefaultCollectionResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
 
 /**
@@ -21,14 +20,8 @@ export default class ManyRelationship extends Relationship {
   declare currentState: StableRecordIdentifier[];
   declare _willUpdateManyArray: boolean;
   declare _pendingManyArrayUpdates: any;
-  constructor(
-    store: RecordDataStoreWrapper,
-    inverseKey: string | null,
-    relationshipMeta: RelationshipSchema,
-    recordData: StableRecordIdentifier,
-    inverseIsAsync: boolean
-  ) {
-    super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
+  constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier) {
+    super(graph, definition, identifier);
     // persisted state
     this.canonicalState = [];
     // local client state
@@ -51,7 +44,7 @@ export default class ManyRelationship extends Relationship {
 
   inverseDidDematerialize(inverseRecordData: StableRecordIdentifier) {
     super.inverseDidDematerialize(inverseRecordData);
-    if (this.isAsync) {
+    if (this.definition.isAsync) {
       this.notifyManyArrayIsStale();
     }
   }
@@ -62,14 +55,14 @@ export default class ManyRelationship extends Relationship {
     }
 
     const { store } = this;
-    // TODO Type this
-    if (DEBUG && this.relationshipMeta.type !== recordData.type) {
+    if (this.definition.type !== recordData.type) {
       assertPolymorphicType(
-        store.recordDataFor(this.recordData.type, this.recordData.id, this.recordData.lid),
-        this.relationshipMeta,
+        store.recordDataFor(this.identifier.type, this.identifier.id, this.identifier.lid),
+        this.definition,
         store.recordDataFor(recordData.type, recordData.id, recordData.lid),
         store._store
       );
+      this.graph.registerPolymorphicType(this.definition.type, recordData.type);
     }
     super.addRecordData(recordData, idx);
     // make lazy later
@@ -99,8 +92,6 @@ export default class ManyRelationship extends Relationship {
   }
 
   removeAllCanonicalRecordDatasFromOwn() {
-    super.removeAllCanonicalRecordDatasFromOwn();
-    this.canonicalMembers.clear();
     this.canonicalState.splice(0, this.canonicalState.length);
     super.removeAllCanonicalRecordDatasFromOwn();
   }
@@ -189,22 +180,22 @@ export default class ManyRelationship extends Relationship {
       - @runspired
   */
   notifyManyArrayIsStale() {
-    const { store, recordData } = this;
+    const { store, identifier: recordData } = this;
     if (CUSTOM_MODEL_CLASS) {
-      store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.key);
+      store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
     } else {
-      store.notifyPropertyChange(recordData.type, recordData.id, recordData.lid, this.key);
+      store.notifyPropertyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
     }
   }
 
   notifyHasManyChange() {
-    const { store, recordData } = this;
-    store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.key);
+    const { store, identifier: recordData } = this;
+    store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
   }
 
   getData(): DefaultCollectionResourceRelationship {
     let payload: any = {};
-    if (this.hasAnyRelationshipData) {
+    if (this.state.hasReceivedData) {
       payload.data = this.currentState.slice();
     }
     if (this.links) {
@@ -233,5 +224,12 @@ export default class ManyRelationship extends Relationship {
       }
     }
     this.updateRecordDatasFromAdapter(recordDatas);
+  }
+
+  updateRecordDatasFromAdapter(recordDatas?: StableRecordIdentifier[]) {
+    this.setHasReceivedData(true);
+    //TODO(Igor) move this to a proper place
+    //TODO Once we have adapter support, we need to handle updated and canonical changes
+    this.computeChanges(recordDatas);
   }
 }

@@ -192,10 +192,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
         if (relationshipData.links) {
           let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-          let relationship = graphFor(this.storeWrapper).get(this.identifier).get(relationshipName);
+          let relationship = graphFor(this.storeWrapper).get(this.identifier, relationshipName);
           warn(
             `You pushed a record of type '${this.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
-            isAsync || relationshipData.data || relationship.hasAnyRelationshipData,
+            isAsync || relationshipData.data || relationship.state.hasReceivedData,
             {
               id: 'ds.store.push-link-for-sync-relationship',
             }
@@ -354,25 +354,27 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   // get ResourceIdentifiers for "current state"
-  getHasMany(key): DefaultCollectionResourceRelationship {
-    return (graphFor(this.storeWrapper).get(this.identifier).get(key) as ManyRelationship).getData();
+  getHasMany(key: string): DefaultCollectionResourceRelationship {
+    return (graphFor(this.storeWrapper).get(this.identifier, key) as ManyRelationship).getData();
   }
 
   // set a new "current state" via ResourceIdentifiers
-  setDirtyHasMany(key, recordDatas: RecordData[]) {
-    let relationship = graphFor(this.storeWrapper).get(this.identifier).get(key);
+  setDirtyHasMany(key: string, recordDatas: RecordData[]) {
+    let relationship = graphFor(this.storeWrapper).get(this.identifier, key);
     relationship.clear();
-    relationship.addRecordDatas(recordDatas.map(recordIdentifierFor));
+    (relationship as ManyRelationship).addRecordDatas(recordDatas.map(recordIdentifierFor));
   }
 
   // append to "current state" via RecordDatas
-  addToHasMany(key, recordDatas: RecordData[], idx) {
-    graphFor(this.storeWrapper).get(this.identifier).get(key).addRecordDatas(recordDatas.map(recordIdentifierFor), idx);
+  addToHasMany(key: string, recordDatas: RecordData[], idx) {
+    let relationship = graphFor(this.storeWrapper).get(this.identifier, key);
+    (relationship as ManyRelationship).addRecordDatas(recordDatas.map(recordIdentifierFor), idx);
   }
 
   // remove from "current state" via RecordDatas
-  removeFromHasMany(key, recordDatas: RecordData[]) {
-    graphFor(this.storeWrapper).get(this.identifier).get(key).removeRecordDatas(recordDatas.map(recordIdentifierFor));
+  removeFromHasMany(key: string, recordDatas: RecordData[]) {
+    let relationship = graphFor(this.storeWrapper).get(this.identifier, key);
+    (relationship as ManyRelationship).removeRecordDatas(recordDatas.map(recordIdentifierFor));
   }
 
   commitWasRejected(identifier?, errors?: JsonApiValidationError[]) {
@@ -395,11 +397,11 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   getBelongsTo(key: string): DefaultSingleResourceRelationship {
-    return (graphFor(this.storeWrapper).get(this.identifier).get(key) as BelongsToRelationship).getData();
+    return (graphFor(this.storeWrapper).get(this.identifier, key) as BelongsToRelationship).getData();
   }
 
   setDirtyBelongsTo(key: string, recordData: RecordData) {
-    (graphFor(this.storeWrapper).get(this.identifier).get(key) as BelongsToRelationship).setRecordData(
+    (graphFor(this.storeWrapper).get(this.identifier, key) as BelongsToRelationship).setRecordData(
       recordData ? recordIdentifierFor(recordData) : null
     );
   }
@@ -483,14 +485,19 @@ export default class RecordDataDefault implements RelationshipRecordData {
   */
   _directlyRelatedRecordDatasIterable = () => {
     const graph = graphFor(this.storeWrapper);
-    if (!graph.identifiers.has(this.identifier)) {
+    const initializedRelationships = graph.identifiers.get(this.identifier);
+
+    if (!initializedRelationships) {
       return EMPTY_ITERATOR;
     }
-    const relationships = graphFor(this.storeWrapper).get(this.identifier);
-    const initializedRelationships = relationships.initializedRelationships;
-    const initializedRelationshipsArr = Object.keys(initializedRelationships).map(
-      (key) => initializedRelationships[key]
-    );
+
+    const initializedRelationshipsArr = Object.keys(initializedRelationships)
+      .map((key) => initializedRelationships[key]!)
+      .filter((rel) => {
+        // TODO @runspired, not clear we need this distinction but
+        // we used to have it.
+        return !rel.definition.isImplicit;
+      });
 
     let i = 0;
     let j = 0;
@@ -500,9 +507,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
       while (i < initializedRelationshipsArr.length) {
         while (j < 2) {
           let members =
-            j === 0
-              ? initializedRelationshipsArr[i].members.list
-              : initializedRelationshipsArr[i].canonicalMembers.list;
+            j === 0 ? getLocalState(initializedRelationshipsArr[i]) : getRemoteState(initializedRelationshipsArr[i]);
           while (k < members.length) {
             let member = members[k++];
             if (member !== null) {
@@ -626,10 +631,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
     let createOptions = {};
 
     if (options !== undefined) {
-      let { modelName, storeWrapper } = this;
+      const { modelName, storeWrapper, identifier } = this;
       let attributeDefs = storeWrapper.attributesDefinitionFor(modelName);
       let relationshipDefs = storeWrapper.relationshipsDefinitionFor(modelName);
-      let relationships = graphFor(storeWrapper).get(this.identifier);
+      const graph = graphFor(storeWrapper);
       let propertyNames = Object.keys(options);
 
       for (let i = 0; i < propertyNames.length; i++) {
@@ -651,14 +656,14 @@ export default class RecordDataDefault implements RelationshipRecordData {
             break;
           case 'belongsTo':
             this.setDirtyBelongsTo(name, propertyValue);
-            relationship = relationships.get(name);
-            relationship.setHasAnyRelationshipData(true);
+            relationship = graph.get(identifier, name);
+            relationship.setHasReceivedData(true);
             relationship.setRelationshipIsEmpty(false);
             break;
           case 'hasMany':
             this.setDirtyHasMany(name, propertyValue);
-            relationship = relationships.get(name);
-            relationship.setHasAnyRelationshipData(true);
+            relationship = graph.get(identifier, name);
+            relationship.setHasReceivedData(true);
             relationship.setRelationshipIsEmpty(false);
             break;
           default:
@@ -692,27 +697,17 @@ export default class RecordDataDefault implements RelationshipRecordData {
     const graph = graphFor(this.storeWrapper);
     const { identifier } = this;
 
-    if (graph.identifiers.has(identifier)) {
-      graph.get(identifier).forEach((name, rel) => {
+    const relationships = graph.identifiers.get(identifier);
+
+    if (relationships) {
+      Object.keys(relationships).forEach((key) => {
+        const rel = relationships[key]!;
         rel.removeCompletelyFromInverse();
         if (isNew === true) {
           rel.clear();
         }
       });
       graph.identifiers.delete(identifier);
-    }
-
-    if (graph.implicitMap.has(identifier)) {
-      const implicitRelationships = graph.getImplicit(identifier);
-      Object.keys(implicitRelationships).forEach((key) => {
-        const rel = implicitRelationships[key];
-
-        rel.removeCompletelyFromInverse();
-        if (isNew === true) {
-          rel.clear();
-        }
-      });
-      graph.implicitMap.delete(identifier);
     }
   }
 
@@ -845,4 +840,17 @@ function areAllModelsUnloaded(recordDatas) {
     }
   }
   return true;
+}
+
+function getLocalState(rel) {
+  if (rel.definition.kind === 'belongsTo') {
+    return rel.localState ? [rel.localState] : [];
+  }
+  return rel.members.list;
+}
+function getRemoteState(rel) {
+  if (rel.definition.kind === 'belongsTo') {
+    return rel.remoteState ? [rel.remoteState] : [];
+  }
+  return rel.canonicalMembers.list;
 }
