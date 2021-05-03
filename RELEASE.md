@@ -61,36 +61,33 @@ Twitter the Crosslinking the announcement to the following Discord channels.
 
 2. Generate the Changelog
 
-   IT IS IMPORTANT THAT ALL CHANGES ARE ON THE REMOTE BRANCH SPECIFIED BY HEAD
+The Changelog is generated with [lerna-changelog](https://github.com/lerna/lerna-changelog).
 
-   For the first release of an LTS `previous-version` will be the last released version
-   of the `release` channel.
+The primary task prior to generating the changelog is confirming that all pull requests that have been merged since the
+last release have been labeled with the appropriate lerna-changelog labels and the titles have been updated to ensure
+they represent something that would make sense to our users. Some great information on why this is important can be
+found at keepachangelog.com, but the overall guiding principle here is that changelogs are for humans, not machines.
 
-   For subsequent versions it will be whatever version number we previously published
-   for this LTS.
+For the first release of an LTS, `previous-version` will be the last released version of the `release` channel.
 
-    ```
-    PRIOR_VERSION=<previous-version> HEAD=lts-<majorVersion>-<minorVersion> ./bin/changelog
-    ```
+For subsequent versions it will be whatever version number we previously published for this LTS.
 
-  - prepend a new section title for this version with Today's date to `CHANGELOG.md`
-  - insert changelog script output to `CHANGELOG.md` underneath this new section title
-  - edit changelog output to be as user-friendly as possible (drop [INTERNAL] changes, non-code changes, etc.)
-  - commit the changelog and push the change upstream
+To actually generate the changelog, run:
+```
+yarn lerna-changelog --from=PREVIOUS_VERSION_TAG
+```
+Note: if it is the first time that you use lerna-changelog, you might have to add a token to fetch from Github API:
+https://github.com/lerna/lerna-changelog#github-token 
 
-    ```
-    git add CHANGELOG.md;
-    git commit -m "Update Changelog for v<new-lts-version>";
-    git push origin lts-<majorVersion>-<minorVersion>;
-    ```
+Then:
+- insert lerna-changelog output to `CHANGELOG.md` underneath the document title
+- commit the changelog and push the change upstream:
 
-   Note it is prudent to make a PR to lts-<majorVersion>-<minorVersion> to make sure there are no errors.
-
-    ```
-    git add CHANGELOG.md;
-    git commit -m "Update Changelog for v<new-lts-version>";
-    git push origin name/lts-<majorVersion>-<minorVersion>;
-    ```
+```
+git add CHANGELOG.md;
+git commit -m "Update Changelog for v<new-lts-version>"
+git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you can make a PR to lts-<majorVersion>-<minorVersion> to make sure there are no errors
+```
 
 3. Publish the LTS
 
