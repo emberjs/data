@@ -131,136 +131,6 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     };
   }
 
-  test('findRecord - basic payload', async function (assert) {
-    ajaxResponse({ posts: [{ id: 1, name: 'Rails is omakase' }] });
-
-    let post = await store.findRecord('post', 1);
-    assert.equal(passedUrl, '/posts/1');
-    assert.equal(passedVerb, 'GET');
-    assert.deepEqual(passedHash.data, {});
-
-    assert.equal(post.get('id'), '1');
-    assert.equal(post.get('name'), 'Rails is omakase');
-  });
-
-  test('findRecord - passes buildURL a requestType', async function (assert) {
-    adapter.buildURL = function (type, id, snapshot, requestType) {
-      return '/' + requestType + '/post/' + id;
-    };
-
-    ajaxResponse({ posts: [{ id: 1, name: 'Rails is omakase' }] });
-
-    await store.findRecord('post', 1);
-    assert.equal(passedUrl, '/findRecord/post/1');
-  });
-
-  test('findRecord - basic payload (with legacy singular name)', async function (assert) {
-    ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
-
-    let post = await store.findRecord('post', 1);
-    assert.equal(passedUrl, '/posts/1');
-    assert.equal(passedVerb, 'GET');
-    assert.deepEqual(passedHash.data, {});
-
-    assert.equal(post.get('id'), '1');
-    assert.equal(post.get('name'), 'Rails is omakase');
-  });
-
-  test('findRecord - payload with sideloaded records of the same type', async function (assert) {
-    ajaxResponse({
-      posts: [
-        { id: 1, name: 'Rails is omakase' },
-        { id: 2, name: 'The Parley Letter' },
-      ],
-    });
-
-    let post = await store.findRecord('post', 1);
-    assert.equal(passedUrl, '/posts/1');
-    assert.equal(passedVerb, 'GET');
-    assert.deepEqual(passedHash.data, {});
-
-    assert.equal(post.get('id'), '1');
-    assert.equal(post.get('name'), 'Rails is omakase');
-
-    let post2 = store.peekRecord('post', 2);
-    assert.equal(post2.get('id'), '2');
-    assert.equal(post2.get('name'), 'The Parley Letter');
-  });
-
-  test('findRecord - payload with sideloaded records of a different type', async function (assert) {
-    ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is omakase' }],
-      comments: [{ id: 1, name: 'FIRST' }],
-    });
-
-    let post = await store.findRecord('post', 1);
-    assert.equal(passedUrl, '/posts/1');
-    assert.equal(passedVerb, 'GET');
-    assert.deepEqual(passedHash.data, {});
-
-    assert.equal(post.get('id'), '1');
-    assert.equal(post.get('name'), 'Rails is omakase');
-
-    let comment = store.peekRecord('comment', 1);
-    assert.equal(comment.get('id'), '1');
-    assert.equal(comment.get('name'), 'FIRST');
-  });
-
-  test('findRecord - payload with an serializer-specified primary key', async function (assert) {
-    this.owner.register(
-      'serializer:post',
-      DS.RESTSerializer.extend({
-        primaryKey: '_ID_',
-      })
-    );
-
-    ajaxResponse({ posts: [{ _ID_: 1, name: 'Rails is omakase' }] });
-
-    let post = await store.findRecord('post', 1);
-    assert.equal(passedUrl, '/posts/1');
-    assert.equal(passedVerb, 'GET');
-    assert.deepEqual(passedHash.data, {});
-
-    assert.equal(post.get('id'), '1');
-    assert.equal(post.get('name'), 'Rails is omakase');
-  });
-
-  test('findRecord - payload with a serializer-specified attribute mapping', async function (assert) {
-    this.owner.register(
-      'serializer:post',
-      DS.RESTSerializer.extend({
-        attrs: {
-          name: '_NAME_',
-          createdAt: { key: '_CREATED_AT_', someOtherOption: 'option' },
-        },
-      })
-    );
-
-    Post.reopen({
-      createdAt: DS.attr('number'),
-    });
-
-    ajaxResponse({ posts: [{ id: 1, _NAME_: 'Rails is omakase', _CREATED_AT_: 2013 }] });
-
-    let post = await store.findRecord('post', 1);
-    assert.equal(passedUrl, '/posts/1');
-    assert.equal(passedVerb, 'GET');
-    assert.deepEqual(passedHash.data, {});
-
-    assert.equal(post.get('id'), '1');
-    assert.equal(post.get('name'), 'Rails is omakase');
-    assert.equal(post.get('createdAt'), 2013);
-  });
-
-  test('findRecord - passes `include` as a query parameter to ajax', async function (assert) {
-    ajaxResponse({
-      post: { id: 1, name: 'Rails is very expensive sushi' },
-    });
-
-    await store.findRecord('post', 1, { include: 'comments' });
-    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
-  });
-
   test('createRecord - an empty payload is a basic success if an id was specified', async function (assert) {
     ajaxResponse();
 
@@ -2106,7 +1976,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
           return underscore(attr);
         },
 
-        keyForBelongsTo(belongsTo) {},
+        keyForBelongsTo(belongsTo) { },
 
         keyForRelationship(rel, kind) {
           if (kind === 'belongsTo') {
