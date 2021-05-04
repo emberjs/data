@@ -28,8 +28,9 @@ export default function notifyChanges(
           record.notifyPropertyChange(key);
           internalModel.hasManyRemovalCheck(key);
         }
-        if (internalModel._manyArrayCache[key]) {
-          internalModel._manyArrayCache[key].retrieveLatest();
+        let manyArray = internalModel._manyArrayCache[key] || internalModel._retainedManyArrayCache[key];
+        if (manyArray) {
+          manyArray.retrieveLatest();
         }
       }
     });
