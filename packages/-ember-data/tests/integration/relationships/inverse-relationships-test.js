@@ -223,15 +223,15 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     comment.set('post', post);
 
-    assert.equal(comment.get('post'), post);
-    assert.equal(post.get('bestComment'), comment);
-    assert.strictEqual(post2.get('bestComment'), null);
+    assert.ok(comment.get('post') === post, 'comment post is set correctly');
+    assert.ok(post.get('bestComment') === comment, 'post1 comment is set correctly');
+    assert.ok(post2.get('bestComment') === null, 'post2 comment is not set');
 
     post2.set('bestComment', comment);
 
-    assert.equal(comment.get('post'), post2);
-    assert.strictEqual(post.get('bestComment'), null);
-    assert.equal(post2.get('bestComment'), comment);
+    assert.true(comment.get('post') === post2, 'comment post is set correctly');
+    assert.true(post.get('bestComment') === null, 'post1 comment is no longer set');
+    assert.true(post2.get('bestComment') === comment, 'post2 comment is set correctly');
   });
 
   test('When setting a belongsTo, the OneToOne invariant is commutative', async function (assert) {

@@ -13,8 +13,8 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordDataFor } from '@ember-data/store/-private';
 
-function idsFromOrderedSet(set) {
-  return set.list.map((i) => i.id);
+function idsFromArr(arr) {
+  return arr.map((i) => i.id);
 }
 
 const { attr, belongsTo, hasMany, Model } = DS;
@@ -429,26 +429,24 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
   }
 
-  test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', function (assert) {
+  test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', async function (assert) {
     assert.expect(15);
 
-    let person = run(() =>
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Could be Anybody',
-          },
-          relationships: {
-            boats: {
-              data: [{ type: 'boat', id: '1' }],
-            },
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Could be Anybody',
+        },
+        relationships: {
+          boats: {
+            data: [{ type: 'boat', id: '1' }],
           },
         },
-        included: [makeBoatOneForPersonOne()],
-      })
-    );
+      },
+      included: [makeBoatOneForPersonOne()],
+    });
 
     let boat = store.peekRecord('boat', '1');
     let initialBoatInternalModel = boat._internalModel;
@@ -463,10 +461,10 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.true(store.hasRecordForId('boat', '1'));
 
     // ensure the relationship was established (we reach through the async proxy here)
-    let peopleBoats = run(() => person.get('boats.content'));
-    let boatPerson = run(() => boat.get('person.content'));
+    let peopleBoats = await person.get('boats');
+    let boatPerson = await boat.get('person');
 
-    assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
+    assert.equal(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
     assert.equal(relationshipState.members.size, 1, 'members size should be 1');
     assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
     assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
@@ -479,7 +477,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     // ensure that our new state is correct
     assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
     assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
-    assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should still be 1');
+    assert.equal(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
     assert.equal(relationshipState.members.size, 1, 'members size should still be 1');
     assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
 
@@ -543,7 +541,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     let peopleBoats = run(() => person.get('boats.content'));
     let boatPerson = run(() => boat.get('person.content'));
 
-    assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
+    assert.equal(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
     assert.equal(relationshipState.members.size, 1, 'members size should be 1');
     assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
     assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
@@ -556,7 +554,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     // ensure that our new state is correct
     assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
     assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
-    assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should still be 1');
+    assert.equal(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
     assert.equal(relationshipState.members.size, 1, 'members size should still be 1');
     assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
 
@@ -614,8 +612,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let peopleBoats = run(() => person.get('boats.content'));
     let boatPerson = run(() => boat.get('person.content'));
 
-    assert.deepEqual(idsFromOrderedSet(relationshipState.canonicalMembers), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromOrderedSet(relationshipState.members), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
     assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
     assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
     assert.ok(boatPerson === person, 'Our boat has the right person');
@@ -635,12 +633,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     );
     assert.ok(knownBoats.models[0] === initialBoatInternalModel, 'We still have our boat');
     assert.true(initialBoatInternalModel.currentState.isEmpty, 'Model is in the empty state');
-    assert.deepEqual(
-      idsFromOrderedSet(relationshipState.canonicalMembers),
-      ['1'],
-      'canonical member size should still be 1'
-    );
-    assert.deepEqual(idsFromOrderedSet(relationshipState.members), ['1'], 'members size should still be 1');
+    assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should still be 1');
+    assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should still be 1');
     assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
 
     run(() =>
@@ -652,8 +646,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let reloadedBoat = store.peekRecord('boat', '1');
     let reloadedBoatInternalModel = reloadedBoat._internalModel;
 
-    assert.deepEqual(idsFromOrderedSet(relationshipState.canonicalMembers), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromOrderedSet(relationshipState.members), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
     assert.ok(
       reloadedBoatInternalModel === initialBoatInternalModel,
       'after an unloadRecord, subsequent fetch results in the same InternalModel'
@@ -673,8 +667,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let yaBoat = store.peekRecord('boat', '1');
     let yaBoatInternalModel = yaBoat._internalModel;
 
-    assert.deepEqual(idsFromOrderedSet(relationshipState.canonicalMembers), ['1'], 'canonical member size should be 1');
-    assert.deepEqual(idsFromOrderedSet(relationshipState.members), ['1'], 'members size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
+    assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
     assert.ok(
       yaBoatInternalModel === initialBoatInternalModel,
       'after an unloadRecord, subsequent same-loop push results in the same InternalModel'
@@ -1837,48 +1831,46 @@ module('integration/unload - Unloading Records', function (hooks) {
       };
     };
 
-    let [person1, person2] = run(() =>
-      store.push({
-        data: [
-          {
-            id: 1,
-            type: 'person',
-            relationships: {
-              friends: {
-                data: [
-                  {
-                    id: 3,
-                    type: 'person',
-                  },
-                  {
-                    id: 4,
-                    type: 'person',
-                  },
-                ],
-              },
+    let [person1, person2] = store.push({
+      data: [
+        {
+          id: 1,
+          type: 'person',
+          relationships: {
+            friends: {
+              data: [
+                {
+                  id: 3,
+                  type: 'person',
+                },
+                {
+                  id: 4,
+                  type: 'person',
+                },
+              ],
             },
           },
-          {
-            id: 2,
-            type: 'person',
-            relationships: {
-              friends: {
-                data: [
-                  {
-                    id: 3,
-                    type: 'person',
-                  },
-                  {
-                    id: 4,
-                    type: 'person',
-                  },
-                ],
-              },
+        },
+        {
+          id: 2,
+          type: 'person',
+          relationships: {
+            friends: {
+              data: [
+                {
+                  id: 3,
+                  type: 'person',
+                },
+                {
+                  id: 4,
+                  type: 'person',
+                },
+              ],
             },
           },
-        ],
-      })
-    );
+        },
+      ],
+    });
 
     let person1Friends, person3, person4;
 

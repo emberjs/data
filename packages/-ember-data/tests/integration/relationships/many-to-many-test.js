@@ -651,7 +651,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         });
       });
 
-      let state = account.hasMany('users').hasManyRelationship.canonicalMembers.list;
+      let state = account.hasMany('users').hasManyRelationship.canonicalState;
       let users = account.get('users');
 
       assert.todo.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');

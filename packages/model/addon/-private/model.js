@@ -6,7 +6,12 @@ import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
+import {
+  CUSTOM_MODEL_CLASS,
+  RECORD_DATA_ERRORS,
+  RECORD_DATA_STATE,
+  REQUEST_SERVICE,
+} from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EVENTED_API_USAGE,
@@ -490,7 +495,7 @@ class Model extends EmberObject {
     if (REQUEST_SERVICE) {
       if (isReloading === undefined) {
         let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
-        let value = !!requests.find((req) => req.request.data[0].options.isReloading);
+        let value = !!requests.filter((req) => req.request.data[0].options.isReloading)[0];
         meta.isReloading = value;
         return value;
       }
@@ -800,7 +805,11 @@ class Model extends EmberObject {
     @method deleteRecord
   */
   deleteRecord() {
-    this._internalModel.deleteRecord();
+    if (CUSTOM_MODEL_CLASS) {
+      this.store.deleteRecord(this);
+    } else {
+      this._internalModel.deleteRecord();
+    }
   }
 
   /**
@@ -862,7 +871,11 @@ class Model extends EmberObject {
     if (this.isDestroyed) {
       return;
     }
-    this._internalModel.unloadRecord();
+    if (CUSTOM_MODEL_CLASS) {
+      this.store.unloadRecord(this);
+    } else {
+      this._internalModel.unloadRecord();
+    }
   }
 
   /**

@@ -171,7 +171,6 @@ export default class InternalModel {
     this.__recordData = null;
 
     this._promiseProxy = null;
-    this._record = null;
     this._isDestroyed = false;
     this._doNotDestroy = false;
     this.isError = false;
@@ -412,7 +411,11 @@ export default class InternalModel {
     // TODO IGOR add a test that fails when this is missing, something that involves canceling a destroy
     // and the destroy not happening, and then later on trying to destroy
     this._doNotDestroy = false;
-
+    // this has to occur before the internal model is removed
+    // for legacy compat.
+    if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+      this.store.recordArrayManager.recordDidChange(this.identifier);
+    }
     if (this._record) {
       if (CUSTOM_MODEL_CLASS) {
         this.store.teardownRecord(this._record);
@@ -434,22 +437,27 @@ export default class InternalModel {
           /*
             If the manyArray is for a sync relationship, we should clear it
               to preserve the semantics of client-side delete.
-
-            It is likely in this case instead of retaining we should destroy
-              - @runspired
           */
-          manyArray.clear();
+          manyArray.retrieveLatest();
         }
       });
     }
 
     // move to an empty never-loaded state
-    this.store.recordArrayManager.recordDidChange(this.identifier);
-    this._recordData.unloadRecord();
+    // ensure any record notifications happen prior to us
+    // unseting the record but after we've triggered
+    // destroy
+    this.store._backburner.join(() => {
+      this._recordData.unloadRecord();
+    });
+
     this._record = null;
     this.isReloading = false;
     this.error = null;
     this.currentState = RootState.empty;
+    if (REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+      this.store.recordArrayManager.recordDidChange(this.identifier);
+    }
   }
 
   deleteRecord() {
@@ -581,7 +589,7 @@ export default class InternalModel {
   // Unfortunately, some scenarios where that is not possible. Such as:
   //
   // ```js
-  // const record = store.find(‘record’, 1);
+  // const record = store.findRecord(‘record’, 1);
   // record.unloadRecord();
   // store.createRecord(‘record’, 1);
   // ```
@@ -791,8 +799,8 @@ export default class InternalModel {
     let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
     // TODO move this to a public api
     if (jsonApi._relationship) {
-      jsonApi._relationship.setHasFailedLoadAttempt(false);
-      jsonApi._relationship.setShouldForceReload(true);
+      jsonApi._relationship.state.hasFailedLoadAttempt = false;
+      jsonApi._relationship.state.shouldForceReload = true;
     }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let manyArray = this.getManyArray(key);
@@ -814,8 +822,8 @@ export default class InternalModel {
     let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     // TODO move this to a public api
     if (resource._relationship) {
-      resource._relationship.setHasFailedLoadAttempt(false);
-      resource._relationship.setShouldForceReload(true);
+      resource._relationship.state.hasFailedLoadAttempt = false;
+      resource._relationship.state.shouldForceReload = true;
     }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
@@ -988,15 +996,13 @@ export default class InternalModel {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships');
       } else {
-        let manyArray = this._manyArrayCache[key];
+        let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
         if (manyArray) {
           // TODO: this will "resurrect" previously unloaded records
           // see test '1:many async unload many side'
           //  in `tests/integration/records/unload-test.js`
           //  probably we don't want to retrieve latest eagerly when notifyhasmany changed
           //  but rather lazily when someone actually asks for a manyarray
-          //
-          //  that said, also not clear why we haven't moved this to retainedmanyarray so maybe that's the bit that's just not working
           manyArray.retrieveLatest();
         }
       }
@@ -1072,16 +1078,18 @@ export default class InternalModel {
   }
 
   rollbackAttributes() {
-    let dirtyKeys = this._recordData.rollbackAttributes();
-    if (get(this, 'isError')) {
-      this.didCleanError();
-    }
+    this.store._backburner.join(() => {
+      let dirtyKeys = this._recordData.rollbackAttributes();
+      if (get(this, 'isError')) {
+        this.didCleanError();
+      }
 
-    this.send('rolledBack');
+      this.send('rolledBack');
 
-    if (this._record && dirtyKeys && dirtyKeys.length > 0) {
-      this._record._notifyProperties(dirtyKeys);
-    }
+      if (this._record && dirtyKeys && dirtyKeys.length > 0) {
+        this._record._notifyProperties(dirtyKeys);
+      }
+    });
   }
 
   /*
@@ -1192,7 +1200,9 @@ export default class InternalModel {
 
   removeFromInverseRelationships() {
     if (this.__recordData) {
-      this._recordData.removeFromInverseRelationships();
+      this.store._backburner.join(() => {
+        this._recordData.removeFromInverseRelationships();
+      });
     }
   }
 
@@ -1497,10 +1507,10 @@ if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
 
 function handleCompletedRelationshipRequest(internalModel, key, relationship, value, error) {
   delete internalModel._relationshipPromisesCache[key];
-  relationship.setShouldForceReload(false);
+  relationship.state.shouldForceReload = false;
 
   if (error) {
-    relationship.setHasFailedLoadAttempt(true);
+    relationship.state.hasFailedLoadAttempt = true;
     let proxy = internalModel._relationshipProxyCache[key];
     // belongsTo relationships are sometimes unloaded
     // when a load fails, in this case we need
@@ -1518,9 +1528,9 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
     throw error;
   }
 
-  relationship.setHasFailedLoadAttempt(false);
+  relationship.state.hasFailedLoadAttempt = false;
   // only set to not stale if no error is thrown
-  relationship.setRelationshipIsStale(false);
+  relationship.state.isStale = false;
 
   return value;
 }

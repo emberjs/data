@@ -1,27 +1,55 @@
-import { isNone } from '@ember/utils';
+import { assert } from '@ember/debug';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import { assertPolymorphicType } from '@ember-data/store/-debug';
-import { identifierCacheFor } from '@ember-data/store/-private';
 
-import Relationship, { isNew } from './relationship';
+import { createState } from '../../graph/-state';
+import { isImplicit, isNew } from '../../graph/-utils';
 
 type UpgradedMeta = import('../../graph/-edge-definition').UpgradedMeta;
 type Graph = import('../../graph').Graph;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type DefaultCollectionResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
+type Links = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Links;
+type Meta = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Meta;
+type RelationshipState = import('../../graph/-state').RelationshipState;
+type BelongsToRelationship = import('../..').BelongsToRelationship;
+type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
+type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
 
 /**
   @module @ember-data/record-data
 */
 
-export default class ManyRelationship extends Relationship {
+export default class ManyRelationship {
+  declare graph: Graph;
+  declare store: RecordDataStoreWrapper;
+  declare definition: UpgradedMeta;
+  declare identifier: StableRecordIdentifier;
+  declare _state: RelationshipState | null;
+
+  declare members: Set<StableRecordIdentifier>;
+  declare canonicalMembers: Set<StableRecordIdentifier>;
+  declare meta: Meta | null;
+  declare links: Links | PaginationLinks | null;
+
   declare canonicalState: StableRecordIdentifier[];
   declare currentState: StableRecordIdentifier[];
   declare _willUpdateManyArray: boolean;
   declare _pendingManyArrayUpdates: any;
+
   constructor(graph: Graph, definition: UpgradedMeta, identifier: StableRecordIdentifier) {
-    super(graph, definition, identifier);
+    this.graph = graph;
+    this.store = graph.store;
+    this.definition = definition;
+    this.identifier = identifier;
+    this._state = null;
+
+    this.members = new Set<StableRecordIdentifier>();
+    this.canonicalMembers = new Set<StableRecordIdentifier>();
+
+    this.meta = null;
+    this.links = null;
+
     // persisted state
     this.canonicalState = [];
     // local client state
@@ -30,146 +58,114 @@ export default class ManyRelationship extends Relationship {
     this._pendingManyArrayUpdates = null;
   }
 
-  addCanonicalRecordData(recordData: StableRecordIdentifier, idx?: number) {
-    if (this.canonicalMembers.has(recordData)) {
+  get state(): RelationshipState {
+    let { _state } = this;
+    if (!_state) {
+      _state = this._state = createState();
+    }
+    return _state;
+  }
+
+  recordDataDidDematerialize() {
+    if (this.definition.inverseIsImplicit) {
       return;
     }
-    if (idx !== undefined) {
-      this.canonicalState.splice(idx, 0, recordData);
-    } else {
-      this.canonicalState.push(recordData);
+
+    const inverseKey = this.definition.inverseKey;
+    this.forAllMembers((inverseIdentifier) => {
+      inverseIdentifier;
+      if (!inverseIdentifier || !this.graph.has(inverseIdentifier, inverseKey)) {
+        return;
+      }
+      let relationship = this.graph.get(inverseIdentifier, inverseKey);
+      assert(`expected no implicit`, !isImplicit(relationship));
+
+      // For canonical members, it is possible that inverseRecordData has already been associated to
+      // to another record. For such cases, do not dematerialize the inverseRecordData
+      if (
+        relationship.definition.kind !== 'belongsTo' ||
+        !(relationship as BelongsToRelationship).localState ||
+        this.identifier === (relationship as BelongsToRelationship).localState
+      ) {
+        (relationship as ManyRelationship | BelongsToRelationship).inverseDidDematerialize(this.identifier);
+      }
+    });
+  }
+
+  forAllMembers(callback: (im: StableRecordIdentifier | null) => void) {
+    // ensure we don't walk anything twice if an entry is
+    // in both members and canonicalMembers
+    let seen = Object.create(null);
+
+    for (let i = 0; i < this.currentState.length; i++) {
+      const inverseInternalModel = this.currentState[i];
+      const id = inverseInternalModel.lid;
+      if (!seen[id]) {
+        seen[id] = true;
+        callback(inverseInternalModel);
+      }
     }
-    super.addCanonicalRecordData(recordData, idx);
+
+    for (let i = 0; i < this.canonicalState.length; i++) {
+      const inverseInternalModel = this.canonicalState[i];
+      const id = inverseInternalModel.lid;
+      if (!seen[id]) {
+        seen[id] = true;
+        callback(inverseInternalModel);
+      }
+    }
+  }
+
+  clear() {
+    this.members.clear();
+    this.canonicalMembers.clear();
+    this.currentState = [];
+    this.canonicalState = [];
   }
 
   inverseDidDematerialize(inverseRecordData: StableRecordIdentifier) {
-    super.inverseDidDematerialize(inverseRecordData);
-    if (this.definition.isAsync) {
-      this.notifyManyArrayIsStale();
+    if (!this.definition.isAsync || (inverseRecordData && isNew(inverseRecordData))) {
+      // unloading inverse of a sync relationship is treated as a client-side
+      // delete, so actually remove the models don't merely invalidate the cp
+      // cache.
+      // if the record being unloaded only exists on the client, we similarly
+      // treat it as a client side delete
+      this.removeCompletelyFromOwn(inverseRecordData);
+    } else {
+      this.state.hasDematerializedInverse = true;
     }
+
+    // for async relationships this triggers a sync flush
+    // 😱
+    // I believe we do this to force rematerialization.
+    // however this works in the CUSTOM_MODEL_CLASS branch
+    // asynchronously. We should figure out why.
+    this.notifyManyArrayIsStale();
   }
 
-  addRecordData(recordData: StableRecordIdentifier, idx?: number) {
-    if (this.members.has(recordData)) {
-      return;
-    }
+  /*
+    Removes the given RecordData from BOTH canonical AND current state.
 
-    const { store } = this;
-    if (this.definition.type !== recordData.type) {
-      assertPolymorphicType(
-        store.recordDataFor(this.identifier.type, this.identifier.id, this.identifier.lid),
-        this.definition,
-        store.recordDataFor(recordData.type, recordData.id, recordData.lid),
-        store._store
-      );
-      this.graph.registerPolymorphicType(this.definition.type, recordData.type);
-    }
-    super.addRecordData(recordData, idx);
-    // make lazy later
-    if (idx === undefined) {
-      idx = this.currentState.length;
-    }
-    this.currentState.splice(idx, 0, recordData);
-    // TODO Igor consider making direct to remove the indirection
-    // We are not lazily accessing the manyArray here because the change is coming from app side
-    // this.manyArray.flushCanonical(this.currentState);
-    this.notifyHasManyChange();
-  }
-
-  removeCanonicalRecordDataFromOwn(recordData: StableRecordIdentifier, idx?: number) {
-    let i = idx;
-    if (!this.canonicalMembers.has(recordData)) {
-      return;
-    }
-    if (i === undefined) {
-      i = this.canonicalState.indexOf(recordData);
-    }
-    if (i > -1) {
-      this.canonicalState.splice(i, 1);
-    }
-    super.removeCanonicalRecordDataFromOwn(recordData, idx);
-    //TODO(Igor) Figure out what to do here
-  }
-
-  removeAllCanonicalRecordDatasFromOwn() {
-    this.canonicalState.splice(0, this.canonicalState.length);
-    super.removeAllCanonicalRecordDatasFromOwn();
-  }
-
-  //TODO(Igor) DO WE NEED THIS?
+    This method is useful when either a deletion or a rollback on a new record
+    needs to entirely purge itself from an inverse relationship.
+  */
   removeCompletelyFromOwn(recordData: StableRecordIdentifier) {
-    super.removeCompletelyFromOwn(recordData);
+    this.canonicalMembers.delete(recordData);
+    this.members.delete(recordData);
 
-    // TODO SkEPTICAL
     const canonicalIndex = this.canonicalState.indexOf(recordData);
-
     if (canonicalIndex !== -1) {
       this.canonicalState.splice(canonicalIndex, 1);
     }
 
-    this.removeRecordDataFromOwn(recordData);
-  }
-
-  flushCanonical() {
-    let toSet = this.canonicalState;
-
-    //a hack for not removing new records
-    //TODO remove once we have proper diffing
-    let newRecordDatas = this.currentState.filter(
-      // only add new internalModels which are not yet in the canonical state of this
-      // relationship (a new internalModel can be in the canonical state if it has
-      // been 'acknowleged' to be in the relationship via a store.push)
-
-      //TODO Igor deal with this
-      (recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1
-    );
-    toSet = toSet.concat(newRecordDatas);
-
-    /*
-    if (this._manyArray) {
-      this._manyArray.flushCanonical(toSet);
+    const currentIndex = this.currentState.indexOf(recordData);
+    if (currentIndex !== -1) {
+      this.currentState.splice(currentIndex, 1);
+      // This allows dematerialized inverses to be rematerialized
+      // we shouldn't be notifying here though, figure out where
+      // a notification was missed elsewhere.
+      this.notifyHasManyChange();
     }
-    */
-    this.currentState = toSet;
-    super.flushCanonical();
-    // Once we clean up all the flushing, we will be left with at least the notifying part
-    this.notifyHasManyChange();
-  }
-
-  //TODO(Igor) idx not used currently, fix
-  removeRecordDataFromOwn(recordData: StableRecordIdentifier, idx?: number) {
-    super.removeRecordDataFromOwn(recordData, idx);
-    let index = idx || this.currentState.indexOf(recordData);
-
-    //TODO IGOR DAVID INVESTIGATE
-    if (index === -1) {
-      return;
-    }
-    this.currentState.splice(index, 1);
-    // TODO Igor consider making direct to remove the indirection
-    // We are not lazily accessing the manyArray here because the change is coming from app side
-    this.notifyHasManyChange();
-    // this.manyArray.flushCanonical(this.currentState);
-  }
-
-  notifyRecordRelationshipAdded() {
-    this.notifyHasManyChange();
-  }
-
-  computeChanges(recordDatas: StableRecordIdentifier[] = []) {
-    const members = this.canonicalMembers.toArray();
-    for (let i = members.length - 1; i >= 0; i--) {
-      this.removeCanonicalRecordData(members[i], i);
-    }
-    for (let i = 0, l = recordDatas.length; i < l; i++) {
-      this.addCanonicalRecordData(recordDatas[i], i);
-    }
-    // TODO this flush is here because we may not have triggered one above
-    // due to the index guard on the remove+add pattern.
-    //
-    // while not doing this flush is actually an improvement, for semantics we
-    // have to preserve the flush cannonical to "lose" local changes
-    // this.flushCanonicalLater();
   }
 
   /*
@@ -181,7 +177,7 @@ export default class ManyRelationship extends Relationship {
   */
   notifyManyArrayIsStale() {
     const { store, identifier: recordData } = this;
-    if (CUSTOM_MODEL_CLASS) {
+    if (!this.definition.isAsync || CUSTOM_MODEL_CLASS) {
       store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
     } else {
       store.notifyPropertyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
@@ -210,26 +206,5 @@ export default class ManyRelationship extends Relationship {
     payload._relationship = this;
 
     return payload;
-  }
-
-  updateData(data) {
-    let recordDatas: StableRecordIdentifier[] | undefined;
-    if (isNone(data)) {
-      recordDatas = undefined;
-    } else {
-      recordDatas = new Array(data.length);
-      const cache = identifierCacheFor(this.store._store);
-      for (let i = 0; i < data.length; i++) {
-        recordDatas[i] = cache.getOrCreateRecordIdentifier(data[i]);
-      }
-    }
-    this.updateRecordDatasFromAdapter(recordDatas);
-  }
-
-  updateRecordDatasFromAdapter(recordDatas?: StableRecordIdentifier[]) {
-    this.setHasReceivedData(true);
-    //TODO(Igor) move this to a proper place
-    //TODO Once we have adapter support, we need to handle updated and canonical changes
-    this.computeChanges(recordDatas);
   }
 }

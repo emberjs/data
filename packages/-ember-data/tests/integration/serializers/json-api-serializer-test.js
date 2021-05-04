@@ -442,29 +442,27 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     let store = this.owner.lookup('service:store');
     let serializer = store.serializerFor('application');
 
-    run(function () {
-      serializer.pushPayload(store, {
-        data: {
-          type: 'handles',
-          id: 1,
-        },
-      });
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: 1,
+      },
+    });
 
-      let handle = store.peekRecord('handle', 1);
-      handle.set('user', null);
+    let handle = store.peekRecord('handle', 1);
+    handle.set('user', null);
 
-      let serialized = handle.serialize({ includeId: true });
-      assert.deepEqual(serialized, {
-        data: {
-          type: 'handles',
-          id: '1',
-          relationships: {
-            user: {
-              data: null,
-            },
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1',
+        relationships: {
+          user: {
+            data: null,
           },
         },
-      });
+      },
     });
   });
 

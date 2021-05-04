@@ -176,7 +176,9 @@ function belongsTo(modelName, options) {
           );
         }
       }
-      this._internalModel.setDirtyBelongsTo(key, value);
+      this.store._backburner.join(() => {
+        this._internalModel.setDirtyBelongsTo(key, value);
+      });
 
       return this._internalModel.getBelongsTo(key);
     },

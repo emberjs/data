@@ -376,6 +376,7 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.ok(pirate.get('bestHuman') === null, 'precond - pirate has no best human');
       assert.ok(bestDog === null, 'precond - Chris has no best dog');
 
+      // locally update
       chris.set('bestDog', shen);
       bestDog = await chris.get('bestDog');
       await settled();
@@ -385,6 +386,7 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.ok(pirate.get('bestHuman') === null, 'scene 1 - pirate has no best human');
       assert.ok(bestDog === shen, "scene 1 - Shen is Chris's best dog");
 
+      // locally update to a different value
       chris.set('bestDog', pirate);
       bestDog = await chris.get('bestDog');
       await settled();
@@ -394,6 +396,7 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.ok(pirate.get('bestHuman') === chris, 'scene 2 - pirate now has Chris as best human');
       assert.ok(bestDog === pirate, "scene 2 - Pirate is now Chris's best dog");
 
+      // locally clear the relationship
       chris.set('bestDog', null);
       bestDog = await chris.get('bestDog');
       await settled();

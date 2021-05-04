@@ -1394,7 +1394,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
       });
     });
 
-    let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalMembers.list;
+    let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalState;
 
     assert.todo.deepEqual(
       pets.map((p) => get(p, 'id')),
@@ -1515,7 +1515,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
       });
     });
 
-    let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalMembers.list;
+    let hasManyCanonical = person.hasMany('pets').hasManyRelationship.canonicalState;
 
     assert.todo.deepEqual(
       pets.map((p) => get(p, 'id')),

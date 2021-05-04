@@ -18,8 +18,6 @@ type RelationshipDefinition = import('@ember-data/model/-private/system/relation
   @module @ember-data/store
 */
 
-type StableIdentifierOrString = StableRecordIdentifier | string;
-
 function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
   return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
 }
@@ -37,11 +35,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   /**
    * @internal
    */
-  declare _willUpdateManyArrays: boolean;
+  declare _willNotify: boolean;
   /**
    * @internal
    */
-  declare _pendingManyArrayUpdates: StableIdentifierOrString[];
+  declare _pendingNotifies: Map<StableRecordIdentifier, Map<string, string>>;
   /**
    * @internal
    */
@@ -49,8 +47,8 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
 
   constructor(_store: CoreStore) {
     this._store = _store;
-    this._willUpdateManyArrays = false;
-    this._pendingManyArrayUpdates = [];
+    this._willNotify = false;
+    this._pendingNotifies = new Map();
   }
 
   get identifierCache(): IdentifierCache {
@@ -70,20 +68,23 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   /**
    * @internal
    */
-  _scheduleManyArrayUpdate(identifier: StableRecordIdentifier, key: string) {
-    let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
-    pending.push(identifier, key);
+  _scheduleNotification(identifier: StableRecordIdentifier, key: string, kind: 'belongsTo' | 'hasMany') {
+    let pending = this._pendingNotifies.get(identifier);
 
-    if (this._willUpdateManyArrays === true) {
+    if (!pending) {
+      pending = new Map();
+      this._pendingNotifies.set(identifier, pending);
+    }
+    pending.set(key, kind);
+
+    if (this._willNotify === true) {
       return;
     }
 
-    this._willUpdateManyArrays = true;
+    this._willNotify = true;
     let backburner: any = this._store._backburner;
 
-    backburner.join(() => {
-      backburner.schedule('syncRelationships', this, this._flushPendingManyArrayUpdates);
-    });
+    backburner.schedule('notify', this, this._flushNotifications);
   }
 
   notifyErrorsChange(type: string, id: string, lid: string | null): void;
@@ -99,25 +100,28 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  _flushPendingManyArrayUpdates(): void {
-    if (this._willUpdateManyArrays === false) {
+  _flushNotifications(): void {
+    if (this._willNotify === false) {
       return;
     }
 
-    let pending = this._pendingManyArrayUpdates;
-    this._pendingManyArrayUpdates = [];
-    this._willUpdateManyArrays = false;
+    let pending = this._pendingNotifies;
+    this._pendingNotifies = new Map();
+    this._willNotify = false;
     const factory = internalModelFactoryFor(this._store);
 
-    for (let i = 0; i < pending.length; i += 2) {
-      let identifier = pending[i] as StableRecordIdentifier;
-      let key = pending[i + 1] as string;
-      let internalModel = factory.peek(identifier);
-
+    pending.forEach((map, identifier) => {
+      const internalModel = factory.peek(identifier);
       if (internalModel) {
-        internalModel.notifyHasManyChange(key);
+        map.forEach((kind, key) => {
+          if (kind === 'belongsTo') {
+            internalModel.notifyBelongsToChange(key);
+          } else {
+            internalModel.notifyHasManyChange(key);
+          }
+        });
       }
-    }
+    });
   }
 
   attributesDefinitionFor(type: string): AttributesSchema {
@@ -190,7 +194,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyHasManyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
-    this._scheduleManyArrayUpdate(identifier, key);
+    this._scheduleNotification(identifier, key, 'hasMany');
   }
 
   notifyBelongsToChange(type: string, id: string | null, lid: string, key: string): void;
@@ -198,11 +202,8 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyBelongsToChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
-    let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
-    if (internalModel) {
-      internalModel.notifyBelongsToChange(key);
-    }
+    this._scheduleNotification(identifier, key, 'belongsTo');
   }
 
   notifyStateChange(type: string, id: string, lid: string | null, key?: string): void;

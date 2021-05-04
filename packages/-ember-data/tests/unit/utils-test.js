@@ -70,9 +70,9 @@ module('unit/utils', function (hooks) {
     });
 
     let relationship = user.relationshipFor('messages');
-    user = user._internalModel;
-    post = post._internalModel;
-    person = person._internalModel;
+    user = user._internalModel.identifier;
+    post = post._internalModel.identifier;
+    person = person._internalModel.identifier;
 
     try {
       assertPolymorphicType(user, relationship, post, store);
@@ -130,9 +130,9 @@ module('unit/utils', function (hooks) {
     });
 
     let relationship = post.relationshipFor('medias');
-    post = post._internalModel;
-    video = video._internalModel;
-    person = person._internalModel;
+    post = post._internalModel.identifier;
+    video = video._internalModel.identifier;
+    person = person._internalModel.identifier;
 
     try {
       assertPolymorphicType(post, relationship, video, store);

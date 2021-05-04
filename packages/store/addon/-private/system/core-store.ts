@@ -26,7 +26,6 @@ import {
 import {
   HAS_ADAPTER_PACKAGE,
   HAS_EMBER_DATA_PACKAGE,
-  HAS_MODEL_PACKAGE,
   HAS_RECORD_DATA_PACKAGE,
   HAS_SERIALIZER_PACKAGE,
 } from '@ember-data/private-build-infra';
@@ -63,9 +62,6 @@ import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } fro
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
-type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
-type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
-
 type RelationshipState = import('@ember-data/record-data/-private/graph/-state').RelationshipState;
 type ShimModelClass = import('./model/shim-model-class').default;
 type Snapshot = import('./snapshot').default;
@@ -95,7 +91,6 @@ type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapp
 type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
 type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
 type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
-type Relationship = import('@ember-data/record-data/-private').Relationship;
 type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
 type RequestCache = import('./request-cache').default;
 
@@ -115,16 +110,7 @@ type PendingSaveItem = {
   resolver: RSVP.Deferred<InternalModel | void>;
 };
 
-let _Model;
-
 const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
-
-function getModel() {
-  if (HAS_MODEL_PACKAGE) {
-    _Model = _Model || require('@ember-data/model').default;
-  }
-  return _Model;
-}
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
@@ -228,8 +214,6 @@ interface CoreStore {
   adapter: string;
 }
 
-type RelationshipEdge = Relationship | BelongsToRelationship | ManyRelationship;
-
 abstract class CoreStore extends Service {
   /**
    * EmberData specific backburner instance
@@ -251,8 +235,6 @@ abstract class CoreStore extends Service {
     */
   // used for coalescing record save requests
   private _pendingSave: PendingSaveItem[] = [];
-  // used for coalescing relationship updates
-  private _updatedRelationships: RelationshipEdge[] = [];
   // used for coalescing internal model updates
   private _updatedInternalModels: InternalModel[] = [];
 
@@ -690,17 +672,17 @@ abstract class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'deleteRecord');
     }
-    if (CUSTOM_MODEL_CLASS) {
-      if (HAS_MODEL_PACKAGE && record instanceof getModel()) {
-        return record.deleteRecord();
-      } else {
+    this._backburner.join(() => {
+      if (CUSTOM_MODEL_CLASS) {
         let identifier = recordIdentifierFor(record);
         let internalModel = internalModelFactoryFor(this).peek(identifier);
-        internalModel!.deleteRecord();
+        if (internalModel) {
+          internalModel.deleteRecord();
+        }
+      } else {
+        record.deleteRecord();
       }
-    } else {
-      record.deleteRecord();
-    }
+    });
   }
 
   /**
@@ -723,12 +705,10 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'unloadRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (HAS_MODEL_PACKAGE && record instanceof getModel()) {
-        return record.unloadRecord();
-      } else {
-        let identifier = recordIdentifierFor(record);
-        let internalModel = internalModelFactoryFor(this).peek(identifier);
-        internalModel!.unloadRecord();
+      let identifier = recordIdentifierFor(record);
+      let internalModel = internalModelFactoryFor(this).peek(identifier);
+      if (internalModel) {
+        internalModel.unloadRecord();
       }
     } else {
       record.unloadRecord();
@@ -1108,7 +1088,9 @@ abstract class CoreStore extends Service {
 
   _findByInternalModel(internalModel, options: { preload?: any } = {}) {
     if (options.preload) {
-      internalModel.preloadData(options.preload);
+      this._backburner.join(() => {
+        internalModel.preloadData(options.preload);
+      });
     }
 
     let fetchedInternalModel = this._findEmptyInternalModel(internalModel, options);
@@ -3571,6 +3553,14 @@ abstract class CoreStore extends Service {
       }
     }
 
+    if (HAS_RECORD_DATA_PACKAGE) {
+      const peekGraph = require('@ember-data/record-data/-private').peekGraph;
+      let graph = peekGraph(this);
+      if (graph) {
+        graph.destroy();
+      }
+    }
+
     return super.destroy();
   }
 
@@ -3580,14 +3570,18 @@ abstract class CoreStore extends Service {
 
     identifierCacheFor(this).destroy();
 
-    this.unloadAll();
+    // destroy the graph before unloadAll
+    // since then we avoid churning relationships
+    // during unload
     if (HAS_RECORD_DATA_PACKAGE) {
       const peekGraph = require('@ember-data/record-data/-private').peekGraph;
       let graph = peekGraph(this);
       if (graph) {
-        graph.destroy();
+        graph.willDestroy();
       }
     }
+
+    this.unloadAll();
 
     if (DEBUG) {
       unregisterWaiter(this.__asyncWaiter);
@@ -3613,26 +3607,6 @@ abstract class CoreStore extends Service {
         }
       }
     }
-  }
-
-  _updateRelationshipState(relationship: Relationship | BelongsToRelationship | ManyRelationship) {
-    if (this._updatedRelationships.push(relationship) !== 1) {
-      return;
-    }
-
-    this._backburner.join(() => {
-      this._backburner.schedule('syncRelationships', this, this._flushUpdatedRelationships);
-    });
-  }
-
-  _flushUpdatedRelationships() {
-    let updated = this._updatedRelationships;
-
-    for (let i = 0, l = updated.length; i < l; i++) {
-      updated[i].flushCanonical();
-    }
-
-    updated.length = 0;
   }
 
   _updateInternalModel(internalModel: InternalModel) {

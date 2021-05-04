@@ -188,14 +188,27 @@ export default class HasManyReference extends Reference {
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.definition;
-          assertPolymorphicType(internalModel, relationshipMeta, record._internalModel, this.store);
+          assertPolymorphicType(
+            internalModel.identifier,
+            relationshipMeta,
+            record._internalModel.identifier,
+            this.store
+          );
         }
         return recordIdentifierFor(record);
       });
 
-      this.hasManyRelationship.computeChanges(identifiers);
+      const { graph, identifier } = this.hasManyRelationship;
+      this.store._backburner.join(() => {
+        graph.push({
+          op: 'replaceRelatedRecords',
+          record: identifier,
+          field: this.key,
+          value: identifiers,
+        });
+      });
 
-      return internalModel.getHasMany(this.hasManyRelationship.definition.key);
+      return internalModel.getHasMany(this.key);
       // TODO IGOR it seems wrong that we were returning the many array here
       //return this.hasManyRelationship.manyArray;
     });
@@ -207,7 +220,7 @@ export default class HasManyReference extends Reference {
       return false;
     }
 
-    let members = this.hasManyRelationship.members.toArray();
+    let members = this.hasManyRelationship.currentState;
 
     //TODO Igor cleanup
     return members.every((identifier) => {

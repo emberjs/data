@@ -69,9 +69,7 @@ module('Store.createRecord() coverage', function (hooks) {
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
     pet.unloadRecord();
-
     assert.ok(pet.get('owner') === null, 'Shen no longer has an owner');
-
     // check that the relationship has been dissolved
     pets = chris
       .get('pets')

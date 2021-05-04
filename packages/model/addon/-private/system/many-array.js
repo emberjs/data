@@ -180,12 +180,6 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   },
 
   objectAt(index) {
-    // TODO we likely need to force flush here
-    /*
-    if (this.relationship._willUpdateManyArray) {
-      this.relationship._flushPendingManyArrayUpdates();
-    }
-    */
     let internalModel = this.currentState[index];
     if (internalModel === undefined) {
       return;
@@ -217,26 +211,28 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   },
 
   replace(idx, amt, objects) {
-    let internalModels;
-    if (amt > 0) {
-      internalModels = this.currentState.slice(idx, idx + amt);
-      this.get('recordData').removeFromHasMany(
-        this.get('key'),
-        internalModels.map((im) => recordDataFor(im))
-      );
-    }
-    if (objects) {
-      assert(
-        'The third argument to replace needs to be an array.',
-        Array.isArray(objects) || EmberArray.detect(objects)
-      );
-      this.get('recordData').addToHasMany(
-        this.get('key'),
-        objects.map((obj) => recordDataFor(obj)),
-        idx
-      );
-    }
-    this.retrieveLatest();
+    this.store._backburner.join(() => {
+      let internalModels;
+      if (amt > 0) {
+        internalModels = this.currentState.slice(idx, idx + amt);
+        this.get('recordData').removeFromHasMany(
+          this.get('key'),
+          internalModels.map((im) => recordDataFor(im))
+        );
+      }
+      if (objects) {
+        assert(
+          'The third argument to replace needs to be an array.',
+          Array.isArray(objects) || EmberArray.detect(objects)
+        );
+        this.get('recordData').addToHasMany(
+          this.get('key'),
+          objects.map((obj) => recordDataFor(obj)),
+          idx
+        );
+      }
+      this.retrieveLatest();
+    });
   },
 
   // Ok this is kinda funky because if buggy we might lose positions, etc.

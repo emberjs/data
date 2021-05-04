@@ -74,7 +74,7 @@ function defaultGenerationMethod(data: ResourceIdentifierObject, bucket: string)
     return data.lid;
   }
   let { type, id } = data;
-  if (isNonEmptyString(id)) {
+  if (isNonEmptyString(coerceId(id))) {
     return `@ember-data:lid-${normalizeModelName(type)}-${id}`;
   }
   return uuidv4();
