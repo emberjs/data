@@ -24,12 +24,13 @@ export default function notifyChanges(
       if (meta.kind === 'belongsTo') {
         record.notifyPropertyChange(key);
       } else if (meta.kind === 'hasMany') {
+        let didRemoveUnloadedModel = false;
         if (meta.options.async) {
           record.notifyPropertyChange(key);
-          internalModel.hasManyRemovalCheck(key);
+          didRemoveUnloadedModel = internalModel.hasManyRemovalCheck(key);
         }
         let manyArray = internalModel._manyArrayCache[key] || internalModel._retainedManyArrayCache[key];
-        if (manyArray) {
+        if (manyArray && !didRemoveUnloadedModel) {
           manyArray.retrieveLatest();
         }
       }
