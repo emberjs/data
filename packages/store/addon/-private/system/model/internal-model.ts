@@ -171,7 +171,6 @@ export default class InternalModel {
     this.__recordData = null;
 
     this._promiseProxy = null;
-    this._record = null;
     this._isDestroyed = false;
     this._doNotDestroy = false;
     this.isError = false;
@@ -413,6 +412,13 @@ export default class InternalModel {
     // and the destroy not happening, and then later on trying to destroy
     this._doNotDestroy = false;
 
+    // move to an empty never-loaded state
+    // ensure any record notifications happen prior to us
+    // unseting the record
+    this.store._backburner.join(() => {
+      this._recordData.unloadRecord();
+    });
+
     if (this._record) {
       if (CUSTOM_MODEL_CLASS) {
         this.store.teardownRecord(this._record);
@@ -438,18 +444,16 @@ export default class InternalModel {
             It is likely in this case instead of retaining we should destroy
               - @runspired
           */
-          manyArray.clear();
+          manyArray.retrieveLatest();
         }
       });
     }
 
-    // move to an empty never-loaded state
-    this.store.recordArrayManager.recordDidChange(this.identifier);
-    this._recordData.unloadRecord();
     this._record = null;
     this.isReloading = false;
     this.error = null;
     this.currentState = RootState.empty;
+    this.store.recordArrayManager.recordDidChange(this.identifier);
   }
 
   deleteRecord() {
@@ -791,8 +795,8 @@ export default class InternalModel {
     let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
     // TODO move this to a public api
     if (jsonApi._relationship) {
-      jsonApi._relationship.setHasFailedLoadAttempt(false);
-      jsonApi._relationship.setShouldForceReload(true);
+      jsonApi._relationship.state.hasFailedLoadAttempt = false;
+      jsonApi._relationship.state.shouldForceReload = true;
     }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let manyArray = this.getManyArray(key);
@@ -814,8 +818,8 @@ export default class InternalModel {
     let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     // TODO move this to a public api
     if (resource._relationship) {
-      resource._relationship.setHasFailedLoadAttempt(false);
-      resource._relationship.setShouldForceReload(true);
+      resource._relationship.state.hasFailedLoadAttempt = false;
+      resource._relationship.state.shouldForceReload = true;
     }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
@@ -1497,10 +1501,10 @@ if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
 
 function handleCompletedRelationshipRequest(internalModel, key, relationship, value, error) {
   delete internalModel._relationshipPromisesCache[key];
-  relationship.setShouldForceReload(false);
+  relationship.state.shouldForceReload = false;
 
   if (error) {
-    relationship.setHasFailedLoadAttempt(true);
+    relationship.state.hasFailedLoadAttempt = true;
     let proxy = internalModel._relationshipProxyCache[key];
     // belongsTo relationships are sometimes unloaded
     // when a load fails, in this case we need
@@ -1518,9 +1522,9 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
     throw error;
   }
 
-  relationship.setHasFailedLoadAttempt(false);
+  relationship.state.hasFailedLoadAttempt = false;
   // only set to not stale if no error is thrown
-  relationship.setRelationshipIsStale(false);
+  relationship.state.isStale = false;
 
   return value;
 }

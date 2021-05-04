@@ -800,7 +800,7 @@ class Model extends EmberObject {
     @method deleteRecord
   */
   deleteRecord() {
-    this._internalModel.deleteRecord();
+    this.store.deleteRecord(this);
   }
 
   /**
@@ -862,7 +862,7 @@ class Model extends EmberObject {
     if (this.isDestroyed) {
       return;
     }
-    this._internalModel.unloadRecord();
+    this.store.unloadRecord(this);
   }
 
   /**
@@ -949,7 +949,9 @@ class Model extends EmberObject {
     @method rollbackAttributes
   */
   rollbackAttributes() {
-    this._internalModel.rollbackAttributes();
+    this.store._backburner.join(() => {
+      this._internalModel.rollbackAttributes();
+    });
     if (RECORD_DATA_ERRORS) {
       this._markInvalidRequestAsClean();
     }

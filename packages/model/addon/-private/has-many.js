@@ -197,7 +197,9 @@ function hasMany(type, options) {
         }
       }
       let internalModel = this._internalModel;
-      internalModel.setDirtyHasMany(key, records);
+      this.store._backburner.join(() => {
+        internalModel.setDirtyHasMany(key, records);
+      });
 
       return internalModel.getHasMany(key);
     },

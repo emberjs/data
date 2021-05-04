@@ -19,6 +19,7 @@ export interface UpgradedMeta {
   isCollection: boolean;
   isPolymorphic: boolean;
 
+  inverseKind: 'hasMany' | 'belongsTo' | 'implicit';
   inverseKey: string;
   inverseType: string;
   inverseIsAsync: boolean;
@@ -56,6 +57,7 @@ function implicitKeyFor(type: string, key: string): string {
 }
 
 function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
+  definition.inverseKind = inverseDefinition.kind;
   definition.inverseKey = inverseDefinition.key;
   definition.inverseType = inverseDefinition.type;
   definition.inverseIsAsync = inverseDefinition.isAsync;
@@ -198,7 +200,7 @@ export function upgradeDefinition(
       type: type,
       isAsync: false,
       isImplicit: true,
-      isCollection: false,
+      isCollection: true, // with implicits any number of records could point at us
       isPolymorphic: false,
     };
 

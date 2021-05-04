@@ -6,7 +6,7 @@ import { recordIdentifierFor } from '@ember-data/store';
 import { stateOf } from './setup';
 
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type Relationship = import('@ember-data/record-data/-private').Relationship;
+type ImplicitRelationship = import('@ember-data/record-data/-private').Relationship;
 
 type Context = import('./setup').Context;
 type UserRecord = import('./setup').UserRecord;
@@ -189,8 +189,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
 
     assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'PreCond: Chris has one implicit relationship');
 
-    const chrisImplicitFriend = chrisImplicits[chrisBestFriend.definition.inverseKey] as Relationship;
-    const johnImplicitFriend = johnImplicits[johnBestFriend.definition.inverseKey] as Relationship;
+    const chrisImplicitFriend = chrisImplicits[chrisBestFriend.definition.inverseKey] as ImplicitRelationship;
+    const johnImplicitFriend = johnImplicits[johnBestFriend.definition.inverseKey] as ImplicitRelationship;
 
     assert.ok(chrisImplicitFriend, 'PreCond: Chris has an implicit best friend');
 
@@ -270,13 +270,8 @@ export async function testFinalState(
     config.relType === 'hasMany' &&
     !!config.inverseNull;
 
-  // related to above another WAT that refactor should cleanup
-  // in this case we don't care if sync/async
-  const isUnloadOfImplictHasManyWithLocalChange =
-    !!config.isUnloadAsDelete && !!config.dirtyLocal && config.relType === 'hasMany' && !!config.inverseNull;
-
-  // a final WAT likely related to the first two, persisted delete w/o unload of
-  // a sync hasMany with local changes is not cleared. This final WAT is handled
+  // a second WAT likely related to the first, persisted delete w/o unload of
+  // a sync hasMany with local changes is not cleared. This WAT is handled
   // within the abstract-edge-removal-test configuration.
 
   // in the dirtyLocal and useCreate case there is no remote data
@@ -288,12 +283,12 @@ export async function testFinalState(
   // as the RecordData is in an empty state but not destroyed.
   const johnRemoteRemoved = config.dirtyLocal || config.useCreate || (!config.isUnloadAsDelete && statuses.removed);
   const johnLocalRemoved = !config.isUnloadAsDelete && statuses.removed;
-  const johnCleared = statuses.cleared || isUnloadOfImplictHasManyWithLocalChange;
+  const johnCleared = statuses.cleared;
 
   const _removed = config.isUnloadAsDelete ? statuses.cleared && statuses.removed : statuses.removed;
   // in the dirtyLocal and useCreate case there is no remote data
   const chrisImplicitRemoteRemoved = config.dirtyLocal || config.useCreate || _removed;
-  const chrisImplicitLocalRemoved = _removed || isUnloadOfImplictHasManyWithLocalChange;
+  const chrisImplicitLocalRemoved = _removed;
   const johnImplicitsCleared = statuses.implicitCleared || statuses.cleared;
   // in the dirtyLocal and useCreate case there is no remote data
   const johnImplicitRemoteRemoved = config.dirtyLocal || config.useCreate || statuses.removed;
@@ -354,7 +349,7 @@ export async function testFinalState(
 
     assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'Result: Chris has one implicit relationship key');
 
-    const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey] as Relationship;
+    const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey] as ImplicitRelationship;
 
     assert.ok(chrisImplicitFriend, 'Result: Chris has an implicit relationship for best friend');
     const chrisImplicitState = stateOf(chrisImplicitFriend);
@@ -378,7 +373,7 @@ export async function testFinalState(
       assert.false(graph.implicit.has(johnIdentifier), 'implicit cache for john has been removed');
     } else {
       const johnImplicits = graph.getImplicit(johnIdentifier);
-      const johnImplicitFriend = johnImplicits[testState.johnInverseKey] as Relationship;
+      const johnImplicitFriend = johnImplicits[testState.johnInverseKey] as ImplicitRelationship;
       assert.strictEqual(
         Object.keys(johnImplicits).length,
         1,

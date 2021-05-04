@@ -6,7 +6,7 @@ import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-i
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import { internalModelFactoryFor, peekRecordIdentifier, recordIdentifierFor } from '../store/internal-model-factory';
-import Reference, { internalModelForReference } from './reference';
+import Reference from './reference';
 
 /**
   @module @ember-data/store
@@ -150,14 +150,21 @@ export default class BelongsToReference extends Reference {
       }
 
       assertPolymorphicType(
-        internalModelForReference(this),
+        this.belongsToRelationship.identifier,
         this.belongsToRelationship.definition,
-        record._internalModel,
+        record._internalModel.identifier,
         this.store
       );
 
-      //TODO Igor cleanup, maybe move to relationship push
-      this.belongsToRelationship.updateData(recordIdentifierFor(record));
+      const { graph, identifier } = this.belongsToRelationship;
+      this.store._backburner.join(() => {
+        graph.push({
+          op: 'replaceRelatedRecord',
+          record: identifier,
+          field: this.key,
+          value: recordIdentifierFor(record),
+        });
+      });
 
       return record;
     });

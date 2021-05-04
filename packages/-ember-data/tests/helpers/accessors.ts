@@ -4,15 +4,15 @@ import { recordIdentifierFor } from '@ember-data/store';
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
 type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
-type Relationship = import('@ember-data/record-data/-private').Relationship;
+type ImplicitRelationship = import('@ember-data/record-data/-private').Relationship;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type RelationshipDict = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<Relationship>;
+type RelationshipDict = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<ImplicitRelationship>;
 
 export function getRelationshipStateForRecord(
   record: { store: CoreStore },
   propertyName: string
-): BelongsToRelationship | ManyRelationship | Relationship {
+): BelongsToRelationship | ManyRelationship | ImplicitRelationship {
   const identifier = recordIdentifierFor(record);
   return graphFor(record.store._storeWrapper).get(identifier, propertyName);
 }

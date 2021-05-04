@@ -266,21 +266,21 @@ module('Editing a Record', function (hooks) {
         assert.deepEqual(pets, ['Shen', 'Rocky'], 'Precondition: Chris has Shen and Rocky as pets');
 
         shen.set('owner', john);
-        assert.ok(shen.get('owner') === john, 'Precondition: John is the new owner of Shen');
+        assert.ok(shen.get('owner') === john, 'After Update: John is the new owner of Shen');
 
         pets = chris.pets.toArray().map((pet) => pet.name);
-        assert.deepEqual(pets, ['Rocky'], 'Precondition: Chris has Rocky as a pet');
+        assert.deepEqual(pets, ['Rocky'], 'After Update: Chris has Rocky as a pet');
 
         pets = john.pets.toArray().map((pet) => pet.name);
-        assert.deepEqual(pets, ['Shen'], 'Precondition: John has Shen as a pet');
+        assert.deepEqual(pets, ['Shen'], 'After Update: John has Shen as a pet');
 
         chris.unloadRecord();
 
-        assert.ok(rocky.get('owner') === null, 'Rocky has no owner');
-        assert.ok(shen.get('owner') === john, 'John should still be the owner of Shen');
+        assert.ok(rocky.get('owner') === null, 'After Unload: Rocky has no owner');
+        assert.ok(shen.get('owner') === john, 'After Unload: John should still be the owner of Shen');
 
         pets = john.pets.toArray().map((pet) => pet.name);
-        assert.deepEqual(pets, ['Shen'], 'John still has Shen as a pet');
+        assert.deepEqual(pets, ['Shen'], 'After Unload: John still has Shen as a pet');
       });
     });
 

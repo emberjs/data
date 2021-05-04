@@ -1,3 +1,5 @@
+import settled from '@ember/test-helpers/settled';
+
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
@@ -69,8 +71,8 @@ if (CUSTOM_MODEL_CLASS) {
       owner.unregister('service:store');
     });
 
-    test('notification manager', function (assert) {
-      assert.expect(9);
+    test('notification manager', async function (assert) {
+      assert.expect(7);
       let notificationCount = 0;
       let identifier;
       let recordData;
@@ -91,13 +93,11 @@ if (CUSTOM_MODEL_CLASS) {
             notificationCount++;
             assert.equal(passedId, identifier, 'passed the identifier to the callback');
             if (notificationCount === 1) {
-              assert.equal(key, 'relationships', 'passed the key');
-            } else if (notificationCount === 2) {
-              assert.equal(key, 'relationships', 'passed the key');
-            } else if (notificationCount === 3) {
               assert.equal(key, 'state', 'passed the key');
-            } else if (notificationCount === 4) {
+            } else if (notificationCount === 2) {
               assert.equal(key, 'errors', 'passed the key');
+            } else if (notificationCount === 3) {
+              assert.equal(key, 'relationships', 'passed the key');
             }
           });
           return { hi: 'igor' };
@@ -110,7 +110,9 @@ if (CUSTOM_MODEL_CLASS) {
       recordData.storeWrapper.notifyBelongsToChange(identifier.type, identifier.id, identifier.lid, 'key');
       recordData.storeWrapper.notifyStateChange(identifier.type, identifier.id, identifier.lid, 'key');
       recordData.storeWrapper.notifyErrorsChange(identifier.type, identifier.id, identifier.lid, 'key');
-      assert.equal(notificationCount, 4, 'called notification callback');
+      await settled();
+
+      assert.equal(notificationCount, 3, 'called notification callback');
     });
 
     test('record creation and teardown', function (assert) {

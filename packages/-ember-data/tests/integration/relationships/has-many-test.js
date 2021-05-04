@@ -1,6 +1,5 @@
 /*eslint no-unused-vars: ["error", { "args": "none", "varsIgnorePattern": "(page)" }]*/
 
-import { A } from '@ember/array';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 
@@ -179,7 +178,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
   });
 
-  test('hasMany + canonical vs currentState + destroyRecord  ', function (assert) {
+  test('hasMany + canonical vs currentState + destroyRecord  ', async function (assert) {
     assert.expect(7);
 
     let store = this.owner.lookup('service:store');
@@ -195,15 +194,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           data: [
             {
               type: 'user',
-              id: 2,
+              id: '2',
             },
             {
               type: 'user',
-              id: 3,
+              id: '3',
             },
             {
               type: 'user',
-              id: 4,
+              id: '4',
             },
           ],
         },
@@ -216,15 +215,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         included: [
           {
             type: 'user',
-            id: 2,
+            id: '2',
           },
           {
             type: 'user',
-            id: 3,
+            id: '3',
           },
           {
             type: 'user',
-            id: 4,
+            id: '4',
           },
         ],
       });
@@ -255,10 +254,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       'user should have expected contacts'
     );
 
-    run(() => {
-      store.peekRecord('user', 2).destroyRecord();
-      store.peekRecord('user', 6).destroyRecord();
-    });
+    await store.peekRecord('user', 2).destroyRecord();
+    await store.peekRecord('user', 6).destroyRecord();
 
     assert.deepEqual(
       contacts.map((c) => c.get('id')),
@@ -1923,7 +1920,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }
   );
 
-  test('A record can be removed from a polymorphic association', function (assert) {
+  test('A record can be removed from a polymorphic association', async function (assert) {
     assert.expect(4);
 
     let store = this.owner.lookup('service:store');
@@ -1931,9 +1928,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(function () {
-      store.push({
-        data: {
+    const [user, comment] = store.push({
+      data: [
+        {
           type: 'user',
           id: '1',
           relationships: {
@@ -1942,37 +1939,23 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
             },
           },
         },
-        included: [
-          {
-            type: 'comment',
-            id: '3',
-          },
-        ],
-      });
+        {
+          type: 'comment',
+          id: '3',
+          attributes: {},
+        },
+      ],
     });
-    let asyncRecords;
 
-    run(function () {
-      asyncRecords = hash({
-        user: store.findRecord('user', 1),
-        comment: store.findRecord('comment', 3),
-      });
+    const messages = await user.messages;
 
-      asyncRecords
-        .then(function (records) {
-          records.messages = records.user.get('messages');
-          return hash(records);
-        })
-        .then(function (records) {
-          assert.equal(records.messages.get('length'), 1, 'The user has 1 message');
+    assert.equal(messages.get('length'), 1, 'The user has 1 message');
 
-          let removedObject = records.messages.popObject();
+    let removedObject = messages.popObject();
 
-          assert.equal(removedObject, records.comment, 'The message is correctly removed');
-          assert.equal(records.messages.get('length'), 0, 'The user does not have any messages');
-          assert.equal(records.messages.objectAt(0), null, "No messages can't be fetched");
-        });
-    });
+    assert.equal(removedObject, comment, 'The message is correctly removed');
+    assert.equal(messages.get('length'), 0, 'The user does not have any messages');
+    assert.equal(messages.objectAt(0), null, "Null messages can't be fetched");
   });
 
   test('When a record is created on the client, its hasMany arrays should be in a loaded state', function (assert) {
@@ -2775,9 +2758,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }, /The first argument to hasMany must be a string/);
   });
 
-  test('Relationship.clear removes all records correctly', function (assert) {
-    let post;
-
+  test('Relationship.clear removes all records correctly', async function (assert) {
     let store = this.owner.lookup('service:store');
 
     store.modelFor('comment').reopen({
@@ -2788,61 +2769,60 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       comments: hasMany('comment', { inverse: 'post', async: false }),
     });
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'post',
-            id: '2',
-            attributes: {
-              title: 'Sailing the Seven Seas',
-            },
-            relationships: {
-              comments: {
-                data: [
-                  { type: 'comment', id: '1' },
-                  { type: 'comment', id: '2' },
-                ],
-              },
+    const [post] = store.push({
+      data: [
+        {
+          type: 'post',
+          id: '2',
+          attributes: {
+            title: 'Sailing the Seven Seas',
+          },
+          relationships: {
+            comments: {
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
-          {
-            type: 'comment',
-            id: '1',
-            relationships: {
-              post: {
-                data: { type: 'post', id: '2' },
-              },
+        },
+        {
+          type: 'comment',
+          id: '1',
+          relationships: {
+            post: {
+              data: { type: 'post', id: '2' },
             },
           },
-          {
-            type: 'comment',
-            id: '2',
-            relationships: {
-              post: {
-                data: { type: 'post', id: '2' },
-              },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          relationships: {
+            post: {
+              data: { type: 'post', id: '2' },
             },
           },
-          {
-            type: 'comment',
-            id: '3',
-            relationships: {
-              post: {
-                data: { type: 'post', id: '2' },
-              },
+        },
+        {
+          type: 'comment',
+          id: '3',
+          relationships: {
+            post: {
+              data: { type: 'post', id: '2' },
             },
           },
-        ],
-      });
-      post = store.peekRecord('post', 2);
+        },
+      ],
     });
 
-    run(() => {
-      getRelationshipStateForRecord(post, 'comments').clear();
-      let comments = A(store.peekAll('comment'));
-      assert.deepEqual(comments.mapBy('post'), [null, null, null]);
-    });
+    const comments = store.peekAll('comment');
+    assert.deepEqual(comments.mapBy('post.id'), ['2', '2', '2']);
+
+    const postComments = await post.comments;
+    postComments.clear();
+
+    assert.deepEqual(comments.mapBy('post'), [null, null, null]);
   });
 
   test('unloading a record with associated records does not prevent the store from tearing down', function (assert) {

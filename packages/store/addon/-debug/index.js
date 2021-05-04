@@ -35,18 +35,14 @@ if (DEBUG) {
     return addedModelClass.prototype instanceof modelClass || modelClass.detect(addedModelClass);
   };
 
-  assertPolymorphicType = function assertPolymorphicType(
-    parentInternalModel,
-    relationshipMeta,
-    addedInternalModel,
-    store
-  ) {
-    let addedModelName = addedInternalModel.modelName;
-    let parentModelName = parentInternalModel.modelName;
-    let key = relationshipMeta.key;
-    let relationshipModelName = relationshipMeta.type;
+  assertPolymorphicType = function assertPolymorphicType(parentIdentifier, parentDefinition, addedIdentifier, store) {
+    store = store._store ? store._store : store; // allow usage with storeWrapper
+    let addedModelName = addedIdentifier.type;
+    let parentModelName = parentIdentifier.type;
+    let key = parentDefinition.key;
+    let relationshipModelName = parentDefinition.type;
     let relationshipClass = store.modelFor(relationshipModelName);
-    let addedClass = store.modelFor(addedInternalModel.modelName);
+    let addedClass = store.modelFor(addedModelName);
 
     let assertionMessage = `The '${addedModelName}' type does not implement '${relationshipModelName}' and thus cannot be assigned to the '${key}' relationship in '${parentModelName}'. Make it a descendant of '${relationshipModelName}' or use a mixin of the same name.`;
     let isPolymorphic = checkPolymorphic(relationshipClass, addedClass);

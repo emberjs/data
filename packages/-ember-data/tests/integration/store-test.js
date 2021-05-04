@@ -1023,7 +1023,7 @@ module('integration/store - deleteRecord', function (hooks) {
   setupTest(hooks);
 
   test('Using store#deleteRecord should mark the model for removal', function (assert) {
-    assert.expect(3);
+    assert.expect(2);
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', RESTAdapter.extend());
@@ -1046,11 +1046,7 @@ module('integration/store - deleteRecord', function (hooks) {
 
     assert.ok(store.hasRecordForId('person', '1'), 'expected the record to be in the store');
 
-    let personDeleteRecord = tap(person, 'deleteRecord');
-
     store.deleteRecord(person);
-
-    assert.equal(personDeleteRecord.called.length, 1, 'expected person.deleteRecord to have been called');
     assert.ok(person.isDeleted, 'expect person to be isDeleted');
   });
 

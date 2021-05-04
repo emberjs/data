@@ -14,7 +14,7 @@ type SingleResourceDocument = import('@ember-data/store/-private/ts-interfaces/e
 type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type Relationship = import('@ember-data/record-data/-private').Relationship;
+type ImplicitRelationship = import('@ember-data/record-data/-private').Relationship;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 
 class AbstractMap {
@@ -42,17 +42,17 @@ class AbstractGraph {
   get(
     identifier: StableRecordIdentifier,
     propertyName: string
-  ): ManyRelationship | BelongsToRelationship | Relationship {
+  ): ManyRelationship | BelongsToRelationship | ImplicitRelationship {
     return graphFor(this.store._storeWrapper).get(identifier, propertyName);
   }
 
-  getImplicit(identifier: StableRecordIdentifier): Dict<Relationship> {
+  getImplicit(identifier: StableRecordIdentifier): Dict<ImplicitRelationship> {
     const rels = graphFor(this.store._storeWrapper).identifiers.get(identifier);
     let implicits = Object.create(null);
     if (rels) {
       Object.keys(rels).forEach((key) => {
         let rel = rels[key]!;
-        if (rel.definition.isImplicit) {
+        if (isImplicit(rel)) {
           implicits[key] = rel;
         }
       });
@@ -65,19 +65,49 @@ function graphForTest(store: CoreStore) {
   return new AbstractGraph(store);
 }
 
-function isBelongsTo(rel: BelongsToRelationship | ManyRelationship | Relationship): rel is BelongsToRelationship {
-  return rel.definition.kind === 'belongsTo';
+export function isBelongsTo(
+  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
+): relationship is BelongsToRelationship {
+  return relationship.definition.kind === 'belongsTo';
 }
 
-export function stateOf(rel: BelongsToRelationship | ManyRelationship | Relationship) {
-  let local, remote;
+export function isImplicit(
+  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
+): relationship is ImplicitRelationship {
+  return relationship.definition.isImplicit;
+}
+
+export function isHasMany(
+  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
+): relationship is ManyRelationship {
+  return relationship.definition.kind === 'hasMany';
+}
+
+// Set.entries() and Set.values()
+// ...set and Array.from(set) don't
+// work in IE11
+function setToArray<T>(set: Set<T>): T[] {
+  let arr: T[] = [];
+  set.forEach((v) => arr.push(v));
+  return arr;
+}
+
+export function stateOf(
+  rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship
+): { remote: StableRecordIdentifier[]; local: StableRecordIdentifier[] } {
+  let local: StableRecordIdentifier[];
+  let remote: StableRecordIdentifier[];
+
   if (isBelongsTo(rel)) {
     // we cast these to array form to make the tests more legible
     local = rel.localState ? [rel.localState] : [];
     remote = rel.remoteState ? [rel.remoteState] : [];
+  } else if (isHasMany(rel)) {
+    local = rel.currentState.filter((m) => m !== null) as StableRecordIdentifier[];
+    remote = rel.canonicalState.filter((m) => m !== null) as StableRecordIdentifier[];
   } else {
-    local = rel.members.list.map((m) => (m ? m : null));
-    remote = rel.canonicalMembers.list.map((m) => (m ? m : null));
+    local = setToArray<StableRecordIdentifier>(rel.members);
+    remote = setToArray<StableRecordIdentifier>(rel.canonicalMembers);
   }
   return {
     local,

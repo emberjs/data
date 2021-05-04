@@ -1,3 +1,5 @@
+import settled from '@ember/test-helpers/settled';
+
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -118,7 +120,15 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
-      bestFriend.push({ data: identifier3 });
+      graph.update(
+        {
+          op: 'replaceRelatedRecord',
+          record: identifier,
+          field: 'bestFriend',
+          value: identifier3,
+        },
+        true
+      );
 
       state = stateOf(bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after canonical update');
@@ -129,7 +139,12 @@ module('Integration | Graph | Edges', function (hooks) {
         'We still have no record data instance after updating the canonical state'
       );
 
-      bestFriend.setRecordData(identifier2);
+      graph.update({
+        op: 'replaceRelatedRecord',
+        record: identifier,
+        field: 'bestFriend',
+        value: identifier2,
+      });
 
       state = stateOf(bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after local update');
@@ -186,7 +201,15 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
-      bestFriend.push({ data: identifier3 });
+      graph.update(
+        {
+          op: 'replaceRelatedRecord',
+          record: identifier,
+          field: 'bestFriend',
+          value: identifier3,
+        },
+        true
+      );
 
       state = stateOf(bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after canonical update');
@@ -197,7 +220,12 @@ module('Integration | Graph | Edges', function (hooks) {
         'We still have no record data instance after updating the canonical state'
       );
 
-      bestFriend.setRecordData(identifier2);
+      graph.update({
+        op: 'replaceRelatedRecord',
+        record: identifier,
+        field: 'bestFriend',
+        value: identifier2,
+      });
 
       state = stateOf(bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after local update');
@@ -258,7 +286,13 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
-      bestFriends.push({ data: [identifier2, identifier3] });
+      graph.push({
+        op: 'updateRelationship',
+        record: identifier,
+        field: 'bestFriends',
+        value: { data: [identifier2, identifier3] },
+      });
+      await settled();
 
       state = stateOf(bestFriends);
       assert.deepEqual(
@@ -274,7 +308,12 @@ module('Integration | Graph | Edges', function (hooks) {
       );
       const identifier4 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' });
 
-      bestFriends.addRecordData(identifier4);
+      graph.update({
+        op: 'addToRelatedRecords',
+        record: identifier,
+        field: 'bestFriends',
+        value: identifier4,
+      });
 
       state = stateOf(bestFriends);
       assert.deepEqual(state.remote, [identifier2, identifier3], 'Our canonical state is correct after local update');
@@ -339,7 +378,13 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
-      bestFriends.push({ data: [identifier2, identifier3] });
+      graph.push({
+        op: 'updateRelationship',
+        record: identifier,
+        field: 'bestFriends',
+        value: { data: [identifier2, identifier3] },
+      });
+      await settled();
 
       state = stateOf(bestFriends);
       assert.deepEqual(
@@ -355,7 +400,12 @@ module('Integration | Graph | Edges', function (hooks) {
       );
       const identifier4 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' });
 
-      bestFriends.addRecordData(identifier4);
+      graph.update({
+        op: 'addToRelatedRecords',
+        record: identifier,
+        field: 'bestFriends',
+        value: identifier4,
+      });
 
       state = stateOf(bestFriends);
       assert.deepEqual(state.remote, [identifier2, identifier3], 'Our canonical state is correct after local update');

@@ -8,10 +8,11 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/model/relationships - DS.belongsTo', function (hooks) {
+module('unit/model/relationships - belongsTo', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
@@ -22,14 +23,14 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   test('belongsTo lazily loads relationships as needed', function (assert) {
     assert.expect(5);
 
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
-      people: DS.hasMany('person', { async: false }),
+    const Tag = Model.extend({
+      name: attr('string'),
+      people: hasMany('person', { async: false }),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag', { async: false }),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag', { async: false }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -100,15 +101,15 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   test('belongsTo does not notify when it is initially reified', function (assert) {
     assert.expect(1);
 
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
-      people: DS.hasMany('person', { async: false }),
+    const Tag = Model.extend({
+      name: attr('string'),
+      people: hasMany('person', { async: false }),
     });
     Tag.toString = () => 'Tag';
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag', { async: false }),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag', { async: false }),
     });
     Person.toString = () => 'Person';
 
@@ -166,13 +167,13 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   test('async belongsTo relationships work when the data hash has not been loaded', function (assert) {
     assert.expect(5);
 
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
+    const Tag = Model.extend({
+      name: attr('string'),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag', { async: true }),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag', { async: true }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -220,13 +221,13 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   test('async belongsTo relationships are not grouped with coalesceFindRequests=false', async function (assert) {
     assert.expect(6);
 
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
+    const Tag = Model.extend({
+      name: attr('string'),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag', { async: true }),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag', { async: true }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -305,13 +306,13 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   test('async belongsTo relationships are grouped with coalesceFindRequests=true', async function (assert) {
     assert.expect(6);
 
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
+    const Tag = Model.extend({
+      name: attr('string'),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag', { async: true }),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag', { async: true }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -388,13 +389,13 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   test('async belongsTo relationships work when the data hash has already been loaded', function (assert) {
     assert.expect(3);
 
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
+    const Tag = Model.extend({
+      name: attr('string'),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag', { async: true }),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag', { async: true }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -440,9 +441,13 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
     });
   });
 
-  test('when response to saving a belongsTo is a success but includes changes that reset the users change', function (assert) {
-    const Tag = DS.Model.extend();
-    const User = DS.Model.extend({ tag: DS.belongsTo() });
+  test('when response to saving a belongsTo is a success but includes changes that reset the users change', async function (assert) {
+    const Tag = Model.extend({
+      label: attr(),
+    });
+    const User = Model.extend({
+      tag: belongsTo('tag', { async: false, inverse: null }),
+    });
 
     this.owner.register('model:tag', Tag);
     this.owner.register('model:user', User);
@@ -450,27 +455,29 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'user',
-            id: '1',
-            relationships: {
-              tag: {
-                data: { type: 'tag', id: '1' },
-              },
+    const [user, tag1, tag2] = store.push({
+      data: [
+        {
+          type: 'user',
+          id: '1',
+          relationships: {
+            tag: {
+              data: { type: 'tag', id: '1' },
             },
           },
-          { type: 'tag', id: '1' },
-          { type: 'tag', id: '2' },
-        ],
-      });
+        },
+        { type: 'tag', id: '1', attributes: { label: 'A' } },
+        { type: 'tag', id: '2', attributes: { label: 'B' } },
+      ],
     });
 
-    let user = store.peekRecord('user', '1');
+    assert.equal(tag1.label, 'A', 'tag1 is loaded');
+    assert.equal(tag2.label, 'B', 'tag2 is loaded');
+    assert.equal(user.tag.id, '1', 'user starts with tag1 as tag');
 
-    run(() => user.set('tag', store.peekRecord('tag', '2')));
+    user.set('tag', tag2);
+
+    assert.equal(user.tag.id, '2', 'user tag updated to tag2');
 
     adapter.updateRecord = function () {
       return {
@@ -489,24 +496,21 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
       };
     };
 
-    return run(() => {
-      return user.save().then((user) => {
-        assert.equal(user.get('tag.id'), '1', 'expected new server state to be applied');
-      });
-    });
+    await user.save();
+    assert.equal(user.tag.id, '1', 'expected new server state to be applied');
   });
 
   test('calling createRecord and passing in an undefined value for a relationship should be treated as if null', function (assert) {
     assert.expect(1);
 
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
-      person: DS.belongsTo('person', { async: false }),
+    const Tag = Model.extend({
+      name: attr('string'),
+      person: belongsTo('person', { async: false }),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag', { async: false }),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag', { async: false }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -527,14 +531,14 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   });
 
   test('When finding a hasMany relationship the inverse belongsTo relationship is available immediately', function (assert) {
-    const Occupation = DS.Model.extend({
-      description: DS.attr('string'),
-      person: DS.belongsTo('person', { async: false }),
+    const Occupation = Model.extend({
+      description: attr('string'),
+      person: belongsTo('person', { async: false }),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      occupations: DS.hasMany('occupation', { async: true }),
+    const Person = Model.extend({
+      name: attr('string'),
+      occupations: hasMany('occupation', { async: true }),
     });
 
     this.owner.register('model:occupation', Occupation);
@@ -598,14 +602,14 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   test('When finding a belongsTo relationship the inverse belongsTo relationship is available immediately', function (assert) {
     assert.expect(1);
 
-    const Occupation = DS.Model.extend({
-      description: DS.attr('string'),
-      person: DS.belongsTo('person', { async: false }),
+    const Occupation = Model.extend({
+      description: attr('string'),
+      person: belongsTo('person', { async: false }),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      occupation: DS.belongsTo('occupation', { async: true }),
+    const Person = Model.extend({
+      name: attr('string'),
+      occupation: belongsTo('occupation', { async: true }),
     });
 
     this.owner.register('model:occupation', Occupation);
@@ -642,14 +646,14 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   test('belongsTo supports relationships to models with id 0', function (assert) {
     assert.expect(5);
 
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
-      people: DS.hasMany('person', { async: false }),
+    const Tag = Model.extend({
+      name: attr('string'),
+      people: hasMany('person', { async: false }),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag', { async: false }),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag', { async: false }),
     });
 
     this.owner.register('model:tag', Tag);
@@ -718,13 +722,13 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   });
 
   testInDebug('belongsTo gives a warning when provided with a serialize option', function (assert) {
-    const Hobby = DS.Model.extend({
-      name: DS.attr('string'),
+    const Hobby = Model.extend({
+      name: attr('string'),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      hobby: DS.belongsTo('hobby', { serialize: true, async: true }),
+    const Person = Model.extend({
+      name: attr('string'),
+      hobby: belongsTo('hobby', { serialize: true, async: true }),
     });
 
     this.owner.register('model:hobby', Hobby);
@@ -778,13 +782,13 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   });
 
   testInDebug('belongsTo gives a warning when provided with an embedded option', function (assert) {
-    const Hobby = DS.Model.extend({
-      name: DS.attr('string'),
+    const Hobby = Model.extend({
+      name: attr('string'),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      hobby: DS.belongsTo('hobby', { embedded: true, async: true }),
+    const Person = Model.extend({
+      name: attr('string'),
+      hobby: belongsTo('hobby', { embedded: true, async: true }),
     });
 
     this.owner.register('model:hobby', Hobby);
@@ -838,14 +842,14 @@ module('unit/model/relationships - DS.belongsTo', function (hooks) {
   });
 
   test('belongsTo should be async by default', function (assert) {
-    const Tag = DS.Model.extend({
-      name: DS.attr('string'),
-      people: DS.hasMany('person', { async: false }),
+    const Tag = Model.extend({
+      name: attr('string'),
+      people: hasMany('person', { async: false }),
     });
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      tag: DS.belongsTo('tag'),
+    const Person = Model.extend({
+      name: attr('string'),
+      tag: belongsTo('tag'),
     });
 
     this.owner.register('model:tag', Tag);

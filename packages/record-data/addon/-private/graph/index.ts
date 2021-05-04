@@ -1,18 +1,28 @@
 import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
-import Relationship from '../relationships/state/relationship';
+import ImplicitRelationship from '../relationships/state/implicit';
 import { isLHS, upgradeDefinition } from './-edge-definition';
+import { assertValidRelationshipPayload, isBelongsTo, isHasMany, isImplicit } from './-utils';
+import addToRelatedRecords from './operations/add-to-related-records';
+import removeFromRelatedRecords from './operations/remove-from-related-records';
+import replaceRelatedRecord from './operations/replace-related-record';
+import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
+import updateRelationshipOperation from './operations/update-relationship';
 
+type DeleteRecordOperation = import('./-operations').DeleteRecordOperation;
+type RemoteRelationshipOperation = import('./-operations').RemoteRelationshipOperation;
+type UnknownOperation = import('./-operations').UnknownOperation;
+type LocalRelationshipOperation = import('./-operations').LocalRelationshipOperation;
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type EdgeCache = import('./-edge-definition').EdgeCache;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
-type JsonApiRelationship = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiRelationship;
 
-type RelationshipEdge = Relationship | ManyRelationship | BelongsToRelationship;
+type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
 const Graphs = new WeakMap<RecordDataStoreWrapper, Graph>();
 
@@ -48,6 +58,15 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
  * with increasingly minor alterations to other portions of the internals
  * over time.
  *
+ * The graph is made up of nodes and edges. Each unique identifier gets
+ * its own node, which is a dictionary with a list of that node's edges
+ * (or connections) to other nodes. In `Model` terms, a node represents a
+ * record instance, with each key (an edge) in the dictionary correlating
+ * to either a `hasMany` or `belongsTo` field on that record instance.
+ *
+ * The value for each key, or `edge` is the identifier(s) the node relates
+ * to in the graph from that key.
+ *
  * @internal
  */
 export class Graph {
@@ -55,16 +74,24 @@ export class Graph {
   declare _potentialPolymorphicTypes: Dict<Dict<boolean>>;
   declare identifiers: Map<StableRecordIdentifier, Dict<RelationshipEdge>>;
   declare store: RecordDataStoreWrapper;
-  declare _queued: { belongsTo: any[]; hasMany: any[] };
-  declare _nextFlush: boolean;
+  declare _willSyncRemote: boolean;
+  declare _willSyncLocal: boolean;
+  declare _pushedUpdates: {
+    belongsTo: RemoteRelationshipOperation[];
+    hasMany: RemoteRelationshipOperation[];
+    deletions: DeleteRecordOperation[];
+  };
+  declare _updatedRelationships: Set<ManyRelationship>;
 
   constructor(store: RecordDataStoreWrapper) {
     this._definitionCache = Object.create(null);
     this._potentialPolymorphicTypes = Object.create(null);
     this.identifiers = new Map();
     this.store = store;
-    this._queued = { belongsTo: [], hasMany: [] };
-    this._nextFlush = false;
+    this._willSyncRemote = false;
+    this._willSyncLocal = false;
+    this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
+    this._updatedRelationships = new Set();
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
@@ -89,7 +116,11 @@ export class Graph {
       assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
       const meta = isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
       const Klass =
-        meta.kind === 'hasMany' ? ManyRelationship : meta.kind === 'belongsTo' ? BelongsToRelationship : Relationship;
+        meta.kind === 'hasMany'
+          ? ManyRelationship
+          : meta.kind === 'belongsTo'
+          ? BelongsToRelationship
+          : ImplicitRelationship;
       relationship = relationships[propertyName] = new Klass(this, meta, identifier);
     }
 
@@ -152,6 +183,22 @@ export class Graph {
    to be do things like remove the comment from the post if the comment were to be deleted.
   */
 
+  isReleasable(identifier: StableRecordIdentifier): boolean {
+    const relationships = this.identifiers.get(identifier);
+    if (!relationships) {
+      return true;
+    }
+    const keys = Object.keys(relationships);
+    for (let i = 0; i < keys.length; i++) {
+      const relationship = relationships[keys[i]] as RelationshipEdge;
+      assert(`Expected a relationship`, relationship);
+      if (relationship.definition.inverseIsAsync) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   unload(identifier: StableRecordIdentifier) {
     const relationships = this.identifiers.get(identifier);
 
@@ -161,7 +208,7 @@ export class Graph {
       Object.keys(relationships).forEach((key) => {
         let rel = relationships[key]!;
         destroyRelationship(rel);
-        if (rel.definition.isImplicit) {
+        if (isImplicit(rel)) {
           delete relationships[key];
         }
       });
@@ -173,41 +220,131 @@ export class Graph {
     this.identifiers.delete(identifier);
   }
 
-  push(identifier: StableRecordIdentifier, propertyName: string, payload: JsonApiRelationship) {
-    const relationship = this.get(identifier, propertyName);
-    const backburner = this.store._store._backburner;
-
-    this._queued[relationship.definition.kind].push(relationship, payload);
-    if (this._nextFlush === false) {
-      backburner.join(() => {
-        // TODO this join seems to only be necessary for
-        // some older style tests (causes 7 failures if removed)
-        backburner.schedule('flushRelationships', this, this.flush);
-      });
-      this._nextFlush = true;
+  /**
+   * Remote state changes
+   */
+  push(op: RemoteRelationshipOperation) {
+    if (op.op === 'deleteRecord') {
+      this._pushedUpdates.deletions.push(op);
+    } else if (op.op === 'replaceRelatedRecord') {
+      this._pushedUpdates.belongsTo.push(op);
+    } else {
+      const relationship = this.get(op.record, op.field);
+      assert(`Cannot push a remote update for an implicit relationship`, !relationship.definition.isImplicit);
+      this._pushedUpdates[relationship.definition.kind].push(op);
+    }
+    if (!this._willSyncRemote) {
+      this._willSyncRemote = true;
+      const backburner = this.store._store._backburner;
+      backburner.schedule('coalesce', this, this._flushRemoteQueue);
     }
   }
 
-  flush() {
-    this._nextFlush = false;
-    const { belongsTo, hasMany } = this._queued;
-    this._queued = { belongsTo: [], hasMany: [] };
-    // TODO validate this assumption
-    // pushing hasMany before belongsTo is a performance win
-    // as the hasMany's will populate most of the belongsTo's
-    // and we won't have to do the expensive extra diff.
-    for (let i = 0; i < hasMany.length; i += 2) {
-      hasMany[i].push(hasMany[i + 1]);
+  /**
+   * Local state changes
+   */
+  update(op: RemoteRelationshipOperation, isRemote: true): void;
+  update(op: LocalRelationshipOperation, isRemote?: false): void;
+  update(
+    op: LocalRelationshipOperation | RemoteRelationshipOperation | UnknownOperation,
+    isRemote: boolean = false
+  ): void {
+    assert(
+      `Cannot update an implicit relationship`,
+      op.op === 'deleteRecord' || !isImplicit(this.get(op.record, op.field))
+    );
+
+    switch (op.op) {
+      case 'updateRelationship':
+        assert(`Can only perform the operation updateRelationship on remote state`, isRemote);
+        if (DEBUG) {
+          // in debug, assert payload validity eagerly
+          assertValidRelationshipPayload(this, op);
+        }
+        updateRelationshipOperation(this, op);
+        break;
+      case 'deleteRecord': {
+        assert(`Can only perform the operation deleteRelationship on remote state`, isRemote);
+        const identifier = op.record;
+        const relationships = this.identifiers.get(identifier);
+
+        if (relationships) {
+          Object.keys(relationships).forEach((key) => {
+            const rel = relationships[key]!;
+            // works together with the has check
+            delete relationships[key];
+            removeCompletelyFromInverse(rel);
+          });
+          this.identifiers.delete(identifier);
+        }
+        break;
+      }
+      case 'replaceRelatedRecord':
+        replaceRelatedRecord(this, op, isRemote);
+        break;
+      case 'addToRelatedRecords':
+        addToRelatedRecords(this, op, isRemote);
+        break;
+      case 'removeFromRelatedRecords':
+        removeFromRelatedRecords(this, op, isRemote);
+        break;
+      case 'replaceRelatedRecords':
+        replaceRelatedRecords(this, op, isRemote);
+        break;
+      default:
+        assert(`No local relationship update operation exists for '${op.op}'`);
     }
-    for (let i = 0; i < belongsTo.length; i += 2) {
-      belongsTo[i].push(belongsTo[i + 1]);
+  }
+
+  _scheduleLocalSync(relationship) {
+    this._updatedRelationships.add(relationship);
+    if (!this._willSyncLocal) {
+      this._willSyncLocal = true;
+      const backburner = this.store._store._backburner;
+      backburner.schedule('sync', this, this._flushLocalQueue);
     }
+  }
+
+  _flushRemoteQueue() {
+    if (!this._willSyncRemote) {
+      return;
+    }
+    this._willSyncRemote = false;
+    const { deletions, hasMany, belongsTo } = this._pushedUpdates;
+    this._pushedUpdates.deletions = [];
+    this._pushedUpdates.hasMany = [];
+    this._pushedUpdates.belongsTo = [];
+
+    for (let i = 0; i < deletions.length; i++) {
+      this.update(deletions[i], true);
+    }
+
+    for (let i = 0; i < hasMany.length; i++) {
+      this.update(hasMany[i], true);
+    }
+
+    for (let i = 0; i < belongsTo.length; i++) {
+      this.update(belongsTo[i], true);
+    }
+  }
+
+  _flushLocalQueue() {
+    if (!this._willSyncLocal) {
+      return;
+    }
+    this._willSyncLocal = false;
+    let updated = this._updatedRelationships;
+    this._updatedRelationships = new Set();
+    updated.forEach(syncRemoteToLocal);
+  }
+
+  willDestroy() {
+    this.identifiers.clear();
+    this.store = (null as unknown) as RecordDataStoreWrapper;
   }
 
   destroy() {
-    this.identifiers.clear();
     Graphs.delete(this.store);
-    this.store = (null as unknown) as RecordDataStoreWrapper;
   }
 }
 
@@ -222,10 +359,75 @@ export class Graph {
 // disconnected we can actually destroy the internalModel when checking for
 // orphaned models.
 function destroyRelationship(rel) {
+  if (isImplicit(rel)) {
+    if (rel.graph.isReleasable(rel.identifier)) {
+      removeCompletelyFromInverse(rel);
+    }
+    return;
+  }
+
   rel.recordDataDidDematerialize();
 
   if (!rel.definition.inverseIsImplicit && !rel.definition.inverseIsAsync) {
-    rel.removeAllRecordDatasFromOwn();
-    rel.removeAllCanonicalRecordDatasFromOwn();
+    rel.state.isStale = true;
+    rel.clear();
+
+    // necessary to clear relationships in the ui from dematerialized records
+    // hasMany is managed by InternalModel which calls `retreiveLatest` after
+    // dematerializing the recordData instance.
+    // but sync belongsTo require this since they don't have a proxy to update.
+    // so we have to notify so it will "update" to null.
+    // we should discuss whether we still care about this, probably fine to just
+    // leave the ui relationship populated since the record is destroyed and
+    // internally we've fully cleaned up.
+    if (isBelongsTo(rel) && !rel.definition.isAsync) {
+      rel.notifyBelongsToChange();
+    }
+  }
+}
+
+function removeCompletelyFromInverse(relationship: ImplicitRelationship | ManyRelationship | BelongsToRelationship) {
+  // we actually want a union of members and canonicalMembers
+  // they should be disjoint but currently are not due to a bug
+  const seen = Object.create(null);
+  const { identifier } = relationship;
+  const { inverseKey } = relationship.definition;
+
+  const unload = (inverseIdentifier: StableRecordIdentifier) => {
+    const id = inverseIdentifier.lid;
+
+    if (seen[id] === undefined) {
+      if (relationship.graph.has(inverseIdentifier, inverseKey)) {
+        relationship.graph.get(inverseIdentifier, inverseKey).removeCompletelyFromOwn(identifier);
+      }
+      seen[id] = true;
+    }
+  };
+
+  if (isBelongsTo(relationship)) {
+    if (relationship.localState) {
+      unload(relationship.localState);
+    }
+    if (relationship.remoteState) {
+      unload(relationship.remoteState);
+    }
+
+    if (!relationship.definition.isAsync) {
+      relationship.clear();
+    }
+
+    relationship.localState = null;
+  } else if (isHasMany(relationship)) {
+    relationship.members.forEach(unload);
+    relationship.canonicalMembers.forEach(unload);
+
+    if (!relationship.definition.isAsync) {
+      relationship.clear();
+      relationship.notifyHasManyChange();
+    }
+  } else {
+    relationship.members.forEach(unload);
+    relationship.canonicalMembers.forEach(unload);
+    relationship.clear();
   }
 }
