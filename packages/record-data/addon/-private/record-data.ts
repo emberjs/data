@@ -435,6 +435,8 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (areAllModelsUnloaded(relatedRecordDatas)) {
       // we don't have a backburner queue yet since
       // we scheduled this into ember's destroy
+      // disconnectRecord called from destroy will teardown
+      // relationships. We do this to queue that.
       this.storeWrapper._store._backburner.join(() => {
         for (let i = 0; i < relatedRecordDatas.length; ++i) {
           let recordData = relatedRecordDatas[i];

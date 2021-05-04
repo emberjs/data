@@ -6,7 +6,12 @@ import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
+import {
+  CUSTOM_MODEL_CLASS,
+  RECORD_DATA_ERRORS,
+  RECORD_DATA_STATE,
+  REQUEST_SERVICE,
+} from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EVENTED_API_USAGE,
@@ -800,7 +805,11 @@ class Model extends EmberObject {
     @method deleteRecord
   */
   deleteRecord() {
-    this.store.deleteRecord(this);
+    if (CUSTOM_MODEL_CLASS) {
+      this.store.deleteRecord(this);
+    } else {
+      this._internalModel.deleteRecord();
+    }
   }
 
   /**
@@ -862,7 +871,11 @@ class Model extends EmberObject {
     if (this.isDestroyed) {
       return;
     }
-    this.store.unloadRecord(this);
+    if (CUSTOM_MODEL_CLASS) {
+      this.store.unloadRecord(this);
+    } else {
+      this._internalModel.unloadRecord();
+    }
   }
 
   /**
@@ -949,9 +962,7 @@ class Model extends EmberObject {
     @method rollbackAttributes
   */
   rollbackAttributes() {
-    this.store._backburner.join(() => {
-      this._internalModel.rollbackAttributes();
-    });
+    this._internalModel.rollbackAttributes();
     if (RECORD_DATA_ERRORS) {
       this._markInvalidRequestAsClean();
     }

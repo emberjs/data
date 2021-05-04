@@ -411,14 +411,11 @@ export default class InternalModel {
     // TODO IGOR add a test that fails when this is missing, something that involves canceling a destroy
     // and the destroy not happening, and then later on trying to destroy
     this._doNotDestroy = false;
-
-    // move to an empty never-loaded state
-    // ensure any record notifications happen prior to us
-    // unseting the record
-    this.store._backburner.join(() => {
-      this._recordData.unloadRecord();
-    });
-
+    // this has to occur before the internal model is removed
+    // for legacy compat.
+    if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+      this.store.recordArrayManager.recordDidChange(this.identifier);
+    }
     if (this._record) {
       if (CUSTOM_MODEL_CLASS) {
         this.store.teardownRecord(this._record);
@@ -440,20 +437,27 @@ export default class InternalModel {
           /*
             If the manyArray is for a sync relationship, we should clear it
               to preserve the semantics of client-side delete.
-
-            It is likely in this case instead of retaining we should destroy
-              - @runspired
           */
           manyArray.retrieveLatest();
         }
       });
     }
 
+    // move to an empty never-loaded state
+    // ensure any record notifications happen prior to us
+    // unseting the record but after we've triggered
+    // destroy
+    this.store._backburner.join(() => {
+      this._recordData.unloadRecord();
+    });
+
     this._record = null;
     this.isReloading = false;
     this.error = null;
     this.currentState = RootState.empty;
-    this.store.recordArrayManager.recordDidChange(this.identifier);
+    if (REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
+      this.store.recordArrayManager.recordDidChange(this.identifier);
+    }
   }
 
   deleteRecord() {
@@ -992,15 +996,13 @@ export default class InternalModel {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships');
       } else {
-        let manyArray = this._manyArrayCache[key];
+        let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
         if (manyArray) {
           // TODO: this will "resurrect" previously unloaded records
           // see test '1:many async unload many side'
           //  in `tests/integration/records/unload-test.js`
           //  probably we don't want to retrieve latest eagerly when notifyhasmany changed
           //  but rather lazily when someone actually asks for a manyarray
-          //
-          //  that said, also not clear why we haven't moved this to retainedmanyarray so maybe that's the bit that's just not working
           manyArray.retrieveLatest();
         }
       }
@@ -1076,16 +1078,18 @@ export default class InternalModel {
   }
 
   rollbackAttributes() {
-    let dirtyKeys = this._recordData.rollbackAttributes();
-    if (get(this, 'isError')) {
-      this.didCleanError();
-    }
+    this.store._backburner.join(() => {
+      let dirtyKeys = this._recordData.rollbackAttributes();
+      if (get(this, 'isError')) {
+        this.didCleanError();
+      }
 
-    this.send('rolledBack');
+      this.send('rolledBack');
 
-    if (this._record && dirtyKeys && dirtyKeys.length > 0) {
-      this._record._notifyProperties(dirtyKeys);
-    }
+      if (this._record && dirtyKeys && dirtyKeys.length > 0) {
+        this._record._notifyProperties(dirtyKeys);
+      }
+    });
   }
 
   /*
@@ -1196,7 +1200,9 @@ export default class InternalModel {
 
   removeFromInverseRelationships() {
     if (this.__recordData) {
-      this._recordData.removeFromInverseRelationships();
+      this.store._backburner.join(() => {
+        this._recordData.removeFromInverseRelationships();
+      });
     }
   }
 

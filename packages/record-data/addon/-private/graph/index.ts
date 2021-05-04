@@ -380,8 +380,12 @@ function destroyRelationship(rel) {
     // we should discuss whether we still care about this, probably fine to just
     // leave the ui relationship populated since the record is destroyed and
     // internally we've fully cleaned up.
-    if (isBelongsTo(rel) && !rel.definition.isAsync) {
-      rel.notifyBelongsToChange();
+    if (!rel.definition.isAsync) {
+      if (isBelongsTo(rel)) {
+        rel.notifyBelongsToChange();
+      } else {
+        rel.notifyHasManyChange();
+      }
     }
   }
 }

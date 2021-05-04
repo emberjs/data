@@ -673,9 +673,15 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'deleteRecord');
     }
     this._backburner.join(() => {
-      let identifier = recordIdentifierFor(record);
-      let internalModel = internalModelFactoryFor(this).peek(identifier);
-      internalModel!.deleteRecord();
+      if (CUSTOM_MODEL_CLASS) {
+        let identifier = recordIdentifierFor(record);
+        let internalModel = internalModelFactoryFor(this).peek(identifier);
+        if (internalModel) {
+          internalModel.deleteRecord();
+        }
+      } else {
+        record.deleteRecord();
+      }
     });
   }
 
@@ -698,10 +704,14 @@ abstract class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
-    let identifier = recordIdentifierFor(record);
-    let internalModel = internalModelFactoryFor(this).peek(identifier);
-    if (internalModel) {
-      internalModel.unloadRecord();
+    if (CUSTOM_MODEL_CLASS) {
+      let identifier = recordIdentifierFor(record);
+      let internalModel = internalModelFactoryFor(this).peek(identifier);
+      if (internalModel) {
+        internalModel.unloadRecord();
+      }
+    } else {
+      record.unloadRecord();
     }
   }
 
