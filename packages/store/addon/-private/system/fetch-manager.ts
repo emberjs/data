@@ -189,7 +189,7 @@ export default class FetchManager {
 
     // We already have a pending fetch for this
     if (pendingFetches) {
-      let matchingPendingFetch = pendingFetches.find((fetch) => fetch.identifier.id === identifier.id);
+      let matchingPendingFetch = pendingFetches.filter((fetch) => fetch.identifier.id === identifier.id)[0];
       if (matchingPendingFetch) {
         return matchingPendingFetch.resolver.promise;
       }

@@ -495,7 +495,7 @@ class Model extends EmberObject {
     if (REQUEST_SERVICE) {
       if (isReloading === undefined) {
         let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
-        let value = !!requests.find((req) => req.request.data[0].options.isReloading);
+        let value = !!requests.filter((req) => req.request.data[0].options.isReloading)[0];
         meta.isReloading = value;
         return value;
       }

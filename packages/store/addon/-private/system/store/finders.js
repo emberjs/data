@@ -262,7 +262,9 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, modelName
   if (relationshipKind === 'hasMany') {
     payload = relationshipData || [];
     if (relationshipData) {
-      if (!relationshipData.find((v) => v.type === parentRelationshipData.type && v.id === parentRelationshipData.id)) {
+      if (
+        !relationshipData.filter((v) => v.type === parentRelationshipData.type && v.id === parentRelationshipData.id)[0]
+      ) {
         payload.push(parentRelationshipData);
       }
     } else {

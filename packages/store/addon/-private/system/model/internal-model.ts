@@ -589,7 +589,7 @@ export default class InternalModel {
   // Unfortunately, some scenarios where that is not possible. Such as:
   //
   // ```js
-  // const record = store.find(‘record’, 1);
+  // const record = store.findRecord(‘record’, 1);
   // record.unloadRecord();
   // store.createRecord(‘record’, 1);
   // ```
