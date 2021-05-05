@@ -379,6 +379,11 @@ async function main() {
       lernaCommand += ' --no-git-tag-version --no-push';
     }
 
+    // Let the github action determine whether to push the tag to remote
+    if (process.env.CI) {
+      lernaCommand += ' --no-push';
+    }
+
     execWithLog(lernaCommand, true);
     console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
   } else {
