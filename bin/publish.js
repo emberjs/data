@@ -317,7 +317,7 @@ let cli = readline.createInterface({
  * @param {string} otp - Token to make publish requests to npm
  */
 function publishPackage(distTag, tarball, otp) {
-  let cmd = `npm publish ${tarball} --tag=${distTag} --access=public`;
+  let cmd = `npm publish ${tarball} --tag=${distTag} --access=public --verbose`;
 
   if (otp) {
     cmd += ` --otp=${otp}`;
