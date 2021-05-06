@@ -2,7 +2,7 @@ name: Alpha Releases
 
 on:
   schedule:
-    - cron: '0 20 * * 3' # weekly (Wednesday) 12 PM PST
+    - cron: '0 20 * * *' # daily 12 PM PST
 
 jobs:
   test:
@@ -42,6 +42,8 @@ jobs:
         run: |
           git config --local user.email 'tomster@emberjs.com'
           git config --local user.name 'Ember.js Alpha Releaser'
+      - name: Check access to registry and existence of ember-data
+        run: npm view ember-data --verbose
       - name: Publish with script
         run: node bin/publish.js canary
         env:
