@@ -167,7 +167,7 @@ module.exports = {
 
     // docs
     {
-      files: ['packages/-ember-data/node-tests/docs/*.cjs'],
+      files: ['packages/-ember-data/node-tests/docs/*.js'],
       env: {
         node: true,
         qunit: true,
