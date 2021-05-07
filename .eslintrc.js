@@ -111,6 +111,7 @@ module.exports = {
         '.eslintrc.js',
         '.prettierrc.js',
         'bin/**',
+        'packages/-ember-data/lib/*.js',
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',
         'packages/unpublished-eslint-rules/src/**/*.js',

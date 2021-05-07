@@ -5,8 +5,10 @@
   "options": {
     "enabledEnvironments": [],
     "extension": ".js,.ts",
-    "preprocessor": "yuidoc-filter-tags",
-    "dont-include-tags": "internal",
+    "preprocessor": "./lib/yui-docs-preprocessor.js",
+    "excludeTags": [
+      "internal"
+    ],
     "paths": [
       "addon",
       "../adapter/addon",
