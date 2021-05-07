@@ -12,6 +12,7 @@ import { dasherize } from '@ember/string';
  internally by dasherizing it.
 
   @method normalizeModelName
+  @static
   @public
   @for @ember-data/store
   @param {String} modelName

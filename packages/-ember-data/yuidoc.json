@@ -7,7 +7,8 @@
     "extension": ".js,.ts",
     "preprocessor": "./lib/yui-docs-preprocessor.js",
     "excludeTags": [
-      "internal"
+      "internal",
+      "feature"
     ],
     "paths": [
       "addon",

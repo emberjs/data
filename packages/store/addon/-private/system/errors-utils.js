@@ -47,6 +47,7 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   ```
   @method errorsHashToArray
   @for @ember-data/adapter/error
+  @static
   @public
   @param {Object} errors hash with errors as properties
   @return {Array} array of errors in JSON-API format
@@ -112,6 +113,7 @@ export function errorsHashToArray(errors) {
   ```
 
   @method errorsArrayToHash
+  @static
   @for @ember-data/adapter/error
   @public
   @param {Array} errors array of errors in JSON-API format
