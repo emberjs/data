@@ -311,6 +311,8 @@ jobs:
             travis-web,
           ]
         include:
+          - partner: storefront
+            continue-on-error: true
           - partner: factory-guy
             continue-on-error: true
           - partner: travis-web
