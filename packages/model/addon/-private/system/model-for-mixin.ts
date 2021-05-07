@@ -18,7 +18,7 @@ type Store = import('@ember-data/store').default;
       });
     ```
     we want to look up a Commentable class which has all the necessary
-    relationship metadata. Thus, we look up the mixin and create a mock
+    relationship meta data. Thus, we look up the mixin and create a mock
     Model, so we can access the relationship CPs of the mixin (`comments`)
     in this case
   */

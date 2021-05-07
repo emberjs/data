@@ -1,6 +1,6 @@
 /**
-  @module @ember-data/adapter
-*/
+  @module @ember-data/adapter/json-api
+ */
 import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
@@ -147,6 +147,8 @@ type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 
   @since 1.13.0
   @class JSONAPIAdapter
+  @main @ember-data/adapter/json-api
+  @public
   @constructor
   @extends RESTAdapter
 */
@@ -228,6 +230,7 @@ class JSONAPIAdapter extends RESTAdapter {
     `groupRecordsForFindMany` more likely should be overridden as well in order for coalescing to work.
 
     @property coalesceFindRequests
+    @public
     @type {boolean}
   */
   get coalesceFindRequests() {

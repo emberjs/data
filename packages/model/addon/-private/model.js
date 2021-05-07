@@ -1,3 +1,7 @@
+/**
+  @module @ember-data/model
+ */
+
 import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
 import EmberObject, { computed, get } from '@ember/object';
@@ -91,7 +95,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   return possibleRelationships;
 }
 
-/**
+/*
  * This decorator allows us to lazily compute
  * an expensive getter on first-access and therafter
  * never recompute it.
@@ -118,8 +122,18 @@ function computeOnce(target, key, desc) {
 }
 
 /**
+  Base class from which Models can be define.
+  
+  ```js
+  import Model, { attr } from '@ember-data/model';
+  
+  export default class User extends Model {
+    @attr name;
+  }
+  ```
+
   @class Model
-  @module @ember-data/model
+  @public
   @extends EmberObject
   @uses EmberData.DeprecatedEvented
 */
@@ -181,6 +195,7 @@ class Model extends EmberObject {
     unable to locate the record.
 
     @property isEmpty
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -196,6 +211,7 @@ class Model extends EmberObject {
     requested data.
 
     @property isLoading
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -221,6 +237,7 @@ class Model extends EmberObject {
     ```
 
     @property isLoaded
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -250,6 +267,7 @@ class Model extends EmberObject {
 
     @since 1.13.0
     @property hasDirtyAttributes
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -277,6 +295,7 @@ class Model extends EmberObject {
     ```
 
     @property isSaving
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -319,6 +338,7 @@ class Model extends EmberObject {
     ```
 
     @property isDeleted
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -356,6 +376,7 @@ class Model extends EmberObject {
     ```
 
     @property isNew
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -382,6 +403,7 @@ class Model extends EmberObject {
     server-side validation failures.
 
     @property isValid
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -418,6 +440,7 @@ class Model extends EmberObject {
     ```
 
     @property dirtyType
+    @public
     @type {String}
     @readOnly
   */
@@ -442,6 +465,7 @@ class Model extends EmberObject {
     ```
 
     @property isError
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -484,6 +508,7 @@ class Model extends EmberObject {
     ```
 
     @property isReloading
+    @public
     @type {Boolean}
     @readOnly
   */
@@ -524,6 +549,7 @@ class Model extends EmberObject {
     ```
 
     @property id
+    @public
     @type {String}
   */
   @dependentKeyCompat
@@ -561,7 +587,10 @@ class Model extends EmberObject {
    */
 
   /**
+    The store service instance which created this record instance
+
    @property store
+    @public
    */
 
   /**
@@ -613,6 +642,7 @@ class Model extends EmberObject {
     ```
 
     @property errors
+    @public
     @type {Errors}
   */
   @computeOnce
@@ -663,6 +693,7 @@ class Model extends EmberObject {
     last adapter operation was rejected.
 
     @property adapterError
+    @public
     @type {AdapterError}
   */
   get adapterError() {
@@ -696,6 +727,7 @@ class Model extends EmberObject {
       JSON representation.
 
     @method serialize
+    @public
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
   */
@@ -707,53 +739,69 @@ class Model extends EmberObject {
     Fired when the record is ready to be interacted with,
     that is either loaded from the server or created locally.
 
+    @deprecated
+    @public
     @event ready
   */
 
   /**
     Fired when the record is loaded from the server.
 
+    @deprecated
+    @public
     @event didLoad
   */
 
   /**
     Fired when the record is updated.
 
+    @deprecated
+    @public
     @event didUpdate
   */
 
   /**
     Fired when a new record is commited to the server.
 
+    @deprecated
+    @public
     @event didCreate
   */
 
   /**
     Fired when the record is deleted.
 
+    @deprecated
+    @public
     @event didDelete
   */
 
   /**
     Fired when the record becomes invalid.
 
+    @deprecated
+    @public
     @event becameInvalid
   */
 
   /**
     Fired when the record enters the error state.
 
+    @deprecated
+    @public
     @event becameError
   */
 
   /**
     Fired when the record is rolled back.
 
+    @deprecated
+    @public
     @event rolledBack
   */
 
-  //TODO Do we want to deprecate these?
   /**
+    @deprecated
     @method send
     @private
     @param {String} name
@@ -764,6 +812,7 @@ class Model extends EmberObject {
   }
 
   /**
+    @deprecated
     @method transitionTo
     @private
     @param {String} name
@@ -803,6 +852,7 @@ class Model extends EmberObject {
     ```
 
     @method deleteRecord
+    @public
   */
   deleteRecord() {
     if (CUSTOM_MODEL_CLASS) {
@@ -852,6 +902,7 @@ class Model extends EmberObject {
     ```
 
     @method destroyRecord
+    @public
     @param {Object} options
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
@@ -866,6 +917,7 @@ class Model extends EmberObject {
     to your server, it just unloads the record from memory.
 
     @method unloadRecord
+    @public
   */
   unloadRecord() {
     if (this.isDestroyed) {
@@ -937,6 +989,7 @@ class Model extends EmberObject {
     ```
 
     @method changedAttributes
+    @public
     @return {Object} an object, whose keys are changed properties,
       and value is an [oldProp, newProp] array.
   */
@@ -960,6 +1013,7 @@ class Model extends EmberObject {
 
     @since 1.13.0
     @method rollbackAttributes
+    @public
   */
   rollbackAttributes() {
     this._internalModel.rollbackAttributes();
@@ -971,7 +1025,7 @@ class Model extends EmberObject {
     }
   }
 
-  /*
+  /**
     @method _createSnapshot
     @private
   */
@@ -1022,6 +1076,7 @@ class Model extends EmberObject {
     ```
 
     @method save
+    @public
     @param {Object} options
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
@@ -1054,6 +1109,7 @@ class Model extends EmberObject {
     ```
 
     @method reload
+    @public
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter request
 
    @return {Promise} a promise that will be resolved with the record when the
@@ -1140,6 +1196,7 @@ class Model extends EmberObject {
     ```
 
     @method belongsTo
+    @public
     @param {String} name of the relationship
     @since 2.5.0
     @return {BelongsToReference} reference for this relationship
@@ -1202,6 +1259,7 @@ class Model extends EmberObject {
     ```
 
     @method hasMany
+    @public
     @param {String} name of the relationship
     @since 2.5.0
     @return {HasManyReference} reference for this relationship
@@ -1262,6 +1320,7 @@ class Model extends EmberObject {
    ```
 
    @method eachRelationship
+    @public
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
@@ -1327,6 +1386,7 @@ class Model extends EmberObject {
    });
    ```
    @property modelName
+    @public
    @type String
    @readonly
    @static
@@ -1366,6 +1426,7 @@ class Model extends EmberObject {
    Calling `store.modelFor('post').typeForRelationship('comments', store)` will return `Comment`.
 
    @method typeForRelationship
+    @public
    @static
    @param {String} name the name of the relationship
    @param {store} store an instance of Store
@@ -1409,6 +1470,7 @@ class Model extends EmberObject {
    ```
 
    @method inverseFor
+    @public
    @static
    @param {String} name the name of the relationship
    @param {Store} store
@@ -1563,6 +1625,7 @@ class Model extends EmberObject {
    ```
 
    @property relationships
+    @public
    @static
    @type Map
    @readOnly
@@ -1617,6 +1680,7 @@ class Model extends EmberObject {
    ```
 
    @property relationshipNames
+    @public
    @static
    @type Object
    @readOnly
@@ -1666,6 +1730,7 @@ class Model extends EmberObject {
    ```
 
    @property relatedTypes
+    @public
    @static
    @type Ember.Array
    @readOnly
@@ -1724,6 +1789,7 @@ class Model extends EmberObject {
    ```
 
    @property relationshipsByName
+    @public
    @static
    @type Map
    @readOnly
@@ -1796,6 +1862,7 @@ class Model extends EmberObject {
    ```
 
    @property fields
+    @public
    @static
    @type Map
    @readOnly
@@ -1821,6 +1888,7 @@ class Model extends EmberObject {
    descriptor.
 
    @method eachRelationship
+    @public
    @static
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
@@ -1838,6 +1906,7 @@ class Model extends EmberObject {
    with a model.
 
    @method eachRelatedType
+    @public
    @static
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
@@ -1906,6 +1975,7 @@ class Model extends EmberObject {
    ```
 
    @property attributes
+    @public
    @static
    @type {Map}
    @readOnly
@@ -1964,6 +2034,7 @@ class Model extends EmberObject {
    ```
 
    @property transformedAttributes
+    @public
    @static
    @type {Map}
    @readOnly
@@ -2020,6 +2091,7 @@ class Model extends EmberObject {
    ```
 
    @method eachAttribute
+    @public
    @param {Function} callback The callback to execute
    @param {Object} [binding] the value to which the callback's `this` should be bound
    @static
@@ -2070,6 +2142,7 @@ class Model extends EmberObject {
    ```
 
    @method eachTransformedAttribute
+    @public
    @param {Function} callback The callback to execute
    @param {Object} [binding] the value to which the callback's `this` should be bound
    @static
@@ -2084,6 +2157,7 @@ class Model extends EmberObject {
    Returns the name of the model class.
 
    @method toString
+    @public
    @static
    */
   static toString() {
@@ -2205,6 +2279,7 @@ if (DEPRECATE_MODEL_TOJSON) {
       JSON representation.
 
     @method toJSON
+    @public
     @param {Object} options
     @return {Object} A JSON representation of the object.
   */

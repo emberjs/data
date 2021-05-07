@@ -13,6 +13,8 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
 /**
   Holds validation errors for a given record, organized by attribute names.
 
+  This class is not directly instantiable.
+
   Every `Model` has an `errors` property that is an instance of
   `Errors`. This can be used to display validation error
   messages returned from the server when a `record.save()` rejects.
@@ -80,6 +82,7 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
   ```
 
   @class Errors
+  @public
   @extends Ember.ArrayProxy
   @uses Ember.Evented
  */
@@ -121,6 +124,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     ```
 
     @method errorsFor
+    @public
     @param {String} attribute
     @return {Array}
   */
@@ -156,6 +160,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     ```
 
     @property messages
+    @public
     @type {Array}
   */
   messages: mapBy('content', 'message'),
@@ -186,12 +191,16 @@ export default ArrayProxy.extend(DeprecatedEvented, {
 
     @property length
     @type {Number}
+    @public
     @readOnly
   */
 
   /**
+    `true` if we have no errors.
+
     @property isEmpty
     @type {Boolean}
+    @public
     @readOnly
   */
   isEmpty: not('length').readOnly(),
@@ -229,6 +238,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     // ]
    ```
   @method add
+    @public
   @param {string} attribute - the property name of an attribute or relationship
   @param {string[]|string} messages - an error message or array of error messages for the attribute
    */
@@ -309,6 +319,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     // => undefined
    ```
    @method remove
+    @public
    @param {string} member - the property name of an attribute or relationship
    */
   remove(attribute) {
@@ -391,7 +402,8 @@ export default ArrayProxy.extend(DeprecatedEvented, {
    errors.get('messages')
    // => []
    ```
-   @method remove
+   @method clear
+    @public
    */
   clear() {
     if (get(this, 'isEmpty')) {
@@ -451,6 +463,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     ```
 
     @method has
+    @public
     @param {String} attribute
     @return {Boolean} true if there some errors on given attribute
   */

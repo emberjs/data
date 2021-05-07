@@ -18,6 +18,7 @@ import Reference from './reference';
  relationship.
 
  @class BelongsToReference
+ @public
  @extends Reference
  */
 export default class BelongsToReference extends Reference {
@@ -69,6 +70,7 @@ export default class BelongsToReference extends Reference {
    ```
 
    @method id
+    @public
    @return {String} The id of the record in this belongsTo relationship.
    */
   id() {
@@ -126,6 +128,7 @@ export default class BelongsToReference extends Reference {
    ```
 
    @method push
+    @public
    @param {Object|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
@@ -217,6 +220,7 @@ export default class BelongsToReference extends Reference {
    ```
 
    @method value
+    @public
    @return {Model} the record in this relationship
    */
   value() {
@@ -289,6 +293,7 @@ export default class BelongsToReference extends Reference {
    ```
 
    @method load
+    @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
@@ -343,6 +348,7 @@ export default class BelongsToReference extends Reference {
    ```
 
    @method reload
+    @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */

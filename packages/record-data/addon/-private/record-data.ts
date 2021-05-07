@@ -1,6 +1,6 @@
 /**
-  @module @ember-data/record-data
-*/
+ * @module @ember-data/record-data
+ */
 import { assert } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner } from '@ember/runloop';
@@ -39,6 +39,14 @@ const EMPTY_ITERATOR = {
   },
 };
 
+/**
+  The default cache implementation used by ember-data. The cache
+  is configurable and using a different implementation can be
+  achieved by implementing the store's createRecordDataFor hook.
+
+  @class RecordDataDefault
+  @public
+ */
 export default class RecordDataDefault implements RelationshipRecordData {
   declare _errors?: JsonApiValidationError[];
   declare modelName: string;
@@ -194,7 +202,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
   }
 
-  /*
+  /**
     Checks if the attributes which are considered as changed are still
     different to the state which is acknowledged by the server.
 
@@ -221,7 +229,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
   }
 
-  /*
+  /**
     Returns an object, whose keys are changed properties, and value is an
     [oldProp, newProp] array.
 
@@ -461,7 +469,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.clientId);
   }
 
-  /**
+  /*
     Iterates over the set of internal models reachable from `this` across exactly one
     relationship.
   */
@@ -517,14 +525,14 @@ export default class RecordDataDefault implements RelationshipRecordData {
     };
   };
 
-  /**
+  /*
     Computes the set of internal models reachable from this internal model.
 
     Reachability is determined over the relationship graph (ie a graph where
     nodes are internal models and edges are belongs to or has many
     relationships).
 
-    @return {Array} An array including `this` and all internal models reachable
+    Returns an array including `this` and all internal models reachable
     from `this`.
   */
   _allRelatedRecordDatas(): RecordDataDefault[] {
@@ -606,6 +614,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
    *
    * The return value is an object of options to pass to `Record.create()`
    *
+   * @name _initRecordCreateOptions
    * @param options
    * @private
    */

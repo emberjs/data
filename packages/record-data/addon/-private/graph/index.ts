@@ -48,7 +48,7 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
   return graph;
 }
 
-/**
+/*
  * Graph acts as the cache for relationship data. It allows for
  * us to ask about and update relationships for a given Identifier
  * without requiring other objects for that Identifier to be
@@ -66,8 +66,6 @@ export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
  *
  * The value for each key, or `edge` is the identifier(s) the node relates
  * to in the graph from that key.
- *
- * @internal
  */
 export class Graph {
   declare _definitionCache: EdgeCache;
@@ -127,7 +125,7 @@ export class Graph {
     return relationship;
   }
 
-  /**
+  /*
    * Allows for the graph to dynamically discover polymorphic connections
    * without needing to walk prototype chains.
    *
@@ -220,7 +218,7 @@ export class Graph {
     this.identifiers.delete(identifier);
   }
 
-  /**
+  /*
    * Remote state changes
    */
   push(op: RemoteRelationshipOperation) {
@@ -240,7 +238,7 @@ export class Graph {
     }
   }
 
-  /**
+  /*
    * Local state changes
    */
   update(op: RemoteRelationshipOperation, isRemote: true): void;

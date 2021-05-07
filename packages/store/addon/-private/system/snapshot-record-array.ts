@@ -6,11 +6,12 @@ type RecordArray = import('./record-arrays/record-array').default;
 type Snapshot = import('./snapshot').default;
 type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
 /**
+  SnapshotRecordArray is not directly instantiable.
+  Instances are provided to consuming application's
+  adapters for certain requests.  
+
   @class SnapshotRecordArray
-  @private
-  @constructor
-  @param {Array} snapshots An array of snapshots
-  @param {Object} meta
+  @public
 */
 export default class SnapshotRecordArray {
   private _snapshots: Snapshot[] | null;
@@ -22,6 +23,18 @@ export default class SnapshotRecordArray {
   public adapterOptions: Dict<any>;
   public include?: string;
 
+  /**
+    SnapshotRecordArray is not directly instantiable.
+    Instances are provided to consuming application's
+    adapters and serializers for certain requests.  
+
+    @method constructor
+    @private
+    @constructor
+    @param {RecordArray} recordArray
+    @param {Object} meta
+    @param options 
+   */
   constructor(recordArray: RecordArray, meta?: Dict<any>, options: Dict<any> = {}) {
     /**
       An array of snapshots
@@ -55,6 +68,7 @@ export default class SnapshotRecordArray {
       ```
 
       @property length
+      @public
       @type {Number}
     */
     this.length = recordArray.get('length');
@@ -79,6 +93,7 @@ export default class SnapshotRecordArray {
       ```
 
       @property meta
+      @public
       @type {Object}
     */
     this.meta = meta;
@@ -102,6 +117,7 @@ export default class SnapshotRecordArray {
       ```
 
       @property adapterOptions
+      @public
       @type {Object}
     */
     this.adapterOptions = options.adapterOptions;
@@ -124,6 +140,7 @@ export default class SnapshotRecordArray {
       ```
 
       @property include
+      @public
       @type {String|Array}
     */
     this.include = options.include;
@@ -132,6 +149,7 @@ export default class SnapshotRecordArray {
   /**
     The type of the underlying records for the snapshots in the array, as a Model
     @property type
+    @public
     @type {Model}
   */
   get type() {
@@ -139,7 +157,8 @@ export default class SnapshotRecordArray {
   }
   /**
     The modelName of the underlying records for the snapshots in the array, as a Model
-    @property type
+    @property modelName
+    @public
     @type {Model}
   */
   get modelName() {
@@ -171,6 +190,7 @@ export default class SnapshotRecordArray {
     ```
 
     @method snapshots
+    @public
     @return {Array} Array of snapshots
   */
   snapshots() {

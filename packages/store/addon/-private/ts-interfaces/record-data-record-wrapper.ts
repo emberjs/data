@@ -33,6 +33,7 @@ export interface RecordDataRecordWrapper {
   // new
   getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
   /**
+   * @internal
    * @deprecated
    */
   getErrors?({}): JsonApiValidationError[]; // eslint-disable-line no-empty-pattern

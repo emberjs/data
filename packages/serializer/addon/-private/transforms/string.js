@@ -25,6 +25,7 @@ import Transform from './transform';
   ```
 
   @class StringTransform
+  @public
   @extends Transform
  */
 export default Transform.extend({

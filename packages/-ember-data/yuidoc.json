@@ -5,9 +5,13 @@
   "options": {
     "enabledEnvironments": [],
     "extension": ".js,.ts",
+    "preprocessor": "./lib/yui-docs-preprocessor.js",
+    "excludeTags": [
+      "internal",
+      "feature"
+    ],
     "paths": [
       "addon",
-      "../../node_modules/ember-inflector/addon",
       "../adapter/addon",
       "../model/addon",
       "../serializer/addon",

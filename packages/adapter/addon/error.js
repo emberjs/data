@@ -1,9 +1,8 @@
+/**
+  @module @ember-data/adapter/error
+ */
 import { assert } from '@ember/debug';
 import EmberError from '@ember/error';
-
-/**
-  @module @ember-data/adapter
-*/
 
 /**
   A `AdapterError` is used by an adapter to signal that an error occurred
@@ -69,7 +68,9 @@ import EmberError from '@ember/error';
   }
   ```
 
+  @main @ember-data/adapter/error
   @class AdapterError
+  @public
 */
 function AdapterError(errors, message = 'Adapter operation failed') {
   this.isAdapterError = true;
@@ -175,6 +176,7 @@ AdapterError.extend = extendFn(AdapterError);
   wrap the error payload unaltered.
 
   @class InvalidError
+  @public
   @extends AdapterError
 */
 export const InvalidError = extend(AdapterError, 'The adapter rejected the commit because it was invalid');
@@ -208,6 +210,7 @@ InvalidError.prototype.code = 'InvalidError';
   ```
 
   @class TimeoutError
+  @public
   @extends AdapterError
 */
 export const TimeoutError = extend(AdapterError, 'The adapter operation timed out');
@@ -220,6 +223,7 @@ TimeoutError.prototype.code = 'TimeoutError';
   has been initiated but before a response has been received.
 
   @class AbortError
+  @public
   @extends AdapterError
 */
 export const AbortError = extend(AdapterError, 'The adapter operation was aborted');
@@ -254,6 +258,7 @@ AbortError.prototype.code = 'AbortError';
   ```
 
   @class UnauthorizedError
+  @public
   @extends AdapterError
 */
 export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
@@ -267,6 +272,7 @@ UnauthorizedError.prototype.code = 'UnauthorizedError';
   necessary permissions for the request.
 
   @class ForbiddenError
+  @public
   @extends AdapterError
 */
 export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
@@ -305,6 +311,7 @@ ForbiddenError.prototype.code = 'ForbiddenError';
   ```
 
   @class NotFoundError
+  @public
   @extends AdapterError
 */
 export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
@@ -318,6 +325,7 @@ NotFoundError.prototype.code = 'NotFoundError';
   to the external API.
 
   @class ConflictError
+  @public
   @extends AdapterError
 */
 export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
@@ -329,6 +337,7 @@ ConflictError.prototype.code = 'ConflictError';
   because of an error in the external API.
 
   @class ServerError
+  @public
   @extends AdapterError
 */
 export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');

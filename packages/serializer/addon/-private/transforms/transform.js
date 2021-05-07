@@ -74,6 +74,7 @@ import EmberObject from '@ember/object';
   ```
 
   @class Transform
+  @public
  */
 export default EmberObject.extend({
   /**
@@ -91,6 +92,7 @@ export default EmberObject.extend({
     ```
 
     @method serialize
+    @public
     @param deserialized The deserialized value
     @param options hash of options passed to `attr`
     @return The serialized value
@@ -110,6 +112,7 @@ export default EmberObject.extend({
     ```
 
     @method deserialize
+    @public
     @param serialized The serialized value
     @param options hash of options passed to `attr`
     @return The deserialized value

@@ -29,6 +29,17 @@ export function peekRecordIdentifier(record: any): StableRecordIdentifier | unde
   return RecordCache.get(record);
 }
 
+/**
+ * Retrieves the unique referentially-stable RecordIdentifier assigned to the given
+ * record instance.
+ *
+ * @method recordIdentifierFor
+ * @public
+ * @static
+ * @for @ember-data/store
+ * @param {Object} record a record instance previously obstained from the store.
+ * @returns
+ */
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   let identifier = RecordCache.get(record);
 
@@ -71,6 +82,7 @@ export function internalModelFactoryFor(store: CoreStore): InternalModelFactory 
  * instantiating, caching, and destroying InternalModel
  * instances.
  *
+ * @class InternalModelFactory
  * @internal
  */
 export default class InternalModelFactory {
@@ -152,7 +164,8 @@ export default class InternalModelFactory {
    * If an InternalModel does exist bus has a scheduled destroy,
    *   the scheduled destroy will be cancelled.
    *
-   * @internal
+   * @method lookup
+   * @private
    */
   lookup(resource: ResourceIdentifierObject, data?: ExistingResourceObject): InternalModel {
     if (data !== undefined) {
@@ -187,7 +200,8 @@ export default class InternalModelFactory {
    *
    * If an InternalModel does not exist, return `null`.
    *
-   * @internal
+   * @method peek
+   * @private
    */
   peek(identifier: StableRecordIdentifier): InternalModel | null {
     return this.modelMapFor(identifier.type).get(identifier.lid);

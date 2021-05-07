@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/store
-*/
 import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
 import EmberError from '@ember/error';
@@ -25,79 +22,6 @@ type NotificationManager = import('./record-notification-manager').default;
 type DSModel = import('../ts-interfaces/ds-model').DSModel;
 type ShimModelClass = import('./model/shim-model-class').default;
 type DSModelClass = import('@ember-data/model').default;
-
-/**
-  The store service contains all of the data for records loaded from the server.
-  It is also responsible for creating instances of `Model` that wrap
-  the individual data for a record, so that they can be bound to in your
-  Handlebars templates.
-
-  By default, applications will have a single `Store` service that is
-  automatically created.
-
-  The store can be customized by extending the service in the following manner:
-
-  ```app/services/store.js
-  import Store from '@ember-data/store';
-
-  export default class MyStore extends Store {}
-  ```
-
-  You can retrieve models from the store in several ways. To retrieve a record
-  for a specific id, use the `Store`'s `findRecord()` method:
-
-  ```javascript
-  store.findRecord('person', 123).then(function (person) {
-  });
-  ```
-
-  By default, the store will talk to your backend using a standard
-  REST mechanism. You can customize how the store talks to your
-  backend by specifying a custom adapter:
-
-  ```app/adapters/application.js
-  import DS from 'ember-data';
-
-  export default Adapter.extend({
-  });
-  ```
-
-  You can learn more about writing a custom adapter by reading the `Adapter`
-  documentation.
-
-  ### Store createRecord() vs. push() vs. pushPayload()
-
-  The store provides multiple ways to create new record objects. They have
-  some subtle differences in their use which are detailed below:
-
-  [createRecord](../classes/Store/methods/createRecord?anchor=createRecord) is used for creating new
-  records on the client side. This will return a new record in the
-  `created.uncommitted` state. In order to persist this record to the
-  backend, you will need to call `record.save()`.
-
-  [push](../classes/Store/methods/push?anchor=push) is used to notify Ember Data's store of new or
-  updated records that exist in the backend. This will return a record
-  in the `loaded.saved` state. The primary use-case for `store#push` is
-  to notify Ember Data about record updates (full or partial) that happen
-  outside of the normal adapter methods (for example
-  [SSE](http://dev.w3.org/html5/eventsource/) or [Web
-  Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
-
-  [pushPayload](../classes/Store/methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
-  `store#push` that will deserialize payloads if the
-  Serializer implements a `pushPayload` method.
-
-  Note: When creating a new record using any of the above methods
-  Ember Data will update `RecordArray`s such as those returned by
-  `store#peekAll()` or `store#findAll()`. This means any
-  data bindings or computed properties that depend on the RecordArray
-  will automatically be synced to include the new or updated record
-  values.
-
-  @class Store
-  @main @ember-data/store
-  @extends Ember.Service
-*/
 
 class Store extends CoreStore {
   public _modelFactoryCache = Object.create(null);
@@ -135,18 +59,6 @@ class Store extends CoreStore {
     record.destroy();
   }
 
-  /**
-  Returns the model class for the particular `modelName`.
-
-  The class of a model might be useful if you want to get a list of all the
-  relationship names of the model, see
-  [`relationshipNames`](/ember-data/release/classes/Model?anchor=relationshipNames)
-  for example.
-
-  @method modelFor
-  @param {String} modelName
-  @return {Model}
-    */
   modelFor(modelName: string): ShimModelClass | DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
@@ -186,17 +98,6 @@ class Store extends CoreStore {
     return factory;
   }
 
-  /*
-  Returns whether a ModelClass exists for a given modelName
-  This exists for legacy support for the RESTSerializer,
-  which due to how it must guess whether a key is a model
-  must query for whether a match exists.
-
-  We should investigate an RFC to make this public or removing
-  this requirement.
-
-  @private
- */
   _hasModelFor(modelName) {
     if (DEBUG) {
       assertDestroyingStore(this, '_hasModelFor');

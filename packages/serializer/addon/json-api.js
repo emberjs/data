@@ -1,7 +1,6 @@
 /**
-  @module @ember-data/serializer
-*/
-
+ * @module @ember-data/serializer/json-api
+ */
 import { assert, warn } from '@ember/debug';
 import { dasherize } from '@ember/string';
 import { isNone, typeOf } from '@ember/utils';
@@ -126,8 +125,10 @@ import { normalizeModelName } from '@ember-data/store';
   }
   ```
 
+  @main @ember-data/serializer/json-api
   @since 1.13.0
   @class JSONAPISerializer
+  @public
   @extends JSONSerializer
 */
 const JSONAPISerializer = JSONSerializer.extend({
@@ -210,7 +211,10 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   /**
+    Normalize some data and push it into the store.
+
     @method pushPayload
+    @public
     @param {Store} store
     @param {Object} payload
   */
@@ -278,6 +282,7 @@ const JSONAPISerializer = JSONSerializer.extend({
      http://jsonapi.org/format/#document-resource-object-relationships
 
      @method extractRelationship
+    @public
      @param {Object} relationshipHash
      @return {Object}
   */
@@ -306,6 +311,7 @@ const JSONAPISerializer = JSONSerializer.extend({
      http://jsonapi.org/format/#document-resource-object-relationships
 
      @method extractRelationships
+    @public
      @param {Object} modelClass
      @param {Object} resourceHash
      @return {Object}
@@ -356,10 +362,10 @@ const JSONAPISerializer = JSONSerializer.extend({
     key `studentAssesments` would be converted to `student-assesment`.
 
     @method modelNameFromPayloadKey
+    @public
     @param {String} key
     @return {String} the model's modelName
   */
-  // TODO @deprecated Use modelNameFromPayloadType instead
   modelNameFromPayloadKey(key) {
     return singularize(normalizeModelName(key));
   },
@@ -371,6 +377,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     `student-assesment` would be converted to `student-assesments`.
 
     @method payloadKeyFromModelName
+    @public
     @param {String} modelName
     @return {String}
   */
@@ -423,6 +430,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     ```
 
     @method keyForAttribute
+    @public
     @param {String} key
     @param {String} method
     @return {String} normalized key
@@ -453,6 +461,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
     ```
    @method keyForRelationship
+    @public
    @param {String} key
    @param {String} typeClass
    @param {String} method

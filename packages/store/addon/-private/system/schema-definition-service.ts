@@ -84,13 +84,6 @@ export class DSModelSchemaDefinitionService {
   }
 }
 
-/**
- *
- * @param store
- * @param cache modelFactoryCache
- * @param normalizedModelName already normalized modelName
- * @return {*}
- */
 export function getModelFactory(store: Store, cache, normalizedModelName: string): Model | null {
   let factory = cache[normalizedModelName];
 

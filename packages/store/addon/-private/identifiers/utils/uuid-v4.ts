@@ -46,7 +46,7 @@ function rng() {
   return CRYPTO.getRandomValues(rnds8);
 }
 
-/**
+/*
  * Convert array of 16 byte values to UUID string format of the form:
  * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
  */

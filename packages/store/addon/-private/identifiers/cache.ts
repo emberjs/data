@@ -1,3 +1,6 @@
+/**
+  @module @ember-data/store
+*/
 import { warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
@@ -29,10 +32,6 @@ function freeze<T>(obj: T): T {
   }
   return obj;
 }
-
-/**
-  @module @ember-data/store
-*/
 
 interface KeyOptions {
   lid: IdentifierMap;
@@ -100,6 +99,19 @@ if (DEBUG) {
   DEBUG_MAP = new WeakMap<StableRecordIdentifier, StableRecordIdentifier>();
 }
 
+/**
+ * Each instance of {Store} receives a unique instance of a IdentifierCache.
+ * 
+ * This cache is responsible for assigning or retrieving the unique identify
+ * for arbitrary resource data encountered by the store. Data representing
+ * a unique resource or record should always be represented by the same
+ * identifier.
+ * 
+ * It can be configured by consuming applications.
+ * 
+ * @class IdentifierCache
+   @public
+ */
 export class IdentifierCache {
   // Typescript still leaks private properties in the final
   // compiled class, so we may want to move these from _underscore
@@ -126,19 +138,21 @@ export class IdentifierCache {
   }
 
   /**
-   * hook to allow management of merge conflicts with identifiers.
+   * Internal hook to allow management of merge conflicts with identifiers.
    *
    * we allow late binding of this private internal merge so that `internalModelFactory`
    * can insert itself here to handle elimination of duplicates
    *
-   * @internal
+   * @method __configureMerge
+   * @private
    */
   __configureMerge(method: MergeMethod | null) {
     this._merge = method || defaultEmptyCallback;
   }
 
   /**
-   * @internal
+   * @method _getRecordIdentifier
+   * @private
    */
   private _getRecordIdentifier(
     resource: ResourceIdentifierObject | Identifier,
@@ -266,13 +280,16 @@ export class IdentifierCache {
    * useful for the "create" case when we need to see if
    * we are accidentally overwritting something
    *
-   * @internal
+   * @method peekRecordIdentifier
+   * @param resource
+   * @returns {StableRecordIdentifier | undefined}
+   * @private
    */
   peekRecordIdentifier(resource: ResourceIdentifierObject): StableRecordIdentifier | undefined {
     return this._getRecordIdentifier(resource, false);
   }
 
-  /*
+  /**
     Returns the Identifier for the given Resource, creates one if it does not yet exist.
 
     Specifically this means that we:
@@ -281,6 +298,11 @@ export class IdentifierCache {
     - return an object with an `lid` that is stable (repeated calls with the same
       `id` + `type` or `lid` will return the same `lid` value)
     - this referential stability of the object itself is guaranteed
+
+    @method getOrCreateRecordIdentifier
+    @param resource 
+    @returns {StableRecordIdentifier}
+    @public
   */
   getOrCreateRecordIdentifier(
     resource: ResourceIdentifierObject | ExistingResourceObject | Identifier
@@ -288,7 +310,7 @@ export class IdentifierCache {
     return this._getRecordIdentifier(resource, true);
   }
 
-  /*
+  /**
    Returns a new Identifier for the supplied data. Call this method to generate
    an identifier when a new resource is being created local to the client and
    potentially does not have an `id`.
@@ -296,6 +318,10 @@ export class IdentifierCache {
    Delegates generation to the user supplied `GenerateMethod` if one has been provided
    with the signature `generateMethod({ type }, 'record')`.
 
+   @method createIdentifierForNewRecord
+   @param data
+   @returns {StableRecordIdentifier}
+   @public
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
@@ -319,7 +345,7 @@ export class IdentifierCache {
     return identifier;
   }
 
-  /*
+  /**
    Provides the opportunity to update secondary lookup tables for existing identifiers
    Called after an identifier created with `createIdentifierForNewRecord` has been
    committed.
@@ -334,6 +360,12 @@ export class IdentifierCache {
     If a merge occurs, it is possible the returned identifier does not match the originally
     provided identifier. In this case the abandoned identifier will go through the usual
     `forgetRecordIdentifier` codepaths.
+
+    @method updateRecordIdentifier
+    @param identifierObject 
+    @param data 
+    @returns {StableRecordIdentifier}
+    @public
   */
   updateRecordIdentifier(
     identifierObject: RecordIdentifier,
@@ -377,6 +409,10 @@ export class IdentifierCache {
     return identifier;
   }
 
+  /**
+   * @method _mergeRecordIdentifiers
+   * @private
+   */
   _mergeRecordIdentifiers(
     keyOptions: KeyOptions,
     identifier: StableRecordIdentifier,
@@ -403,13 +439,17 @@ export class IdentifierCache {
     return kept;
   }
 
-  /*
+  /**
    Provides the opportunity to eliminate an identifier from secondary lookup tables
    as well as eliminates it from ember-data's own lookup tables and book keeping.
 
    Useful when a record has been deleted and the deletion has been persisted and
    we do not care about the record anymore. Especially useful when an `id` of a
    deleted record might be reused later for a new record.
+
+   @method forgetRecordIdentifier
+   @param identifierObject
+   @public
   */
   forgetRecordIdentifier(identifierObject: RecordIdentifier): void {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);

@@ -39,6 +39,7 @@ import Transform from './transform';
   ```
 
   @class BooleanTransform
+  @public
   @extends Transform
  */
 export default Transform.extend({

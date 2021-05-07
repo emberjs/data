@@ -15,6 +15,7 @@ type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRec
    addon authors to perform meta-operations on a record.
 
    @class RecordReference
+   @public
    @extends Reference
 */
 export default class RecordReference extends Reference {
@@ -46,6 +47,7 @@ export default class RecordReference extends Reference {
      ```
 
      @method id
+    @public
      @return {String} The id of the record.
   */
   id() {
@@ -67,6 +69,7 @@ export default class RecordReference extends Reference {
      ```
 
      @method identifier
+    @public
      @return {String} The identifier of the record.
   */
   identifier(): StableRecordIdentifier {
@@ -87,6 +90,7 @@ export default class RecordReference extends Reference {
      ```
 
      @method remoteType
+     @public
      @return {String} 'identity'
   */
   remoteType(): 'link' | 'id' | 'identity' {
@@ -128,6 +132,7 @@ export default class RecordReference extends Reference {
      ```
 
     @method push
+    @public
     @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
   */
@@ -151,6 +156,7 @@ export default class RecordReference extends Reference {
      ```
 
      @method value
+    @public
      @return {Model} the record for this RecordReference
   */
   value(): RecordInstance | null {
@@ -177,6 +183,7 @@ export default class RecordReference extends Reference {
      ```
 
      @method load
+    @public
      @return {Promise<record>} the record for this RecordReference
   */
   load() {
@@ -200,6 +207,7 @@ export default class RecordReference extends Reference {
      ```
 
      @method reload
+    @public
      @return {Promise<record>} the record for this RecordReference
   */
   reload() {

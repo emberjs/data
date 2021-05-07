@@ -8,20 +8,22 @@ type AttributesSchema = import('./record-data-schemas').AttributesSchema;
 */
 
 /**
- * Provides a encapsulated API access to a subset of store methods
- * for RecordData implementations.
+ * Provides encapsulated API access to a minimal subset of store service's
+ * functionality for RecordData implementations.
+ *
+ * @class RecordDataStoreWrapper
+ * @public
  */
 export interface RecordDataStoreWrapper {
-  /**
-   * @internal
-   */
-
   relationshipsDefinitionFor(modelName: string): RelationshipsSchema;
   attributesDefinitionFor(modelName: string): AttributesSchema;
 
   /**
    * update the `id` for the record of type `modelName` with the corresponding `clientId`
    * This operation can only be done for records whose `id` is `null`.
+   *
+   * @method setRecordId
+   * @public
    */
   setRecordId(modelName: string, id: string, clientId: string): void;
 

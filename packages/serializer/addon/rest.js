@@ -1,7 +1,6 @@
 /**
-  @module @ember-data/serializer
-*/
-
+ * @module @ember-data/serializer/rest
+ */
 import { makeArray } from '@ember/array';
 import { assert, deprecate, warn } from '@ember/debug';
 import { camelize } from '@ember/string';
@@ -56,6 +55,8 @@ import { modelHasAttributeOrRelationshipNamedType } from './-private';
   the method (`serialize` or `deserialize`) as the third parameter.
 
   @class RESTSerializer
+  @main @ember-data/serializer/rest
+  @public
   @extends JSONSerializer
 */
 const RESTSerializer = JSONSerializer.extend({
@@ -79,6 +80,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
    @method keyForPolymorphicType
+    @public
    @param {String} key
    @param {String} typeClass
    @param {String} method
@@ -151,6 +153,7 @@ const RESTSerializer = JSONSerializer.extend({
     normalization as `normalizeResponse`.
 
     @method normalize
+    @public
     @param {Model} modelClass
     @param {Object} resourceHash
     @param {String} prop
@@ -208,7 +211,7 @@ const RESTSerializer = JSONSerializer.extend({
     return serializer.normalize(modelClass, hash, prop);
   },
 
-  /*
+  /**
     @method _normalizeResponse
     @param {Store} store
     @param {Model} primaryModelClass
@@ -391,6 +394,7 @@ const RESTSerializer = JSONSerializer.extend({
     that fetches and saves are structured.
 
     @method pushPayload
+    @public
     @param {Store} store
     @param {Object} payload
   */
@@ -477,6 +481,7 @@ const RESTSerializer = JSONSerializer.extend({
     need to override `modelNameFromPayloadKey` for this purpose.
 
     @method modelNameFromPayloadKey
+    @public
     @param {String} key
     @return {String} the model's modelName
   */
@@ -634,6 +639,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @method serialize
+    @public
     @param {Snapshot} snapshot
     @param {Object} options
     @return {Object} json
@@ -663,6 +669,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @method serializeIntoHash
+    @public
     @param {Object} hash
     @param {Model} typeClass
     @param {Snapshot} snapshot
@@ -716,6 +723,7 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @method payloadKeyFromModelName
+    @public
     @param {String} modelName
     @return {String}
   */
@@ -729,6 +737,7 @@ const RESTSerializer = JSONSerializer.extend({
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
+    @public
     @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
@@ -750,6 +759,7 @@ const RESTSerializer = JSONSerializer.extend({
     be extracted.
 
     @method extractPolymorphicRelationship
+    @public
     @param {Object} relationshipType
     @param {Object} relationshipHash
     @param {Object} relationshipOptions

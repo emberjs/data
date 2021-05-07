@@ -1,7 +1,6 @@
 /**
-  @module @ember-data/adapter
+  @module @ember-data/adapter/rest
 */
-
 import { getOwner } from '@ember/application';
 import { deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
@@ -333,12 +332,17 @@ const hasJQuery = typeof jQuery !== 'undefined';
   ```
 
   @class RESTAdapter
+  @main @ember-data/adapter/rest
+  @public
   @constructor
   @extends Adapter
   @uses BuildURLMixin
 */
 class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   /**
+     If jQuery or nAjax are installed, this property
+    allows fetch to still be used instead when `true`.
+
     @property useFetch
     @type {Boolean}
     @public
@@ -408,6 +412,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @method sortQueryParams
     @param {Object} obj
     @return {Object}
+    @public
   */
   sortQueryParams(obj): Dict<unknown> {
     let keys = Object.keys(obj);
@@ -469,6 +474,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     `groupRecordsForFindMany` more likely should be overridden as well in order for coalescing to work.
 
     @property coalesceFindRequests
+    @public
     @type {boolean}
   */
   get coalesceFindRequests() {
@@ -498,6 +504,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     Requests for the `Post` model would now target `/api/1/post/`.
 
     @property namespace
+    @public
     @type {String}
   */
 
@@ -515,6 +522,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     Requests for the `Post` model would now target `https://api.example.com/post/`.
 
     @property host
+    @public
     @type {String}
   */
 
@@ -540,6 +548,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     ```
 
     @property headers
+    @public
     @type {Object}
    */
   declare headers: Dict<unknown> | undefined;
@@ -555,6 +564,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     @since 1.13.0
     @method findRecord
+    @public
     @param {Store} store
     @param {Model} type
     @param {String} id
@@ -576,6 +586,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     promise for the resulting payload.
 
     @method findAll
+    @public
     @param {Store} store
     @param {Model} type
     @param {undefined} neverSet a value is never provided to this argument
@@ -605,6 +616,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     to the server as parameters.
 
     @method query
+    @public
     @param {Store} store
     @param {Model} type
     @param {Object} query
@@ -635,6 +647,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     @since 1.13.0
     @method queryRecord
+    @public
     @param {Store} store
     @param {Model} type
     @param {Object} query
@@ -683,6 +696,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     promise for the resulting payload.
 
     @method findMany
+    @public
     @param {Store} store
     @param {Model} type
     @param {Array} ids
@@ -724,6 +738,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @method findHasMany
+    @public
     @param {Store} store
     @param {Snapshot} snapshot
     @param {String} url
@@ -769,6 +784,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @method findBelongsTo
+    @public
     @param {Store} store
     @param {Snapshot} snapshot
     @param {String} url
@@ -794,6 +810,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     of a record.
 
     @method createRecord
+    @public
     @param {Store} store
     @param {Model} type
     @param {Snapshot} snapshot
@@ -818,6 +835,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     of a record.
 
     @method updateRecord
+    @public
     @param {Store} store
     @param {Model} type
     @param {Snapshot} snapshot
@@ -838,6 +856,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     The `deleteRecord` method  makes an Ajax (HTTP DELETE) request to a URL computed by `buildURL`.
 
     @method deleteRecord
+    @public
     @param {Store} store
     @param {Model} type
     @param {Snapshot} snapshot
@@ -890,6 +909,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     and `/posts/2/comments/3`
 
     @method groupRecordsForFindMany
+    @public
     @param {Store} store
     @param {Array} snapshots
     @return {Array}  an array of arrays of records, each of which is to be
@@ -964,6 +984,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     @since 1.13.0
     @method handleResponse
+    @public
     @param  {Number} status
     @param  {Object} headers
     @param  {Object} payload
@@ -1009,6 +1030,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     @since 1.13.0
     @method isSuccess
+    @public
     @param  {Number} status
     @param  {Object} headers
     @param  {Object} payload
@@ -1024,6 +1046,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     @since 1.13.0
     @method isInvalid
+    @public
     @param  {Number} status
     @param  {Object} headers
     @param  {Object} payload
@@ -1279,6 +1302,9 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   /**
+    Used by `findAll` and `findRecord` to build the query's `data` hash
+    supplied to the ajax method. 
+   
     @method buildQuery
     @since 2.5.0
     @public
@@ -1453,8 +1479,12 @@ function headersToObject(headers: Headers): Dict<unknown> {
 
 /**
  * Helper function that translates the options passed to `jQuery.ajax` into a format that `fetch` expects.
+ *
+ * @method fetchOptions
+ * @for @ember-data/adapter/rest
  * @param {Object} _options
  * @param {Adapter} adapter
+ * @private
  * @returns {Object}
  */
 export function fetchOptions(

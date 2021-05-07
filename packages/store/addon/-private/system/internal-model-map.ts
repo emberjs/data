@@ -18,20 +18,14 @@ type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
  that interface while we work towards a more official API.
 
  @class InternalModelMap
- @private
+ @internal
  */
 export default class InternalModelMap {
   private _idToModel: ConfidentDict<InternalModel> = Object.create(null);
   private _models: InternalModel[] = [];
-  private _metadata: ConfidentDict<any> | null = null;
 
   constructor(public modelName: string) {}
 
-  /**
-   * @method get
-   * @param id {String}
-   * @return {InternalModel}
-   */
   get(id: string): InternalModel | null {
     return this._idToModel[id] || null;
   }
@@ -101,6 +95,7 @@ export default class InternalModelMap {
   /**
    An array of all models of this modelName
    @property models
+   @internal
    @type Array
    */
   get models(): InternalModel[] {
@@ -108,18 +103,9 @@ export default class InternalModelMap {
   }
 
   /**
-   * meta information about internalModels
-   * @property metadata
-   * @type Object
-   */
-  get metadata(): ConfidentDict<any> {
-    return this._metadata || (this._metadata = Object.create(null));
-  }
+   Destroy all models in the map
 
-  /**
-   Destroy all models in the internalModelTest and wipe metadata.
-
-   @method clear
+   @internal
    */
   clear(): void {
     let internalModels = this._models;
@@ -129,7 +115,5 @@ export default class InternalModelMap {
       let internalModel = internalModels[i];
       internalModel.unloadRecord();
     }
-
-    this._metadata = null;
   }
 }

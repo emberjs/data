@@ -2,7 +2,7 @@ import { makeArray } from '@ember/array';
 import { isPresent } from '@ember/utils';
 
 /**
-  @module @ember-data/store
+  @module @ember-data/adapter/error
 */
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
@@ -46,6 +46,8 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   // ]
   ```
   @method errorsHashToArray
+  @for @ember-data/adapter/error
+  @static
   @public
   @param {Object} errors hash with errors as properties
   @return {Array} array of errors in JSON-API format
@@ -111,6 +113,8 @@ export function errorsHashToArray(errors) {
   ```
 
   @method errorsArrayToHash
+  @static
+  @for @ember-data/adapter/error
   @public
   @param {Array} errors array of errors in JSON-API format
   @return {Object}

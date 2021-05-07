@@ -156,8 +156,8 @@
  * }
  * ```
  *
- * @module @ember-data/canary-features
- * @main @ember-data/canary-features
+   @module @ember-data/canary-features
+   @main @ember-data/canary-features
  */
 /*
   This list of features is used both at build time (by `@ember-data/private-build-infra`)

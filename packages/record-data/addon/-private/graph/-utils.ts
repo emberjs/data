@@ -47,7 +47,7 @@ export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelations
         )}, but ${field} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
         !Array.isArray(payload.data)
       );
-      assertRelationshipData(graph.store, identifier, payload.data, definition);
+      assertRelationshipData(graph.store._store, identifier, payload.data, definition);
     } else if (kind === 'hasMany') {
       assert(
         `A ${type} record was pushed into the store with the value of ${field} being '${inspect(
@@ -57,7 +57,7 @@ export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelations
       );
       if (Array.isArray(payload.data)) {
         for (let i = 0; i < payload.data.length; i++) {
-          assertRelationshipData(graph.store, identifier, payload.data[i], definition);
+          assertRelationshipData(graph.store._store, identifier, payload.data[i], definition);
         }
       }
     }

@@ -18,6 +18,8 @@ import { _objectIsAlive, DeprecatedEvented, diffArray, PromiseArray, recordDataF
   The `ManyArray` is instantiated lazily the first time the relationship is
   requested.
 
+  This class is not intended to be directly instantiated by consuming applications.
+
   ### Inverses
 
   Often, the relationships in Ember Data applications will have
@@ -50,6 +52,7 @@ import { _objectIsAlive, DeprecatedEvented, diffArray, PromiseArray, recordDataF
   relationship's _owner_.
 
   @class ManyArray
+  @public
   @extends EmberObject
   @uses Ember.MutableArray, DeprecatedEvented
 */
@@ -65,6 +68,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     The loading state of this array
 
     @property {Boolean} isLoaded
+    @public
     */
     this.isLoaded = this.isLoaded || false;
 
@@ -104,7 +108,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     }
     ```
 
-    You can then access the metadata via the `meta` property:
+    You can then access the meta data via the `meta` property:
 
     ```js
     post.get('comments').then(function(comments) {
@@ -298,6 +302,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     ```
 
     @method save
+    @public
     @return {PromiseArray} promise
   */
   save() {
@@ -316,7 +321,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     Create a child record within the owner
 
     @method createRecord
-    @private
+    @public
     @param {Object} hash
     @return {Model} record
   */

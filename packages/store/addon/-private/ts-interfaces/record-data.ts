@@ -21,6 +21,7 @@ export interface RecordData {
   commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiValidationError[]): void;
   /**
    * @deprecated
+   * @internal
    */
   commitWasRejected(recordIdentifier?: {}, errors?: JsonApiValidationError[]): void;
 
@@ -54,6 +55,7 @@ export interface RecordData {
   getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
   /**
    * @deprecated
+   * @internal
    */
   getErrors?({}): JsonApiValidationError[]; // eslint-disable-line no-empty-pattern
 

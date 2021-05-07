@@ -18,6 +18,8 @@ import RecordArray from './record-array';
   may trigger a search on the server, whose results would be loaded
   into an instance of the `AdapterPopulatedRecordArray`.
 
+  This class should not be imported and instantiated by consuming applications.
+
   ---
 
   If you want to update the array and get the latest records from the
@@ -47,6 +49,7 @@ import RecordArray from './record-array';
   ```
 
   @class AdapterPopulatedRecordArray
+  @public
   @extends RecordArray
 */
 let AdapterPopulatedRecordArray = RecordArray.extend({
@@ -102,7 +105,7 @@ let AdapterPopulatedRecordArray = RecordArray.extend({
     @method _setIdentifiers
     @param {StableRecordIdentifier[]} identifiers
     @param {Object} payload normalized payload
-    @internal
+    @private
   */
   _setIdentifiers(identifiers, payload) {
     this._setObjects(identifiers, payload);

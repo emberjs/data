@@ -111,6 +111,7 @@ module.exports = {
         '.eslintrc.js',
         '.prettierrc.js',
         'bin/**',
+        'packages/-ember-data/lib/*.js',
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',
         'packages/unpublished-eslint-rules/src/**/*.js',
@@ -168,8 +169,13 @@ module.exports = {
     {
       files: ['packages/-ember-data/node-tests/docs/*.js'],
       env: {
+        node: true,
         qunit: true,
         es6: false,
+      },
+      parserOptions: {
+        sourceType: 'script',
+        ecmaVersion: 2015,
       },
       rules: {
         'no-restricted-globals': 'off',

@@ -13,142 +13,8 @@ type RelationshipSchema = import('./record-data-schemas').RelationshipSchema;
 type Group = Snapshot[];
 
 /**
-  ## Overview
-
-  In order to properly fetch and update data, EmberData
-  needs to understand how to connect to your API.
-
-  `Adapters` accept various kinds of requests from the store
-  and manage fulfillment of the request from your API.
-
-  ### Request Flow
-
-  When the store decides it needs to issue a request it uses the
-  following flow to manage the request and process the data.
-
-  - find the appropriate adapter
-  - issue the request to the adapter
-  - await the adapter's response
-    - if an error occurs reject with the error
-    - if no error
-      - if there is response data
-        - pass the response data to the appropriate serializer
-        - update the cache using the JSON:API formatted data from the serializer's response
-      - return the primary record(s) associated with the request
-
-  ### Request Errors
-
-  When a request errors and your adapter does not have the ability to recover from the error,
-  you may either reject the promise returned by your adapter method with the error or simply
-  throw the error.
-
-  If the request was for a `createRecord` `updateRecord` or `deleteRecord` special rules
-  apply to how this error will affect the state of the store and additional properties on
-  the `Error` class may be used. See the documentation for these methods in the
-  `MinimumAdapterInterface` for more information.
-
-  ### Implementing an Adapter
-
-  There are seven required adapter methods, one for each of
-  the primary request types that EmberData issues.
-
-  They are:
-
-  - findRecord
-  - findAll
-  - queryRecord
-  - query
-  - createRecord
-  - updateRecord
-  - deleteRecord
-
-  Each of these request types has a matching store method that triggers it
-  and matching `requestType` that is passed to the serializer's
-  `normalizeResponse` method.
-
-  If your app only reads data but never writes data, it is not necessary
-  to implement the methods for create, update, and delete. This extends to
-  all of the store's find methods with the exception of `findRecord` (`findAll`,
-  `query`, `queryRecord`): if you do not use the store method in your app then
-  your Adapter does not need the method.
-
-  ```ts
-  import EmberObject from '@ember/object';
-
-  async function fetchData(url, options = {}) {
-    let response = await fetch(`./${modelName}s/${id}`, options);
-    return response.toJSON();
-  }
-
-  export default class ApplicationAdapter extends EmberObject {
-    findRecord(_, { modelName }, id) {
-      return fetchData(`./${modelName}s/${id}`);
-    }
-  }
-  ```
-
-  ### Adapter Resolution
-
-  `store.adapterFor(name)` will lookup adapters defined in `app/adapters/` and
-  return an instance.
-
-  `adapterFor` first attempts to find an adapter with an exact match on `name`,
-  then falls back to checking for the presence of an adapter named `application`.
-
-  If no adapter is found, an error will be thrown.
-
-  ```ts
-  store.adapterFor('author');
-
-  // lookup paths (in order) =>
-  //   app/adapters/author.js
-  //   app/adapters/application.js
-  ```
-
-  Most requests in EmberData are made with respect to a particular `type` (or `modelName`)
-  (e.g., "get me the full collection of **books**" or "get me the **employee** whose id is 37"). We
-  refer to this as the **primary** resource `type`.
-
-  `adapterFor` is used by the store to find an adapter with a name matching that of the primary
-  resource `type` for the request, which then falls back to the `application` adapter.
-
-  It is recommended that applications define only a single `application` adapter and serializer
-  where possible, only implementing an adapter specific to the `type` when absolutely necessary.
-
-  If you need to support multiple API versions for the same type, the per-type strategy for
-  defining adapters might not be adequate.
-
-  If you have multiple APIs or multiple API versions and the single application adapter and per-type
-  strategy does not suite your needs, one strategy is to write an `application` adapter and serializer
-  that make use of `options` to specify the desired format when making a request, then forwards to the
-  request to the desired adapter or serializer as needed.
-
-  ```app/adapters/application.js
-  export default class Adapter extends EmberObject {
-    findRecord(store, schema, id, snapshot) {
-      let { apiVersion } = snapshot.adapterOptions;
-      return this.adapterFor(`-api-${apiVersion}`).findRecord(store, schema, id, snapshot);
-    }
-  }
-  ```
-
-  ### Using an Adapter
-
-  Any adapter in `app/adapters/` can be looked up by `name` using `store.adapterFor(name)`.
-
-  ### Default Adapters
-
-  Applications whose API's structure endpoint URLs *very close to* or *exactly* the **REST**
-  or **JSON:API** convention, the `@ember-data/adapter` package contains implementations
-  these applications can extend.
-
-  Many applications will find writing their own adapter to be allow greater flexibility,
-  customization, and maintenance than attempting to override methods in these adapters.
-
-  @module @ember-data/adapter
-  @main @ember-data/adapter
-  @public
-*/
+ * @module @ember-data/adapter
+ */
 
 /**
   The following documentation describes the methods an
@@ -157,7 +23,6 @@ type Group = Snapshot[];
 
   Methods that are not required are marked as **optional**.
 
-  @module @ember-data/adapter
   @class MinimumAdapterInterface
   @public
 */
