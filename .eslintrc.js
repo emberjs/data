@@ -166,10 +166,15 @@ module.exports = {
 
     // docs
     {
-      files: ['packages/-ember-data/node-tests/docs/*.js'],
+      files: ['packages/-ember-data/node-tests/docs/*.cjs'],
       env: {
+        node: true,
         qunit: true,
         es6: false,
+      },
+      parserOptions: {
+        sourceType: 'script',
+        ecmaVersion: 2015,
       },
       rules: {
         'no-restricted-globals': 'off',

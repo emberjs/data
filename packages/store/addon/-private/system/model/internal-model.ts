@@ -109,23 +109,6 @@ function splitOnDot(name) {
 function extractPivotName(name) {
   return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
 }
-
-/*
-  `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
-  Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
-
-  We expose `Model` to application code, by materializing a `Model` from `InternalModel` lazily, as
-  a performance optimization.
-
-  `InternalModel` should never be exposed to application code. At the boundaries of the system, in places
-  like `find`, `push`, etc. we convert between Models and InternalModels.
-
-  We need to make sure that the properties from `InternalModel` are correctly exposed/proxied on `Model`
-  if they are needed.
-
-  @private
-  @class InternalModel
-*/
 export default class InternalModel {
   declare _id: string | null;
   declare modelName: string;
@@ -903,10 +886,6 @@ export default class InternalModel {
     return !!this._record;
   }
 
-  /*
-    @method createSnapshot
-    @private
-  */
   createSnapshot(options?: Dict<unknown>): Snapshot {
     return new Snapshot(options || {}, this.identifier, this.store);
   }
@@ -926,13 +905,6 @@ export default class InternalModel {
     return this._recordData.hasChangedAttributes();
   }
 
-  /*
-    Returns an object, whose keys are changed properties, and value is an
-    [oldProp, newProp] array.
-
-    @method changedAttributes
-    @private
-  */
   changedAttributes() {
     if (REQUEST_SERVICE) {
       if (!this.__recordData) {
@@ -948,29 +920,15 @@ export default class InternalModel {
     return this._recordData.changedAttributes();
   }
 
-  /*
-    @method adapterWillCommit
-    @private
-  */
   adapterWillCommit() {
     this._recordData.willCommit();
     this.send('willCommit');
   }
 
-  /*
-    @method adapterDidDirty
-    @private
-  */
   adapterDidDirty() {
     this.send('becomeDirty');
   }
 
-  /*
-    @method send
-    @private
-    @param {String} name
-    @param {Object} context
-  */
   send(name, context?) {
     let currentState = this.currentState;
 
@@ -1092,11 +1050,6 @@ export default class InternalModel {
     });
   }
 
-  /*
-    @method transitionTo
-    @private
-    @param {String} name
-  */
   transitionTo(name) {
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct reference to state objects
@@ -1216,10 +1169,6 @@ export default class InternalModel {
 
     Preloaded data can be attributes and relationships passed in either as IDs or as actual
     models.
-
-    @method preloadData
-    @private
-    @param {Object} preload
   */
   preloadData(preload) {
     let jsonPayload: JsonApiResource = {};
@@ -1269,7 +1218,7 @@ export default class InternalModel {
     return { type: internalModel.modelName, id: internalModel.id };
   }
 
-  /**
+  /*
    * calling `store.setRecordId` is necessary to update
    * the cache index for this record if we have changed.
    *
@@ -1346,8 +1295,6 @@ export default class InternalModel {
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
     saved data.
-
-    @method adapterDidCommit
   */
   adapterDidCommit(data) {
     this.didCleanError();
@@ -1382,11 +1329,6 @@ export default class InternalModel {
   }
 
   // FOR USE DURING COMMIT PROCESS
-
-  /*
-    @method adapterDidInvalidate
-    @private
-  */
   adapterDidInvalidate(parsedErrors, error) {
     if (RECORD_DATA_ERRORS) {
       let attribute;
@@ -1442,10 +1384,6 @@ export default class InternalModel {
     }
   }
 
-  /*
-    @method adapterDidError
-    @private
-  */
   adapterDidError(error) {
     this.send('becameError');
     this.didError(error);

@@ -23,7 +23,10 @@ function recordForIdentifier(store, identifier) {
   `RecordArray` or its subclasses will be returned by your application's store
   in response to queries.
 
+  This class should not be imported and instantiated by consuming applications.
+
   @class RecordArray
+  @public
   @extends Ember.ArrayProxy
   @uses Ember.Evented
 */
@@ -59,6 +62,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     ```
 
     @property isLoaded
+    @public
     @type Boolean
     */
     this.isLoaded = this.isLoaded || false;
@@ -75,6 +79,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     ```
 
     @property isUpdating
+    @public
     @type Boolean
     */
     this.isUpdating = false;
@@ -100,7 +105,8 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
    The modelClass represented by this record array.
 
    @property type
-   @type Model
+    @public
+   @type {subclass of Model}
    */
   type: computed('modelName', function () {
     if (!this.modelName) {
@@ -140,6 +146,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     ```
 
     @method update
+    @public
   */
   update() {
     if (get(this, 'isUpdating')) {
@@ -183,6 +190,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     ```
 
     @method save
+    @public
     @return {PromiseArray} promise
   */
   save() {
@@ -219,7 +227,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     this._super(...arguments);
   },
 
-  /*
+  /**
     @method _createSnapshot
     @private
   */
@@ -230,7 +238,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
 
   /**
     @method _dissociateFromOwnRecords
-    @internal
+    @private
   */
   _dissociateFromOwnRecords() {
     this.get('content').forEach((identifier) => {
@@ -246,7 +254,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     Adds identifiers to the `RecordArray` without duplicates
 
     @method _pushIdentifiers
-    @internal
+    @private
     @param {StableRecordIdentifier[]} identifiers
   */
   _pushIdentifiers(identifiers) {
@@ -257,7 +265,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     Removes identifiers from the `RecordArray`.
 
     @method _removeIdentifiers
-    @internal
+    @private
     @param {StableRecordIdentifier[]} identifiers
   */
   _removeIdentifiers(identifiers) {
@@ -266,7 +274,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
 
   /**
     @method _takeSnapshot
-    @internal
+    @private
   */
   _takeSnapshot() {
     return get(this, 'content').map((identifier) =>

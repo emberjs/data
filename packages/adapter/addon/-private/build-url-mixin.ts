@@ -36,6 +36,7 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
   The `host` and `namespace` attributes will be used if defined, and are optional.
 
   @class BuildURLMixin
+  @public
 */
 export default Mixin.create({
   /**
@@ -52,6 +53,7 @@ export default Mixin.create({
     will be arrays of ids and snapshots.
 
     @method buildURL
+    @public
     @param {String} modelName
     @param {(String|Array|Object)} id single id or array of ids or query
     @param {(Snapshot|SnapshotRecordArray)} snapshot single snapshot or array of snapshots
@@ -144,6 +146,7 @@ export default Mixin.create({
    ```
 
    @method urlForFindRecord
+   @public
    @param {String} id
    @param {String} modelName
    @param {Snapshot} snapshot
@@ -171,6 +174,7 @@ export default Mixin.create({
    ```
 
    @method urlForFindAll
+    @public
    @param {String} modelName
    @param {SnapshotRecordArray} snapshot
    @return {String} url
@@ -201,6 +205,7 @@ export default Mixin.create({
    ```
 
    @method urlForQuery
+    @public
    @param {Object} query
    @param {String} modelName
    @return {String} url
@@ -226,6 +231,7 @@ export default Mixin.create({
    ```
 
    @method urlForQueryRecord
+    @public
    @param {Object} query
    @param {String} modelName
    @return {String} url
@@ -253,6 +259,7 @@ export default Mixin.create({
    ```
 
    @method urlForFindMany
+    @public
    @param {Array} ids
    @param {String} modelName
    @param {Array} snapshots
@@ -280,6 +287,7 @@ export default Mixin.create({
    ```
 
    @method urlForFindHasMany
+    @public
    @param {String} id
    @param {String} modelName
    @param {Snapshot} snapshot
@@ -307,6 +315,7 @@ export default Mixin.create({
    ```
 
    @method urlForFindBelongsTo
+    @public
    @param {String} id
    @param {String} modelName
    @param {Snapshot} snapshot
@@ -333,6 +342,7 @@ export default Mixin.create({
    ```
 
    @method urlForCreateRecord
+    @public
    @param {String} modelName
    @param {Snapshot} snapshot
    @return {String} url
@@ -357,6 +367,7 @@ export default Mixin.create({
    ```
 
    @method urlForUpdateRecord
+    @public
    @param {String} id
    @param {String} modelName
    @param {Snapshot} snapshot
@@ -382,6 +393,7 @@ export default Mixin.create({
    ```
 
    @method urlForDeleteRecord
+    @public
    @param {String} id
    @param {String} modelName
    @param {Snapshot} snapshot
@@ -457,6 +469,7 @@ export default Mixin.create({
     ```
 
     @method pathForType
+    @public
     @param {String} modelName
     @return {String} path
   **/

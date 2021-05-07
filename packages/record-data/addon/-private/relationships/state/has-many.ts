@@ -16,10 +16,6 @@ type BelongsToRelationship = import('../..').BelongsToRelationship;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
 type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
 
-/**
-  @module @ember-data/record-data
-*/
-
 export default class ManyRelationship {
   declare graph: Graph;
   declare store: RecordDataStoreWrapper;

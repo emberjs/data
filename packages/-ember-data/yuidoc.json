@@ -5,9 +5,10 @@
   "options": {
     "enabledEnvironments": [],
     "extension": ".js,.ts",
+    "preprocessor": "yuidoc-filter-tags",
+    "dont-include-tags": "internal",
     "paths": [
       "addon",
-      "../../node_modules/ember-inflector/addon",
       "../adapter/addon",
       "../model/addon",
       "../serializer/addon",

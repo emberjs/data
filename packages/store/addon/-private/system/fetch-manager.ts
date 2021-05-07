@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/store
+ */
 import { A } from '@ember/array';
 import { assert, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
@@ -50,6 +53,12 @@ interface PendingSaveItem {
   queryRequest: Request;
 }
 
+/**
+ * Manages the state of network requests initiated by the store
+ *
+ * @class FetchManager
+ * @private
+ */
 export default class FetchManager {
   isDestroyed: boolean;
   requestCache: RequestCache;
@@ -70,7 +79,9 @@ export default class FetchManager {
     resolver for the promise that `record.save` returns.
 
     It schedules saving to happen at the end of the run loop.
- */
+
+    @internal
+  */
   scheduleSave(identifier: RecordIdentifier, options: any = {}): RSVP.Promise<null | SingleResourceDocument> {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<null | SingleResourceDocument>(promiseLabel);
@@ -161,7 +172,7 @@ export default class FetchManager {
     flushes any records passed into `scheduleSave`
 
     @method flushPendingSave
-    @private
+    @internal
   */
   _flushPendingSaves() {
     let pending = this._pendingSave.slice();

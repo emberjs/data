@@ -12,13 +12,6 @@ import { DEBUG } from '@glimmer/env';
   be an InternalModel and the `relationshipMeta` needs to be the meta
   information about the relationship, retrieved via
   `record.relationshipFor(key)`.
-
-  @method assertPolymorphicType
-  @param {InternalModel} internalModel
-  @param {RelationshipMeta} relationshipMeta retrieved via
-         `record.relationshipFor(key)`
-  @param {InternalModel} addedRecord record which
-         should be added/set for the relationship
 */
 let assertPolymorphicType;
 

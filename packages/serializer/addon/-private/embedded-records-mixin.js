@@ -6,7 +6,7 @@ import { camelize } from '@ember/string';
 import { typeOf } from '@ember/utils';
 
 /**
-  @module @ember-data/serializer
+  @module @ember-data/serializer/rest
 */
 
 /**
@@ -101,6 +101,7 @@ import { typeOf } from '@ember/utils';
   * [serializeHasMany](/ember-data/release/classes/EmbeddedRecordsMixin/methods/serializeHasMany?anchor=serializeHasMany)
 
   @class EmbeddedRecordsMixin
+  @public
 */
 export default Mixin.create({
   /**
@@ -125,6 +126,7 @@ export default Mixin.create({
     }
     ```
    @method normalize
+    @public
    @param {Model} typeClass
    @param {Object} hash to be normalized
    @param {String} prop the hash has been referenced by
@@ -195,6 +197,7 @@ export default Mixin.create({
     ```
 
     @method serializeBelongsTo
+    @public
     @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
@@ -380,6 +383,7 @@ export default Mixin.create({
     ```
 
     @method serializeHasMany
+    @public
     @param {Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
@@ -472,6 +476,7 @@ export default Mixin.create({
     the parent record.
 
     @method removeEmbeddedForeignKey
+    @public
     @param {Snapshot} snapshot
     @param {Snapshot} embeddedSnapshot
     @param {Object} relationship

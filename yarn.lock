@@ -16047,6 +16047,11 @@ yui@^3.18.1:
   dependencies:
     request "~2.40.0"
 
+yuidoc-filter-tags@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.npmjs.org/yuidoc-filter-tags/-/yuidoc-filter-tags-0.0.2.tgz#fad99514823c5774e824de78c14e9a74691ca009"
+  integrity sha1-+tmVFII8V3ToJN54wU6adGkcoAk=
+
 yuidocjs@^0.10.0:
   version "0.10.2"
   resolved "https://registry.npmjs.org/yuidocjs/-/yuidocjs-0.10.2.tgz#33924967ce619024cd70ef694e267d2f988f73f6"

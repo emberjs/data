@@ -2,18 +2,12 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 /**
-  @module @ember-data/store
-*/
-
-/*
   This is a helper method that validates a JSON API top-level document
 
   The format of a document is described here:
   http://jsonapi.org/format/#document-top-level
 
-  @method validateDocumentStructure
-  @param {Object} doc JSON API document
-  @return {array} An array of errors found in the document structure
+  @internal
 */
 export function validateDocumentStructure(doc) {
   let errors = [];
@@ -62,18 +56,6 @@ export function validateDocumentStructure(doc) {
   return errors;
 }
 
-/*
-  This is a helper method that always returns a JSON-API Document.
-
-  @method normalizeResponseHelper
-  @param {Serializer} serializer
-  @param {Store} store
-  @param {subclass of Model} modelClass
-  @param {Object} payload
-  @param {String|Number} id
-  @param {String} requestType
-  @return {Object} JSON-API Document
-*/
 export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
   let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
   let validationErrors = [];

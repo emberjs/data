@@ -16,6 +16,8 @@ import { Promise } from 'rsvp';
   it easy to create data bindings with the `PromiseArray` that will be
   updated when the promise resolves.
 
+  This class should not be imported and instantiated directly.
+
   For more information see the [Ember.PromiseProxyMixin
   documentation](/ember/release/classes/PromiseProxyMixin).
 
@@ -34,6 +36,7 @@ import { Promise } from 'rsvp';
   ```
 
   @class PromiseArray
+  @public
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
@@ -47,6 +50,8 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   will be set to the `PromiseObject`'s `content` property. This makes
   it easy to create data bindings with the `PromiseObject` that will
   be updated when the promise resolves.
+
+  This class should not be imported and instantiated directly.
 
   For more information see the [Ember.PromiseProxyMixin
   documentation](/ember/release/classes/PromiseProxyMixin.html).
@@ -66,6 +71,7 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   ```
 
   @class PromiseObject
+  @public
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */

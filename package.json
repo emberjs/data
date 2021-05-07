@@ -133,6 +133,7 @@
     "silent-error": "^1.1.1",
     "typescript": "~4.2.4",
     "url": "^0.11.0",
+    "yuidoc-filter-tags": "^0.0.2",
     "zlib": "1.0.5"
   },
   "bin": {

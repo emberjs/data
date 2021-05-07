@@ -11,7 +11,7 @@ type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
  used by `Store`.
 
  @class IdentityMap
- @private
+ @internal
  */
 export default class IdentityMap {
   private _map: ConfidentDict<InternalModelMap> = Object.create(null);
@@ -22,6 +22,7 @@ export default class IdentityMap {
    similar to `getWithDefault` or `get` on a `MapWithDefault`
 
    @method retrieve
+   @internal
    @param modelName a previously normalized modelName
    @return {InternalModelMap} the InternalModelMap for the given modelName
    */
@@ -39,7 +40,7 @@ export default class IdentityMap {
    Clears the contents of all known `RecordMaps`, but does
    not remove the InternalModelMap instances.
 
-   @method clear
+   @internal
    */
   clear(): void {
     let map = this._map;

@@ -170,6 +170,7 @@ import { REQUEST_SERVICE } from '@ember-data/canary-features';
    * [isValid](Model/properties/isValid?anchor=isValid)
 
   @class RootState
+  @internal
 */
 
 function didSetProperty(internalModel, context) {

@@ -22,7 +22,6 @@
 
   @module @ember-data/debug
   @main @ember-data/debug
-  @public
 */
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
@@ -72,7 +71,7 @@ export default DataAdapter.extend({
     Maintains the list of model types without needing the Model package for detection.
 
     @method watchModelTypes
-    @public
+    @private
     @param {Function} typesAdded Callback to call to add types.
     Takes an array of objects containing wrapped types (returned from `wrapModelType`).
     @param {Function} typesUpdated Callback to call when a type has changed.
@@ -115,13 +114,14 @@ export default DataAdapter.extend({
    * Loop over the discovered types and use the callbacks from watchModelTypes to notify
    * the consumer of this adapter about the mdoels.
    *
+   * @method watchTypeIfUnseen
    * @param {store} store
-   * @internal
    * @param {Map} discoveredTypes
    * @param {String} type
    * @param {Function} typesAdded
    * @param {Function} typesUpdated
    * @param {Array} releaseMethods
+   * @private
    */
   watchTypeIfUnseen(store, discoveredTypes, type, typesAdded, typesUpdated, releaseMethods) {
     if (discoveredTypes.get(type) !== true) {
@@ -178,7 +178,7 @@ export default DataAdapter.extend({
     Fetches all loaded records for a given type
 
     @method getRecords
-    @internal
+    @private
     @param {Model} modelClass of the record
     @param {String} modelName of the record
     @return {Array} An array of Model records
@@ -279,7 +279,7 @@ export default DataAdapter.extend({
     when a change occurs
 
     @method observeRecord
-    @internal
+    @private
     @param {Model} record
     @param {Function} recordUpdated Callback used to notify changes
     @return {Function} The function to call to remove all observers

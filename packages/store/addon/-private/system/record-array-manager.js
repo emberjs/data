@@ -70,7 +70,7 @@ const shouldIncludeInRecordArrays = function shouldIncludeInRecordArrays(store, 
 
 /**
   @class RecordArrayManager
-  @private
+  @internal
 */
 class RecordArrayManager {
   constructor(options) {
@@ -84,7 +84,7 @@ class RecordArrayManager {
 
   /**
    * @method getRecordArraysForIdentifier
-   * @public
+   * @internal
    * @param {StableIdentifier} param
    * @return {RecordArray} array
    */
@@ -186,6 +186,7 @@ class RecordArrayManager {
     given modelName.
 
     @method liveRecordArrayFor
+    @internal
     @param {String} modelName
     @return {RecordArray}
   */
@@ -229,6 +230,7 @@ class RecordArrayManager {
     Create a `RecordArray` for a modelName.
 
     @method createRecordArray
+    @internal
     @param {String} modelName
     @param {Array} [identifiers]
     @return {RecordArray}
@@ -258,6 +260,7 @@ class RecordArrayManager {
     Create a `AdapterPopulatedRecordArray` for a modelName with given query.
 
     @method createAdapterPopulatedRecordArray
+    @internal
     @param {String} modelName
     @param {Object} query
     @return {AdapterPopulatedRecordArray}
@@ -303,6 +306,7 @@ class RecordArrayManager {
     So manager will not update this array.
 
     @method unregisterRecordArray
+    @internal
     @param {RecordArray} array
   */
   unregisterRecordArray(array) {
@@ -324,7 +328,7 @@ class RecordArrayManager {
 
   /**
    * @method _associateWithRecordArray
-   * @private
+   * @internal
    * @param {StableIdentifier} identifiers
    * @param {RecordArray} array
    */

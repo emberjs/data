@@ -28,9 +28,8 @@ if (DEBUG) {
   };
 
   DeprecatedEvented = Mixin.create(Evented, {
-    /**
+    /*
      * Provides a way to call Evented without logging deprecation warnings
-     * @param {String} name
      */
     _has(name) {
       return Evented.mixins[0].properties.has.call(this, name);

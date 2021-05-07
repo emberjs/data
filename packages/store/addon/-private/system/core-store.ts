@@ -1,7 +1,6 @@
 /**
   @module @ember-data/store
-*/
-
+ */
 import { getOwner } from '@ember/application';
 import { A } from '@ember/array';
 import { assert, deprecate, inspect, warn } from '@ember/debug';
@@ -207,7 +206,9 @@ function deprecateTestRegistration(
   will automatically be synced to include the new or updated record
   values.
 
+  @main @ember-data/store
   @class Store
+  @public
   @extends Ember.Service
 */
 interface CoreStore {
@@ -217,6 +218,8 @@ interface CoreStore {
 abstract class CoreStore extends Service {
   /**
    * EmberData specific backburner instance
+   * @property _backburner
+   * @private
    */
   public _backburner: Backburner = edBackburner;
   public recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
@@ -272,6 +275,7 @@ abstract class CoreStore extends Service {
     ```
 
     @property adapter
+    @public
     @default '-json-api'
     @type {String}
   */
@@ -414,6 +418,16 @@ abstract class CoreStore extends Service {
     assert('RequestService is not available unless the feature flag is on and running on a canary build', false);
   }
 
+  /**
+   * Provides access to the IdentifierCache instance
+   * for this store.
+   *
+   * The IdentifierCache can be used to generate or
+   * retrieve a stable unique identifier for any resource.
+   *
+   * @property {IdentifierCache} identifierCache
+   * @public
+   */
   get identifierCache(): IdentifierCache {
     return identifierCacheFor(this);
   }
@@ -522,6 +536,22 @@ abstract class CoreStore extends Service {
     return this._relationshipsDefinitionFor(modelName)[key];
   }
 
+  /**
+    Returns the schema for a particular `modelName`.
+
+    When used with Model from @ember-data/model the return is the model class,
+    but this is not guaranteed.
+
+    The class of a model might be useful if you want to get a list of all the
+    relationship names of the model, see
+    [`relationshipNames`](/ember-data/release/classes/Model?anchor=relationshipNames)
+    for example.
+
+    @method modelFor
+    @public
+    @param {String} modelName
+    @return {subclass of Model | ShimModelClass}
+    */
   modelFor(modelName: string): ShimModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
@@ -531,17 +561,18 @@ abstract class CoreStore extends Service {
   }
 
   // Feature Flagged in DSModelStore
-  /*
-  Returns whether a ModelClass exists for a given modelName
-  This exists for legacy support for the RESTSerializer,
-  which due to how it must guess whether a key is a model
-  must query for whether a match exists.
+  /**
+    Returns whether a ModelClass exists for a given modelName
+    This exists for legacy support for the RESTSerializer,
+    which due to how it must guess whether a key is a model
+    must query for whether a match exists.
 
-  We should investigate an RFC to make this public or removing
-  this requirement.
+    We should investigate an RFC to make this public or removing
+    this requirement.
 
-  @private
- */
+    @method _hasModelFor
+    @private
+  */
   _hasModelFor(modelName: string): boolean {
     assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
     assert(
@@ -579,6 +610,7 @@ abstract class CoreStore extends Service {
     ```
 
     @method createRecord
+    @public
     @param {String} modelName
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
@@ -666,6 +698,7 @@ abstract class CoreStore extends Service {
     ```
 
     @method deleteRecord
+    @public
     @param {Model} record
   */
   deleteRecord(record) {
@@ -698,6 +731,7 @@ abstract class CoreStore extends Service {
     ```
 
     @method unloadRecord
+    @public
     @param {Model} record
   */
   unloadRecord(record) {
@@ -1020,6 +1054,7 @@ abstract class CoreStore extends Service {
 
     @since 1.13.0
     @method findRecord
+    @public
     @param {String} modelName
     @param {(String|Integer)} id
     @param {Object} [options]
@@ -1474,6 +1509,7 @@ abstract class CoreStore extends Service {
     ```
 
     @method getReference
+    @public
     @param {String} modelName
     @param {String|Integer} id
     @since 2.5.0
@@ -1518,6 +1554,7 @@ abstract class CoreStore extends Service {
 
     @since 1.13.0
     @method peekRecord
+    @public
     @param {String} modelName
     @param {String|Integer} id
     @return {Model|null} record
@@ -1587,6 +1624,7 @@ abstract class CoreStore extends Service {
    ```
 
     @method hasRecordForId
+    @public
     @param {String} modelName
     @param {(String|Integer)} id
     @return {Boolean}
@@ -1904,6 +1942,7 @@ abstract class CoreStore extends Service {
 
     @since 1.13.0
     @method query
+    @public
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
@@ -2041,6 +2080,7 @@ abstract class CoreStore extends Service {
 
     @since 1.13.0
     @method queryRecord
+    @public
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
@@ -2267,6 +2307,7 @@ abstract class CoreStore extends Service {
 
     @since 1.13.0
     @method findAll
+    @public
     @param {String} modelName
     @param {Object} options
     @return {Promise} promise
@@ -2366,6 +2407,7 @@ abstract class CoreStore extends Service {
 
     @since 1.13.0
     @method peekAll
+    @public
     @param {String} modelName
     @return {RecordArray}
   */
@@ -2394,6 +2436,7 @@ abstract class CoreStore extends Service {
     ```
 
     @method unloadAll
+    @public
     @param {String} modelName
   */
   unloadAll(modelName?: string) {
@@ -2842,6 +2885,7 @@ abstract class CoreStore extends Service {
     records, as well as to update existing records.
 
     @method push
+    @public
     @param {Object} data
     @return the record(s) that was created or
       updated.
@@ -2868,7 +2912,7 @@ abstract class CoreStore extends Service {
     return record;
   }
 
-  /*
+  /**
     Push some data in the form of a json-api document into the store,
     without creating materialized records.
 
@@ -3032,6 +3076,7 @@ abstract class CoreStore extends Service {
     ```
 
     @method pushPayload
+    @public
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
     @param {Object} inputPayload
   */
@@ -3079,6 +3124,7 @@ abstract class CoreStore extends Service {
   /**
    * TODO Only needed temporarily for test support
    *
+   * @method _internalModelForId
    * @internal
    */
   _internalModelForId(type: string, id: string | null, lid: string | null): InternalModel {
@@ -3122,6 +3168,9 @@ abstract class CoreStore extends Service {
   }
 
   /**
+   * Manages setting setting up the recordData returned by createRecordDataFor
+   *
+   * @method _createRecordData
    * @internal
    */
   _createRecordData(identifier: StableRecordIdentifier): RecordData {
@@ -3138,6 +3187,8 @@ abstract class CoreStore extends Service {
    * Instantiation hook allowing applications or addons to configure the store
    * to utilize a custom RecordData implementation.
    *
+   * @method createRecordDataFor
+   * @public
    * @param modelName
    * @param id
    * @param clientId
@@ -3209,6 +3260,7 @@ abstract class CoreStore extends Service {
     ```
 
     @method normalize
+    @public
     @param {String} modelName The name of the model type for this payload
     @param {Object} payload
     @return {Object} The normalized payload
@@ -3787,6 +3839,7 @@ if (DEBUG) {
  * true if there is no inverse
  * false if the inverse exists and is not loaded (empty)
  *
+ * @internal
  * @return {boolean}
  */
 function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelationship): boolean {

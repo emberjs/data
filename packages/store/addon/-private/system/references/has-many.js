@@ -16,6 +16,7 @@ import Reference, { internalModelForReference } from './reference';
  authors to perform meta-operations on a has-many relationship.
 
  @class HasManyReference
+ @public
  @extends Reference
  */
 export default class HasManyReference extends Reference {
@@ -73,6 +74,7 @@ export default class HasManyReference extends Reference {
    ```
 
    @method remoteType
+   @public
    @return {String} The name of the remote type. This should either be `link` or `ids`
    */
   remoteType() {
@@ -116,6 +118,7 @@ export default class HasManyReference extends Reference {
    ```
 
    @method ids
+    @public
    @return {Array} The ids in this has-many relationship
    */
   ids() {
@@ -170,6 +173,7 @@ export default class HasManyReference extends Reference {
    ```
 
    @method push
+    @public
    @param {Array|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {ManyArray}
    */
@@ -267,6 +271,7 @@ export default class HasManyReference extends Reference {
    ```
 
    @method value
+    @public
    @return {ManyArray}
    */
   value() {
@@ -337,6 +342,7 @@ export default class HasManyReference extends Reference {
    ```
 
    @method load
+    @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in
    this has-many relationship.
@@ -392,6 +398,7 @@ export default class HasManyReference extends Reference {
    ```
 
    @method reload
+    @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */

@@ -35,8 +35,6 @@
 
   @module @ember-data/model
   @main @ember-data/model
-  @class Model
-  @public
  */
 
 export { Model as default, attr, belongsTo, hasMany } from './-private';

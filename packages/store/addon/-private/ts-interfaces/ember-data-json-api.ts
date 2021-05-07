@@ -27,6 +27,7 @@ export interface PaginationLinks extends Links {
  * to address data that may not be available synchronously.
  *
  * [JSON:API Spec](https://jsonapi.org/format/#document-resource-identifier-objects)
+ * @internal
  */
 export interface ExistingResourceIdentifierObject {
   id: string;
@@ -46,6 +47,7 @@ export interface ExistingResourceIdentifierObject {
    * is `lid` considered optional.
    *
    * [Identifiers RFC](https://github.com/emberjs/rfcs/blob/master/text/0403-ember-data-identifiers.md#ember-data--identifiers)
+   * @internal
    */
   lid?: string;
 
@@ -54,6 +56,7 @@ export interface ExistingResourceIdentifierObject {
    * `ember-data` ignores `meta` on `ResourceIdentifierObjects`
    *
    * @ignored this property goes un-utilized and will be lost
+   * @internal
    */
   meta?: Meta;
 }
@@ -61,6 +64,8 @@ export interface ExistingResourceIdentifierObject {
 /**
  * Serves as a reference to a resource created on the client
  * but not yet persisted.
+ *
+ * @internal
  */
 export interface NewResourceIdentifierObject {
   /**
@@ -69,6 +74,8 @@ export interface NewResourceIdentifierObject {
    * to completion of their first successful `save`.
    *
    * `id` will be `null` in this case.
+   *
+   * @internal
    */
   id: string | null;
   type: string;
@@ -76,6 +83,7 @@ export interface NewResourceIdentifierObject {
   /**
    * Resources newly created on the client _will always_
    * have an `lid` assigned immediately and available.
+   * @internal
    */
   lid: string;
 }
@@ -97,6 +105,7 @@ export interface CollectionResourceRelationship {
 
 /**
  * Contains the data for an existing resource in JSON:API format
+ * @internal
  */
 export interface ExistingResourceObject extends ExistingResourceIdentifierObject {
   meta?: Dict<JSONValue>;

@@ -34,10 +34,12 @@ interface _PrivateSnapshot {
 export type PrivateSnapshot = ProtoExntends<Snapshot, _PrivateSnapshot>;
 
 /**
+  Snapshot is not directly instantiable.
+  Instances are provided to a consuming application's
+  adapters and serializers for certain requests.  
+  
   @class Snapshot
-  @private
-  @constructor
-  @param {Model} internalModel The model to create a snapshot from
+  @public
 */
 export default class Snapshot implements Snapshot {
   private __attributes: Dict<unknown> | null = null;
@@ -54,11 +56,20 @@ export default class Snapshot implements Snapshot {
   public include?: unknown;
   public adapterOptions: Dict<unknown>;
 
+  /**
+   * @method constructor
+   * @constructor
+   * @private
+   * @param options
+   * @param identifier
+   * @param _store
+   */
   constructor(options: Dict<any>, identifier: StableRecordIdentifier, private _store: Store) {
     let internalModel = (this._internalModel = _store._internalModelForResource(identifier));
     this.modelName = identifier.type;
 
     if (CUSTOM_MODEL_CLASS) {
+      // TODO add public docs once this FF is on
       this.identifier = identifier;
     }
     /*
@@ -84,6 +95,7 @@ export default class Snapshot implements Snapshot {
 
      @property id
      @type {String}
+     @public
      */
     this.id = identifier.id;
 
@@ -91,12 +103,17 @@ export default class Snapshot implements Snapshot {
      A hash of adapter options
      @property adapterOptions
      @type {Object}
+     @public
      */
     this.adapterOptions = options.adapterOptions;
 
     /**
+     If `include` was passed to the options hash for the request, the value
+     would be available here.
+
      @property include
      @type {String|Array}
+     @public
      */
     this.include = options.include;
 
@@ -105,6 +122,7 @@ export default class Snapshot implements Snapshot {
 
      @property modelName
      @type {String}
+     @public
      */
     this.modelName = internalModel.modelName;
     if (internalModel.hasRecord) {
@@ -124,6 +142,7 @@ export default class Snapshot implements Snapshot {
 
    @property record
    @type {Model}
+   @public
    */
   get record(): RecordInstance {
     return this._internalModel.getRecord();
@@ -163,6 +182,7 @@ export default class Snapshot implements Snapshot {
    The type of the underlying record for this snapshot, as a Model.
 
    @property type
+    @public
    @type {Model}
    */
   get type(): ModelSchema {
@@ -192,6 +212,7 @@ export default class Snapshot implements Snapshot {
    @method attr
    @param {String} keyName
    @return {Object} The attribute value or undefined
+   @public
    */
   attr(keyName: string): unknown {
     if (keyName in this._attributes) {
@@ -212,6 +233,7 @@ export default class Snapshot implements Snapshot {
 
    @method attributes
    @return {Object} All attributes of the current snapshot
+   @public
    */
   attributes(): Dict<unknown> {
     return assign({}, this._attributes);
@@ -230,6 +252,7 @@ export default class Snapshot implements Snapshot {
 
    @method changedAttributes
    @return {Object} All changed attributes of the current snapshot
+   @public
    */
   changedAttributes(): ChangedAttributesHash {
     let changedAttributes = Object.create(null);
@@ -278,6 +301,7 @@ export default class Snapshot implements Snapshot {
    @method belongsTo
    @param {String} keyName
    @param {Object} [options]
+   @public
    @return {(Snapshot|String|null|undefined)} A snapshot or ID of a known
    relationship or null if the relationship is known but unset. undefined
    will be returned if the contents of the relationship is unknown.
@@ -375,6 +399,7 @@ export default class Snapshot implements Snapshot {
    @method hasMany
    @param {String} keyName
    @param {Object} [options]
+   @public
    @return {(Array|undefined)} An array of snapshots or IDs of a known
    relationship or an empty array if the relationship is known but unset.
    undefined will be returned if the contents of the relationship is unknown.
@@ -463,6 +488,7 @@ export default class Snapshot implements Snapshot {
     @method eachAttribute
     @param {Function} callback the callback to execute
     @param {Object} [binding] the value to which the callback's `this` should be bound
+    @public
   */
   eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
     if (CUSTOM_MODEL_CLASS) {
@@ -491,6 +517,7 @@ export default class Snapshot implements Snapshot {
     @method eachRelationship
     @param {Function} callback the callback to execute
     @param {Object} [binding] the value to which the callback's `this` should be bound
+    @public
   */
   eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
     if (CUSTOM_MODEL_CLASS) {
@@ -528,6 +555,7 @@ export default class Snapshot implements Snapshot {
     @method serialize
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
+    @public
    */
   serialize(options: unknown): unknown {
     return this._store.serializerFor(this.modelName).serialize(this, options);

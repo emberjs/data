@@ -27,6 +27,7 @@ function isNumber(value) {
   ```
 
   @class NumberTransform
+  @public
   @extends Transform
  */
 export default Transform.extend({

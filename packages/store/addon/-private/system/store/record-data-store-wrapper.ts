@@ -32,17 +32,8 @@ if (HAS_RECORD_DATA_PACKAGE) {
 }
 
 export default class RecordDataStoreWrapper implements StoreWrapper {
-  /**
-   * @internal
-   */
   declare _willNotify: boolean;
-  /**
-   * @internal
-   */
   declare _pendingNotifies: Map<StableRecordIdentifier, Map<string, string>>;
-  /**
-   * @internal
-   */
   declare _store: CoreStore;
 
   constructor(_store: CoreStore) {
@@ -55,19 +46,6 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     return identifierCacheFor(this._store);
   }
 
-  /**
-   * Exists so that DefaultRecordData can check for model types
-   * in DEBUG for relationships. Should be refactored away.
-   *
-   * @internal
-   */
-  _hasModelFor(type: string) {
-    return this._store._hasModelFor(type);
-  }
-
-  /**
-   * @internal
-   */
   _scheduleNotification(identifier: StableRecordIdentifier, key: string, kind: 'belongsTo' | 'hasMany') {
     let pending = this._pendingNotifies.get(identifier);
 

@@ -22,6 +22,7 @@ import Transform from './transform';
  ```
 
  @class DateTransform
+  @public
  @extends Transform
  */
 

@@ -42,6 +42,7 @@ export function internalModelForReference(reference: Reference): InternalModel |
   like RecordReference/HasManyReference/BelongsToReference
 
  @class Reference
+ @public
  */
 interface Reference {
   links(): PaginationLinks | null;
@@ -96,6 +97,7 @@ abstract class Reference {
    ```
 
    @method remoteType
+   @public
    @return {String} The name of the remote type. This should either be "link" or "ids"
    */
   remoteType(): 'link' | 'id' | 'identity' {
@@ -141,6 +143,7 @@ abstract class Reference {
    ```
 
    @method link
+   @public
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
   link(): string | null {
@@ -199,6 +202,7 @@ abstract class Reference {
    ```
 
    @method meta
+    @public
    @return {Object} The meta information for the belongs-to relationship.
    */
   meta() {
