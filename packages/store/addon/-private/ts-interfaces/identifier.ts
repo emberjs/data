@@ -155,6 +155,7 @@ export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewR
   @for @ember-data/store
   @param method
   @public
+  @static
 */
 export type GenerationMethod = (data: Object, bucket: string) => string;
 
@@ -191,6 +192,7 @@ export type GenerationMethod = (data: Object, bucket: string) => string;
   @for @ember-data/store
   @param method
   @public
+  @static
 */
 export type UpdateMethod = (identifier: StableIdentifier, newData: Object, bucket: string) => void;
 
@@ -210,6 +212,7 @@ export type UpdateMethod = (identifier: StableIdentifier, newData: Object, bucke
   @for @ember-data/store
   @param method
   @public
+  @static
 */
 export type ForgetMethod = (identifier: StableIdentifier, bucket: string) => void;
 
@@ -231,5 +234,6 @@ export type ForgetMethod = (identifier: StableIdentifier, bucket: string) => voi
   @for @ember-data/store
   @param method
   @public
+  @static
 */
 export type ResetMethod = () => void;
