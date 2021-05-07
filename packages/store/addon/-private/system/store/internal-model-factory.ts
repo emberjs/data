@@ -35,6 +35,7 @@ export function peekRecordIdentifier(record: any): StableRecordIdentifier | unde
  *
  * @method recordIdentifierFor
  * @public
+ * @static
  * @for @ember-data/store
  * @param {Object} record a record instance previously obstained from the store.
  * @returns
