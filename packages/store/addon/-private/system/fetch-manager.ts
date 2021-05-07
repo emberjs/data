@@ -485,7 +485,12 @@ export default class FetchManager {
         snapshots[i] = new Snapshot(options, identifiers[i], this._store);
       }
 
-      let groups: Snapshot[][] = adapter.groupRecordsForFindMany(this, snapshots);
+      let groups: Snapshot[][];
+      if (adapter.groupRecordsForFindMany) {
+        groups = adapter.groupRecordsForFindMany(this, snapshots);
+      } else {
+        groups = [snapshots];
+      }
 
       for (let i = 0, l = groups.length; i < l; i++) {
         this._processCoalescedGroup(seeking, groups[i], adapter, optionsMap, modelName);
