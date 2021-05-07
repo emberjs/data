@@ -13,6 +13,7 @@ import { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
@@ -999,8 +1000,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - hasMany relationships faithfully reflect removal from response', async function (assert) {
-    Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
-    Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+    class Post extends Model {
+      @hasMany('comment', { async: false }) comments;
+    }
+    class Comment extends Model {
+      @belongsTo('post', { async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     store.push({
       data: {
@@ -1038,8 +1046,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - hasMany relationships set locally will be removed with empty response', async function (assert) {
-    Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
-    Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+    class Post extends Model {
+      @hasMany('comment', { async: false }) comments;
+    }
+    class Comment extends Model {
+      @belongsTo('post', { async: false }) post;
+    }
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     store.push({
       data: {
