@@ -46,8 +46,8 @@ export default class NotificationManager {
     return unsubToken;
   }
 
-  notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): void;
-  notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
+  notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): boolean;
+  notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
   notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {
     let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
     let callback = Cache.get(stableIdentifier);
