@@ -9,11 +9,19 @@ type UnsubscribeToken = Object;
 const Cache = new WeakMap<StableRecordIdentifier, NotificationCallback>();
 const Tokens = new WeakMap<UnsubscribeToken, StableRecordIdentifier>();
 
-interface NotificationCallback {
-  (
-    identifier: StableRecordIdentifier,
-    notificationType: 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'unload' | 'property' | 'state'
-  ): void;
+export type NotificationType =
+  | 'attributes'
+  | 'relationships'
+  | 'identity'
+  | 'errors'
+  | 'meta'
+  | 'unload'
+  | 'property'
+  | 'state';
+export interface NotificationCallback {
+  (identifier: RecordIdentifier, notificationType: 'attributes' | 'relationships' | 'property', key?: string): void;
+  (identifier: RecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
+  (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
 }
 
 export function unsubscribe(token: UnsubscribeToken) {
@@ -37,16 +45,15 @@ export default class NotificationManager {
     return identifier;
   }
 
-  notify(
-    identifier: RecordIdentifier,
-    value: 'attributes' | 'relationships' | 'errors' | 'meta' | 'identity' | 'unload' | 'property' | 'state'
-  ): boolean {
+  notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): void;
+  notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
+  notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {
     let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
     let callback = Cache.get(stableIdentifier);
     if (!callback) {
       return false;
     }
-    callback(stableIdentifier, value);
+    callback(stableIdentifier, value, key);
     return true;
   }
 }
