@@ -29,6 +29,7 @@ export function unsubscribe(token: UnsubscribeToken) {
   if (!identifier) {
     throw new Error('Passed unknown unsubscribe token to unsubscribe');
   }
+  Tokens.delete(token);
   Cache.delete(identifier);
 }
 /*
@@ -40,9 +41,9 @@ export default class NotificationManager {
   subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
     Cache.set(stableIdentifier, callback);
-    let unsubToken = new Object();
+    let unsubToken = {};
     Tokens.set(unsubToken, stableIdentifier);
-    return identifier;
+    return unsubToken;
   }
 
   notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): void;
