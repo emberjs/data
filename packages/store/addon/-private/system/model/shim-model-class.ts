@@ -23,6 +23,16 @@ export function getShimClass(store: CoreStore, modelName: string): ShimModelClas
   return shim;
 }
 
+function mapFromHash<T>(hash: Dict<T>): Map<string, T> {
+  let map = new Map();
+  for (let i in hash) {
+    if (Object.prototype.hasOwnProperty.call(hash, i)) {
+      map.set(i, hash[i]);
+    }
+  }
+  return map;
+}
+
 // Mimics the static apis of DSModel
 export default class ShimModelClass implements ModelSchema {
   // TODO Maybe expose the class here?
@@ -39,12 +49,12 @@ export default class ShimModelClass implements ModelSchema {
 
   get attributes(): Map<string, AttributeSchema> {
     let attrs = this.__store._attributesDefinitionFor(this.modelName);
-    return new Map(Object.entries(attrs) as [string, AttributeSchema][]);
+    return mapFromHash(attrs);
   }
 
   get relationshipsByName(): Map<string, RelationshipSchema> {
     let relationships = this.__store._relationshipsDefinitionFor(this.modelName);
-    return new Map(Object.entries(relationships) as [string, RelationshipSchema][]);
+    return mapFromHash(relationships);
   }
 
   eachAttribute<T>(callback: (this: T, key: string, attribute: AttributeSchema) => void, binding?: T) {
