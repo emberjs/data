@@ -16,8 +16,9 @@ export type NotificationType =
   | 'errors'
   | 'meta'
   | 'unload'
-  | 'property'
-  | 'state';
+  | 'state'
+  | 'property'; // 'property' is an internal EmberData only transition period concept.
+
 export interface NotificationCallback {
   (identifier: RecordIdentifier, notificationType: 'attributes' | 'relationships' | 'property', key?: string): void;
   (identifier: RecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): void;
