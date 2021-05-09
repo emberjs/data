@@ -10,16 +10,13 @@ export default Route.extend({
     performance.mark('start-push-payload');
     const parent = this.store.push(payload);
     performance.mark('start-destroy-records');
-    const childrenPromise = all(
-      parent
-        .get('children')
-        .toArray()
-        .map((child) => child.destroyRecord())
-    );
+    const children = await parent.children;
+
+    const childrenPromise = all(children.map((child) => child.destroyRecord()));
     const parentPromise = parent.destroyRecord();
 
-    return all([childrenPromise, parentPromise]).then(() => {
-      performance.mark('end-destroy-records');
-    });
+    await all([childrenPromise, parentPromise]);
+
+    performance.mark('end-destroy-records');
   },
 });

@@ -1,5 +1,6 @@
 import { get, observer } from '@ember/object';
 import { run } from '@ember/runloop';
+import settled from '@ember/test-helpers/settled';
 
 import { module, test } from 'qunit';
 import { hash, Promise as EmberPromise } from 'rsvp';
@@ -2326,7 +2327,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     let store = this.owner.lookup('service:store');
     let tag = store.createRecord('tag');
 
-    assert.ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
+    assert.ok(tag.get('people') instanceof DS.PromiseManyArray, 'people should be an async relationship');
   });
 
   test('hasMany is stable', function (assert) {
@@ -2378,22 +2379,13 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
 
     return peopleProxy.then((people) => {
       run(() => {
-        let isRecordDataBuild = people.recordData !== undefined;
         tag.unloadRecord();
         // TODO Check all unloading behavior
         assert.false(people.isDestroying, 'people is NOT destroying sync after unloadRecord');
         assert.false(people.isDestroyed, 'people is NOT destroyed sync after unloadRecord');
 
-        // unload is not the same as destroy, and we may cancel
-        //  prior to RecordData, this was coupled to the destroy
-        //  of the relationship, which was async and possibly could
-        //  be cancelled were an unload to be aborted.
-        assert.equal(
-          peopleProxy.isDestroying,
-          isRecordDataBuild,
-          'peopleProxy is not destroying sync after unloadRecord'
-        );
-        assert.false(peopleProxy.isDestroyed, 'peopleProxy is NOT YET destroyed sync after unloadRecord');
+        assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying sync after unloadRecord');
+        assert.true(peopleProxy.isDestroyed, 'peopleProxy is destroyed sync after unloadRecord');
       });
 
       assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying after the run post unloadRecord');
@@ -2401,7 +2393,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     });
   });
 
-  test('DS.ManyArray is lazy', function (assert) {
+  test('DS.ManyArray is lazy', async function (assert) {
     let peopleDidChange = 0;
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
@@ -2426,11 +2418,11 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
 
     //assert.ok(!hasManyRelationship._manyArray);
 
-    run(() => {
-      assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
-      tag.get('people');
-      assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (sync after access)');
-    });
+    assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
+    tag.people; // access async relationship
+    assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (sync after access)');
+
+    await settled();
 
     assert.equal(
       peopleDidChange,
@@ -2441,18 +2433,10 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
 
     let person = store.createRecord('person');
 
-    run(() => {
-      assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
-      tag.get('people').addObject(person);
-      /*
-       We expect two notifications here because `people` is an async relationship.
-       For async relationships we notify the primary key in addition to notifying
-       the ManyArray that it needs to dirty and retrieveLatest.
-
-       Since our observer watches `people.@each` it will receive both notifications.
-      */
-      assert.equal(peopleDidChange, 2, 'expect people hasMany to have notified twice');
-    });
+    assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
+    const people = await tag.people;
+    people.addObject(person);
+    assert.strictEqual(peopleDidChange, 1, 'expect people hasMany to have changed exactly once');
   });
 
   test('fetch hasMany loads full relationship after a parent and child have been loaded', function (assert) {

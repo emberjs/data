@@ -12,7 +12,7 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
-import { PromiseArray, Snapshot } from '@ember-data/store/-private';
+import { Snapshot } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 function moveRecordOutOfInFlight(record) {
@@ -1144,7 +1144,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
               },
             },
           });
-          assert.ok(tom.get('dogs') instanceof PromiseArray, 'dogs is a promise');
+          assert.ok(typeof tom.dogs.then === 'function', 'dogs is a thenable');
           return tom.get('dogs');
         })
         .then((dogs) => {
@@ -1180,12 +1180,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let tom = store.createRecord('person', { name: 'Tom Dale' });
 
     run(() => {
-      assert.ok(tom.get('dogs') instanceof PromiseArray, 'dogs is a promise before save');
+      assert.ok(typeof tom.dogs.then === 'function', 'dogs is a thenable before save');
     });
 
     return run(() => {
       return tom.save().then(() => {
-        assert.ok(tom.get('dogs') instanceof PromiseArray, 'dogs is a promise after save');
+        assert.ok(typeof tom.dogs.then === 'function', 'dogs is a thenable after save');
       });
     });
   });

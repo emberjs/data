@@ -57,7 +57,7 @@ const { hasOwnProperty } = Object.prototype;
 
 let ManyArray: ManyArray;
 let PromiseBelongsTo: PromiseBelongsTo;
-let PromiseManyArray: PromiseManyArray;
+let _PromiseManyArray: any; // TODO find a way to get the klass type here
 
 let _found = false;
 let _getModelPackage: () => boolean;
@@ -65,8 +65,8 @@ if (HAS_MODEL_PACKAGE) {
   _getModelPackage = function () {
     if (!_found) {
       let modelPackage = require('@ember-data/model/-private');
-      ({ ManyArray, PromiseBelongsTo, PromiseManyArray } = modelPackage);
-      if (ManyArray && PromiseBelongsTo && PromiseManyArray) {
+      ({ ManyArray, PromiseBelongsTo, PromiseManyArray: _PromiseManyArray } = modelPackage);
+      if (ManyArray && PromiseBelongsTo && _PromiseManyArray) {
         _found = true;
       }
     }
@@ -712,6 +712,14 @@ export default class InternalModel {
     }
   ) {
     let promiseProxy = this._relationshipProxyCache[key];
+    if (kind === 'hasMany') {
+      if (promiseProxy) {
+        promiseProxy._update(args.promise, args.content);
+      } else {
+        promiseProxy = this._relationshipProxyCache[key] = new _PromiseManyArray(args.promise, args.content);
+      }
+      return promiseProxy;
+    }
     if (promiseProxy) {
       if (args.content !== undefined) {
         // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
@@ -719,7 +727,7 @@ export default class InternalModel {
       }
       promiseProxy.set('promise', args.promise);
     } else {
-      const klass = kind === 'hasMany' ? PromiseManyArray : PromiseBelongsTo;
+      const klass = PromiseBelongsTo;
       // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
       this._relationshipProxyCache[key] = klass.create(args as any);
     }
