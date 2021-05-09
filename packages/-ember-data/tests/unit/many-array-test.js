@@ -105,6 +105,7 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
     let willChangeRemoveAmt;
     let willChangeAddAmt;
 
+    DS.ManyArray.proto().__hasArrayObservers = true;
     let originalArrayContentWillChange = DS.ManyArray.proto().arrayContentWillChange;
     let originalArrayContentDidChange = DS.ManyArray.proto().arrayContentDidChange;
 

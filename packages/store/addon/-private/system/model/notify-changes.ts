@@ -50,14 +50,17 @@ function notifyRelationship(store: CoreStore, identifier: StableRecordIdentifier
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
   } else if (meta.kind === 'hasMany') {
-    let didRemoveUnloadedModel = false;
-    if (meta.options.async) {
-      record.notifyPropertyChange(key);
-      didRemoveUnloadedModel = internalModel.hasManyRemovalCheck(key);
-    }
-    let manyArray = internalModel._manyArrayCache[key] || internalModel._retainedManyArrayCache[key];
-    if (manyArray && !didRemoveUnloadedModel) {
-      manyArray.retrieveLatest();
+    let manyArray = internalModel._manyArrayCache[key];
+
+    if (manyArray) {
+      manyArray.notify();
+
+      //We need to notifyPropertyChange in the adding case because we need to make sure
+      //we fetch the newly added record in case it is unloaded
+      //TODO(Igor): Consider whether we could do this only if the record state is unloaded
+      if (!meta.options || meta.options.async || meta.options.async === undefined) {
+        record.notifyPropertyChange(key);
+      }
     }
   }
 }

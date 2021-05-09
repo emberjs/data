@@ -1,5 +1,5 @@
 /**
-  @module @ember-data/store
+  @module @ember-data/model
 */
 
 /**

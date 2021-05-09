@@ -206,7 +206,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
 
   /**
     @method _unregisterFromManager
-    @private
+    @internal
   */
   _unregisterFromManager() {
     this.manager.unregisterRecordArray(this);
@@ -238,7 +238,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
 
   /**
     @method _dissociateFromOwnRecords
-    @private
+    @internal
   */
   _dissociateFromOwnRecords() {
     this.get('content').forEach((identifier) => {
@@ -254,7 +254,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     Adds identifiers to the `RecordArray` without duplicates
 
     @method _pushIdentifiers
-    @private
+    @internal
     @param {StableRecordIdentifier[]} identifiers
   */
   _pushIdentifiers(identifiers) {
@@ -265,7 +265,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     Removes identifiers from the `RecordArray`.
 
     @method _removeIdentifiers
-    @private
+    @internal
     @param {StableRecordIdentifier[]} identifiers
   */
   _removeIdentifiers(identifiers) {
@@ -274,7 +274,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
 
   /**
     @method _takeSnapshot
-    @private
+    @internal
   */
   _takeSnapshot() {
     return get(this, 'content').map((identifier) =>

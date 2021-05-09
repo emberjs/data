@@ -13,13 +13,13 @@ import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
 
+type CollectionResourceRelationship = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
 type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
 type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultSingleResourceRelationship = import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
-type DefaultCollectionResourceRelationship = import('./ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
 type JsonApiResource = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiResource;
 type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
 type AttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').AttributesHash;
@@ -292,14 +292,13 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._isNew = false;
     let newCanonicalAttributes: AttributesHash | null = null;
     if (data) {
-      // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
-      if (data.relationships) {
-        this._setupRelationships(data);
-      }
       if (data.id) {
         // didCommit provided an ID, notify the store of it
         this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
         this.id = coerceId(data.id);
+      }
+      if (data.relationships) {
+        this._setupRelationships(data);
       }
       newCanonicalAttributes = data.attributes || null;
     }
@@ -323,7 +322,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   // get ResourceIdentifiers for "current state"
-  getHasMany(key: string): DefaultCollectionResourceRelationship {
+  getHasMany(key: string): CollectionResourceRelationship {
     return (graphFor(this.storeWrapper).get(this.identifier, key) as ManyRelationship).getData();
   }
 

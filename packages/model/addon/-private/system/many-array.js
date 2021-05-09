@@ -8,8 +8,9 @@ import EmberObject, { get } from '@ember/object';
 
 import { all } from 'rsvp';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import { _objectIsAlive, DeprecatedEvented, diffArray, PromiseArray, recordDataFor } from '@ember-data/store/-private';
+import { DeprecatedEvented, PromiseArray, recordDataFor } from '@ember-data/store/-private';
+
+import diffArray from './diff-array';
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -57,8 +58,7 @@ import { _objectIsAlive, DeprecatedEvented, diffArray, PromiseArray, recordDataF
   @uses Ember.MutableArray, DeprecatedEvented
 */
 export default EmberObject.extend(MutableArray, DeprecatedEvented, {
-  // here to make TS happy
-  _inverseIsAsync: false,
+  isAsync: false,
   isLoaded: false,
 
   init() {
@@ -72,17 +72,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     */
     this.isLoaded = this.isLoaded || false;
 
-    // async has-many rendering tests
     this._length = 0;
-
-    /**
-    Used for async `hasMany` arrays
-    to keep track of when they will resolve.
-
-    @property {Ember.RSVP.Promise} promise
-    @private
-    */
-    this.promise = null;
 
     /**
     Metadata associated with the request for async hasMany relationships.
@@ -111,19 +101,25 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     You can then access the meta data via the `meta` property:
 
     ```js
-    post.get('comments').then(function(comments) {
-      var meta = comments.get('meta');
+    let comments = await post.comments;
+    let meta = comments.meta;
 
     // meta.page => 1
     // meta.total => 5
-    });
     ```
 
-    @property {Object} meta
+    @property {Object | null} meta
     @public
     */
-    // TODO this is likely broken in our refactor
-    this.meta = this.meta || null;
+    this._meta = this._meta || null;
+
+    /**
+     * Retrieve the links for this relationship
+     * 
+     @property {Object | null} links
+     @public
+     */
+    this._links = this._links || null;
 
     /**
     `true` if the relationship is polymorphic, `false` otherwise.
@@ -140,39 +136,33 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     @private
     */
     this.currentState = [];
-    this.flushCanonical(this.initialState, false);
-    // we don't need this anymore, it just prevents garbage collection the records in the initialState
-    this.initialState = undefined;
+    this._isUpdating = false;
+    this._isDirty = false;
+    // make sure we initialize to the correct state
+    // since the user has already accessed
+    this.retrieveLatest();
   },
 
-  // TODO: if(DEBUG)
-  anyUnloaded() {
-    // Use `filter[0]` as opposed to `find` because of IE11
-    let unloaded = this.currentState.filter((im) => im._isDematerializing || !im.currentState.isLoaded)[0];
-    return !!unloaded;
+  // TODO refactor away _hasArrayObservers for tests
+  get _hasArrayObservers() {
+    return this.hasArrayObservers || this.__hasArrayObservers;
   },
 
-  removeUnloadedInternalModel() {
-    for (let i = 0; i < this.currentState.length; ++i) {
-      let internalModel = this.currentState[i];
-      let shouldRemove;
-      if (CUSTOM_MODEL_CLASS) {
-        shouldRemove = internalModel._isDematerializing;
-      } else {
-        shouldRemove = internalModel._isDematerializing || !internalModel.currentState.isLoaded;
-      }
-      if (shouldRemove) {
-        this.arrayContentWillChange(i, 1, 0);
-        this.currentState.splice(i, 1);
-        this.set('length', this.currentState.length);
-        this.arrayContentDidChange(i, 1, 0);
-        return true;
-      }
+  notify() {
+    this._isDirty = true;
+    if (this._hasArrayObservers) {
+      this.retrieveLatest();
+    } else {
+      this.notifyPropertyChange('[]');
+      this.notifyPropertyChange('firstObject');
+      this.notifyPropertyChange('lastObject');
     }
-    return false;
   },
 
   get length() {
+    if (this._isDirty) {
+      this.retrieveLatest();
+    }
     // By using `get()`, the tracking system knows to pay attention to changes that occur.
     get(this, '[]');
 
@@ -183,7 +173,32 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     this._length = value;
   },
 
+  get links() {
+    get(this, '[]');
+    if (this._isDirty) {
+      this.retrieveLatest();
+    }
+    return this._links;
+  },
+  set links(v) {
+    this._links = v;
+  },
+
+  get meta() {
+    get(this, '[]');
+    if (this._isDirty) {
+      this.retrieveLatest();
+    }
+    return this._meta;
+  },
+  set meta(v) {
+    this._meta = v;
+  },
+
   objectAt(index) {
+    if (this._isDirty) {
+      this.retrieveLatest();
+    }
     let internalModel = this.currentState[index];
     if (internalModel === undefined) {
       return;
@@ -192,35 +207,14 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     return internalModel.getRecord();
   },
 
-  flushCanonical(toSet, isInitialized = true) {
-    // It’s possible the parent side of the relationship may have been unloaded by this point
-    if (!_objectIsAlive(this)) {
-      return;
-    }
-    // diff to find changes
-    let diff = diffArray(this.currentState, toSet);
-    if (diff.firstChangeIndex !== null) {
-      // it's null if no change found
-      // we found a change
-      this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
-      this.set('length', toSet.length);
-      this.currentState = toSet.slice();
-      this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
-      if (isInitialized && diff.addedCount > 0) {
-        //notify only on additions
-        //TODO only notify if unloaded
-        this.internalModel.manyArrayRecordAdded(this.get('key'));
-      }
-    }
-  },
-
   replace(idx, amt, objects) {
+    assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
     this.store._backburner.join(() => {
       let internalModels;
       if (amt > 0) {
         internalModels = this.currentState.slice(idx, idx + amt);
-        this.get('recordData').removeFromHasMany(
-          this.get('key'),
+        this.recordData.removeFromHasMany(
+          this.key,
           internalModels.map((im) => recordDataFor(im))
         );
       }
@@ -229,32 +223,62 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
           'The third argument to replace needs to be an array.',
           Array.isArray(objects) || EmberArray.detect(objects)
         );
-        this.get('recordData').addToHasMany(
-          this.get('key'),
+        this.recordData.addToHasMany(
+          this.key,
           objects.map((obj) => recordDataFor(obj)),
           idx
         );
       }
-      this.retrieveLatest();
+      this.notify();
     });
   },
 
-  // Ok this is kinda funky because if buggy we might lose positions, etc.
-  // but current code is this way so shouldn't be too big of a problem
   retrieveLatest() {
-    let jsonApi = this.get('recordData').getHasMany(this.get('key'));
-    // TODO this is odd, why should ManyArray ever tell itself to resync?
-    let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
+    // It’s possible the parent side of the relationship may have been destroyed by this point
+    if (this.isDestroyed || this.isDestroying || this._isUpdating) {
+      return;
+    }
+    this._isDirty = false;
+    this._isUpdating = true;
+    let jsonApi = this.recordData.getHasMany(this.key);
+
+    let internalModels = [];
+    if (jsonApi.data) {
+      for (let i = 0; i < jsonApi.data.length; i++) {
+        let im = this.store._internalModelForResource(jsonApi.data[i]);
+        let shouldRemove = im._isDematerializing || im.currentState.isEmpty || !im.currentState.isLoaded;
+
+        if (!shouldRemove) {
+          internalModels.push(im);
+        }
+      }
+    }
 
     if (jsonApi.meta) {
-      this.set('meta', jsonApi.meta);
+      this._meta = jsonApi.meta;
     }
 
     if (jsonApi.links) {
-      this.set('links', jsonApi.links);
+      this._links = jsonApi.links;
     }
 
-    this.flushCanonical(internalModels, true);
+    if (this._hasArrayObservers) {
+      // diff to find changes
+      let diff = diffArray(this.currentState, internalModels);
+      // it's null if no change found
+      if (diff.firstChangeIndex !== null) {
+        // we found a change
+        this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+        this._length = internalModels.length;
+        this.currentState = internalModels;
+        this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+      }
+    } else {
+      this._length = internalModels.length;
+      this.currentState = internalModels;
+    }
+
+    this._isUpdating = false;
   },
 
   /**
@@ -269,12 +293,11 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     Example
 
     ```javascript
-    var user = store.peekRecord('user', 1)
-    user.login().then(function() {
-      user.get('permissions').then(function(permissions) {
-        return permissions.reload();
-      });
-    });
+    let user = store.peekRecord('user', '1')
+    await login(user);
+ 
+    let permissions = await user.permissions;
+    await permissions.reload();
     ```
 
     @method reload
@@ -282,7 +305,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   */
   reload(options) {
     // TODO this is odd, we don't ask the store for anything else like this?
-    return this.get('store').reloadManyArray(this, this.get('internalModel'), this.get('key'), options);
+    return this.store.reloadManyArray(this, this.internalModel, this.key, options);
   },
 
   /**
@@ -291,14 +314,12 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     Example
 
     ```javascript
-    store.findRecord('inbox', 1).then(function(inbox) {
-      inbox.get('messages').then(function(messages) {
-        messages.forEach(function(message) {
-          message.set('isRead', true);
-        });
-        messages.save()
-      });
+    let inbox = await store.findRecord('inbox', '1');
+    let messages = await inbox.messages;
+    messages.forEach((message) => {
+      message.isRead = true;
     });
+    messages.save();
     ```
 
     @method save
@@ -307,13 +328,14 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   */
   save() {
     let manyArray = this;
-    let promiseLabel = 'DS: ManyArray#save ' + get(this, 'type');
+    let promiseLabel = 'DS: ManyArray#save ' + this.type;
     let promise = all(this.invoke('save'), promiseLabel).then(
       () => manyArray,
       null,
       'DS: ManyArray#save return ManyArray'
     );
 
+    // TODO deprecate returning a promiseArray here
     return PromiseArray.create({ promise });
   },
 
@@ -326,10 +348,8 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     @return {Model} record
   */
   createRecord(hash) {
-    const store = get(this, 'store');
-    const type = get(this, 'type');
+    const { store, type } = this;
 
-    assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
     let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 

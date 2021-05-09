@@ -633,7 +633,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
     siblings.removeArrayObserver(observer);
   });
 
-  test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', function (assert) {
+  test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', async function (assert) {
     let store = this.owner.lookup('service:store');
 
     let willChangeCount = 0;
@@ -675,29 +675,33 @@ module('integration/records/relationship-changes - Relationship changes', functi
       },
     };
 
-    let siblings = run(() => person.get('siblings'));
-    siblings.addArrayObserver(observer);
+    const siblingsProxy = person.siblings;
+    const siblings = await siblingsProxy;
+    siblingsProxy.addArrayObserver(observer);
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling2Ref],
-            },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {},
+        relationships: {
+          siblings: {
+            data: [sibling1Ref, sibling2Ref],
           },
         },
-        included: [sibling2],
-      });
+      },
+      included: [sibling1],
     });
 
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+    assert.deepEqual(
+      siblings.map((i) => i.id),
+      ['1', '2'],
+      'We have the correct siblings'
+    );
 
-    siblings.removeArrayObserver(observer);
+    siblingsProxy.removeArrayObserver(observer);
   });
 
   test('Calling push with relationship triggers willChange and didChange with detail when inserting in middle', function (assert) {

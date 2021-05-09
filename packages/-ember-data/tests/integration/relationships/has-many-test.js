@@ -1399,7 +1399,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }
   );
 
-  test('An updated `links` value should invalidate a relationship cache', function (assert) {
+  test('An updated `links` value should invalidate a relationship cache', async function (assert) {
     assert.expect(8);
 
     let store = this.owner.lookup('service:store');
@@ -1448,31 +1448,27 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       post = store.peekRecord('post', 1);
     });
 
-    run(function () {
-      post.get('comments').then(function (comments) {
-        assert.true(comments.get('isLoaded'), 'comments are loaded');
-        assert.equal(comments.get('length'), 2, 'comments have 2 length');
-        assert.equal(comments.objectAt(0).get('body'), 'First', 'comment 1 successfully loaded');
-        store.push({
-          data: {
-            type: 'post',
-            id: '1',
-            relationships: {
-              comments: {
-                links: {
-                  related: '/second',
-                },
-              },
+    const comments = await post.get('comments');
+    assert.true(comments.get('isLoaded'), 'comments are loaded');
+    assert.equal(comments.get('length'), 2, 'comments have 2 length');
+    assert.equal(comments.objectAt(0).get('body'), 'First', 'comment 1 successfully loaded');
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: '/second',
             },
           },
-        });
-        post.get('comments').then(function (newComments) {
-          assert.equal(comments, newComments, 'hasMany array was kept the same');
-          assert.equal(newComments.get('length'), 3, 'comments updated successfully');
-          assert.equal(newComments.objectAt(0).get('body'), 'Third', 'third comment loaded successfully');
-        });
-      });
+        },
+      },
     });
+    const newComments = await post.get('comments');
+    assert.true(comments === newComments, 'hasMany array was kept the same');
+    assert.strictEqual(newComments.get('length'), 3, 'comments updated successfully');
+    assert.strictEqual(newComments.objectAt(0).get('body'), 'Third', 'third comment loaded successfully');
   });
 
   test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function (assert) {
@@ -1770,40 +1766,6 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     assert.equal(post.get('contact'), email, 'The polymorphic belongsTo is set up correctly');
     assert.equal(get(email, 'posts.length'), 1, 'The inverse has many is set up correctly on the email side.');
-  });
-
-  testInDebug("A record can't be created from a polymorphic hasMany relationship", function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-
-    adapter.shouldBackgroundReloadRecord = () => false;
-
-    run(function () {
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-          relationships: {
-            messages: {
-              data: [],
-            },
-          },
-        },
-      });
-    });
-
-    run(function () {
-      store
-        .findRecord('user', 1)
-        .then(function (user) {
-          return user.get('messages');
-        })
-        .then(function (messages) {
-          assert.expectAssertion(function () {
-            messages.createRecord();
-          }, /You cannot add 'message' records to this polymorphic relationship/);
-        });
-    });
   });
 
   testInDebug('Only records of the same type can be added to a monomorphic hasMany relationship', function (assert) {

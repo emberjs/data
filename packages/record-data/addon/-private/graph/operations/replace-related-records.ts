@@ -323,7 +323,7 @@ export function removeFromInverse(
 export function syncRemoteToLocal(rel: ManyRelationship) {
   let toSet = rel.canonicalState;
   let newRecordDatas = rel.currentState.filter((recordData) => isNew(recordData) && toSet.indexOf(recordData) === -1);
-
+  let existingState = rel.currentState;
   rel.currentState = toSet.concat(newRecordDatas);
 
   let members = (rel.members = new Set<StableRecordIdentifier>());
@@ -331,7 +331,18 @@ export function syncRemoteToLocal(rel: ManyRelationship) {
   for (let i = 0; i < newRecordDatas.length; i++) {
     members.add(newRecordDatas[i]);
   }
-  rel.notifyHasManyChange();
+
+  // TODO always notifying fails only one test and we should probably do away with it
+  if (existingState.length !== rel.currentState.length) {
+    rel.notifyHasManyChange();
+  } else {
+    for (let i = 0; i < existingState.length; i++) {
+      if (existingState[i] !== rel.currentState[i]) {
+        rel.notifyHasManyChange();
+        break;
+      }
+    }
+  }
 }
 
 function flushCanonical(graph: Graph, rel: ManyRelationship) {

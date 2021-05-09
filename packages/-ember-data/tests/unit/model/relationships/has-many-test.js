@@ -7,7 +7,6 @@ import { hash, Promise as EmberPromise } from 'rsvp';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
@@ -2404,7 +2403,6 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
 
   test('DS.ManyArray is lazy', function (assert) {
     let peopleDidChange = 0;
-    let expectedNumberOfChanges = CUSTOM_MODEL_CLASS ? 1 : 2;
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
       people: DS.hasMany('person'),
@@ -2446,7 +2444,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     run(() => {
       assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
       tag.get('people').addObject(person);
-      assert.equal(peopleDidChange, expectedNumberOfChanges, 'expect people hasMany to have changed exactly once');
+      assert.equal(peopleDidChange, 2, 'expect people hasMany to have changed exactly once');
     });
   });
 

@@ -122,7 +122,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.notEqual(rematerializedPerson, adam, 'the person is rematerialized, not recycled');
   });
 
-  test('an async has many relationship to an unloaded record can restore that record', function (assert) {
+  test('an async has many relationship to an unloaded record can restore that record', async function (assert) {
     assert.expect(16);
 
     const Person = Model.extend({
@@ -190,34 +190,27 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       };
     };
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland',
-          },
-          relationships: {
-            boats: {
-              data: [
-                { type: 'boat', id: '2' },
-                { type: 'boat', id: '1' },
-              ],
-            },
+    let adam = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland',
+        },
+        relationships: {
+          boats: {
+            data: [
+              { type: 'boat', id: '2' },
+              { type: 'boat', id: '1' },
+            ],
           },
         },
-      });
+      },
     });
 
-    run(() => {
-      store.push({
-        data: [deepCopy(BOAT_ONE), deepCopy(BOAT_TWO)],
-      });
+    let [boaty] = store.push({
+      data: [deepCopy(BOAT_ONE), deepCopy(BOAT_TWO)],
     });
-
-    let adam = store.peekRecord('person', '1');
-    let boaty = store.peekRecord('boat', '1');
 
     // assert our initial cache state
     assert.true(store.hasRecordForId('person', '1'), 'The person is in the store');
@@ -228,10 +221,10 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.true(store.hasRecordForId('boat', '1'), 'The boat is in the store');
     assert.true(store._internalModelsFor('boat').has('@ember-data:lid-boat-1'), 'The boat internalModel is loaded');
 
-    let boats = run(() => adam.get('boats'));
+    let boats = await adam.get('boats');
     assert.equal(boats.get('length'), 2, 'Before unloading boats.length is correct');
 
-    run(() => boaty.unloadRecord());
+    boaty.unloadRecord();
     assert.equal(boats.get('length'), 1, 'after unloading boats.length is correct');
 
     // assert our new cache state

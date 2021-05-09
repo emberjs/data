@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 
-import { diffArray } from '@ember-data/store/-private';
+import { diffArray } from '@ember-data/model/-private';
 
 const a = 'aaa';
 const b = 'bbb';
