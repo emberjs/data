@@ -2,7 +2,7 @@ name: Alpha Releases
 
 on:
   schedule:
-    - cron: '0 20 * * *' # daily 12 PM PST
+    - cron: '0 20 * * 3' # weekly (Wednesday) 12 PM PST
 
 jobs:
   test:
