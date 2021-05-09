@@ -1,5 +1,20 @@
 # Ember Data Changelog
 
+## Release 3.28.0-beta.0 (May 8, 2021)
+- [#7447](https://github.com/emberjs/data/pull/7447) Document adapterOptions on REST adapter (#7447)
+- [#7425](https://github.com/emberjs/data/pull/7425) Pass lid from relationship data to get record data (#7425)
+- [#7448](https://github.com/emberjs/data/pull/7448) Bugfix: coalesceFindRequests should work with non native Adapter classes (#7448)
+- [#7454](https://github.com/emberjs/data/pull/7454) [PERF] Class Fields Use Optimization & Made OrderedSet Faster (Again) (#7454)
+- [#7463](https://github.com/emberjs/data/pull/7463) chore: cleanup Implicit relationships (#7463)
+- [#7453](https://github.com/emberjs/data/pull/7453) [CHORE] burndown of InternalModel methods that can be eliminated safely (#7453)
+- [#7226](https://github.com/emberjs/data/pull/7226) refactor: Native Model (#7226)
+- [#7470](https://github.com/emberjs/data/pull/7470) chore: convert relationships to use identifiers (#7470)
+- [#7491](https://github.com/emberjs/data/pull/7491) relationship refactor part-1 (#7491)
+- [#7493](https://github.com/emberjs/data/pull/7493) Relationship Refactor (part 2): The graph should coordinate state updates (#7493)
+
+## Release 3.27.0 (May 8, 2021)
+- [#7435](https://github.com/emberjs/data/pull/7435) [Test]: fix for DataWrapper refactor in emberjs (#7435)
+
 ## Release 3.26.0 (March 26, 2021)
 - [#7435](https://github.com/emberjs/data/pull/7435) [Test]: fix for DataWrapper refactor in emberjs (#7435)
 - [#7416](https://github.com/emberjs/data/pull/7416) [Deps]: bump ember packages (#7416)
