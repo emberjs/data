@@ -157,8 +157,11 @@ function attr(type, options) {
           let errors = this.get('errors');
           if (errors.get(key)) {
             errors.remove(key);
+            this.___recordState.cleanErrorRequests();
+            if (errors.isEmpty) {
+              this._internalModel.send('becameValid');
+            }
           }
-          this.___recordState.cleanErrorRequests();
         }
       }
       return this._internalModel.setDirtyAttribute(key, value);
