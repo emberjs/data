@@ -152,14 +152,13 @@ function attr(type, options) {
         }
       }
       if (RECORD_DATA_ERRORS) {
-        let oldValue = this._internalModel._recordData.getAttr(key);
-        if (oldValue !== value) {
-          let errors = this.get('errors');
-          if (errors.get(key)) {
-            errors.remove(key);
-            this.___recordState.cleanErrorRequests();
-            if (errors.isEmpty) {
-              this._internalModel.send('becameValid');
+        if (!this.isValid) {
+          let oldValue = this._internalModel._recordData.getAttr(key);
+          if (oldValue !== value) {
+            const { errors } = this;
+            if (errors.get(key)) {
+              errors.remove(key);
+              this.___recordState.cleanErrorRequests();
             }
           }
         }

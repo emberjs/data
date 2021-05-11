@@ -554,16 +554,14 @@ class Model extends EmberObject {
   get errors() {
     let errors = Errors.create();
 
-    if (DEPRECATE_EVENTED_API_USAGE) {
-      errors._registerHandlers(
-        () => {
-          this.send('becameInvalid');
-        },
-        () => {
-          this.send('becameValid');
-        }
-      );
-    }
+    errors._registerHandlers(
+      () => {
+        this._internalModel.send('becameInvalid');
+      },
+      () => {
+        this._internalModel.send('becameValid');
+      }
+    );
     if (RECORD_DATA_ERRORS) {
       // TODO we should unify how errors gets populated
       // with the code managing the update. Probably a
