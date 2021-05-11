@@ -12,14 +12,21 @@ import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import { CUSTOM_MODEL_CLASS, REQUEST_SERVICE } from '@ember-data/canary-features';
+import { CUSTOM_MODEL_CLASS, RECORD_DATA_ERRORS, REQUEST_SERVICE } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EVENTED_API_USAGE,
   DEPRECATE_MODEL_TOJSON,
   DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
 } from '@ember-data/private-build-infra/deprecations';
-import { coerceId, DeprecatedEvented, InternalModel, PromiseObject } from '@ember-data/store/-private';
+import {
+  coerceId,
+  DeprecatedEvented,
+  errorsArrayToHash,
+  InternalModel,
+  PromiseObject,
+  recordDataFor,
+} from '@ember-data/store/-private';
 
 import Errors from './errors';
 import RecordState, { peekTag, tagged } from './record-state';
@@ -556,6 +563,24 @@ class Model extends EmberObject {
           this.send('becameValid');
         }
       );
+    }
+    if (RECORD_DATA_ERRORS) {
+      // TODO we should unify how errors gets populated
+      // with the code managing the update. Probably a
+      // lazy flush similar to retrieveLatest in ManyArray
+      let recordData = recordDataFor(this);
+      let jsonApiErrors;
+      if (recordData.getErrors) {
+        jsonApiErrors = recordData.getErrors();
+        if (jsonApiErrors) {
+          let errorsHash = errorsArrayToHash(jsonApiErrors);
+          let errorKeys = Object.keys(errorsHash);
+
+          for (let i = 0; i < errorKeys.length; i++) {
+            errors._add(errorKeys[i], errorsHash[errorKeys[i]]);
+          }
+        }
+      }
     }
     return errors;
   }
