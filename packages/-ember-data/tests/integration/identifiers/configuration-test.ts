@@ -22,7 +22,8 @@ import Store, {
 import { identifierCacheFor } from '@ember-data/store/-private';
 
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type ExistingResourceObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
+type ExistingResourceObject =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
 
 module('Integration | Identifiers - configuration', function (hooks) {
   setupTest(hooks);

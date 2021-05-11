@@ -28,6 +28,6 @@ export function addSymbol(obj: object, symbol: Symbol | string, value: any): voi
     });
   } else {
     // Typescript doesn't allow Symbol as an index type
-    obj[(symbol as unknown) as string] = value;
+    obj[symbol as unknown as string] = value;
   }
 }

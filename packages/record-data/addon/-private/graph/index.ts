@@ -338,7 +338,7 @@ export class Graph {
 
   willDestroy() {
     this.identifiers.clear();
-    this.store = (null as unknown) as RecordDataStoreWrapper;
+    this.store = null as unknown as RecordDataStoreWrapper;
   }
 
   destroy() {

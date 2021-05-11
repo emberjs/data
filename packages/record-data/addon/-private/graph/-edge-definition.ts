@@ -48,7 +48,7 @@ export interface EdgeDefinition {
   isReflexive: boolean;
 }
 
-const BOOL_LATER = (null as unknown) as boolean;
+const BOOL_LATER = null as unknown as boolean;
 const STR_LATER = '';
 const IMPLICIT_KEY_RAND = Date.now();
 

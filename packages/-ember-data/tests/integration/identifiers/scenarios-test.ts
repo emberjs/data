@@ -19,7 +19,8 @@ import { identifierCacheFor } from '@ember-data/store/-private';
 
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
-type ExistingResourceObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
+type ExistingResourceObject =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
 
 function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;

@@ -6,7 +6,8 @@ type ManyRelationship = import('../..').ManyRelationship;
 type UpgradedMeta = import('../../graph/-edge-definition').UpgradedMeta;
 type Graph = import('../../graph').Graph;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type DefaultSingleResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
+type DefaultSingleResourceRelationship =
+  import('../../ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
 
 type Links = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Links;
 

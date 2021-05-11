@@ -2576,7 +2576,7 @@ abstract class CoreStore extends Service {
       let resolver = pendingItem.resolver;
       // TODO We have to cast due to our reliance on this private property
       // this will be refactored away once we change our pending API to be identifier based
-      let internalModel = ((snapshot as unknown) as PrivateSnapshot)._internalModel;
+      let internalModel = (snapshot as unknown as PrivateSnapshot)._internalModel;
       let adapter = this.adapterFor(internalModel.modelName);
       let operation;
 
@@ -2970,7 +2970,7 @@ abstract class CoreStore extends Service {
     });
 
     // this typecast is necessary because `backburner.join` is mistyped to return void
-    return (internalModelOrModels as unknown) as InternalModel | InternalModel[];
+    return internalModelOrModels as unknown as InternalModel | InternalModel[];
   }
 
   _pushInternalModel(data) {

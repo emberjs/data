@@ -118,7 +118,7 @@ export default class FetchManager {
 
     // TODO We have to cast due to our reliance on this private property
     // this will be refactored away once we change our pending API to be identifier based
-    let internalModel = ((snapshot as unknown) as PrivateSnapshot)._internalModel;
+    let internalModel = (snapshot as unknown as PrivateSnapshot)._internalModel;
     let modelName = snapshot.modelName;
     let store = this._store;
     let modelClass = store.modelFor(modelName);
