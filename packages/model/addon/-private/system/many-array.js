@@ -138,6 +138,23 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     this.currentState = [];
     this._isUpdating = false;
     this._isDirty = false;
+    /*
+     * Unfortunately ArrayProxy adds it's observers lazily,
+     * so in a first-render situation we may sometimes notify
+     * prior to the ArrayProxy having installed it's observers
+     * (which occurs during _revalidate()).
+     *
+     * This leads to the flush occuring on access, the flush takes
+     * the hasObservers codepath which in code out of our control
+     * notifies again leading to a glimmer rendering invalidation error.
+     *
+     * We use this flag to detect the case where we notified without
+     * array observers but observers were installed prior to flush.
+     *
+     * We do not need to fire array observers at all in this case
+     * since it will be the first-access for those observers.
+     */
+    this._hasNotified = false;
     // make sure we initialize to the correct state
     // since the user has already accessed
     this.retrieveLatest();
@@ -150,9 +167,10 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
 
   notify() {
     this._isDirty = true;
-    if (this._hasArrayObservers) {
+    if (this._hasArrayObservers && !this._hasNotified) {
       this.retrieveLatest();
     } else {
+      this._hasNotified = true;
       this.notifyPropertyChange('[]');
       this.notifyPropertyChange('firstObject');
       this.notifyPropertyChange('lastObject');
@@ -262,7 +280,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       this._links = jsonApi.links;
     }
 
-    if (this._hasArrayObservers) {
+    if (this._hasArrayObservers && !this._hasNotified) {
       // diff to find changes
       let diff = diffArray(this.currentState, internalModels);
       // it's null if no change found
@@ -274,6 +292,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
         this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       }
     } else {
+      this._hasNotified = false;
       this._length = internalModels.length;
       this.currentState = internalModels;
     }

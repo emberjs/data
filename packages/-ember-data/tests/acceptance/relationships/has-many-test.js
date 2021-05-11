@@ -1,7 +1,8 @@
+import ArrayProxy from '@ember/array/proxy';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { click, findAll, render } from '@ember/test-helpers';
+import { click, find, findAll, render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import Ember from 'ember';
 
@@ -534,6 +535,149 @@ module('async has-many rendering tests', function (hooks) {
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
+  });
+});
+
+module('autotracking through ArrayProxy', function (hooks) {
+  setupRenderingTest(hooks);
+
+  test('We can (re)render an async HasMany', async function (assert) {
+    class Person extends Model {
+      @attr name;
+      @hasMany('comment', { async: true, inverse: 'author' })
+      comments;
+      @hasMany('post', { async: false, inverse: null })
+      posts;
+    }
+    class Comment extends Model {
+      @attr text;
+      @belongsTo('person', { async: false, inverse: 'comment' })
+      author;
+    }
+    class Post extends Model {
+      @attr title;
+    }
+    const { owner } = this;
+    owner.register('model:person', Person);
+    owner.register('model:comment', Comment);
+    owner.register('model:post', Post);
+    const store = owner.lookup('service:store');
+
+    const chris = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: { name: 'Chris' },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
+          },
+          posts: {
+            data: [
+              { type: 'post', id: '1' },
+              { type: 'post', id: '2' },
+              { type: 'post', id: '3' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'comment',
+          id: '1',
+          attributes: { text: 'first!' },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          attributes: { text: 'second!' },
+        },
+        {
+          type: 'comment',
+          id: '3',
+          attributes: { text: 'third!' },
+        },
+        {
+          type: 'post',
+          id: '1',
+          attributes: { title: 'how to comment well' },
+        },
+        {
+          type: 'post',
+          id: '2',
+          attributes: { title: 'effective commentary' },
+        },
+        {
+          type: 'post',
+          id: '3',
+          attributes: { title: 'comment documentation' },
+        },
+      ],
+    });
+    class PersonOverview extends Component {
+      _proxy = null;
+      get proxiedPosts() {
+        if (this._proxy === null) {
+          this._proxy = ArrayProxy.create({
+            content: this.args.person.posts,
+          });
+        }
+        return this._proxy;
+      }
+      willDestroy() {
+        this._proxy.destroy();
+      }
+    }
+    const layout = hbs`
+      <h2 id="comments-count">Comments ({{@person.comments.length}})</h2>
+      <ul id="comments">
+        {{#each @person.comments as |comment|}}
+          <li>{{comment.text}}</li>
+        {{/each}}
+      </ul>
+      <h2 id="posts-count">Posts ({{@person.posts.length}})</h2>
+      <ul id="posts">
+        {{#each @person.posts as |post|}}
+          <li>{{post.title}}</li>
+        {{/each}}
+      </ul>
+      <h2 id="proxied-posts-count">Proxied Posts ({{this.proxiedPosts.length}})</h2>
+      <ul id="proxied-posts">
+        {{#each this.proxiedPosts as |post|}}
+          <li>{{post.title}}</li>
+        {{/each}}
+      </ul>
+    `;
+    owner.register('component:person-overview', PersonOverview);
+    owner.register('template:components/person-overview', layout);
+    this.set('person', chris);
+    await render(hbs`<PersonOverview @person={{this.person}} />`);
+    assert.strictEqual(find('#comments-count').textContent, 'Comments (3)', 'We have the right comments count');
+    assert.deepEqual(
+      findAll('#comments li').map((e) => e.textContent),
+      ['first!', 'second!', 'third!'],
+      'We have rendered the comments'
+    );
+    assert.strictEqual(find('#posts-count').textContent, 'Posts (3)', 'We have the right posts count');
+    assert.deepEqual(
+      findAll('#posts li').map((e) => e.textContent),
+      ['how to comment well', 'effective commentary', 'comment documentation'],
+      'We have rendered the posts'
+    );
+    assert.strictEqual(
+      find('#proxied-posts-count').textContent,
+      'Proxied Posts (3)',
+      'We have the right proxied posts count'
+    );
+    assert.deepEqual(
+      findAll('#proxied-posts li').map((e) => e.textContent),
+      ['how to comment well', 'effective commentary', 'comment documentation'],
+      'We have rendered the proxied posts'
+    );
   });
 });
 

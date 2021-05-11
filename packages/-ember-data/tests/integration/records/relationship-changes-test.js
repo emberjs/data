@@ -497,7 +497,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
     person.removeObserver('siblings.[]', observerMethod);
   });
 
-  test('Calling push with relationship triggers willChange and didChange with detail when appending', function (assert) {
+  test('Calling push with relationship triggers willChange and didChange with detail when appending', async function (assert) {
     let store = this.owner.lookup('service:store');
 
     let willChangeCount = 0;
@@ -519,44 +519,47 @@ module('integration/records/relationship-changes - Relationship changes', functi
       },
     };
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
-            },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref],
           },
         },
-        included: [sibling1],
-      });
+      },
+      included: [sibling1],
     });
 
     let person = store.peekRecord('person', 'wat');
-    let siblings = run(() => person.get('siblings'));
+    let siblings = await person.siblings;
+
+    // flush initial state since
+    // nothing is consuming us.
+    // else the test will fail because we will
+    // (correctly) not notify the array observer
+    // as there is still a pending notification
+    siblings.length;
 
     siblings.addArrayObserver(observer);
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling2Ref],
-            },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {},
+        relationships: {
+          siblings: {
+            data: [sibling1Ref, sibling2Ref],
           },
         },
-        included: [sibling2],
-      });
+      },
+      included: [sibling2],
     });
 
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
@@ -592,6 +595,13 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
     let person = store.peekRecord('person', 'wat');
     let siblings = run(() => person.get('siblings'));
+
+    // flush initial state since
+    // nothing is consuming us.
+    // else the test will fail because we will
+    // (correctly) not notify the array observer
+    // as there is still a pending notification
+    siblings.length;
 
     let observer = {
       arrayWillChange(array, start, removing, adding) {
@@ -677,6 +687,14 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
     const siblingsProxy = person.siblings;
     const siblings = await siblingsProxy;
+
+    // flush initial state since
+    // nothing is consuming us.
+    // else the test will fail because we will
+    // (correctly) not notify the array observer
+    // as there is still a pending notification
+    siblingsProxy.length;
+
     siblingsProxy.addArrayObserver(observer);
 
     store.push({
@@ -745,6 +763,14 @@ module('integration/records/relationship-changes - Relationship changes', functi
     };
 
     let siblings = run(() => person.get('siblings'));
+
+    // flush initial state since
+    // nothing is consuming us.
+    // else the test will fail because we will
+    // (correctly) not notify the array observer
+    // as there is still a pending notification
+    siblings.length;
+
     siblings.addArrayObserver(observer);
 
     run(() => {
@@ -812,6 +838,12 @@ module('integration/records/relationship-changes - Relationship changes', functi
     };
 
     let siblings = run(() => person.get('siblings'));
+    // flush initial state since
+    // nothing is consuming us.
+    // else the test will fail because we will
+    // (correctly) not notify the array observer
+    // as there is still a pending notification
+    siblings.length;
     siblings.addArrayObserver(observer);
 
     run(() => {
