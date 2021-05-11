@@ -402,9 +402,6 @@ module('unit/record-array - RecordArray', function (hooks) {
     assert.equal(recordArray.objectAt(0), scumbag, 'item at index 0 is record with id 1');
 
     scumbag.deleteRecord();
-    assert.equal(get(recordArray, 'length'), 4, 'record array still has the created item');
-
-    await settled();
 
     assert.equal(get(recordArray, 'length'), 3, 'record array no longer has the created item');
   });

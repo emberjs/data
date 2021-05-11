@@ -158,7 +158,7 @@ function attr(type, options) {
           if (errors.get(key)) {
             errors.remove(key);
           }
-          this._markInvalidRequestAsClean();
+          this.___recordState.cleanErrorRequests();
         }
       }
       return this._internalModel.setDirtyAttribute(key, value);

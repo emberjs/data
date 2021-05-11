@@ -1,19 +1,16 @@
 import { cacheFor } from '@ember/object/internals';
 
-type CoreStore = import('../core-store').default;
-
-type NotificationType = import('../record-notification-manager').NotificationType;
-
-type Store = import('../ds-model-store').default;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type NotificationType = import('@ember-data/store/-private/system/record-notification-manager').NotificationType;
 type Model = InstanceType<typeof import('@ember-data/model').default>;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
+type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 
 export default function notifyChanges(
   identifier: StableRecordIdentifier,
   value: NotificationType,
   key: string | undefined,
   record: Model,
-  store: Store
+  store: CoreStore
 ) {
   if (value === 'attributes') {
     if (key) {
@@ -32,14 +29,6 @@ export default function notifyChanges(
         notifyRelationship(store, identifier, key, record, meta);
       });
     }
-  } else if (value === 'errors') {
-    let internalModel = store._internalModelForResource(identifier);
-    //TODO guard
-    let errors = internalModel._recordData.getErrors!(identifier);
-    record.invalidErrorsChanged(errors);
-  } else if (value === 'state') {
-    record.notifyPropertyChange('isNew');
-    record.notifyPropertyChange('isDeleted');
   } else if (value === 'identity') {
     record.notifyPropertyChange('id');
   }

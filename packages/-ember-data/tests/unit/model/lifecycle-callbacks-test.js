@@ -260,8 +260,8 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
 
         didDelete() {
           callCount++;
-          assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
-          assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
+          assert.equal(this.isSaving, false, 'record should not be saving');
+          assert.equal(this.hasDirtyAttributes, false, 'record should not be dirty');
         },
       });
 

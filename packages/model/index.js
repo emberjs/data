@@ -23,7 +23,9 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/object',
       '@ember/object/compat',
       '@ember/object/computed',
+      '@ember/object/internals',
       '@ember/polyfills',
+      '@ember/runloop',
       '@ember/utils',
 
       '@glimmer/tracking',

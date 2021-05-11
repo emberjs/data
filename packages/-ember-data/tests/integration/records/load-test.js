@@ -125,21 +125,19 @@ module('integration/load - Loading Records', function (hooks) {
     // test that our initial state is correct
     assert.equal(internalModel.currentState.isEmpty, true, 'We begin in the empty state');
     assert.equal(internalModel.currentState.isLoading, false, 'We have not triggered a load');
-    assert.equal(internalModel.isReloading, false, 'We are not reloading');
 
     let recordPromise = store.findRecord('person', '1');
 
     // test that during the initial load our state is correct
     assert.todo.equal(internalModel.currentState.isEmpty, true, 'awaiting first fetch: We remain in the empty state');
     assert.equal(internalModel.currentState.isLoading, true, 'awaiting first fetch: We have now triggered a load');
-    assert.equal(internalModel.isReloading, false, 'awaiting first fetch: We are not reloading');
 
     let record = await recordPromise;
 
     // test that after the initial load our state is correct
     assert.equal(internalModel.currentState.isEmpty, false, 'after first fetch: We are no longer empty');
     assert.equal(internalModel.currentState.isLoading, false, 'after first fetch: We have loaded');
-    assert.equal(internalModel.isReloading, false, 'after first fetch: We are not reloading');
+    assert.equal(record.isReloading, false, 'after first fetch: We are not reloading');
 
     let bestFriend = await record.get('bestFriend');
     let trueBestFriend = await bestFriend.get('bestFriend');
@@ -157,21 +155,21 @@ module('integration/load - Loading Records', function (hooks) {
     // test that during a reload our state is correct
     assert.equal(internalModel.currentState.isEmpty, false, 'awaiting reload: We remain non-empty');
     assert.equal(internalModel.currentState.isLoading, false, 'awaiting reload: We are not loading again');
-    assert.equal(internalModel.isReloading, true, 'awaiting reload: We are reloading');
+    assert.equal(record.isReloading, true, 'awaiting reload: We are reloading');
 
     await recordPromise;
 
     // test that after a reload our state is correct
     assert.equal(internalModel.currentState.isEmpty, false, 'after reload: We remain non-empty');
     assert.equal(internalModel.currentState.isLoading, false, 'after reload: We have loaded');
-    assert.equal(internalModel.isReloading, false, 'after reload:: We are not reloading');
+    assert.equal(record.isReloading, false, 'after reload:: We are not reloading');
 
     run(() => record.unloadRecord());
 
     // test that after an unload our state is correct
     assert.equal(internalModel.currentState.isEmpty, true, 'after unload: We are empty again');
     assert.equal(internalModel.currentState.isLoading, false, 'after unload: We are not loading');
-    assert.equal(internalModel.isReloading, false, 'after unload:: We are not reloading');
+    assert.equal(record.isReloading, false, 'after unload:: We are not reloading');
 
     recordPromise = store.findRecord('person', '1');
 
@@ -179,13 +177,13 @@ module('integration/load - Loading Records', function (hooks) {
     //   This requires a retainer (the async bestFriend relationship)
     assert.todo.equal(internalModel.currentState.isEmpty, true, 'awaiting second find: We remain empty');
     assert.equal(internalModel.currentState.isLoading, true, 'awaiting second find: We are loading again');
-    assert.equal(internalModel.isReloading, false, 'awaiting second find: We are not reloading');
+    assert.equal(record.isReloading, false, 'awaiting second find: We are not reloading');
 
     await recordPromise;
 
     // test that after the reload-due-to-unload our state is correct
     assert.equal(internalModel.currentState.isEmpty, false, 'after second find: We are no longer empty');
     assert.equal(internalModel.currentState.isLoading, false, 'after second find: We have loaded');
-    assert.equal(internalModel.isReloading, false, 'after second find: We are not reloading');
+    assert.equal(record.isReloading, false, 'after second find: We are not reloading');
   });
 });

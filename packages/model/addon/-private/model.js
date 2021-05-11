@@ -4,63 +4,37 @@
 
 import { assert, deprecate, warn } from '@ember/debug';
 import EmberError from '@ember/error';
-import EmberObject, { computed, get } from '@ember/object';
+import EmberObject, { get } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
+import { run } from '@ember/runloop';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
+import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import {
-  CUSTOM_MODEL_CLASS,
-  RECORD_DATA_ERRORS,
-  RECORD_DATA_STATE,
-  REQUEST_SERVICE,
-} from '@ember-data/canary-features';
+import { CUSTOM_MODEL_CLASS, REQUEST_SERVICE } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EVENTED_API_USAGE,
   DEPRECATE_MODEL_TOJSON,
   DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
 } from '@ember-data/private-build-infra/deprecations';
-import {
-  coerceId,
-  DeprecatedEvented,
-  errorsArrayToHash,
-  InternalModel,
-  PromiseObject,
-  recordDataFor,
-  recordIdentifierFor,
-} from '@ember-data/store/-private';
+import { coerceId, DeprecatedEvented, InternalModel, PromiseObject } from '@ember-data/store/-private';
 
 import Errors from './errors';
+import RecordState, { peekTag, tagged } from './record-state';
 import { relationshipFromMeta } from './system/relationships/relationship-meta';
-
-const RecordMeta = new WeakMap();
-function getRecordMeta(record) {
-  let meta = RecordMeta.get(record);
-  if (meta === undefined) {
-    meta = Object.create(null);
-    RecordMeta.set(record, meta);
-    if (DEBUG) {
-      record.____recordMetaCache = meta;
-    }
-  }
-  return meta;
-}
-
-function getWithDefault(meta, prop, value) {
-  let v = meta[prop];
-  if (v === undefined) {
-    return value;
-  }
-  return v;
-}
 
 const { changeProperties } = Ember;
 
-function isInvalidError(error) {
-  return error && error.isAdapterError === true && error.code === 'InvalidError';
-}
+/*
+ In the non-CUSTOM_MODEL_CLASS world things decorated with flagToggledDecorator
+ have logic that requires a cache and caching key (which tagged provides), but
+ in the CUSTOM_MODEL_CLASS branch it only requires dependentKeyCompat which
+ ensures computeds/observers on the field will fire when anything it accesses
+ that is tracked changes
+*/
+const flagToggledDecorator = CUSTOM_MODEL_CLASS ? dependentKeyCompat : tagged;
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
@@ -149,39 +123,8 @@ class Model extends EmberObject {
       }
     }
 
-    if (RECORD_DATA_ERRORS) {
-      this._invalidRequests = [];
-    }
-
-    if (REQUEST_SERVICE) {
-      this.store.getRequestStateService().subscribeForRecord(this._internalModel.identifier, (request) => {
-        if (request.state === 'rejected') {
-          // TODO filter out queries
-          this._lastError = request;
-          if (!(request.response && isInvalidError(request.response.data))) {
-            this._errorRequests.push(request);
-          } else {
-            this._invalidRequests.push(request);
-          }
-        } else if (request.state === 'fulfilled') {
-          this._invalidRequests = [];
-          this._errorRequests = [];
-          this._lastError = null;
-        }
-        this._notifyNetworkChanges();
-      });
-      this._errorRequests = [];
-      this._lastError = null;
-    }
-  }
-
-  _notifyNetworkChanges() {
-    if (REQUEST_SERVICE) {
-      ['isSaving', 'isValid', 'isError', 'adapterError', 'isReloading'].forEach((key) =>
-        this.notifyPropertyChange(key)
-      );
-    } else {
-      ['isValid'].forEach((key) => this.notifyPropertyChange(key));
+    if (CUSTOM_MODEL_CLASS) {
+      this.___recordState = new RecordState(this);
     }
   }
 
@@ -201,7 +144,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isEmpty() {
-    return this._internalModel.currentState.isEmpty;
+    return this.currentState.isEmpty;
   }
 
   /**
@@ -217,8 +160,9 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isLoading() {
-    return this._internalModel.currentState.isLoading;
+    return this.currentState.isLoading;
   }
+
   /**
     If this property is `true` the record is in the `loaded` state. A
     record enters this state when its data is populated. Most of a
@@ -243,7 +187,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isLoaded() {
-    return this._internalModel.currentState.isLoaded;
+    return this.currentState.isLoaded;
   }
 
   /**
@@ -273,7 +217,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get hasDirtyAttributes() {
-    return this._internalModel.currentState.isDirty;
+    return this.currentState.isDirty;
   }
 
   /**
@@ -301,7 +245,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isSaving() {
-    return this._internalModel.currentState.isSaving;
+    return this.currentState.isSaving;
   }
 
   /**
@@ -344,18 +288,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isDeleted() {
-    if (RECORD_DATA_STATE) {
-      // currently we call notifyPropertyChange from
-      // the notification manager but probably
-      // we should consume a tag here which the manager
-      // would dirty.
-      let rd = recordDataFor(this);
-      if (rd.isDeleted) {
-        return rd.isDeleted();
-      }
-    }
-
-    return this._internalModel.currentState.isDeleted;
+    return this.currentState.isDeleted;
   }
 
   /**
@@ -382,18 +315,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isNew() {
-    if (RECORD_DATA_STATE) {
-      // currently we call notifyPropertyChange from
-      // the notification manager but probably
-      // we should consume a tag here which the manager
-      // would dirty.
-      let rd = recordDataFor(this);
-      if (rd.isNew) {
-        return rd.isNew();
-      }
-    }
-
-    return this._internalModel.currentState.isNew;
+    return this.currentState.isNew;
   }
 
   /**
@@ -409,18 +331,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isValid() {
-    if (RECORD_DATA_ERRORS) {
-      return !(this.errors.length > 0);
-    }
-
-    return this._internalModel.currentState.isValid;
-  }
-
-  _markInvalidRequestAsClean() {
-    if (RECORD_DATA_ERRORS) {
-      this._invalidRequests = [];
-      this._notifyNetworkChanges();
-    }
+    return this.currentState.isValid;
   }
 
   /**
@@ -446,7 +357,7 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get dirtyType() {
-    return this._internalModel.currentState.dirtyType;
+    return this.currentState.dirtyType;
   }
 
   /**
@@ -469,31 +380,22 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  @flagToggledDecorator
   get isError() {
     if (REQUEST_SERVICE) {
-      let errorReq = this._errorRequests[this._errorRequests.length - 1];
-      if (!errorReq) {
-        return false;
-      } else {
-        return true;
-      }
+      return this.currentState.isError;
     }
-    let meta = getRecordMeta(this);
-    return getWithDefault(meta, 'isError', false);
+    let tag = peekTag(this, 'isError');
+    tag.value = tag.value || false;
+    return tag.value;
   }
   set isError(v) {
     if (REQUEST_SERVICE && DEBUG) {
       throw new Error(`isError is not directly settable when REQUEST_SERVICE is enabled`);
     } else {
-      let meta = getRecordMeta(this);
-      meta.isError = v;
+      let tag = peekTag(this, 'isError');
+      tag.value = v;
     }
-  }
-
-  _markErrorRequestAsClean() {
-    this._errorRequests = [];
-    this._lastError = null;
-    this._notifyNetworkChanges();
   }
 
   /**
@@ -512,25 +414,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @computed()
-  get isReloading() {
-    let meta = getRecordMeta(this);
-    let isReloading = meta.isReloading;
-
-    if (REQUEST_SERVICE) {
-      if (isReloading === undefined) {
-        let requests = this.store.getRequestStateService().getPendingRequestsForRecord(recordIdentifierFor(this));
-        let value = !!requests.filter((req) => req.request.data[0].options.isReloading)[0];
-        meta.isReloading = value;
-        return value;
-      }
-    }
-    return isReloading || false;
-  }
-  set isReloading(v) {
-    let meta = getRecordMeta(this);
-    meta.isReloading = v;
-  }
+  @tracked isReloading = false;
 
   /**
     All ember models have an id property. This is an identifier
@@ -552,7 +436,7 @@ class Model extends EmberObject {
     @public
     @type {String}
   */
-  @dependentKeyCompat
+  @tagged
   get id() {
     // the _internalModel guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
@@ -562,8 +446,6 @@ class Model extends EmberObject {
         return void 0;
       }
     }
-    // consume the tracked tag
-    this._internalModel._tag;
     return this._internalModel.id;
   }
   set id(id) {
@@ -579,6 +461,22 @@ class Model extends EmberObject {
     @private
     @type {Object}
   */
+  @tagged
+  get currentState() {
+    if (CUSTOM_MODEL_CLASS) {
+      return this.___recordState;
+    }
+    if (this.isDestroyed || this.isDestroying) {
+      return this._internalModel._previousState;
+    }
+
+    return this._internalModel && this._internalModel.currentState;
+  }
+  set currentState(v) {
+    if (!CUSTOM_MODEL_CLASS) {
+      this.notifyPropertyChange('currentState');
+    }
+  }
 
   /**
    @property _internalModel
@@ -649,43 +547,17 @@ class Model extends EmberObject {
   get errors() {
     let errors = Errors.create();
 
-    errors._registerHandlers(
-      () => {
-        this.send('becameInvalid');
-      },
-      () => {
-        this.send('becameValid');
-      }
-    );
-    if (RECORD_DATA_ERRORS) {
-      let recordData = recordDataFor(this);
-      let jsonApiErrors;
-      if (recordData.getErrors) {
-        jsonApiErrors = recordData.getErrors();
-        if (jsonApiErrors) {
-          let errorsHash = errorsArrayToHash(jsonApiErrors);
-          let errorKeys = Object.keys(errorsHash);
-
-          for (let i = 0; i < errorKeys.length; i++) {
-            errors._add(errorKeys[i], errorsHash[errorKeys[i]]);
-          }
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      errors._registerHandlers(
+        () => {
+          this.send('becameInvalid');
+        },
+        () => {
+          this.send('becameValid');
         }
-      }
+      );
     }
     return errors;
-  }
-
-  invalidErrorsChanged(jsonApiErrors) {
-    if (RECORD_DATA_ERRORS) {
-      const { errors } = this;
-      errors._clear();
-      let newErrors = errorsArrayToHash(jsonApiErrors);
-      let errorKeys = Object.keys(newErrors);
-
-      for (let i = 0; i < errorKeys.length; i++) {
-        errors._add(errorKeys[i], newErrors[errorKeys[i]]);
-      }
-    }
   }
 
   /**
@@ -696,23 +568,21 @@ class Model extends EmberObject {
     @public
     @type {AdapterError}
   */
+  @flagToggledDecorator
   get adapterError() {
     if (REQUEST_SERVICE) {
-      let request = this._lastError;
-      if (!request) {
-        return null;
-      }
-      return request.state === 'rejected' && request.response.data;
+      return this.currentState.adapterError;
     }
-    let meta = getRecordMeta(this);
-    return getWithDefault(meta, 'adapterError', null);
+    let tag = peekTag(this, 'adapterError');
+    tag.value = tag.value || null;
+    return tag.value;
   }
   set adapterError(v) {
     if (REQUEST_SERVICE && DEBUG) {
       throw new Error(`adapterError is not directly settable when REQUEST_SERVICE is enabled`);
     } else {
-      let meta = getRecordMeta(this);
-      meta.adapterError = v;
+      let tag = peekTag(this, 'adapterError');
+      tag.value = v;
     }
   }
 
@@ -821,6 +691,22 @@ class Model extends EmberObject {
     return this._internalModel.transitionTo(name);
   }
 
+  /*
+    We hook the default implementation to ensure
+    our tagged properties are properly notified
+    as well. We still super for everything because
+    sync observers require a direct call occuring
+    to trigger their flush. We wouldn't need to
+    super in 4.0+ where sync observers are removed.
+   */
+  notifyPropertyChange(key) {
+    let tag = peekTag(this, key);
+    if (tag) {
+      tag.notify();
+    }
+    super.notifyPropertyChange(key);
+  }
+
   /**
     Marks the record as deleted but does not save it. You must call
     `save` afterwards if you want to persist it. You might use this
@@ -909,7 +795,12 @@ class Model extends EmberObject {
   */
   destroyRecord(options) {
     this.deleteRecord();
-    return this.save(options);
+    return this.save(options).then((_) => {
+      run(() => {
+        this.unloadRecord();
+      });
+      return this;
+    });
   }
 
   /**
@@ -1017,11 +908,8 @@ class Model extends EmberObject {
   */
   rollbackAttributes() {
     this._internalModel.rollbackAttributes();
-    if (RECORD_DATA_ERRORS) {
-      this._markInvalidRequestAsClean();
-    }
-    if (REQUEST_SERVICE) {
-      this._markErrorRequestAsClean();
+    if (CUSTOM_MODEL_CLASS) {
+      this.currentState.cleanErrorRequests();
     }
   }
 
@@ -1125,8 +1013,14 @@ class Model extends EmberObject {
       };
     }
 
+    this.isReloading = true;
     return PromiseObject.create({
-      promise: this._internalModel.reload(wrappedAdapterOptions).then(() => this),
+      promise: this._internalModel
+        .reload(wrappedAdapterOptions)
+        .then(() => this)
+        .finally(() => {
+          this.isReloading = false;
+        }),
     });
   }
 
@@ -1268,9 +1162,6 @@ class Model extends EmberObject {
     return this._internalModel.referenceFor('hasMany', name);
   }
 
-  notifyBelongsToChange(key) {
-    this.notifyPropertyChange(key);
-  }
   /**
    Given a callback, iterates over each of the relationships in the model,
    invoking the callback with the name of each relationship and its relationship
@@ -2161,7 +2052,6 @@ class Model extends EmberObject {
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
 Model.prototype._internalModel = null;
-Model.prototype.currentState = null;
 Model.prototype.store = null;
 
 if (HAS_DEBUG_PACKAGE) {
@@ -2366,7 +2256,10 @@ if (DEBUG) {
         );
       }
 
-      if (!isDefaultEmptyDescriptor(this, 'currentState') || this.currentState !== this._internalModel.currentState) {
+      let ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
+      let theirDescriptor = lookupDescriptor(this, 'currentState');
+      let realState = this.___recordState || this._internalModel.currentState;
+      if (ourDescriptor.get !== theirDescriptor.get || realState !== this.currentState) {
         throw new Error(
           `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
         );
