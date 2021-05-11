@@ -2444,7 +2444,14 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     run(() => {
       assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
       tag.get('people').addObject(person);
-      assert.equal(peopleDidChange, 2, 'expect people hasMany to have changed exactly once');
+      /*
+       We expect two notifications here because `people` is an async relationship.
+       For async relationships we notify the primary key in addition to notifying
+       the ManyArray that it needs to dirty and retrieveLatest.
+
+       Since our observer watches `people.@each` it will receive both notifications.
+      */
+      assert.equal(peopleDidChange, 2, 'expect people hasMany to have notified twice');
     });
   });
 
