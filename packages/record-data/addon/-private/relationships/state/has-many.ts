@@ -1,14 +1,12 @@
 import { assert } from '@ember/debug';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-
 import { createState } from '../../graph/-state';
 import { isImplicit, isNew } from '../../graph/-utils';
 
+type CollectionResourceRelationship = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
 type UpgradedMeta = import('../../graph/-edge-definition').UpgradedMeta;
 type Graph = import('../../graph').Graph;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type DefaultCollectionResourceRelationship = import('../../ts-interfaces/relationship-record-data').DefaultCollectionResourceRelationship;
 type Links = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Links;
 type Meta = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Meta;
 type RelationshipState = import('../../graph/-state').RelationshipState;
@@ -131,12 +129,7 @@ export default class ManyRelationship {
       this.state.hasDematerializedInverse = true;
     }
 
-    // for async relationships this triggers a sync flush
-    // 😱
-    // I believe we do this to force rematerialization.
-    // however this works in the CUSTOM_MODEL_CLASS branch
-    // asynchronously. We should figure out why.
-    this.notifyManyArrayIsStale();
+    this.notifyHasManyChange();
   }
 
   /*
@@ -164,28 +157,12 @@ export default class ManyRelationship {
     }
   }
 
-  /*
-    This is essentially a "sync" version of
-      notifyHasManyChange. We should work to unify
-      these worlds
-
-      - @runspired
-  */
-  notifyManyArrayIsStale() {
-    const { store, identifier: recordData } = this;
-    if (!this.definition.isAsync || CUSTOM_MODEL_CLASS) {
-      store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
-    } else {
-      store.notifyPropertyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
-    }
-  }
-
   notifyHasManyChange() {
     const { store, identifier: recordData } = this;
     store.notifyHasManyChange(recordData.type, recordData.id, recordData.lid, this.definition.key);
   }
 
-  getData(): DefaultCollectionResourceRelationship {
+  getData(): CollectionResourceRelationship {
     let payload: any = {};
     if (this.state.hasReceivedData) {
       payload.data = this.currentState.slice();
@@ -196,10 +173,6 @@ export default class ManyRelationship {
     if (this.meta) {
       payload.meta = this.meta;
     }
-
-    // TODO @runspired: the @igor refactor is too limiting for relationship state
-    //   we should reconsider where we fetch from.
-    payload._relationship = this;
 
     return payload;
   }

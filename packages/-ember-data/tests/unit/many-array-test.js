@@ -105,6 +105,10 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
     let willChangeRemoveAmt;
     let willChangeAddAmt;
 
+    // We aren't actually adding any observers in this test
+    // just testing the observer codepaths, so we use this to
+    // force the ManyArray instance to take the observer paths.
+    DS.ManyArray.proto().__hasArrayObservers = true;
     let originalArrayContentWillChange = DS.ManyArray.proto().arrayContentWillChange;
     let originalArrayContentDidChange = DS.ManyArray.proto().arrayContentDidChange;
 

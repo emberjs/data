@@ -61,6 +61,9 @@ import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } fro
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
+type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
+type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
+
 type RelationshipState = import('@ember-data/record-data/-private/graph/-state').RelationshipState;
 type ShimModelClass = import('./model/shim-model-class').default;
 type Snapshot = import('./snapshot').default;
@@ -1729,59 +1732,62 @@ abstract class CoreStore extends Service {
     return _findHasMany(adapter, this, internalModel, link, relationship, options);
   }
 
-  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options): RSVP.Promise<unknown> {
-    if (!resource) {
+  _findHasManyByJsonApiResource(
+    resource,
+    parentInternalModel: InternalModel,
+    relationship: ManyRelationship | BelongsToRelationship,
+    options: any
+  ): RSVP.Promise<unknown> {
+    if (HAS_RECORD_DATA_PACKAGE) {
+      if (!resource) {
+        return resolve([]);
+      }
+      const { definition, state } = relationship;
+      let adapter = this.adapterFor(definition.type);
+
+      let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = state;
+      const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
+
+      let shouldFindViaLink =
+        resource.links &&
+        resource.links.related &&
+        (typeof adapter.findHasMany === 'function' || typeof resource.data === 'undefined') &&
+        (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
+
+      // fetch via link
+      if (shouldFindViaLink) {
+        // findHasMany, although not public, does not need to care about our upgrade relationship definitions
+        // and can stick with the public definition API for now.
+        const relationshipMeta = this._storeWrapper.relationshipsDefinitionFor(definition.inverseType)[definition.key];
+        return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options);
+      }
+
+      let preferLocalCache = hasReceivedData && !isEmpty;
+
+      let hasLocalPartialData =
+        hasDematerializedInverse || (isEmpty && Array.isArray(resource.data) && resource.data.length > 0);
+
+      // fetch using data, pulling from local cache if possible
+      if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
+        let internalModels = resource.data.map((json) => this._internalModelForResource(json));
+
+        return this.findMany(internalModels, options);
+      }
+
+      let hasData = hasReceivedData && !isEmpty;
+
+      // fetch by data
+      if (hasData || hasLocalPartialData) {
+        let internalModels = resource.data.map((json) => this._internalModelForResource(json));
+
+        return this._scheduleFetchMany(internalModels, options);
+      }
+
+      // we were explicitly told we have no data and no links.
+      //   TODO if the relationshipIsStale, should we hit the adapter anyway?
       return resolve([]);
     }
-    let adapter = this.adapterFor(relationshipMeta.type);
-
-    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
-      .state as RelationshipState;
-    const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
-
-    let shouldFindViaLink =
-      resource.links &&
-      resource.links.related &&
-      (typeof adapter.findHasMany === 'function' || typeof resource.data === 'undefined') &&
-      (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
-
-    // fetch via link
-    if (shouldFindViaLink) {
-      return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta, options);
-    }
-
-    let preferLocalCache = hasReceivedData && !isEmpty;
-
-    let hasLocalPartialData =
-      hasDematerializedInverse || (isEmpty && Array.isArray(resource.data) && resource.data.length > 0);
-
-    // fetch using data, pulling from local cache if possible
-    if (!shouldForceReload && !isStale && (preferLocalCache || hasLocalPartialData)) {
-      let internalModels = resource.data.map((json) => this._internalModelForResource(json));
-
-      return this.findMany(internalModels, options);
-    }
-
-    let hasData = hasReceivedData && !isEmpty;
-
-    // fetch by data
-    if (hasData || hasLocalPartialData) {
-      let internalModels = resource.data.map((json) => this._internalModelForResource(json));
-
-      return this._scheduleFetchMany(internalModels, options);
-    }
-
-    // we were explicitly told we have no data and no links.
-    //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-    return resolve([]);
-  }
-
-  _getHasManyByJsonApiResource(resource) {
-    let internalModels = [];
-    if (resource && resource.data) {
-      internalModels = resource.data.map((reference) => this._internalModelForResource(reference));
-    }
-    return internalModels;
+    assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
   /**

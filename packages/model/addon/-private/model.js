@@ -1336,13 +1336,6 @@ class Model extends EmberObject {
     return this.constructor.inverseFor(key, this._internalModel.store);
   }
 
-  notifyHasManyAdded(key) {
-    //We need to notifyPropertyChange in the adding case because we need to make sure
-    //we fetch the newly added record in case it is unloaded
-    //TODO(Igor): Consider whether we could do this only if the record state is unloaded
-    this.notifyPropertyChange(key);
-  }
-
   eachAttribute(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
   }

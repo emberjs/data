@@ -32,13 +32,11 @@ export { RecordArray, AdapterPopulatedRecordArray } from './system/record-arrays
 export { default as RecordArrayManager } from './system/record-array-manager';
 
 // // Used by tests
-export { default as diffArray } from './system/diff-array';
 export { default as SnapshotRecordArray } from './system/snapshot-record-array';
 
 // New
 export { default as recordDataFor, removeRecordDataFor } from './system/record-data-for';
 export { default as RecordDataStoreWrapper } from './system/store/record-data-store-wrapper';
-export { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './system/store/common';
 
 // for Model
 export { default as DeprecatedEvented } from './system/deprecated-evented';

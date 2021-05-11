@@ -29,6 +29,11 @@ import Snapshot from '../snapshot';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
 import RootState from './states';
 
+type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
+type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
+
+type UpgradedMeta = import('@ember-data/record-data/-private/graph/-edge-definition').UpgradedMeta;
+
 type CoreStore = import('../core-store').default;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type ConfidentDict<T> = import('../../ts-interfaces/utils').ConfidentDict<T>;
@@ -134,10 +139,6 @@ export default class InternalModel {
   declare _recordReference: any;
   declare _manyArrayCache: ConfidentDict<ManyArray>;
 
-  // The previous ManyArrays for this relationship which will be destroyed when
-  // we create a new ManyArray, but in the interim the retained version will be
-  // updated if inverse internal models are unloaded.
-  declare _retainedManyArrayCache: ConfidentDict<ManyArray>;
   declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
   declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
   declare error: any;
@@ -183,7 +184,6 @@ export default class InternalModel {
     // other caches
     // class fields have [[DEFINE]] semantics which are significantly slower than [[SET]] semantics here
     this._manyArrayCache = Object.create(null);
-    this._retainedManyArrayCache = Object.create(null);
     this._relationshipPromisesCache = Object.create(null);
     this._relationshipProxyCache = Object.create(null);
     this.references = Object.create(null);
@@ -405,25 +405,6 @@ export default class InternalModel {
       } else {
         this._record.destroy();
       }
-
-      Object.keys(this._relationshipProxyCache).forEach((key) => {
-        if (this._relationshipProxyCache[key].destroy) {
-          this._relationshipProxyCache[key].destroy();
-        }
-        delete this._relationshipProxyCache[key];
-      });
-      Object.keys(this._manyArrayCache).forEach((key) => {
-        let manyArray = (this._retainedManyArrayCache[key] = this._manyArrayCache[key]);
-        delete this._manyArrayCache[key];
-
-        if (manyArray && !manyArray._inverseIsAsync) {
-          /*
-            If the manyArray is for a sync relationship, we should clear it
-              to preserve the semantics of client-side delete.
-          */
-          manyArray.retrieveLatest();
-        }
-      });
     }
 
     // move to an empty never-loaded state
@@ -433,6 +414,15 @@ export default class InternalModel {
     this.store._backburner.join(() => {
       this._recordData.unloadRecord();
     });
+
+    if (this._record) {
+      Object.keys(this._relationshipProxyCache).forEach((key) => {
+        if (this._relationshipProxyCache[key].destroy) {
+          this._relationshipProxyCache[key].destroy();
+        }
+        delete this._relationshipProxyCache[key];
+      });
+    }
 
     this._record = null;
     this.isReloading = false;
@@ -660,92 +650,83 @@ export default class InternalModel {
     }
   }
 
-  // TODO Igor consider getting rid of initial state
-  getManyArray(key, isAsync = false) {
-    let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
-    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
-    let manyArray = this._manyArrayCache[key];
-
-    assert(
-      `Error: relationship ${this.modelName}:${key} has both many array and retained many array`,
-      !manyArray || !this._retainedManyArrayCache[key]
-    );
-
-    if (!manyArray) {
-      let initialState = this.store._getHasManyByJsonApiResource(jsonApi);
-      // TODO move this to a public api
-      let inverseIsAsync = jsonApi._relationship ? jsonApi._relationship.definition.inverseIsAsync : false;
-      manyArray = ManyArray.create({
-        store: this.store,
-        type: this.store.modelFor(relationshipMeta.type),
-        recordData: this._recordData,
-        meta: jsonApi.meta,
-        links: jsonApi.links,
-        key,
-        isPolymorphic: relationshipMeta.options.polymorphic,
-        initialState: initialState.slice(),
-        _inverseIsAsync: inverseIsAsync,
-        internalModel: this,
-        isLoaded: !isAsync,
-      });
-      this._manyArrayCache[key] = manyArray;
-    }
-
-    if (this._retainedManyArrayCache[key]) {
-      this._retainedManyArrayCache[key].destroy();
-      delete this._retainedManyArrayCache[key];
-    }
-
-    return manyArray;
-  }
-
-  fetchAsyncHasMany(key, relationshipMeta, jsonApi, manyArray, options): RSVP.Promise<unknown> {
-    // TODO @runspired follow up if parent isNew then we should not be attempting load here
-    let loadingPromise = this._relationshipPromisesCache[key];
-    if (loadingPromise) {
-      return loadingPromise;
-    }
-
-    loadingPromise = this.store
-      ._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta, options)
-      .then(() => {
-        // TODO why don't we do this in the store method
-        manyArray.retrieveLatest();
-        manyArray.set('isLoaded', true);
-
-        return manyArray;
-      })
-      .then(
-        (manyArray) => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, manyArray, null),
-        (e) => handleCompletedRelationshipRequest(this, key, jsonApi._relationship, null, e)
-      );
-    this._relationshipPromisesCache[key] = loadingPromise;
-    return loadingPromise;
-  }
-
-  getHasMany(key, options) {
-    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
-    let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
-    let async = relationshipMeta.options.async;
-    let isAsync = typeof async === 'undefined' ? true : async;
-    let manyArray = this.getManyArray(key, isAsync);
-
-    if (isAsync) {
-      if (jsonApi!._relationship!.state.hasFailedLoadAttempt) {
-        return this._relationshipProxyCache[key];
+  getManyArray(key: string, definition?: UpgradedMeta) {
+    if (HAS_RECORD_DATA_PACKAGE) {
+      let manyArray = this._manyArrayCache[key];
+      if (!definition) {
+        const graphFor = require('@ember-data/record-data/-private').graphFor;
+        definition = graphFor(this.store).get(this.identifier, key).definition as UpgradedMeta;
       }
 
-      let promise = this.fetchAsyncHasMany(key, relationshipMeta, jsonApi, manyArray, options);
-
-      return this._updatePromiseProxyFor('hasMany', key, { promise, content: manyArray });
-    } else {
-      assert(
-        `You looked up the '${key}' relationship on a '${this.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany({ async: true })')`,
-        !manyArray.anyUnloaded()
-      );
+      if (!manyArray) {
+        manyArray = ManyArray.create({
+          store: this.store,
+          type: this.store.modelFor(definition.type),
+          recordData: this._recordData,
+          key,
+          isPolymorphic: definition.isPolymorphic,
+          isAsync: definition.isAsync,
+          _inverseIsAsync: definition.inverseIsAsync,
+          internalModel: this,
+          isLoaded: !definition.isAsync,
+        });
+        this._manyArrayCache[key] = manyArray;
+      }
 
       return manyArray;
     }
+    assert(`hasMany only works with the @ember-data/record-data package`, HAS_RECORD_DATA_PACKAGE);
+  }
+
+  fetchAsyncHasMany(
+    key: string,
+    relationship: ManyRelationship | BelongsToRelationship,
+    manyArray,
+    options
+  ): RSVP.Promise<unknown> {
+    if (HAS_RECORD_DATA_PACKAGE) {
+      let loadingPromise = this._relationshipPromisesCache[key];
+      if (loadingPromise) {
+        return loadingPromise;
+      }
+
+      const jsonApi = this._recordData.getHasMany(key);
+
+      loadingPromise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationship, options).then(
+        () => handleCompletedRelationshipRequest(this, key, relationship, manyArray, null),
+        (e) => handleCompletedRelationshipRequest(this, key, relationship, manyArray, e)
+      );
+      this._relationshipPromisesCache[key] = loadingPromise;
+      return loadingPromise;
+    }
+    assert(`hasMany only works with the @ember-data/record-data package`);
+  }
+
+  getHasMany(key: string, options) {
+    if (HAS_RECORD_DATA_PACKAGE) {
+      const graphFor = require('@ember-data/record-data/-private').graphFor;
+      const relationship = graphFor(this.store).get(this.identifier, key);
+      const { definition, state } = relationship;
+      let manyArray = this.getManyArray(key, definition);
+
+      if (definition.isAsync) {
+        if (state.hasFailedLoadAttempt) {
+          return this._relationshipProxyCache[key];
+        }
+
+        let promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
+
+        return this._updatePromiseProxyFor('hasMany', key, { promise, content: manyArray });
+      } else {
+        assert(
+          `You looked up the '${key}' relationship on a '${this.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany({ async: true })')`,
+          !anyUnloaded(this.store, relationship)
+        );
+
+        return manyArray;
+      }
+    }
+    assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
   _updatePromiseProxyFor(
@@ -774,26 +755,27 @@ export default class InternalModel {
   }
 
   reloadHasMany(key, options) {
-    let loadingPromise = this._relationshipPromisesCache[key];
-    if (loadingPromise) {
-      return loadingPromise;
-    }
+    if (HAS_RECORD_DATA_PACKAGE) {
+      let loadingPromise = this._relationshipPromisesCache[key];
+      if (loadingPromise) {
+        return loadingPromise;
+      }
+      const graphFor = require('@ember-data/record-data/-private').graphFor;
+      const relationship = graphFor(this.store).get(this.identifier, key);
+      const { definition, state } = relationship;
 
-    let jsonApi = (this._recordData as DefaultRecordData).getHasMany(key);
-    // TODO move this to a public api
-    if (jsonApi._relationship) {
-      jsonApi._relationship.state.hasFailedLoadAttempt = false;
-      jsonApi._relationship.state.shouldForceReload = true;
-    }
-    let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
-    let manyArray = this.getManyArray(key);
-    let promise = this.fetchAsyncHasMany(key, relationshipMeta, jsonApi, manyArray, options);
+      state.hasFailedLoadAttempt = false;
+      state.shouldForceReload = true;
+      let manyArray = this.getManyArray(key, definition);
+      let promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
 
-    if (this._relationshipProxyCache[key]) {
-      return this._updatePromiseProxyFor('hasMany', key, { promise });
-    }
+      if (this._relationshipProxyCache[key]) {
+        return this._updatePromiseProxyFor('hasMany', key, { promise });
+      }
 
-    return promise;
+      return promise;
+    }
+    assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
   reloadBelongsTo(key, options) {
@@ -830,9 +812,10 @@ export default class InternalModel {
       !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying')
     );
     this.isDestroying = true;
-    Object.keys(this._retainedManyArrayCache).forEach((key) => {
-      this._retainedManyArrayCache[key].destroy();
-      delete this._retainedManyArrayCache[key];
+    let cache = this._manyArrayCache;
+    Object.keys(cache).forEach((key) => {
+      cache[key].destroy();
+      delete cache[key];
     });
 
     internalModelFactoryFor(this.store).remove(this);
@@ -939,29 +922,22 @@ export default class InternalModel {
     return currentState[name](this, context);
   }
 
-  manyArrayRecordAdded(key: string) {
-    if (this.hasRecord) {
-      if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'relationships', key);
-      } else {
-        this._record.notifyHasManyAdded(key);
-      }
-    }
-  }
-
   notifyHasManyChange(key: string) {
     if (this.hasRecord) {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships', key);
       } else {
-        let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
+        let manyArray = this._manyArrayCache[key];
+
         if (manyArray) {
-          // TODO: this will "resurrect" previously unloaded records
-          // see test '1:many async unload many side'
-          //  in `tests/integration/records/unload-test.js`
-          //  probably we don't want to retrieve latest eagerly when notifyhasmany changed
-          //  but rather lazily when someone actually asks for a manyarray
-          manyArray.retrieveLatest();
+          manyArray.notify();
+
+          //We need to notifyPropertyChange in the adding case because we need to make sure
+          //we fetch the newly added record in case it is unloaded
+          //TODO(Igor): Consider whether we could do this only if the record state is unloaded
+          if (manyArray.isAsync) {
+            this._record.notifyPropertyChange(key);
+          }
         }
       }
     }
@@ -977,21 +953,7 @@ export default class InternalModel {
     }
   }
 
-  hasManyRemovalCheck(key) {
-    let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
-    let didRemoveUnloadedModel = false;
-    if (manyArray) {
-      didRemoveUnloadedModel = manyArray.removeUnloadedInternalModel();
-
-      if (this._manyArrayCache[key] && didRemoveUnloadedModel) {
-        this._retainedManyArrayCache[key] = this._manyArrayCache[key];
-        delete this._manyArrayCache[key];
-      }
-    }
-    return didRemoveUnloadedModel;
-  }
-
-  notifyPropertyChange(key: string) {
+  notifyPropertyChange(key) {
     if (this.hasRecord) {
       if (CUSTOM_MODEL_CLASS) {
         // TODO this should likely *mostly* be the `attributes` bucket
@@ -1001,17 +963,6 @@ export default class InternalModel {
         this.store._notificationManager.notify(this.identifier, 'property', key);
       } else {
         this._record.notifyPropertyChange(key);
-      }
-    }
-    if (!CUSTOM_MODEL_CLASS) {
-      let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
-      if (manyArray) {
-        let didRemoveUnloadedModel = manyArray.removeUnloadedInternalModel();
-
-        if (this._manyArrayCache[key] && didRemoveUnloadedModel) {
-          this._retainedManyArrayCache[key] = this._manyArrayCache[key];
-          delete this._manyArrayCache[key];
-        }
       }
     }
   }
@@ -1450,6 +1401,13 @@ if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
 function handleCompletedRelationshipRequest(internalModel, key, relationship, value, error) {
   delete internalModel._relationshipPromisesCache[key];
   relationship.state.shouldForceReload = false;
+  const isHasMany = relationship.definition.kind === 'hasMany';
+
+  if (isHasMany) {
+    // we don't notify the record property here to avoid refetch
+    // only the many array
+    value.notify();
+  }
 
   if (error) {
     relationship.state.hasFailedLoadAttempt = true;
@@ -1461,13 +1419,17 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
     // for the sync belongsTo reload case there will be no proxy
     // for the async reload case there will be no proxy if the ui
     // has never been accessed
-    if (proxy && relationship.definition.kind === 'belongsTo') {
+    if (proxy && !isHasMany) {
       if (proxy.content && proxy.content.isDestroying) {
         proxy.set('content', null);
       }
     }
 
     throw error;
+  }
+
+  if (isHasMany) {
+    value.set('isLoaded', true);
   }
 
   relationship.state.hasFailedLoadAttempt = false;
@@ -1510,4 +1472,18 @@ export function extractRecordDataFromRecord(recordOrPromiseRecord) {
   }
 
   return recordDataFor(recordOrPromiseRecord);
+}
+
+function anyUnloaded(store: CoreStore, relationship: ManyRelationship) {
+  // Can't use `find` because of IE11 and these arrays are potentially massive
+  let state = relationship.currentState;
+  let unloaded = false;
+  for (let i = 0; i < state.length; i++) {
+    let im = store._internalModelForResource(state[i]);
+    if (im._isDematerializing || !im.currentState.isLoaded) {
+      unloaded = true;
+      break;
+    }
+  }
+  return unloaded;
 }

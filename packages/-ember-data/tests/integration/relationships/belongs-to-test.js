@@ -51,6 +51,41 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
     store = owner.lookup('service:store');
   });
 
+  test("belongsTo saving with relationship that references yourself doesn't blow up", async function (assert) {
+    class Company extends Model {
+      @belongsTo('company', { inverse: null, async: true })
+      parentCompany;
+      @attr()
+      name;
+    }
+
+    this.owner.register('model:company', Company);
+    this.owner.register(
+      'adapter:company',
+      JSONAPIAdapter.extend({
+        createRecord(store, type, snapshot) {
+          return resolve({
+            data: {
+              type: 'company',
+              id: '123',
+              attributes: { name: 'Acme Corporation' },
+              relationships: {
+                parentCompany: {
+                  data: { type: 'company', id: '123' },
+                },
+              },
+            },
+          });
+        },
+      })
+    );
+
+    let company = store.createRecord('company', { name: 'Acme Corporation' });
+    await company.save();
+    assert.strictEqual(company.id, '123', 'We updated to the correct id');
+    assert.strictEqual(company.belongsTo('parentCompany').id(), company.id, 'We are able to reference ourselves');
+  });
+
   test("async belongsTo chains the related record's loading promise when present", async function (assert) {
     let petFindRecordCalls = 0;
     this.owner.register(

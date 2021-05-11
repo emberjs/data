@@ -1,7 +1,5 @@
 import { assert, warn } from '@ember/debug';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-
 import { isBelongsTo, isHasMany } from '../-utils';
 import _normalizeLink from '../../normalize-link';
 
@@ -136,12 +134,10 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
   } else if (hasLink) {
     relationship.state.isStale = true;
 
-    let recordData = identifier;
-    let storeWrapper = graph.store;
-    if (CUSTOM_MODEL_CLASS) {
-      storeWrapper.notifyBelongsToChange(recordData.type, recordData.id, recordData.lid, definition.key);
+    if (isHasMany(relationship)) {
+      relationship.notifyHasManyChange();
     } else {
-      storeWrapper.notifyPropertyChange(recordData.type, recordData.id, recordData.lid, definition.key);
+      relationship.notifyBelongsToChange();
     }
   }
 }
