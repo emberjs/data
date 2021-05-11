@@ -942,7 +942,7 @@ export default class InternalModel {
   manyArrayRecordAdded(key: string) {
     if (this.hasRecord) {
       if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'relationships');
+        this.store._notificationManager.notify(this.identifier, 'relationships', key);
       } else {
         this._record.notifyHasManyAdded(key);
       }
@@ -952,7 +952,7 @@ export default class InternalModel {
   notifyHasManyChange(key: string) {
     if (this.hasRecord) {
       if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'relationships');
+        this.store._notificationManager.notify(this.identifier, 'relationships', key);
       } else {
         let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
         if (manyArray) {
@@ -970,7 +970,7 @@ export default class InternalModel {
   notifyBelongsToChange(key: string) {
     if (this.hasRecord) {
       if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'relationships');
+        this.store._notificationManager.notify(this.identifier, 'relationships', key);
       } else {
         this._record.notifyBelongsToChange(key, this._record);
       }
@@ -991,10 +991,14 @@ export default class InternalModel {
     return didRemoveUnloadedModel;
   }
 
-  notifyPropertyChange(key) {
+  notifyPropertyChange(key: string) {
     if (this.hasRecord) {
       if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'property');
+        // TODO this should likely *mostly* be the `attributes` bucket
+        // but it seems for local mutations we rely on computed updating
+        // iteself when set. As we design our own thing we may need to change
+        // that.
+        this.store._notificationManager.notify(this.identifier, 'property', key);
       } else {
         this._record.notifyPropertyChange(key);
       }

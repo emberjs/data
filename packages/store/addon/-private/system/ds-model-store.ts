@@ -14,6 +14,8 @@ import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
 
+type NotificationType = import('./record-notification-manager').NotificationType;
+
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
 type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
@@ -51,7 +53,11 @@ class Store extends CoreStore {
     delete createOptions.container;
     let record = this._modelFactoryFor(modelName).create(createOptions);
     //todo optimize
-    notificationManager.subscribe(identifier, (identifier, value) => notifyChanges(identifier, value, record, this));
+    notificationManager.subscribe(
+      identifier,
+      (identifier: StableRecordIdentifier, value: NotificationType, key?: string) =>
+        notifyChanges(identifier, value, key, record, this)
+    );
     return record;
   }
 

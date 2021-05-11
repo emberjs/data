@@ -2529,7 +2529,11 @@ abstract class CoreStore extends Service {
             }
           });
         },
-        ({ error, parsedErrors }) => {
+        (e) => {
+          if (typeof e === 'string') {
+            throw e;
+          }
+          const { error, parsedErrors } = e;
           this.recordWasInvalid(internalModel, parsedErrors, error);
           throw error;
         }
