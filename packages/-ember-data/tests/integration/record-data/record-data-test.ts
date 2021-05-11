@@ -9,7 +9,6 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
@@ -331,10 +330,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
   });
 
   test('Record Data attribute settting', async function (assert) {
-    let expectedCount = 11;
-    if (RECORD_DATA_ERRORS) {
-      expectedCount = 12;
-    }
+    let expectedCount = 15;
     assert.expect(expectedCount);
     const personHash = {
       type: 'person',
@@ -393,14 +389,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     let person = store.peekRecord('person', '1');
     assert.equal(person.get('name'), 'new attribute');
+    assert.equal(calledGet, 1, 'called getAttr for initial get');
     person.set('name', 'new value');
+    assert.equal(calledGet, 2, 'called getAttr during set');
+    assert.equal(person.get('name'), 'new value');
+    assert.equal(calledGet, 2, 'did not call getAttr after set');
     person.notifyPropertyChange('name');
     assert.equal(person.get('name'), 'new attribute');
-    let expectedTimesToCallGet = 3;
-    if (RECORD_DATA_ERRORS) {
-      expectedTimesToCallGet = 4;
-    }
-    assert.equal(calledGet, expectedTimesToCallGet, 'called getAttr after notifyPropertyChange');
+    assert.equal(calledGet, 3, 'called getAttr after notifyPropertyChange');
     assert.deepEqual(
       person.changedAttributes(),
       { name: ['old', 'new'] },
