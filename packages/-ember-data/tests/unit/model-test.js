@@ -11,6 +11,7 @@ import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import Model, { attr, attr as DSattr, belongsTo, hasMany } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -88,7 +89,8 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      await record.destroyRecord();
+      record.deleteRecord();
+      await record.save();
 
       let currentState = record._internalModel.currentState;
 
@@ -131,7 +133,8 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      await record.destroyRecord();
+      record.deleteRecord();
+      await record.save();
 
       let currentState = record._internalModel.currentState;
 
@@ -840,7 +843,7 @@ module('unit/model - Model', function (hooks) {
     test('Pushing a record into the store should transition new records to the loaded state', async function (assert) {
       let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
 
-      assert.true(person.get('isNew'), 'createRecord should put records into the new state');
+      assert.true(person.isNew, 'createRecord should put records into the new state');
 
       store.push({
         data: {
@@ -852,14 +855,14 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      assert.false(person.get('isNew'), 'push should put move the record into the loaded state');
-      // TODO either this is a bug or being able to push a record with the same ID as a client created one is a bug
-      //   probably the bug is the former
-      assert.equal(
-        get(person, 'currentState.stateName'),
-        'root.loaded.updated.uncommitted',
-        'model is in loaded state'
-      );
+      assert.false(person.isNew, 'push should put move the record into the loaded state');
+      if (CUSTOM_MODEL_CLASS) {
+        assert.equal(person.currentState.stateName, 'root.loaded.saved', 'model is in loaded state');
+      } else {
+        // TODO either this is a bug or being able to push a record with the same ID as a client created one is a bug
+        //   probably the bug is the former
+        assert.equal(person.currentState.stateName, 'root.loaded.updated.uncommitted', 'model is in loaded state');
+      }
     });
 
     test('internalModel is ready by `init`', async function (assert) {

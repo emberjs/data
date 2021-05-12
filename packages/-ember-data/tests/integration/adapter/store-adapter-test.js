@@ -43,7 +43,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     this.owner.register('model:dog', Dog);
   });
 
-  test('Records loaded multiple times and retrieved in recordArray are ready to send state events', function (assert) {
+  test('Records loaded multiple times and retrieved in recordArray are ready to send state events', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -68,25 +68,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       });
     };
 
-    return run(() =>
-      store
-        .query('person', { q: 'bla' })
-        .then((people) => {
-          let people2 = store.query('person', { q: 'bla2' });
+    const people = await store.query('person', { q: 'bla' });
+    const people2 = await store.query('person', { q: 'bla2' });
+    assert.equal(people2.get('length'), 2, 'return the elements');
+    assert.ok(people2.get('isLoaded'), 'array is loaded');
 
-          return hash({ people: people, people2: people2 });
-        })
-        .then((results) => {
-          assert.equal(results.people2.get('length'), 2, 'return the elements');
-          assert.ok(results.people2.get('isLoaded'), 'array is loaded');
+    const person = people.objectAt(0);
+    assert.ok(person.isLoaded, 'record is loaded');
 
-          var person = results.people.objectAt(0);
-          assert.ok(person.get('isLoaded'), 'record is loaded');
-
-          // delete record will not throw exception
-          person.deleteRecord();
-        })
-    );
+    // delete record will not throw exception
+    person.deleteRecord();
   });
 
   test('by default, createRecords calls createRecord once per record', function (assert) {
@@ -429,7 +420,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
   });
 
-  test('if an existing model is edited then deleted, deleteRecord is called on the adapter', function (assert) {
+  test('if an existing model is edited then deleted, deleteRecord is called on the adapter', async function (assert) {
     assert.expect(5);
 
     let store = this.owner.lookup('service:store');
@@ -450,38 +441,29 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     // Load data for a record into the store.
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'deleted-record',
-          attributes: {
-            name: 'Tom Dale',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'deleted-record',
+        attributes: {
+          name: 'Tom Dale',
         },
-      });
+      },
     });
 
     // Retrieve that loaded record and edit it so it becomes dirty
-    return run(() =>
-      store
-        .findRecord('person', 'deleted-record')
-        .then((tom) => {
-          tom.set('name', "Tom Mothereffin' Dale");
+    const tom = await store.findRecord('person', 'deleted-record');
+    tom.set('name', "Tom Mothereffin' Dale");
 
-          assert.true(get(tom, 'hasDirtyAttributes'), 'precond - record should be dirty after editing');
+    assert.true(get(tom, 'hasDirtyAttributes'), 'precond - record should be dirty after editing');
 
-          tom.deleteRecord();
-          return tom.save();
-        })
-        .then((tom) => {
-          assert.false(get(tom, 'hasDirtyAttributes'), 'record should not be dirty');
-          assert.true(get(tom, 'isDeleted'), 'record should be considered deleted');
-        })
-    );
+    tom.deleteRecord();
+    await tom.save();
+    assert.false(get(tom, 'hasDirtyAttributes'), 'record should not be dirty');
+    assert.true(get(tom, 'isDeleted'), 'record should be considered deleted');
   });
 
-  test('if a deleted record errors, it enters the error state', function (assert) {
+  test('if a deleted record errors, it enters the error state', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -497,39 +479,31 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'deleted-record',
-          attributes: {
-            name: 'Tom Dale',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 'deleted-record',
+        attributes: {
+          name: 'Tom Dale',
         },
-      });
+      },
     });
 
-    return run(() => {
-      let tom;
-      store
-        .findRecord('person', 'deleted-record')
-        .then((person) => {
-          tom = person;
-          person.deleteRecord();
-          return person.save();
-        })
-        .catch(() => {
-          assert.true(tom.get('isError'), 'Tom is now errored');
-          assert.equal(tom.get('adapterError'), error, 'error object is exposed');
+    const tom = await store.findRecord('person', 'deleted-record');
+    tom.deleteRecord();
+    try {
+      await tom.save();
+      assert.ok(false, 'We should throw during save');
+    } catch (e) {
+      assert.true(tom.isError, 'Tom is now errored');
+      assert.equal(tom.adapterError, error, 'error object is exposed');
 
-          // this time it succeeds
-          return tom.save();
-        })
-        .then(() => {
-          assert.false(tom.get('isError'), 'Tom is not errored anymore');
-          assert.equal(tom.get('adapterError'), null, 'error object is discarded');
-        });
-    });
+      // this time it succeeds
+      await tom.save();
+
+      assert.false(tom.isError, 'Tom is not errored anymore');
+      assert.equal(tom.adapterError, null, 'error object is discarded');
+    }
   });
 
   test('if a created record is marked as invalid by the server, it enters an error state', async function (assert) {
@@ -563,6 +537,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     try {
       await yehuda.save();
+      assert.ok(false, 'We should have erred');
     } catch (e) {
       assert.false(get(yehuda, 'isValid'), 'the record is invalid');
       assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');

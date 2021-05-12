@@ -2,11 +2,10 @@ import { getOwner, setOwner } from '@ember/application';
 import { A, default as EmberArray } from '@ember/array';
 import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
-import { get, notifyPropertyChange, set } from '@ember/object';
+import { get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { _backburner as emberBackburner, cancel } from '@ember/runloop';
+import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
-import { tracked } from '@glimmer/tracking';
 
 import RSVP, { Promise } from 'rsvp';
 
@@ -53,11 +52,6 @@ type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private')
 /**
   @module @ember-data/store
 */
-
-const STABLE_UNTRACKED_OBJ = {};
-function flushSyncObservers() {
-  notifyPropertyChange(STABLE_UNTRACKED_OBJ, '-tracking-prop');
-}
 
 const { hasOwnProperty } = Object.prototype;
 
@@ -123,10 +117,10 @@ export default class InternalModel {
   declare isError: boolean;
   declare _pendingRecordArrayManagerFlush: boolean;
   declare _isDematerializing: boolean;
-  declare isReloading: boolean;
   declare _doNotDestroy: boolean;
   declare isDestroying: boolean;
   declare _isUpdatingId: boolean;
+  declare _deletedRecordWasNew: boolean;
 
   // Not typed yet
   declare _promiseProxy: any;
@@ -142,6 +136,8 @@ export default class InternalModel {
   declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
   declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
   declare error: any;
+  declare currentState: any;
+  declare _previousState: any;
 
   constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
@@ -169,7 +165,6 @@ export default class InternalModel {
     this._scheduledDestroy = null;
 
     this._record = null;
-    this.isReloading = false;
     this.error = null;
 
     // caches for lazy getters
@@ -178,7 +173,6 @@ export default class InternalModel {
     this._recordReference = null;
     this.__recordData = null;
 
-    this.isReloading = false;
     this.error = null;
 
     // other caches
@@ -188,16 +182,8 @@ export default class InternalModel {
     this._relationshipProxyCache = Object.create(null);
     this.references = Object.create(null);
     this._deferredTriggers = [];
+    this.currentState = RootState.empty;
   }
-
-  @tracked currentState: any = RootState.empty;
-  /*
-     A tag which when dirtied allows things tracking a record's ID
-     to recompute. When we update this we must also flushSyncObservers
-     for pre-4.0 compat so we still call notifyPropertyChange('id')
-     on the record
-  */
-  @tracked _tag: string = '';
 
   get id(): string | null {
     return this.identifier.id;
@@ -206,9 +192,7 @@ export default class InternalModel {
     if (value !== this._id) {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
       identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
-      this._tag = ''; // dirty tag
-      flushSyncObservers();
-      // TODO Show deprecation for private api, this is currently used by ember-m3
+      this.notifyPropertyChange('id');
     }
   }
 
@@ -323,7 +307,6 @@ export default class InternalModel {
           let createOptions: any = {
             store,
             _internalModel: this,
-            currentState: this.currentState,
           };
 
           if (!REQUEST_SERVICE) {
@@ -425,8 +408,8 @@ export default class InternalModel {
     }
 
     this._record = null;
-    this.isReloading = false;
     this.error = null;
+    this._previousState = this.currentState;
     this.currentState = RootState.empty;
     if (REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
       this.store.recordArrayManager.recordDidChange(this.identifier);
@@ -434,15 +417,32 @@ export default class InternalModel {
   }
 
   deleteRecord() {
-    if (RECORD_DATA_STATE) {
-      if (this._recordData.setIsDeleted) {
-        this._recordData.setIsDeleted(true);
-      }
-    }
-    this.send('deleteRecord');
+    run(() => {
+      const backburner = this.store._backburner;
+      backburner.run(() => {
+        if (RECORD_DATA_STATE) {
+          if (this._recordData.setIsDeleted) {
+            this._recordData.setIsDeleted(true);
+          }
+        }
+
+        if (this.isNew()) {
+          // destroyRecord follows up deleteRecord with save(). This prevents an unecessary save for a new record
+          this._deletedRecordWasNew = true;
+          this.send('deleteRecord');
+          this._triggerDeferredTriggers();
+          this.unloadRecord();
+        } else {
+          this.send('deleteRecord');
+        }
+      });
+    });
   }
 
   save(options) {
+    if (this._deletedRecordWasNew) {
+      return Promise.resolve();
+    }
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<InternalModel>(promiseLabel);
 
@@ -455,67 +455,40 @@ export default class InternalModel {
     }
   }
 
-  startedReloading() {
-    this.isReloading = true;
-    if (this.hasRecord) {
-      set(this._record, 'isReloading', true);
-      flushSyncObservers();
-    }
-  }
-
-  finishedReloading() {
-    this.isReloading = false;
-    if (this.hasRecord) {
-      set(this._record, 'isReloading', false);
-      flushSyncObservers();
-    }
-  }
-
   reload(options) {
     if (REQUEST_SERVICE) {
       if (!options) {
         options = {};
       }
-      this.startedReloading();
       let internalModel = this;
 
-      return internalModel.store
-        ._reloadRecord(internalModel, options)
-        .then(
-          function () {
-            //TODO NOW seems like we shouldn't need to do this
-            return internalModel;
-          },
-          function (error) {
-            throw error;
-          },
-          'DS: Model#reload complete, update flags'
-        )
-        .finally(function () {
-          internalModel.finishedReloading();
-        });
+      return internalModel.store._reloadRecord(internalModel, options).then(
+        function () {
+          //TODO NOW seems like we shouldn't need to do this
+          return internalModel;
+        },
+        function (error) {
+          throw error;
+        },
+        'DS: Model#reload complete, update flags'
+      );
     } else {
-      this.startedReloading();
       let internalModel = this;
       let promiseLabel = 'DS: Model#reload of ' + this;
 
       return new Promise(function (resolve) {
         internalModel.send('reloadRecord', { resolve, options });
-      }, promiseLabel)
-        .then(
-          function () {
-            internalModel.didCleanError();
-            return internalModel;
-          },
-          function (error) {
-            internalModel.didError(error);
-            throw error;
-          },
-          'DS: Model#reload complete, update flags'
-        )
-        .finally(function () {
-          internalModel.finishedReloading();
-        });
+      }, promiseLabel).then(
+        function () {
+          internalModel.didCleanError();
+          return internalModel;
+        },
+        function (error) {
+          internalModel.didError(error);
+          throw error;
+        },
+        'DS: Model#reload complete, update flags'
+      );
     }
   }
 
@@ -880,7 +853,7 @@ export default class InternalModel {
         return false;
       }
     } else {
-      if (this.currentState.isLoading && !this.isReloading) {
+      if (this.currentState.isLoading) {
         // no need to calculate changed attributes when calling `findRecord`
         return false;
       }
@@ -895,7 +868,7 @@ export default class InternalModel {
         return {};
       }
     } else {
-      if (this.currentState.isLoading && !this.isReloading) {
+      if (this.currentState.isLoading) {
         // no need to calculate changed attributes when calling `findRecord`
         return {};
       }
@@ -948,7 +921,7 @@ export default class InternalModel {
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships', key);
       } else {
-        this._record.notifyBelongsToChange(key, this._record);
+        this._record.notifyPropertyChange(key, this._record);
       }
     }
   }
@@ -962,7 +935,11 @@ export default class InternalModel {
         // that.
         this.store._notificationManager.notify(this.identifier, 'property', key);
       } else {
-        this._record.notifyPropertyChange(key);
+        if (key === 'currentState') {
+          set(this._record, 'currentState', this.currentState);
+        } else {
+          this._record.notifyPropertyChange(key);
+        }
       }
     }
   }
@@ -1055,9 +1032,17 @@ export default class InternalModel {
     }
 
     this.currentState = state;
-    if (this.hasRecord) {
-      set(this._record, 'currentState', state);
-      flushSyncObservers();
+    if (CUSTOM_MODEL_CLASS) {
+      if (this.hasRecord && typeof this._record.notifyPropertyChange === 'function') {
+        // TODO refactor Model to have all flags pull from the notification manager
+        // and for currentState.stateName to be constructed from flag state.
+        // Probably just port this work from ember-m3
+        // After that we can eliminate this.
+        this.notifyStateChange('currentState');
+        // this._record.notifyPropertyChange('currentState');
+      }
+    } else {
+      this.notifyPropertyChange('currentState');
     }
 
     for (i = 0, l = setups.length; i < l; i++) {
@@ -1208,11 +1193,10 @@ export default class InternalModel {
     }
 
     if (didChange && this.hasRecord) {
-      this._tag = ''; // dirty tag
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'identity');
       } else {
-        flushSyncObservers();
+        this.notifyPropertyChange('id');
       }
     }
     this._isUpdatingId = false;
@@ -1286,6 +1270,9 @@ export default class InternalModel {
   // FOR USE DURING COMMIT PROCESS
   adapterDidInvalidate(parsedErrors, error) {
     if (RECORD_DATA_ERRORS) {
+      // TODO @runspired this should be handled by RecordState
+      // and errors should be dirtied but lazily fetch if at
+      // all possible. We should only notify errors here.
       let attribute;
       if (error && parsedErrors) {
         if (!this._recordData.getErrors) {
@@ -1322,20 +1309,8 @@ export default class InternalModel {
   }
 
   notifyErrorsChange() {
-    let invalidErrors;
-    if (this._recordData.getErrors) {
-      invalidErrors = this._recordData.getErrors(this.identifier) || [];
-    } else {
-      return;
-    }
-    this.notifyInvalidErrorsChange(invalidErrors);
-  }
-
-  notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {
     if (CUSTOM_MODEL_CLASS) {
       this.store._notificationManager.notify(this.identifier, 'errors');
-    } else {
-      this.getRecord().invalidErrorsChanged(jsonApiErrors);
     }
   }
 

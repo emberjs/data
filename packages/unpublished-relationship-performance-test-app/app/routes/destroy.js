@@ -1,5 +1,4 @@
 import Route from '@ember/routing/route';
-import { run } from '@ember/runloop';
 
 import { all } from 'rsvp';
 
@@ -15,9 +14,9 @@ export default Route.extend({
       parent
         .get('children')
         .toArray()
-        .map((child) => child.destroyRecord().then(() => run(() => child.unloadRecord())))
+        .map((child) => child.destroyRecord())
     );
-    const parentPromise = parent.destroyRecord().then(() => run(() => parent.unloadRecord()));
+    const parentPromise = parent.destroyRecord();
 
     return all([childrenPromise, parentPromise]).then(() => {
       performance.mark('end-destroy-records');

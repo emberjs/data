@@ -1,5 +1,3 @@
-import { settled } from '@ember/test-helpers';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -675,9 +673,6 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     post.get('comments').pushObject(comment);
 
     await comment.destroyRecord();
-    comment.unloadRecord();
-
-    await settled();
 
     const identifier = comment._internalModel.identifier;
 

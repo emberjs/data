@@ -3766,12 +3766,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       ['post-1', 'post-4', 'post-5']
     );
 
-    await store
-      .peekRecord('post', 'post-4')
-      .destroyRecord()
-      .then((record) => {
-        return store.unloadRecord(record);
-      });
+    await store.peekRecord('post', 'post-4').destroyRecord();
 
     assert.deepEqual(
       posts.map((x) => x.get('id')),

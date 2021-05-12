@@ -4,6 +4,7 @@ import { computed, get } from '@ember/object';
 import { mapBy, not } from '@ember/object/computed';
 import { DEBUG } from '@glimmer/env';
 
+import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 import { DeprecatedEvented } from '@ember-data/store/-private';
 
 /**
@@ -249,8 +250,10 @@ export default ArrayProxy.extend(DeprecatedEvented, {
 
     if (wasEmpty && !get(this, 'isEmpty')) {
       this._registeredHandlers && this._registeredHandlers.becameInvalid();
-      if (DEBUG && this._has('becameInvalid')) {
-        this.trigger('becameInvalid');
+      if (DEPRECATE_EVENTED_API_USAGE) {
+        if (this[DEBUG ? '_has' : 'has']('becameInvalid')) {
+          this.trigger('becameInvalid');
+        }
       }
     }
   },
@@ -331,8 +334,10 @@ export default ArrayProxy.extend(DeprecatedEvented, {
 
     if (get(this, 'isEmpty')) {
       this._registeredHandlers && this._registeredHandlers.becameValid();
-      if (DEBUG && this._has('becameValid')) {
-        this.trigger('becameValid');
+      if (DEPRECATE_EVENTED_API_USAGE) {
+        if (this[DEBUG ? '_has' : 'has']('becameValid')) {
+          this.trigger('becameValid');
+        }
       }
     }
   },
@@ -412,8 +417,10 @@ export default ArrayProxy.extend(DeprecatedEvented, {
 
     this._clear();
     this._registeredHandlers && this._registeredHandlers.becameValid();
-    if (DEBUG && this._has('becameValid')) {
-      this.trigger('becameValid');
+    if (DEPRECATE_EVENTED_API_USAGE) {
+      if (this[DEBUG ? '_has' : 'has']('becameValid')) {
+        this.trigger('becameValid');
+      }
     }
   },
 

@@ -27,6 +27,7 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-typescript": "^4.1.0",
+    "ember-cache-primitive-polyfill": "^1.0.1",
     "ember-compatibility-helpers": "^1.2.0",
     "inflection": "1.12.0"
   },

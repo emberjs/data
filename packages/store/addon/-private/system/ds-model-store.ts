@@ -9,12 +9,9 @@ import { DEBUG } from '@glimmer/env';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
 import CoreStore from './core-store';
-import notifyChanges from './model/notify-changes';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
-
-type NotificationType = import('./record-notification-manager').NotificationType;
 
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
@@ -42,7 +39,6 @@ class Store extends CoreStore {
     let createOptions: any = {
       store: this,
       _internalModel: internalModel,
-      currentState: internalModel.currentState,
       container: null,
     };
     assign(createOptions, createRecordArgs);
@@ -52,12 +48,6 @@ class Store extends CoreStore {
 
     delete createOptions.container;
     let record = this._modelFactoryFor(modelName).create(createOptions);
-    //todo optimize
-    notificationManager.subscribe(
-      identifier,
-      (identifier: StableRecordIdentifier, value: NotificationType, key?: string) =>
-        notifyChanges(identifier, value, key, record, this)
-    );
     return record;
   }
 
