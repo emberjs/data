@@ -101,20 +101,27 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
   test('manyArray trigger arrayContentChange functions with the correct values', function (assert) {
     assert.expect(6);
 
+    const TestManyArray = DS.ManyArray.proto();
+
     let willChangeStartIdx;
     let willChangeRemoveAmt;
     let willChangeAddAmt;
 
-    // We aren't actually adding any observers in this test
-    // just testing the observer codepaths, so we use this to
-    // force the ManyArray instance to take the observer paths.
-    DS.ManyArray.proto().__hasArrayObservers = true;
-    let originalArrayContentWillChange = DS.ManyArray.proto().arrayContentWillChange;
-    let originalArrayContentDidChange = DS.ManyArray.proto().arrayContentDidChange;
+    let originalArrayContentWillChange = TestManyArray.arrayContentWillChange;
+    let originalArrayContentDidChange = TestManyArray.arrayContentDidChange;
+    let originalInit = TestManyArray.init;
 
     // override DS.ManyArray temp (cleanup occures in afterTest);
 
-    DS.ManyArray.proto().arrayContentWillChange = function (startIdx, removeAmt, addAmt) {
+    TestManyArray.init = function (...args) {
+      // We aren't actually adding any observers in this test
+      // just testing the observer codepaths, so we use this to
+      // force the ManyArray instance to take the observer paths.
+      this.__hasArrayObservers = true;
+      originalInit.call(this, ...args);
+    };
+
+    TestManyArray.arrayContentWillChange = function (startIdx, removeAmt, addAmt) {
       willChangeStartIdx = startIdx;
       willChangeRemoveAmt = removeAmt;
       willChangeAddAmt = addAmt;
@@ -122,7 +129,7 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
       return originalArrayContentWillChange.apply(this, arguments);
     };
 
-    DS.ManyArray.proto().arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
+    TestManyArray.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
       assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
       assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
       assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
@@ -184,8 +191,9 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
         });
       });
     } finally {
-      DS.ManyArray.proto().arrayContentWillChange = originalArrayContentWillChange;
-      DS.ManyArray.proto().arrayContentDidChange = originalArrayContentDidChange;
+      TestManyArray.arrayContentWillChange = originalArrayContentWillChange;
+      TestManyArray.arrayContentDidChange = originalArrayContentDidChange;
+      TestManyArray.init = originalInit;
     }
   });
 });

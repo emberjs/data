@@ -8,12 +8,11 @@ export default Route.extend({
     performance.mark('start-push-payload');
     const parent = this.store.push(payload);
     performance.mark('start-unload-records');
+    const children = await parent.children;
+
+    // runloop to ensure destroy does not escape bounds of the test
     run(() => {
-      parent
-        .get('children')
-        .toArray()
-        .forEach((child) => child.unloadRecord());
-      parent.unloadRecord();
+      children.toArray().forEach((child) => child.unloadRecord());
     });
     performance.mark('end-unload-records');
   },
