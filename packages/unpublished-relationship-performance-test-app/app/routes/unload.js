@@ -12,7 +12,7 @@ export default Route.extend({
 
     // runloop to ensure destroy does not escape bounds of the test
     run(() => {
-      children.forEach((child) => child.unloadRecord());
+      children.toArray().forEach((child) => child.unloadRecord());
     });
     performance.mark('end-unload-records');
   },
