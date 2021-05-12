@@ -57,6 +57,15 @@ export default class PromiseManyArray {
     return this.content ? this.content.length : 0;
   }
 
+  // ember-source < 3.23 (e.g. 3.20 lts)
+  // requires that the tag `'[]'` be notified
+  // on the ArrayProxy in order for `{{#each}}`
+  // to recompute. We entangle the '[]' tag from
+  @dependentKeyCompat
+  get '[]'() {
+    return this.content ? this.content['[]'] : this.content;
+  }
+
   /**
    * Iterate the proxied content. Called by the glimmer iterator in #each
    *
@@ -66,7 +75,8 @@ export default class PromiseManyArray {
    * @private
    */
   forEach(cb) {
-    if (this.content) {
+    this['[]']; // needed for < 3.23 support e.g. 3.20 lts
+    if (this.content && this.length) {
       this.content.forEach(cb);
     }
   }
