@@ -2322,7 +2322,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       };
 
       try {
-        store.findRecord('post', '1');
+        await store.findRecord('post', '1');
       } catch (err) {
         assert.ok(err, 'promise rejected');
       }
