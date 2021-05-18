@@ -15,7 +15,13 @@ module.exports = function rollupPrivateModule(tree, options) {
   let privateTree = babelCompiler.transpileTree(debugTree(withPrivate, 'babel-private:input'), {
     babel: babelOptions,
     'ember-cli-babel': {
+      // we leave our output as valid ES
+      // for the consuming app's config to transpile as desired
+      // so we don't want to compileModules and we don't want
+      // to convert imports to globals when that is possible.
       compileModules: false,
+      disableEmberModulesAPIPolyfill: true,
+      disableEmberDataPackagesPolyfill: true,
       extensions: ['js', 'ts'],
     },
   });
