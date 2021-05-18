@@ -36,6 +36,7 @@ export default function configureAssertAllDeprecations() {
           if (ASSERT_ALL_DEPRECATIONS) {
             pushDeprecation((deprecation.options && deprecation.options.id) || deprecation);
           } else {
+            debugger;
             console.count(deprecation.options.id);
             console.warn('Detected Non-Ember-Data Deprecation:', deprecation.message, deprecation.options.stacktrace);
           }
