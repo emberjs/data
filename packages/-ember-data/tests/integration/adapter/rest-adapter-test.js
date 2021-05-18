@@ -1976,7 +1976,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
           return underscore(attr);
         },
 
-        keyForBelongsTo(belongsTo) { },
+        keyForBelongsTo(belongsTo) {},
 
         keyForRelationship(rel, kind) {
           if (kind === 'belongsTo') {

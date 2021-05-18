@@ -1,11 +1,13 @@
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
+import { resolve } from 'rsvp';
+
 import { setupTest } from 'ember-qunit';
+
 import RESTAdapter from '@ember-data/adapter/rest';
+import Model, { attr } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
-import { resolve } from 'rsvp';
-import Model, { attr } from '@ember-data/model';
 
 let server;
 
@@ -43,7 +45,9 @@ function ajaxResponse(adapter, value) {
     return resolve(deepCopy(value));
   };
 
-  return () => { return { passedUrl, passedVerb, passedHash } };
+  return () => {
+    return { passedUrl, passedVerb, passedHash };
+  };
 }
 
 module('integration/adapter/rest_adapter - REST Adapter - findRecord', function (hooks) {
@@ -250,7 +254,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
   test('findRecord - payload with a serializer-specified attribute mapping', async function (assert) {
     const Post = Model.extend({
       name: attr('string'),
-      createdAt: attr('number')
+      createdAt: attr('number'),
     });
     const Comment = Model.extend({
       name: attr('string'),
@@ -258,9 +262,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     const ajaxCallback = ajaxResponse(adapter, {
-      posts: [
-        { id: '1', _NAME_: 'Rails is omakase', _CREATED_AT_: 2013 }
-      ]
+      posts: [{ id: '1', _NAME_: 'Rails is omakase', _CREATED_AT_: 2013 }],
     });
 
     this.owner.register('model:post', Post);
