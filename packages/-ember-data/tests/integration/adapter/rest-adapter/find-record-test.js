@@ -71,15 +71,14 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const Comment = Model.extend({
       name: attr('string'),
     });
-    const store = this.owner.lookup('service:store');
-    const adapter = store.adapterFor('application');
-    const ajaxCallback = ajaxResponse(adapter, { posts: [{ id: '1', name: 'Rails is omakase' }] });
-
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
 
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const ajaxCallback = ajaxResponse(adapter, { posts: [{ id: '1', name: 'Rails is omakase' }] });
     const post = await store.findRecord('post', '1');
     const { passedUrl, passedVerb, passedHash } = ajaxCallback();
 
@@ -98,14 +97,15 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const Comment = Model.extend({
       name: attr('string'),
     });
-    const store = this.owner.lookup('service:store');
-    const adapter = store.adapterFor('application');
-    const ajaxCallback = ajaxResponse(adapter, { posts: [{ id: '1', name: 'Rails is omakase' }] });
 
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const ajaxCallback = ajaxResponse(adapter, { posts: [{ id: '1', name: 'Rails is omakase' }] });
 
     adapter.buildURL = function (_type, id, _snapshot, requestType) {
       return '/' + requestType + '/post/' + id;
@@ -125,14 +125,15 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const Comment = Model.extend({
       name: attr('string'),
     });
-    const store = this.owner.lookup('service:store');
-    const adapter = store.adapterFor('application');
-    const ajaxCallback = ajaxResponse(adapter, { post: { id: '1', name: 'Rails is omakase' } });
 
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const ajaxCallback = ajaxResponse(adapter, { post: { id: '1', name: 'Rails is omakase' } });
 
     const post = await store.findRecord('post', '1');
 
@@ -152,6 +153,12 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const Comment = Model.extend({
       name: attr('string'),
     });
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     const ajaxCallback = ajaxResponse(adapter, {
@@ -160,11 +167,6 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
         { id: '2', name: 'The Parley Letter' },
       ],
     });
-
-    this.owner.register('model:post', Post);
-    this.owner.register('model:comment', Comment);
-    this.owner.register('adapter:application', RESTAdapter.extend());
-    this.owner.register('serializer:application', RESTSerializer.extend());
 
     const post = await store.findRecord('post', '1');
 
@@ -190,17 +192,18 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const Comment = Model.extend({
       name: attr('string'),
     });
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     const ajaxCallback = ajaxResponse(adapter, {
       posts: [{ id: 1, name: 'Rails is omakase' }],
       comments: [{ id: 1, name: 'FIRST' }],
     });
-
-    this.owner.register('model:post', Post);
-    this.owner.register('model:comment', Comment);
-    this.owner.register('adapter:application', RESTAdapter.extend());
-    this.owner.register('serializer:application', RESTSerializer.extend());
 
     const post = await store.findRecord('post', '1');
 
@@ -224,14 +227,15 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const Comment = Model.extend({
       name: attr('string'),
     });
-    const store = this.owner.lookup('service:store');
-    const adapter = store.adapterFor('application');
-    const ajaxCallback = ajaxResponse(adapter, { posts: [{ _ID_: '1', name: 'Rails is omakase' }] });
 
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const ajaxCallback = ajaxResponse(adapter, { posts: [{ _ID_: '1', name: 'Rails is omakase' }] });
 
     this.owner.register(
       'serializer:post',
@@ -259,11 +263,6 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const Comment = Model.extend({
       name: attr('string'),
     });
-    const store = this.owner.lookup('service:store');
-    const adapter = store.adapterFor('application');
-    const ajaxCallback = ajaxResponse(adapter, {
-      posts: [{ id: '1', _NAME_: 'Rails is omakase', _CREATED_AT_: 2013 }],
-    });
 
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
@@ -279,6 +278,12 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       })
     );
     this.owner.register('model:post', Post);
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const ajaxCallback = ajaxResponse(adapter, {
+      posts: [{ id: '1', _NAME_: 'Rails is omakase', _CREATED_AT_: 2013 }],
+    });
 
     const post = await store.findRecord('post', '1');
 
@@ -299,17 +304,18 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     const Comment = Model.extend({
       name: attr('string'),
     });
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
 
     const ajaxCallback = ajaxResponse(adapter, {
       post: { id: '1', name: 'Rails is very expensive sushi' },
     });
-
-    this.owner.register('model:post', Post);
-    this.owner.register('model:comment', Comment);
-    this.owner.register('adapter:application', RESTAdapter.extend());
-    this.owner.register('serializer:application', RESTSerializer.extend());
 
     await store.findRecord('post', 1, { include: 'comments' });
 
