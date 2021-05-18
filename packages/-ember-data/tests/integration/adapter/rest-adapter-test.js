@@ -1,7 +1,6 @@
 /* globals jQuery */
 
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import { underscore } from '@ember/string';
 
 import Pretender from 'pretender';
@@ -132,51 +131,42 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     };
   }
 
-  test('findRecord - basic payload', function (assert) {
+  test('findRecord - basic payload', async function (assert) {
     ajaxResponse({ posts: [{ id: 1, name: 'Rails is omakase' }] });
 
-    return run(() =>
-      store.findRecord('post', 1).then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'GET');
-        assert.deepEqual(passedHash.data, {});
+    let post = await store.findRecord('post', 1);
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, {});
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('name'), 'Rails is omakase');
-      })
-    );
+    assert.equal(post.get('id'), '1');
+    assert.equal(post.get('name'), 'Rails is omakase');
   });
 
-  test('findRecord - passes buildURL a requestType', function (assert) {
+  test('findRecord - passes buildURL a requestType', async function (assert) {
     adapter.buildURL = function (type, id, snapshot, requestType) {
       return '/' + requestType + '/post/' + id;
     };
 
     ajaxResponse({ posts: [{ id: 1, name: 'Rails is omakase' }] });
 
-    return run(() =>
-      store.findRecord('post', 1).then((post) => {
-        assert.equal(passedUrl, '/findRecord/post/1');
-      })
-    );
+    await store.findRecord('post', 1);
+    assert.equal(passedUrl, '/findRecord/post/1');
   });
 
-  test('findRecord - basic payload (with legacy singular name)', function (assert) {
+  test('findRecord - basic payload (with legacy singular name)', async function (assert) {
     ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
 
-    return run(() =>
-      store.findRecord('post', 1).then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'GET');
-        assert.deepEqual(passedHash.data, {});
+    let post = await store.findRecord('post', 1);
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, {});
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('name'), 'Rails is omakase');
-      })
-    );
+    assert.equal(post.get('id'), '1');
+    assert.equal(post.get('name'), 'Rails is omakase');
   });
 
-  test('findRecord - payload with sideloaded records of the same type', function (assert) {
+  test('findRecord - payload with sideloaded records of the same type', async function (assert) {
     ajaxResponse({
       posts: [
         { id: 1, name: 'Rails is omakase' },
@@ -184,45 +174,39 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return run(() =>
-      store.findRecord('post', 1).then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'GET');
-        assert.deepEqual(passedHash.data, {});
+    let post = await store.findRecord('post', 1);
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, {});
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('name'), 'Rails is omakase');
+    assert.equal(post.get('id'), '1');
+    assert.equal(post.get('name'), 'Rails is omakase');
 
-        let post2 = store.peekRecord('post', 2);
-        assert.equal(post2.get('id'), '2');
-        assert.equal(post2.get('name'), 'The Parley Letter');
-      })
-    );
+    let post2 = store.peekRecord('post', 2);
+    assert.equal(post2.get('id'), '2');
+    assert.equal(post2.get('name'), 'The Parley Letter');
   });
 
-  test('findRecord - payload with sideloaded records of a different type', function (assert) {
+  test('findRecord - payload with sideloaded records of a different type', async function (assert) {
     ajaxResponse({
       posts: [{ id: 1, name: 'Rails is omakase' }],
       comments: [{ id: 1, name: 'FIRST' }],
     });
 
-    return run(() =>
-      store.findRecord('post', 1).then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'GET');
-        assert.deepEqual(passedHash.data, {});
+    let post = await store.findRecord('post', 1);
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, {});
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('name'), 'Rails is omakase');
+    assert.equal(post.get('id'), '1');
+    assert.equal(post.get('name'), 'Rails is omakase');
 
-        let comment = store.peekRecord('comment', 1);
-        assert.equal(comment.get('id'), '1');
-        assert.equal(comment.get('name'), 'FIRST');
-      })
-    );
+    let comment = store.peekRecord('comment', 1);
+    assert.equal(comment.get('id'), '1');
+    assert.equal(comment.get('name'), 'FIRST');
   });
 
-  test('findRecord - payload with an serializer-specified primary key', function (assert) {
+  test('findRecord - payload with an serializer-specified primary key', async function (assert) {
     this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
@@ -232,19 +216,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({ posts: [{ _ID_: 1, name: 'Rails is omakase' }] });
 
-    return run(() =>
-      store.findRecord('post', 1).then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'GET');
-        assert.deepEqual(passedHash.data, {});
+    let post = await store.findRecord('post', 1);
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, {});
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('name'), 'Rails is omakase');
-      })
-    );
+    assert.equal(post.get('id'), '1');
+    assert.equal(post.get('name'), 'Rails is omakase');
   });
 
-  test('findRecord - payload with a serializer-specified attribute mapping', function (assert) {
+  test('findRecord - payload with a serializer-specified attribute mapping', async function (assert) {
     this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
@@ -261,137 +242,114 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({ posts: [{ id: 1, _NAME_: 'Rails is omakase', _CREATED_AT_: 2013 }] });
 
-    return run(() =>
-      store.findRecord('post', 1).then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'GET');
-        assert.deepEqual(passedHash.data, {});
+    let post = await store.findRecord('post', 1);
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, {});
 
-        assert.equal(post.get('id'), '1');
-        assert.equal(post.get('name'), 'Rails is omakase');
-        assert.equal(post.get('createdAt'), 2013);
-      })
-    );
+    assert.equal(post.get('id'), '1');
+    assert.equal(post.get('name'), 'Rails is omakase');
+    assert.equal(post.get('createdAt'), 2013);
   });
 
-  test('findRecord - passes `include` as a query parameter to ajax', function (assert) {
+  test('findRecord - passes `include` as a query parameter to ajax', async function (assert) {
     ajaxResponse({
       post: { id: 1, name: 'Rails is very expensive sushi' },
     });
 
-    return run(() =>
-      store.findRecord('post', 1, { include: 'comments' }).then(() => {
-        assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
-      })
-    );
+    await store.findRecord('post', 1, { include: 'comments' });
+    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
   });
 
-  test('createRecord - an empty payload is a basic success if an id was specified', function (assert) {
+  test('createRecord - an empty payload is a basic success if an id was specified', async function (assert) {
     ajaxResponse();
 
-    return run(() => {
-      let post = store.createRecord('post', { id: 'some-uuid', name: 'The Parley Letter' });
-      return post.save().then((post) => {
-        assert.equal(passedUrl, '/posts');
-        assert.equal(passedVerb, 'POST');
-        assert.deepEqual(passedHash.data, { post: { id: 'some-uuid', name: 'The Parley Letter' } });
+    let post = store.createRecord('post', { id: 'some-uuid', name: 'The Parley Letter' });
+    await post.save();
+    assert.equal(passedUrl, '/posts');
+    assert.equal(passedVerb, 'POST');
+    assert.deepEqual(passedHash.data, { post: { id: 'some-uuid', name: 'The Parley Letter' } });
 
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.equal(post.get('name'), 'The Parley Letter', 'the post was updated');
-      });
-    });
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(post.get('name'), 'The Parley Letter', 'the post was updated');
   });
 
-  test('createRecord - passes buildURL the requestType', function (assert) {
+  test('createRecord - passes buildURL the requestType', async function (assert) {
     adapter.buildURL = function (type, id, snapshot, requestType) {
       return '/post/' + requestType;
     };
 
     ajaxResponse();
 
-    return run(() => {
-      let post = store.createRecord('post', { id: 'some-uuid', name: 'The Parley Letter' });
-      return post.save().then((post) => {
-        assert.equal(passedUrl, '/post/createRecord');
-      });
-    });
+    let post = store.createRecord('post', { id: 'some-uuid', name: 'The Parley Letter' });
+    await post.save();
+    assert.equal(passedUrl, '/post/createRecord');
   });
 
-  test('createRecord - a payload with a new ID and data applies the updates', function (assert) {
+  test('createRecord - a payload with a new ID and data applies the updates', async function (assert) {
     ajaxResponse({ posts: [{ id: '1', name: 'Dat Parley Letter' }] });
 
-    return run(() => {
-      let post = store.createRecord('post', { name: 'The Parley Letter' });
+    let post = store.createRecord('post', { name: 'The Parley Letter' });
 
-      return post.save().then((post) => {
-        assert.equal(passedUrl, '/posts');
-        assert.equal(passedVerb, 'POST');
-        assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
+    await post.save();
+    assert.equal(passedUrl, '/posts');
+    assert.equal(passedVerb, 'POST');
+    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.equal(post.get('id'), '1', 'the post has the updated ID');
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
-      });
-    });
+    assert.equal(post.get('id'), '1', 'the post has the updated ID');
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
   });
 
-  test('createRecord - a payload with a new ID and data applies the updates (with legacy singular name)', function (assert) {
+  test('createRecord - a payload with a new ID and data applies the updates (with legacy singular name)', async function (assert) {
     ajaxResponse({ post: { id: '1', name: 'Dat Parley Letter' } });
     let post = store.createRecord('post', { name: 'The Parley Letter' });
 
-    return run(post, 'save').then((post) => {
-      assert.equal(passedUrl, '/posts');
-      assert.equal(passedVerb, 'POST');
-      assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
+    await post.save();
+    assert.equal(passedUrl, '/posts');
+    assert.equal(passedVerb, 'POST');
+    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-      assert.equal(post.get('id'), '1', 'the post has the updated ID');
-      assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-      assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
-    });
+    assert.equal(post.get('id'), '1', 'the post has the updated ID');
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
   });
 
-  test("createRecord - findMany doesn't overwrite owner", function (assert) {
+  test("createRecord - findMany doesn't overwrite owner", async function (assert) {
     ajaxResponse({ comment: { id: '1', name: 'Dat Parley Letter', post: 1 } });
 
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              data: [],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            data: [],
           },
         },
-      });
+      },
     });
     let post = store.peekRecord('post', 1);
 
     let comment = store.createRecord('comment', { name: 'The Parley Letter' });
 
-    run(() => {
-      post.get('comments').pushObject(comment);
+    post.get('comments').pushObject(comment);
 
-      assert.equal(comment.get('post'), post, 'the post has been set correctly');
-    });
+    assert.equal(comment.get('post'), post, 'the post has been set correctly');
 
-    return run(() => {
-      return comment.save().then((comment) => {
-        assert.false(comment.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.equal(comment.get('name'), 'Dat Parley Letter', 'the post was updated');
-        assert.equal(comment.get('post'), post, 'the post is still set');
-      });
-    });
+    await comment.save();
+    assert.false(comment.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(comment.get('name'), 'Dat Parley Letter', 'the post was updated');
+    assert.equal(comment.get('post'), post, 'the post is still set');
   });
 
-  test("createRecord - a serializer's primary key and attributes are consulted when building the payload", function (assert) {
+  test("createRecord - a serializer's primary key and attributes are consulted when building the payload", async function (assert) {
     this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
@@ -407,16 +365,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     let post = store.createRecord('post', { id: 'some-uuid', name: 'The Parley Letter' });
 
-    return run(() =>
-      post.save().then((post) => {
-        assert.deepEqual(passedHash.data, {
-          post: { _id_: 'some-uuid', _name_: 'The Parley Letter' },
-        });
-      })
-    );
+    await post.save();
+    assert.deepEqual(passedHash.data, {
+      post: { _id_: 'some-uuid', _name_: 'The Parley Letter' },
+    });
   });
 
-  test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", function (assert) {
+  test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", async function (assert) {
     let post;
     this.owner.register(
       'serializer:post',
@@ -431,16 +386,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       post: { _name_: 'The Parley Letter', id: '1' },
     });
 
-    return run(() => {
-      post = store.createRecord('post', { name: 'The Parley Letter' });
+    post = store.createRecord('post', { name: 'The Parley Letter' });
 
-      return post.save().then((post) => {
-        assert.deepEqual(passedHash.data, { post: { _name_: 'The Parley Letter' } });
-      });
-    });
+    await post.save();
+    assert.deepEqual(passedHash.data, { post: { _name_: 'The Parley Letter' } });
   });
 
-  test("createRecord - a serializer's attribute mapping takes precedence over keyForAttribute when building the payload", function (assert) {
+  test("createRecord - a serializer's attribute mapping takes precedence over keyForAttribute when building the payload", async function (assert) {
     this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
@@ -456,18 +408,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse();
 
-    return run(() => {
-      let post = store.createRecord('post', { id: 'some-uuid', name: 'The Parley Letter' });
+    let post = store.createRecord('post', { id: 'some-uuid', name: 'The Parley Letter' });
 
-      return post.save().then((post) => {
-        assert.deepEqual(passedHash.data, {
-          post: { given_name: 'The Parley Letter', id: 'some-uuid' },
-        });
-      });
+    await post.save();
+    assert.deepEqual(passedHash.data, {
+      post: { given_name: 'The Parley Letter', id: 'some-uuid' },
     });
   });
 
-  test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (belongsTo) when building the payload", function (assert) {
+  test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (belongsTo) when building the payload", async function (assert) {
     this.owner.register(
       'serializer:comment',
       DS.RESTSerializer.extend({
@@ -485,23 +434,20 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-    return run(() => {
-      let post = store.createRecord('post', { id: 'a-post-id', name: 'The Parley Letter' });
-      let comment = store.createRecord('comment', {
-        id: 'some-uuid',
-        name: 'Letters are fun',
-        post: post,
-      });
+    let post = store.createRecord('post', { id: 'a-post-id', name: 'The Parley Letter' });
+    let comment = store.createRecord('comment', {
+      id: 'some-uuid',
+      name: 'Letters are fun',
+      post: post,
+    });
 
-      return comment.save().then((post) => {
-        assert.deepEqual(passedHash.data, {
-          comment: { article: 'a-post-id', id: 'some-uuid', name: 'Letters are fun' },
-        });
-      });
+    await comment.save();
+    assert.deepEqual(passedHash.data, {
+      comment: { article: 'a-post-id', id: 'some-uuid', name: 'Letters are fun' },
     });
   });
 
-  test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", function (assert) {
+  test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", async function (assert) {
     this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
@@ -519,23 +465,20 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
 
-    return run(() => {
-      let comment = store.createRecord('comment', { id: 'a-comment-id', name: 'First!' });
-      let post = store.createRecord('post', {
-        id: 'some-uuid',
-        name: 'The Parley Letter',
-        comments: [comment],
-      });
+    let comment = store.createRecord('comment', { id: 'a-comment-id', name: 'First!' });
+    let post = store.createRecord('post', {
+      id: 'some-uuid',
+      name: 'The Parley Letter',
+      comments: [comment],
+    });
 
-      return post.save().then((post) => {
-        assert.deepEqual(passedHash.data, {
-          post: { opinions: ['a-comment-id'], id: 'some-uuid', name: 'The Parley Letter' },
-        });
-      });
+    await post.save();
+    assert.deepEqual(passedHash.data, {
+      post: { opinions: ['a-comment-id'], id: 'some-uuid', name: 'The Parley Letter' },
     });
   });
 
-  test('createRecord - a record on the many side of a hasMany relationship should update relationships when data is sideloaded', function (assert) {
+  test('createRecord - a record on the many side of a hasMany relationship should update relationships when data is sideloaded', async function (assert) {
     assert.expect(3);
 
     ajaxResponse({
@@ -569,55 +512,48 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              data: [{ type: 'comment', id: '1' }],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
           },
         },
-      });
-      store.push({
-        data: {
-          type: 'comment',
-          id: '1',
-          attributes: {
-            name: 'Dat Parlay Letter',
-          },
-          relationships: {
-            post: {
-              data: { type: 'post', id: '1' },
-            },
+      },
+    });
+    store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: {
+          name: 'Dat Parlay Letter',
+        },
+        relationships: {
+          post: {
+            data: { type: 'post', id: '1' },
           },
         },
-      });
+      },
     });
 
     let post = store.peekRecord('post', 1);
-    let commentCount = run(() => post.get('comments.length'));
+    let commentCount = post.get('comments.length');
 
     assert.equal(commentCount, 1, 'the post starts life with a comment');
 
-    return run(() => {
-      let comment = store.createRecord('comment', { name: 'Another Comment', post: post });
-
-      return comment.save().then((comment) => {
-        assert.equal(comment.get('post'), post, 'the comment is related to the post');
-        return post.reload().then((post) => {
-          assert.equal(post.get('comments.length'), 2, 'Post comment count has been updated');
-        });
-      });
-    });
+    let comment = store.createRecord('comment', { name: 'Another Comment', post: post });
+    await comment.save();
+    assert.equal(comment.get('post'), post, 'the comment is related to the post');
+    await post.reload();
+    assert.equal(post.get('comments.length'), 2, 'Post comment count has been updated');
   });
 
-  test('createRecord - sideloaded belongsTo relationships are both marked as loaded', function (assert) {
+  test('createRecord - sideloaded belongsTo relationships are both marked as loaded', async function (assert) {
     assert.expect(4);
 
     Post.reopen({ comment: DS.belongsTo('comment', { async: false }) });
@@ -630,17 +566,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       comments: [{ id: 1, post: 1, name: 'Comcast is a bargain' }],
     });
 
-    return run(() => {
-      return post.save().then((record) => {
-        assert.true(store.peekRecord('post', 1).get('comment.isLoaded'), "post's comment isLoaded (via store)");
-        assert.true(store.peekRecord('comment', 1).get('post.isLoaded'), "comment's post isLoaded (via store)");
-        assert.true(record.get('comment.isLoaded'), "post's comment isLoaded (via record)");
-        assert.true(record.get('comment.post.isLoaded'), "post's comment's post isLoaded (via record)");
-      });
-    });
+    let record = await post.save();
+    assert.true(store.peekRecord('post', 1).get('comment.isLoaded'), "post's comment isLoaded (via store)");
+    assert.true(store.peekRecord('comment', 1).get('post.isLoaded'), "comment's post isLoaded (via store)");
+    assert.true(record.get('comment.isLoaded'), "post's comment isLoaded (via record)");
+    assert.true(record.get('comment.post.isLoaded'), "post's comment's post isLoaded (via record)");
   });
 
-  test("createRecord - response can contain relationships the client doesn't yet know about", function (assert) {
+  test("createRecord - response can contain relationships the client doesn't yet know about", async function (assert) {
     assert.expect(3); // while records.length is 2, we are getting 4 assertions
 
     ajaxResponse({
@@ -665,24 +598,21 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     let post = store.createRecord('post', { name: 'Rails is omakase' });
 
-    return run(() => {
-      return post.save().then((post) => {
-        assert.equal(post.get('comments.firstObject.post'), post, 'the comments are related to the correct post model');
-        assert.equal(
-          store._internalModelsFor('post').models.length,
-          1,
-          'There should only be one post record in the store'
-        );
+    await post.save();
+    assert.equal(post.get('comments.firstObject.post'), post, 'the comments are related to the correct post model');
+    assert.equal(
+      store._internalModelsFor('post').models.length,
+      1,
+      'There should only be one post record in the store'
+    );
 
-        let postRecords = store._internalModelsFor('post').models;
-        for (var i = 0; i < postRecords.length; i++) {
-          assert.equal(post, postRecords[i].getRecord(), 'The object in the identity map is the same');
-        }
-      });
-    });
+    let postRecords = store._internalModelsFor('post').models;
+    for (var i = 0; i < postRecords.length; i++) {
+      assert.equal(post, postRecords[i].getRecord(), 'The object in the identity map is the same');
+    }
   });
 
-  test('createRecord - relationships are not duplicated', function (assert) {
+  test('createRecord - relationships are not duplicated', async function (assert) {
     Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
@@ -691,216 +621,171 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({ post: [{ id: 1, name: 'Rails is omakase', comments: [] }] });
 
-    return run(() =>
-      post
-        .save()
-        .then((post) => {
-          assert.equal(post.get('comments.length'), 0, 'post has 0 comments');
-          post.get('comments').pushObject(comment);
-          assert.equal(post.get('comments.length'), 1, 'post has 1 comment');
+    await post.save();
+    assert.equal(post.get('comments.length'), 0, 'post has 0 comments');
+    post.get('comments').pushObject(comment);
+    assert.equal(post.get('comments.length'), 1, 'post has 1 comment');
 
-          ajaxResponse({
-            post: [{ id: 1, name: 'Rails is omakase', comments: [2] }],
-            comments: [{ id: 2, name: 'Comment title' }],
-          });
+    ajaxResponse({
+      post: [{ id: 1, name: 'Rails is omakase', comments: [2] }],
+      comments: [{ id: 2, name: 'Comment title' }],
+    });
 
-          return post.save();
-        })
-        .then((post) => {
-          assert.equal(post.get('comments.length'), 1, 'post has 1 comment');
-        })
-    );
+    await post.save();
+    assert.equal(post.get('comments.length'), 1, 'post has 1 comment');
   });
 
-  test('updateRecord - an empty payload is a basic success', function (assert) {
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+  test('updateRecord - an empty payload is a basic success', async function (assert) {
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return run(() => {
-      let post = store.peekRecord('post', 1);
-      ajaxResponse();
+    let post = store.peekRecord('post', 1);
+    ajaxResponse();
 
-      post.set('name', 'The Parley Letter');
-      return post.save().then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'PUT');
-        assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
+    post.set('name', 'The Parley Letter');
+    await post.save();
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'PUT');
+    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.equal(post.get('name'), 'The Parley Letter', 'the post was updated');
-      });
-    });
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(post.get('name'), 'The Parley Letter', 'the post was updated');
   });
 
-  test('updateRecord - passes the requestType to buildURL', function (assert) {
+  test('updateRecord - passes the requestType to buildURL', async function (assert) {
     adapter.buildURL = function (type, id, snapshot, requestType) {
       return '/posts/' + id + '/' + requestType;
     };
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return run(() => {
-      return store
-        .findRecord('post', 1)
-        .then((post) => {
-          ajaxResponse();
+    let post = await store.findRecord('post', 1);
+    ajaxResponse();
 
-          post.set('name', 'The Parley Letter');
-          return post.save();
-        })
-        .then((post) => {
-          assert.equal(passedUrl, '/posts/1/updateRecord');
-        });
-    });
+    post.set('name', 'The Parley Letter');
+    await post.save();
+    assert.equal(passedUrl, '/posts/1/updateRecord');
   });
 
-  test('updateRecord - a payload with updates applies the updates', function (assert) {
+  test('updateRecord - a payload with updates applies the updates', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({ posts: [{ id: 1, name: 'Dat Parley Letter' }] });
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({ posts: [{ id: 1, name: 'Dat Parley Letter' }] });
 
-        post.set('name', 'The Parley Letter');
-        return post.save();
-      })
-      .then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'PUT');
-        assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
+    post.set('name', 'The Parley Letter');
+    await post.save();
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'PUT');
+    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
-      });
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
   });
 
-  test('updateRecord - a payload with updates applies the updates (with legacy singular name)', function (assert) {
+  test('updateRecord - a payload with updates applies the updates (with legacy singular name)', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({ post: { id: 1, name: 'Dat Parley Letter' } });
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({ post: { id: 1, name: 'Dat Parley Letter' } });
 
-        post.set('name', 'The Parley Letter');
-        return post.save();
-      })
-      .then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'PUT');
-        assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
+    post.set('name', 'The Parley Letter');
+    await post.save();
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'PUT');
+    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
-      });
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
   });
 
-  test('updateRecord - a payload with sideloaded updates pushes the updates', function (assert) {
+  test('updateRecord - a payload with sideloaded updates pushes the updates', async function (assert) {
     let post;
     ajaxResponse({
       posts: [{ id: 1, name: 'Dat Parley Letter' }],
       comments: [{ id: 1, name: 'FIRST' }],
     });
 
-    return run(() => {
-      post = store.createRecord('post', { name: 'The Parley Letter' });
-      return post.save().then((post) => {
-        assert.equal(passedUrl, '/posts');
-        assert.equal(passedVerb, 'POST');
-        assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
+    post = store.createRecord('post', { name: 'The Parley Letter' });
+    await post.save();
+    assert.equal(passedUrl, '/posts');
+    assert.equal(passedVerb, 'POST');
+    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.equal(post.get('id'), '1', 'the post has the updated ID');
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
+    assert.equal(post.get('id'), '1', 'the post has the updated ID');
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
 
-        let comment = store.peekRecord('comment', 1);
-        assert.equal(comment.get('name'), 'FIRST', 'The comment was sideloaded');
-      });
-    });
+    let comment = store.peekRecord('comment', 1);
+    assert.equal(comment.get('name'), 'FIRST', 'The comment was sideloaded');
   });
 
-  test('updateRecord - a payload with sideloaded updates pushes the updates', function (assert) {
+  test('updateRecord - a payload with sideloaded updates pushes the updates', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({
-          posts: [{ id: 1, name: 'Dat Parley Letter' }],
-          comments: [{ id: 1, name: 'FIRST' }],
-        });
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({
+      posts: [{ id: 1, name: 'Dat Parley Letter' }],
+      comments: [{ id: 1, name: 'FIRST' }],
+    });
 
-        post.set('name', 'The Parley Letter');
-        return post.save();
-      })
-      .then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'PUT');
-        assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
+    post.set('name', 'The Parley Letter');
+    await post.save();
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'PUT');
+    assert.deepEqual(passedHash.data, { post: { name: 'The Parley Letter' } });
 
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.equal(post.get('name'), 'Dat Parley Letter', 'the post was updated');
 
-        let comment = store.peekRecord('comment', 1);
-        assert.equal(comment.get('name'), 'FIRST', 'The comment was sideloaded');
-      });
+    let comment = store.peekRecord('comment', 1);
+    assert.equal(comment.get('name'), 'FIRST', 'The comment was sideloaded');
   });
 
-  test("updateRecord - a serializer's primary key and attributes are consulted when building the payload", function (assert) {
+  test("updateRecord - a serializer's primary key and attributes are consulted when building the payload", async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     this.owner.register(
       'serializer:post',
@@ -913,90 +798,76 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       })
     );
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          name: 'Rails is omakase',
-        },
-      });
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        name: 'Rails is omakase',
+      },
     });
 
     ajaxResponse();
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        post.set('name', 'The Parley Letter');
-        return post.save();
-      })
-      .then((post) => {
-        assert.deepEqual(passedHash.data, { post: { _name_: 'The Parley Letter' } });
-      });
+    let post = await store.findRecord('post', 1);
+    post.set('name', 'The Parley Letter');
+
+    await post.save();
+
+    assert.deepEqual(passedHash.data, { post: { _name_: 'The Parley Letter' } });
   });
 
-  test('updateRecord - hasMany relationships faithfully reflect simultaneous adds and removes', function (assert) {
+  test('updateRecord - hasMany relationships faithfully reflect simultaneous adds and removes', async function (assert) {
     Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Not everyone uses Rails',
-          },
-          relationships: {
-            comments: {
-              data: [{ type: 'comment', id: '1' }],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Not everyone uses Rails',
+        },
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
           },
         },
-        included: [
-          {
-            type: 'comment',
-            id: '1',
-            attributes: {
-              name: 'Rails is omakase',
-            },
+      },
+      included: [
+        {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            name: 'Rails is omakase',
           },
-          {
-            type: 'comment',
-            id: '2',
-            attributes: {
-              name: 'Yes. Yes it is.',
-            },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            name: 'Yes. Yes it is.',
           },
-        ],
-      });
+        },
+      ],
     });
 
     ajaxResponse({
       posts: { id: 1, name: 'Not everyone uses Rails', comments: [2] },
     });
 
-    return store
-      .findRecord('comment', 2)
-      .then(() => {
-        return store.findRecord('post', 1);
-      })
-      .then((post) => {
-        let newComment = store.peekRecord('comment', 2);
-        let comments = post.get('comments');
+    await store.findRecord('comment', 2);
+    let post = await store.findRecord('post', 1);
+    let newComment = store.peekRecord('comment', 2);
+    let comments = post.get('comments');
 
-        // Replace the comment with a new one
-        comments.popObject();
-        comments.pushObject(newComment);
+    // Replace the comment with a new one
+    comments.popObject();
+    comments.pushObject(newComment);
 
-        return post.save();
-      })
-      .then((post) => {
-        assert.equal(post.get('comments.length'), 1, 'the post has the correct number of comments');
-        assert.equal(post.get('comments.firstObject.name'), 'Yes. Yes it is.', 'the post has the correct comment');
-      });
+    await post.save();
+    assert.equal(post.get('comments.length'), 1, 'the post has the correct number of comments');
+    assert.equal(post.get('comments.firstObject.name'), 'Yes. Yes it is.', 'the post has the correct comment');
   });
 
   test('updateRecord - hasMany relationships faithfully reflect removal from response', async function (assert) {
@@ -1041,7 +912,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let post = await store.peekRecord('post', 1);
     assert.equal(post.get('comments.length'), 1, 'the post has one comment');
     post.set('name', 'Everyone uses Rails');
+
     post = await post.save();
+
     assert.equal(post.get('comments.length'), 0, 'the post has the no comments');
   });
 
@@ -1085,141 +958,119 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let comments = post.comments;
     comments.pushObject(comment);
     assert.equal(post.get('comments.length'), 1, 'the post has one comment');
+
     post = await post.save();
+
     assert.equal(post.get('comments.length'), 0, 'the post has the no comments');
   });
 
-  test('deleteRecord - an empty payload is a basic success', function (assert) {
+  test('deleteRecord - an empty payload is a basic success', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse();
+    let post = await store.findRecord('post', 1);
+    ajaxResponse();
 
-        post.deleteRecord();
-        return post.save();
-      })
-      .then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'DELETE');
-        assert.strictEqual(passedHash, undefined);
+    post.deleteRecord();
+    await post.save();
 
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.true(post.get('isDeleted'), 'the post is now deleted');
-      });
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'DELETE');
+    assert.strictEqual(passedHash, undefined);
+
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.true(post.get('isDeleted'), 'the post is now deleted');
   });
 
-  test('deleteRecord - passes the requestType to buildURL', function (assert) {
+  test('deleteRecord - passes the requestType to buildURL', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
       return '/posts/' + id + '/' + requestType;
     };
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse();
+    let post = await store.findRecord('post', 1);
+    ajaxResponse();
 
-        post.deleteRecord();
-        return post.save();
-      })
-      .then((post) => {
-        assert.equal(passedUrl, '/posts/1/deleteRecord');
-      });
+    post.deleteRecord();
+    await post.save();
+
+    assert.equal(passedUrl, '/posts/1/deleteRecord');
   });
 
-  test('deleteRecord - a payload with sideloaded updates pushes the updates', function (assert) {
+  test('deleteRecord - a payload with sideloaded updates pushes the updates', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({ comments: [{ id: 1, name: 'FIRST' }] });
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({ comments: [{ id: 1, name: 'FIRST' }] });
 
-        post.deleteRecord();
-        return post.save();
-      })
-      .then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'DELETE');
-        assert.strictEqual(passedHash, undefined);
+    post.deleteRecord();
+    await post.save();
 
-        assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-        assert.true(post.get('isDeleted'), 'the post is now deleted');
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'DELETE');
+    assert.strictEqual(passedHash, undefined);
 
-        let comment = store.peekRecord('comment', 1);
-        assert.equal(comment.get('name'), 'FIRST', 'The comment was sideloaded');
-      });
+    assert.false(post.get('hasDirtyAttributes'), "the post isn't dirty anymore");
+    assert.true(post.get('isDeleted'), 'the post is now deleted');
+
+    let comment = store.peekRecord('comment', 1);
+    assert.equal(comment.get('name'), 'FIRST', 'The comment was sideloaded');
   });
 
-  test('deleteRecord - a payload with sidloaded updates pushes the updates when the original record is omitted', function (assert) {
+  test('deleteRecord - a payload with sidloaded updates pushes the updates when the original record is omitted', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({ posts: [{ id: 2, name: 'The Parley Letter' }] });
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({ posts: [{ id: 2, name: 'The Parley Letter' }] });
 
-        post.deleteRecord();
-        return post.save();
-      })
-      .then((post) => {
-        assert.equal(passedUrl, '/posts/1');
-        assert.equal(passedVerb, 'DELETE');
-        assert.strictEqual(passedHash, undefined);
+    post.deleteRecord();
+    await post.save();
 
-        assert.false(post.get('hasDirtyAttributes'), "the original post isn't dirty anymore");
-        assert.true(post.get('isDeleted'), 'the original post is now deleted');
+    assert.equal(passedUrl, '/posts/1');
+    assert.equal(passedVerb, 'DELETE');
+    assert.strictEqual(passedHash, undefined);
 
-        let newPost = store.peekRecord('post', 2);
-        assert.equal(newPost.get('name'), 'The Parley Letter', 'The new post was added to the store');
-      });
+    assert.false(post.get('hasDirtyAttributes'), "the original post isn't dirty anymore");
+    assert.true(post.get('isDeleted'), 'the original post is now deleted');
+
+    let newPost = store.peekRecord('post', 2);
+    assert.equal(newPost.get('name'), 'The Parley Letter', 'The new post was added to the store');
   });
 
   test('deleteRecord - deleting a newly created record should not throw an error', async function (assert) {
@@ -1238,7 +1089,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.true(internalModel.currentState.isEmpty, 'the post is now deleted');
   });
 
-  test('findAll - returning an array populates the array', function (assert) {
+  test('findAll - returning an array populates the array', async function (assert) {
     ajaxResponse({
       posts: [
         { id: 1, name: 'Rails is omakase' },
@@ -1246,25 +1097,24 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return store.findAll('post').then((posts) => {
-      assert.equal(passedUrl, '/posts');
-      assert.equal(passedVerb, 'GET');
-      assert.deepEqual(passedHash.data, {});
+    let posts = await store.findAll('post');
+    assert.equal(passedUrl, '/posts');
+    assert.equal(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, {});
 
-      let post1 = store.peekRecord('post', 1);
-      let post2 = store.peekRecord('post', 2);
+    let post1 = store.peekRecord('post', 1);
+    let post2 = store.peekRecord('post', 2);
 
-      assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
+    assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
 
-      assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
+    assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
-      assert.equal(posts.get('length'), 2, 'The posts are in the array');
-      assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
-      assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
-    });
+    assert.equal(posts.get('length'), 2, 'The posts are in the array');
+    assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
+    assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
   });
 
-  test('findAll - passes buildURL the requestType and snapshot', function (assert) {
+  test('findAll - passes buildURL the requestType and snapshot', async function (assert) {
     assert.expect(2);
     let adapterOptionsStub = { stub: true };
     adapter.buildURL = function (type, id, snapshot, requestType) {
@@ -1279,22 +1129,20 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return store.findAll('post', { adapterOptions: adapterOptionsStub }).then((posts) => {
-      assert.equal(passedUrl, '/findAll/posts');
-    });
+    await store.findAll('post', { adapterOptions: adapterOptionsStub });
+    assert.equal(passedUrl, '/findAll/posts');
   });
 
-  test('findAll - passed `include` as a query parameter to ajax', function (assert) {
+  test('findAll - passed `include` as a query parameter to ajax', async function (assert) {
     ajaxResponse({
       posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
     });
 
-    return run(store, 'findAll', 'post', { include: 'comments' }).then(() => {
-      assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` params sent to adapter.ajax');
-    });
+    await store.findAll('post', { include: 'comments' });
+    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` params sent to adapter.ajax');
   });
 
-  test('findAll - returning sideloaded data loads the data', function (assert) {
+  test('findAll - returning sideloaded data loads the data', async function (assert) {
     ajaxResponse({
       posts: [
         { id: 1, name: 'Rails is omakase' },
@@ -1303,14 +1151,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       comments: [{ id: 1, name: 'FIRST' }],
     });
 
-    return store.findAll('post').then((posts) => {
-      let comment = store.peekRecord('comment', 1);
+    await store.findAll('post');
 
-      assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
-    });
+    let comment = store.peekRecord('comment', 1);
+    assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
   });
 
-  test('findAll - data is normalized through custom serializers', function (assert) {
+  test('findAll - data is normalized through custom serializers', async function (assert) {
     this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
@@ -1326,34 +1173,32 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return store.findAll('post').then((posts) => {
-      let post1 = store.peekRecord('post', 1);
-      let post2 = store.peekRecord('post', 2);
+    let posts = await store.findAll('post');
+    let post1 = store.peekRecord('post', 1);
+    let post2 = store.peekRecord('post', 2);
 
-      assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
-      assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
+    assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
+    assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
-      assert.equal(posts.get('length'), 2, 'The posts are in the array');
-      assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
-      assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
-    });
+    assert.equal(posts.get('length'), 2, 'The posts are in the array');
+    assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
+    assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
   });
 
-  test('query - if `sortQueryParams` option is not provided, query params are sorted alphabetically', function (assert) {
+  test('query - if `sortQueryParams` option is not provided, query params are sorted alphabetically', async function (assert) {
     ajaxResponse({
       posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
     });
 
-    return store.query('post', { params: 1, in: 2, wrong: 3, order: 4 }).then(() => {
-      assert.deepEqual(
-        Object.keys(passedHash.data),
-        ['in', 'order', 'params', 'wrong'],
-        'query params are received in alphabetical order'
-      );
-    });
+    await store.query('post', { params: 1, in: 2, wrong: 3, order: 4 });
+    assert.deepEqual(
+      Object.keys(passedHash.data),
+      ['in', 'order', 'params', 'wrong'],
+      'query params are received in alphabetical order'
+    );
   });
 
-  test('query - passes buildURL the requestType', function (assert) {
+  test('query - passes buildURL the requestType', async function (assert) {
     adapter.buildURL = function (type, id, snapshot, requestType) {
       return '/' + requestType + '/posts';
     };
@@ -1362,28 +1207,26 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
     });
 
-    return store.query('post', { params: 1, in: 2, wrong: 3, order: 4 }).then(() => {
-      assert.equal(passedUrl, '/query/posts');
-    });
+    await store.query('post', { params: 1, in: 2, wrong: 3, order: 4 });
+    assert.equal(passedUrl, '/query/posts');
   });
 
-  test('query - if `sortQueryParams` is falsey, query params are not sorted at all', function (assert) {
+  test('query - if `sortQueryParams` is falsey, query params are not sorted at all', async function (assert) {
     ajaxResponse({
       posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
     });
 
     adapter.sortQueryParams = null;
 
-    return store.query('post', { params: 1, in: 2, wrong: 3, order: 4 }).then(() => {
-      assert.deepEqual(
-        Object.keys(passedHash.data),
-        ['params', 'in', 'wrong', 'order'],
-        'query params are received in their original order'
-      );
-    });
+    await store.query('post', { params: 1, in: 2, wrong: 3, order: 4 });
+    assert.deepEqual(
+      Object.keys(passedHash.data),
+      ['params', 'in', 'wrong', 'order'],
+      'query params are received in their original order'
+    );
   });
 
-  test('query - if `sortQueryParams` is a custom function, query params passed through that function', function (assert) {
+  test('query - if `sortQueryParams` is a custom function, query params passed through that function', async function (assert) {
     ajaxResponse({
       posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
     });
@@ -1399,47 +1242,43 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return newQueryParams;
     };
 
-    return store.query('post', { params: 1, in: 2, wrong: 3, order: 4 }).then(() => {
-      assert.deepEqual(
-        Object.keys(passedHash.data),
-        ['wrong', 'params', 'order', 'in'],
-        'query params are received in reverse alphabetical order'
-      );
-    });
+    await store.query('post', { params: 1, in: 2, wrong: 3, order: 4 });
+    assert.deepEqual(
+      Object.keys(passedHash.data),
+      ['wrong', 'params', 'order', 'in'],
+      'query params are received in reverse alphabetical order'
+    );
   });
 
-  test("query - payload 'meta' is accessible on the record array", function (assert) {
+  test("query - payload 'meta' is accessible on the record array", async function (assert) {
     ajaxResponse({
       meta: { offset: 5 },
       posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
     });
 
-    return store.query('post', { page: 2 }).then((posts) => {
-      assert.equal(posts.get('meta.offset'), 5, 'Reponse metadata can be accessed with recordArray.meta');
-    });
+    let posts = await store.query('post', { page: 2 });
+    assert.equal(posts.get('meta.offset'), 5, 'Reponse metadata can be accessed with recordArray.meta');
   });
 
-  test("query - each record array can have it's own meta object", function (assert) {
+  test("query - each record array can have it's own meta object", async function (assert) {
     ajaxResponse({
       meta: { offset: 5 },
       posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
     });
 
-    return store.query('post', { page: 2 }).then((posts) => {
-      assert.equal(posts.get('meta.offset'), 5, 'Reponse metadata can be accessed with recordArray.meta');
-      ajaxResponse({
-        meta: { offset: 1 },
-        posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
-      });
-
-      return store.query('post', { page: 1 }).then((newPosts) => {
-        assert.equal(newPosts.get('meta.offset'), 1, 'new array has correct metadata');
-        assert.equal(posts.get('meta.offset'), 5, 'metadata on the old array hasnt been clobbered');
-      });
+    let posts = await store.query('post', { page: 2 });
+    assert.equal(posts.get('meta.offset'), 5, 'Reponse metadata can be accessed with recordArray.meta');
+    ajaxResponse({
+      meta: { offset: 1 },
+      posts: [{ id: 1, name: 'Rails is very expensive sushi' }],
     });
+
+    let newPosts = await store.query('post', { page: 1 });
+    assert.equal(newPosts.get('meta.offset'), 1, 'new array has correct metadata');
+    assert.equal(posts.get('meta.offset'), 5, 'metadata on the old array hasnt been clobbered');
   });
 
-  test('query - returning an array populates the array', function (assert) {
+  test('query - returning an array populates the array', async function (assert) {
     ajaxResponse({
       posts: [
         { id: 1, name: 'Rails is omakase' },
@@ -1447,24 +1286,23 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return store.query('post', { page: 1 }).then((posts) => {
-      assert.equal(passedUrl, '/posts');
-      assert.equal(passedVerb, 'GET');
-      assert.deepEqual(passedHash.data, { page: 1 });
+    let posts = await store.query('post', { page: 1 });
+    assert.equal(passedUrl, '/posts');
+    assert.equal(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, { page: 1 });
 
-      let post1 = store.peekRecord('post', 1);
-      let post2 = store.peekRecord('post', 2);
+    let post1 = store.peekRecord('post', 1);
+    let post2 = store.peekRecord('post', 2);
 
-      assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
-      assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
+    assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
+    assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
-      assert.equal(posts.get('length'), 2, 'The posts are in the array');
-      assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
-      assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
-    });
+    assert.equal(posts.get('length'), 2, 'The posts are in the array');
+    assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
+    assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
   });
 
-  test('query - returning sideloaded data loads the data', function (assert) {
+  test('query - returning sideloaded data loads the data', async function (assert) {
     ajaxResponse({
       posts: [
         { id: 1, name: 'Rails is omakase' },
@@ -1473,14 +1311,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       comments: [{ id: 1, name: 'FIRST' }],
     });
 
-    return store.query('post', { page: 1 }).then((posts) => {
-      let comment = store.peekRecord('comment', 1);
+    await store.query('post', { page: 1 });
+    let comment = store.peekRecord('comment', 1);
 
-      assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
-    });
+    assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
   });
 
-  test('query - data is normalized through custom serializers', function (assert) {
+  test('query - data is normalized through custom serializers', async function (assert) {
     this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
@@ -1496,39 +1333,36 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return store.query('post', { page: 1 }).then((posts) => {
-      let post1 = store.peekRecord('post', 1);
-      let post2 = store.peekRecord('post', 2);
+    let posts = await store.query('post', { page: 1 });
+    let post1 = store.peekRecord('post', 1);
+    let post2 = store.peekRecord('post', 2);
 
-      assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
+    assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
 
-      assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
+    assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
-      assert.equal(posts.get('length'), 2, 'The posts are in the array');
-      assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
-      assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
-    });
+    assert.equal(posts.get('length'), 2, 'The posts are in the array');
+    assert.true(posts.get('isLoaded'), 'The RecordArray is loaded');
+    assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
   });
 
-  test('queryRecord - empty response', function (assert) {
+  test('queryRecord - empty response', async function (assert) {
     ajaxResponse({});
 
-    return store.queryRecord('post', { slug: 'ember-js-rocks' }).then((post) => {
-      assert.strictEqual(post, null);
-    });
+    let post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
+    assert.strictEqual(post, null);
   });
 
-  test('queryRecord - primary data being null', function (assert) {
+  test('queryRecord - primary data being null', async function (assert) {
     ajaxResponse({
       post: null,
     });
 
-    return store.queryRecord('post', { slug: 'ember-js-rocks' }).then((post) => {
-      assert.strictEqual(post, null);
-    });
+    let post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
+    assert.strictEqual(post, null);
   });
 
-  test('queryRecord - primary data being a single object', function (assert) {
+  test('queryRecord - primary data being a single object', async function (assert) {
     ajaxResponse({
       post: {
         id: '1',
@@ -1536,22 +1370,20 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    return store.queryRecord('post', { slug: 'ember-js-rocks' }).then((post) => {
-      assert.deepEqual(post.get('name'), 'Ember.js rocks');
-    });
+    let post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
+    assert.deepEqual(post.get('name'), 'Ember.js rocks');
   });
 
-  test('queryRecord - returning sideloaded data loads the data', function (assert) {
+  test('queryRecord - returning sideloaded data loads the data', async function (assert) {
     ajaxResponse({
       post: { id: 1, name: 'Rails is omakase' },
       comments: [{ id: 1, name: 'FIRST' }],
     });
 
-    return store.queryRecord('post', { slug: 'rails-is-omakaze' }).then((post) => {
-      let comment = store.peekRecord('comment', 1);
+    await store.queryRecord('post', { slug: 'rails-is-omakaze' });
+    let comment = store.peekRecord('comment', 1);
 
-      assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
-    });
+    assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
   });
 
   testInDebug(
@@ -1564,26 +1396,20 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         ],
       });
 
-      assert.expectDeprecation(
-        () =>
-          run(() => {
-            return store.queryRecord('post', { slug: 'rails-is-omakaze' }).then((post) => {
-              let post2 = store.peekRecord('post', 2);
+      assert.expectDeprecation(async () => {
+        let post = await store.queryRecord('post', { slug: 'rails-is-omakaze' });
+        let post2 = store.peekRecord('post', 2);
 
-              assert.deepEqual(post.getProperties('id', 'name'), {
-                id: '1',
-                name: 'Rails is omakase',
-              });
-              assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'Ember is js' });
-            });
-          }),
-
-        /The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record./
-      );
+        assert.deepEqual(post.getProperties('id', 'name'), {
+          id: '1',
+          name: 'Rails is omakase',
+        });
+        assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'Ember is js' });
+      }, /The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record./);
     }
   );
 
-  testInDebug('queryRecord - returning an array is deprecated', function (assert) {
+  testInDebug('queryRecord - returning an array is deprecated', async function (assert) {
     ajaxResponse({
       post: [
         { id: 1, name: 'Rails is omakase' },
@@ -1592,22 +1418,22 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     assert.expectDeprecation(
-      () => run(() => store.queryRecord('post', { slug: 'rails-is-omakaze' })),
+      () => store.queryRecord('post', { slug: 'rails-is-omakaze' }),
       'The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.'
     );
   });
 
-  testInDebug("queryRecord - returning an single object doesn't throw a deprecation", function (assert) {
+  testInDebug("queryRecord - returning an single object doesn't throw a deprecation", async function (assert) {
     ajaxResponse({
       post: { id: 1, name: 'Rails is omakase' },
     });
 
     assert.expectNoDeprecation();
 
-    return run(() => store.queryRecord('post', { slug: 'rails-is-omakaze' }));
+    await store.queryRecord('post', { slug: 'rails-is-omakaze' });
   });
 
-  test('queryRecord - data is normalized through custom serializers', function (assert) {
+  test('queryRecord - data is normalized through custom serializers', async function (assert) {
     this.owner.register(
       'serializer:post',
       DS.RESTSerializer.extend({
@@ -1629,29 +1455,27 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
   });
 
-  test('findMany - findMany uses a correct URL to access the records', function (assert) {
+  test('findMany - findMany uses a correct URL to access the records', async function (assert) {
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
     adapter.coalesceFindRequests = true;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
+      },
     });
 
     let post = store.peekRecord('post', 1);
@@ -1663,15 +1487,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return run(() =>
-      post.get('comments').then((comments) => {
-        assert.equal(passedUrl, '/comments');
-        assert.deepEqual(passedHash, { data: { ids: ['1', '2', '3'] } });
-      })
-    );
+    await post.get('comments');
+    assert.equal(passedUrl, '/comments');
+    assert.deepEqual(passedHash, { data: { ids: ['1', '2', '3'] } });
   });
 
-  test('findMany - passes buildURL the requestType', function (assert) {
+  test('findMany - passes buildURL the requestType', async function (assert) {
     adapter.buildURL = function (type, id, snapshot, requestType) {
       return '/' + requestType + '/' + type;
     };
@@ -1679,25 +1500,23 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
     adapter.coalesceFindRequests = true;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
+      },
     });
 
     let post = store.peekRecord('post', 1);
@@ -1709,33 +1528,30 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return run(post, 'get', 'comments').then((comments) => {
-      assert.equal(passedUrl, '/findMany/comment');
-    });
+    await post.get('comments');
+    assert.equal(passedUrl, '/findMany/comment');
   });
 
-  test('findMany - findMany does not coalesce by default', function (assert) {
+  test('findMany - findMany does not coalesce by default', async function (assert) {
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
+      },
     });
 
     let post = store.peekRecord('post', 1);
@@ -1748,128 +1564,112 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return run(() =>
-      post.get('comments').then((comments) => {
-        assert.equal(passedUrl, '/comments/3');
-        assert.deepEqual(passedHash.data, {});
-      })
-    );
+    await post.get('comments');
+    assert.equal(passedUrl, '/comments/3');
+    assert.deepEqual(passedHash.data, {});
   });
 
-  test('findMany - returning an array populates the array', function (assert) {
+  test('findMany - returning an array populates the array', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
     adapter.coalesceFindRequests = true;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({
-          comments: [
-            { id: 1, name: 'FIRST' },
-            { id: 2, name: 'Rails is unagi' },
-            { id: 3, name: 'What is omakase?' },
-          ],
-        });
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+      ],
+    });
 
-        return post.get('comments');
-      })
-      .then((comments) => {
-        let comment1 = store.peekRecord('comment', 1);
-        let comment2 = store.peekRecord('comment', 2);
-        let comment3 = store.peekRecord('comment', 3);
+    let comments = await post.get('comments');
+    let comment1 = store.peekRecord('comment', 1);
+    let comment2 = store.peekRecord('comment', 2);
+    let comment3 = store.peekRecord('comment', 3);
 
-        assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
-        assert.deepEqual(comment2.getProperties('id', 'name'), { id: '2', name: 'Rails is unagi' });
-        assert.deepEqual(comment3.getProperties('id', 'name'), {
-          id: '3',
-          name: 'What is omakase?',
-        });
+    assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
+    assert.deepEqual(comment2.getProperties('id', 'name'), { id: '2', name: 'Rails is unagi' });
+    assert.deepEqual(comment3.getProperties('id', 'name'), {
+      id: '3',
+      name: 'What is omakase?',
+    });
 
-        assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
-      });
+    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
   });
 
-  test('findMany - returning sideloaded data loads the data', function (assert) {
+  test('findMany - returning sideloaded data loads the data', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
     adapter.coalesceFindRequests = true;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({
-          comments: [
-            { id: 1, name: 'FIRST' },
-            { id: 2, name: 'Rails is unagi' },
-            { id: 3, name: 'What is omakase?' },
-            { id: 4, name: 'Unrelated comment' },
-          ],
-          posts: [{ id: 2, name: 'The Parley Letter' }],
-        });
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+        { id: 4, name: 'Unrelated comment' },
+      ],
+      posts: [{ id: 2, name: 'The Parley Letter' }],
+    });
 
-        return post.get('comments');
-      })
-      .then((comments) => {
-        let comment1 = store.peekRecord('comment', 1);
-        let comment2 = store.peekRecord('comment', 2);
-        let comment3 = store.peekRecord('comment', 3);
-        let comment4 = store.peekRecord('comment', 4);
-        let post2 = store.peekRecord('post', 2);
+    let comments = await post.get('comments');
 
-        assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+    let comment1 = store.peekRecord('comment', 1);
+    let comment2 = store.peekRecord('comment', 2);
+    let comment3 = store.peekRecord('comment', 3);
+    let comment4 = store.peekRecord('comment', 4);
+    let post2 = store.peekRecord('post', 2);
 
-        assert.deepEqual(comment4.getProperties('id', 'name'), {
-          id: '4',
-          name: 'Unrelated comment',
-        });
-        assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' });
-      });
+    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+
+    assert.deepEqual(comment4.getProperties('id', 'name'), {
+      id: '4',
+      name: 'Unrelated comment',
+    });
+    assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' });
   });
 
-  test('findMany - a custom serializer is used if present', function (assert) {
+  test('findMany - a custom serializer is used if present', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     this.owner.register(
       'serializer:post',
@@ -1890,118 +1690,104 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     adapter.coalesceFindRequests = true;
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({
-          comments: [
-            { _ID_: 1, _NAME_: 'FIRST' },
-            { _ID_: 2, _NAME_: 'Rails is unagi' },
-            { _ID_: 3, _NAME_: 'What is omakase?' },
-          ],
-        });
+    let post = await store.findRecord('post', 1);
 
-        return post.get('comments');
-      })
-      .then((comments) => {
-        let comment1 = store.peekRecord('comment', 1);
-        let comment2 = store.peekRecord('comment', 2);
-        let comment3 = store.peekRecord('comment', 3);
+    ajaxResponse({
+      comments: [
+        { _ID_: 1, _NAME_: 'FIRST' },
+        { _ID_: 2, _NAME_: 'Rails is unagi' },
+        { _ID_: 3, _NAME_: 'What is omakase?' },
+      ],
+    });
 
-        assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
-        assert.deepEqual(comment2.getProperties('id', 'name'), { id: '2', name: 'Rails is unagi' });
-        assert.deepEqual(comment3.getProperties('id', 'name'), {
-          id: '3',
-          name: 'What is omakase?',
-        });
+    let comments = await post.get('comments');
+    let comment1 = store.peekRecord('comment', 1);
+    let comment2 = store.peekRecord('comment', 2);
+    let comment3 = store.peekRecord('comment', 3);
 
-        assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
-      });
+    assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
+    assert.deepEqual(comment2.getProperties('id', 'name'), { id: '2', name: 'Rails is unagi' });
+    assert.deepEqual(comment3.getProperties('id', 'name'), {
+      id: '3',
+      name: 'What is omakase?',
+    });
+
+    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
   });
 
-  test('findHasMany - returning an array populates the array', function (assert) {
+  test('findHasMany - returning an array populates the array', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              links: {
-                related: '/posts/1/comments',
-              },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
             },
           },
         },
-      });
+      },
     });
 
-    return run(() =>
-      store
-        .findRecord('post', '1')
-        .then((post) => {
-          ajaxResponse({
-            comments: [
-              { id: 1, name: 'FIRST' },
-              { id: 2, name: 'Rails is unagi' },
-              { id: 3, name: 'What is omakase?' },
-            ],
-          });
+    let post = await store.findRecord('post', '1');
 
-          return post.get('comments');
-        })
-        .then((comments) => {
-          assert.equal(passedUrl, '/posts/1/comments');
-          assert.equal(passedVerb, 'GET');
-          assert.strictEqual(passedHash, undefined);
+    ajaxResponse({
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+      ],
+    });
 
-          let comment1 = store.peekRecord('comment', 1);
-          let comment2 = store.peekRecord('comment', 2);
-          let comment3 = store.peekRecord('comment', 3);
+    let comments = await post.get('comments');
+    assert.equal(passedUrl, '/posts/1/comments');
+    assert.equal(passedVerb, 'GET');
+    assert.strictEqual(passedHash, undefined);
 
-          assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
-          assert.deepEqual(comment2.getProperties('id', 'name'), {
-            id: '2',
-            name: 'Rails is unagi',
-          });
-          assert.deepEqual(comment3.getProperties('id', 'name'), {
-            id: '3',
-            name: 'What is omakase?',
-          });
+    let comment1 = store.peekRecord('comment', 1);
+    let comment2 = store.peekRecord('comment', 2);
+    let comment3 = store.peekRecord('comment', 3);
 
-          assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
-        })
-    );
+    assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
+    assert.deepEqual(comment2.getProperties('id', 'name'), {
+      id: '2',
+      name: 'Rails is unagi',
+    });
+    assert.deepEqual(comment3.getProperties('id', 'name'), {
+      id: '3',
+      name: 'What is omakase?',
+    });
+
+    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
   });
 
-  test('findHasMany - passes buildURL the requestType', function (assert) {
+  test('findHasMany - passes buildURL the requestType', async function (assert) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
@@ -2011,91 +1797,81 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              links: {
-                related: '/posts/1/comments',
-              },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
             },
           },
         },
-      });
+      },
     });
 
-    return run(() =>
-      store.findRecord('post', '1').then((post) => {
-        ajaxResponse({
-          comments: [
-            { id: 1, name: 'FIRST' },
-            { id: 2, name: 'Rails is unagi' },
-            { id: 3, name: 'What is omakase?' },
-          ],
-        });
+    let post = await store.findRecord('post', '1');
 
-        return post.get('comments');
-      })
-    );
+    ajaxResponse({
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+      ],
+    });
+
+    await post.get('comments');
   });
 
-  test('findMany - returning sideloaded data loads the data (with JSONApi Links)', function (assert) {
+  test('findMany - returning sideloaded data loads the data (with JSONApi Links)', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
     adapter.coalesceFindRequests = true;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              links: {
-                related: '/posts/1/comments',
-              },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
             },
           },
         },
-      });
+      },
     });
 
-    return store
-      .findRecord('post', 1)
-      .then((post) => {
-        ajaxResponse({
-          comments: [
-            { id: 1, name: 'FIRST' },
-            { id: 2, name: 'Rails is unagi' },
-            { id: 3, name: 'What is omakase?' },
-          ],
-          posts: [{ id: 2, name: 'The Parley Letter' }],
-        });
+    let post = await store.findRecord('post', 1);
 
-        return post.get('comments');
-      })
-      .then((comments) => {
-        let comment1 = store.peekRecord('comment', 1);
-        let comment2 = store.peekRecord('comment', 2);
-        let comment3 = store.peekRecord('comment', 3);
-        let post2 = store.peekRecord('post', 2);
+    ajaxResponse({
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+      ],
+      posts: [{ id: 2, name: 'The Parley Letter' }],
+    });
 
-        assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+    let comments = await post.get('comments');
+    let comment1 = store.peekRecord('comment', 1);
+    let comment2 = store.peekRecord('comment', 2);
+    let comment3 = store.peekRecord('comment', 3);
+    let post2 = store.peekRecord('post', 2);
 
-        assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' });
-      });
+    assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
+
+    assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' });
   });
 
-  test('findMany - a custom serializer is used if present', function (assert) {
+  test('findMany - a custom serializer is used if present', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     this.owner.register(
       'serializer:post',
@@ -2115,26 +1891,24 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          attributes: {
-            name: 'Rails is omakase',
-          },
-          relationships: {
-            comments: {
-              links: {
-                related: '/posts/1/comments',
-              },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
             },
           },
         },
-      });
+      },
     });
 
-    return store
+    await store
       .findRecord('post', 1)
       .then((post) => {
         ajaxResponse({
@@ -2162,7 +1936,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       });
   });
 
-  test('findBelongsTo - passes buildURL the requestType', function (assert) {
+  test('findBelongsTo - passes buildURL the requestType', async function (assert) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
@@ -2172,36 +1946,31 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     Comment.reopen({ post: DS.belongsTo('post', { async: true }) });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'comment',
-          id: '1',
-          attributes: {
-            name: 'FIRST',
-          },
-          relationships: {
-            post: {
-              links: {
-                related: '/posts/1',
-              },
+    store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: {
+          name: 'FIRST',
+        },
+        relationships: {
+          post: {
+            links: {
+              related: '/posts/1',
             },
           },
         },
-      });
+      },
     });
 
-    return run(() =>
-      store.findRecord('comment', '1').then((comment) => {
-        ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
-        return comment.get('post');
-      })
-    );
+    let comment = await store.findRecord('comment', '1');
+    ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
+    await comment.get('post');
   });
 
   testInDebug(
     'coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request',
-    function (assert) {
+    async function (assert) {
       assert.expect(2);
       Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
       Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
@@ -2212,38 +1981,36 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         comments: [{ id: '1', type: 'comment' }],
       });
 
-      let post = run(() =>
-        store.push({
-          data: {
-            type: 'post',
-            id: '2',
-            relationships: {
-              comments: {
-                data: [
-                  { type: 'comment', id: '1' },
-                  { type: 'comment', id: '2' },
-                  { type: 'comment', id: '3' },
-                ],
-              },
+      let post = store.push({
+        data: {
+          type: 'post',
+          id: '2',
+          relationships: {
+            comments: {
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
             },
           },
-        })
-      );
+        },
+      });
 
-      assert.expectWarning(() => {
-        return run(() => {
-          return post.get('comments').catch((e) => {
-            assert.equal(
-              e.message,
-              `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`
-            );
-          });
-        });
+      assert.expectWarning(async () => {
+        try {
+          await post.get('comments');
+        } catch (e) {
+          assert.equal(
+            e.message,
+            `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`
+          );
+        }
       }, /expected to find records with the following ids in the adapter response but they were missing: \[ "2", "3" \]/);
     }
   );
 
-  test('groupRecordsForFindMany groups records based on their url', function (assert) {
+  test('groupRecordsForFindMany groups records based on their url', async function (assert) {
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
     adapter.coalesceFindRequests = true;
@@ -2266,30 +2033,28 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return resolve({ comments: [{ id: 2 }, { id: 3 }] });
     };
 
-    let post;
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '2',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '2',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
-      post = store.peekRecord('post', 2);
+      },
     });
 
-    run(() => post.get('comments'));
+    let post = store.peekRecord('post', 2);
+
+    await post.get('comments');
   });
 
-  test('groupRecordsForFindMany groups records correctly when singular URLs are encoded as query params', function (assert) {
+  test('groupRecordsForFindMany groups records correctly when singular URLs are encoded as query params', async function (assert) {
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
     adapter.coalesceFindRequests = true;
@@ -2311,31 +2076,29 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.deepEqual(ids, ['2', '3']);
       return resolve({ comments: [{ id: 2 }, { id: 3 }] });
     };
-    let post;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '2',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '2',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
-      post = store.peekRecord('post', 2);
+      },
     });
 
-    run(() => post.get('comments'));
+    let post = store.peekRecord('post', 2);
+
+    await post.get('comments');
   });
 
-  test('normalizeKey - to set up _ids and _id', function (assert) {
+  test('normalizeKey - to set up _ids and _id', async function (assert) {
     this.owner.register(
       'serializer:application',
       DS.RESTSerializer.extend({
@@ -2412,16 +2175,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return run(() => {
-      return store.findRecord('post', 1).then((post) => {
-        assert.equal(post.get('authorName'), '@d2h');
-        assert.equal(post.get('author.name'), 'D2H');
-        assert.deepEqual(post.get('comments').mapBy('body'), ['Rails is unagi', 'What is omakase?']);
-      });
-    });
+    let post = await store.findRecord('post', 1);
+    assert.equal(post.get('authorName'), '@d2h');
+    assert.equal(post.get('author.name'), 'D2H');
+    assert.deepEqual(post.get('comments').mapBy('body'), ['Rails is unagi', 'What is omakase?']);
   });
 
-  test('groupRecordsForFindMany splits up calls for large ids', function (assert) {
+  test('groupRecordsForFindMany splits up calls for large ids', async function (assert) {
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
@@ -2435,23 +2195,22 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let b2000 = repeatChar('b', 2000);
     let post;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: a2000 },
-                { type: 'comment', id: b2000 },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: a2000 },
+              { type: 'comment', id: b2000 },
+            ],
           },
         },
-      });
-      post = store.peekRecord('post', 1);
+      },
     });
+
+    post = store.peekRecord('post', 1);
 
     adapter.coalesceFindRequests = true;
 
@@ -2468,10 +2227,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return reject();
     };
 
-    run(() => post.get('comments'));
+    post.get('comments');
   });
 
-  test('groupRecordsForFindMany groups calls for small ids', function (assert) {
+  test('groupRecordsForFindMany groups calls for small ids', async function (assert) {
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
     Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
@@ -2485,23 +2244,22 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     let b100 = repeatChar('b', 100);
     let post;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: a100 },
-                { type: 'comment', id: b100 },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: a100 },
+              { type: 'comment', id: b100 },
+            ],
           },
         },
-      });
-      post = store.peekRecord('post', 1);
+      },
     });
+
+    post = store.peekRecord('post', 1);
 
     adapter.coalesceFindRequests = true;
 
@@ -2515,11 +2273,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return resolve({ comments: [{ id: a100 }, { id: b100 }] });
     };
 
-    run(() => post.get('comments'));
+    await post.get('comments');
   });
 
   if (hasJQuery) {
-    test('calls adapter.handleResponse with the jqXHR and json', function (assert) {
+    test('calls adapter.handleResponse with the jqXHR and json', async function (assert) {
       assert.expect(2);
 
       let data = {
@@ -2539,10 +2297,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         return json;
       };
 
-      return run(() => store.findRecord('post', '1'));
+      await store.findRecord('post', '1');
     });
 
-    test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', function (assert) {
+    test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', async function (assert) {
       assert.expect(4);
 
       let responseText = 'Nope lol';
@@ -2563,13 +2321,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         return new DS.AdapterError('nope!');
       };
 
-      return run(() => {
-        return store.findRecord('post', '1').catch((err) => assert.ok(err, 'promise rejected'));
-      });
+      try {
+        await store.findRecord('post', '1');
+      } catch (err) {
+        assert.ok(err, 'promise rejected');
+      }
     });
   }
 
-  test('rejects promise if DS.AdapterError is returned from adapter.handleResponse', function (assert) {
+  test('rejects promise if DS.AdapterError is returned from adapter.handleResponse', async function (assert) {
     assert.expect(3);
 
     let data = {
@@ -2585,15 +2345,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return new DS.AdapterError(json);
     };
 
-    return run(() => {
-      return store.findRecord('post', '1').catch((reason) => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.AdapterError, 'reason should be an instance of DS.AdapterError');
-      });
-    });
+    try {
+      await store.findRecord('post', '1');
+    } catch (reason) {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.AdapterError, 'reason should be an instance of DS.AdapterError');
+    }
   });
 
-  test('gracefully handles exceptions in handleResponse', function (assert) {
+  test('gracefully handles exceptions in handleResponse', async function (assert) {
     assert.expect(1);
 
     server.post('/posts/1', function () {
@@ -2604,14 +2364,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       throw new Error('Unexpected error');
     };
 
-    return run(() => {
-      return store.findRecord('post', '1').catch((error) => {
-        assert.ok(true, 'Unexpected error is captured by the promise chain');
-      });
-    });
+    try {
+      await store.findRecord('post', '1');
+    } catch (error) {
+      assert.ok(true, 'Unexpected error is captured by the promise chain');
+    }
   });
 
-  test('gracefully handles exceptions in handleResponse where the ajax request errors', function (assert) {
+  test('gracefully handles exceptions in handleResponse where the ajax request errors', async function (assert) {
     assert.expect(1);
 
     server.get('/posts/1', function () {
@@ -2622,14 +2382,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       throw new Error('Unexpected error');
     };
 
-    return run(() => {
-      return store.findRecord('post', '1').catch((error) => {
-        assert.ok(true, 'Unexpected error is captured by the promise chain');
-      });
-    });
+    try {
+      await store.findRecord('post', '1');
+    } catch (error) {
+      assert.ok(true, 'Unexpected error is captured by the promise chain');
+    }
   });
 
-  test('treats status code 0 as an abort', function (assert) {
+  test('treats status code 0 as an abort', async function (assert) {
     assert.expect(3);
 
     ajaxZero();
@@ -2637,18 +2397,18 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.ok(false);
     };
 
-    return run(() => {
-      return store.findRecord('post', '1').catch((err) => {
-        assert.ok(err instanceof DS.AbortError, 'reason should be an instance of DS.AbortError');
-        assert.equal(err.errors.length, 1, 'AbortError includes errors with request/response details');
-        let expectedError = {
-          title: 'Adapter Error',
-          detail: 'Request failed: GET /posts/1',
-          status: 0,
-        };
-        assert.deepEqual(err.errors[0], expectedError, 'method, url and, status are captured as details');
-      });
-    });
+    try {
+      await store.findRecord('post', '1');
+    } catch (err) {
+      assert.ok(err instanceof DS.AbortError, 'reason should be an instance of DS.AbortError');
+      assert.equal(err.errors.length, 1, 'AbortError includes errors with request/response details');
+      let expectedError = {
+        title: 'Adapter Error',
+        detail: 'Request failed: GET /posts/1',
+        status: 0,
+      };
+      assert.deepEqual(err.errors[0], expectedError, 'method, url and, status are captured as details');
+    }
   });
 
   if (hasJQuery) {
@@ -2680,7 +2440,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       }
     });
 
-    test('on error wraps the error string in an DS.AdapterError object', function (assert) {
+    test('on error wraps the error string in an DS.AdapterError object', async function (assert) {
       assert.expect(2);
 
       let jqXHR = {
@@ -2696,99 +2456,99 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         hash.error(jqXHR, 'error', errorThrown);
       };
 
-      run(() => {
-        store.findRecord('post', '1').catch((err) => {
-          assert.equal(err.errors[0].detail, errorThrown);
-          assert.ok(err, 'promise rejected');
-        });
-      });
+      try {
+        await store.findRecord('post', '1');
+      } catch (err) {
+        assert.equal(err.errors[0].detail, errorThrown);
+        assert.ok(err, 'promise rejected');
+      }
     });
   }
 
-  test('rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes', function (assert) {
+  test('rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes', async function (assert) {
     assert.expect(10);
 
     ajaxError('error', 401);
 
-    run(() => {
-      store.find('post', '1').catch((reason) => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.UnauthorizedError, 'reason should be an instance of DS.UnauthorizedError');
-      });
-    });
+    try {
+      await store.find('post', '1');
+    } catch (reason) {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.UnauthorizedError, 'reason should be an instance of DS.UnauthorizedError');
+    }
 
     ajaxError('error', 403);
 
-    run(() => {
-      store.find('post', '1').catch((reason) => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.ForbiddenError, 'reason should be an instance of DS.ForbiddenError');
-      });
-    });
+    try {
+      await store.find('post', '1');
+    } catch (reason) {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.ForbiddenError, 'reason should be an instance of DS.ForbiddenError');
+    }
 
     ajaxError('error', 404);
 
-    run(() => {
-      store.find('post', '1').catch((reason) => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.NotFoundError, 'reason should be an instance of DS.NotFoundError');
-      });
-    });
+    try {
+      await store.find('post', '1');
+    } catch (reason) {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.NotFoundError, 'reason should be an instance of DS.NotFoundError');
+    }
 
     ajaxError('error', 409);
 
-    run(() => {
-      store.find('post', '1').catch((reason) => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
-      });
-    });
+    try {
+      await store.find('post', '1');
+    } catch (reason) {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
+    }
 
     ajaxError('error', 500);
 
-    run(() => {
-      store.find('post', '1').catch((reason) => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');
-      });
-    });
+    try {
+      await store.find('post', '1');
+    } catch (reason) {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');
+    }
   });
 
-  test('error handling includes a detailed message from the server', function (assert) {
+  test('error handling includes a detailed message from the server', async function (assert) {
     assert.expect(2);
 
     ajaxError('An error message, perhaps generated from a backend server!', 500, {
       'Content-Type': 'text/plain',
     });
 
-    run(() => {
-      store.findRecord('post', '1').catch((err) => {
-        assert.equal(
-          err.message,
-          'Ember Data Request GET /posts/1 returned a 500\nPayload (text/plain)\nAn error message, perhaps generated from a backend server!'
-        );
-        assert.ok(err, 'promise rejected');
-      });
-    });
+    try {
+      await store.findRecord('post', '1');
+    } catch (err) {
+      assert.equal(
+        err.message,
+        'Ember Data Request GET /posts/1 returned a 500\nPayload (text/plain)\nAn error message, perhaps generated from a backend server!'
+      );
+      assert.ok(err, 'promise rejected');
+    }
   });
 
-  test('error handling with a very long HTML-formatted payload truncates the friendly message', function (assert) {
+  test('error handling with a very long HTML-formatted payload truncates the friendly message', async function (assert) {
     assert.expect(2);
 
     ajaxError(new Array(100).join('<blink />'), 500, { 'Content-Type': 'text/html' });
 
-    run(() => {
-      store.findRecord('post', '1').catch((err) => {
-        assert.equal(
-          err.message,
-          'Ember Data Request GET /posts/1 returned a 500\nPayload (text/html)\n[Omitted Lengthy HTML]'
-        );
-        assert.ok(err, 'promise rejected');
-      });
-    });
+    try {
+      await store.findRecord('post', '1');
+    } catch (err) {
+      assert.equal(
+        err.message,
+        'Ember Data Request GET /posts/1 returned a 500\nPayload (text/html)\n[Omitted Lengthy HTML]'
+      );
+      assert.ok(err, 'promise rejected');
+    }
   });
 
-  test('findAll resolves with a collection of DS.Models, not DS.InternalModels', function (assert) {
+  test('findAll resolves with a collection of DS.Models, not DS.InternalModels', async function (assert) {
     assert.expect(4);
 
     ajaxResponse({
@@ -2808,15 +2568,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    return run(() => {
-      return store.findAll('post').then((posts) => {
-        assert.equal(get(posts, 'length'), 3);
-        posts.forEach((post) => assert.ok(post instanceof DS.Model));
-      });
-    });
+    let posts = await store.findAll('post');
+    assert.equal(get(posts, 'length'), 3);
+    posts.forEach((post) => assert.ok(post instanceof DS.Model));
   });
 
-  test('createRecord - sideloaded records are pushed to the store', function (assert) {
+  test('createRecord - sideloaded records are pushed to the store', async function (assert) {
     Post.reopen({
       comments: DS.hasMany('comment'),
     });
@@ -2838,19 +2595,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         },
       ],
     });
-    let post;
 
-    return run(() => {
-      post = store.createRecord('post', { name: 'The Parley Letter' });
+    let post = store.createRecord('post', { name: 'The Parley Letter' });
+    await post.save();
 
-      return post.save().then((post) => {
-        let comments = store.peekAll('comment');
+    let comments = store.peekAll('comment');
 
-        assert.equal(get(comments, 'length'), 2, 'comments.length is correct');
-        assert.equal(get(comments, 'firstObject.name'), 'First comment', 'comments.firstObject.name is correct');
-        assert.equal(get(comments, 'lastObject.name'), 'Second comment', 'comments.lastObject.name is correct');
-      });
-    });
+    assert.equal(get(comments, 'length'), 2, 'comments.length is correct');
+    assert.equal(get(comments, 'firstObject.name'), 'First comment', 'comments.firstObject.name is correct');
+    assert.equal(get(comments, 'lastObject.name'), 'Second comment', 'comments.lastObject.name is correct');
   });
 
   testInDebug(
