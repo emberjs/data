@@ -21,11 +21,13 @@ module.exports = function rollupPrivateModule(tree, options) {
     // we never need this on our own stuff
     disableEmberDataPackagesPolyfill: true,
 
-    // we want to leave things as close to es after our own transforms
-    // so we don't use this
+    // TODO for the embroider world we want to leave our -private module
+    // as an es module and only transpile the few things we genuinely care about.
+    // ideally this would occur as a pre-publish step so that consuming apps would
+    // just see a `-private.js` file and not pay any additional costs.
+    // CURRENTLY we transpile the -private module fully acccording to the
+    // consuming app's config, so we must leave these enabled.
     disablePresetEnv: false,
-
-    // tells this to leave as is
     disableDebugTooling: false,
     disableDecoratorTransforms: false,
 
