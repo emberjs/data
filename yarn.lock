@@ -12939,7 +12939,7 @@ qunit-console-grouper@^0.3.0:
   dependencies:
     broccoli-funnel "^3.0.3"
 
-qunit-dom@^1.2.0:
+qunit-dom@^1.6.0:
   version "1.6.0"
   resolved "https://registry.npmjs.org/qunit-dom/-/qunit-dom-1.6.0.tgz#a4bea6a46329d221e4a317d712cb40709107b977"
   integrity sha512-YwSqcLjQcRI0fUFpaSWwU10KIJPFW5Qh+d3cT5DOgx81dypRuUSiPkKFmBY/CDs/R1KdHRadthkcXg2rqAon8Q==

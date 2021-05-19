@@ -117,6 +117,10 @@ function addonBuildConfigForDataPackage(PackageName) {
       });
       plugins = plugins.concat(customPlugins.plugins);
 
+      if (this.pkg.dependencies['ember-cached-decorator-polyfill']) {
+        plugins.push(require.resolve('ember-cached-decorator-polyfill/lib/transpile-modules.js')); // eslint-disable-line
+      }
+
       return {
         loose: true,
         plugins,

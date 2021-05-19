@@ -1,6 +1,5 @@
 import config from 'dummy/config/environment';
-
-import { module, test } from 'ember-qunit';
+import { module, test } from 'qunit';
 
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 

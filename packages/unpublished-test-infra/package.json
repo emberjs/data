@@ -45,6 +45,7 @@
     "ember-source": "~3.27.1",
     "loader.js": "^4.7.0",
     "qunit": "^2.15.0",
+    "qunit-dom": "^1.6.0",
     "rsvp": "^4.8.5"
   },
   "engines": {
