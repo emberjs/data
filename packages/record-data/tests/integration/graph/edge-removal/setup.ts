@@ -1,5 +1,4 @@
 import { setupTest } from 'ember-qunit';
-import { TestContext } from 'ember-test-helpers';
 
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
@@ -142,9 +141,10 @@ export interface UserRecord extends DSModel {
   bestFriends?: UserRecord[];
 }
 
-export interface Context extends TestContext {
+export interface Context {
   store: TestStore<UserRecord>;
   graph: AbstractGraph;
+  owner: any;
 }
 
 interface TestStore<T> extends CoreStore {

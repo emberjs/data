@@ -1,6 +1,7 @@
 import { setApplication } from '@ember/test-helpers';
 
-import QUnit from 'qunit';
+import * as QUnit from 'qunit';
+import { setup } from 'qunit-dom';
 import RSVP from 'rsvp';
 
 import { start } from 'ember-qunit';
@@ -16,6 +17,13 @@ import config from '../config/environment';
 if (window.Promise === undefined) {
   window.Promise = RSVP.Promise;
 }
+
+// Handle testing feature flags
+if (QUnit.urlParams.enableoptionalfeatures) {
+  window.EmberDataENV = { ENABLE_OPTIONAL_FEATURES: true };
+}
+
+setup(QUnit.assert);
 
 configureAsserts();
 additionalLegacyAsserts();
