@@ -2,6 +2,7 @@ const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 const Funnel = require('broccoli-funnel');
 const merge = require('broccoli-merge-trees');
 const BroccoliDebug = require('broccoli-debug');
+const VersionChecker = require('ember-cli-version-checker');
 
 const rollupPrivateModule = require('./utilities/rollup-private-module');
 
@@ -104,7 +105,7 @@ function addonBuildConfigForDataPackage(PackageName) {
       let compatVersion = this.getEmberDataConfig().compatWith || null;
 
       let customPlugins = require('./stripped-build-plugins')(process.env.EMBER_ENV, this._findHost(), compatVersion);
-      let plugins = existingPlugins.map(plugin => {
+      let plugins = existingPlugins.map((plugin) => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
       plugins = plugins.concat(customPlugins.plugins);
@@ -149,12 +150,29 @@ function addonBuildConfigForDataPackage(PackageName) {
       tree = this.debugTree(tree, 'input');
       this._setupBabelOptions();
 
-      let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
+      let babel = this.addons.find((addon) => addon.name === 'ember-cli-babel');
+      let externalDeps = this.externalDependenciesForPrivateModule();
+
+      const host = this._findHost();
+
+      // don't print this for consumers
+      if (this.isDevelopingAddon()) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Rolling up ${this.name} private modules with the following external dependencies: ['${externalDeps.join(
+            "', '"
+          )}']`
+        );
+      }
+      let checker = new VersionChecker(this.project);
+      let emberVersion = checker.for('ember-source');
 
       let privateTree = rollupPrivateModule(tree, {
         packageName: PackageName,
         babelCompiler: babel,
         babelOptions: this.options.babel,
+        emberVersion: emberVersion,
+        emberCliBabelOptions: host.options && host.options['ember-cli-babel'] ? host.options['ember-cli-babel'] : {},
         onWarn: this._suppressUneededRollupWarnings.bind(this),
         externalDependencies: this.externalDependenciesForPrivateModule(),
         destDir: this.getOutputDirForVersion(),

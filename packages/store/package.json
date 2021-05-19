@@ -23,7 +23,8 @@
     "@ember-data/canary-features": "3.27.0",
     "@ember-data/private-build-infra": "3.27.0",
     "@ember/string": "^1.0.0",
-    "ember-cli-babel": "^7.26.3",
+    "@glimmer/tracking": "^1.0.4",
+    "ember-cli-babel": "^7.26.6",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-typescript": "^4.0.0",
     "heimdalljs": "^0.3.0"
