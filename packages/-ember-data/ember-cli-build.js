@@ -16,6 +16,7 @@ module.exports = function (defaults) {
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
+      includeExternalHelpers: true,
     },
     'ember-cli-terser': {
       exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
