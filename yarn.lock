@@ -6572,6 +6572,16 @@ ember-cache-primitive-polyfill@^1.0.1:
     ember-compatibility-helpers "^1.2.1"
     silent-error "^1.1.1"
 
+ember-cached-decorator-polyfill@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.npmjs.org/ember-cached-decorator-polyfill/-/ember-cached-decorator-polyfill-0.1.2.tgz#e0fbd188494c2c43c3891b6b8da32a8fdde17590"
+  integrity sha512-2cDXqQMWANyyfPGvzhnNr9qhJVu3ETsdihTKpcD5g5KSzFrylkXkVkopoRPn2+2/2oyb5iWH6f8+/h5h/ih48Q==
+  dependencies:
+    "@glimmer/tracking" "^1.0.4"
+    ember-cache-primitive-polyfill "^1.0.1"
+    ember-cli-babel "^7.21.0"
+    ember-cli-babel-plugin-helpers "^1.1.1"
+
 ember-cli-app-version@^5.0.0:
   version "5.0.0"
   resolved "https://registry.npmjs.org/ember-cli-app-version/-/ember-cli-app-version-5.0.0.tgz#adad17c6f706f419b223707eec66dd1cd28530c3"
@@ -6604,7 +6614,7 @@ ember-cli-babel@^6.0.0-beta.4:
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.13.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.19.0, ember-cli-babel@^7.22.1, ember-cli-babel@^7.23.0, ember-cli-babel@^7.23.1, ember-cli-babel@^7.26.2, ember-cli-babel@^7.26.6, ember-cli-babel@^7.4.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.13.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.19.0, ember-cli-babel@^7.21.0, ember-cli-babel@^7.22.1, ember-cli-babel@^7.23.0, ember-cli-babel@^7.23.1, ember-cli-babel@^7.26.2, ember-cli-babel@^7.26.6, ember-cli-babel@^7.4.0, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
   version "7.26.6"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.26.6.tgz#322fbbd3baad9dd99e3276ff05bc6faef5e54b39"
   integrity sha512-040svtfj2RC35j/WMwdWJFusZaXmNoytLAMyBDGLMSlRvznudTxZjGlPV6UupmtTBApy58cEF8Fq4a+COWoEmQ==
