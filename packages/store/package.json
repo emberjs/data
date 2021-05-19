@@ -48,7 +48,8 @@
     "ember-source": "~3.27.1",
     "ember-source-channel-url": "^3.0.0",
     "ember-try": "^1.4.0",
-    "loader.js": "^4.7.0"
+    "loader.js": "^4.7.0",
+    "qunit": "^2.15.0"
   },
   "engines": {
     "node": "10.* || >= 12.*"
