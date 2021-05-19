@@ -179,7 +179,7 @@ function addonBuildConfigForDataPackage(PackageName) {
         babelCompiler: babel,
         babelOptions: this.options.babel,
         emberVersion: emberVersion,
-        emberCliBabelOptions: host.options ? host.options['ember-cli-babel'] : {},
+        emberCliBabelOptions: host.options && host.options['ember-cli-babel'] ? host.options['ember-cli-babel'] : {},
         onWarn: this._suppressUneededRollupWarnings.bind(this),
         externalDependencies: this.externalDependenciesForPrivateModule(),
         destDir: this.getOutputDirForVersion(),
