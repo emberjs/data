@@ -76,7 +76,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     let post = await store.findRecord('post', 1);
     ajaxResponse({ comments: [{ id: 1 }] });
 
-    await post.get('comments');
+    await post.comments;
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
@@ -94,7 +94,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     let post = await store.findRecord('post', 1);
 
     ajaxResponse({ comments: [{ id: 1 }] });
-    await post.get('comments');
+    await post.comments;
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
@@ -111,7 +111,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     let post = await store.findRecord('post', 1);
     ajaxResponse({ comments: [{ id: 1 }] });
 
-    await post.get('comments');
+    await post.comments;
     assert.equal(passedUrl, '//example.com/api/v1/posts/1/comments');
   });
 
@@ -128,7 +128,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     let post = await store.findRecord('post', 1);
     ajaxResponse({ comments: [{ id: 1 }] });
 
-    await post.get('comments');
+    await post.comments;
     assert.equal(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
   });
 
@@ -152,7 +152,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     let post = await store.findRecord('post', 1);
     ajaxResponse({ comments: [{ id: 1 }] });
 
-    await post.get('comments');
+    await post.comments;
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
@@ -197,7 +197,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     adapter.buildURL = function (type, ids, snapshots) {
       if (Array.isArray(snapshots)) {
-        return '/posts/' + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/';
+        return '/posts/' + snapshots.firstObject.belongsTo('post', { id: true }) + '/comments/';
       }
       return '';
     };
@@ -220,7 +220,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       },
     });
 
-    await post.get('comments');
+    await post.comments;
     assert.equal(passedUrl, '/posts/2/comments/');
   });
 
