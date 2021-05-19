@@ -6,11 +6,10 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
+
 import { ajaxResponse } from './-ajax-mocks';
 
-
 let server;
-
 
 module('integration/adapter/rest_adapter - REST Adapter - findRecord', function (hooks) {
   setupTest(hooks);
