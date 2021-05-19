@@ -3,7 +3,8 @@ import { assert } from '@ember/debug';
 import { createState } from '../../graph/-state';
 import { isImplicit, isNew } from '../../graph/-utils';
 
-type CollectionResourceRelationship = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
+type CollectionResourceRelationship =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
 type UpgradedMeta = import('../../graph/-edge-definition').UpgradedMeta;
 type Graph = import('../../graph').Graph;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
