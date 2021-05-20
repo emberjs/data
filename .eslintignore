@@ -9,6 +9,8 @@
 **/tmp/
 /packages/-ember-data/docs/
 
+**/DEBUG/
+
 # dependencies
 **/bower_components/
 **/node_modules/
