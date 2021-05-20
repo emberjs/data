@@ -33,7 +33,7 @@
     "@ember-data/unpublished-test-infra": "3.29.0-alpha.4",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.2.5",
-    "ember-auto-import": "^1.11.3",
+    "ember-auto-import": "^2.0.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~3.26.1",
     "ember-cli-blueprint-test-helpers": "^0.19.1",
@@ -57,7 +57,8 @@
     "qunit": "^2.15.0",
     "qunit-dom": "^1.6.0",
     "qunit-console-grouper": "^0.3.0",
-    "silent-error": "^1.1.1"
+    "silent-error": "^1.1.1",
+    "webpack": "^5.37.1"
   },
   "ember": {
     "edition": "octane"

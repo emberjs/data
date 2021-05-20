@@ -57,7 +57,7 @@
     "broccoli-string-replace": "^0.1.2",
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^4.0.0",
-    "ember-auto-import": "^1.11.3",
+    "ember-auto-import": "^2.0.0",
     "ember-cli": "~3.26.1",
     "ember-cli-app-version": "^5.0.0",
     "ember-cli-dependency-checker": "^3.2.0",
@@ -85,7 +85,8 @@
     "pretender": "^3.4.3",
     "qunit": "^2.15.0",
     "qunit-dom": "^1.6.0",
-    "typescript": "~4.2.4"
+    "typescript": "~4.2.4",
+    "webpack": "^5.37.1"
   },
   "engines": {
     "node": "10.* || >= 12.*"
