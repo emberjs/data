@@ -47,7 +47,7 @@ module.exports = {
     'no-caller': 'error',
     'no-eq-null': 'error',
     'no-console': 'error', // no longer recommended in eslint v6, this restores it
-    'simple-import-sort/sort': ['error', { groups: ImportSortGroups }],
+    'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
     'sort-imports': 'off',
     'import/order': 'off',
     'import/first': 'error',

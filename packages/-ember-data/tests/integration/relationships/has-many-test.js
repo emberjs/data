@@ -2204,7 +2204,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       },
     });
 
-    const assertionMessage = /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded./;
+    const assertionMessage =
+      /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded./;
 
     try {
       post.get('comments');

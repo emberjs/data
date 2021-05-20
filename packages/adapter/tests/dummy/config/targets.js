@@ -10,4 +10,5 @@ if (needsIE11) {
 
 module.exports = {
   browsers,
+  node: 'current',
 };

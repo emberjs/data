@@ -10,6 +10,7 @@ module.exports = function (environment) {
     EmberENV: {
       RAISE_ON_DEPRECATION: false,
     },
+    ASSERT_ALL_DEPRECATIONS: process.env.ASSERT_ALL_DEPRECATIONS === 'true',
 
     APP: {
       // Here you can pass flags/options to your application instance

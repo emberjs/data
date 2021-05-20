@@ -25,17 +25,17 @@
     <script src="{{rootURL}}assets/vendor.js"></script>
     <script src="{{rootURL}}assets/test-support.js"></script>
 
-    <script>
-      // Handle testing feature flags
-      if (QUnit.urlParams.enableoptionalfeatures) {
-        window.EmberDataENV = { ENABLE_OPTIONAL_FEATURES: true };
-      }
-    </script>
-
     <script src="{{rootURL}}assets/dummy.js"></script>
     <script src="{{rootURL}}assets/tests.js"></script>
 
     {{content-for "body-footer"}}
     {{content-for "test-body-footer"}}
+
+    <div id="qunit"></div>
+    <div id="qunit-fixture">
+      <div id="ember-testing-container">
+        <div id="ember-testing"></div>
+      </div>
+    </div>
   </body>
 </html>

@@ -1,11 +1,10 @@
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
-import { tracked } from '@glimmer/tracking';
+import { cached, tracked } from '@glimmer/tracking';
 
 import { errorsArrayToHash } from '@ember-data/store/-private';
 
 import notifyChanges from './notify-changes';
-import cached from './tmp-cached-polyfill';
 
 type RecordData = import('@ember-data/record-data/-private').RecordData;
 type RequestCache = import('@ember-data/store/-private/system/request-cache').default;

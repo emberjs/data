@@ -15,7 +15,8 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
 type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
 type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
-type JsonApiValidationError = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
+type JsonApiValidationError =
+  import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

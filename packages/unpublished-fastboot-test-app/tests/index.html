@@ -28,6 +28,12 @@
     <script src="{{ rootURL }}assets/tests.js"></script>
 
     {{content-for "body-footer"}}
-    {{content-for "test-body-footer"}}
+
+    <div id="qunit"></div>
+    <div id="qunit-fixture">
+      <div id="ember-testing-container">
+        <div id="ember-testing"></div>
+      </div>
+    </div>
   </body>
 </html>

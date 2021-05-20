@@ -1,9 +1,10 @@
 import { assert, warn } from '@ember/debug';
 
-import { isBelongsTo, isHasMany } from '../-utils';
 import _normalizeLink from '../../normalize-link';
+import { isBelongsTo, isHasMany } from '../-utils';
 
-type ExistingResourceIdentifierObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
+type ExistingResourceIdentifierObject =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
 type UpdateRelationshipOperation = import('../-operations').UpdateRelationshipOperation;
 type Graph = import('../index').Graph;
 

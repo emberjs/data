@@ -1,5 +1,4 @@
 import { setupTest } from 'ember-qunit';
-import { TestContext } from 'ember-test-helpers';
 
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
@@ -7,10 +6,13 @@ import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 
 type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
 
-type CollectionResourceDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceDocument;
-type EmptyResourceDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').EmptyResourceDocument;
+type CollectionResourceDocument =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceDocument;
+type EmptyResourceDocument =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').EmptyResourceDocument;
 type JsonApiDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').JsonApiDocument;
-type SingleResourceDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type SingleResourceDocument =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
@@ -92,9 +94,10 @@ function setToArray<T>(set: Set<T>): T[] {
   return arr;
 }
 
-export function stateOf(
-  rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship
-): { remote: StableRecordIdentifier[]; local: StableRecordIdentifier[] } {
+export function stateOf(rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship): {
+  remote: StableRecordIdentifier[];
+  local: StableRecordIdentifier[];
+} {
   let local: StableRecordIdentifier[];
   let remote: StableRecordIdentifier[];
 
@@ -138,9 +141,10 @@ export interface UserRecord extends DSModel {
   bestFriends?: UserRecord[];
 }
 
-export interface Context extends TestContext {
+export interface Context {
   store: TestStore<UserRecord>;
   graph: AbstractGraph;
+  owner: any;
 }
 
 interface TestStore<T> extends CoreStore {

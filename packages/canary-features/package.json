@@ -32,17 +32,17 @@
     "ember-cli-version-checker": "^5.1.1",
     "git-repo-info": "^2.1.1",
     "glob": "^7.1.6",
-    "mocha": "^7.1.2",
+    "mocha": "^8.4.0",
     "npm-git-info": "^1.0.3",
     "rimraf": "^3.0.2",
     "rsvp": "^4.8.5",
     "silent-error": "^1.1.1"
   },
   "engines": {
-    "node": "10.* || >= 12.*"
+    "node": "12.* || >= 14.*"
   },
   "volta": {
-    "node": "12.16.2",
+    "node": "14.17.0",
     "yarn": "1.22.4"
   }
 }

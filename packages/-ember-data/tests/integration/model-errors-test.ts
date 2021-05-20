@@ -10,7 +10,6 @@ import { module, test } from 'qunit';
 
 import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
-import { TestContext } from 'ember-test-helpers';
 
 import Model, { attr } from '@ember-data/model';
 
@@ -34,8 +33,9 @@ const template = hbs`
   </ul>
 `;
 
-interface CurrentTestContext extends TestContext {
+interface CurrentTestContext {
   tag: Tag;
+  owner: any;
 }
 
 module('integration/model.errors', function (hooks) {

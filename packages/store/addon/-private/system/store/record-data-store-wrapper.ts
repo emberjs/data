@@ -13,7 +13,8 @@ type RecordData = import('../../ts-interfaces/record-data').RecordData;
 type AttributesSchema = import('../../ts-interfaces/record-data-schemas').AttributesSchema;
 type RelationshipsSchema = import('../../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type RelationshipSchema = import('../../ts-interfaces/record-data-schemas').RelationshipSchema;
-type RelationshipDefinition = import('@ember-data/model/-private/system/relationships/relationship-meta').RelationshipDefinition;
+type RelationshipDefinition =
+  import('@ember-data/model/-private/system/relationships/relationship-meta').RelationshipDefinition;
 /**
   @module @ember-data/store
 */
@@ -141,10 +142,10 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
       if (definition.inverse === null) {
         return false;
       }
-      if (((definition as unknown) as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {
+      if ((definition as unknown as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {
         // TODO do we need to amend the RFC for this prop?
         // else we should add it to the TS interface and document.
-        return !!((definition as unknown) as { inverseIsAsync: boolean }).inverseIsAsync;
+        return !!(definition as unknown as { inverseIsAsync: boolean }).inverseIsAsync;
       } else if (metaIsRelationshipDefinition(definition)) {
         return definition._inverseIsAsync(this._store, modelClass);
       } else {

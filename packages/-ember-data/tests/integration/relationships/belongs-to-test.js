@@ -1,6 +1,4 @@
-import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-import { setupContext, teardownContext } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { hash, resolve } from 'rsvp';
@@ -887,53 +885,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     const Message = store.modelFor('message');
 
     assert.ok(comment instanceof Message, 'a comment is an instance of a message');
-  });
-
-  test('relationshipsByName does not cache a factory', async function (assert) {
-    // The model is loaded up via a container. It has relationshipsByName
-    // called on it.
-    const User = Model.extend({
-      name: attr('string'),
-      messages: hasMany('message', { polymorphic: true, async: false }),
-      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null, async: false }),
-    });
-    const Message = Model.extend({
-      user: belongsTo('user', { inverse: 'messages', async: false }),
-    });
-
-    this.owner.register('model:user', User);
-    this.owner.register('model:message', Message);
-    let store = this.owner.lookup('service:store');
-    let modelViaFirstFactory = store.modelFor('user');
-    get(modelViaFirstFactory, 'relationshipsByName');
-
-    // An app is reset, or the container otherwise destroyed.
-    await teardownContext(this);
-    await setupContext(this);
-
-    // A new model for a relationship is created.
-    const NewMessage = Message.extend();
-    this.owner.register('model:user', User);
-    this.owner.register('model:message', NewMessage);
-
-    // A new store is created.
-    store = this.owner.lookup('service:store');
-
-    // relationshipsByName is called again.
-    let modelViaSecondFactory = store.modelFor('user');
-    let relationshipsByName = get(modelViaSecondFactory, 'relationshipsByName');
-    let messageType = relationshipsByName.get('messages').type;
-
-    // A model is looked up in the store based on a string, via user input
-    let messageModelFromStore = store.modelFor('message');
-    // And the model is lookup up internally via the relationship type
-    let messageModelFromRelationType = store.modelFor(messageType);
-
-    assert.equal(
-      messageModelFromRelationType,
-      messageModelFromStore,
-      'model factory based on relationship type matches the model based on store.modelFor'
-    );
   });
 
   test('relationship changes shouldn’t cause async fetches', function (assert) {
