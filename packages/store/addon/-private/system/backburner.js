@@ -2,7 +2,7 @@
   @module @ember-data/store
 */
 
-// import { registerWaiter } from '@ember/test';
+import { registerWaiter } from '@ember/test';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
@@ -17,11 +17,9 @@ import Ember from 'ember';
 const backburner = new Ember._Backburner(['coalesce', 'sync', 'notify']);
 
 if (DEBUG) {
-  /*
   registerWaiter(() => {
     return !backburner.currentInstance && !backburner.hasTimers();
   });
-  */
 }
 
 export default backburner;

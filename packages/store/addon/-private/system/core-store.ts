@@ -8,7 +8,7 @@ import { computed, defineProperty, get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import Service from '@ember/service';
-// import { registerWaiter, unregisterWaiter } from '@ember/test';
+import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { isNone, isPresent, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
@@ -410,7 +410,7 @@ abstract class CoreStore extends Service {
         return shouldTrack !== true || isSettled;
       };
 
-      // registerWaiter(this.__asyncWaiter);
+      registerWaiter(this.__asyncWaiter);
     }
   }
 
@@ -3646,7 +3646,7 @@ abstract class CoreStore extends Service {
     this.unloadAll();
 
     if (DEBUG) {
-      // unregisterWaiter(this.__asyncWaiter);
+      unregisterWaiter(this.__asyncWaiter);
       let shouldTrack = this.shouldTrackAsyncRequests;
       let tracked = this._trackedAsyncRequests;
       let isSettled = tracked.length === 0;
