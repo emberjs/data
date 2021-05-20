@@ -2505,9 +2505,9 @@
   integrity sha512-fZQQafSREFyuZcdWFAExYjBiCL7AUCdgsk80iO0q4yihYYdcIiH28CcuPTGFgLOCC8RlW49GSQxdHwZP+I7CNg==
 
 "@types/node@*":
-  version "15.3.0"
-  resolved "https://registry.npmjs.org/@types/node/-/node-15.3.0.tgz#d6fed7d6bc6854306da3dea1af9f874b00783e26"
-  integrity sha512-8/bnjSZD86ZfpBsDlCIkNXIvm+h6wi9g7IqL+kmFkQ+Wvu3JrasgLElfiPgoo8V8vVfnEi0QVS12gbl94h9YsQ==
+  version "15.3.1"
+  resolved "https://registry.npmjs.org/@types/node/-/node-15.3.1.tgz#23a06b87eedb524016616e886b116b8fdcb180af"
+  integrity sha512-weaeiP4UF4XgF++3rpQhpIJWsCTS4QJw5gvBhQu6cFIxTwyxWIe3xbnrY/o2lTCQ0lsdb8YIUDUvLR4Vuz5rbw==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -2989,14 +2989,6 @@ after@0.8.2:
   version "0.8.2"
   resolved "https://registry.npmjs.org/after/-/after-0.8.2.tgz#fedb394f9f0e02aa9768e702bda23b505fae7e1f"
   integrity sha1-/ts5T58OAqqXaOcCvaI7UF+ufh8=
-
-agent-base@2:
-  version "2.1.1"
-  resolved "https://registry.npmjs.org/agent-base/-/agent-base-2.1.1.tgz#d6de10d5af6132d5bd692427d46fc538539094c7"
-  integrity sha1-1t4Q1a9hMtW9aSQn1G/FOFOQlMc=
-  dependencies:
-    extend "~3.0.0"
-    semver "~5.0.1"
 
 agent-base@5:
   version "5.1.1"
@@ -5811,7 +5803,7 @@ commander@^4.1.1:
   resolved "https://registry.npmjs.org/commander/-/commander-4.1.1.tgz#9fd602bd936294e9e9ef46a3f4d6964044b18068"
   integrity sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==
 
-commander@^6.2.0:
+commander@^6.2.1:
   version "6.2.1"
   resolved "https://registry.npmjs.org/commander/-/commander-6.2.1.tgz#0792eb682dfbc325999bb2b84fddddba110ac73c"
   integrity sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA==
@@ -6343,7 +6335,7 @@ dateformat@^3.0.0:
   resolved "https://registry.npmjs.org/dateformat/-/dateformat-3.0.3.tgz#a6e37499a4d9a9cf85ef5872044d62901c9889ae"
   integrity sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==
 
-debug@2, debug@2.6.9, debug@^2.1.0, debug@^2.1.1, debug@^2.1.3, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
+debug@2.6.9, debug@^2.1.0, debug@^2.1.1, debug@^2.1.3, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
   version "2.6.9"
   resolved "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
@@ -6682,9 +6674,9 @@ ee-first@1.1.1:
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.723:
-  version "1.3.732"
-  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.732.tgz#2a07a8d61f74f2084b6f6bf2a908605a7a0b2d8d"
-  integrity sha512-qKD5Pbq+QMk4nea4lMuncUMhpEiQwaJyCW7MrvissnRcBDENhVfDmAqQYRQ3X525oTzhar9Zh1cK0L2d1UKYcw==
+  version "1.3.734"
+  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.734.tgz#c8d318a4eb27509190cf3a08870dbcbf06c74dcb"
+  integrity sha512-iQF2mjPZ6zNNq45kbJ6MYZYCBNdv2JpGiJC/lVx4tGJWi9MNg73KkL9sWGN4X4I/CP2SBLWsT8nPADZZpAHIyw==
 
 elliptic@^6.5.3:
   version "6.5.4"
@@ -7481,21 +7473,21 @@ ember-template-lint@^2.0.1:
     yargs "^16.2.0"
 
 ember-template-recast@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.npmjs.org/ember-template-recast/-/ember-template-recast-5.0.1.tgz#c5d9e7208bf629ee368a3792328f245f3c651003"
-  integrity sha512-MtjyYtr5jnE72i/jVkI3m2QOdozglLwXS3HN74Ge9cm7dz5GoDszVvUksyj/9xqpIP31LMXjs2bZetRGvinU1Q==
+  version "5.0.3"
+  resolved "https://registry.npmjs.org/ember-template-recast/-/ember-template-recast-5.0.3.tgz#79df27a70bdce7be17f14db13886afde1e9d02d6"
+  integrity sha512-qsJYQhf29Dk6QMfviXhUPE+byMOs6iRQxUDHgkj8yqjeppvjHaFG96hZi/NAXJTm/M7o3PpfF5YlmeaKtI9UeQ==
   dependencies:
     "@glimmer/reference" "^0.65.0"
     "@glimmer/syntax" "^0.65.0"
     "@glimmer/validator" "^0.65.0"
     async-promise-queue "^1.0.5"
     colors "^1.4.0"
-    commander "^6.2.0"
-    globby "^11.0.1"
-    ora "^5.1.0"
+    commander "^6.2.1"
+    globby "^11.0.3"
+    ora "^5.4.0"
     slash "^3.0.0"
     tmp "^0.2.1"
-    workerpool "^6.0.3"
+    workerpool "^6.1.4"
 
 ember-try-config@^3.0.0:
   version "3.0.0"
@@ -8208,7 +8200,7 @@ extend-shallow@^3.0.0, extend-shallow@^3.0.2:
     assign-symbols "^1.0.0"
     is-extendable "^1.0.1"
 
-extend@3, extend@^3.0.0, extend@~3.0.0, extend@~3.0.2:
+extend@^3.0.0, extend@~3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
@@ -8657,14 +8649,6 @@ flush-write-stream@^1.0.0:
   dependencies:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
-
-follow-redirects@0.0.7:
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-0.0.7.tgz#34b90bab2a911aa347571da90f22bd36ecd8a919"
-  integrity sha1-NLkLqyqRGqNHVx2pDyK9NuzYqRk=
-  dependencies:
-    debug "^2.2.0"
-    stream-consume "^0.1.0"
 
 follow-redirects@^1.0.0:
   version "1.14.1"
@@ -9137,15 +9121,6 @@ gitconfiglocal@^1.0.0:
   dependencies:
     ini "^1.3.2"
 
-github@^1.1.1:
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/github/-/github-1.4.0.tgz#60aed8f16ffe381a3ca6dc6dba5bdd64445b7856"
-  integrity sha1-YK7Y8W/+OBo8ptxtulvdZERbeFY=
-  dependencies:
-    follow-redirects "0.0.7"
-    https-proxy-agent "^1.0.0"
-    mime "^1.2.11"
-
 glob-parent@^3.1.0:
   version "3.1.0"
   resolved "https://registry.npmjs.org/glob-parent/-/glob-parent-3.1.0.tgz#9e6af6299d8d3bd2bd40430832bd113df906c5ae"
@@ -9264,7 +9239,7 @@ globby@10.0.0:
     merge2 "^1.2.3"
     slash "^3.0.0"
 
-globby@^11.0.1, globby@^11.0.2:
+globby@^11.0.1, globby@^11.0.2, globby@^11.0.3:
   version "11.0.3"
   resolved "https://registry.npmjs.org/globby/-/globby-11.0.3.tgz#9b1f0cb523e171dd1ad8c7b2a9fb4b644b9593cb"
   integrity sha512-ffdmosjA807y7+lA1NM0jELARVmYul/715xiILEjo3hBLPTcirgQNnXECn5g3mtR8TOLCVbkfua1Hpen25/Xcg==
@@ -9695,15 +9670,6 @@ https-browserify@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
-
-https-proxy-agent@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-1.0.0.tgz#35f7da6c48ce4ddbfa264891ac593ee5ff8671e6"
-  integrity sha1-NffabEjOTdv6JkiRrFk+5f+GceY=
-  dependencies:
-    agent-base "2"
-    debug "2"
-    extend "3"
 
 https-proxy-agent@^4.0.0:
   version "4.0.0"
@@ -11485,7 +11451,7 @@ mime-types@~1.0.1:
   resolved "https://registry.npmjs.org/mime-types/-/mime-types-1.0.2.tgz#995ae1392ab8affcbfcb2641dd054e943c0d5dce"
   integrity sha1-mVrhOSq4r/y/yyZB3QVOlDwNXc4=
 
-mime@1.6.0, mime@^1.2.11:
+mime@1.6.0:
   version "1.6.0"
   resolved "https://registry.npmjs.org/mime/-/mime-1.6.0.tgz#32cd9e5c64553bd58d19a568af452acff04981b1"
   integrity sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==
@@ -12330,7 +12296,7 @@ ora@^3.4.0:
     strip-ansi "^5.2.0"
     wcwidth "^1.0.1"
 
-ora@^5.1.0:
+ora@^5.4.0:
   version "5.4.0"
   resolved "https://registry.npmjs.org/ora/-/ora-5.4.0.tgz#42eda4855835b9cd14d33864c97a3c95a3f56bf4"
   integrity sha512-1StwyXQGoU6gdjYkyVcqOLnVlbKj+6yPNNOxJVgpt9t4eksKjiriiHuxktLYkgllwk+D6MbC4ihH84L1udRXPg==
@@ -14094,11 +14060,6 @@ semver@^7.1.1, semver@^7.1.3, semver@^7.2.1, semver@^7.3.2, semver@^7.3.4, semve
   dependencies:
     lru-cache "^6.0.0"
 
-semver@~5.0.1:
-  version "5.0.3"
-  resolved "https://registry.npmjs.org/semver/-/semver-5.0.3.tgz#77466de589cd5d3c95f138aa78bc569a3cb5d27a"
-  integrity sha1-d0Zt5YnNXTyV8TiqeLxWmjy10no=
-
 send@0.17.1:
   version "0.17.1"
   resolved "https://registry.npmjs.org/send/-/send-0.17.1.tgz#c1d8b059f7900f7466dd4938bdc44e11ddb376c8"
@@ -14686,11 +14647,6 @@ stream-browserify@^2.0.1:
   dependencies:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
-
-stream-consume@^0.1.0:
-  version "0.1.1"
-  resolved "https://registry.npmjs.org/stream-consume/-/stream-consume-0.1.1.tgz#d3bdb598c2bd0ae82b8cac7ac50b1107a7996c48"
-  integrity sha512-tNa3hzgkjEP7XbCkbRXe1jpg+ievoa0O4SCFlMOYEscGSS4JJsckGL8swUyAa/ApGU3Ae4t6Honor4HhL+tRyg==
 
 stream-each@^1.1.0:
   version "1.2.3"
@@ -16184,7 +16140,7 @@ workerpool@^3.1.1:
     object-assign "4.1.1"
     rsvp "^4.8.4"
 
-workerpool@^6.0.0, workerpool@^6.0.3:
+workerpool@^6.0.0, workerpool@^6.0.3, workerpool@^6.1.4:
   version "6.1.4"
   resolved "https://registry.npmjs.org/workerpool/-/workerpool-6.1.4.tgz#6a972b6df82e38d50248ee2820aa98e2d0ad3090"
   integrity sha512-jGWPzsUqzkow8HoAvqaPWTUPCrlPJaJ5tY8Iz7n1uCz3tTp6s3CDG0FF1NsX42WNlkRSW6Mr+CDZGnNoSsKa7g==
