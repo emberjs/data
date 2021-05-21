@@ -89,12 +89,13 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
 
   test("Adapter's findBelongsTo must not be hit when the record is included with its owner", function (assert) {
     let store = this.owner.lookup('service:store');
+    assert.expect(1);
 
     this.owner.register(
       'adapter:message',
       Adapter.extend({
         findBelongsTo() {
-          assert.fail('We should not call adapter.findBelongsTo since the owner is already loaded');
+          assert.ok(false, 'We should not call adapter.findBelongsTo since the owner is already loaded');
         },
       })
     );
@@ -110,6 +111,10 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
           },
           relationships: {
             messages: {
+              links: {
+                self: 'users/1/relationships/messages',
+                related: 'users/1/posts',
+              },
               data: [
                 {
                   id: '2',
@@ -125,6 +130,18 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
             type: 'message',
             attributes: {
               title: 'EmberFest was great',
+            },
+            relationships: {
+              user: {
+                // data: {
+                //   id: '1',
+                //   type: 'user',
+                // },
+                links: {
+                  self: 'messages/1/relationships/user',
+                  related: 'messages/1/author',
+                },
+              },
             },
           },
         ],
