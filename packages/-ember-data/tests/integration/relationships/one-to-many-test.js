@@ -87,6 +87,61 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
   });
 
+  test("Adapter's findBelongsTo must not be hit when the record is included with its owner", function (assert) {
+    let store = this.owner.lookup('service:store');
+
+    this.owner.register(
+      'adapter:message',
+      Adapter.extend({
+        findBelongsTo() {
+          assert.fail('We should not call adapter.findBelongsTo since the owner is already loaded');
+        },
+      })
+    );
+
+    var user;
+    run(function () {
+      user = store.push({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Stanley',
+          },
+          relationships: {
+            messages: {
+              data: [
+                {
+                  id: '2',
+                  type: 'message',
+                },
+              ],
+            },
+          },
+        },
+        included: [
+          {
+            id: '2',
+            type: 'message',
+            attributes: {
+              title: 'EmberFest was great',
+            },
+          },
+        ],
+      });
+    });
+    run(function () {
+      user.get('messages').then(function (fetchedMessages) {
+        fetchedMessages
+          .toArray()[0]
+          .get('user')
+          .then(function (fetchedUser) {
+            assert.equal(fetchedUser, user, 'User relationship was set up correctly');
+          });
+      });
+    });
+  });
+
   test('Relationship is available from the belongsTo side even if only loaded from the hasMany side - sync', function (assert) {
     let store = this.owner.lookup('service:store');
 
