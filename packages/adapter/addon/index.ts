@@ -62,7 +62,7 @@
   import EmberObject from '@ember/object';
 
   async function fetchData(url, options = {}) {
-    let response = await fetch(`./${modelName}s/${id}`, options);
+    let response = await fetch(url, options);
     return response.toJSON();
   }
 
