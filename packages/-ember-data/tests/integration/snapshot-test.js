@@ -472,6 +472,36 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.equal(relationship, undefined, 'relationship is undefined');
   });
 
+  test('snapshot.belongsTo() returns null after a fetched relationship link returns null', async function (assert) {
+    assert.expect(2);
+
+    store.adapterFor('application').findBelongsTo = function (store, snapshot, link, relationship) {
+      return resolve({ data: null });
+    };
+
+    store.push({
+      data: {
+        type: 'comment',
+        id: '2',
+        attributes: {
+          body: 'This is comment',
+        },
+        relationships: {
+          post: {
+            links: {
+              related: 'post',
+            },
+          },
+        },
+      },
+    });
+    let comment = store.peekRecord('comment', 2);
+
+    assert.equal(comment._createSnapshot().belongsTo('post'), undefined, 'relationship is undefined');
+    await comment.get('post');
+    assert.equal(comment._createSnapshot().belongsTo('post'), null, 'relationship is null');
+  });
+
   test("snapshot.belongsTo() throws error if relation doesn't exist", function (assert) {
     assert.expect(1);
 
