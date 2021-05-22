@@ -60,18 +60,19 @@ interface PendingSaveItem {
  * @private
  */
 export default class FetchManager {
-  isDestroyed: boolean;
-  requestCache: RequestCache;
+  declare isDestroyed: boolean;
+  declare requestCache: RequestCache;
   // saves which are pending in the runloop
-  _pendingSave: PendingSaveItem[];
+  declare _pendingSave: PendingSaveItem[];
   // fetches pending in the runloop, waiting to be coalesced
-  _pendingFetch: Map<string, PendingFetchItem[]>;
+  declare _pendingFetch: Map<string, PendingFetchItem[]>;
 
   constructor(private _store: CoreStore) {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
     this.requestCache = new RequestCache();
+    this.isDestroyed = false;
   }
 
   /**

@@ -11,7 +11,7 @@
     // "noImplicitThis": true,
     // "strictBindCallApply": true,
     // "strictFunctionTypes": true,
-    // "strictPropertyInitialization": true,
+    "strictPropertyInitialization": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "noEmitOnError": false,

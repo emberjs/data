@@ -36,9 +36,12 @@ module('Integration | Identifiers - configuration', function (hooks) {
     owner.register('serializer:application', JSONAPISerializer.extend());
 
     class User extends Model {
-      @attr() firstName: string;
-      @attr() username: string;
-      @attr() age: number;
+      @attr()
+      declare firstName: string;
+      @attr()
+      declare username: string;
+      @attr()
+      declare age: number;
     }
 
     owner.register('model:user', User);

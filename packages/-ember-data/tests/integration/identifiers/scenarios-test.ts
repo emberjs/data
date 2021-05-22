@@ -74,9 +74,12 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const { owner } = this;
 
       class User extends Model {
-        @attr() firstName: string;
-        @attr() username: string;
-        @attr() age: number;
+        @attr()
+        declare firstName: string;
+        @attr()
+        declare username: string;
+        @attr()
+        declare age: number;
       }
 
       owner.register('adapter:application', TestAdapter);
@@ -277,9 +280,12 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const { owner } = this;
 
       class User extends Model {
-        @attr() firstName: string;
-        @attr() username: string;
-        @attr() age: number;
+        @attr()
+        declare firstName: string;
+        @attr()
+        declare username: string;
+        @attr()
+        declare age: number;
       }
 
       owner.register('adapter:application', TestAdapter);

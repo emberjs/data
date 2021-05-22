@@ -227,7 +227,7 @@ abstract class CoreStore extends Service {
   public _backburner: Backburner = edBackburner;
   public recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
 
-  public _notificationManager: NotificationManager;
+  declare _notificationManager: NotificationManager;
   private _adapterCache = Object.create(null);
   private _serializerCache = Object.create(null);
   public _storeWrapper = new RecordDataStoreWrapper(this);
@@ -247,17 +247,17 @@ abstract class CoreStore extends Service {
   // used to keep track of all the find requests that need to be coalesced
   private _pendingFetch = new Map<string, PendingFetchItem[]>();
 
-  private _fetchManager: FetchManager;
-  public _schemaDefinitionService: SchemaDefinitionService;
+  declare _fetchManager: FetchManager;
+  declare _schemaDefinitionService: SchemaDefinitionService;
 
   // DEBUG-only properties
-  private _trackedAsyncRequests: AsyncTrackingToken[];
+  declare _trackedAsyncRequests: AsyncTrackingToken[];
   shouldAssertMethodCallsOnDestroyedStore: boolean = false;
   shouldTrackAsyncRequests: boolean = false;
   generateStackTracesForTrackedRequests: boolean = false;
-  private _trackAsyncRequestStart: (str: string) => void;
-  private _trackAsyncRequestEnd: (token: AsyncTrackingToken) => void;
-  private __asyncWaiter: () => boolean;
+  declare _trackAsyncRequestStart: (str: string) => void;
+  declare _trackAsyncRequestEnd: (token: AsyncTrackingToken) => void;
+  declare __asyncWaiter: () => boolean;
 
   /**
     The default adapter to use to communicate to a backend server or

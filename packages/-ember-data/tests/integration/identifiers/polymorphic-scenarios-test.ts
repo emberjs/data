@@ -39,16 +39,20 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       const { owner } = this;
 
       class Car extends Model {
-        @attr() color: string;
+        @attr()
+        declare color: string;
       }
 
       class Ferrari extends Car {}
       class Bmw extends Car {}
 
       class Dealership extends Model {
-        @attr() name: string;
-        @belongsTo('car', { polymorphic: true, async: true, inverse: null }) bestCar;
-        @hasMany('car', { polymorphic: true, async: true, inverse: null }) allCars;
+        @attr()
+        declare name: string;
+        @belongsTo('car', { polymorphic: true, async: true, inverse: null })
+        declare bestCar;
+        @hasMany('car', { polymorphic: true, async: true, inverse: null })
+        declare allCars;
       }
 
       owner.register('serializer:application', TestSerializer);

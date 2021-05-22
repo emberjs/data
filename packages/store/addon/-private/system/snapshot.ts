@@ -47,14 +47,14 @@ export default class Snapshot implements Snapshot {
   private _belongsToIds: Dict<RecordId> = Object.create(null);
   private _hasManyRelationships: Dict<Snapshot[]> = Object.create(null);
   private _hasManyIds: Dict<RecordId[]> = Object.create(null);
-  private _internalModel: InternalModel;
-  private _changedAttributes: ChangedAttributesHash;
+  declare _internalModel: InternalModel;
+  declare _changedAttributes: ChangedAttributesHash;
 
-  public identifier: StableRecordIdentifier;
-  public modelName: string;
-  public id: string | null;
-  public include?: unknown;
-  public adapterOptions: Dict<unknown>;
+  declare identifier: StableRecordIdentifier;
+  declare modelName: string;
+  declare id: string | null;
+  declare include?: unknown;
+  declare adapterOptions: Dict<unknown>;
 
   /**
    * @method constructor
