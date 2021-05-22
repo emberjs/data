@@ -10,7 +10,7 @@
     "noImplicitAny": false,
     // "noImplicitThis": true,
     "strictBindCallApply": true,
-    // "strictFunctionTypes": true,
+    "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
