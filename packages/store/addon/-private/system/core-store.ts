@@ -1170,7 +1170,10 @@ abstract class CoreStore extends Service {
     @return {Promise} promise
   */
   findRecord(resource: string, id: string | number, options?: FindOptions): PromiseProxy<DSModel>;
-  findRecord(resource: ExistingResourceIdentifierObject | ResourceIdentifier, id?: FindOptions): PromiseProxy<DSModel>;
+  findRecord(
+    resource: ExistingResourceIdentifierObject | ResourceIdentifier,
+    options?: FindOptions
+  ): PromiseProxy<DSModel>;
   findRecord(
     resource: string | ExistingResourceIdentifierObject | ResourceIdentifier,
     id?: string | number | FindOptions,
@@ -1203,7 +1206,7 @@ abstract class CoreStore extends Service {
     );
     options = options || {};
 
-    if (!internalModel.isLoaded()) {
+    if (!internalModel.currentState.isLoaded) {
       return this._findByInternalModel(internalModel, options);
     }
 
@@ -4059,8 +4062,8 @@ function internalModelForRelatedResource(
 
 function isMaybeIdentifier(maybeIdentifier: any): maybeIdentifier is ResourceIdentifierObject {
   return Boolean(
-    maybeIdentifier === null &&
-      typeof maybeIdentifier !== 'object' &&
+    maybeIdentifier !== null &&
+      typeof maybeIdentifier === 'object' &&
       ((maybeIdentifier.id && maybeIdentifier.type) || maybeIdentifier.lid)
   );
 }

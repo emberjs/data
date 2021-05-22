@@ -209,7 +209,7 @@ export default class InternalModelFactory {
   }
 
   getByResource(resource: ResourceIdentifierObject): InternalModel {
-    const normalizedResource = constructResource(resource.type, resource.id, resource.lid);
+    const normalizedResource = constructResource(resource.type as string, resource.id, resource.lid);
 
     return this.lookup(normalizedResource);
   }

@@ -197,7 +197,7 @@ export class IdentifierCache {
     }
 
     // `type` must always be present
-    assertWithNarrow<string>('resource.type needs to be a string', !isNonEmptyString(_resource.type), type);
+    assertWithNarrow<string>('resource.type needs to be a string', isNonEmptyString(_resource.type), type);
 
     let keyOptions = getTypeIndex(this._cache.types, type);
 
