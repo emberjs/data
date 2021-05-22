@@ -2,12 +2,24 @@
   "compilerOptions": {
     "target": "es2017",
     "allowJs": false,
+    "checkJs": false,
     "moduleResolution": "node",
+    // "alwaysStrict": true,
+    "strict": false,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
+    // "noImplicitThis": true,
+    // "strictBindCallApply": true,
+    // "strictFunctionTypes": true,
+    // "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "noEmitOnError": false,
     "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "preserveConstEnums": false,
     "experimentalDecorators": true,
+    "pretty": true,
     "noEmit": true,
     "skipLibCheck": true,
     "inlineSourceMap": true,
@@ -51,5 +63,5 @@
     "packages/**/test-support/**/*",
     "packages/**/addon-test-support/**/*"
   ],
-  "exclude": ["node_modules", "packages/**/node_modules"]
+  "exclude": ["node_modules", "packages/**/node_modules",  "packages/**/dist",  "packages/**/DEBUG"]
 }
