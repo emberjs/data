@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
     // "noImplicitThis": true,
-    // "strictBindCallApply": true,
+    "strictBindCallApply": true,
     // "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "allowUnreachableCode": false,
