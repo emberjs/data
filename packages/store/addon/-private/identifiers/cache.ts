@@ -27,6 +27,7 @@ type ForgetMethod = import('../ts-interfaces/identifier').ForgetMethod;
 type ResetMethod = import('../ts-interfaces/identifier').ResetMethod;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
+type ExistingResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
 type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
@@ -76,11 +77,9 @@ function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 
   if ('lid' in data && isNonEmptyString(data.lid)) {
     return data.lid;
   }
-  if ('id' in data) {
-    let { type, id } = data;
-    if (isNonEmptyString(coerceId(id))) {
-      return `@ember-data:lid-${normalizeModelName(type)}-${id}`;
-    }
+  let { type, id } = data as ExistingResourceIdentifierObject;
+  if (isNonEmptyString(id)) {
+    return `@ember-data:lid-${normalizeModelName(type)}-${id}`;
   }
   return uuidv4();
 }
@@ -107,14 +106,14 @@ if (DEBUG) {
 
 /**
  * Each instance of {Store} receives a unique instance of a IdentifierCache.
- * 
+ *
  * This cache is responsible for assigning or retrieving the unique identify
  * for arbitrary resource data encountered by the store. Data representing
  * a unique resource or record should always be represented by the same
  * identifier.
- * 
+ *
  * It can be configured by consuming applications.
- * 
+ *
  * @class IdentifierCache
    @public
  */
@@ -160,10 +159,7 @@ export class IdentifierCache {
    * @method _getRecordIdentifier
    * @private
    */
-  private _getRecordIdentifier(
-    resource: ResourceIdentifierObject | Identifier,
-    shouldGenerate: true
-  ): StableRecordIdentifier;
+  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
   private _getRecordIdentifier(
     resource: ResourceIdentifierObject,
     shouldGenerate: false
@@ -190,8 +186,9 @@ export class IdentifierCache {
       return identifier;
     }
 
-    let type = normalizeModelName(resource.type);
-    let id = coerceId(resource.id);
+    let _resource = resource as ResourceIdentifierObject;
+    let type = _resource.type && normalizeModelName(_resource.type);
+    let id = coerceId(_resource.id);
 
     if (shouldGenerate === false) {
       if (!type || !id) {
@@ -200,11 +197,7 @@ export class IdentifierCache {
     }
 
     // `type` must always be present
-    if (DEBUG) {
-      if (!isNonEmptyString(resource.type)) {
-        throw new Error('resource.type needs to be a string');
-      }
-    }
+    assertWithNarrow<string>('resource.type needs to be a string', !isNonEmptyString(_resource.type), type);
 
     let keyOptions = getTypeIndex(this._cache.types, type);
 
@@ -291,7 +284,7 @@ export class IdentifierCache {
    * @returns {StableRecordIdentifier | undefined}
    * @private
    */
-  peekRecordIdentifier(resource: ResourceIdentifierObject): StableRecordIdentifier | undefined {
+  peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
     return this._getRecordIdentifier(resource, false);
   }
 
@@ -306,7 +299,7 @@ export class IdentifierCache {
     - this referential stability of the object itself is guaranteed
 
     @method getOrCreateRecordIdentifier
-    @param resource 
+    @param resource
     @returns {StableRecordIdentifier}
     @public
   */
@@ -366,8 +359,8 @@ export class IdentifierCache {
     `forgetRecordIdentifier` codepaths.
 
     @method updateRecordIdentifier
-    @param identifierObject 
-    @param data 
+    @param identifierObject
+    @param data
     @returns {StableRecordIdentifier}
     @public
   */
@@ -617,4 +610,10 @@ function detectMerge(
   }
 
   return false;
+}
+
+function assertWithNarrow<T>(msg: string, cond: any, value: any): asserts value is T {
+  if (DEBUG && !cond) {
+    throw new Error(msg);
+  }
 }

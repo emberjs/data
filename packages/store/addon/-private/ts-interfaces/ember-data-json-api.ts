@@ -88,7 +88,16 @@ export interface NewResourceIdentifierObject {
   lid: string;
 }
 
-export type ResourceIdentifierObject = ExistingResourceIdentifierObject | NewResourceIdentifierObject;
+export interface ResourceIdentifier {
+  type?: string;
+  id?: string;
+  lid: string;
+}
+
+export type ResourceIdentifierObject =
+  | ResourceIdentifier
+  | ExistingResourceIdentifierObject
+  | NewResourceIdentifierObject;
 
 // TODO disallow NewResource, make narrowable
 export interface SingleResourceRelationship {
