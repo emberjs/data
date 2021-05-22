@@ -4,7 +4,7 @@
     "allowJs": false,
     "checkJs": false,
     "moduleResolution": "node",
-    // "alwaysStrict": true,
+    "alwaysStrict": true,
     "strict": false,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
