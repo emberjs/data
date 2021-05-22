@@ -13,6 +13,8 @@ import { addSymbol } from '../utils/symbol';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
 
+type ResourceData = import('../ts-interfaces/identifier').ResourceData;
+
 type Identifier = import('../ts-interfaces/identifier').Identifier;
 
 type CoreStore = import('../system/core-store').default;
@@ -304,9 +306,7 @@ export class IdentifierCache {
     @returns {StableRecordIdentifier}
     @public
   */
-  getOrCreateRecordIdentifier(
-    resource: ResourceIdentifierObject | ExistingResourceObject | Identifier
-  ): StableRecordIdentifier {
+  getOrCreateRecordIdentifier(resource: ResourceData | Identifier): StableRecordIdentifier {
     return this._getRecordIdentifier(resource, true);
   }
 
@@ -367,10 +367,7 @@ export class IdentifierCache {
     @returns {StableRecordIdentifier}
     @public
   */
-  updateRecordIdentifier(
-    identifierObject: RecordIdentifier,
-    data: ResourceIdentifierObject | ExistingResourceObject
-  ): StableRecordIdentifier {
+  updateRecordIdentifier(identifierObject: RecordIdentifier, data: ResourceData): StableRecordIdentifier {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
     let newId = coerceId(data.id);

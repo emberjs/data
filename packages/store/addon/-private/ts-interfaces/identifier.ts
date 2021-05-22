@@ -3,6 +3,11 @@
 */
 import { symbol } from '../utils/symbol';
 
+type ExistingResourceObject = import('./ember-data-json-api').ExistingResourceObject;
+type ResourceIdentifierObject = import('./ember-data-json-api').ResourceIdentifierObject;
+
+export type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
+
 // provided for additional debuggability
 export const DEBUG_CLIENT_ORIGINATED: unique symbol = symbol('record-originated-on-client');
 export const DEBUG_IDENTIFIER_BUCKET: unique symbol = symbol('identifier-bucket');
@@ -157,7 +162,7 @@ export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewR
   @public
   @static
 */
-export type GenerationMethod = (data: Object, bucket: string) => string;
+export type GenerationMethod = (data: ResourceData | { type: string }, bucket: string) => string;
 
 /**
  Configure a callback for when the identifier cache encounters new resource
@@ -194,7 +199,7 @@ export type GenerationMethod = (data: Object, bucket: string) => string;
   @public
   @static
 */
-export type UpdateMethod = (identifier: StableIdentifier, newData: Object, bucket: string) => void;
+export type UpdateMethod = (identifier: StableIdentifier, newData: ResourceData, bucket: string) => void;
 
 /**
  Configure a callback for when the identifier cache is going to release an identifier.
