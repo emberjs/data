@@ -21,9 +21,10 @@ import Store, {
 } from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
 
+type StableIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableIdentifier;
+type IdentifierBucket = import('@ember-data/store/-private/ts-interfaces/identifier').IdentifierBucket;
+type ResourceData = import('@ember-data/store/-private/ts-interfaces/identifier').ResourceData;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type ExistingResourceObject =
-  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
 
 module('Integration | Identifiers - configuration', function (hooks) {
   setupTest(hooks);
@@ -50,16 +51,16 @@ module('Integration | Identifiers - configuration', function (hooks) {
     store = owner.lookup('service:store');
 
     let localIdInc = 9000;
-    const generationMethod = (resource: ExistingResourceObject) => {
+    const generationMethod = (resource: ResourceData | { type: string }) => {
       if (typeof resource.type !== 'string' || resource.type.length < 1) {
         throw new Error(`Cannot generate an lid for a record without a type`);
       }
 
-      if (typeof resource.lid === 'string' && resource.lid.length > 0) {
+      if ('lid' in resource && typeof resource.lid === 'string' && resource.lid.length > 0) {
         return resource.lid;
       }
 
-      if (typeof resource.id === 'string' && resource.id.length > 0) {
+      if ('id' in resource && typeof resource.id === 'string' && resource.id.length > 0) {
         return `remote:${resource.type}:${resource.id}`;
       }
 
@@ -94,16 +95,16 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
   test(`The configured generation method is used for newly created records`, async function (assert) {
     let localIdInc = 9000;
-    const generationMethod = (resource: ExistingResourceObject) => {
+    const generationMethod = (resource: ResourceData | { type: string }) => {
       if (typeof resource.type !== 'string' || resource.type.length < 1) {
         throw new Error(`Cannot generate an lid for a record without a type`);
       }
 
-      if (typeof resource.lid === 'string' && resource.lid.length > 0) {
+      if ('lid' in resource && typeof resource.lid === 'string' && resource.lid.length > 0) {
         return resource.lid;
       }
 
-      if (typeof resource.id === 'string' && resource.id.length > 0) {
+      if ('id' in resource && typeof resource.id === 'string' && resource.id.length > 0) {
         return `remote:${resource.type}:${resource.id}`;
       }
 
@@ -151,9 +152,19 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateMethodCalls = 0 as number;
     let updateCallback: (...args: any[]) => void;
 
-    function updateMethod(identifier: StableRecordIdentifier, data: ExistingResourceObject, bucket: string) {
-      updateMethodCalls++;
-      updateCallback!(identifier, data);
+    function updateMethod(
+      identifier: StableIdentifier | StableRecordIdentifier,
+      data: ResourceData | unknown,
+      bucket: IdentifierBucket
+    ) {
+      switch (bucket) {
+        case 'record':
+          updateMethodCalls++;
+          updateCallback!(identifier, data);
+          break;
+        default:
+          throw new Error(`Identifier Updates for ${bucket} have not been implemented`);
+      }
     }
 
     setIdentifierUpdateMethod(updateMethod);
@@ -204,9 +215,19 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateMethodCalls = 0 as number;
     let updateCallback: (...args: any[]) => void;
 
-    function updateMethod(identifier: StableRecordIdentifier, data: ExistingResourceObject, bucket: string) {
-      updateMethodCalls++;
-      updateCallback!(identifier, data);
+    function updateMethod(
+      identifier: StableIdentifier | StableRecordIdentifier,
+      data: ResourceData | unknown,
+      bucket: IdentifierBucket
+    ) {
+      switch (bucket) {
+        case 'record':
+          updateMethodCalls++;
+          updateCallback!(identifier, data);
+          break;
+        default:
+          throw new Error(`Identifier Updates for ${bucket} have not been implemented`);
+      }
     }
 
     setIdentifierUpdateMethod(updateMethod);
@@ -257,9 +278,19 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateMethodCalls = 0 as number;
     let updateCallback: (...args: any[]) => void;
 
-    function updateMethod(identifier: StableRecordIdentifier, data: ExistingResourceObject, bucket: string) {
-      updateMethodCalls++;
-      updateCallback!(identifier, data);
+    function updateMethod(
+      identifier: StableIdentifier | StableRecordIdentifier,
+      data: ResourceData | unknown,
+      bucket: IdentifierBucket
+    ) {
+      switch (bucket) {
+        case 'record':
+          updateMethodCalls++;
+          updateCallback!(identifier, data);
+          break;
+        default:
+          throw new Error(`Identifier Updates for ${bucket} have not been implemented`);
+      }
     }
 
     setIdentifierUpdateMethod(updateMethod);
@@ -306,7 +337,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     assert.ok(resetMethodCalled, 'We called the reset method when the application was torn down');
   });
 
-  test(`The forget method called when an identifier is "merged" with another`, async function (assert) {
+  test(`The forget method is called when an identifier is "merged" with another`, async function (assert) {
     class TestSerializer extends Serializer {
       normalizeResponse(_, __, payload) {
         return payload;
@@ -331,7 +362,10 @@ module('Integration | Identifiers - configuration', function (hooks) {
     this.owner.register('serializer:application', TestSerializer);
 
     let generateLidCalls = 0;
-    setIdentifierGenerationMethod((resource: ExistingResourceObject) => {
+    setIdentifierGenerationMethod((resource: ResourceData | { type: string }) => {
+      if (!('id' in resource)) {
+        throw new Error(`Unexpected generation of new resource identifier`);
+      }
       generateLidCalls++;
       return `${resource.type}:${resource.id}`;
     });
