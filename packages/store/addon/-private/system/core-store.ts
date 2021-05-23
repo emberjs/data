@@ -1197,7 +1197,10 @@ abstract class CoreStore extends Service {
       const normalizedId = ensureStringId(id as string | number);
       resource = constructResource(type, normalizedId);
     } else {
-      assert(`expected`, arguments.length === 1 && !isMaybeIdentifier(resource));
+      assert(
+        `Expected an identifier object with (type and id) or lid`,
+        arguments.length === 1 && isMaybeIdentifier(resource)
+      );
       options = id as FindOptions;
     }
 
@@ -1728,7 +1731,7 @@ abstract class CoreStore extends Service {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       let stableIdentifier = identifierCacheFor(this).peekRecordIdentifier(identifier);
       if (stableIdentifier) {
-        return internalModelFactoryFor(this).peek(stableIdentifier);
+        return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord();
       }
       return null;
     }

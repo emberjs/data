@@ -33,6 +33,24 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
     });
   });
 
+  test('peekRecord should return the record with identifier as argument', function (assert) {
+    let store = this.owner.lookup('service:store');
+
+    run(() => {
+      let person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+        },
+      });
+      assert.equal(
+        person,
+        store.peekRecord({ type: 'person', id: 1 }),
+        'peekRecord only return the corresponding record in the store'
+      );
+    });
+  });
+
   test('peekRecord should return null if the record is not in the store ', function (assert) {
     let store = this.owner.lookup('service:store');
 

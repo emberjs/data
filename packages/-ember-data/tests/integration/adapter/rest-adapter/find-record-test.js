@@ -51,6 +51,52 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(post.get('name'), 'Rails is omakase');
   });
 
+  test('findRecord - basic payload (with identifier)', async function (assert) {
+    const Post = Model.extend({
+      name: attr('string'),
+    });
+    const Comment = Model.extend({
+      name: attr('string'),
+    });
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const ajaxCallback = ajaxResponse(adapter, { posts: [{ id: '1', name: 'Rails is omakase' }] });
+    const post = await store.findRecord({ type: 'post', id: '1' });
+    const { passedUrl, passedVerb, passedHash } = ajaxCallback();
+
+    assert.strictEqual(passedUrl, '/posts/1');
+    assert.strictEqual(passedVerb, 'GET');
+    assert.deepEqual(passedHash.data, {});
+
+    assert.strictEqual(post.get('id'), '1');
+    assert.strictEqual(post.get('name'), 'Rails is omakase');
+  });
+
+  test('findRecord - fails with insufficient identifier information', async function (assert) {
+    const Post = Model.extend({
+      name: attr('string'),
+    });
+    const Comment = Model.extend({
+      name: attr('string'),
+    });
+    this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
+    const store = this.owner.lookup('service:store');
+    try {
+      await store.findRecord({ id: '1' });
+    } catch (e) {
+      assert.equal(e.message, 'Assertion Failed: Expected an identifier object with (type and id) or lid');
+    }
+  });
+
   test('findRecord - passes buildURL a requestType', async function (assert) {
     const Post = Model.extend({
       name: attr('string'),
