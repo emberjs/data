@@ -109,7 +109,7 @@ type PendingFetchItem = {
 };
 type PendingSaveItem = {
   snapshot: Snapshot;
-  resolver: RSVP.Deferred<InternalModel | void>;
+  resolver: RSVP.Deferred<InternalModel> | RSVP.Deferred<void>;
 };
 
 const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
@@ -328,10 +328,12 @@ abstract class CoreStore extends Service {
           number: 'NumberTransform',
           string: 'StringTransform',
         };
+        type Mappings = keyof typeof Mapping;
+        const keys = Object.keys(Mapping) as Mappings[];
         let shouldWarn = false;
 
         let owner = getOwner(this);
-        Object.keys(Mapping).forEach((attributeType: keyof typeof Mapping) => {
+        keys.forEach((attributeType: Mappings) => {
           const transformFactory = owner.factoryFor(`transform:${attributeType}`);
 
           if (!transformFactory) {
@@ -2489,7 +2491,7 @@ abstract class CoreStore extends Service {
   */
   scheduleSave(
     internalModel: InternalModel,
-    resolver: RSVP.Deferred<InternalModel | void>,
+    resolver: RSVP.Deferred<InternalModel> | RSVP.Deferred<void>,
     options
   ): void | RSVP.Promise<void> {
     let snapshot = internalModel.createSnapshot(options);

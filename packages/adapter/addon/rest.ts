@@ -1080,7 +1080,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Promise} promise
   */
-  ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<unknown> {
+  async ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<unknown> {
     let adapter = this;
 
     let requestData: RequestData = {
@@ -1089,20 +1089,15 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     };
 
     if (this.useFetch) {
-      let _response;
       let hash: FetchRequestInit = adapter.ajaxOptions(url, type, options);
-      return this._fetchRequest(hash)
-        .then((response: Response) => {
-          _response = response;
-          return determineBodyPromise(response, requestData);
-        })
-        .then((payload: Payload) => {
-          if (_response.ok && !(payload instanceof Error)) {
-            return fetchSuccessHandler(adapter, payload, _response, requestData);
-          } else {
-            throw fetchErrorHandler(adapter, payload, _response, null, requestData);
-          }
-        });
+      let response = await this._fetchRequest(hash);
+      let payload = await determineBodyPromise(response, requestData);
+
+      if (response.ok && !(payload instanceof Error)) {
+        return fetchSuccessHandler(adapter, payload, response, requestData);
+      } else {
+        throw fetchErrorHandler(adapter, payload, response, null, requestData);
+      }
     } else {
       let hash: JQueryRequestInit = adapter.ajaxOptions(url, type, options);
 

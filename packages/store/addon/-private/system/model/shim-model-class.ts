@@ -57,25 +57,31 @@ export default class ShimModelClass implements ModelSchema {
     return mapFromHash(relationships);
   }
 
-  eachAttribute<T>(callback: (this: T, key: string, attribute: AttributeSchema) => void, binding?: T) {
+  eachAttribute<T>(callback: (this: T | undefined, key: string, attribute: AttributeSchema) => void, binding?: T) {
     let attrDefs = this.__store._attributesDefinitionFor(this.modelName);
     Object.keys(attrDefs).forEach((key) => {
-      callback.call(binding, key, attrDefs[key]);
+      callback.call(binding, key, attrDefs[key] as AttributeSchema);
     });
   }
 
-  eachRelationship<T>(callback: (this: T, key: string, relationship: RelationshipSchema) => void, binding?: T) {
+  eachRelationship<T>(
+    callback: (this: T | undefined, key: string, relationship: RelationshipSchema) => void,
+    binding?: T
+  ) {
     let relationshipDefs = this.__store._relationshipsDefinitionFor(this.modelName);
     Object.keys(relationshipDefs).forEach((key) => {
-      callback.call(binding, key, relationshipDefs[key]);
+      callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
     });
   }
 
-  eachTransformedAttribute<T>(callback: (this: T, key: string, relationship: RelationshipSchema) => void, binding?: T) {
+  eachTransformedAttribute<T>(
+    callback: (this: T | undefined, key: string, relationship: RelationshipSchema) => void,
+    binding?: T
+  ) {
     let relationshipDefs = this.__store._relationshipsDefinitionFor(this.modelName);
     Object.keys(relationshipDefs).forEach((key) => {
       if (relationshipDefs[key]!.type) {
-        callback.call(binding, key, relationshipDefs[key]);
+        callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
       }
     });
   }

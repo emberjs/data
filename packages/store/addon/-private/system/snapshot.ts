@@ -494,7 +494,7 @@ export default class Snapshot implements Snapshot {
     if (CUSTOM_MODEL_CLASS) {
       let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.identifier);
       Object.keys(attrDefs).forEach((key) => {
-        callback.call(binding, key, attrDefs[key]);
+        callback.call(binding, key, attrDefs[key] as AttributeSchema);
       });
     } else {
       // in the non CUSTOM_MODEL_CLASS world we only have DSModel instances
@@ -523,7 +523,7 @@ export default class Snapshot implements Snapshot {
     if (CUSTOM_MODEL_CLASS) {
       let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.identifier);
       Object.keys(relationshipDefs).forEach((key) => {
-        callback.call(binding, key, relationshipDefs[key]);
+        callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
       });
     } else {
       // in the non CUSTOM_MODEL_CLASS world we only have DSModel instances
