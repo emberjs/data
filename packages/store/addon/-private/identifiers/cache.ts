@@ -612,7 +612,7 @@ function detectMerge(
   return false;
 }
 
-function assertWithNarrow<T>(msg: string, cond: any, value: any): asserts value is T {
+function assertWithNarrow<T>(msg: string, cond: boolean, value: any): asserts value is T {
   if (DEBUG && !cond) {
     throw new Error(msg);
   }

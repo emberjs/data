@@ -1652,11 +1652,9 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'getReference');
     }
 
-    if (arguments.length > 1) {
-      const type = normalizeModelName(resource as string);
-      const normalizedId = ensureStringId(id);
-      resource = constructResource(type, normalizedId);
-    }
+    const type = normalizeModelName(resource as string);
+    const normalizedId = ensureStringId(id);
+    resource = constructResource(type, normalizedId);
 
     assertWithNarrow<ExistingResourceIdentifierObject | ResourceIdentifier>(
       `getReference expected to receive either a resource identifier or type and id as arguments`,
@@ -4068,7 +4066,7 @@ function isMaybeIdentifier(maybeIdentifier: any): maybeIdentifier is ResourceIde
   );
 }
 
-function assertWithNarrow<T>(msg: string, cond: any, value: any): asserts value is T {
+function assertWithNarrow<T>(msg: string, cond: boolean, value: any): asserts value is T {
   if (DEBUG && !cond) {
     throw new Error(msg);
   }
