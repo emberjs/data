@@ -1,3 +1,5 @@
+import { DEBUG } from '@glimmer/env';
+
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
 
@@ -53,7 +55,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
   });
 
   // Identifier tests
-  [
+  let identifierTests = [
     // Ok
     { type: 'post', id: '1', desc: 'type and id' },
     { type: 'post', id: '1', lid: 'post:1', desc: 'type, id and lid' },
@@ -86,10 +88,21 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
         Object.assign(findRecordArgs, { lid: recordIdentifierFor(record).lid });
       },
     },
-    // Error
-    { type: 'post', id: null, errorMsg: 'Assertion Failed: Expected an identifier object with (type and id) or lid' },
-    { lid: 'post:1', desc: 'no local data for lid', errorMsg: 'resource.type needs to be a string' },
-  ].forEach(({ type, id, lid, desc, initFn, errorMsg }) => {
+  ];
+  if (DEBUG) {
+    identifierTests.push({
+      type: 'post',
+      id: null,
+      desc: 'type and no id',
+      errorMsg: 'Assertion Failed: Expected an identifier object with (type and id) or lid',
+    });
+    identifierTests.push({
+      lid: 'post:1',
+      desc: 'no local data for lid',
+      errorMsg: 'resource.type needs to be a string',
+    });
+  }
+  identifierTests.forEach(({ type, id, lid, desc, initFn, errorMsg }) => {
     test(`findRecord - basic payload (${desc})`, async function (assert) {
       const Post = Model.extend({
         name: attr('string'),
