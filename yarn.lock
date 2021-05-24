@@ -6727,9 +6727,9 @@ ember-auto-import@^1.10.1, ember-auto-import@^1.2.15:
     webpack "^4.43.0"
 
 ember-auto-import@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/ember-auto-import/-/ember-auto-import-2.0.0.tgz#520ce7f9cd904943ed48b1e9bd353bc22829db28"
-  integrity sha512-14rtzJ057BUJUz2ycJgtCp5YMk1kQZRVyH4TqG8U1aQd5b3bbbSBU56o+pi0pqN0BWhxcGMwTRcUp9+lfNsIBg==
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/ember-auto-import/-/ember-auto-import-2.0.1.tgz#3c993f2cee3a93758029bbc903302a951bd9e3f8"
+  integrity sha512-quJbesruo7Z1tZ8faKSuSBMcNHgQYwVsod3mw3qZY2rHeQz/D1gmOm61HBvPBo4kM43FpKIL+lrzkQS8WIihZQ==
   dependencies:
     "@babel/core" "^7.1.6"
     "@babel/plugin-proposal-class-properties" "^7.13.0"
@@ -7792,8 +7792,7 @@ eslint-module-utils@^2.6.1:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "3.29.0-alpha.4"
 
 eslint-plugin-ember@^10.3.0, eslint-plugin-ember@^10.4.1:
   version "10.4.2"
