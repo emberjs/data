@@ -79,8 +79,8 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
 
-    let post = await store.findRecord('post', 1);
-    ajaxResponse({ comments: [{ id: 1 }] });
+    let post = await store.findRecord('post', '1');
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
@@ -99,11 +99,11 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     Comment.reopen({ post: belongsTo('post', { async: false }) });
 
-    ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+    ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
-    let post = await store.findRecord('post', 1);
+    let post = await store.findRecord('post', '1');
 
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: '1' }] });
     await post.comments;
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
@@ -121,10 +121,10 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     });
     Comment.reopen({ post: belongsTo('post', { async: false }) });
 
-    ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+    ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
-    let post = await store.findRecord('post', 1);
-    ajaxResponse({ comments: [{ id: 1 }] });
+    let post = await store.findRecord('post', '1');
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
     assert.equal(passedUrl, '//example.com/api/v1/posts/1/comments');
@@ -144,10 +144,10 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     Comment.reopen({ post: belongsTo('post', { async: false }) });
 
-    ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+    ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
-    let post = await store.findRecord('post', 1);
-    ajaxResponse({ comments: [{ id: 1 }] });
+    let post = await store.findRecord('post', '1');
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
     assert.equal(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
@@ -170,14 +170,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     ajaxResponse({
       posts: [
         {
-          id: 1,
+          id: '1',
           links: { comments: 'http://example.com/api/v1/posts/1/comments' },
         },
       ],
     });
 
-    let post = await store.findRecord('post', 1);
-    ajaxResponse({ comments: [{ id: 1 }] });
+    let post = await store.findRecord('post', '1');
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
     assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
@@ -191,9 +191,9 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       },
     });
 
-    ajaxResponse({ superUsers: [{ id: 1 }] });
+    ajaxResponse({ superUsers: [{ id: '1' }] });
 
-    await store.findRecord('super-user', 1);
+    await store.findRecord('super-user', '1');
     assert.equal(passedUrl, '/super_users/1');
   });
 
@@ -211,7 +211,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
     };
 
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     let post = store.push({
       data: {
@@ -220,7 +220,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       },
     });
 
-    await store.findRecord('comment', 1, { preload: { post } });
+    await store.findRecord('comment', '1', { preload: { post } });
 
     assert.equal(passedUrl, '/posts/2/comments/1');
   });
@@ -242,7 +242,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     };
     adapter.coalesceFindRequests = true;
 
-    ajaxResponse({ comments: [{ id: 1 }, { id: 2 }, { id: 3 }] });
+    ajaxResponse({ comments: [{ id: '1' }, { id: '2' }, { id: '3' }] });
     let post = store.push({
       data: {
         type: 'post',
@@ -275,7 +275,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
     };
 
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     let post = store.push({
       data: {
@@ -311,7 +311,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       },
     });
 
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     let comment = store.createRecord('comment');
     comment.set('post', post);
@@ -333,7 +333,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
     };
 
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     let post = store.push({
       data: {
@@ -365,7 +365,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       return 'posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
     };
 
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: '1' }] });
 
     let post = store.push({
       data: {
@@ -399,9 +399,9 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       namespace: '/api/v1',
     });
 
-    ajaxResponse({ posts: [{ id: 1 }] });
+    ajaxResponse({ posts: [{ id: '1' }] });
 
-    await store.findRecord('post', 1);
+    await store.findRecord('post', '1');
     assert.equal(passedUrl, '/api/v1/posts/1');
   });
 });
