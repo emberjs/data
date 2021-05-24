@@ -9,6 +9,7 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 
 module('integration/references/record', function (hooks) {
   setupTest(hooks);
@@ -32,17 +33,25 @@ module('integration/references/record', function (hooks) {
     assert.equal(recordReference.id(), 1);
   });
 
-  test('push(object)', function (assert) {
-    var done = assert.async();
-
+  test('a RecordReference can be retrieved via store.getReference(identifier) without local state', function (assert) {
     let store = this.owner.lookup('service:store');
-    let Person = store.modelFor('person');
+    let recordReference = store.getReference({ type: 'person', id: 1 });
 
-    var push;
-    let recordReference = store.getReference('person', 1);
+    assert.equal(recordReference.remoteType(), 'identity');
+    assert.equal(recordReference.type, 'person');
+    assert.equal(recordReference.id(), 1);
+  });
 
-    run(function () {
-      push = recordReference.push({
+  [
+    // Ok
+    { type: 'person', id: '1', lid: 'person:1', desc: 'type, id and lid' },
+    { type: 'person', lid: 'TODO', desc: 'type and lid' },
+    { type: 'person', id: '1', lid: 'TODO', desc: 'type, id, and existing lid' },
+    { type: 'person', id: null, lid: 'TODO', desc: 'type, null id, and existing lid' },
+  ].forEach(({ type, id, lid, desc }) => {
+    test(`a RecordReference can be retrieved with ${desc}`, function (assert) {
+      let store = this.owner.lookup('service:store');
+      const person = store.push({
         data: {
           type: 'person',
           id: 1,
@@ -51,56 +60,74 @@ module('integration/references/record', function (hooks) {
           },
         },
       });
-    });
 
-    assert.ok(push.then, 'RecordReference.push returns a promise');
+      let allArgs = { type, id, lid };
+      let referenceArgs = {};
+      Object.keys(allArgs).forEach((key) => {
+        if (key !== 'undefined') {
+          referenceArgs[key] = allArgs[key];
+        }
 
-    run(function () {
-      push.then(function (record) {
-        assert.ok(record instanceof Person, 'push resolves with the record');
-        assert.equal(get(record, 'name'), 'le name');
-
-        done();
+        if (key === 'lid' && lid === 'TODO') {
+          referenceArgs[key] = recordIdentifierFor(person).lid;
+        }
       });
+
+      let recordReference = store.getReference(referenceArgs);
+
+      assert.equal(recordReference.remoteType(), 'identity');
+      assert.equal(recordReference.type, 'person');
+      assert.equal(recordReference.id(), 1);
     });
   });
 
-  test('push(promise)', function (assert) {
-    var done = assert.async();
-
+  test('push(object)', async function (assert) {
     let store = this.owner.lookup('service:store');
     let Person = store.modelFor('person');
 
-    var push;
+    let recordReference = store.getReference('person', 1);
+
+    const pushed = recordReference.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'le name',
+        },
+      },
+    });
+
+    assert.ok(pushed.then, 'RecordReference.push returns a promise');
+
+    let record = await pushed;
+    assert.ok(record instanceof Person, 'push resolves with the record');
+    assert.equal(get(record, 'name'), 'le name');
+  });
+
+  test('push(promise)', async function (assert) {
+    let store = this.owner.lookup('service:store');
+    let Person = store.modelFor('person');
+
     var deferred = defer();
     var recordReference = store.getReference('person', 1);
 
-    run(function () {
-      push = recordReference.push(deferred.promise);
-    });
+    let pushed = recordReference.push(deferred.promise);
 
-    assert.ok(push.then, 'RecordReference.push returns a promise');
+    assert.ok(pushed.then, 'RecordReference.push returns a promise');
 
-    run(function () {
-      deferred.resolve({
-        data: {
-          type: 'person',
-          id: 1,
-          attributes: {
-            name: 'le name',
-          },
+    deferred.resolve({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'le name',
         },
-      });
+      },
     });
 
-    run(function () {
-      push.then(function (record) {
-        assert.ok(record instanceof Person, 'push resolves with the record');
-        assert.equal(get(record, 'name'), 'le name', 'name is updated');
-
-        done();
-      });
-    });
+    let record = await pushed;
+    assert.ok(record instanceof Person, 'push resolves with the record');
+    assert.equal(get(record, 'name'), 'le name', 'name is updated');
   });
 
   test('value() returns null when not yet loaded', function (assert) {
