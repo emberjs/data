@@ -1,46 +1,7 @@
 version: 2
 updates:
-- package-ecosystem: npm
-  directory: "/"
-  schedule:
-    interval: monthly
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: github
-    versions:
-    - "> 1.4.0"
-  - dependency-name: prettier
-    versions:
-    - 2.2.1
-  - dependency-name: "@tracerbench/core"
-    versions:
-    - 5.1.0
-    - 5.3.6
-  - dependency-name: typescript
-    versions:
-    - 4.1.3
-    - 4.1.5
-    - 4.2.3
-    - 4.2.4
-  - dependency-name: elliptic
-    versions:
-    - 6.5.4
-  - dependency-name: eslint
-    versions:
-    - 7.17.0
-    - 7.20.0
-  - dependency-name: "@types/ember-test-helpers"
-    versions:
-    - 1.0.9
-  - dependency-name: socket.io
-    versions:
-    - 2.4.1
-  - dependency-name: qunit-dom
-    versions:
-    - 1.6.0
-  - dependency-name: ember-cli-fastboot-testing
-    versions:
-    - 0.4.0
-  - dependency-name: lerna
-    versions:
-    - 3.22.1
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
