@@ -89,7 +89,7 @@ DS.errorsArrayToHash = errorsArrayToHash;
 DS.Serializer = Serializer;
 
 if (HAS_DEBUG_PACKAGE) {
-  DS.DebugAdapter = require('@ember/debug').default;
+  DS.DebugAdapter = require('@ember-data/debug').default;
 }
 
 DS.RecordArray = RecordArray;
