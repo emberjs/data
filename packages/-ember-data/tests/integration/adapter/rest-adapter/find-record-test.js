@@ -6,6 +6,7 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
+import { recordIdentifierFor } from '@ember-data/store';
 
 import { ajaxResponse } from './-ajax-mocks';
 
@@ -51,50 +52,85 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(post.get('name'), 'Rails is omakase');
   });
 
-  test('findRecord - basic payload (with identifier)', async function (assert) {
-    const Post = Model.extend({
-      name: attr('string'),
+  // Identifier tests
+  [
+    // Ok
+    { type: 'post', id: '1', desc: 'type and id' },
+    { type: 'post', id: '1', lid: 'post:1', desc: 'type, id and lid' },
+    {
+      type: 'post',
+      desc: 'type and lid',
+      initFn: (store, findRecordArgs) => {
+        let record = store.push({
+          data: {
+            type: 'post',
+            id: '1',
+          },
+        });
+
+        Object.assign(findRecordArgs, { lid: recordIdentifierFor(record).lid });
+      },
+    },
+    {
+      type: 'post',
+      id: null,
+      desc: 'type, null id, and lid',
+      initFn: (store, findRecordArgs) => {
+        let record = store.push({
+          data: {
+            type: 'post',
+            id: '1',
+          },
+        });
+
+        Object.assign(findRecordArgs, { lid: recordIdentifierFor(record).lid });
+      },
+    },
+    // Error
+    { type: 'post', id: null, errorMsg: 'Assertion Failed: Expected an identifier object with (type and id) or lid' },
+    { lid: 'post:1', desc: 'no local data for lid', errorMsg: 'resource.type needs to be a string' },
+  ].forEach(({ type, id, lid, desc, initFn, errorMsg }) => {
+    test(`findRecord - basic payload (${desc})`, async function (assert) {
+      const Post = Model.extend({
+        name: attr('string'),
+      });
+      const Comment = Model.extend({
+        name: attr('string'),
+      });
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
+      this.owner.register('adapter:application', RESTAdapter.extend());
+      this.owner.register('serializer:application', RESTSerializer.extend());
+
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+      const ajaxCallback = ajaxResponse(adapter, { posts: [{ id: '1', name: 'Rails is omakase' }] });
+      let allArgs = { type, id, lid };
+      let findRecordArgs = {};
+      Object.keys(allArgs).forEach((key) => {
+        if (key !== 'undefined') {
+          findRecordArgs[key] = allArgs[key];
+        }
+      });
+
+      if (initFn) {
+        initFn(store, findRecordArgs);
+      }
+
+      try {
+        const post = await store.findRecord(findRecordArgs);
+        const { passedUrl, passedVerb, passedHash } = ajaxCallback();
+
+        assert.strictEqual(passedUrl, '/posts/1');
+        assert.strictEqual(passedVerb, 'GET');
+        assert.deepEqual(passedHash.data, {});
+
+        assert.strictEqual(post.get('id'), '1');
+        assert.strictEqual(post.get('name'), 'Rails is omakase');
+      } catch (e) {
+        assert.equal(e.message, errorMsg);
+      }
     });
-    const Comment = Model.extend({
-      name: attr('string'),
-    });
-    this.owner.register('model:post', Post);
-    this.owner.register('model:comment', Comment);
-    this.owner.register('adapter:application', RESTAdapter.extend());
-    this.owner.register('serializer:application', RESTSerializer.extend());
-
-    const store = this.owner.lookup('service:store');
-    const adapter = store.adapterFor('application');
-    const ajaxCallback = ajaxResponse(adapter, { posts: [{ id: '1', name: 'Rails is omakase' }] });
-    const post = await store.findRecord({ type: 'post', id: '1' });
-    const { passedUrl, passedVerb, passedHash } = ajaxCallback();
-
-    assert.strictEqual(passedUrl, '/posts/1');
-    assert.strictEqual(passedVerb, 'GET');
-    assert.deepEqual(passedHash.data, {});
-
-    assert.strictEqual(post.get('id'), '1');
-    assert.strictEqual(post.get('name'), 'Rails is omakase');
-  });
-
-  test('findRecord - fails with insufficient identifier information', async function (assert) {
-    const Post = Model.extend({
-      name: attr('string'),
-    });
-    const Comment = Model.extend({
-      name: attr('string'),
-    });
-    this.owner.register('model:post', Post);
-    this.owner.register('model:comment', Comment);
-    this.owner.register('adapter:application', RESTAdapter.extend());
-    this.owner.register('serializer:application', RESTSerializer.extend());
-
-    const store = this.owner.lookup('service:store');
-    try {
-      await store.findRecord({ id: '1' });
-    } catch (e) {
-      assert.equal(e.message, 'Assertion Failed: Expected an identifier object with (type and id) or lid');
-    }
   });
 
   test('findRecord - passes buildURL a requestType', async function (assert) {
