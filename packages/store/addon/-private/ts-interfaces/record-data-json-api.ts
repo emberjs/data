@@ -5,16 +5,12 @@ type CollectionResourceRelationship = import('./ember-data-json-api').Collection
   @module @ember-data/store
 */
 
-export interface AttributesHash {
-  attributes?: {
-    [key: string]: any;
-  };
-}
+export type AttributesHash = Dict<unknown>;
 
 export interface JsonApiResource {
   id?: string | null;
   type?: string;
-  attributes?: Dict<any>;
+  attributes?: AttributesHash;
   relationships?: {
     [key: string]: SingleResourceRelationship | CollectionResourceRelationship;
   };
