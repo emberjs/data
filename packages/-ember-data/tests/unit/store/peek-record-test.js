@@ -74,9 +74,9 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   [
     { type: 'person', id: '1', desc: 'type and id' },
     { type: 'person', id: '1', lid: 'person:1', desc: 'type, id and lid' },
-    { type: 'person', lid: 'TODO', desc: 'type and lid' },
-    { type: 'person', id: null, lid: 'TODO', desc: 'type, null id, and lid' },
-  ].forEach(({ type, id, lid, desc, errorMsg }) => {
+    { type: 'person', desc: 'type and lid', generateLid: true },
+    { type: 'person', id: null, desc: 'type, null id, and lid', generateLid: true },
+  ].forEach(({ type, id, lid, desc, generateLid }) => {
     test(`peekRecord (${desc})`, function (assert) {
       let store = this.owner.lookup('service:store');
 
@@ -93,11 +93,11 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
         if (key !== 'undefined') {
           peekRecordArgs[key] = allArgs[key];
         }
-
-        if (key === 'lid' && lid === 'TODO') {
-          peekRecordArgs[key] = recordIdentifierFor(person).lid;
-        }
       });
+
+      if (generateLid) {
+        peekRecordArgs.lid = recordIdentifierFor(person).lid;
+      }
 
       assert.equal(
         person,
