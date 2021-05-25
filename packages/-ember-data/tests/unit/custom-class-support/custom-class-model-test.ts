@@ -175,7 +175,7 @@ if (CUSTOM_MODEL_CLASS) {
     });
 
     test('attribute and relationship with custom schema definition', async function (assert) {
-      assert.expect(18);
+      assert.expect(17);
       this.owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
