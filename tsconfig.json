@@ -8,7 +8,7 @@
     "strict": false,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
-    // "noImplicitThis": true,
+    "noImplicitThis": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,

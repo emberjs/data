@@ -2,7 +2,7 @@
   @module @ember-data/adapter/rest
 */
 import { getOwner } from '@ember/application';
-import { deprecate, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { join } from '@ember/runloop';
@@ -351,6 +351,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
   declare _fastboot: FastBoot;
   declare _najaxRequest: Function;
+  declare host: string | null;
+  declare namespace: string | null;
 
   defaultSerializer = '-rest';
 
@@ -749,6 +751,10 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
+    assert(
+      `Attempted to fetch the hasMany relationship for ${type}, but the record has no id`,
+      typeof id === 'string' && id.length > 0
+    );
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findHasMany'));
 
     return this.ajax(url, 'GET');
@@ -795,6 +801,10 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
+    assert(
+      `Attempted to fetch the belongsTo relationship for ${type}, but the record has no id`,
+      typeof id === 'string' && id.length > 0
+    );
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findBelongsTo'));
     return this.ajax(url, 'GET');
   }
@@ -837,15 +847,16 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @method updateRecord
     @public
     @param {Store} store
-    @param {Model} type
+    @param {Model} schema
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
-    const data = serializeIntoHash(store, type, snapshot, {});
-
-    let id = snapshot.id;
-    let url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
+  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+    const data = serializeIntoHash(store, schema, snapshot, {});
+    const type = snapshot.modelName;
+    const id = snapshot.id;
+    assert(`Attempted to update the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
+    let url = this.buildURL(type, id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PUT', { data });
   }
@@ -862,14 +873,23 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
-    let id = snapshot.id;
+  deleteRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+    const type = snapshot.modelName;
+    const id = snapshot.id;
+    assert(`Attempted to delete the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
 
-    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), 'DELETE');
+    return this.ajax(this.buildURL(type, id, snapshot, 'deleteRecord'), 'DELETE');
   }
 
   _stripIDFromURL(store: Store, snapshot: Snapshot): string {
-    let url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
+    const type = snapshot.modelName;
+    const id = snapshot.id;
+    assert(
+      `Attempted to strip the url from the ${type} record for coalescing, but the record has no id`,
+      typeof id === 'string' && id.length > 0
+    );
+
+    let url = this.buildURL(type, id, snapshot);
 
     let expandedURL = url.split('/');
     // Case when the url is of the format ...something/:id
@@ -878,7 +898,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     // don't do this, then records with id having special characters are not
     // coalesced correctly (see GH #4190 for the reported bug)
     let lastSegment: string = expandedURL[expandedURL.length - 1];
-    let id = snapshot.id;
     if (decodeURIComponent(lastSegment) === id) {
       expandedURL[expandedURL.length - 1] = '';
     } else if (id && endsWith(lastSegment, '?id=' + id)) {
