@@ -72,13 +72,10 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
 
   // Identifier tests
   [
-    // Ok
     { type: 'person', id: '1', desc: 'type and id' },
     { type: 'person', id: '1', lid: 'person:1', desc: 'type, id and lid' },
     { type: 'person', lid: 'TODO', desc: 'type and lid' },
     { type: 'person', id: null, lid: 'TODO', desc: 'type, null id, and lid' },
-    // Error
-    // { type: 'person', id: null, errorMsg: 'Assertion Failed: Expected an identifier object with (type and id) or lid' },
   ].forEach(({ type, id, lid, desc, errorMsg }) => {
     test(`peekRecord (${desc})`, function (assert) {
       let store = this.owner.lookup('service:store');

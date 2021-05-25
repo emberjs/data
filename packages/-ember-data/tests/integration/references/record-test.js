@@ -43,7 +43,6 @@ module('integration/references/record', function (hooks) {
   });
 
   [
-    // Ok
     { type: 'person', id: '1', lid: 'person:1', desc: 'type, id and lid' },
     { type: 'person', lid: 'TODO', desc: 'type and lid' },
     { type: 'person', id: '1', lid: 'TODO', desc: 'type, id, and existing lid' },
