@@ -4,7 +4,17 @@ const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 module.exports = function (defaults) {
   const isProd = process.env.EMBER_ENV === 'production';
+  const needsIE11 = !!process.env.TARGET_IE11;
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
+
+  const terserSettings = {
+    exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
+  };
+
+  if (isProd && needsIE11) {
+    terserSettings.enabled = false;
+  }
+
   let app = new EmberAddon(defaults, {
     emberData: {
       compatWith,
@@ -18,9 +28,7 @@ module.exports = function (defaults) {
       throwUnlessParallelizable: true,
       includeExternalHelpers: true,
     },
-    'ember-cli-terser': {
-      exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
-    },
+    'ember-cli-terser': terserSettings,
   });
 
   /*
