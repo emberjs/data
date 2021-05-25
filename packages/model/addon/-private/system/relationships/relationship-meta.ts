@@ -33,7 +33,6 @@ export class RelationshipDefinition implements RelationshipSchema {
   declare __hasCalculatedInverse: boolean;
   declare parentModelName: string;
   declare inverseIsAsync: string | null;
-  declare inverse: string;
   declare meta: any;
 
   constructor(meta: any) {
@@ -45,6 +44,10 @@ export class RelationshipDefinition implements RelationshipSchema {
     this.meta = meta;
   }
 
+  /**
+   * @internal
+   * @deprecated
+   */
   get key(): string {
     return this.meta.key;
   }
@@ -92,7 +95,7 @@ export class RelationshipDefinition implements RelationshipSchema {
 
     if (inverse) {
       inverseKey = inverse.name;
-      inverseIsAsync = isInverseAsync(inverse);
+      inverseIsAsync = isRelationshipAsync(inverse);
     } else {
       inverseKey = null;
       inverseIsAsync = false;
@@ -102,11 +105,11 @@ export class RelationshipDefinition implements RelationshipSchema {
   }
 }
 
-function isInverseAsync(meta): boolean {
+function isRelationshipAsync(meta: RelationshipSchema): boolean {
   let inverseAsync = meta.options && meta.options.async;
   return typeof inverseAsync === 'undefined' ? true : inverseAsync;
 }
 
-export function relationshipFromMeta(meta): RelationshipDefinition {
+export function relationshipFromMeta(meta: RelationshipSchema): RelationshipDefinition {
   return new RelationshipDefinition(meta);
 }

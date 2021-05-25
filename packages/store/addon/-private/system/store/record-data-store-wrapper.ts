@@ -118,13 +118,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
       return null;
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (definition.inverse !== undefined) {
-        return definition.inverse;
+      if (metaIsRelationshipDefinition(definition)) {
+        return definition._inverseKey(this._store, modelClass);
+      } else if (definition.options && definition.options.inverse !== undefined) {
+        return definition.options.inverse;
       } else {
-        //TODO add a test for this branch
-        if (metaIsRelationshipDefinition(definition)) {
-          return definition._inverseKey(this._store, modelClass);
-        }
         return null;
       }
     } else {
@@ -139,7 +137,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
       return false;
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (definition.inverse === null) {
+      if (definition.options && definition.options.inverse === null) {
         return false;
       }
       if ((definition as unknown as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {

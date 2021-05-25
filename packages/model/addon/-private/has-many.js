@@ -163,6 +163,9 @@ function hasMany(type, options) {
   );
 
   options = options || {};
+  if (!('async' in options)) {
+    options.async = true;
+  }
 
   // Metadata about relationships is stored on the meta of
   // the relationship. This is used for introspection and

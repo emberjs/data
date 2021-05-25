@@ -1,3 +1,5 @@
+import EmberObject from '@ember/object';
+
 import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
 
@@ -6,7 +8,6 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import { RECORD_DATA_STATE } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Serializer from '@ember-data/serializer';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
 module('Integration | Identifiers - lid reflection', function (hooks) {
@@ -27,7 +28,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
   });
 
   test(`We can access the lid when serializing a record`, async function (assert) {
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       serialize(snapshot) {
         // TODO should snapshots have direct access to the identifier?
         const identifier = recordIdentifierFor(snapshot.record);
@@ -80,7 +81,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
   test(`A newly created record can receive a payload by lid (after save, before Adapter.createRecord resolves)`, async function (assert) {
     const adapterPromise = defer();
     const beganSavePromise = defer();
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -160,7 +161,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     this.owner.register('model:ingredient', Ingredient);
     this.owner.register('model:cake', Cake);
 
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -234,7 +235,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     this.owner.register('model:topping', Topping);
     this.owner.register('model:cake', Cake);
 
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }

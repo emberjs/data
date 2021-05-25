@@ -1,4 +1,4 @@
-import { set } from '@ember/object';
+import EmberObject, { set } from '@ember/object';
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
@@ -10,7 +10,6 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo } from '@ember-data/model';
-import Serializer from '@ember-data/serializer';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, {
   recordIdentifierFor,
@@ -126,7 +125,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
   });
 
   test(`The configured update method is called when newly created records are committed`, async function (assert) {
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -189,7 +188,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
   });
 
   test(`The configured update method is called when newly created records with an id are committed`, async function (assert) {
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -252,7 +251,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
   });
 
   test(`The configured update method is called when existing records are saved successfully`, async function (assert) {
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -338,7 +337,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
   });
 
   test(`The forget method is called when an identifier is "merged" with another`, async function (assert) {
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }

@@ -3,63 +3,65 @@ import settled from '@ember/test-helpers/settled';
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
-import JSONAPIAdapter from 'ember-data/adapters/json-api';
-import JSONAPISerializer from 'ember-data/serializers/json-api';
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
+
+type AttributesSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').AttributesSchema;
 
 type RecordDataRecordWrapper =
   import('@ember-data/store/-private/ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
 type NotificationManager = import('@ember-data/store/-private/system/record-notification-manager').default;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('ember-data/-private').Snapshot;
 
-let CustomStore, store, schemaDefinition;
 if (CUSTOM_MODEL_CLASS) {
   module('unit/model - Custom Class Model', function (hooks) {
+    let store;
+    class Person {
+      constructor(public store: Store) {
+        this.store = store;
+      }
+      save() {
+        return this.store.saveRecord(this);
+      }
+    }
+
+    class CustomStore extends Store {
+      init() {
+        super.init();
+        this.registerSchemaDefinitionService({
+          attributesDefinitionFor() {
+            let schema: AttributesSchema = {};
+            schema.name = {
+              kind: 'attribute',
+              options: {},
+              type: 'string',
+              name: 'name',
+            };
+            return schema;
+          },
+          relationshipsDefinitionFor() {
+            return {};
+          },
+          doesTypeExist() {
+            return true;
+          },
+        });
+      }
+      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+        return new Person(this);
+      }
+      teardownRecord(record) {}
+    }
     setupTest(hooks);
 
     hooks.beforeEach(function () {
       let { owner } = this;
-
-      class Person {
-        constructor(public store: CoreStore) {
-          this.store = store;
-        }
-        save() {
-          return this.store.saveRecord(this);
-        }
-      }
-      schemaDefinition = {
-        attributesDefinitionFor() {
-          return {
-            name: {
-              type: 'string',
-            },
-          };
-        },
-        relationshipsDefinitionFor() {
-          return {};
-        },
-        doesTypeExist() {
-          return true;
-        },
-      };
-
-      CustomStore = Store.extend({
-        init() {
-          this._super(...arguments);
-          this.registerSchemaDefinitionService(schemaDefinition);
-        },
-        instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
-          return new Person(this);
-        },
-        teardownRecord(record) {},
-      });
 
       owner.register(
         'adapter:application',
@@ -122,7 +124,7 @@ if (CUSTOM_MODEL_CLASS) {
       let CreationStore = CustomStore.extend({
         instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
           assert.equal(identifier.type, 'person', 'Identifier type passed in correctly');
-          assert.deepEqual(createRecordArgs, { name: 'chris' }, 'createRecordArg passed in');
+          assert.deepEqual(createRecordArgs, { otherProp: 'unk' }, 'createRecordArg passed in');
           returnValue = {};
           return returnValue;
         },
@@ -132,7 +134,7 @@ if (CUSTOM_MODEL_CLASS) {
       });
       this.owner.register('service:store', CreationStore);
       store = this.owner.lookup('service:store');
-      let person = store.createRecord('person', { name: 'chris' });
+      let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
       assert.equal(returnValue, person, 'createRecord returns the instantiated record');
       assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
     });

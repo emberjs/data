@@ -6,6 +6,9 @@ import { module, test as runTest } from 'qunit';
 import { setInitialState, testFinalState } from './helpers';
 import { setupGraphTest } from './setup';
 
+type TestConfig = import('./helpers').TestConfig;
+type Context = import('./setup').Context;
+
 /**
  * qunit-console-grouper groups by test but includes setup/teardown
  * and in-test as all one block. Adding this grouping allows us to
@@ -14,7 +17,7 @@ import { setupGraphTest } from './setup';
  * We should upstream this behavior to qunit-console-grouper
  */
 async function test(name: string, callback) {
-  const fn = async function (...args) {
+  const fn = async function (this: Context, ...args) {
     console.groupCollapsed(name); // eslint-disable-line no-console
     try {
       await callback.call(this, ...args);
@@ -25,9 +28,6 @@ async function test(name: string, callback) {
   };
   return runTest(name, fn);
 }
-
-type TestConfig = import('./helpers').TestConfig;
-type Context = import('./setup').Context;
 
 module('Integration | Graph | Edge Removal', function (hooks) {
   setupGraphTest(hooks);

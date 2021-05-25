@@ -1,4 +1,4 @@
-import { set } from '@ember/object';
+import EmberObject, { set } from '@ember/object';
 
 import { module, test } from 'qunit';
 import { all, resolve } from 'rsvp';
@@ -7,7 +7,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
-import Serializer from '@ember-data/serializer';
 import Store, {
   recordIdentifierFor,
   setIdentifierForgetMethod,
@@ -45,7 +44,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       id: ConfidentDict<string>;
       username: ConfidentDict<string>;
     };
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -255,7 +254,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     let calls;
     let isQuery = false;
     let secondaryCache: ConfidentDict<string>;
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }

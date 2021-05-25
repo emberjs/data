@@ -127,6 +127,9 @@ function belongsTo(modelName, options) {
   );
 
   opts = opts || {};
+  if (!('async' in opts)) {
+    opts.async = true;
+  }
 
   let meta = {
     type: userEnteredModelName,

@@ -1,3 +1,5 @@
+import EmberObject from '@ember/object';
+
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
@@ -5,7 +7,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Serializer from '@ember-data/serializer';
 import Store from '@ember-data/store';
 
 type RID = { type: string; id: string };
@@ -29,7 +30,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
   module('single-table', function (hooks) {
     let store;
 
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
