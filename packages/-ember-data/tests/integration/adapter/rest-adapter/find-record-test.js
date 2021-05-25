@@ -1,3 +1,4 @@
+import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
 
 import Pretender from 'pretender';
@@ -70,7 +71,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
           },
         });
 
-        Object.assign(findRecordArgs, { lid: recordIdentifierFor(record).lid });
+        assign(findRecordArgs, { lid: recordIdentifierFor(record).lid });
       },
     },
     {
@@ -85,7 +86,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
           },
         });
 
-        Object.assign(findRecordArgs, { lid: recordIdentifierFor(record).lid });
+        assign(findRecordArgs, { lid: recordIdentifierFor(record).lid });
       },
     },
   ];
