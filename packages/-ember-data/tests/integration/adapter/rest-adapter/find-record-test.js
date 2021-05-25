@@ -57,11 +57,11 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
   [
     { type: 'post', id: '1', desc: 'type and id' },
     { type: 'post', id: '1', lid: 'post:1', desc: 'type, id and lid' },
-    // {
-    //   type: 'post',
-    //   desc: 'type and lid',
-    //   pushRecord: true,
-    // },
+    {
+      type: 'post',
+      desc: 'type and lid',
+      pushRecord: true,
+    },
     // {
     //   type: 'post',
     //   id: null,
@@ -89,14 +89,14 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       });
 
       if (pushRecord) {
-        let record = store.push({
+        const record = store.push({
           data: {
             type: 'post',
             id: '1',
           },
         });
 
-        findRecordArgs['lid'] = recordIdentifierFor(record).lid;
+        findRecordArgs.lid = recordIdentifierFor(record).lid;
       }
 
       const post = await store.findRecord(findRecordArgs);
