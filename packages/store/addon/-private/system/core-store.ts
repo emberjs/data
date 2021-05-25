@@ -109,7 +109,7 @@ type PendingFetchItem = {
 };
 type PendingSaveItem = {
   snapshot: Snapshot;
-  resolver: RSVP.Deferred<InternalModel> | RSVP.Deferred<void>;
+  resolver: RSVP.Deferred<void>;
 };
 
 const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
@@ -2489,19 +2489,15 @@ abstract class CoreStore extends Service {
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave(
-    internalModel: InternalModel,
-    resolver: RSVP.Deferred<InternalModel> | RSVP.Deferred<void>,
-    options
-  ): void | RSVP.Promise<void> {
-    let snapshot = internalModel.createSnapshot(options);
-    if (internalModel._isRecordFullyDeleted()) {
-      resolver.resolve();
-      return resolver.promise as RSVP.Promise<void>;
-    }
-
-    internalModel.adapterWillCommit();
+  scheduleSave(internalModel: InternalModel, resolver: RSVP.Deferred<void>, options): void | RSVP.Promise<void> {
     if (REQUEST_SERVICE) {
+      if (internalModel._isRecordFullyDeleted()) {
+        resolver.resolve();
+        return resolver.promise;
+      }
+
+      internalModel.adapterWillCommit();
+
       if (!options) {
         options = {};
       }
@@ -2548,13 +2544,21 @@ abstract class CoreStore extends Service {
       );
 
       return promise;
-    }
-    this._pendingSave.push({
-      snapshot: snapshot,
-      resolver: resolver,
-    });
+    } else {
+      if (internalModel._isRecordFullyDeleted()) {
+        resolver.resolve();
+        return;
+      }
 
-    emberBackburner.scheduleOnce('actions', this, this.flushPendingSave);
+      let snapshot = internalModel.createSnapshot(options);
+      internalModel.adapterWillCommit();
+      this._pendingSave.push({
+        snapshot: snapshot,
+        resolver: resolver,
+      });
+
+      emberBackburner.scheduleOnce('actions', this, this.flushPendingSave);
+    }
   }
 
   /**
