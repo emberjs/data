@@ -3,6 +3,7 @@
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 module.exports = function (defaults) {
+  const isTest = process.env.EMBER_CLI_TEST_COMMAND;
   const isProd = process.env.EMBER_ENV === 'production';
   const needsIE11 = !!process.env.TARGET_IE11;
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
@@ -11,7 +12,7 @@ module.exports = function (defaults) {
     exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
   };
 
-  if (isProd && needsIE11) {
+  if (isTest && isProd && needsIE11) {
     terserSettings.enabled = false;
   }
 
