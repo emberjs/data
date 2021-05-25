@@ -3,6 +3,8 @@ import 'ember-inflector';
 import EmberError from '@ember/error';
 import { VERSION } from '@ember/version';
 
+import require, { has } from 'require';
+
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
   AbortError,
@@ -18,7 +20,6 @@ import AdapterError, {
 } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
-import DebugAdapter from '@ember-data/debug';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Serializer from '@ember-data/serializer';
 import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
@@ -44,6 +45,8 @@ import {
   Snapshot,
 } from './-private';
 import setupContainer from './setup-container';
+
+const HAS_DEBUG_PACKAGE = has('@ember-data/debug') || false;
 
 if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
   throw new EmberError(
@@ -85,7 +88,9 @@ DS.errorsArrayToHash = errorsArrayToHash;
 
 DS.Serializer = Serializer;
 
-DS.DebugAdapter = DebugAdapter;
+if (HAS_DEBUG_PACKAGE) {
+  DS.DebugAdapter = require('@ember-data/debug').default;
+}
 
 DS.RecordArray = RecordArray;
 DS.AdapterPopulatedRecordArray = AdapterPopulatedRecordArray;

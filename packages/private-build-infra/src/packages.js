@@ -36,13 +36,20 @@ function detectPackage(dep, packageName, seen) {
 function getPackages(app) {
   const { default: POSSIBLE_PACKAGES } = requireEsm('@ember-data/private-build-infra/addon/available-packages.ts');
   const flags = {};
+  const excludeDebugInProduction =
+    app && app.options && app.options.emberData && app.options.emberData.includeDataAdapterInProduction === false;
+  const isProduction = process.env.EMBER_ENV === 'production';
 
   Object.keys(POSSIBLE_PACKAGES).forEach((flag) => {
     const packageName = POSSIBLE_PACKAGES[flag];
-    let hasPackage = app ? detectPackage(app.project, packageName) : true;
 
-    // console.log(`${flag}=${hasPackage}`);
-    flags[flag] = hasPackage;
+    if (packageName === '@ember-data/debug' && isProduction && excludeDebugInProduction) {
+      flags[flag] = false;
+    } else {
+      let hasPackage = app ? detectPackage(app.project, packageName) : true;
+      // console.log(`${flag}=${hasPackage}`);
+      flags[flag] = hasPackage;
+    }
   });
 
   return flags;
