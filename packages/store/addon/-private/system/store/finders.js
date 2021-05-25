@@ -119,11 +119,25 @@ function iterateData(data, fn) {
 function syncRelationshipDataFromLink(store, payload, parentInternalModel, relationship) {
   // ensure the right hand side (incoming payload) points to the parent record that
   // requested this relationship
-  let relationshipData = iterateData(payload.data, (data, index) => {
-    const { id, type } = data;
-    ensureRelationshipIsSetToParent(data, parentInternalModel, store, relationship, index);
-    return { id, type };
-  });
+  let relationshipData = payload.data
+    ? iterateData(payload.data, (data, index) => {
+        const { id, type } = data;
+        ensureRelationshipIsSetToParent(data, parentInternalModel, store, relationship, index);
+        return { id, type };
+      })
+    : null;
+
+  const relatedDataHash = {};
+
+  if ('meta' in payload) {
+    relatedDataHash.meta = payload.meta;
+  }
+  if ('links' in payload) {
+    relatedDataHash.links = payload.links;
+  }
+  if ('data' in payload) {
+    relatedDataHash.data = relationshipData;
+  }
 
   // now, push the left hand side (the parent record) to ensure things are in sync, since
   // the payload will be pushed with store._push
@@ -131,11 +145,7 @@ function syncRelationshipDataFromLink(store, payload, parentInternalModel, relat
     id: parentInternalModel.id,
     type: parentInternalModel.modelName,
     relationships: {
-      [relationship.key]: {
-        meta: payload.meta,
-        links: payload.links,
-        data: relationshipData,
-      },
+      [relationship.key]: relatedDataHash,
     },
   };
 
@@ -338,7 +348,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
-      if (!payload.data) {
+      if (!payload.data && !payload.links && !payload.meta) {
         return null;
       }
 
