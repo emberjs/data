@@ -29,7 +29,7 @@ import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, s
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type FastBoot = import('./-private/fastboot-interface').FastBoot;
-type Payload = Dict<unknown> | string | undefined;
+type Payload = Dict<unknown> | unknown[] | string | undefined;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
@@ -1019,7 +1019,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
-      return new InvalidError(typeof payload === 'object' ? payload.errors : undefined);
+      return new InvalidError(typeof payload === 'object' && 'errors' in payload ? payload.errors : undefined);
     }
 
     let errors = this.normalizeErrorResponse(status, headers, payload);
@@ -1270,7 +1270,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @return {Array} errors payload
   */
   normalizeErrorResponse(status: number, _headers: Dict<unknown>, payload: Payload): Dict<unknown>[] {
-    if (payload && typeof payload === 'object' && payload.errors instanceof Array) {
+    if (payload && typeof payload === 'object' && 'errors' in payload && Array.isArray(payload.errors)) {
       return payload.errors;
     } else {
       return [
