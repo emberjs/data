@@ -57,17 +57,17 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
   [
     { type: 'post', id: '1', desc: 'type and id' },
     { type: 'post', id: '1', lid: 'post:1', desc: 'type, id and lid' },
-    {
-      type: 'post',
-      desc: 'type and lid',
-      pushRecord: true,
-    },
-    {
-      type: 'post',
-      id: null,
-      desc: 'type, null id, and lid',
-      pushRecord: true,
-    },
+    // {
+    //   type: 'post',
+    //   desc: 'type and lid',
+    //   pushRecord: true,
+    // },
+    // {
+    //   type: 'post',
+    //   id: null,
+    //   desc: 'type, null id, and lid',
+    //   pushRecord: true,
+    // },
   ].forEach(({ type, id, lid, desc, pushRecord }) => {
     test(`findRecord - basic payload (${desc})`, async function (assert) {
       const Post = Model.extend({
