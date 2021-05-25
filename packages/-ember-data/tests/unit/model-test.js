@@ -757,8 +757,15 @@ module('unit/model - Model', function (hooks) {
       @attr('string')
       name;
     }
+    class NativePostWithContent extends Model {
+      @attr('string')
+      content;
+      @attr('string')
+      name;
+    }
     const PROP_MAP = {
       _internalModel: NativePostWithInternalModel,
+      content: NativePostWithContent,
       currentState: NativePostWithCurrentState,
     };
 
@@ -798,7 +805,7 @@ module('unit/model - Model', function (hooks) {
       });
     }
 
-    ['_internalModel', 'currentState'].forEach(testReservedProperty);
+    ['_internalModel', 'content', 'currentState'].forEach(testReservedProperty);
 
     testInDebug('A subclass of Model throws an error when calling create() directly', async function (assert) {
       class NativePerson extends Model {}
