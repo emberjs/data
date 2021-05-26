@@ -63,7 +63,7 @@ module('integration/references/record', function (hooks) {
       let allArgs = { type, id, lid };
       let referenceArgs = {};
       Object.keys(allArgs).forEach((key) => {
-        if (key !== 'undefined') {
+        if (typeof allArgs[key] !== 'undefined') {
           referenceArgs[key] = allArgs[key];
         }
 

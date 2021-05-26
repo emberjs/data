@@ -90,7 +90,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
       let allArgs = { type, id, lid };
       let peekRecordArgs = {};
       Object.keys(allArgs).forEach((key) => {
-        if (key !== 'undefined') {
+        if (typeof allArgs[key] !== 'undefined') {
           peekRecordArgs[key] = allArgs[key];
         }
       });

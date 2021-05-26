@@ -83,7 +83,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       const allArgs = { type, id, lid };
       const findRecordArgs = {};
       Object.keys(allArgs).forEach((key) => {
-        if (key !== 'undefined') {
+        if (typeof allArgs[key] !== 'undefined') {
           findRecordArgs[key] = allArgs[key];
         }
       });
