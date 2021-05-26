@@ -48,7 +48,10 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
         `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
         !Array.isArray(payload.data)
       );
-
+      assert(
+        `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
+        'data' in payload && payload.data !== null && typeof payload.data === 'object'
+      );
       warn(
         `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
         coerceId(payload.data.id) === coerceId(id),
@@ -321,6 +324,11 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findHasMany');
 
+      assert(
+        `fetched the hasMany relationship '${relationship.name}' for ${internalModel.modelName}:${internalModel.id} with link '${link}', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
+        'data' in payload && Array.isArray(payload.data)
+      );
+
       payload = syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       let internalModelArray = store._push(payload);
@@ -346,6 +354,12 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
     (adapterPayload) => {
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
+
+      assert(
+        `fetched the belongsTo relationship '${relationship.name}' for ${internalModel.modelName}:${internalModel.id} with link '${link}', but no data member is present in the response. If no data exists, the response should set { data: null }`,
+        'data' in payload &&
+          (payload.data === null || (typeof payload.data === 'object' && !Array.isArray(payload.data)))
+      );
 
       if (!payload.data && !payload.links && !payload.meta) {
         return null;

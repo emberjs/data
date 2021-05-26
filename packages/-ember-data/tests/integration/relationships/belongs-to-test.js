@@ -49,49 +49,59 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
     store = owner.lookup('service:store');
   });
 
-  test('belongsTo relationships fetched by link should error if no data member is present in the returned payload', async function (assert) {
-    class Company extends Model {
-      @belongsTo('company', { inverse: null, async: true })
-      parentCompany;
-      @attr()
-      name;
-    }
-    this.owner.register('model:company', Company);
-    this.owner.register(
-      'adapter:company',
-      JSONAPIAdapter.extend({
-        findBelongsTo(store, type, snapshot) {
-          return resolve({
-            links: {
-              related: 'company/1/parent-company',
-            },
-          });
-        },
-      })
-    );
+  testInDebug(
+    'belongsTo relationships fetched by link should error if no data member is present in the returned payload',
+    async function (assert) {
+      class Company extends Model {
+        @belongsTo('company', { inverse: null, async: true })
+        parentCompany;
+        @attr()
+        name;
+      }
+      this.owner.register('model:company', Company);
+      this.owner.register(
+        'adapter:company',
+        JSONAPIAdapter.extend({
+          findBelongsTo(store, type, snapshot) {
+            return resolve({
+              links: {
+                related: 'company/1/parent-company',
+              },
+              meta: {},
+            });
+          },
+        })
+      );
 
-    const company = store.push({
-      type: 'company',
-      id: '1',
-      attributes: {
-        name: 'Github',
-      },
-      relationships: {
-        parentCompany: {
-          links: {
-            related: 'company/1/parent-company',
+      const company = store.push({
+        data: {
+          type: 'company',
+          id: '1',
+          attributes: {
+            name: 'Github',
+          },
+          relationships: {
+            parentCompany: {
+              links: {
+                related: 'company/1/parent-company',
+              },
+            },
           },
         },
-      },
-    });
+      });
 
-    try {
-      await company.parentCompany;
-      assert.ok(false, 'We should have thrown an error');
-    } catch (e) {
-      assert.strictEqual(e.message, 'error', 'We error appropriately');
+      try {
+        await company.parentCompany;
+        assert.ok(false, 'We should have thrown an error');
+      } catch (e) {
+        assert.strictEqual(
+          e.message,
+          `Assertion Failed: fetched the belongsTo relationship 'parentCompany' for company:1 with link 'company/1/parent-company', but no data member is present in the response. If no data exists, the response should set { data: null }`,
+          'We error appropriately'
+        );
+      }
     }
-  });
+  );
 
   test("belongsTo saving with relationship that references yourself doesn't blow up", async function (assert) {
     class Company extends Model {
