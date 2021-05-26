@@ -61,12 +61,12 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       desc: 'type and lid',
       withLid: true,
     },
-    // {
-    //   type: 'post',
-    //   id: '',
-    //   desc: 'type, null id, and lid',
-    //   withLid: true,
-    // },
+    {
+      type: 'post',
+      id: null,
+      desc: 'type, null id, and lid',
+      withLid: true,
+    },
   ].forEach(({ type, id, lid, desc, withLid }) => {
     test(`findRecord - basic payload (${desc})`, async function (assert) {
       const Post = Model.extend({
@@ -89,7 +89,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
 
       if (withLid) {
         // create the identifier without creating a record
-        const identifier = store.identifierCache.getOrCreateRecordIdentifier({ id: '1', ...findRecordArgs });
+        const identifier = store.identifierCache.getOrCreateRecordIdentifier({ ...findRecordArgs, id: '1' });
         findRecordArgs.lid = identifier.lid;
       }
 
