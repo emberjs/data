@@ -580,7 +580,7 @@ module('async belongs-to rendering tests', function (hooks) {
   });
 
   test('Can reset a previously failed linked async belongs-to', async function (assert) {
-    assert.expect(4);
+    assert.expect(5);
     let people = makePeopleWithRelationshipData();
     let sedona = store.push({
       data: people.dict['6:has-linked-parent'],
