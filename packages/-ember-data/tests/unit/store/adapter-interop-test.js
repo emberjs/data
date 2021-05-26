@@ -116,6 +116,70 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
   });
 
+  test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany and adapter#findRecord', async function (assert) {
+    const includedResourcesForIds = {
+      1: 'someResource',
+      2: 'differentResource',
+      3: 'anotherResource',
+    };
+    const options = {
+      1: { aQuery: 'for 1' },
+      2: { bQuery: 'for 2' },
+      3: { cQuery: 'for 3' },
+    };
+
+    const ApplicationAdapter = Adapter.extend({
+      groupRecordsForFindMany(store, snapshots) {
+        // this ensures that `findRecord` is also called
+        // by grouping for all but 1
+        return [snapshots.slice(0, -1), snapshots.slice(-1)];
+      },
+
+      findMany(store, type, ids, snapshots) {
+        snapshots.forEach((snapshot) => {
+          assert.equal(
+            snapshot.include,
+            includedResourcesForIds[snapshot.id],
+            `Snapshot #${snapshot.id} retains the 'include' adapter option in #findMany`
+          );
+          assert.deepEqual(snapshot.adapterOptions, options[snapshot.id], 'we were passed the right adapterOptions');
+        });
+        assert.deepEqual(ids, ['1', '2'], 'we were passed the expected ids');
+        return resolve({
+          data: snapshots.map(({ id }) => ({ id, type: type.modelName })),
+        });
+      },
+
+      findRecord(store, type, id, snapshot) {
+        assert.equal(
+          snapshot.include,
+          includedResourcesForIds[snapshot.id],
+          `Snapshot #${snapshot.id} retains the 'include' adapter option in #findRecord`
+        );
+        assert.deepEqual(snapshot.adapterOptions, options[snapshot.id], 'we were passed the right adapterOptions');
+        assert.strictEqual(id, '3', 'we were passed the expected id');
+
+        return resolve({
+          data: { id, type: type.modelName },
+        });
+      },
+
+      coalesceFindRequests: true,
+    });
+
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('model:test', Model.extend());
+
+    let store = this.owner.lookup('service:store');
+
+    await all(
+      Object.keys(includedResourcesForIds).map((id) =>
+        store.findRecord('test', id, { include: includedResourcesForIds[id], adapterOptions: options[id] })
+      )
+    );
+  });
+
   test('Returning a promise from `findRecord` asynchronously loads data', function (assert) {
     assert.expect(1);
 

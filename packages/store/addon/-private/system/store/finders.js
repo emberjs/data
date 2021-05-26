@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { assert, deprecate, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
@@ -76,7 +75,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
 }
 
 export function _findMany(adapter, store, modelName, ids, internalModels, optionsMap) {
-  let snapshots = A(internalModels.map((internalModel) => internalModel.createSnapshot(optionsMap.get(internalModel))));
+  let snapshots = internalModels.map((internalModel) => internalModel.createSnapshot(optionsMap.get(internalModel)));
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
   let promise = adapter.findMany(store, modelClass, ids, snapshots);
   let label = `DS: Handle Adapter#findMany of '${modelName}'`;
