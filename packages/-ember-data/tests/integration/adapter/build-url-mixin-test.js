@@ -14,7 +14,7 @@ import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy'
 module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', function (hooks) {
   setupTest(hooks);
 
-  let store, adapter, Comment, passedUrl;
+  let store, adapter, passedUrl;
 
   function ajaxResponse(value) {
     adapter.ajax = function (url, verb, hash) {
@@ -26,21 +26,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
   hooks.beforeEach(function () {
     let { owner } = this;
-
-    const CommentModel = Model.extend({
-      name: attr('string'),
-    });
     const SuperUser = Model.extend({});
 
     owner.register('adapter:application', RESTAdapter.extend());
     owner.register('serializer:application', RESTSerializer.extend());
-    owner.register('model:comment', CommentModel);
     owner.register('model:super-user', SuperUser);
 
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');
-
-    Comment = store.modelFor('comment');
 
     passedUrl = null;
   });
@@ -49,7 +42,12 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     const PostModel = Model.extend({
       name: attr('string'),
     });
+    const CommentModel = Model.extend({
+      name: attr('string'),
+    });
+
     this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
 
     adapter.setProperties({
       host: 'http://example.com',
@@ -68,14 +66,18 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
+
     this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
 
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
     });
-
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
 
     ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
 
@@ -91,13 +93,18 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
+
     this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
+
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
     });
-
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
 
     ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
@@ -113,13 +120,18 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
+
     this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
 
     adapter.setProperties({
       host: '//example.com',
       namespace: 'api/v1',
     });
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
 
     ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
@@ -135,14 +147,18 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
+
     this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
 
     adapter.setProperties({
       host: '/',
       namespace: 'api/v1',
     });
-
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
 
     ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
@@ -158,14 +174,18 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
+
     this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
 
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
     });
-
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
 
     ajaxResponse({
       posts: [
@@ -202,10 +222,13 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
 
     this.owner.register('model:post', PostModel);
-
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    this.owner.register('model:comment', CommentModel);
 
     adapter.buildURL = function (type, id, snapshot) {
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
@@ -230,9 +253,13 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
-    this.owner.register('model:post', PostModel);
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
 
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
 
     adapter.buildURL = function (type, ids, snapshots) {
       if (Array.isArray(snapshots)) {
@@ -268,9 +295,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
-    this.owner.register('model:post', PostModel);
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
 
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
+
     adapter.buildURL = function (type, id, snapshot) {
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
     };
@@ -294,9 +326,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
-    this.owner.register('model:post', PostModel);
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: true }),
+    });
 
-    Comment.reopen({ post: belongsTo('post', { async: true }) });
+    this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
+
     adapter.buildURL = function (type, id, snapshot) {
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
     };
@@ -326,9 +363,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: true }),
     });
-    this.owner.register('model:post', PostModel);
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
 
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
+
     adapter.buildURL = function (type, id, snapshot) {
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
     };
@@ -358,9 +400,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: false }),
     });
-    this.owner.register('model:post', PostModel);
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
 
-    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
+
     adapter.buildURL = function (type, id, snapshot) {
       return 'posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
     };
@@ -392,8 +439,13 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       name: attr('string'),
       comments: hasMany('comment', { async: false }),
     });
+    const CommentModel = Model.extend({
+      name: attr('string'),
+      post: belongsTo('post', { async: false }),
+    });
 
     this.owner.register('model:post', PostModel);
+    this.owner.register('model:comment', CommentModel);
 
     adapter.setProperties({
       namespace: '/api/v1',
