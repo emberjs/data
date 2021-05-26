@@ -450,7 +450,7 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-    normalizeUpdateRecordResponse, normalizeCreateRecordResponse and 
+    normalizeUpdateRecordResponse, normalizeCreateRecordResponse and
     normalizeDeleteRecordResponse delegate to this method by default.
 
     @since 1.13.0
@@ -488,7 +488,7 @@ const JSONSerializer = Serializer.extend({
   /**
     normalizeQueryResponse, normalizeFindManyResponse, and normalizeFindHasManyResponse delegate
     to this method by default.
-  
+
     @since 1.13.0
     @method normalizeArrayResponse
     @public
@@ -789,7 +789,7 @@ const JSONSerializer = Serializer.extend({
 
   /**
     Dasherizes the model name in the payload
-   
+
     @method modelNameFromPayloadKey
     @public
     @param {String} key
@@ -1032,15 +1032,15 @@ const JSONSerializer = Serializer.extend({
     import JSONSerializer from '@ember-data/serializer/json';
     import { singularize } from 'ember-inflector';
 
-    export default class PostSerializer extends JSONSerializer {
+    export default class ApplicationSerializer extends JSONSerializer {
       serialize(snapshot, options) {
         let json = {};
 
-        snapshot.eachAttribute(function(name) {
+        snapshot.eachAttribute((name) => {
           json[serverAttributeName(name)] = snapshot.attr(name);
         });
 
-        snapshot.eachRelationship(function(name, relationship) {
+        snapshot.eachRelationship((name, relationship) => {
           if (relationship.kind === 'hasMany') {
             json[serverHasManyName(name)] = snapshot.hasMany(name, { ids: true });
           }
@@ -1069,7 +1069,7 @@ const JSONSerializer = Serializer.extend({
     {
       "TITLE": "Rails is omakase",
       "BODY": "Yep. Omakase.",
-      "COMMENT_IDS": [ 1, 2, 3 ]
+      "COMMENT_IDS": [ "1", "2", "3" ]
     }
     ```
 
@@ -1084,7 +1084,7 @@ const JSONSerializer = Serializer.extend({
 
     export default class PostSerializer extends JSONSerializer {
       serialize(snapshot, options) {
-        let json = this._super(...arguments);
+        let json = super.serialize(...arguments);
 
         json.subject = json.title;
         delete json.title;

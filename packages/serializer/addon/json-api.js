@@ -471,6 +471,173 @@ const JSONAPISerializer = JSONSerializer.extend({
     return dasherize(key);
   },
 
+  // SERIALIZE
+  /**
+    Called when a record is saved in order to convert the
+    record into JSON.
+
+    By default, it creates a JSON object with a key for
+    each attribute and belongsTo relationship.
+
+    For example, consider this model:
+
+    ```app/models/comment.js
+    import Model, { attr, belongsTo } from '@ember-data/model';
+
+    export default class CommentModel extends Model {
+      @attr title;
+      @attr body;
+
+      @belongsTo('user') author;
+    }
+    ```
+
+    The default serialization would create a JSON object like:
+
+    ```javascript
+    {
+      "data": {
+        "type": "comments",
+        "attributes": {
+          "title": "Rails is unagi",
+          "body": "Rails? Omakase? O_O",
+        },
+        "relationships": {
+          "author": {
+            "data": {
+              "id": "12",
+              "type": "users"
+            }
+          }
+        }
+      }
+    }
+    ```
+
+    By default, attributes are passed through as-is, unless
+    you specified an attribute type (`attr('date')`). If
+    you specify a transform, the JavaScript value will be
+    serialized when inserted into the JSON hash.
+
+    By default, belongs-to relationships are converted into
+    IDs when inserted into the JSON hash.
+
+    ## IDs
+
+    `serialize` takes an options hash with a single option:
+    `includeId`. If this option is `true`, `serialize` will,
+    by default include the ID in the JSON object it builds.
+
+    The adapter passes in `includeId: true` when serializing
+    a record for `createRecord`, but not for `updateRecord`.
+
+    ## Customization
+
+    Your server may expect a different JSON format than the
+    built-in serialization format.
+
+    In that case, you can implement `serialize` yourself and
+    return a JSON hash of your choosing.
+
+    ```app/serializers/post.js
+    import JSONAPISerializer from '@ember-data/serializer/json-api';
+
+    export default class PostSerializer extends JSONAPISerializer {
+      serialize(snapshot, options) {
+        let json = {
+          POST_TTL: snapshot.attr('title'),
+          POST_BDY: snapshot.attr('body'),
+          POST_CMS: snapshot.hasMany('comments', { ids: true })
+        };
+
+        if (options.includeId) {
+          json.POST_ID_ = snapshot.id;
+        }
+
+        return json;
+      }
+    }
+    ```
+
+    ## Customizing an App-Wide Serializer
+
+    If you want to define a serializer for your entire
+    application, you'll probably want to use `eachAttribute`
+    and `eachRelationship` on the record.
+
+    ```app/serializers/application.js
+    import JSONAPISerializer from '@ember-data/serializer/json-api';
+    import { singularize } from 'ember-inflector';
+    import { underscore } from '@ember/string';
+
+    export default class ApplicationSerializer extends JSONAPISerializer {
+      serialize(snapshot, options) {
+        let json = {};
+
+        snapshot.eachAttribute((name) => {
+          json[serverAttributeName(name)] = snapshot.attr(name);
+        });
+
+        snapshot.eachRelationship((name, relationship) => {
+          if (relationship.kind === 'hasMany') {
+            json[serverHasManyName(name)] = snapshot.hasMany(name, { ids: true });
+          }
+        });
+
+        if (options.includeId) {
+          json.ID_ = snapshot.id;
+        }
+
+        return json;
+      }
+    }
+
+    function serverAttributeName(attribute) {
+      return underscore(attribute).toUpperCase();
+    }
+
+    function serverHasManyName(name) {
+      return serverAttributeName(singularize(name)) + '_IDS';
+    }
+    ```
+
+    This serializer will generate JSON that looks like this:
+
+    ```javascript
+    {
+      "TITLE": "Rails is omakase",
+      "BODY": "Yep. Omakase.",
+      "COMMENT_IDS": [ "1", "2", "3" ]
+    }
+    ```
+
+    ## Tweaking the Default JSON
+
+    If you just want to do some small tweaks on the default JSON,
+    you can call super first and make the tweaks on the returned
+    JSON.
+
+    ```app/serializers/post.js
+    import JSONAPISerializer from '@ember-data/serializer/json-api';
+
+    export default class PostSerializer extends JSONAPISerializer {
+      serialize(snapshot, options) {
+        let json = super.serialize(...arguments);
+
+        json.data.attributes.subject = json.data.attributes.title;
+        delete json.data.attributes.title;
+
+        return json;
+      }
+    }
+    ```
+
+    @method serialize
+    @public
+    @param {Snapshot} snapshot
+    @param {Object} options
+    @return {Object} json
+  */
   serialize(snapshot, options) {
     let data = this._super(...arguments);
     data.type = this.payloadKeyFromModelName(snapshot.modelName);
