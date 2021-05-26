@@ -616,7 +616,7 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.ok(false, 'we should have thrown an error');
     } catch (e) {
       assert.strictEqual(e.message, 'person not found', 'we threw a not found error');
-      assert.strictEqual(adapter.__payloads.length, 0, 'we hit network again');
+      assert.strictEqual(adapter._payloads.length, 0, 'we hit network again');
     }
     Ember.onerror = originalOnError;
   });
