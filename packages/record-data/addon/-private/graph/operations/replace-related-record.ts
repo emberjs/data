@@ -15,6 +15,9 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
     `You can only '${op.op}' on a belongsTo relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
     isBelongsTo(relationship)
   );
+  if (isRemote) {
+    graph._addToTransaction(relationship);
+  }
   const { definition, state } = relationship;
   const prop = isRemote ? 'remoteState' : 'localState';
   const existingState: StableRecordIdentifier | null = relationship[prop];

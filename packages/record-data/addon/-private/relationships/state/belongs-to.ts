@@ -20,6 +20,7 @@ type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-da
 export default class BelongsToRelationship {
   declare localState: StableRecordIdentifier | null;
   declare remoteState: StableRecordIdentifier | null;
+  declare transactionRef: number;
 
   declare graph: Graph;
   declare store: RecordDataStoreWrapper;
@@ -36,6 +37,7 @@ export default class BelongsToRelationship {
     this.definition = definition;
     this.identifier = identifier;
     this._state = null;
+    this.transactionRef = 0;
 
     this.meta = null;
     this.links = null;

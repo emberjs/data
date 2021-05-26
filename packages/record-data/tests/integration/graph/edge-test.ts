@@ -120,15 +120,13 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
-      graph.update(
-        {
-          op: 'replaceRelatedRecord',
-          record: identifier,
-          field: 'bestFriend',
-          value: identifier3,
-        },
-        true
-      );
+      graph.push({
+        op: 'replaceRelatedRecord',
+        record: identifier,
+        field: 'bestFriend',
+        value: identifier3,
+      });
+      await settled();
 
       state = stateOf(bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after canonical update');
@@ -201,15 +199,14 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
-      graph.update(
-        {
-          op: 'replaceRelatedRecord',
-          record: identifier,
-          field: 'bestFriend',
-          value: identifier3,
-        },
-        true
-      );
+      graph.push({
+        op: 'replaceRelatedRecord',
+        record: identifier,
+        field: 'bestFriend',
+        value: identifier3,
+      });
+
+      await settled();
 
       state = stateOf(bestFriend);
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after canonical update');

@@ -80,6 +80,7 @@ export class Graph {
     deletions: DeleteRecordOperation[];
   };
   declare _updatedRelationships: Set<ManyRelationship>;
+  declare _transaction: Set<ManyRelationship | BelongsToRelationship> | null;
 
   constructor(store: RecordDataStoreWrapper) {
     this._definitionCache = Object.create(null);
@@ -90,6 +91,7 @@ export class Graph {
     this._willSyncLocal = false;
     this._pushedUpdates = { belongsTo: [], hasMany: [], deletions: [] };
     this._updatedRelationships = new Set();
+    this._transaction = null;
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
@@ -307,6 +309,7 @@ export class Graph {
     if (!this._willSyncRemote) {
       return;
     }
+    this._transaction = new Set();
     this._willSyncRemote = false;
     const { deletions, hasMany, belongsTo } = this._pushedUpdates;
     this._pushedUpdates.deletions = [];
@@ -323,6 +326,20 @@ export class Graph {
 
     for (let i = 0; i < belongsTo.length; i++) {
       this.update(belongsTo[i], true);
+    }
+    this._finalize();
+  }
+
+  _addToTransaction(relationship: ManyRelationship | BelongsToRelationship) {
+    assert(`expected a transaction`, this._transaction !== null);
+    relationship.transactionRef++;
+    this._transaction.add(relationship);
+  }
+
+  _finalize() {
+    if (this._transaction) {
+      this._transaction.forEach((v) => (v.transactionRef = 0));
+      this._transaction = null;
     }
   }
 

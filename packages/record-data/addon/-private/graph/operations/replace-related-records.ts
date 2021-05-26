@@ -147,6 +147,9 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
     `You can only '${op.op}' on a hasMany relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
     isHasMany(relationship)
   );
+  if (isRemote) {
+    graph._addToTransaction(relationship);
+  }
   relationship.state.hasReceivedData = true;
 
   const newValues = Object.create(null);
@@ -241,6 +244,7 @@ export function addToInverse(
     relationship.state.isEmpty = false;
 
     if (isRemote) {
+      graph._addToTransaction(relationship);
       if (relationship.remoteState !== null) {
         removeFromInverse(graph, relationship.remoteState, relationship.definition.inverseKey, identifier, isRemote);
       }
@@ -257,6 +261,7 @@ export function addToInverse(
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       if (!relationship.canonicalMembers.has(value)) {
+        graph._addToTransaction(relationship);
         relationship.canonicalState.push(value);
         relationship.canonicalMembers.add(value);
         relationship.state.hasReceivedData = true;
@@ -291,6 +296,7 @@ export function removeFromInverse(
   if (isBelongsTo(relationship)) {
     relationship.state.isEmpty = true;
     if (isRemote) {
+      graph._addToTransaction(relationship);
       relationship.remoteState = null;
     }
     if (relationship.localState === value) {
@@ -299,6 +305,7 @@ export function removeFromInverse(
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
+      graph._addToTransaction(relationship);
       let index = relationship.canonicalState.indexOf(value);
       if (index !== -1) {
         relationship.canonicalMembers.delete(value);
