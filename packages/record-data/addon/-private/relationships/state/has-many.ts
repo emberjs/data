@@ -21,6 +21,7 @@ export default class ManyRelationship {
   declare definition: UpgradedMeta;
   declare identifier: StableRecordIdentifier;
   declare _state: RelationshipState | null;
+  declare transactionRef: number;
 
   declare members: Set<StableRecordIdentifier>;
   declare canonicalMembers: Set<StableRecordIdentifier>;
@@ -38,6 +39,7 @@ export default class ManyRelationship {
     this.definition = definition;
     this.identifier = identifier;
     this._state = null;
+    this.transactionRef = 0;
 
     this.members = new Set<StableRecordIdentifier>();
     this.canonicalMembers = new Set<StableRecordIdentifier>();

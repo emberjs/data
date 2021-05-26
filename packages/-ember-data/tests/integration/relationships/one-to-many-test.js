@@ -87,7 +87,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
   });
 
-  test("Adapter's findBelongsTo must not be hit when the record is included with its owner", function (assert) {
+  test("Adapter's findBelongsTo must not be hit when the record is included with its owner", async function (assert) {
     let store = this.owner.lookup('service:store');
     assert.expect(1);
 
@@ -100,63 +100,49 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       })
     );
 
-    var user;
-    run(function () {
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
+    const user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          messages: {
+            links: {
+              self: 'users/1/relationships/messages',
+              related: 'users/1/posts',
+            },
+            data: [
+              {
+                id: '2',
+                type: 'message',
+              },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          id: '2',
+          type: 'message',
           attributes: {
-            name: 'Stanley',
+            title: 'EmberFest was great',
           },
           relationships: {
-            messages: {
+            user: {
               links: {
-                self: 'users/1/relationships/messages',
-                related: 'users/1/posts',
+                self: 'messages/1/relationships/user',
+                related: 'messages/1/author',
               },
-              data: [
-                {
-                  id: '2',
-                  type: 'message',
-                },
-              ],
             },
           },
         },
-        included: [
-          {
-            id: '2',
-            type: 'message',
-            attributes: {
-              title: 'EmberFest was great',
-            },
-            relationships: {
-              user: {
-                // data: {
-                //   id: '1',
-                //   type: 'user',
-                // },
-                links: {
-                  self: 'messages/1/relationships/user',
-                  related: 'messages/1/author',
-                },
-              },
-            },
-          },
-        ],
-      });
+      ],
     });
-    run(function () {
-      user.get('messages').then(function (fetchedMessages) {
-        fetchedMessages
-          .toArray()[0]
-          .get('user')
-          .then(function (fetchedUser) {
-            assert.equal(fetchedUser, user, 'User relationship was set up correctly');
-          });
-      });
-    });
+    const messages = await user.messages;
+    const messageUser = await messages.objectAt(0).user;
+    assert.true(messageUser === user, 'User relationship was set up correctly');
   });
 
   test('Relationship is available from the belongsTo side even if only loaded from the hasMany side - sync', function (assert) {

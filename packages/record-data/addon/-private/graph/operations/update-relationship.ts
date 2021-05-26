@@ -21,7 +21,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
   const payload = op.value;
 
   let hasRelationshipDataProperty: boolean = false;
-  let hasLink: boolean = false;
+  let hasUpdatedLink: boolean = false;
 
   if (payload.meta) {
     relationship.meta = payload.meta;
@@ -104,7 +104,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
           `You have pushed a record of type '${identifier.type}' with '${definition.key}' as a link, but the value of that link is not a string.`,
           typeof relatedLink.href === 'string' || relatedLink.href === null
         );
-        hasLink = true;
+        hasUpdatedLink = true;
       }
     }
   }
@@ -128,17 +128,32 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
   if (hasRelationshipDataProperty) {
     let relationshipIsEmpty = payload.data === null || (Array.isArray(payload.data) && payload.data.length === 0);
 
+    // we don't need to notify here as the update op we pushed in above will notify once
+    // membership is in the correct state.
     relationship.state.hasReceivedData = true;
     relationship.state.isStale = false;
     relationship.state.hasDematerializedInverse = false;
     relationship.state.isEmpty = relationshipIsEmpty;
-  } else if (hasLink) {
-    relationship.state.isStale = true;
+  } else if (hasUpdatedLink) {
+    // only notify stale if we have not previously received membership data.
+    // within this same transaction
+    // this prevents refetching when only one side of the relationship in the
+    // payload contains the info while the other side contains just a link
+    // this only works when the side with just a link is a belongsTo, as we
+    // don't know if a hasMany has full information or not.
+    // see #7049 for context.
+    if (isCollection || !relationship.state.hasReceivedData || relationship.transactionRef === 0) {
+      relationship.state.isStale = true;
 
-    if (isHasMany(relationship)) {
-      relationship.notifyHasManyChange();
+      if (isHasMany(relationship)) {
+        relationship.notifyHasManyChange();
+      } else {
+        relationship.notifyBelongsToChange();
+      }
     } else {
-      relationship.notifyBelongsToChange();
+      relationship.state.isStale = false;
     }
+  } else {
+    relationship.state.isStale = false;
   }
 }
