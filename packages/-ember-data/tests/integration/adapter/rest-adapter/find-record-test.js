@@ -6,7 +6,6 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
-import { recordIdentifierFor } from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 import { ajaxResponse } from './-ajax-mocks';
@@ -53,22 +52,22 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(post.get('name'), 'Rails is omakase');
   });
 
-  // Identifier tests
+  // Ok Identifier tests
   [
     { type: 'post', id: '1', desc: 'type and id' },
     { type: 'post', id: '1', lid: 'post:1', desc: 'type, id and lid' },
     {
       type: 'post',
       desc: 'type and lid',
-      pushRecord: true,
+      withLid: true,
     },
     // {
     //   type: 'post',
-    //   id: null,
+    //   id: '',
     //   desc: 'type, null id, and lid',
-    //   pushRecord: true,
+    //   withLid: true,
     // },
-  ].forEach(({ type, id, lid, desc, pushRecord }) => {
+  ].forEach(({ type, id, lid, desc, withLid }) => {
     test(`findRecord - basic payload (${desc})`, async function (assert) {
       const Post = Model.extend({
         name: attr('string'),
@@ -88,15 +87,10 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
         }
       });
 
-      if (pushRecord) {
-        const record = store.push({
-          data: {
-            type: 'post',
-            id: '1',
-          },
-        });
-
-        findRecordArgs.lid = recordIdentifierFor(record).lid;
+      if (withLid) {
+        // create the identifier without creating a record
+        const identifier = store.identifierCache.getOrCreateRecordIdentifier({ id: '1', ...findRecordArgs });
+        findRecordArgs.lid = identifier.lid;
       }
 
       const post = await store.findRecord(findRecordArgs);
@@ -111,6 +105,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     });
   });
 
+  // Error Identifier Tests
   [
     {
       type: 'post',
@@ -136,7 +131,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       let allArgs = { type, id, lid };
       let findRecordArgs = {};
       Object.keys(allArgs).forEach((key) => {
-        if (key !== 'undefined') {
+        if (typeof allArgs[key] !== 'undefined') {
           findRecordArgs[key] = allArgs[key];
         }
       });
