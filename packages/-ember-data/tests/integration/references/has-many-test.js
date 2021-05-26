@@ -24,10 +24,16 @@ module('integration/references/has-many', function (hooks) {
     const Person = DS.Model.extend({
       name: DS.attr(),
       family: DS.belongsTo(),
+      pets: DS.hasMany({ async: true }),
+    });
+
+    const Pet = DS.Model.extend({
+      name: DS.attr(),
     });
 
     this.owner.register('model:family', Family);
     this.owner.register('model:person', Person);
+    this.owner.register('model:pet', Pet);
 
     this.owner.register('adapter:application', DS.Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
@@ -897,6 +903,197 @@ module('integration/references/has-many', function (hooks) {
 
           done();
         });
+    });
+  });
+
+  test('push record with nested includes (async has-many), chained HasManyReference#value()', async function (assert) {
+    assert.expect(3);
+    let store = this.owner.lookup('service:store');
+
+    let family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'James',
+          },
+          relationships: {
+            family: {
+              data: { type: 'family', id: '1' },
+            },
+            pets: {
+              data: [
+                { type: 'pet', id: '1' },
+                { type: 'pet', id: '2' },
+              ],
+            },
+          },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'John',
+          },
+          relationships: {
+            family: {
+              data: { type: 'family', id: '1' },
+            },
+            pets: {
+              data: [
+                { type: 'pet', id: '3' },
+                { type: 'pet', id: '4' },
+              ],
+            },
+          },
+        },
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Stitchette',
+          },
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Frida',
+          },
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Noun',
+          },
+        },
+        {
+          type: 'pet',
+          id: '4',
+          attributes: {
+            name: 'Puma',
+          },
+        },
+      ],
+    });
+
+    let persons = family.hasMany('persons').value();
+    assert.equal(persons.length, 2);
+    persons.forEach((person) => {
+      let pets = person.hasMany('pets').value();
+      assert.equal(pets.length, 2);
+    });
+  });
+
+  test('fetch record with nested includes (async has-many), chained HasManyReference#value', async function (assert) {
+    assert.expect(3);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    adapter.findRecord = function (store, type, id, snapshots) {
+      return resolve({
+        data: {
+          type: 'family',
+          id: '1',
+          relationships: {
+            persons: {
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
+            },
+          },
+        },
+        included: [
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'James',
+            },
+            relationships: {
+              family: {
+                data: { type: 'family', id: '1' },
+              },
+              pets: {
+                data: [
+                  { type: 'pet', id: '1' },
+                  { type: 'pet', id: '2' },
+                ],
+              },
+            },
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'John',
+            },
+            relationships: {
+              family: {
+                data: { type: 'family', id: '1' },
+              },
+              pets: {
+                data: [
+                  { type: 'pet', id: '3' },
+                  { type: 'pet', id: '4' },
+                ],
+              },
+            },
+          },
+          {
+            type: 'pet',
+            id: '1',
+            attributes: {
+              name: 'Stitchette',
+            },
+          },
+          {
+            type: 'pet',
+            id: '2',
+            attributes: {
+              name: 'Frida',
+            },
+          },
+          {
+            type: 'pet',
+            id: '3',
+            attributes: {
+              name: 'Noun',
+            },
+          },
+          {
+            type: 'pet',
+            id: '4',
+            attributes: {
+              name: 'Puma',
+            },
+          },
+        ],
+      });
+    };
+
+    let family = await store.findRecord('family', '1');
+    let persons = family.hasMany('persons').value();
+    assert.equal(persons.length, 2);
+    persons.forEach((person) => {
+      let pets = person.hasMany('pets').value();
+      assert.equal(pets.length, 2);
     });
   });
 });
