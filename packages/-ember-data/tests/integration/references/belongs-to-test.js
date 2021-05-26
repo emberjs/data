@@ -541,6 +541,43 @@ module('integration/references/belongs-to', function (hooks) {
     });
   });
 
+  test('meta can be retrieved, even if the fetched data is null', async function (assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    const adapterOptions = { thing: 'one' };
+
+    adapter.findBelongsTo = function (store, snapshot, link) {
+      assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+      assert.equal(link, '/families/1', 'link was passed correctly');
+
+      return resolve({
+        data: null,
+        meta: { it: 'works' },
+      });
+    };
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        relationships: {
+          family: {
+            links: { related: '/families/1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.equal(familyReference.remoteType(), 'link');
+
+    const record = await familyReference.load({ adapterOptions });
+    const meta = familyReference.meta();
+    assert.equal(record, null, 'we have no record');
+    assert.deepEqual(meta, { it: 'works' }, 'meta is available');
+  });
+
   test('reload() - loads the record when not yet loaded', function (assert) {
     var done = assert.async();
 
