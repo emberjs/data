@@ -612,7 +612,6 @@ module('async belongs-to rendering tests', function (hooks) {
     await settled();
     assert.equal(this.element.textContent.trim(), '', 'after unloading the record it shows no content on page');
     sedona.reload();
-    await settled();
     Ember.onerror = originalOnError;
   });
 });
