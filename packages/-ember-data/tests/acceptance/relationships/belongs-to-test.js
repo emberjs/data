@@ -611,7 +611,13 @@ module('async belongs-to rendering tests', function (hooks) {
     newParent.unloadRecord();
     await settled();
     assert.equal(this.element.textContent.trim(), '', 'after unloading the record it shows no content on page');
-    await sedona.belongsTo('parent').reload();
+    try {
+      await sedona.belongsTo('parent').reload();
+      assert.ok(false, 'we should have thrown an error');
+    } catch (e) {
+      assert.strictEqual(e.message, 'person not found', 'we threw a not found error');
+      assert.strictEqual(adapter.__payloads.length, 0, 'we hit network again');
+    }
     Ember.onerror = originalOnError;
   });
 });
