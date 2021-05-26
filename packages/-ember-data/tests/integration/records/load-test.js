@@ -9,6 +9,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
 class Person extends Model {
@@ -43,6 +44,29 @@ module('integration/load - Loading Records', function (hooks) {
     await store.findRecord('person', '1').catch(() => {
       assert.false(store.hasRecordForId('person', '1'));
     });
+  });
+
+  testInDebug('When findRecord returns null data a meaningful error is thrown', async function (assert) {
+    this.owner.register(
+      'adapter:application',
+      JSONAPIAdapter.extend({
+        findRecord() {
+          return resolve({ data: null });
+        },
+      })
+    );
+    this.owner.register('serializer:application', JSONAPISerializer);
+
+    try {
+      await store.findRecord('person', '1');
+      assert.ok(false, 'We should throw an error');
+    } catch (e) {
+      assert.strictEqual(
+        e.message,
+        `Assertion Failed: The 'findRecord' request for person:1 resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
+        'we throw a meaningful error'
+      );
+    }
   });
 
   todo('Empty records remain in the empty state while data is being fetched', async function (assert) {

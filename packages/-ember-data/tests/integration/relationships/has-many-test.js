@@ -9,6 +9,7 @@ import { all, hash, Promise as EmberPromise, reject, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -93,6 +94,64 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
+
+  testInDebug(
+    'hasMany relationships fetched by link should error if no data member is present in the returned payload',
+    async function (assert) {
+      class Company extends Model {
+        @hasMany('employee', { inverse: null, async: true })
+        employees;
+        @attr name;
+      }
+      class Employee extends Model {
+        @attr name;
+      }
+      this.owner.register('model:employee', Employee);
+      this.owner.register('model:company', Company);
+      this.owner.register(
+        'adapter:company',
+        JSONAPIAdapter.extend({
+          findHasMany(store, type, snapshot) {
+            return resolve({
+              links: {
+                related: 'company/1/employees',
+              },
+              meta: {},
+            });
+          },
+        })
+      );
+
+      const store = this.owner.lookup('service:store');
+      const company = store.push({
+        data: {
+          type: 'company',
+          id: '1',
+          attributes: {
+            name: 'Github',
+          },
+          relationships: {
+            employees: {
+              links: {
+                related: 'company/1/employees',
+              },
+            },
+          },
+        },
+      });
+
+      try {
+        await company.employees;
+        assert.ok(false, 'We should have thrown an error');
+      } catch (e) {
+        assert.strictEqual(
+          e.message,
+          `Assertion Failed: fetched the hasMany relationship 'employees' for company:1 with link 'company/1/employees', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
+          'We error appropriately'
+        );
+      }
+    }
+  );
 
   testInDebug('Invalid hasMany relationship identifiers throw errors', function (assert) {
     assert.expect(2);
