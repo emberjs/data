@@ -476,9 +476,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     Called when a record is saved in order to convert the
     record into JSON.
 
-    By default, it creates a JSON object with a key for
-    each attribute and belongsTo relationship.
-
     For example, consider this model:
 
     ```app/models/comment.js
@@ -492,7 +489,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
     ```
 
-    The default serialization would create a JSON object like:
+    The default serialization would create a JSON-API resource object like:
 
     ```javascript
     {
@@ -519,8 +516,8 @@ const JSONAPISerializer = JSONSerializer.extend({
     you specify a transform, the JavaScript value will be
     serialized when inserted into the JSON hash.
 
-    By default, belongs-to relationships are converted into
-    IDs when inserted into the JSON hash.
+    Belongs-to relationships are converted into JSON-API
+    resource identifier objects.
 
     ## IDs
 
@@ -614,8 +611,8 @@ const JSONAPISerializer = JSONSerializer.extend({
     ## Tweaking the Default JSON
 
     If you just want to do some small tweaks on the default JSON,
-    you can call super first and make the tweaks on the returned
-    JSON.
+    you can call `super.serialize` first and make the tweaks
+    on the returned JSON.
 
     ```app/serializers/post.js
     import JSONAPISerializer from '@ember-data/serializer/json-api';

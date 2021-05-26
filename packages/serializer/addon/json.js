@@ -1076,8 +1076,8 @@ const JSONSerializer = Serializer.extend({
     ## Tweaking the Default JSON
 
     If you just want to do some small tweaks on the default JSON,
-    you can call super first and make the tweaks on the returned
-    JSON.
+    you can call `super.serialize` first and make the tweaks on
+    the returned JSON.
 
     ```app/serializers/post.js
     import JSONSerializer from '@ember-data/serializer/json';
