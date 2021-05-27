@@ -471,7 +471,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     return dasherize(key);
   },
 
-  // SERIALIZE
   /**
     Called when a record is saved in order to convert the
     record into JSON.
@@ -485,7 +484,8 @@ const JSONAPISerializer = JSONSerializer.extend({
       @attr title;
       @attr body;
 
-      @belongsTo('user') author;
+      @belongsTo('user', { async: false, inverse: null })
+      author;
     }
     ```
 
@@ -514,7 +514,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     By default, attributes are passed through as-is, unless
     you specified an attribute type (`attr('date')`). If
     you specify a transform, the JavaScript value will be
-    serialized when inserted into the JSON hash.
+    serialized when inserted into the attributes hash.
 
     Belongs-to relationships are converted into JSON-API
     resource identifier objects.
@@ -525,16 +525,22 @@ const JSONAPISerializer = JSONSerializer.extend({
     `includeId`. If this option is `true`, `serialize` will,
     by default include the ID in the JSON object it builds.
 
-    The adapter passes in `includeId: true` when serializing
-    a record for `createRecord`, but not for `updateRecord`.
+    The JSONAPIAdapter passes in `includeId: true` when serializing a record
+    for `createRecord` or `updateRecord`.
 
     ## Customization
 
-    Your server may expect a different JSON format than the
+    Your server may expect data in a different format than the
     built-in serialization format.
 
     In that case, you can implement `serialize` yourself and
-    return a JSON hash of your choosing.
+    return data formatted to match your API's expectations, or override
+    the invoked adapter method and do the serialization in the adapter directly
+    by using the provided snapshot.
+    
+    If your API's format differs greatly from the JSON:API spec, you should
+    consider authoring your own adapter and serializer instead of extending
+    this class.
 
     ```app/serializers/post.js
     import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -608,11 +614,11 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
     ```
 
-    ## Tweaking the Default JSON
+    ## Tweaking the Default Formatting
 
-    If you just want to do some small tweaks on the default JSON,
+    If you just want to do some small tweaks on the default JSON:API formatted response,
     you can call `super.serialize` first and make the tweaks
-    on the returned JSON.
+    on the returned object.
 
     ```app/serializers/post.js
     import JSONAPISerializer from '@ember-data/serializer/json-api';
