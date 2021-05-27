@@ -3,7 +3,7 @@ name: Enforce LTS Release PR labeling
 on:
   pull_request:
     branch: lts-3-24
-    types: [labeled, unlabeled, opened, edited, synchronize]
+      types: [labeled, unlabeled, opened, edited, synchronize]
 jobs:
   enforce-changelog-label:
     runs-on: ubuntu-latest
@@ -18,14 +18,14 @@ jobs:
       - uses: yogevbd/enforce-label-action@2.1.0
         with:
           BANNED_LABELS: 'target:canary,target:beta,target:release,target:lts,target:lts-prev'
-          BANNED_LABEL_DESCRIPTION: "These labels should only be used for PRs targeting the master branch, remove them. ['target:canary', 'target:beta', 'target:release', 'target:lts', 'target:lts-prev']"
+          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the master branch, remove them. ['target:canary', 'target:beta', 'target:release', 'target:lts', 'target:lts-prev']"
   ban-other-release-branch-labels:
     runs-on: ubuntu-latest
     steps:
       - uses: yogevbd/enforce-label-action@2.1.0
         with:
           BANNED_LABELS: 'backport-beta,backport-old-release,backport-lts-prev,backport-release'
-          BANNED_LABEL_DESCRIPTION: "The following labels should only be applied to PRs targeting other release channel branches, remove them.['backport-beta', 'backport-old-release', 'backport-lts-prev', 'backport-release']"
+          BANNED_LABELS_DESCRIPTION: "The following labels should only be applied to PRs targeting other release channel branches, remove them.['backport-beta', 'backport-old-release', 'backport-lts-prev', 'backport-release']"
   triage:
     runs-on: ubuntu-latest
     steps:

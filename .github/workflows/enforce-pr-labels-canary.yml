@@ -3,7 +3,7 @@ name: Enforce Canary PR labeling
 on:
   pull_request:
     branch: master
-    types: [labeled, unlabeled, opened, reopened, edited, synchronize]
+      types: [labeled, unlabeled, opened, reopened, edited, synchronize]
 jobs:
   enforce-changelog-label:
     runs-on: ubuntu-latest
@@ -25,4 +25,4 @@ jobs:
       - uses: yogevbd/enforce-label-action@2.1.0
         with:
           BANNED_LABELS: 'backport-beta,backport-release,backport-lts,backport-lts-prev,backport-old-release'
-          BANNED_LABEL_DESCRIPTION: "The following labels should only be applied to PRs targeting release channel branches that backport a change already on the master branch, remove them.['backport-beta', 'backport-release', 'backport-lts', 'backport-lts-prev', 'backport-old-release']"
+          BANNED_LABELS_DESCRIPTION: "The following labels should only be applied to PRs targeting release channel branches that backport a change already on the master branch, remove them.['backport-beta', 'backport-release', 'backport-lts', 'backport-lts-prev', 'backport-old-release']"
