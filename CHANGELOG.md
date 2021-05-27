@@ -1,5 +1,44 @@
 # Ember Data Changelog
 
+## Release v3.28.0-beta.1 (May 27, 2021)
+
+#### :rocket: Enhancement
+
+- [#7258](https://github.com/emberjs/data/pull/7258) feat: record.destroyRecord should also unload the record ([@snewcomer](https://github.com/snewcomer))
+- [#7510](https://github.com/emberjs/data/pull/7510) feat: activate all feature flags related to custom model classes ([@runspired](https://github.com/runspired))
+
+#### :zap: Performance
+
+- [#7505](https://github.com/emberjs/data/pull/7505) Perf: Refactor PromiseManyArray and prep for RFC#745 ([@runspired](https://github.com/runspired))
+- [#7516](https://github.com/emberjs/data/pull/7516) Perf: eliminate retainedManyArrayCache ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+
+- [#7554](https://github.com/emberjs/data/pull/7554) [BUGFIX] reset previously failed linked async belongs-to now works ([@sly7-7](https://github.com/sly7-7))
+- [#7532](https://github.com/emberjs/data/pull/7532) fix: belongsTo should not attempt load if inverse in payload provided its data (#7049) ([@sly7-7](https://github.com/sly7-7))
+- [#7550](https://github.com/emberjs/data/pull/7550) fix: add asserts and assert tests for belongsTo/hasMany/findRecord empty responses ([@runspired](https://github.com/runspired))
+- [#7534](https://github.com/emberjs/data/pull/7534) fix: #7039 Ensure meta and links update when fetched relationship is empty or does not include the data key ([@sly7-7](https://github.com/sly7-7))
+- [#7545](https://github.com/emberjs/data/pull/7545) [BUGFIX Model] assert when 'content' is used as a property on a record ([@zinyando](https://github.com/zinyando))
+- [#7531](https://github.com/emberjs/data/pull/7531) fix: Closes [#7053](https://github.com/emberjs/data/issues/7053) issue preventing debug adapter removal from prod builds using the ember-data package ([@sly7-7](https://github.com/sly7-7))
+- [#7527](https://github.com/emberjs/data/pull/7527) [BUGFIX] rollup step should deactivate ember modules polyfill >= 3.27 ([@runspired](https://github.com/runspired))
+
+#### :memo: Documentation
+
+- [#7549](https://github.com/emberjs/data/pull/7549) [DOC] Fixes JSONAPISerializer serialize documentation ([@skaterdav85](https://github.com/skaterdav85))
+- [#7535](https://github.com/emberjs/data/pull/7535) fix adapter doc example ([@sly7-7](https://github.com/sly7-7))
+
+#### Committers: 9
+
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Daniel Múnera Sánchez ([@dmuneras](https://github.com/dmuneras))
+- David Tang ([@skaterdav85](https://github.com/skaterdav85))
+- Lennex Zinyando ([@zinyando](https://github.com/zinyando))
+- Sylvain MINA ([@sly7-7](https://github.com/sly7-7))
+- Tyler ([@runnerboy22](https://github.com/runnerboy22))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+- Steven Pham ([@spham92](https://github.com/spham92))
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
 ## Release 3.28.0-beta.0 (May 8, 2021)
 
 - [#7447](https://github.com/emberjs/data/pull/7447) Document adapterOptions on REST adapter (#7447)
@@ -2408,7 +2447,7 @@ serializer and do the logic yourself:
 // app/serializers/person.js
 // or App.PersonSerializer if you aren't using Ember CLI
 export default DS.RESTSerializer.extend({
-  normalize: function(type, hash, prop) {
+  normalize: function (type, hash, prop) {
     hash = this._super(type, hash, prop);
     if (!hash.hasOwnProperty('firstName')) {
       hash.firstName = null;
@@ -2427,9 +2466,9 @@ Or if you want to restore the old behavior for all of your models:
 // app/serializers/application.js
 // or App.ApplicationSerializer
 export default DS.RESTSerializer.extend({
-  normalize: function(type, hash, prop) {
+  normalize: function (type, hash, prop) {
     hash = this._super(type, hash, prop);
-    type.eachAttribute(function(key) {
+    type.eachAttribute(function (key) {
       if (!hash.hasOwnProperty(key)) {
         hash[key] = null;
       }
@@ -2528,7 +2567,7 @@ model's attributes. This means that the following code:
 
 ```javascript
 var Post = DS.Model.extend({
-  doSomethingWhenDataChanges: function() {
+  doSomethingWhenDataChanges: function () {
     // do the work
   }.property('data'),
 });
@@ -2541,7 +2580,7 @@ would with any `Ember.Object`:
 var Post = DS.Model.extend({
   name: DS.attr(),
   date: DS.attr(),
-  doSomethingWhenDataChanges: function() {
+  doSomethingWhenDataChanges: function () {
     // do the work
   }.property('name', 'date'),
 });
