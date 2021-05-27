@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: yogevbd/enforce-label-action@2.1.0
-      with:
-        REQUIRED_LABELS_ANY: 'changelog:breaking,changelog:feat,changelog:bugfix,changelog:perf,changelog:cleanup,changelog:deprecation,changelog:doc,changelog:test,changelog:chore,skip-changelog'
-        REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. Use the label `skip-changelog` and none of the others in the list to avoid this being included. ['changelog:breaking', 'changelog:feat', 'changelog:bugfix', 'changelog:perf', 'changelog:cleanup', 'changelog:deprecation', 'changelog:doc', 'changelog:test', 'changelog:chore', 'skip-changelog']"
+        with:
+          REQUIRED_LABELS_ANY: 'changelog:breaking,changelog:feat,changelog:bugfix,changelog:perf,changelog:cleanup,changelog:deprecation,changelog:doc,changelog:test,changelog:chore,skip-changelog'
+          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. Use the label `skip-changelog` and none of the others in the list to avoid this being included. ['changelog:breaking', 'changelog:feat', 'changelog:bugfix', 'changelog:perf', 'changelog:cleanup', 'changelog:deprecation', 'changelog:doc', 'changelog:test', 'changelog:chore', 'skip-changelog']"
   ban-target-labels:
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +29,6 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions-ecosystem/action-add-labels@v1
-      with:
-        labels: backport-lts-prev
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: backport-lts-prev
