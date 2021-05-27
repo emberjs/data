@@ -94,6 +94,8 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
   relationship[prop] = op.value;
   state.hasReceivedData = true;
   state.isEmpty = op.value === null;
+  state.isStale = false;
+  state.hasFailedLoadAttempt = false;
 
   if (op.value) {
     if (definition.type !== op.value.type) {
