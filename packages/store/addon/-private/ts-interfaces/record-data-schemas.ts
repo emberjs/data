@@ -20,8 +20,8 @@ export interface RelationshipSchema {
     inverse?: string | null; // property key on the related type (if any)
     [key: string]: unknown;
   };
-  inverse?: string | null;
-  inverseIsAsync?: boolean;
+  // inverse?: string | null;
+  // inverseIsAsync?: boolean;
   name: string; // property key for this relationship
 }
 
