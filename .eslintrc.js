@@ -85,7 +85,8 @@ module.exports = {
     node: false,
   },
   overrides: [
-    // TypeScript files (strict mode)
+    // TypeScript files in strict-mode
+    // see https://github.com/emberjs/data/issues/6233#issuecomment-849279594
     {
       files: ['**/*.ts'],
       parser: '@typescript-eslint/parser',
@@ -106,10 +107,11 @@ module.exports = {
         'prefer-rest-params': 'off',
         'prefer-const': 'off',
         'ember-data/prefer-type-only-import': 'error',
+        '@typescript-eslint/no-explicit-any': 'error',
       },
     },
-
-    // Typescript files in-non-strict-mode
+    // Typescript files in non-strict mode
+    // see https://github.com/emberjs/data/issues/6233#issuecomment-849279594
     {
       parser: '@typescript-eslint/parser',
       parserOptions: {
@@ -130,6 +132,10 @@ module.exports = {
         'prefer-const': 'off',
         'ember-data/prefer-type-only-import': 'error',
         // rules we should likely activate but which currently have too many violations
+        // files converted to strict must pass these rules before they can be removed from
+        // the files list here and the files list in tsconfig.json
+        // see https://github.com/emberjs/data/issues/6233#issuecomment-849279594
+        '@typescript-eslint/no-explicit-any': 'off', // TODO activate this and use // eslint-disable-line @typescript-eslint/no-explicit-any
         '@typescript-eslint/require-await': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',
@@ -318,6 +324,7 @@ module.exports = {
         'packages/-ember-data/addon/store.ts',
       ],
     },
+
     // node files
     {
       files: [
