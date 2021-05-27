@@ -2,8 +2,8 @@ name: Enforce Canary PR labeling
 
 on:
   pull_request:
+    types: [labeled, unlabeled, opened, reopened, edited, synchronize]
     branch: master
-      types: [labeled, unlabeled, opened, reopened, edited, synchronize]
 jobs:
   enforce-changelog-label:
     runs-on: ubuntu-latest
