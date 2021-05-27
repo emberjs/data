@@ -155,6 +155,7 @@
       "changelog:breaking": ":boom: Breaking Change",
       "changelog:feat": ":rocket: Enhancement",
       "changelog:bugfix": ":bug: Bug Fix",
+      "changelog:perf:": ":zap: Performance",
       "changelog:cleanup": ":shower: Deprecation Removal",
       "changelog:deprecation": ":evergreen_tree: New Deprecation",
       "changelog:doc": ":memo: Documentation",
