@@ -2,7 +2,7 @@ name: Enforce LTS Release PR labeling
 
 on:
   pull_request:
-    types: [labeled, unlabeled, opened, edited, synchronize]
+    types: [labeled, unlabeled, opened, reopened, edited, synchronize]
     branches:
       - lts-3-24
 jobs:
