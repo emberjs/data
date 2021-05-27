@@ -3,7 +3,8 @@ name: Enforce Pervious LTS Release PR labeling
 on:
   pull_request:
     types: [labeled, unlabeled, opened, edited, synchronize]
-    branch: lts-3-20
+    branches:
+      - lts-3-20
 jobs:
   enforce-changelog-label:
     runs-on: ubuntu-latest
