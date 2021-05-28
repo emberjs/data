@@ -7,7 +7,7 @@ type ExistingResourceObject = import('./ember-data-json-api').ExistingResourceOb
 type ResourceIdentifierObject = import('./ember-data-json-api').ResourceIdentifierObject;
 
 export type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
-export type IdentifierBucket = 'record' | never;
+export type IdentifierBucket = 'record';
 
 // provided for additional debuggability
 export const DEBUG_CLIENT_ORIGINATED: unique symbol = symbol('record-originated-on-client');
@@ -200,14 +200,10 @@ export type GenerationMethod = (data: ResourceData | { type: string }, bucket: I
   @public
   @static
 */
+
 export type UpdateMethod = {
   (identifier: StableRecordIdentifier, newData: ResourceData, bucket: 'record'): void;
   (identifier: StableIdentifier, newData: unknown, bucket: never): void;
-  (
-    identifier: StableIdentifier | StableRecordIdentifier,
-    newData: ResourceData | unknown,
-    bucket: IdentifierBucket
-  ): void;
 };
 
 /**

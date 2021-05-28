@@ -328,12 +328,12 @@ abstract class CoreStore extends Service {
           number: 'NumberTransform',
           string: 'StringTransform',
         };
-        type Mappings = keyof typeof Mapping;
-        const keys = Object.keys(Mapping) as Mappings[];
+        type MapKeys = keyof typeof Mapping;
+        const keys = Object.keys(Mapping) as MapKeys[];
         let shouldWarn = false;
 
         let owner = getOwner(this);
-        keys.forEach((attributeType: Mappings) => {
+        keys.forEach((attributeType) => {
           const transformFactory = owner.factoryFor(`transform:${attributeType}`);
 
           if (!transformFactory) {
