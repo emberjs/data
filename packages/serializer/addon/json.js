@@ -583,7 +583,7 @@ const JSONSerializer = Serializer.extend({
           delete hash[payloadField];
         });
 
-        return this._super.apply(this, arguments);
+        return super.normalize(...arguments);
       }
     }
     ```
@@ -1172,7 +1172,7 @@ const JSONSerializer = Serializer.extend({
     export default class ApplicationSerializer extends JSONSerializer {
       serializeAttribute(snapshot, json, key, attributes) {
         json.attributes = json.attributes || {};
-        this._super(snapshot, json.attributes, key, attributes);
+        super.serializeAttribute(snapshot, json.attributes, key, attributes);
       }
     }
     ```
@@ -1274,7 +1274,7 @@ const JSONSerializer = Serializer.extend({
        if (key === 'comments') {
          return;
        } else {
-         this._super(...arguments);
+         super.serializeHasMany(...arguments);
        }
      }
    }
