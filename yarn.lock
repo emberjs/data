@@ -2893,10 +2893,12 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/broccoli-plugin@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.npmjs.org/@types/broccoli-plugin/-/broccoli-plugin-1.3.0.tgz#38f8462fecaebc4e09a32e4d4ed1b9808f75bbca"
-  integrity sha512-SLk4/hFc2kGvgwNFrpn2O1juxFOllcHAywvlo7VwxfExLzoz1GGJ0oIZCwj5fwSpvHw4AWpZjJ1fUvb62PDayQ==
+"@types/broccoli-plugin@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/@types/broccoli-plugin/-/broccoli-plugin-3.0.0.tgz#290fda2270c47a568edfd0cefab8bb840d8bb7b2"
+  integrity sha512-f+TcsARR2PovfFRKFdCX0kfH/QoM3ZVD2h1rl2mNvrKO0fq2uBNCBsTU3JanfU4COCt5cXpTfARyUsERlC8vIw==
+  dependencies:
+    broccoli-plugin "*"
 
 "@types/chai-as-promised@^7.1.2":
   version "7.1.3"
@@ -3119,11 +3121,6 @@
   version "1.0.0"
   resolved "https://registry.npmjs.org/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
   integrity sha512-OCutwjDZ4aFS6PB1UZ988C4YgwlBHJd6wCeQqaLdmadZ/7e+w79+hbMUFC1QXDNCmdyoRfAFdm0RypzwR+Qpag==
-
-"@types/estree@*":
-  version "0.0.45"
-  resolved "https://registry.npmjs.org/@types/estree/-/estree-0.0.45.tgz#e9387572998e5ecdac221950dab3e8c3b16af884"
-  integrity sha512-jnqIUKDUqJbDIUxm0Uj7bnlMnRm1T/eZ9N+AVMqhPgzrba2GhGG5o/jCTwmdPK709nEZsGoMzXEDUjcXHa3W0g==
 
 "@types/express-serve-static-core@*":
   version "4.17.9"
@@ -3535,7 +3532,7 @@ acorn@^6.0.1, acorn@^6.0.2:
   resolved "https://registry.npmjs.org/acorn/-/acorn-6.4.1.tgz#531e58ba3f51b9dacb9a6646ca4debf5b14ca474"
   integrity sha512-ZVA9k326Nwrj3Cj9jlh3wGFutC2ZornPNARZwsNYqQYgN0EsV2d53w5RN/co65Ohn4sUAUtb1rSUAOD6XN9idA==
 
-acorn@^7.1.0, acorn@^7.1.1:
+acorn@^7.1.1:
   version "7.4.0"
   resolved "https://registry.npmjs.org/acorn/-/acorn-7.4.0.tgz#e1ad486e6c54501634c6c397c5c121daa383607c"
   integrity sha512-+G7P8jJmCHr+S+cLfQxygbWhXy+8YTVGzAkpEbcLo2mLoL7tij/VG41QSHACSf5QgYRhMZYHuNc6drJaO0Da+w==
@@ -5273,10 +5270,10 @@ broccoli-output-wrapper@^2.0.0:
   dependencies:
     heimdalljs-logger "^0.1.10"
 
-broccoli-output-wrapper@^3.2.1:
-  version "3.2.3"
-  resolved "https://registry.npmjs.org/broccoli-output-wrapper/-/broccoli-output-wrapper-3.2.3.tgz#e5c9de7c881570eb4c0b0d194bb12d9671b25a9b"
-  integrity sha512-vzbm4j59Wr5vr/O50LD43Np1jbLBWJ/vhppzL/UXWf39xac9grJtrlx9SSy+pDRNT2LGBHNIGPOhdqwp94q2Pg==
+broccoli-output-wrapper@^3.2.5:
+  version "3.2.5"
+  resolved "https://registry.npmjs.org/broccoli-output-wrapper/-/broccoli-output-wrapper-3.2.5.tgz#514b17801c92922a2c2f87fd145df2a25a11bc5f"
+  integrity sha512-bQAtwjSrF4Nu0CK0JOy5OZqw9t5U0zzv2555EA/cF8/a8SLDTIetk9UgrtMVw7qKLKdSpOZ2liZNeZZDaKgayw==
   dependencies:
     fs-extra "^8.1.0"
     heimdalljs-logger "^0.1.10"
@@ -5338,6 +5335,19 @@ broccoli-persistent-filter@^3.1.0:
     symlink-or-copy "^1.0.1"
     sync-disk-cache "^2.0.0"
 
+broccoli-plugin@*, broccoli-plugin@^4.0.1, broccoli-plugin@^4.0.2, broccoli-plugin@^4.0.3, broccoli-plugin@^4.0.7:
+  version "4.0.7"
+  resolved "https://registry.npmjs.org/broccoli-plugin/-/broccoli-plugin-4.0.7.tgz#dd176a85efe915ed557d913744b181abe05047db"
+  integrity sha512-a4zUsWtA1uns1K7p9rExYVYG99rdKeGRymW0qOCNkvDPHQxVi3yVyJHhQbM3EZwdt2E0mnhr5e0c/bPpJ7p3Wg==
+  dependencies:
+    broccoli-node-api "^1.7.0"
+    broccoli-output-wrapper "^3.2.5"
+    fs-merger "^3.2.1"
+    promise-map-series "^0.3.0"
+    quick-temp "^0.1.8"
+    rimraf "^3.0.2"
+    symlink-or-copy "^1.3.1"
+
 broccoli-plugin@1.1.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/broccoli-plugin/-/broccoli-plugin-1.1.0.tgz#73e2cfa05f8ea1e3fc1420c40c3d9e7dc724bf02"
@@ -5358,7 +5368,7 @@ broccoli-plugin@^1.0.0, broccoli-plugin@^1.1.0, broccoli-plugin@^1.2.0, broccoli
     rimraf "^2.3.4"
     symlink-or-copy "^1.1.8"
 
-broccoli-plugin@^2.0.0, broccoli-plugin@^2.1.0:
+broccoli-plugin@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/broccoli-plugin/-/broccoli-plugin-2.1.0.tgz#2fab6c578219cfcc64f773e9616073313fc8b334"
   integrity sha512-ElE4caljW4slapyEhSD9jU9Uayc8SoSABWdmY9SqbV8DHNxU6xg1jJsPcMm+cXOvggR3+G+OXAYQeFjWVnznaw==
@@ -5381,33 +5391,20 @@ broccoli-plugin@^3.1.0:
     rimraf "^2.3.4"
     symlink-or-copy "^1.1.8"
 
-broccoli-plugin@^4.0.1, broccoli-plugin@^4.0.2, broccoli-plugin@^4.0.3:
-  version "4.0.3"
-  resolved "https://registry.npmjs.org/broccoli-plugin/-/broccoli-plugin-4.0.3.tgz#9dcfbfb6a1b27a37cc22e65c071719ce9f92bc1e"
-  integrity sha512-CtAIEYq5K+4yQv8c/BHymOteuyjDAJfvy/asu4LudIWcMSS7dTn3yGI5gNBkwHG+qlRangYkHJNVAcDZMQbSVQ==
+broccoli-rollup@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.npmjs.org/broccoli-rollup/-/broccoli-rollup-5.0.0.tgz#a77b53bcef1b70e988913fee82265c0a4ca530da"
+  integrity sha512-QdMuXHwsdz/LOS8zu4HP91Sfi4ofimrOXoYP/lrPdRh7lJYD87Lfq4WzzUhGHsxMfzANIEvl/7qVHKD3cFJ4tA==
   dependencies:
-    broccoli-node-api "^1.6.0"
-    broccoli-output-wrapper "^3.2.1"
-    fs-merger "^3.1.0"
-    promise-map-series "^0.2.1"
-    quick-temp "^0.1.3"
-    rimraf "^3.0.0"
-    symlink-or-copy "^1.3.0"
-
-broccoli-rollup@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.npmjs.org/broccoli-rollup/-/broccoli-rollup-4.1.1.tgz#7531a24d88ddab9f1bace1c6ee6e6ca74a38d36f"
-  integrity sha512-hkp0dB5chiemi32t6hLe5bJvxuTOm1TU+SryFlZIs95KT9+94uj0C8w6k6CsZ2HuIdIZg6D252t4gwOlcTXrpA==
-  dependencies:
-    "@types/broccoli-plugin" "^1.3.0"
-    broccoli-plugin "^2.0.0"
+    "@types/broccoli-plugin" "^3.0.0"
+    broccoli-plugin "^4.0.7"
     fs-tree-diff "^2.0.1"
     heimdalljs "^0.2.6"
     node-modules-path "^1.0.1"
-    rollup "^1.12.0"
+    rollup "^2.50.0"
     rollup-pluginutils "^2.8.1"
     symlink-or-copy "^1.2.0"
-    walk-sync "^1.1.3"
+    walk-sync "^2.2.0"
 
 broccoli-slow-trees@^3.0.1, broccoli-slow-trees@^3.1.0:
   version "3.1.0"
@@ -9317,7 +9314,7 @@ fs-extra@^9.0.0, fs-extra@^9.0.1:
     jsonfile "^6.0.1"
     universalify "^1.0.0"
 
-fs-merger@^3.0.1, fs-merger@^3.1.0:
+fs-merger@^3.0.1:
   version "3.1.0"
   resolved "https://registry.npmjs.org/fs-merger/-/fs-merger-3.1.0.tgz#f30f74f6c70b2ff7333ec074f3d2f22298152f3b"
   integrity sha512-RZ9JtqugaE8Rkt7idO5NSwcxEGSDZpLmVFjtVQUm3f+bWun7JAU6fKyU6ZJUeUnKdJwGx8uaro+K4QQfOR7vpA==
@@ -9328,6 +9325,17 @@ fs-merger@^3.0.1, fs-merger@^3.1.0:
     fs-tree-diff "^2.0.1"
     rimraf "^2.6.3"
     walk-sync "^2.0.2"
+
+fs-merger@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.npmjs.org/fs-merger/-/fs-merger-3.2.1.tgz#a225b11ae530426138294b8fbb19e82e3d4e0b3b"
+  integrity sha512-AN6sX12liy0JE7C2evclwoo0aCG3PFulLjrTLsJpWh/2mM+DinhpSGqYLbHBBbIW1PLRNcFhJG8Axtz8mQW3ug==
+  dependencies:
+    broccoli-node-api "^1.7.0"
+    broccoli-node-info "^2.1.0"
+    fs-extra "^8.0.1"
+    fs-tree-diff "^2.0.1"
+    walk-sync "^2.2.0"
 
 fs-minipass@^1.2.5:
   version "1.2.7"
@@ -9416,6 +9424,11 @@ fsevents@~2.1.1, fsevents@~2.1.2:
   version "2.1.3"
   resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.1.3.tgz#fb738703ae8d2f9fe900c33836ddebee8b97f23e"
   integrity sha512-Auw9a4AxqWpa9GUfj370BMPzzyncfBABW8Mab7BGWBYDj4Isgq+cDKtx0i6u9jcX9pQDnswsaaOTgTmA5pEjuQ==
+
+fsevents@~2.3.1:
+  version "2.3.2"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz#8a526f78b8fdf4623b709e0b975c52c24c02fd1a"
+  integrity sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==
 
 function-bind@^1.1.1:
   version "1.1.1"
@@ -14117,14 +14130,12 @@ rollup-pluginutils@^2.8.1:
   dependencies:
     estree-walker "^0.6.1"
 
-rollup@^1.12.0:
-  version "1.32.1"
-  resolved "https://registry.npmjs.org/rollup/-/rollup-1.32.1.tgz#4480e52d9d9e2ae4b46ba0d9ddeaf3163940f9c4"
-  integrity sha512-/2HA0Ec70TvQnXdzynFffkjA6XN+1e2pEv/uKS5Ulca40g2L7KuOE3riasHoNVHOsFD5KKZgDsMk1CP3Tw9s+A==
-  dependencies:
-    "@types/estree" "*"
-    "@types/node" "*"
-    acorn "^7.1.0"
+rollup@^2.50.0:
+  version "2.50.2"
+  resolved "https://registry.npmjs.org/rollup/-/rollup-2.50.2.tgz#640c500c68c698f62efb01857e0ff06fcd18181f"
+  integrity sha512-Ra5JkxSiZPZZFnvE68KWtlrLnZGg5LNaV1n1esq4ch69P7ReeoRVlrTuL/k+L/GJfcowA5An0BEhEq2Hfzwl6w==
+  optionalDependencies:
+    fsevents "~2.3.1"
 
 route-recognizer@^0.3.3:
   version "0.3.4"
@@ -15055,7 +15066,7 @@ symbol-tree@^3.2.2:
   resolved "https://registry.npmjs.org/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-symlink-or-copy@^1.0.0, symlink-or-copy@^1.0.1, symlink-or-copy@^1.1.8, symlink-or-copy@^1.2.0, symlink-or-copy@^1.3.0, symlink-or-copy@^1.3.1:
+symlink-or-copy@^1.0.0, symlink-or-copy@^1.0.1, symlink-or-copy@^1.1.8, symlink-or-copy@^1.2.0, symlink-or-copy@^1.3.1:
   version "1.3.1"
   resolved "https://registry.npmjs.org/symlink-or-copy/-/symlink-or-copy-1.3.1.tgz#9506dd64d8e98fa21dcbf4018d1eab23e77f71fe"
   integrity sha512-0K91MEXFpBUaywiwSSkmKjnGcasG/rVBXFLJz5DrgGabpYD6N+3yZrfD6uUIfpuTu65DZLHi7N8CizHc07BPZA==
