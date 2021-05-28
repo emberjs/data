@@ -293,7 +293,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
 
     this._isNew = false;
-    let newCanonicalAttributes: AttributesHash | null = null;
+    let newCanonicalAttributes: AttributesHash | undefined;
     if (data) {
       if (data.id) {
         // didCommit provided an ID, notify the store of it
@@ -303,7 +303,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
       if (data.relationships) {
         this._setupRelationships(data);
       }
-      newCanonicalAttributes = data.attributes || null;
+      newCanonicalAttributes = data.attributes;
     }
     let changedKeys = this._changedKeys(newCanonicalAttributes);
 
@@ -741,7 +741,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
       There seems to be a potential bug here, where we will return keys that are not
       in the schema
   */
-  _changedKeys(updates) {
+  _changedKeys(updates?: AttributesHash) {
     let changedKeys: string[] = [];
 
     if (updates) {

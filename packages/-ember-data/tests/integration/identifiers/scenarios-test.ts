@@ -1,4 +1,4 @@
-import { set } from '@ember/object';
+import EmberObject, { set } from '@ember/object';
 
 import { module, test } from 'qunit';
 import { all, resolve } from 'rsvp';
@@ -7,7 +7,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
-import Serializer from '@ember-data/serializer';
 import Store, {
   recordIdentifierFor,
   setIdentifierForgetMethod,
@@ -17,13 +16,21 @@ import Store, {
 } from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
 
+type IdentifierBucket = import('@ember-data/store/-private/ts-interfaces/identifier').IdentifierBucket;
+
+type StableIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableIdentifier;
+
+type ResourceData = import('@ember-data/store/-private/ts-interfaces/identifier').ResourceData;
+
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
-type ExistingResourceObject =
-  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
 
 function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;
+}
+
+function isResourceData(resource: ResourceData | { type: string }): resource is ResourceData {
+  return 'lid' in resource || 'id' in resource || 'attributes' in resource;
 }
 
 module('Integration | Identifiers - scenarios', function (hooks) {
@@ -37,7 +44,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       id: ConfidentDict<string>;
       username: ConfidentDict<string>;
     };
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -74,9 +81,12 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const { owner } = this;
 
       class User extends Model {
-        @attr() firstName: string;
-        @attr() username: string;
-        @attr() age: number;
+        @attr()
+        declare firstName: string;
+        @attr()
+        declare username: string;
+        @attr()
+        declare age: number;
       }
 
       owner.register('adapter:application', TestAdapter);
@@ -95,14 +105,18 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         id: Object.create(null),
         username: Object.create(null),
       };
-      const generationMethod = (resource: ExistingResourceObject) => {
+      const generationMethod = (resource: ResourceData | { type: string }) => {
         if (typeof resource.type !== 'string' || resource.type.length < 1) {
           throw new Error(`Cannot generate an lid for a record without a type`);
         }
 
         if (resource.type === 'user') {
+          if (!isResourceData(resource)) {
+            return `local:user:${localIdInc++}`;
+          }
+
           let lid = resource.lid;
-          let username = resource.attributes && resource.attributes.username;
+          let username = 'attributes' in resource && resource.attributes && resource.attributes.username;
 
           // try the username cache
           if (!lid && isNonEmptyString(username)) {
@@ -137,11 +151,11 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         }
 
         // handle non user cases
-        if (typeof resource.lid === 'string' && resource.lid.length > 0) {
+        if ('lid' in resource && typeof resource.lid === 'string' && resource.lid.length > 0) {
           return resource.lid;
         }
 
-        if (typeof resource.id === 'string' && resource.id.length > 0) {
+        if ('id' in resource && typeof resource.id === 'string' && resource.id.length > 0) {
           return `remote:${resource.type}:${resource.id}`;
         }
 
@@ -240,7 +254,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     let calls;
     let isQuery = false;
     let secondaryCache: ConfidentDict<string>;
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -277,9 +291,12 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const { owner } = this;
 
       class User extends Model {
-        @attr() firstName: string;
-        @attr() username: string;
-        @attr() age: number;
+        @attr()
+        declare firstName: string;
+        @attr()
+        declare username: string;
+        @attr()
+        declare age: number;
       }
 
       owner.register('adapter:application', TestAdapter);
@@ -296,10 +313,13 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       let localIdInc = 9000;
       secondaryCache = Object.create(null);
 
-      function lidForUser(resource) {
+      function lidForUser(resource: ResourceData | { type: string }): string {
         if (resource.type === 'user') {
+          if (!isResourceData(resource)) {
+            return `local:user:${localIdInc++}`;
+          }
           let lid = resource.lid;
-          let username = resource.attributes && resource.attributes.username;
+          let username = 'attributes' in resource && resource.attributes && resource.attributes.username;
 
           // try the username cache
           if (!lid && isNonEmptyString(username)) {
@@ -334,32 +354,41 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
           return lid;
         }
+        throw new Error(`Unexpected resource type ${resource.type}`);
       }
 
-      const generationMethod = (resource: ExistingResourceObject) => {
-        if (typeof resource.type !== 'string' || resource.type.length < 1) {
+      const generationMethod = (resource: ResourceData | { type: string }, bucket: IdentifierBucket): string => {
+        if (!('type' in resource) || typeof resource.type !== 'string' || resource.type.length < 1) {
           throw new Error(`Cannot generate an lid for a record without a type`);
         }
 
-        if (resource.type === 'user') {
+        if ('type' in resource && resource.type === 'user') {
           return lidForUser(resource);
         }
 
         // handle non user cases
-        if (typeof resource.lid === 'string' && resource.lid.length > 0) {
+        if ('lid' in resource && typeof resource.lid === 'string' && resource.lid.length > 0) {
           return resource.lid;
         }
 
-        if (typeof resource.id === 'string' && resource.id.length > 0) {
+        if ('id' in resource && typeof resource.id === 'string' && resource.id.length > 0) {
           return `remote:${resource.type}:${resource.id}`;
         }
 
         return `local:${resource.type}:${localIdInc++}`;
       };
 
-      const updateMethod = (identifier: StableRecordIdentifier, resource: ExistingResourceObject) => {
-        resource.lid = identifier.lid;
-        lidForUser(resource);
+      const updateMethod = (
+        identifier: StableIdentifier | StableRecordIdentifier,
+        resource: ResourceData | unknown,
+        bucket: 'record' | never
+      ) => {
+        if (bucket === 'record') {
+          (resource as ResourceData).lid = identifier.lid;
+          lidForUser(resource as ResourceData);
+        } else {
+          throw new Error(`Unhandled update for ${bucket}`);
+        }
       };
 
       setIdentifierGenerationMethod(generationMethod);

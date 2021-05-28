@@ -77,7 +77,7 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
   niceMeta.isCollection = meta.kind === 'hasMany';
   niceMeta.isPolymorphic = options && !!options.polymorphic;
 
-  niceMeta.inverseKey = options && options.inverse;
+  niceMeta.inverseKey = (options && options.inverse) || STR_LATER;
   niceMeta.inverseType = STR_LATER;
   niceMeta.inverseIsAsync = BOOL_LATER;
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;

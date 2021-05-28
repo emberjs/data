@@ -439,16 +439,16 @@ export default class InternalModel {
     });
   }
 
-  save(options) {
+  save(options): Promise<void> {
     if (this._deletedRecordWasNew) {
       return Promise.resolve();
     }
     let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer<InternalModel>(promiseLabel);
+    let resolver = RSVP.defer<void>(promiseLabel);
 
     if (REQUEST_SERVICE) {
-      // Casting to narrow due to the feature flag paths inside scheduleSave
-      return this.store.scheduleSave(this, resolver, options) as RSVP.Promise<void>;
+      // Casting to promise to narrow due to the feature flag paths inside scheduleSave
+      return this.store.scheduleSave(this, resolver, options) as Promise<void>;
     } else {
       this.store.scheduleSave(this, resolver, options);
       return resolver.promise;

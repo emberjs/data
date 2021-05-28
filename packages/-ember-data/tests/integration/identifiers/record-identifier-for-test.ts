@@ -1,3 +1,5 @@
+import EmberObject from '@ember/object';
+
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
@@ -5,7 +7,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
-import Serializer from '@ember-data/serializer';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
 module('Integration | Identifiers - recordIdentifierFor', function (hooks) {
@@ -48,7 +49,7 @@ module('Integration | Identifiers - recordIdentifierFor', function (hooks) {
         });
       }
     }
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }

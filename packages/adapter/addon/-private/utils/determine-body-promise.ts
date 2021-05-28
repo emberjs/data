@@ -3,8 +3,10 @@ import { DEBUG } from '@glimmer/env';
 
 import continueOnReject from './continue-on-reject';
 
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+
 type RequestData = import('../../rest').RequestData;
-type Payload = object | string | undefined;
+type Payload = Dict<unknown> | unknown[] | string | undefined;
 
 interface CustomSyntaxError extends SyntaxError {
   payload: Payload;

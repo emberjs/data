@@ -1,6 +1,7 @@
 /**
   @module @ember-data/adapter/json-api
  */
+import { assert } from '@ember/debug';
 import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
@@ -255,10 +256,13 @@ class JSONAPIAdapter extends RESTAdapter {
     return pluralize(dasherized);
   }
 
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
-    const data = serializeIntoHash(store, type, snapshot);
+  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+    const data = serializeIntoHash(store, schema, snapshot);
+    const type = snapshot.modelName;
+    const id = snapshot.id;
+    assert(`Attempted to update the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
 
-    let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
+    let url = this.buildURL(type, id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PATCH', { data: data });
   }

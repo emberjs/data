@@ -3,6 +3,12 @@
 */
 import { symbol } from '../utils/symbol';
 
+type ExistingResourceObject = import('./ember-data-json-api').ExistingResourceObject;
+type ResourceIdentifierObject = import('./ember-data-json-api').ResourceIdentifierObject;
+
+export type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
+export type IdentifierBucket = 'record';
+
 // provided for additional debuggability
 export const DEBUG_CLIENT_ORIGINATED: unique symbol = symbol('record-originated-on-client');
 export const DEBUG_IDENTIFIER_BUCKET: unique symbol = symbol('identifier-bucket');
@@ -157,7 +163,7 @@ export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewR
   @public
   @static
 */
-export type GenerationMethod = (data: Object, bucket: string) => string;
+export type GenerationMethod = (data: ResourceData | { type: string }, bucket: IdentifierBucket) => string;
 
 /**
  Configure a callback for when the identifier cache encounters new resource
@@ -194,7 +200,11 @@ export type GenerationMethod = (data: Object, bucket: string) => string;
   @public
   @static
 */
-export type UpdateMethod = (identifier: StableIdentifier, newData: Object, bucket: string) => void;
+
+export type UpdateMethod = {
+  (identifier: StableRecordIdentifier, newData: ResourceData, bucket: 'record'): void;
+  (identifier: StableIdentifier, newData: unknown, bucket: never): void;
+};
 
 /**
  Configure a callback for when the identifier cache is going to release an identifier.
@@ -214,7 +224,7 @@ export type UpdateMethod = (identifier: StableIdentifier, newData: Object, bucke
   @public
   @static
 */
-export type ForgetMethod = (identifier: StableIdentifier, bucket: string) => void;
+export type ForgetMethod = (identifier: StableIdentifier | StableRecordIdentifier, bucket: IdentifierBucket) => void;
 
 /**
  Configure a callback for when the identifier cache is being torn down.

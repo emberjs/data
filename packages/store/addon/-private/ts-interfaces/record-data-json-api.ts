@@ -1,14 +1,11 @@
+type Dict<T> = import('./utils').Dict<T>;
 type SingleResourceRelationship = import('./ember-data-json-api').SingleResourceRelationship;
 type CollectionResourceRelationship = import('./ember-data-json-api').CollectionResourceRelationship;
 /**
   @module @ember-data/store
 */
 
-export interface AttributesHash {
-  attributes?: {
-    [key: string]: any;
-  };
-}
+export type AttributesHash = Dict<unknown>;
 
 export interface JsonApiResource {
   id?: string | null;
@@ -18,6 +15,7 @@ export interface JsonApiResource {
     [key: string]: SingleResourceRelationship | CollectionResourceRelationship;
   };
   meta?: any;
+  lid?: string;
 }
 
 export interface JsonApiValidationError {

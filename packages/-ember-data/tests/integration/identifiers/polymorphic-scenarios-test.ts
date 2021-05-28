@@ -1,3 +1,5 @@
+import EmberObject from '@ember/object';
+
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
@@ -5,7 +7,6 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Serializer from '@ember-data/serializer';
 import Store from '@ember-data/store';
 
 type RID = { type: string; id: string };
@@ -29,7 +30,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
   module('single-table', function (hooks) {
     let store;
 
-    class TestSerializer extends Serializer {
+    class TestSerializer extends EmberObject {
       normalizeResponse(_, __, payload) {
         return payload;
       }
@@ -39,16 +40,20 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       const { owner } = this;
 
       class Car extends Model {
-        @attr() color: string;
+        @attr()
+        declare color: string;
       }
 
       class Ferrari extends Car {}
       class Bmw extends Car {}
 
       class Dealership extends Model {
-        @attr() name: string;
-        @belongsTo('car', { polymorphic: true, async: true, inverse: null }) bestCar;
-        @hasMany('car', { polymorphic: true, async: true, inverse: null }) allCars;
+        @attr()
+        declare name: string;
+        @belongsTo('car', { polymorphic: true, async: true, inverse: null })
+        declare bestCar;
+        @hasMany('car', { polymorphic: true, async: true, inverse: null })
+        declare allCars;
       }
 
       owner.register('serializer:application', TestSerializer);

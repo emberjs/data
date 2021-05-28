@@ -2,7 +2,7 @@
   @module @ember-data/adapter/rest
 */
 import { getOwner } from '@ember/application';
-import { deprecate, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { join } from '@ember/runloop';
@@ -29,7 +29,7 @@ import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, s
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type FastBoot = import('./-private/fastboot-interface').FastBoot;
-type Payload = Dict<unknown> | string | undefined;
+type Payload = Dict<unknown> | unknown[] | string | undefined;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
@@ -351,6 +351,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
   declare _fastboot: FastBoot;
   declare _najaxRequest: Function;
+  declare host: string | null;
+  declare namespace: string | null;
 
   defaultSerializer = '-rest';
 
@@ -749,6 +751,10 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
+    assert(
+      `Attempted to fetch the hasMany relationship for ${type}, but the record has no id`,
+      typeof id === 'string' && id.length > 0
+    );
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findHasMany'));
 
     return this.ajax(url, 'GET');
@@ -795,6 +801,10 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
+    assert(
+      `Attempted to fetch the belongsTo relationship for ${type}, but the record has no id`,
+      typeof id === 'string' && id.length > 0
+    );
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findBelongsTo'));
     return this.ajax(url, 'GET');
   }
@@ -837,15 +847,16 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @method updateRecord
     @public
     @param {Store} store
-    @param {Model} type
+    @param {Model} schema
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
-    const data = serializeIntoHash(store, type, snapshot, {});
-
-    let id = snapshot.id;
-    let url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
+  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+    const data = serializeIntoHash(store, schema, snapshot, {});
+    const type = snapshot.modelName;
+    const id = snapshot.id;
+    assert(`Attempted to update the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
+    let url = this.buildURL(type, id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PUT', { data });
   }
@@ -862,14 +873,23 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
-    let id = snapshot.id;
+  deleteRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+    const type = snapshot.modelName;
+    const id = snapshot.id;
+    assert(`Attempted to delete the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
 
-    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), 'DELETE');
+    return this.ajax(this.buildURL(type, id, snapshot, 'deleteRecord'), 'DELETE');
   }
 
   _stripIDFromURL(store: Store, snapshot: Snapshot): string {
-    let url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
+    const type = snapshot.modelName;
+    const id = snapshot.id;
+    assert(
+      `Attempted to strip the url from the ${type} record for coalescing, but the record has no id`,
+      typeof id === 'string' && id.length > 0
+    );
+
+    let url = this.buildURL(type, id, snapshot);
 
     let expandedURL = url.split('/');
     // Case when the url is of the format ...something/:id
@@ -878,7 +898,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     // don't do this, then records with id having special characters are not
     // coalesced correctly (see GH #4190 for the reported bug)
     let lastSegment: string = expandedURL[expandedURL.length - 1];
-    let id = snapshot.id;
     if (decodeURIComponent(lastSegment) === id) {
       expandedURL[expandedURL.length - 1] = '';
     } else if (id && endsWith(lastSegment, '?id=' + id)) {
@@ -1000,7 +1019,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
-      return new InvalidError(typeof payload === 'object' ? payload.errors : undefined);
+      return new InvalidError(typeof payload === 'object' && 'errors' in payload ? payload.errors : undefined);
     }
 
     let errors = this.normalizeErrorResponse(status, headers, payload);
@@ -1080,7 +1099,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Promise} promise
   */
-  ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<unknown> {
+  async ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<unknown> {
     let adapter = this;
 
     let requestData: RequestData = {
@@ -1089,20 +1108,15 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     };
 
     if (this.useFetch) {
-      let _response;
       let hash: FetchRequestInit = adapter.ajaxOptions(url, type, options);
-      return this._fetchRequest(hash)
-        .then((response: Response) => {
-          _response = response;
-          return determineBodyPromise(response, requestData);
-        })
-        .then((payload: Payload) => {
-          if (_response.ok && !(payload instanceof Error)) {
-            return fetchSuccessHandler(adapter, payload, _response, requestData);
-          } else {
-            throw fetchErrorHandler(adapter, payload, _response, null, requestData);
-          }
-        });
+      let response = await this._fetchRequest(hash);
+      let payload = await determineBodyPromise(response, requestData);
+
+      if (response.ok && !(payload instanceof Error)) {
+        return fetchSuccessHandler(adapter, payload, response, requestData);
+      } else {
+        throw fetchErrorHandler(adapter, payload, response, null, requestData);
+      }
     } else {
       let hash: JQueryRequestInit = adapter.ajaxOptions(url, type, options);
 
@@ -1256,7 +1270,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @return {Array} errors payload
   */
   normalizeErrorResponse(status: number, _headers: Dict<unknown>, payload: Payload): Dict<unknown>[] {
-    if (payload && typeof payload === 'object' && payload.errors instanceof Array) {
+    if (payload && typeof payload === 'object' && 'errors' in payload && Array.isArray(payload.errors)) {
       return payload.errors;
     } else {
       return [

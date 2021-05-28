@@ -2,35 +2,43 @@
   @module @ember-data/store
 */
 
+type Dict<T> = import('./utils').Dict<T>;
 export interface RelationshipSchema {
+  kind: 'belongsTo' | 'hasMany';
+  type: string; // related type
+  /**
+   * @internal
+   * @deprecated
+   */
+  key: string; // TODO @runspired remove our uses
+  // TODO @runspired should RFC be updated to make this optional?
+  // TODO @runspired sohuld RFC be update to enforce async and inverse are set? else internals need to know
+  // that meta came from DS.Model vs not from DS.Model as defaults should switch.
+  options: {
+    async?: boolean; // controls inverse unloading "client side delete semantics" so we should replace that with a real flag
+    polymorphic?: boolean;
+    inverse?: string | null; // property key on the related type (if any)
+    [key: string]: unknown;
+  };
+  // inverse?: string | null;
+  // inverseIsAsync?: boolean;
+  name: string; // property key for this relationship
+}
+
+export type RelationshipsSchema = Dict<RelationshipSchema>;
+
+export interface AttributeSchema {
   /**
    * @internal
    */
-  kind: 'belongsTo' | 'hasMany';
-  type: string; // related type
-  key: string; // deprecated version of name
-  options: {
-    async?: boolean;
-    polymorphic?: boolean;
-    [key: string]: any;
-  };
-  name: string; // property key for this relationship
-  inverse?: string | null; // property key on the related type (if any)
-}
-
-export interface RelationshipsSchema {
-  [key: string]: RelationshipSchema | undefined;
-}
-
-export interface AttributeSchema {
-  kind: 'attribute';
+  kind: 'attribute'; // TODO @runspired remove usage or guard internally
   name: string;
+
+  // TODO @runspired update RFC to make options optional
   options: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
-  type: string;
+  type: string; // TODO @runspired update RFC to make type optional
 }
 
-export interface AttributesSchema {
-  [key: string]: AttributeSchema | undefined;
-}
+export type AttributesSchema = Dict<AttributeSchema>;

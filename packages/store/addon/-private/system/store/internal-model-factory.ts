@@ -86,11 +86,12 @@ export function internalModelFactoryFor(store: CoreStore): InternalModelFactory 
  * @internal
  */
 export default class InternalModelFactory {
-  private _identityMap: IdentityMap;
-  private _newlyCreated: IdentityMap;
-  public identifierCache: IdentifierCache;
+  declare _identityMap: IdentityMap;
+  declare identifierCache: IdentifierCache;
+  declare store: CoreStore;
 
-  constructor(public store: CoreStore) {
+  constructor(store: CoreStore) {
+    this.store = store;
     this.identifierCache = identifierCacheFor(store);
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
       let intendedIdentifier = identifier;
@@ -325,10 +326,6 @@ export default class InternalModelFactory {
 
   modelMapFor(type: string): InternalModelMap {
     return this._identityMap.retrieve(type);
-  }
-
-  _newlyCreatedModelsFor(type: string): InternalModelMap {
-    return this._newlyCreated.retrieve(type);
   }
 
   clear(type?: string) {
