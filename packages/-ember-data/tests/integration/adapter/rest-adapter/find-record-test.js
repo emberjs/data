@@ -1,5 +1,3 @@
-import { assign } from '@ember/polyfills';
-
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
 
@@ -8,6 +6,7 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
+import { recordIdentifierFor } from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 import { ajaxResponse } from './-ajax-mocks';
@@ -57,19 +56,23 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
   // Ok Identifier tests
   [
     { withType: true, withId: true, desc: 'type and id' },
-    { withType: true, withId: true, desc: 'type, id and lid' },
+    { withType: true, withId: true, withLid: true, desc: 'type, id and lid' },
     {
       withType: true,
       withLid: true,
       desc: 'type and lid',
     },
     {
+      withLid: true,
+      desc: 'lid only',
+    },
+    {
       withType: true,
       withLid: true,
-      extra: { id: null },
-      desc: 'type, null id, and lid',
+      withOptions: true,
+      desc: 'type lid and options',
     },
-  ].forEach(({ withType, withId, withLid, extra, desc }) => {
+  ].forEach(({ withType, withId, withLid, withOptions, desc }) => {
     test(`findRecord - basic payload (${desc})`, async function (assert) {
       const Post = Model.extend({
         name: attr('string'),
@@ -92,14 +95,16 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       }
       if (withLid) {
         // create the identifier without creating a record
-        const identifier = store.identifierCache.getOrCreateRecordIdentifier({ ...findRecordArgs, id });
+        const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id });
         findRecordArgs.lid = identifier.lid;
       }
-      if (extra) {
-        assign(findRecordArgs, extra);
-      }
 
-      const post = await store.findRecord(findRecordArgs);
+      let post;
+      if (withOptions) {
+        post = await store.findRecord(findRecordArgs, {});
+      } else {
+        post = await store.findRecord(findRecordArgs);
+      }
       const { passedUrl, passedVerb, passedHash } = ajaxCallback();
 
       assert.strictEqual(passedUrl, '/posts/1');
@@ -111,16 +116,26 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     });
   });
 
+  test(`findRecord - will succeed for an un-fetchable record if no request is needed and the record exists`, async function (assert) {
+    const Post = Model.extend({
+      name: attr('string'),
+    });
+    this.owner.register('model:post', Post);
+    this.owner.register('adapter:application', RESTAdapter.extend());
+    this.owner.register('serializer:application', RESTSerializer.extend());
+
+    const store = this.owner.lookup('service:store');
+    const record = store.createRecord('post');
+    const identifier = recordIdentifierFor(record);
+
+    const foundRecord = await store.findRecord(identifier, { reload: false, backgroundReload: false });
+    assert.strictEqual(record, foundRecord, 'We were able to findRecord');
+  });
+
   // Error Identifier Tests
-  [
-    {
-      withType: true,
-      extra: { id: null },
-      desc: 'type and no id',
-      errorMsg: 'Assertion Failed: Expected an identifier object with (type and id) or lid',
-    },
-  ].forEach(({ withType, withLid, extra, desc, errorMsg }) => {
-    testInDebug(`findRecord - will assert with (${desc})`, async function (assert) {
+  testInDebug(
+    `findRecord - will assert when the identifier is un-fetchable and a request is needed (no record at all)`,
+    async function (assert) {
       const Post = Model.extend({
         name: attr('string'),
       });
@@ -129,24 +144,36 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       this.owner.register('serializer:application', RESTSerializer.extend());
 
       const store = this.owner.lookup('service:store');
-      const findRecordArgs = Object.create(null);
-      if (withType) {
-        findRecordArgs.type = 'post';
-      }
-      if (withLid) {
-        // create the identifier without creating a record
-        const identifier = store.identifierCache.getOrCreateRecordIdentifier({ ...findRecordArgs, id: '1' });
-        findRecordArgs.lid = identifier.lid;
-      }
-      if (extra) {
-        assign(findRecordArgs, extra);
-      }
+      // create an identifier that is un-fetchable
+      const identifier = store.identifierCache.createIdentifierForNewRecord({ type: 'post' });
 
       assert.expectAssertion(async () => {
-        await store.findRecord(findRecordArgs);
-      }, errorMsg);
-    });
-  });
+        await store.findRecord(identifier);
+      }, '');
+    }
+  );
+
+  testInDebug(
+    `findRecord - will assert when the identifier is un-fetchable and a request is needed (reload)`,
+    async function (assert) {
+      const Post = Model.extend({
+        name: attr('string'),
+      });
+      this.owner.register('model:post', Post);
+      this.owner.register('adapter:application', RESTAdapter.extend());
+      this.owner.register('serializer:application', RESTSerializer.extend());
+
+      const store = this.owner.lookup('service:store');
+
+      // create an identifier that is un-fetchable
+      const record = store.createRecord('post');
+      const identifier = recordIdentifierFor(record);
+
+      assert.expectAssertion(async () => {
+        await store.findRecord(identifier, { reload: true, backgroundReload: false });
+      }, '');
+    }
+  );
 
   test('findRecord - passes buildURL a requestType', async function (assert) {
     const Post = Model.extend({

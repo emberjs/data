@@ -81,8 +81,6 @@ type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').Sin
 type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
 type JsonApiDocument = import('../ts-interfaces/ember-data-json-api').JsonApiDocument;
 type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
-type ResourceIdentifier = import('../ts-interfaces/ember-data-json-api').ResourceIdentifier;
-type ExistingResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
@@ -1170,12 +1168,9 @@ abstract class CoreStore extends Service {
     @return {Promise} promise
   */
   findRecord(resource: string, id: string | number, options?: FindOptions): PromiseProxy<DSModel>;
+  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): PromiseProxy<DSModel>;
   findRecord(
-    resource: ExistingResourceIdentifierObject | ResourceIdentifier,
-    options?: FindOptions
-  ): PromiseProxy<DSModel>;
-  findRecord(
-    resource: string | ExistingResourceIdentifierObject | ResourceIdentifier,
+    resource: string | ResourceIdentifierObject,
     id?: string | number | FindOptions,
     options?: FindOptions
   ): PromiseProxy<DSModel> {
@@ -1187,26 +1182,19 @@ abstract class CoreStore extends Service {
       `You need to pass a modelName or resource identifier as the first argument to the store's findRecord method`,
       isPresent(resource)
     );
-    if (arguments.length > 1) {
-      let modelName = resource as string;
-      assert(
-        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-        typeof modelName === 'string'
-      );
-      const type = normalizeModelName(modelName);
-      const normalizedId = ensureStringId(id as string | number);
-      resource = constructResource(type, normalizedId);
+    if (isMaybeIdentifier(resource)) {
+      options = id as FindOptions | undefined;
     } else {
       assert(
-        `Expected an identifier object with (type and id) or lid`,
-        arguments.length === 1 && isMaybeIdentifier(resource)
+        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${resource}`,
+        typeof resource === 'string'
       );
-      options = id as FindOptions;
+      const type = normalizeModelName(resource);
+      const normalizedId = ensureStringId(id as string | number);
+      resource = constructResource(type, normalizedId);
     }
 
-    const internalModel = internalModelFactoryFor(this).lookup(
-      resource as ExistingResourceIdentifierObject | ResourceIdentifier
-    );
+    const internalModel = internalModelFactoryFor(this).lookup(resource);
     options = options || {};
 
     if (!internalModel.currentState.isLoaded) {
@@ -1647,10 +1635,7 @@ abstract class CoreStore extends Service {
     @since 2.5.0
     @return {RecordReference}
   */
-  getReference(
-    resource: string | ExistingResourceIdentifierObject | ResourceIdentifier,
-    id: string | number
-  ): RecordReference {
+  getReference(resource: string | ResourceIdentifierObject, id: string | number): RecordReference {
     if (DEBUG) {
       assertDestroyingStore(this, 'getReference');
     }
@@ -1664,10 +1649,9 @@ abstract class CoreStore extends Service {
       resourceIdentifier = constructResource(type, normalizedId);
     }
 
-    assertWithNarrow<ExistingResourceIdentifierObject | ResourceIdentifier>(
-      `getReference expected to receive either a resource identifier or type and id as arguments`,
-      isMaybeIdentifier(resourceIdentifier),
-      resourceIdentifier
+    assert(
+      'getReference expected to receive either a resource identifier or type and id as arguments',
+      isMaybeIdentifier(resourceIdentifier)
     );
 
     let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resourceIdentifier);
@@ -1731,8 +1715,8 @@ abstract class CoreStore extends Service {
     @return {Model|null} record
   */
   peekRecord(identifier: string, id: string | number): RecordInstance | null;
-  peekRecord(identifier: RecordIdentifier | ResourceIdentifier): RecordInstance | null;
-  peekRecord(identifier: RecordIdentifier | ResourceIdentifier | string, id?: string | number): RecordInstance | null {
+  peekRecord(identifier: ResourceIdentifierObject): RecordInstance | null;
+  peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       let stableIdentifier = identifierCacheFor(this).peekRecordIdentifier(identifier);
       if (stableIdentifier) {
@@ -1744,12 +1728,13 @@ abstract class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekRecord');
     }
+
     assert(`You need to pass a model name to the store's peekRecord method`, isPresent(identifier));
-    assertWithNarrow<string>(
+    assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${identifier}`,
-      typeof identifier === 'string',
-      identifier
+      typeof identifier === 'string'
     );
+
     const type = normalizeModelName(identifier);
     const normalizedId = ensureStringId(id);
 
@@ -4066,18 +4051,15 @@ function internalModelForRelatedResource(
   return store._internalModelForResource(identifier);
 }
 
-function isMaybeIdentifier(maybeIdentifier: any): maybeIdentifier is ResourceIdentifierObject {
+function isMaybeIdentifier(
+  maybeIdentifier: string | ResourceIdentifierObject
+): maybeIdentifier is ResourceIdentifierObject {
   return Boolean(
     maybeIdentifier !== null &&
       typeof maybeIdentifier === 'object' &&
-      ((maybeIdentifier.id && maybeIdentifier.type) || maybeIdentifier.lid)
+      (('id' in maybeIdentifier && 'type' in maybeIdentifier && maybeIdentifier.id && maybeIdentifier.type) ||
+        maybeIdentifier.lid)
   );
-}
-
-function assertWithNarrow<T>(msg: string, cond: boolean, value: any): asserts value is T {
-  if (DEBUG && !cond) {
-    throw new Error(msg);
-  }
 }
 
 function assertIdentifierHasId(
