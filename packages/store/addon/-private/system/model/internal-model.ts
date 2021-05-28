@@ -850,10 +850,6 @@ export default class InternalModel {
     return !!this._record;
   }
 
-  /*
-    @method createSnapshot
-    @private
-  */
   createSnapshot(options: FindOptions = {}): Snapshot {
     return new Snapshot(options, this.identifier, this.store);
   }

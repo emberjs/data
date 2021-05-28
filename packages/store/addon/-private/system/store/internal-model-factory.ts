@@ -96,9 +96,10 @@ export default class InternalModelFactory {
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
       let intendedIdentifier = identifier;
       if (identifier.id !== matchedIdentifier.id) {
-        intendedIdentifier = identifier.id === resourceData.id ? identifier : matchedIdentifier;
+        intendedIdentifier = 'id' in resourceData && identifier.id === resourceData.id ? identifier : matchedIdentifier;
       } else if (identifier.type !== matchedIdentifier.type) {
-        intendedIdentifier = identifier.type === resourceData.type ? identifier : matchedIdentifier;
+        intendedIdentifier =
+          'type' in resourceData && identifier.type === resourceData.type ? identifier : matchedIdentifier;
       }
       let altIdentifier = identifier === intendedIdentifier ? matchedIdentifier : identifier;
 
@@ -110,8 +111,14 @@ export default class InternalModelFactory {
       // we cannot merge internalModels when both have records
       // (this may not be strictly true, we could probably swap the internalModel the record points at)
       if (im && otherIm && im.hasRecord && otherIm.hasRecord) {
-        throw new Error(
-          `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to '${resourceData.id}', because that id is already in use by '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
+        if ('id' in resourceData) {
+          throw new Error(
+            `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to '${resourceData.id}', because that id is already in use by '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
+          );
+        }
+        // TODO @runspired determine when this is even possible
+        assert(
+          `Failed to update the RecordIdentifier '${identifier.type}:${identifier.id} (${identifier.lid})' to merge with the detected duplicate identifier '${matchedIdentifier.type}:${matchedIdentifier.id} (${matchedIdentifier.lid})'`
         );
       }
 
@@ -209,7 +216,7 @@ export default class InternalModelFactory {
   }
 
   getByResource(resource: ResourceIdentifierObject): InternalModel {
-    const normalizedResource = constructResource(resource.type as string, resource.id, resource.lid);
+    const normalizedResource = constructResource(resource);
 
     return this.lookup(normalizedResource);
   }

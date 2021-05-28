@@ -89,8 +89,6 @@ export interface NewResourceIdentifierObject {
 }
 
 export interface ResourceIdentifier {
-  type?: string;
-  id?: string;
   lid: string;
 }
 
