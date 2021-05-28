@@ -1020,7 +1020,7 @@ abstract class CoreStore extends Service {
 
     ```app/adapters/application.js
     buildQuery(snapshot) {
-      let query = this._super(...arguments);
+      let query = super.buildQuery(...arguments);
 
       let { fields } = snapshot.adapterOptions;
 

@@ -218,7 +218,7 @@ const JSONSerializer = Serializer.extend({
     the `requestType`.
 
     To override this method with a custom one, make sure to call
-    `return this._super(store, primaryModelClass, payload, id, requestType)` with your
+    `return super.normalizeResponse(store, primaryModelClass, payload, id, requestType)` with your
     pre-processed data.
 
     Here's an example of using `normalizeResponse` manually:
