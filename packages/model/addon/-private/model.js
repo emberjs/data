@@ -104,10 +104,10 @@ function computeOnce(target, key, desc) {
 
 /**
   Base class from which Models can be define.
-  
+
   ```js
   import Model, { attr } from '@ember-data/model';
-  
+
   export default class User extends Model {
     @attr name;
   }
@@ -115,7 +115,7 @@ function computeOnce(target, key, desc) {
 
   @class Model
   @public
-  @extends EmberObject
+  @extends Ember.EmberObject
   @uses EmberData.DeprecatedEvented
 */
 class Model extends EmberObject {

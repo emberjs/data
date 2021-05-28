@@ -200,7 +200,7 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
 
   @class Adapter
   @public
-  @extends EmberObject
+  @extends Ember.EmberObject
 */
 export default class Adapter extends EmberObject implements MinimumAdapterInterface {
   declare _coalesceFindRequests: boolean;

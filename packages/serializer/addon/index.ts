@@ -118,7 +118,7 @@ import EmberObject from '@ember/object';
 
   @class Serializer
   @public
-  @extends EmberObject
+  @extends Ember.EmberObject
 */
 
 export default EmberObject.extend({

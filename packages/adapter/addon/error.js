@@ -42,7 +42,7 @@ import EmberError from '@ember/error';
         return new MaintenanceError();
       }
 
-      return this._super(...arguments);
+      return super.handleResponse(...arguments);
     }
   }
   ```
