@@ -1,4 +1,5 @@
 import EmberObject from '@ember/object';
+import { assign } from '@ember/polyfills';
 
 import { module, test } from 'qunit';
 
@@ -70,33 +71,37 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
     }, /Passing classes to store methods has been removed/);
   });
 
-  // Identifier tests
+  // Ok Identifier tests
+  // createRecord and then peekRecord with using the identifier to get it. Same thing with getReference.
   [
-    { type: 'person', id: '1', desc: 'type and id' },
-    { type: 'person', id: '1', lid: 'person:1', desc: 'type, id and lid' },
-    { type: 'person', desc: 'type and lid', generateLid: true },
-    { type: 'person', id: null, desc: 'type, null id, and lid', generateLid: true },
-  ].forEach(({ type, id, lid, desc, generateLid }) => {
+    { withType: true, withId: true, desc: 'type and id' },
+    { withType: true, withId: true, withLid: true, desc: 'type, id and lid' },
+    { withType: true, withLid: true, desc: 'type and lid'},
+    { withType: true, withLid: true, extra: { id: null }, desc: 'type, null id, and lid' },
+  ].forEach(({ withType, withId, withLid, extra, desc }) => {
     test(`peekRecord (${desc})`, function (assert) {
       let store = this.owner.lookup('service:store');
 
+      let id = '1';
       let person = store.push({
         data: {
           type: 'person',
-          id: '1',
+          id,
         },
       });
 
-      let allArgs = { type, id, lid };
-      let peekRecordArgs = {};
-      Object.keys(allArgs).forEach((key) => {
-        if (typeof allArgs[key] !== 'undefined') {
-          peekRecordArgs[key] = allArgs[key];
-        }
-      });
-
-      if (generateLid) {
+      const peekRecordArgs = Object.create(null);
+      if (withType) {
+        peekRecordArgs.type = 'person';
+      }
+      if (withId) {
+        peekRecordArgs.id = id;
+      }
+      if (withLid) {
         peekRecordArgs.lid = recordIdentifierFor(person).lid;
+      }
+      if (extra) {
+        assign(peekRecordArgs, extra);
       }
 
       assert.equal(

@@ -1,4 +1,5 @@
 import { get } from '@ember/object';
+import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -43,40 +44,61 @@ module('integration/references/record', function (hooks) {
   });
 
   [
-    { type: 'person', id: '1', lid: 'person:1', desc: 'type, id and lid' },
-    { type: 'person', lid: 'TODO', desc: 'type and lid' },
-    { type: 'person', id: '1', lid: 'TODO', desc: 'type, id, and existing lid' },
-    { type: 'person', id: null, lid: 'TODO', desc: 'type, null id, and existing lid' },
-  ].forEach(({ type, id, lid, desc }) => {
+    { withType: true, withId: true, withLid: true, desc: 'type, id and lid' },
+    { withType: true, withLid: true, desc: 'type and lid' },
+    { withType: true, withLid: true, isCreate: true, desc: 'type and lid via store.createRecord (no local id)' },
+    { withType: true, withLid: true, isCreate: true, fromCache: true, desc: 'type and lid from cache via store.createRecord (no local id)' },
+    { withType: true, withLid: true, fromCache: true, desc: 'type and lid from cache' },
+    { withType: true, withId: true, withLid: true, fromCache: true, desc: 'type, id and lid from cache' },
+    { withType: true, withLid: true, exta: { id: null }, desc: 'type, null id, and lid' },
+    { withType: true, withLid: true, exta: { id: null }, isCreate: true, desc: 'type, null id, and lid via store.createRecord' },
+  ].forEach(({ withType, withId, withLid, extra, isCreate, fromCache, desc }) => {
     test(`a RecordReference can be retrieved with ${desc}`, function (assert) {
       let store = this.owner.lookup('service:store');
-      const person = store.push({
-        data: {
-          type: 'person',
-          id: 1,
-          attributes: {
-            name: 'le name',
+      let person;
+      if (isCreate) {
+        person = store.createRecord('person');
+      } else {
+        person = store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'le name',
+            },
           },
-        },
-      });
+        });
+      }
 
-      let allArgs = { type, id, lid };
-      let referenceArgs = {};
-      Object.keys(allArgs).forEach((key) => {
-        if (typeof allArgs[key] !== 'undefined') {
-          referenceArgs[key] = allArgs[key];
+      const getReferenceArgs = Object.create(null);
+      if (withType) {
+        getReferenceArgs.type = 'person';
+      }
+      if (withId && !isCreate) {
+        getReferenceArgs.id = '1';
+      }
+      if (withLid) {
+        if (fromCache) {
+          // create the identifier without creating a record
+          const identifier = store.identifierCache.getOrCreateRecordIdentifier(getReferenceArgs);
+          getReferenceArgs.lid = identifier.lid;
+        } else {
+          getReferenceArgs.lid = recordIdentifierFor(person).lid;
         }
+      }
+      if (extra) {
+        assign(getReferenceArgs, extra);
+      }
 
-        if (key === 'lid' && lid === 'TODO') {
-          referenceArgs[key] = recordIdentifierFor(person).lid;
-        }
-      });
-
-      let recordReference = store.getReference(referenceArgs);
+      let recordReference = store.getReference(getReferenceArgs);
 
       assert.equal(recordReference.remoteType(), 'identity');
       assert.equal(recordReference.type, 'person');
-      assert.equal(recordReference.id(), 1);
+      if (isCreate || (fromCache && !withId)) {
+        assert.equal(recordReference.id(), null);
+      } else {
+        assert.equal(recordReference.id(), 1);
+      }
     });
   });
 
