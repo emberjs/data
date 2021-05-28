@@ -47,11 +47,23 @@ module('integration/references/record', function (hooks) {
     { withType: true, withId: true, withLid: true, desc: 'type, id and lid' },
     { withType: true, withLid: true, desc: 'type and lid' },
     { withType: true, withLid: true, isCreate: true, desc: 'type and lid via store.createRecord (no local id)' },
-    { withType: true, withLid: true, isCreate: true, fromCache: true, desc: 'type and lid from cache via store.createRecord (no local id)' },
+    {
+      withType: true,
+      withLid: true,
+      isCreate: true,
+      fromCache: true,
+      desc: 'type and lid from cache via store.createRecord (no local id)',
+    },
     { withType: true, withLid: true, fromCache: true, desc: 'type and lid from cache' },
     { withType: true, withId: true, withLid: true, fromCache: true, desc: 'type, id and lid from cache' },
     { withType: true, withLid: true, exta: { id: null }, desc: 'type, null id, and lid' },
-    { withType: true, withLid: true, exta: { id: null }, isCreate: true, desc: 'type, null id, and lid via store.createRecord' },
+    {
+      withType: true,
+      withLid: true,
+      exta: { id: null },
+      isCreate: true,
+      desc: 'type, null id, and lid via store.createRecord',
+    },
   ].forEach(({ withType, withId, withLid, extra, isCreate, fromCache, desc }) => {
     test(`a RecordReference can be retrieved with ${desc}`, function (assert) {
       let store = this.owner.lookup('service:store');

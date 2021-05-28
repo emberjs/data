@@ -76,7 +76,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   [
     { withType: true, withId: true, desc: 'type and id' },
     { withType: true, withId: true, withLid: true, desc: 'type, id and lid' },
-    { withType: true, withLid: true, desc: 'type and lid'},
+    { withType: true, withLid: true, desc: 'type and lid' },
     { withType: true, withLid: true, extra: { id: null }, desc: 'type, null id, and lid' },
   ].forEach(({ withType, withId, withLid, extra, desc }) => {
     test(`peekRecord (${desc})`, function (assert) {

@@ -51,11 +51,11 @@ export default class Snapshot implements Snapshot {
   declare _internalModel: InternalModel;
   declare _changedAttributes: ChangedAttributesHash;
 
-  public identifier: StableRecordIdentifier;
-  public modelName: string;
-  public id: string | null;
-  public include?: unknown;
-  public adapterOptions?: Dict<unknown>;
+  declare identifier: StableRecordIdentifier;
+  declare modelName: string;
+  declare id: string | null;
+  declare include?: unknown;
+  declare adapterOptions?: Dict<unknown>;
 
   /**
    * @method constructor

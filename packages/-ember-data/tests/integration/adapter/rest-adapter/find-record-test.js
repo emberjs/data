@@ -1,7 +1,7 @@
+import { assign } from '@ember/polyfills';
+
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
-
-import { assign } from '@ember/polyfills';
 
 import { setupTest } from 'ember-qunit';
 
