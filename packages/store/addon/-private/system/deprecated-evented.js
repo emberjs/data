@@ -27,10 +27,15 @@ if (DEBUG) {
     return deprecations;
   };
 
+  /**
+   * `DeprecatedEvented` is a mixin that proxies to the `Ember.Evented`
+   * mixin without logging deprecation warnings.
+   *
+   * @class DeprecatedEvented
+   * @private
+   * @uses Ember.Evented
+   */
   DeprecatedEvented = Mixin.create(Evented, {
-    /*
-     * Provides a way to call Evented without logging deprecation warnings
-     */
     _has(name) {
       return Evented.mixins[0].properties.has.call(this, name);
     },
