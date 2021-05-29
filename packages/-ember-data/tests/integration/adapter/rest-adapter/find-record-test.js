@@ -67,6 +67,11 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       desc: 'lid only',
     },
     {
+      withLid: true,
+      withOptions: true,
+      desc: 'lid only and options',
+    },
+    {
       withType: true,
       withLid: true,
       withOptions: true,
@@ -107,12 +112,21 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       }
       const { passedUrl, passedVerb, passedHash } = ajaxCallback();
 
-      assert.strictEqual(passedUrl, '/posts/1');
-      assert.strictEqual(passedVerb, 'GET');
+      assert.equal(passedUrl, '/posts/1');
+      assert.equal(passedVerb, 'GET');
       assert.deepEqual(passedHash.data, {});
 
-      assert.strictEqual(post.get('id'), '1');
-      assert.strictEqual(post.get('name'), 'Rails is omakase');
+      assert.equal(post.get('id'), '1');
+      assert.equal(post.get('name'), 'Rails is omakase');
+
+      // stress tests
+      let peekPost = await store.peekRecord(findRecordArgs);
+      assert.strictEqual(peekPost, post, 'peekRecord returns same post');
+
+      let recordReference = store.getReference(findRecordArgs);
+      assert.equal(recordReference.remoteType(), 'identity');
+      assert.equal(recordReference.type, 'post');
+      assert.equal(recordReference.id(), 1);
     });
   });
 
@@ -125,11 +139,21 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     this.owner.register('serializer:application', RESTSerializer.extend());
 
     const store = this.owner.lookup('service:store');
+    // create record locally so no fetch is needed
     const record = store.createRecord('post');
     const identifier = recordIdentifierFor(record);
 
-    const foundRecord = await store.findRecord(identifier, { reload: false, backgroundReload: false });
-    assert.strictEqual(record, foundRecord, 'We were able to findRecord');
+    const foundPost = await store.findRecord(identifier, { reload: false, backgroundReload: false });
+    assert.strictEqual(record, foundPost, 'We were able to findRecord');
+
+    // stress tests
+    let peekPost = await store.peekRecord(identifier);
+    assert.strictEqual(peekPost, foundPost, 'peekRecord returns same post');
+
+    let recordReference = store.getReference(identifier);
+    assert.equal(recordReference.remoteType(), 'identity');
+    assert.equal(recordReference.type, 'post');
+    assert.equal(recordReference.id(), null);
   });
 
   // Error Identifier Tests
@@ -149,31 +173,37 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
 
       assert.expectAssertion(async () => {
         await store.findRecord(identifier);
-      }, '');
+      }, 'Assertion Failed: Attempted to schedule a fetch for a record without an id.');
     }
   );
 
-  testInDebug(
-    `findRecord - will assert when the identifier is un-fetchable and a request is needed (reload)`,
-    async function (assert) {
-      const Post = Model.extend({
-        name: attr('string'),
-      });
-      this.owner.register('model:post', Post);
-      this.owner.register('adapter:application', RESTAdapter.extend());
-      this.owner.register('serializer:application', RESTSerializer.extend());
+  [
+    { options: { reload: true, backgroundReload: false }, desc: 'reload true' },
+    { options: { reload: false, backgroundReload: true }, desc: 'backgroundReload true' },
+    { options: { reload: true, backgroundReload: true }, desc: 'reload true and backgroundReload true' },
+  ].forEach(({ options, desc }) => {
+    testInDebug(
+      `findRecord - will assert when the identifier is un-fetchable and a request is needed (${desc})`,
+      async function (assert) {
+        const Post = Model.extend({
+          name: attr('string'),
+        });
+        this.owner.register('model:post', Post);
+        this.owner.register('adapter:application', RESTAdapter.extend());
+        this.owner.register('serializer:application', RESTSerializer.extend());
 
-      const store = this.owner.lookup('service:store');
+        const store = this.owner.lookup('service:store');
 
-      // create an identifier that is un-fetchable
-      const record = store.createRecord('post');
-      const identifier = recordIdentifierFor(record);
+        // create an record with no id and identifier that is un-fetchable
+        const record = store.createRecord('post');
+        const identifier = recordIdentifierFor(record);
 
-      assert.expectAssertion(async () => {
-        await store.findRecord(identifier, { reload: true, backgroundReload: false });
-      }, '');
-    }
-  );
+        assert.expectAssertion(async () => {
+          await store.findRecord(identifier, options);
+        }, 'Assertion Failed: Attempted to schedule a fetch for a record without an id.');
+      }
+    );
+  });
 
   test('findRecord - passes buildURL a requestType', async function (assert) {
     const Post = Model.extend({

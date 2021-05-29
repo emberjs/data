@@ -72,30 +72,42 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   });
 
   // Ok Identifier tests
-  // createRecord and then peekRecord with using the identifier to get it. Same thing with getReference.
   [
     { withType: true, withId: true, desc: 'type and id' },
     { withType: true, withId: true, withLid: true, desc: 'type, id and lid' },
+    {
+      withType: true,
+      withId: true,
+      withLid: true,
+      isCreate: true,
+      desc: 'type, id and lid with store.createRecord',
+    },
     { withType: true, withLid: true, desc: 'type and lid' },
+    { withType: true, withLid: true, isCreate: true, desc: 'type and lid with store.createRecord' },
     { withType: true, withLid: true, extra: { id: null }, desc: 'type, null id, and lid' },
-  ].forEach(({ withType, withId, withLid, extra, desc }) => {
+  ].forEach(({ withType, withId, withLid, extra, isCreate, desc }) => {
     test(`peekRecord (${desc})`, function (assert) {
       let store = this.owner.lookup('service:store');
 
-      let id = '1';
-      let person = store.push({
-        data: {
-          type: 'person',
-          id,
-        },
-      });
+      let person;
+      if (isCreate) {
+        // no id
+        person = store.createRecord('person');
+      } else {
+        person = store.push({
+          data: {
+            type: 'person',
+            id: '1',
+          },
+        });
+      }
 
       const peekRecordArgs = Object.create(null);
       if (withType) {
         peekRecordArgs.type = 'person';
       }
       if (withId) {
-        peekRecordArgs.id = id;
+        peekRecordArgs.id = '1';
       }
       if (withLid) {
         peekRecordArgs.lid = recordIdentifierFor(person).lid;
@@ -104,10 +116,10 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
         assign(peekRecordArgs, extra);
       }
 
-      assert.equal(
+      assert.strictEqual(
         person,
         store.peekRecord(peekRecordArgs),
-        'peekRecord only return the corresponding record in the store'
+        'peekRecord only returns the corresponding record in the store'
       );
     });
   });

@@ -1,6 +1,5 @@
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
-import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
@@ -69,6 +68,7 @@ module('integration/references/record', function (hooks) {
       let store = this.owner.lookup('service:store');
       let person;
       if (isCreate) {
+        // no id
         person = store.createRecord('person');
       } else {
         person = store.push({
@@ -141,8 +141,8 @@ module('integration/references/record', function (hooks) {
     let store = this.owner.lookup('service:store');
     let Person = store.modelFor('person');
 
-    var deferred = defer();
-    var recordReference = store.getReference('person', 1);
+    let deferred = defer();
+    let recordReference = store.getReference('person', 1);
 
     let pushed = recordReference.push(deferred.promise);
 
@@ -169,26 +169,21 @@ module('integration/references/record', function (hooks) {
     assert.strictEqual(recordReference.value(), null);
   });
 
-  test('value() returns the record when loaded', function (assert) {
+  test('value() returns the record when loaded', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var person;
-    run(function () {
-      person = store.push({
-        data: {
-          type: 'person',
-          id: 1,
-        },
-      });
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+      },
     });
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
     assert.equal(recordReference.value(), person);
   });
 
-  test('load() fetches the record', function (assert) {
-    var done = assert.async();
-
+  test('load() fetches the record', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -204,21 +199,15 @@ module('integration/references/record', function (hooks) {
       });
     };
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      recordReference.load().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito');
-        done();
-      });
-    });
+    let record = await recordReference.load();
+    assert.equal(get(record, 'name'), 'Vito');
   });
 
-  test('load() only a single find is triggered', function (assert) {
-    var done = assert.async();
-
-    var deferred = defer();
-    var count = 0;
+  test('load() only a single find is triggered', async function (assert) {
+    let deferred = defer();
+    let count = 0;
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -236,43 +225,31 @@ module('integration/references/record', function (hooks) {
       return deferred.promise;
     };
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      recordReference.load();
-      recordReference.load().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito');
-      });
-    });
+    recordReference.load();
+    let record = await recordReference.load();
+    assert.equal(get(record, 'name'), 'Vito');
 
-    run(function () {
-      deferred.resolve({
-        data: {
-          id: 1,
-          type: 'person',
-          attributes: {
-            name: 'Vito',
-          },
+    deferred.resolve({
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito',
         },
-      });
+      },
     });
 
-    run(function () {
-      recordReference.load().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito');
-
-        done();
-      });
-    });
+    record = await recordReference.load();
+    assert.equal(get(record, 'name'), 'Vito');
   });
 
-  test('reload() loads the record if not yet loaded', function (assert) {
-    var done = assert.async();
-
+  test('reload() loads the record if not yet loaded', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    var count = 0;
+    let count = 0;
     adapter.findRecord = function (store, type, id) {
       count++;
       assert.equal(count, 1);
@@ -288,20 +265,13 @@ module('integration/references/record', function (hooks) {
       });
     };
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      recordReference.reload().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito Coreleone');
-
-        done();
-      });
-    });
+    let record = await recordReference.reload();
+    assert.equal(get(record, 'name'), 'Vito Coreleone');
   });
 
-  test('reload() fetches the record', function (assert) {
-    var done = assert.async();
-
+  test('reload() fetches the record', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -317,26 +287,19 @@ module('integration/references/record', function (hooks) {
       });
     };
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 1,
-          attributes: {
-            name: 'Vito',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Vito',
         },
-      });
+      },
     });
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      recordReference.reload().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito Coreleone');
-
-        done();
-      });
-    });
+    let record = await recordReference.reload();
+    assert.equal(get(record, 'name'), 'Vito Coreleone');
   });
 });
