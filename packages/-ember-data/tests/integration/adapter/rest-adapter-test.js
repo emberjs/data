@@ -313,8 +313,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('updateRecord - hasMany relationships faithfully reflect simultaneous adds and removes', async function (assert) {
-    Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: false }),
+    });
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+
+    this.owner.register('model:post', Post);
+
     adapter.shouldBackgroundReloadRecord = () => false;
 
     store.push({
@@ -952,7 +958,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('findMany - findMany uses a correct URL to access the records', async function (assert) {
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
+
     adapter.coalesceFindRequests = true;
 
     store.push({
@@ -993,7 +1005,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return '/' + requestType + '/' + type;
     };
 
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
+
     adapter.coalesceFindRequests = true;
 
     store.push({
@@ -1029,7 +1047,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('findMany - findMany does not coalesce by default', async function (assert) {
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
 
     store.push({
       data: {
@@ -1067,7 +1090,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('findMany - returning an array populates the array', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
+
     adapter.coalesceFindRequests = true;
 
     store.push({
@@ -1115,7 +1145,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('findMany - returning sideloaded data loads the data', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
+
     adapter.coalesceFindRequests = true;
 
     store.push({
@@ -1184,7 +1221,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     );
 
     adapter.coalesceFindRequests = true;
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
 
     store.push({
       data: {
@@ -1232,7 +1275,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('findHasMany - returning an array populates the array', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
 
     store.push({
       data: {
@@ -1291,7 +1339,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.equal(requestType, 'findHasMany');
     };
 
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
 
     store.push({
       data: {
@@ -1325,7 +1378,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('findMany - returning sideloaded data loads the data (with JSONApi Links)', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
     adapter.coalesceFindRequests = true;
 
     store.push({
@@ -1385,7 +1444,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       })
     );
 
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
 
     store.push({
       data: {
@@ -1469,7 +1533,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     async function (assert) {
       assert.expect(2);
       Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-      Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+      Post = DS.Model.extend({
+        name: DS.attr('string'),
+        comments: DS.hasMany('comment', { async: true }),
+      });
+
+      this.owner.register('model:post', Post);
 
       adapter.coalesceFindRequests = true;
 
@@ -1508,7 +1578,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('groupRecordsForFindMany groups records based on their url', async function (assert) {
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
     adapter.coalesceFindRequests = true;
 
     adapter.buildURL = function (type, id, snapshot) {
@@ -1552,7 +1627,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('groupRecordsForFindMany groups records correctly when singular URLs are encoded as query params', async function (assert) {
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
+
     adapter.coalesceFindRequests = true;
 
     adapter.buildURL = function (type, id, snapshot) {
@@ -1679,7 +1761,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('groupRecordsForFindMany splits up calls for large ids', async function (assert) {
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
 
     assert.expect(2);
 
@@ -1728,7 +1816,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   test('groupRecordsForFindMany groups calls for small ids', async function (assert) {
     Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    this.owner.register('model:post', Post);
 
     assert.expect(1);
 
@@ -2070,9 +2164,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('createRecord - sideloaded records are pushed to the store', async function (assert) {
-    Post.reopen({
+    Post = DS.Model.extend({
+      name: DS.attr('string'),
       comments: DS.hasMany('comment'),
     });
+
+    this.owner.register('model:post', Post);
 
     ajaxResponse({
       post: {
