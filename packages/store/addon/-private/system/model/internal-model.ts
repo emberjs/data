@@ -33,7 +33,7 @@ type ManyRelationship = import('@ember-data/record-data/-private').ManyRelations
 
 type UpgradedMeta = import('@ember-data/record-data/-private/graph/-edge-definition').UpgradedMeta;
 
-type CoreStore = import('../core-store').default;
+type Store = import('../core-store').default;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type ConfidentDict<T> = import('../../ts-interfaces/utils').ConfidentDict<T>;
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
@@ -41,7 +41,6 @@ type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstan
 type JsonApiResource = import('../../ts-interfaces/record-data-json-api').JsonApiResource;
 type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api').JsonApiValidationError;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
-type Store = import('../ds-model-store').default;
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
@@ -76,12 +75,12 @@ if (HAS_MODEL_PACKAGE) {
 
 // TODO this should be integrated with the code removal so we can use it together with the if condition
 // and not alongside it
-function isNotCustomModelClass(store: CoreStore | Store): store is Store {
+function isNotCustomModelClass(store: Store): store is Store {
   return !CUSTOM_MODEL_CLASS;
 }
 interface BelongsToMetaWrapper {
   key: string;
-  store: CoreStore;
+  store: Store;
   originatingInternalModel: InternalModel;
   modelName: string;
 }
@@ -139,7 +138,7 @@ export default class InternalModel {
   declare currentState: any;
   declare _previousState: any;
 
-  constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
+  constructor(public store: Store, public identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
@@ -1457,7 +1456,7 @@ export function extractRecordDataFromRecord(recordOrPromiseRecord) {
   return recordDataFor(recordOrPromiseRecord);
 }
 
-function anyUnloaded(store: CoreStore, relationship: ManyRelationship) {
+function anyUnloaded(store: Store, relationship: ManyRelationship) {
   // Can't use `find` because of IE11 and these arrays are potentially massive
   let state = relationship.currentState;
   let unloaded = false;

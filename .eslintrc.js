@@ -216,7 +216,6 @@ module.exports = {
         'packages/store/addon/-private/system/internal-model-map.ts',
         'packages/store/addon/-private/system/identity-map.ts',
         'packages/store/addon/-private/system/fetch-manager.ts',
-        'packages/store/addon/-private/system/ds-model-store.ts',
         'packages/store/addon/-private/system/core-store.ts',
         'packages/store/addon/-private/system/coerce-id.ts',
         'packages/store/addon/-private/index.ts',

@@ -10,10 +10,10 @@ import normalizeModelName from './normalize-model-name';
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type Store = import('./ds-model-store').default;
+type CoreStore = import('./core-store').default;
 
 type Model = import('@ember-data/model').default;
-type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
+type ModelForMixin = (store: CoreStore, normalizedModelName: string) => Model | null;
 
 let _modelForMixin: ModelForMixin;
 if (HAS_MODEL_PACKAGE) {
@@ -31,7 +31,7 @@ export class DSModelSchemaDefinitionService {
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);
 
-  constructor(public store: Store) {}
+  constructor(public store: CoreStore) {}
 
   // Following the existing RD implementation
   attributesDefinitionFor(identifier: RecordIdentifier | string): AttributesSchema {
@@ -84,7 +84,7 @@ export class DSModelSchemaDefinitionService {
   }
 }
 
-export function getModelFactory(store: Store, cache, normalizedModelName: string): Model | null {
+export function getModelFactory(store: CoreStore, cache, normalizedModelName: string): Model | null {
   let factory = cache[normalizedModelName];
 
   if (!factory) {
@@ -115,7 +115,7 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
   return factory;
 }
 
-export function _lookupModelFactory(store: Store, normalizedModelName: string): Model | null {
+export function _lookupModelFactory(store: CoreStore, normalizedModelName: string): Model | null {
   let owner = getOwner(store);
 
   return owner.factoryFor(`model:${normalizedModelName}`);

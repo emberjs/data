@@ -1,9 +1,10 @@
 /**
   @module @ember-data/store
  */
-import { getOwner } from '@ember/application';
+import { getOwner, setOwner } from '@ember/application';
 import { A } from '@ember/array';
 import { assert, deprecate, inspect, warn } from '@ember/debug';
+import EmberError from '@ember/error';
 import { computed, defineProperty, get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner } from '@ember/runloop';
@@ -25,6 +26,7 @@ import {
 import {
   HAS_ADAPTER_PACKAGE,
   HAS_EMBER_DATA_PACKAGE,
+  HAS_MODEL_PACKAGE,
   HAS_RECORD_DATA_PACKAGE,
   HAS_SERIALIZER_PACKAGE,
 } from '@ember-data/private-build-infra';
@@ -55,6 +57,7 @@ import { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
 import { RecordReference } from './references';
 import { RequestPromise } from './request-cache';
+import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
 import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
@@ -79,6 +82,7 @@ type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').R
 type EmptyResourceDocument = import('../ts-interfaces/ember-data-json-api').EmptyResourceDocument;
 type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
+type DSModelClass = import('@ember-data/model').default;
 type JsonApiDocument = import('../ts-interfaces/ember-data-json-api').JsonApiDocument;
 type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
@@ -218,7 +222,7 @@ interface CoreStore {
   adapter: string;
 }
 
-abstract class CoreStore extends Service {
+class CoreStore extends Service {
   /**
    * EmberData specific backburner instance
    * @property _backburner
@@ -226,6 +230,10 @@ abstract class CoreStore extends Service {
    */
   public _backburner: Backburner = edBackburner;
   public recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
+
+  private _attributesDefCache = Object.create(null);
+  private _relationshipsDefCache = Object.create(null);
+  public _modelFactoryCache = Object.create(null);
 
   declare _notificationManager: NotificationManager;
   private _adapterCache = Object.create(null);
@@ -495,14 +503,33 @@ abstract class CoreStore extends Service {
     assert('should not be here, custom model class ff error', false);
   }
 
-  abstract instantiateRecord(
+  instantiateRecord(
     identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown }, // args passed in to store.createRecord() and processed by recordData to be set on creation
-    recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
+    createRecordArgs: { [key: string]: any },
+    recordDataFor: (identifier: StableRecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): RecordInstance;
+  ): DSModel {
+    let modelName = identifier.type;
 
-  abstract teardownRecord(record: RecordInstance): void;
+    let internalModel = this._internalModelForResource(identifier);
+    let createOptions: any = {
+      store: this,
+      _internalModel: internalModel,
+      container: null,
+    };
+    assign(createOptions, createRecordArgs);
+
+    // ensure that `getOwner(this)` works inside a model instance
+    setOwner(createOptions, getOwner(this));
+
+    delete createOptions.container;
+    let record = this._modelFactoryFor(modelName).create(createOptions);
+    return record;
+  }
+
+  teardownRecord(record: DSModel) {
+    record.destroy();
+  }
 
   _internalDeleteRecord(internalModel: InternalModel) {
     internalModel.deleteRecord();
@@ -510,18 +537,61 @@ abstract class CoreStore extends Service {
 
   // FeatureFlagged in the DSModelStore claas
   _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): AttributesSchema {
-    if (identifier) {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+    if (HAS_MODEL_PACKAGE) {
+      if (CUSTOM_MODEL_CLASS) {
+        if (identifier) {
+          return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+        } else {
+          return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+        }
+      } else {
+        let attributes = this._attributesDefCache[modelName];
+
+        if (attributes === undefined) {
+          let modelClass = this.modelFor(modelName);
+          let attributeMap = get(modelClass, 'attributes');
+
+          attributes = Object.create(null);
+          attributeMap.forEach((meta, name) => (attributes[name] = meta));
+          this._attributesDefCache[modelName] = attributes;
+        }
+
+        return attributes;
+      }
     } else {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+      if (identifier) {
+        return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+      } else {
+        return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+      }
     }
   }
 
   _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
-    if (identifier) {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+    if (HAS_MODEL_PACKAGE) {
+      if (CUSTOM_MODEL_CLASS) {
+        if (identifier) {
+          return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+        } else {
+          return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+        }
+      } else {
+        let relationships = this._relationshipsDefCache[modelName];
+
+        if (relationships === undefined) {
+          let modelClass = this.modelFor(modelName);
+          relationships = get(modelClass, 'relationshipsObject') || null;
+          this._relationshipsDefCache[modelName] = relationships;
+        }
+
+        return relationships;
+      }
     } else {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+      if (identifier) {
+        return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+      } else {
+        return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+      }
     }
   }
 
@@ -530,15 +600,36 @@ abstract class CoreStore extends Service {
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
-    if (CUSTOM_MODEL_CLASS) {
-      return this._schemaDefinitionService;
+    if (HAS_MODEL_PACKAGE) {
+      if (CUSTOM_MODEL_CLASS) {
+        if (!this._schemaDefinitionService) {
+          this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
+        }
+        return this._schemaDefinitionService;
+      } else {
+        throw 'schema service is only available when custom model class feature flag is on';
+      }
+    } else {
+      if (CUSTOM_MODEL_CLASS) {
+        return this._schemaDefinitionService;
+      }
+      assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
     }
-    assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
   }
 
   // TODO Double check this return value is correct
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    return this._relationshipsDefinitionFor(modelName)[key];
+    if (HAS_MODEL_PACKAGE) {
+      if (CUSTOM_MODEL_CLASS) {
+        return this._relationshipsDefinitionFor(modelName)[key];
+      } else {
+        let modelClass = this.modelFor(modelName);
+        let relationshipsByName = get(modelClass, 'relationshipsByName');
+        return relationshipsByName.get(key);
+      }
+    } else {
+      return this._relationshipsDefinitionFor(modelName)[key];
+    }
   }
 
   /**
@@ -557,12 +648,53 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return {subclass of Model | ShimModelClass}
     */
-  modelFor(modelName: string): ShimModelClass {
-    if (DEBUG) {
-      assertDestroyedStoreOnly(this, 'modelFor');
-    }
+  modelFor(modelName: string): ShimModelClass | DSModelClass {
+    if (HAS_MODEL_PACKAGE) {
+      if (DEBUG) {
+        assertDestroyedStoreOnly(this, 'modelFor');
+      }
+      assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
+      assert(
+        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+        typeof modelName === 'string'
+      );
 
-    return getShimClass(this, modelName);
+      let maybeFactory = this._modelFactoryFor(modelName);
+
+      // for factorFor factory/class split
+      let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
+      if (!klass || !klass.isModel) {
+        if (!CUSTOM_MODEL_CLASS || !this.getSchemaDefinitionService().doesTypeExist(modelName)) {
+          throw new EmberError(`No model was found for '${modelName}' and no schema handles the type`);
+        }
+        return getShimClass(this, modelName);
+      } else {
+        return klass;
+      }
+    } else {
+      if (DEBUG) {
+        assertDestroyedStoreOnly(this, 'modelFor');
+      }
+
+      return getShimClass(this, modelName);
+    }
+  }
+
+  _modelFactoryFor(modelName: string): DSModelClass {
+    if (HAS_MODEL_PACKAGE) {
+      if (DEBUG) {
+        assertDestroyedStoreOnly(this, '_modelFactoryFor');
+      }
+      assert(`You need to pass a model name to the store's _modelFactoryFor method`, isPresent(modelName));
+      assert(
+        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+        typeof modelName === 'string'
+      );
+      let normalizedModelName = normalizeModelName(modelName);
+      let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
+
+      return factory;
+    }
   }
 
   // Feature Flagged in DSModelStore
@@ -579,13 +711,38 @@ abstract class CoreStore extends Service {
     @private
   */
   _hasModelFor(modelName: string): boolean {
-    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
+    if (HAS_MODEL_PACKAGE) {
+      if (DEBUG) {
+        assertDestroyingStore(this, '_hasModelFor');
+      }
+      assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+      assert(
+        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+        typeof modelName === 'string'
+      );
 
-    return this.getSchemaDefinitionService().doesTypeExist(modelName);
+      if (CUSTOM_MODEL_CLASS) {
+        return this.getSchemaDefinitionService().doesTypeExist(modelName);
+      } else {
+        assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+        assert(
+          `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+          typeof modelName === 'string'
+        );
+        let normalizedModelName = normalizeModelName(modelName);
+        let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
+
+        return factory !== null;
+      }
+    } else {
+      assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+      assert(
+        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+        typeof modelName === 'string'
+      );
+
+      return this.getSchemaDefinitionService().doesTypeExist(modelName);
+    }
   }
 
   // .....................
