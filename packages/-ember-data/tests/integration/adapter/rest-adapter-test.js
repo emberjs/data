@@ -317,9 +317,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       name: DS.attr('string'),
       comments: DS.hasMany('comment', { async: false }),
     });
-    Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+
+    Comment = DS.Model.extend({
+      name: DS.attr('string'),
+      post: DS.belongsTo('post', { async: false }),
+    });
 
     this.owner.register('model:post', Post);
+    this.owner.register('model:comment', Comment);
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -1504,7 +1509,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.equal(requestType, 'findBelongsTo');
     };
 
-    Comment.reopen({ post: DS.belongsTo('post', { async: true }) });
+    Comment = DS.Model.extend({
+      name: DS.attr('string'),
+      post: DS.belongsTo('post', { async: true }),
+    });
+
+    this.owner.register('model:comment', Comment);
 
     store.push({
       data: {
@@ -1532,13 +1542,18 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     'coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request',
     async function (assert) {
       assert.expect(2);
-      Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+
+      Comment = DS.Model.extend({
+        name: DS.attr('string'),
+        post: DS.belongsTo('post', { async: false }),
+      });
 
       Post = DS.Model.extend({
         name: DS.attr('string'),
         comments: DS.hasMany('comment', { async: true }),
       });
 
+      this.owner.register('model:comment', Comment);
       this.owner.register('model:post', Post);
 
       adapter.coalesceFindRequests = true;
@@ -1577,13 +1592,19 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   );
 
   test('groupRecordsForFindMany groups records based on their url', async function (assert) {
-    Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+    Comment = DS.Model.extend({
+      name: DS.attr('string'),
+      post: DS.belongsTo('post', { async: false }),
+    });
+
     Post = DS.Model.extend({
       name: DS.attr('string'),
       comments: DS.hasMany('comment', { async: true }),
     });
 
+    this.owner.register('model:comment', Comment);
     this.owner.register('model:post', Post);
+
     adapter.coalesceFindRequests = true;
 
     adapter.buildURL = function (type, id, snapshot) {
@@ -1626,13 +1647,17 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('groupRecordsForFindMany groups records correctly when singular URLs are encoded as query params', async function (assert) {
-    Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+    Comment = DS.Model.extend({
+      name: DS.attr('string'),
+      post: DS.belongsTo('post', { async: false }),
+    });
 
     Post = DS.Model.extend({
       name: DS.attr('string'),
       comments: DS.hasMany('comment', { async: true }),
     });
 
+    this.owner.register('model:comment', Comment);
     this.owner.register('model:post', Post);
 
     adapter.coalesceFindRequests = true;
@@ -1760,13 +1785,17 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('groupRecordsForFindMany splits up calls for large ids', async function (assert) {
-    Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+    Comment = DS.Model.extend({
+      name: DS.attr('string'),
+      post: DS.belongsTo('post', { async: false }),
+    });
 
     Post = DS.Model.extend({
       name: DS.attr('string'),
       comments: DS.hasMany('comment', { async: true }),
     });
 
+    this.owner.register('model:comment', Comment);
     this.owner.register('model:post', Post);
 
     assert.expect(2);
@@ -1815,13 +1844,17 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   });
 
   test('groupRecordsForFindMany groups calls for small ids', async function (assert) {
-    Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+    Comment = DS.Model.extend({
+      name: DS.attr('string'),
+      post: DS.belongsTo('post', { async: false }),
+    });
 
     Post = DS.Model.extend({
       name: DS.attr('string'),
       comments: DS.hasMany('comment', { async: true }),
     });
 
+    this.owner.register('model:comment', Comment);
     this.owner.register('model:post', Post);
 
     assert.expect(1);
