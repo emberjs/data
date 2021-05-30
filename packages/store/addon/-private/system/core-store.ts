@@ -1382,6 +1382,8 @@ abstract class CoreStore extends Service {
         return internalModel._promiseProxy;
       }
 
+      assertIdentifierHasId(internalModel.identifier);
+
       let { id, modelName } = internalModel;
       let resolver = defer<InternalModel>(`Fetching ${modelName}' with id: ${id}`);
       let pendingFetchItem: PendingFetchItem = {
