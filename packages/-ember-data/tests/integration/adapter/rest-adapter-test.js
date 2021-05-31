@@ -82,7 +82,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     };
   }
 
-  function ajaxError(responseText, status = '400', headers = {}) {
+  function ajaxError(responseText, status = 400, headers = {}) {
     adapter._fetchRequest = () => {
       return resolve({
         text() {
@@ -1911,7 +1911,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       };
 
       server.get('/posts/1', function () {
-        return ['200', { 'Content-Type': 'application/json' }, JSON.stringify(data)];
+        return [200, { 'Content-Type': 'application/json' }, JSON.stringify(data)];
       });
 
       adapter.handleResponse = function (status, headers, json) {
@@ -1934,11 +1934,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       };
 
       server.get('/posts/1', function () {
-        return ['400', {}, responseText];
+        return [400, {}, responseText];
       });
 
       adapter.handleResponse = function (status, headers, json, requestData) {
-        assert.deepEqual(status, '400');
+        assert.deepEqual(status, 400);
         assert.deepEqual(json, responseText);
         assert.deepEqual(requestData, expectedRequestData);
         return new DS.AdapterError('nope!');
@@ -1960,7 +1960,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     };
 
     server.get('/posts/1', function () {
-      return ['200', { 'Content-Type': 'application/json' }, JSON.stringify(data)];
+      return [200, { 'Content-Type': 'application/json' }, JSON.stringify(data)];
     });
 
     adapter.handleResponse = function (status, headers, json) {
@@ -1980,7 +1980,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.expect(1);
 
     server.post('/posts/1', function () {
-      return ['200', { 'Content-Type': 'application/json' }, 'ok'];
+      return [200, { 'Content-Type': 'application/json' }, 'ok'];
     });
 
     adapter.handleResponse = function (status, headers, json) {
@@ -1998,7 +1998,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.expect(1);
 
     server.get('/posts/1', function () {
-      return ['500', { 'Content-Type': 'application/json' }, 'Internal Server Error'];
+      return [500, { 'Content-Type': 'application/json' }, 'Internal Server Error'];
     });
 
     adapter.handleResponse = function (status, headers, json) {
@@ -2238,7 +2238,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.expect(1);
 
       server.post('/posts', function () {
-        return ['201', { 'Content-Type': 'application/json' }, ''];
+        return [201, { 'Content-Type': 'application/json' }, ''];
       });
 
       let post = store.createRecord('post');
@@ -2268,7 +2268,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         assert.expect(2);
 
         server.put('/posts/1', function () {
-          return ['200', { 'Content-Type': 'application/json' }, ''];
+          return [200, { 'Content-Type': 'application/json' }, ''];
         });
 
         let post = store.push({ data: { id: '1', type: 'post' } });
@@ -2282,7 +2282,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.expect(1);
 
       server.put('/posts/1', function () {
-        return ['200', { 'Content-Type': 'application/json' }, ''];
+        return [200, { 'Content-Type': 'application/json' }, ''];
       });
 
       let post = store.push({ data: { id: '1', type: 'post' } });
@@ -2293,7 +2293,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       assert.expect(1);
 
       server.put('/posts/1', function () {
-        return ['200', { 'Content-Type': 'application/json' }, null];
+        return [200, { 'Content-Type': 'application/json' }, null];
       });
 
       let post = store.push({ data: { id: '1', type: 'post' } });
