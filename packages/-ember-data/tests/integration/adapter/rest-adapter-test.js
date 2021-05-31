@@ -1915,7 +1915,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       });
 
       adapter.handleResponse = function (status, headers, json) {
-        assert.deepEqual(status, '200');
+        assert.deepEqual(status, 200);
         assert.deepEqual(json, data);
         return json;
       };
