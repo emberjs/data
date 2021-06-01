@@ -29,7 +29,8 @@ if (DEBUG) {
 
   /**
    * `DeprecatedEvented` is a mixin that proxies to the `Ember.Evented`
-   * mixin without logging deprecation warnings.
+   * mixin while logging deprecations. It is used by classes that were previously instrumented with
+   * Evented whose evented APIs are now deprecated.
    *
    * @class DeprecatedEvented
    * @private
