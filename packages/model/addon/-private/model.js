@@ -116,7 +116,7 @@ function computeOnce(target, key, desc) {
   @class Model
   @public
   @extends Ember.EmberObject
-  @uses EmberData.DeprecatedEvented
+  @uses DeprecatedEvented
 */
 class Model extends EmberObject {
   init(...args) {
