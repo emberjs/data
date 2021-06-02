@@ -50,11 +50,11 @@ module('integration/references/record', function (hooks) {
       withType: true,
       withLid: true,
       isCreate: true,
-      fromCache: true,
-      desc: 'type and lid from cache via store.createRecord (no local id)',
+      generateLid: true,
+      desc: 'type and generated lid via store.createRecord (no local id)',
     },
-    { withType: true, withLid: true, fromCache: true, desc: 'type and lid from cache' },
-    { withType: true, withId: true, withLid: true, fromCache: true, desc: 'type, id and lid from cache' },
+    { withType: true, withLid: true, generateLid: true, desc: 'type and generated lid' },
+    { withType: true, withId: true, withLid: true, desc: 'type, id and lid from cache' },
     { withType: true, withLid: true, exta: { id: null }, desc: 'type, null id, and lid' },
     {
       withType: true,
@@ -63,7 +63,7 @@ module('integration/references/record', function (hooks) {
       isCreate: true,
       desc: 'type, null id, and lid via store.createRecord',
     },
-  ].forEach(({ withType, withId, withLid, extra, isCreate, fromCache, desc }) => {
+  ].forEach(({ withType, withId, withLid, extra, isCreate, generateLid, desc }) => {
     test(`a RecordReference can be retrieved with ${desc}`, function (assert) {
       let store = this.owner.lookup('service:store');
       let person;
@@ -90,8 +90,8 @@ module('integration/references/record', function (hooks) {
         getReferenceArgs.id = '1';
       }
       if (withLid) {
-        if (fromCache) {
-          // create the identifier without creating a record
+        if (generateLid) {
+          // create the identifier instead of getting it via store record cache
           const identifier = store.identifierCache.getOrCreateRecordIdentifier(getReferenceArgs);
           getReferenceArgs.lid = identifier.lid;
         } else {
@@ -106,7 +106,7 @@ module('integration/references/record', function (hooks) {
 
       assert.equal(recordReference.remoteType(), 'identity');
       assert.equal(recordReference.type, 'person');
-      if (isCreate || (fromCache && !withId)) {
+      if (isCreate || (generateLid && !withId)) {
         assert.equal(recordReference.id(), null);
       } else {
         assert.strictEqual(recordReference.id(), '1');
