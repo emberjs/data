@@ -73,11 +73,6 @@ if (HAS_MODEL_PACKAGE) {
   };
 }
 
-// TODO this should be integrated with the code removal so we can use it together with the if condition
-// and not alongside it
-function isNotCustomModelClass(store: Store): store is Store {
-  return !CUSTOM_MODEL_CLASS;
-}
 interface BelongsToMetaWrapper {
   key: string;
   store: Store;
@@ -300,69 +295,67 @@ export default class InternalModel {
       if (CUSTOM_MODEL_CLASS) {
         this._record = store._instantiateRecord(this, this.modelName, this._recordData, this.identifier, properties);
       } else {
-        if (isNotCustomModelClass(store)) {
-          // lookupFactory should really return an object that creates
-          // instances with the injections applied
-          let createOptions: any = {
-            store,
-            _internalModel: this,
-          };
+        // lookupFactory should really return an object that creates
+        // instances with the injections applied
+        let createOptions: any = {
+          store,
+          _internalModel: this,
+        };
 
-          if (!REQUEST_SERVICE) {
-            createOptions.isError = this.isError;
-            createOptions.adapterError = this.error;
-          }
-
-          if (properties !== undefined) {
-            assert(
-              `You passed '${properties}' as properties for record creation instead of an object.`,
-              typeof properties === 'object' && properties !== null
-            );
-
-            if ('id' in properties) {
-              const id = coerceId(properties.id);
-
-              if (id !== null) {
-                this.setId(id);
-              }
-            }
-
-            // convert relationship Records to RecordDatas before passing to RecordData
-            let defs = store._relationshipsDefinitionFor(this.modelName);
-
-            if (defs !== null) {
-              let keys = Object.keys(properties);
-              let relationshipValue;
-
-              for (let i = 0; i < keys.length; i++) {
-                let prop = keys[i];
-                let def = defs[prop];
-
-                if (def !== undefined) {
-                  if (def.kind === 'hasMany') {
-                    if (DEBUG) {
-                      assertRecordsPassedToHasMany(properties[prop]);
-                    }
-                    relationshipValue = extractRecordDatasFromRecords(properties[prop]);
-                  } else {
-                    relationshipValue = extractRecordDataFromRecord(properties[prop]);
-                  }
-
-                  properties[prop] = relationshipValue;
-                }
-              }
-            }
-          }
-
-          let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
-          assign(createOptions, additionalCreateOptions);
-
-          // ensure that `getOwner(this)` works inside a model instance
-          setOwner(createOptions, getOwner(store));
-
-          this._record = store._modelFactoryFor(this.modelName).create(createOptions);
-          setRecordIdentifier(this._record, this.identifier);
+        if (!REQUEST_SERVICE) {
+          createOptions.isError = this.isError;
+          createOptions.adapterError = this.error;
         }
+
+        if (properties !== undefined) {
+          assert(
+            `You passed '${properties}' as properties for record creation instead of an object.`,
+            typeof properties === 'object' && properties !== null
+          );
+
+          if ('id' in properties) {
+            const id = coerceId(properties.id);
+
+            if (id !== null) {
+              this.setId(id);
+            }
+          }
+
+          // convert relationship Records to RecordDatas before passing to RecordData
+          let defs = store._relationshipsDefinitionFor(this.modelName);
+
+          if (defs !== null) {
+            let keys = Object.keys(properties);
+            let relationshipValue;
+
+            for (let i = 0; i < keys.length; i++) {
+              let prop = keys[i];
+              let def = defs[prop];
+
+              if (def !== undefined) {
+                if (def.kind === 'hasMany') {
+                  if (DEBUG) {
+                    assertRecordsPassedToHasMany(properties[prop]);
+                  }
+                  relationshipValue = extractRecordDatasFromRecords(properties[prop]);
+                } else {
+                  relationshipValue = extractRecordDataFromRecord(properties[prop]);
+                }
+
+                properties[prop] = relationshipValue;
+              }
+            }
+          }
+        }
+
+        let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
+        assign(createOptions, additionalCreateOptions);
+
+        // ensure that `getOwner(this)` works inside a model instance
+        setOwner(createOptions, getOwner(store));
+
+        this._record = store._modelFactoryFor(this.modelName).create(createOptions);
+        setRecordIdentifier(this._record, this.identifier);
       }
       this._triggerDeferredTriggers();
     }
