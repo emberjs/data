@@ -539,7 +539,6 @@ class CoreStore extends Service {
     internalModel.deleteRecord();
   }
 
-  // FeatureFlagged in the DSModelStore claas
   _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): AttributesSchema {
     if (CUSTOM_MODEL_CLASS || !HAS_MODEL_PACKAGE) {
       if (identifier) {
@@ -681,7 +680,6 @@ class CoreStore extends Service {
     }
   }
 
-  // Feature Flagged in DSModelStore
   /**
     Returns whether a ModelClass exists for a given modelName
     This exists for legacy support for the RESTSerializer,
@@ -695,37 +693,22 @@ class CoreStore extends Service {
     @private
   */
   _hasModelFor(modelName: string): boolean {
-    if (HAS_MODEL_PACKAGE) {
-      if (DEBUG) {
-        assertDestroyingStore(this, '_hasModelFor');
-      }
-      assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
-      assert(
-        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-        typeof modelName === 'string'
-      );
+    if (DEBUG) {
+      assertDestroyingStore(this, '_hasModelFor');
+    }
+    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+    assert(
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+      typeof modelName === 'string'
+    );
 
-      if (CUSTOM_MODEL_CLASS) {
-        return this.getSchemaDefinitionService().doesTypeExist(modelName);
-      } else {
-        assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
-        assert(
-          `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-          typeof modelName === 'string'
-        );
-        let normalizedModelName = normalizeModelName(modelName);
-        let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
-
-        return factory !== null;
-      }
-    } else {
-      assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
-      assert(
-        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-        typeof modelName === 'string'
-      );
-
+    if (CUSTOM_MODEL_CLASS || !HAS_MODEL_PACKAGE) {
       return this.getSchemaDefinitionService().doesTypeExist(modelName);
+    } else {
+      let normalizedModelName = normalizeModelName(modelName);
+      let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
+
+      return factory !== null;
     }
   }
 
