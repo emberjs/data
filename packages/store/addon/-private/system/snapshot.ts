@@ -21,6 +21,7 @@ type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
 type AttributeSchema = import('../ts-interfaces/record-data-schemas').AttributeSchema;
 type RelationshipSchema = import('../ts-interfaces/record-data-schemas').RelationshipSchema;
 type Store = import('./core-store').default;
+type FindOptions = import('../ts-interfaces/store').FindOptions;
 type RecordId = string | null;
 
 function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModelSchema {
@@ -36,8 +37,8 @@ export type PrivateSnapshot = ProtoExntends<Snapshot, _PrivateSnapshot>;
 /**
   Snapshot is not directly instantiable.
   Instances are provided to a consuming application's
-  adapters and serializers for certain requests.  
-  
+  adapters and serializers for certain requests.
+
   @class Snapshot
   @public
 */
@@ -54,7 +55,7 @@ export default class Snapshot implements Snapshot {
   declare modelName: string;
   declare id: string | null;
   declare include?: unknown;
-  declare adapterOptions: Dict<unknown>;
+  declare adapterOptions?: Dict<unknown>;
 
   /**
    * @method constructor
@@ -64,7 +65,7 @@ export default class Snapshot implements Snapshot {
    * @param identifier
    * @param _store
    */
-  constructor(options: Dict<any>, identifier: StableRecordIdentifier, private _store: Store) {
+  constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store) {
     let internalModel = (this._internalModel = _store._internalModelForResource(identifier));
     this.modelName = identifier.type;
 
@@ -454,7 +455,7 @@ export default class Snapshot implements Snapshot {
         let internalModel = store._internalModelForResource(member);
         if (!internalModel.isDeleted()) {
           if (returnModeIsIds) {
-            (results as RecordId[]).push(member.id);
+            (results as RecordId[]).push(member.id || null);
           } else {
             (results as Snapshot[]).push(internalModel.createSnapshot());
           }

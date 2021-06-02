@@ -1,5 +1,5 @@
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
+import { assign } from '@ember/polyfills';
 
 import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
@@ -9,6 +9,7 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 
 module('integration/references/record', function (hooks) {
   setupTest(hooks);
@@ -32,75 +33,134 @@ module('integration/references/record', function (hooks) {
     assert.equal(recordReference.id(), 1);
   });
 
-  test('push(object)', function (assert) {
-    var done = assert.async();
-
+  test('a RecordReference can be retrieved via store.getReference(identifier) without local state', function (assert) {
     let store = this.owner.lookup('service:store');
-    let Person = store.modelFor('person');
+    let recordReference = store.getReference({ type: 'person', id: '1' });
 
-    var push;
-    let recordReference = store.getReference('person', 1);
+    assert.equal(recordReference.remoteType(), 'identity');
+    assert.equal(recordReference.type, 'person');
+    assert.equal(recordReference.id(), '1');
+  });
 
-    run(function () {
-      push = recordReference.push({
-        data: {
-          type: 'person',
-          id: 1,
-          attributes: {
-            name: 'le name',
+  [
+    { withType: true, withId: true, withLid: true, desc: 'type, id and lid' },
+    { withType: true, withLid: true, desc: 'type and lid' },
+    { withType: true, withLid: true, isCreate: true, desc: 'type and lid via store.createRecord (no local id)' },
+    {
+      withType: true,
+      withLid: true,
+      isCreate: true,
+      generateLid: true,
+      desc: 'type and generated lid via store.createRecord (no local id)',
+    },
+    { withType: true, withLid: true, generateLid: true, desc: 'type and generated lid' },
+    { withType: true, withId: true, withLid: true, desc: 'type, id and lid from cache' },
+    { withType: true, withLid: true, exta: { id: null }, desc: 'type, null id, and lid' },
+    {
+      withType: true,
+      withLid: true,
+      exta: { id: null },
+      isCreate: true,
+      desc: 'type, null id, and lid via store.createRecord',
+    },
+  ].forEach(({ withType, withId, withLid, extra, isCreate, generateLid, desc }) => {
+    test(`a RecordReference can be retrieved with ${desc}`, function (assert) {
+      let store = this.owner.lookup('service:store');
+      let person;
+      if (isCreate) {
+        // no id
+        person = store.createRecord('person');
+      } else {
+        person = store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'le name',
+            },
           },
-        },
-      });
-    });
+        });
+      }
 
-    assert.ok(push.then, 'RecordReference.push returns a promise');
+      const getReferenceArgs = Object.create(null);
+      if (withType) {
+        getReferenceArgs.type = 'person';
+      }
+      if (withId && !isCreate) {
+        getReferenceArgs.id = '1';
+      }
+      if (withLid) {
+        if (generateLid) {
+          // create the identifier instead of getting it via store record cache
+          const identifier = store.identifierCache.getOrCreateRecordIdentifier(getReferenceArgs);
+          getReferenceArgs.lid = identifier.lid;
+        } else {
+          getReferenceArgs.lid = recordIdentifierFor(person).lid;
+        }
+      }
+      if (extra) {
+        assign(getReferenceArgs, extra);
+      }
 
-    run(function () {
-      push.then(function (record) {
-        assert.ok(record instanceof Person, 'push resolves with the record');
-        assert.equal(get(record, 'name'), 'le name');
+      let recordReference = store.getReference(getReferenceArgs);
 
-        done();
-      });
+      assert.equal(recordReference.remoteType(), 'identity');
+      assert.equal(recordReference.type, 'person');
+      if (isCreate || (generateLid && !withId)) {
+        assert.equal(recordReference.id(), null);
+      } else {
+        assert.strictEqual(recordReference.id(), '1');
+      }
     });
   });
 
-  test('push(promise)', function (assert) {
-    var done = assert.async();
-
+  test('push(object)', async function (assert) {
     let store = this.owner.lookup('service:store');
     let Person = store.modelFor('person');
 
-    var push;
-    var deferred = defer();
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      push = recordReference.push(deferred.promise);
-    });
-
-    assert.ok(push.then, 'RecordReference.push returns a promise');
-
-    run(function () {
-      deferred.resolve({
-        data: {
-          type: 'person',
-          id: 1,
-          attributes: {
-            name: 'le name',
-          },
+    const pushed = recordReference.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'le name',
         },
-      });
+      },
     });
 
-    run(function () {
-      push.then(function (record) {
-        assert.ok(record instanceof Person, 'push resolves with the record');
-        assert.equal(get(record, 'name'), 'le name', 'name is updated');
+    assert.ok(pushed.then, 'RecordReference.push returns a promise');
 
-        done();
-      });
+    let record = await pushed;
+    assert.ok(record instanceof Person, 'push resolves with the record');
+    assert.equal(get(record, 'name'), 'le name');
+  });
+
+  test('push(promise)', async function (assert) {
+    let store = this.owner.lookup('service:store');
+    let Person = store.modelFor('person');
+
+    let deferred = defer();
+    let recordReference = store.getReference('person', 1);
+
+    let pushed = recordReference.push(deferred.promise);
+
+    assert.ok(pushed.then, 'RecordReference.push returns a promise');
+
+    deferred.resolve({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'le name',
+        },
+      },
     });
+
+    let record = await pushed;
+    assert.ok(record instanceof Person, 'push resolves with the record');
+    assert.equal(get(record, 'name'), 'le name', 'name is updated');
   });
 
   test('value() returns null when not yet loaded', function (assert) {
@@ -109,26 +169,21 @@ module('integration/references/record', function (hooks) {
     assert.strictEqual(recordReference.value(), null);
   });
 
-  test('value() returns the record when loaded', function (assert) {
+  test('value() returns the record when loaded', async function (assert) {
     let store = this.owner.lookup('service:store');
 
-    var person;
-    run(function () {
-      person = store.push({
-        data: {
-          type: 'person',
-          id: 1,
-        },
-      });
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+      },
     });
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
     assert.equal(recordReference.value(), person);
   });
 
-  test('load() fetches the record', function (assert) {
-    var done = assert.async();
-
+  test('load() fetches the record', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -144,21 +199,15 @@ module('integration/references/record', function (hooks) {
       });
     };
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      recordReference.load().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito');
-        done();
-      });
-    });
+    let record = await recordReference.load();
+    assert.equal(get(record, 'name'), 'Vito');
   });
 
-  test('load() only a single find is triggered', function (assert) {
-    var done = assert.async();
-
-    var deferred = defer();
-    var count = 0;
+  test('load() only a single find is triggered', async function (assert) {
+    let deferred = defer();
+    let count = 0;
 
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
@@ -176,43 +225,31 @@ module('integration/references/record', function (hooks) {
       return deferred.promise;
     };
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      recordReference.load();
-      recordReference.load().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito');
-      });
-    });
+    recordReference.load();
+    let record = await recordReference.load();
+    assert.equal(get(record, 'name'), 'Vito');
 
-    run(function () {
-      deferred.resolve({
-        data: {
-          id: 1,
-          type: 'person',
-          attributes: {
-            name: 'Vito',
-          },
+    deferred.resolve({
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito',
         },
-      });
+      },
     });
 
-    run(function () {
-      recordReference.load().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito');
-
-        done();
-      });
-    });
+    record = await recordReference.load();
+    assert.equal(get(record, 'name'), 'Vito');
   });
 
-  test('reload() loads the record if not yet loaded', function (assert) {
-    var done = assert.async();
-
+  test('reload() loads the record if not yet loaded', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
-    var count = 0;
+    let count = 0;
     adapter.findRecord = function (store, type, id) {
       count++;
       assert.equal(count, 1);
@@ -228,20 +265,13 @@ module('integration/references/record', function (hooks) {
       });
     };
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      recordReference.reload().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito Coreleone');
-
-        done();
-      });
-    });
+    let record = await recordReference.reload();
+    assert.equal(get(record, 'name'), 'Vito Coreleone');
   });
 
-  test('reload() fetches the record', function (assert) {
-    var done = assert.async();
-
+  test('reload() fetches the record', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -257,26 +287,19 @@ module('integration/references/record', function (hooks) {
       });
     };
 
-    run(function () {
-      store.push({
-        data: {
-          type: 'person',
-          id: 1,
-          attributes: {
-            name: 'Vito',
-          },
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Vito',
         },
-      });
+      },
     });
 
-    var recordReference = store.getReference('person', 1);
+    let recordReference = store.getReference('person', 1);
 
-    run(function () {
-      recordReference.reload().then(function (record) {
-        assert.equal(get(record, 'name'), 'Vito Coreleone');
-
-        done();
-      });
-    });
+    let record = await recordReference.reload();
+    assert.equal(get(record, 'name'), 'Vito Coreleone');
   });
 });

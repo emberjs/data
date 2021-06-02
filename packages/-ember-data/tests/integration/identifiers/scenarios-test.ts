@@ -106,7 +106,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         username: Object.create(null),
       };
       const generationMethod = (resource: ResourceData | { type: string }) => {
-        if (typeof resource.type !== 'string' || resource.type.length < 1) {
+        if (!('type' in resource) || typeof resource.type !== 'string' || resource.type.length < 1) {
           throw new Error(`Cannot generate an lid for a record without a type`);
         }
 
@@ -314,7 +314,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       secondaryCache = Object.create(null);
 
       function lidForUser(resource: ResourceData | { type: string }): string {
-        if (resource.type === 'user') {
+        if ('type' in resource && resource.type === 'user') {
           if (!isResourceData(resource)) {
             return `local:user:${localIdInc++}`;
           }
@@ -354,7 +354,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
           return lid;
         }
-        throw new Error(`Unexpected resource type ${resource.type}`);
+        throw new Error(`Unexpected resource type ${'type' in resource ? resource.type : 'NO TYPE DECLARED'}`);
       }
 
       const generationMethod = (resource: ResourceData | { type: string }, bucket: IdentifierBucket): string => {
@@ -362,7 +362,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
           throw new Error(`Cannot generate an lid for a record without a type`);
         }
 
-        if ('type' in resource && resource.type === 'user') {
+        if (resource.type === 'user') {
           return lidForUser(resource);
         }
 

@@ -95,6 +95,7 @@ type SchemaDefinitionService = import('../ts-interfaces/schema-definition-servic
 type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
 type RequestCache = import('./request-cache').default;
+type FindOptions = import('../ts-interfaces/store').FindOptions;
 
 let _RecordData: RecordDataClass | undefined;
 
@@ -118,6 +119,7 @@ function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
     return Object.freeze(obj);
   }
+
   return obj;
 }
 
@@ -799,29 +801,55 @@ abstract class CoreStore extends Service {
   }
 
   /**
-    This method returns a record for a given type and id combination.
+    This method returns a record for a given identifier or type and id combination.
 
     The `findRecord` method will always resolve its promise with the same
-    object for a given type and `id`.
+    object for a given identifier or type and `id`.
 
     The `findRecord` method will always return a **promise** that will be
     resolved with the record.
 
-    Example
+    **Example 1**
 
     ```app/routes/post.js
     import Route from '@ember/routing/route';
 
     export default class PostRoute extends Route {
-      model(params) {
-        return this.store.findRecord('post', params.post_id);
+      model({ post_id }) {
+        return this.store.findRecord('post', post_id);
       }
     }
     ```
 
-    If the record is not yet available, the store will ask the adapter's `find`
-    method to find the necessary data. If the record is already present in the
-    store, it depends on the reload behavior _when_ the returned promise
+    **Example 2**
+
+    `findRecord` can be called with a single identifier argument instead of the combination
+    of `type` (modelName) and `id` as separate arguments. You may recognize this combo as
+    the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
+
+    ```app/routes/post.js
+    import Route from '@ember/routing/route';
+
+    export default class PostRoute extends Route {
+      model({ post_id: id }) {
+        return this.store.findRecord({ type: 'post', id });
+      }
+    }
+    ```
+
+    **Example 3**
+
+    If you have previously received an lid via an Identifier for this record, and the record
+    has already been assigned an id, you can find the record again using just the lid.
+
+    ```app/routes/post.js
+    let identifier = recordIdentifierFor(person);
+    store.findRecord({ lid: identifier.lid });
+    ```
+
+    If the record is not yet available, the store will ask the adapter's `findRecord`
+    method to retrieve and supply the necessary data. If the record is already present
+    in the store, it depends on the reload behavior _when_ the returned promise
     resolves.
 
     ### Preloading
@@ -831,18 +859,75 @@ abstract class CoreStore extends Service {
 
     For example, if your Ember route looks like `/posts/1/comments/2` and your API route
     for the comment also looks like `/posts/1/comments/2` if you want to fetch the comment
-    without fetching the post you can pass in the post to the `findRecord` call:
+    without also fetching the post you can pass in the post to the `findRecord` call:
 
-    ```javascript
-    store.findRecord('comment', 2, { preload: { post: 1 } });
+    ```app/routes/post-comments.js
+    import Route from '@ember/routing/route';
+
+    export default class PostRoute extends Route {
+      model({ post_id, comment_id: id }) {
+        return this.store.findRecord({ type: 'comment', id, { preload: { post: post_id }} });
+      }
+    }
     ```
 
-    If you have access to the post model you can also pass the model itself:
+    In your adapter you can then access this id without triggering a network request via the
+    snapshot:
+
+    ```app/adapters/application.js
+    import EmberObject from '@ember/object';
+
+    export default class Adapter extends EmberObject {
+
+      findRecord(store, schema, id, snapshot) {
+        let type = schema.modelName;
+
+        if (type === 'comment')
+          let postId = snapshot.belongsTo('post', { id: true });
+
+          return fetch(`./posts/${postId}/comments/${id}`)
+            .then(response => response.json())
+        }
+      }
+    }
+    ```
+
+    This could also be achieved by supplying the post id to the adapter via the adapterOptions
+    property on the options hash.
+
+    ```app/routes/post-comments.js
+    import Route from '@ember/routing/route';
+
+    export default class PostRoute extends Route {
+      model({ post_id, comment_id: id }) {
+        return this.store.findRecord({ type: 'comment', id, { adapterOptions: { post: post_id }} });
+      }
+    }
+    ```
+
+    ```app/adapters/application.js
+    import EmberObject from '@ember/object';
+
+    export default class Adapter extends EmberObject {
+
+      findRecord(store, schema, id, snapshot) {
+        let type = schema.modelName;
+
+        if (type === 'comment')
+          let postId = snapshot.adapterOptions.post;
+
+          return fetch(`./posts/${postId}/comments/${id}`)
+            .then(response => response.json())
+        }
+      }
+    }
+    ```
+
+    If you have access to the post model you can also pass the model itself to preload:
 
     ```javascript
-    store.findRecord('post', 1).then(function (myPostModel) {
-      store.findRecord('comment', 2, { post: myPostModel });
-    });
+    let post = await store.findRecord('post', 1);
+    let comment = await store.findRecord('comment', 2, { post: myPostModel });
     ```
 
     ### Reloading
@@ -991,8 +1076,26 @@ abstract class CoreStore extends Service {
         return this.store.findRecord('post', params.post_id, { include: 'comments' });
       }
     }
-
     ```
+
+    ```app/adapters/application.js
+    import EmberObject from '@ember/object';
+
+    export default class Adapter extends EmberObject {
+
+      findRecord(store, schema, id, snapshot) {
+        let type = schema.modelName;
+
+        if (type === 'post')
+          let includes = snapshot.adapterOptions.include;
+
+          return fetch(`./posts/${postId}?include=${includes}`)
+            .then(response => response.json())
+        }
+      }
+    }
+    ```
+
     In this case, the post's comments would then be available in your template as
     `model.comments`.
 
@@ -1060,38 +1163,51 @@ abstract class CoreStore extends Service {
     @since 1.13.0
     @method findRecord
     @public
-    @param {String} modelName
-    @param {(String|Integer)} id
-    @param {Object} [options]
-    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @param {String|object} modelName - either a string representing the modelName or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
+    @param {(String|Integer|Object)} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
+    @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord(modelName: string, id: string | number, options?: any): PromiseProxy<DSModel> {
+  findRecord(resource: string, id: string | number, options?: FindOptions): PromiseProxy<DSModel>;
+  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): PromiseProxy<DSModel>;
+  findRecord(
+    resource: string | ResourceIdentifierObject,
+    id?: string | number | FindOptions,
+    options?: FindOptions
+  ): PromiseProxy<DSModel> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
     }
-    assert(`You need to pass a model name to the store's findRecord method`, isPresent(modelName));
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
 
-    const type = normalizeModelName(modelName);
-    const normalizedId = ensureStringId(id);
-    const resource = constructResource(type, normalizedId);
+    assert(
+      `You need to pass a modelName or resource identifier as the first argument to the store's findRecord method`,
+      isPresent(resource)
+    );
+    if (isMaybeIdentifier(resource)) {
+      options = id as FindOptions | undefined;
+    } else {
+      assert(
+        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${resource}`,
+        typeof resource === 'string'
+      );
+      const type = normalizeModelName(resource);
+      const normalizedId = ensureStringId(id as string | number);
+      resource = constructResource(type, normalizedId);
+    }
+
     const internalModel = internalModelFactoryFor(this).lookup(resource);
     options = options || {};
 
-    if (!this.hasRecordForId(type, normalizedId)) {
+    if (!internalModel.currentState.isLoaded) {
       return this._findByInternalModel(internalModel, options);
     }
 
     let fetchedInternalModel = this._findRecord(internalModel, options);
 
-    return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${type} with id: ${id}`);
+    return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${internalModel.identifier}`);
   }
 
-  _findRecord(internalModel, options) {
+  _findRecord(internalModel: InternalModel, options: FindOptions) {
     // Refetch if the reload option is passed
     if (options.reload) {
       return this._scheduleFetch(internalModel, options);
@@ -1266,6 +1382,8 @@ abstract class CoreStore extends Service {
       if (internalModel._promiseProxy) {
         return internalModel._promiseProxy;
       }
+
+      assertIdentifierHasId(internalModel.identifier);
 
       let { id, modelName } = internalModel;
       let resolver = defer<InternalModel>(`Fetching ${modelName}' with id: ${id}`);
@@ -1515,20 +1633,31 @@ abstract class CoreStore extends Service {
 
     @method getReference
     @public
-    @param {String} modelName
+    @param {String|object} resource - modelName (string) or Identifier (object)
     @param {String|Integer} id
     @since 2.5.0
     @return {RecordReference}
   */
-  getReference(modelName: string, id: string | number): RecordReference {
+  getReference(resource: string | ResourceIdentifierObject, id: string | number): RecordReference {
     if (DEBUG) {
       assertDestroyingStore(this, 'getReference');
     }
-    const type = normalizeModelName(modelName);
-    const normalizedId = ensureStringId(id);
-    const resource = constructResource(type, normalizedId);
 
-    let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
+    let resourceIdentifier;
+    if (arguments.length === 1 && isMaybeIdentifier(resource)) {
+      resourceIdentifier = resource;
+    } else {
+      const type = normalizeModelName(resource as string);
+      const normalizedId = ensureStringId(id);
+      resourceIdentifier = constructResource(type, normalizedId);
+    }
+
+    assert(
+      'getReference expected to receive either a resource identifier or type and id as arguments',
+      isMaybeIdentifier(resourceIdentifier)
+    );
+
+    let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resourceIdentifier);
     if (identifier) {
       if (RECORD_REFERENCES.has(identifier)) {
         return RECORD_REFERENCES.get(identifier);
@@ -1551,29 +1680,65 @@ abstract class CoreStore extends Service {
 
     _Note: This is a synchronous method and does not return a promise._
 
+    **Example 1**
+
     ```js
     let post = store.peekRecord('post', 1);
 
-    post.get('id'); // 1
+    post.id; // 1
     ```
+
+    `peekRecord` can be called with a single identifier argument instead of the combination
+    of `type` (modelName) and `id` as separate arguments. You may recognize this combo as
+    the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
+
+    **Example 2**
+
+    ```js
+    let post = store.peekRecord({ type: 'post', id });
+    post.id; // 1
+    ```
+
+    If you have previously received an lid from an Identifier for this record, you can lookup the record again using
+    just the lid.
+
+    **Example 3**
+
+    ```js
+    let post = store.peekRecord({ lid });
+    post.id; // 1
+    ```
+
 
     @since 1.13.0
     @method peekRecord
     @public
-    @param {String} modelName
-    @param {String|Integer} id
+    @param {String|object} modelName - either a string representing the modelName or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
+    @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
     @return {Model|null} record
   */
-  peekRecord(modelName: string, id: string | number): RecordInstance | null {
+  peekRecord(identifier: string, id: string | number): RecordInstance | null;
+  peekRecord(identifier: ResourceIdentifierObject): RecordInstance | null;
+  peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
+    if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
+      let stableIdentifier = identifierCacheFor(this).peekRecordIdentifier(identifier);
+      if (stableIdentifier) {
+        return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord();
+      }
+      return null;
+    }
+
     if (DEBUG) {
       assertDestroyingStore(this, 'peekRecord');
     }
-    assert(`You need to pass a model name to the store's peekRecord method`, isPresent(modelName));
+
+    assert(`You need to pass a model name to the store's peekRecord method`, isPresent(identifier));
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${identifier}`,
+      typeof identifier === 'string'
     );
-    const type = normalizeModelName(modelName);
+
+    const type = normalizeModelName(identifier);
     const normalizedId = ensureStringId(id);
 
     if (this.hasRecordForId(type, normalizedId)) {
@@ -3887,6 +4052,17 @@ function internalModelForRelatedResource(
 ): InternalModel {
   const identifier = cache.getOrCreateRecordIdentifier(resource);
   return store._internalModelForResource(identifier);
+}
+
+function isMaybeIdentifier(
+  maybeIdentifier: string | ResourceIdentifierObject
+): maybeIdentifier is ResourceIdentifierObject {
+  return Boolean(
+    maybeIdentifier !== null &&
+      typeof maybeIdentifier === 'object' &&
+      (('id' in maybeIdentifier && 'type' in maybeIdentifier && maybeIdentifier.id && maybeIdentifier.type) ||
+        maybeIdentifier.lid)
+  );
 }
 
 function assertIdentifierHasId(

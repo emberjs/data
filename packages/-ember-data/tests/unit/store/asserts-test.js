@@ -41,9 +41,14 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     assert.expect(MODEL_NAME_METHODS.length);
 
     MODEL_NAME_METHODS.forEach((methodName) => {
+      let assertion = `You need to pass a model name to the store's ${methodName} method`;
+      if (methodName === 'findRecord') {
+        assertion = `You need to pass a modelName or resource identifier as the first argument to the store's ${methodName} method`;
+      }
+
       assert.expectAssertion(() => {
         store[methodName](null);
-      }, new RegExp(`You need to pass a model name to the store's ${methodName} method`));
+      }, assertion);
     });
   });
 

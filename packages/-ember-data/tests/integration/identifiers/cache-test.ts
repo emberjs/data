@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Store from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('Integration | Identifiers - cache', function (hooks) {
   setupTest(hooks);
@@ -128,6 +129,20 @@ module('Integration | Identifiers - cache', function (hooks) {
 
       assert.equal(mergedIdentifier.id, '2', 'merged identifier has new id');
       assert.equal(mergedIdentifier.type, 'person', 'merged identifier has same type');
+    });
+
+    testInDebug('cannot create an existing identifier', async function (assert) {
+      const runspiredHash = {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'runspired',
+        },
+      };
+      cache.createIdentifierForNewRecord(runspiredHash);
+      assert.expectAssertion(() => {
+        cache.createIdentifierForNewRecord(runspiredHash);
+      }, 'The lid generated for the new record is not unique as it matches an existing identifier');
     });
 
     test('id is null', async function (assert) {

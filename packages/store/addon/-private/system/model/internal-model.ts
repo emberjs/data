@@ -36,11 +36,11 @@ type UpgradedMeta = import('@ember-data/record-data/-private/graph/-edge-definit
 type CoreStore = import('../core-store').default;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type ConfidentDict<T> = import('../../ts-interfaces/utils').ConfidentDict<T>;
-type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
 type JsonApiResource = import('../../ts-interfaces/record-data-json-api').JsonApiResource;
 type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api').JsonApiValidationError;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
+type FindOptions = import('../../ts-interfaces/store').FindOptions;
 type Store = import('../ds-model-store').default;
 type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 
@@ -850,8 +850,8 @@ export default class InternalModel {
     return !!this._record;
   }
 
-  createSnapshot(options?: Dict<unknown>): Snapshot {
-    return new Snapshot(options || {}, this.identifier, this.store);
+  createSnapshot(options: FindOptions = {}): Snapshot {
+    return new Snapshot(options, this.identifier, this.store);
   }
 
   hasChangedAttributes() {

@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
 
@@ -78,6 +78,7 @@ function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 
   }
   if ('id' in data) {
     let { type, id } = data;
+    // TODO: add test for id not a string
     if (isNonEmptyString(coerceId(id))) {
       return `@ember-data:lid-${normalizeModelName(type)}-${id}`;
     }
@@ -107,14 +108,14 @@ if (DEBUG) {
 
 /**
  * Each instance of {Store} receives a unique instance of a IdentifierCache.
- * 
+ *
  * This cache is responsible for assigning or retrieving the unique identify
  * for arbitrary resource data encountered by the store. Data representing
  * a unique resource or record should always be represented by the same
  * identifier.
- * 
+ *
  * It can be configured by consuming applications.
- * 
+ *
  * @class IdentifierCache
    @public
  */
@@ -160,10 +161,7 @@ export class IdentifierCache {
    * @method _getRecordIdentifier
    * @private
    */
-  private _getRecordIdentifier(
-    resource: ResourceIdentifierObject | Identifier,
-    shouldGenerate: true
-  ): StableRecordIdentifier;
+  private _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
   private _getRecordIdentifier(
     resource: ResourceIdentifierObject,
     shouldGenerate: false
@@ -190,21 +188,17 @@ export class IdentifierCache {
       return identifier;
     }
 
-    let type = normalizeModelName(resource.type);
-    let id = coerceId(resource.id);
-
     if (shouldGenerate === false) {
-      if (!type || !id) {
+      if (!('type' in resource) || !('id' in resource) || !resource.type || !resource.id) {
         return;
       }
     }
 
     // `type` must always be present
-    if (DEBUG) {
-      if (!isNonEmptyString(resource.type)) {
-        throw new Error('resource.type needs to be a string');
-      }
-    }
+    assert('resource.type needs to be a string', 'type' in resource && isNonEmptyString(resource.type));
+
+    let type = resource.type && normalizeModelName(resource.type);
+    let id = coerceId(resource.id);
 
     let keyOptions = getTypeIndex(this._cache.types, type);
 
@@ -291,7 +285,7 @@ export class IdentifierCache {
    * @returns {StableRecordIdentifier | undefined}
    * @private
    */
-  peekRecordIdentifier(resource: ResourceIdentifierObject): StableRecordIdentifier | undefined {
+  peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
     return this._getRecordIdentifier(resource, false);
   }
 
@@ -306,7 +300,7 @@ export class IdentifierCache {
     - this referential stability of the object itself is guaranteed
 
     @method getOrCreateRecordIdentifier
-    @param resource 
+    @param resource
     @returns {StableRecordIdentifier}
     @public
   */
@@ -366,21 +360,21 @@ export class IdentifierCache {
     `forgetRecordIdentifier` codepaths.
 
     @method updateRecordIdentifier
-    @param identifierObject 
-    @param data 
+    @param identifierObject
+    @param data
     @returns {StableRecordIdentifier}
     @public
   */
   updateRecordIdentifier(identifierObject: RecordIdentifier, data: ResourceData): StableRecordIdentifier {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
-    let newId = coerceId(data.id);
+    let newId = 'id' in data ? coerceId(data.id) : null;
     let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
 
     if (!existingIdentifier) {
       // If the incoming type does not match the identifier type, we need to create an identifier for the incoming
       // data so we can merge the incoming data with the existing identifier, see #7325 and #7363
-      if (data.type && identifier.type !== normalizeModelName(data.type)) {
+      if ('type' in data && data.type && identifier.type !== normalizeModelName(data.type)) {
         let incomingDataResource = assign({}, data);
         // Need to strip the lid from the incomingData in order force a new identifier creation
         delete incomingDataResource.lid;
@@ -531,15 +525,12 @@ function makeStableRecordIdentifier(
   return recordIdentifier;
 }
 
-function performRecordIdentifierUpdate(
-  identifier: StableRecordIdentifier,
-  data: ResourceIdentifierObject,
-  updateFn: UpdateMethod
-) {
-  let { id, lid } = data;
-  let type = data.type && normalizeModelName(data.type);
-
+function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data: ResourceData, updateFn: UpdateMethod) {
   if (DEBUG) {
+    let { lid } = data;
+    let id = 'id' in data ? data.id : undefined;
+    let type = 'type' in data && data.type && normalizeModelName(data.type);
+
     // get the mutable instance behind our proxy wrapper
     let wrapper = identifier;
     identifier = DEBUG_MAP.get(wrapper);
@@ -583,8 +574,8 @@ function performRecordIdentifierUpdate(
   // for the multiple-cache-key scenario we "could"
   // use a heuristic to guess the best id for display
   // (usually when `data.id` is available and `data.attributes` is not)
-  if (id !== undefined) {
-    identifier.id = coerceId(id);
+  if ('id' in data && data.id !== undefined) {
+    identifier.id = coerceId(data.id);
   }
 }
 
@@ -602,7 +593,7 @@ function detectMerge(
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
-    let newType = data.type && normalizeModelName(data.type);
+    let newType = 'type' in data && data.type && normalizeModelName(data.type);
 
     // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
