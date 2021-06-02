@@ -505,10 +505,10 @@ class CoreStore extends Service {
 
   instantiateRecord(
     identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: any },
-    recordDataFor: (identifier: StableRecordIdentifier) => RecordDataRecordWrapper,
+    createRecordArgs: { [key: string]: unknown },
+    recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): DSModel {
+  ): DSModel | RecordInstance {
     let modelName = identifier.type;
 
     let internalModel = this._internalModelForResource(identifier);
@@ -527,8 +527,12 @@ class CoreStore extends Service {
     return record;
   }
 
-  teardownRecord(record: DSModel) {
-    record.destroy();
+  teardownRecord(record: DSModel | RecordInstance) {
+    if (HAS_MODEL_PACKAGE) {
+      if ('destroy' in record) {
+        record.destroy();
+      }
+    }
   }
 
   _internalDeleteRecord(internalModel: InternalModel) {
@@ -537,61 +541,45 @@ class CoreStore extends Service {
 
   // FeatureFlagged in the DSModelStore claas
   _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): AttributesSchema {
-    if (HAS_MODEL_PACKAGE) {
-      if (CUSTOM_MODEL_CLASS) {
-        if (identifier) {
-          return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-        } else {
-          return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
-        }
-      } else {
-        let attributes = this._attributesDefCache[modelName];
-
-        if (attributes === undefined) {
-          let modelClass = this.modelFor(modelName);
-          let attributeMap = get(modelClass, 'attributes');
-
-          attributes = Object.create(null);
-          attributeMap.forEach((meta, name) => (attributes[name] = meta));
-          this._attributesDefCache[modelName] = attributes;
-        }
-
-        return attributes;
-      }
-    } else {
+    if (CUSTOM_MODEL_CLASS || !HAS_MODEL_PACKAGE) {
       if (identifier) {
         return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
       } else {
         return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
       }
+    } else {
+      let attributes = this._attributesDefCache[modelName];
+
+      if (attributes === undefined) {
+        let modelClass = this.modelFor(modelName);
+        let attributeMap = get(modelClass, 'attributes');
+
+        attributes = Object.create(null);
+        attributeMap.forEach((meta, name) => (attributes[name] = meta));
+        this._attributesDefCache[modelName] = attributes;
+      }
+
+      return attributes;
     }
   }
 
   _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
-    if (HAS_MODEL_PACKAGE) {
-      if (CUSTOM_MODEL_CLASS) {
-        if (identifier) {
-          return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-        } else {
-          return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
-        }
-      } else {
-        let relationships = this._relationshipsDefCache[modelName];
-
-        if (relationships === undefined) {
-          let modelClass = this.modelFor(modelName);
-          relationships = get(modelClass, 'relationshipsObject') || null;
-          this._relationshipsDefCache[modelName] = relationships;
-        }
-
-        return relationships;
-      }
-    } else {
+    if (CUSTOM_MODEL_CLASS || !HAS_MODEL_PACKAGE) {
       if (identifier) {
         return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
       } else {
         return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
       }
+    } else {
+      let relationships = this._relationshipsDefCache[modelName];
+
+      if (relationships === undefined) {
+        let modelClass = this.modelFor(modelName);
+        relationships = get(modelClass, 'relationshipsObject') || null;
+        this._relationshipsDefCache[modelName] = relationships;
+      }
+
+      return relationships;
     }
   }
 
@@ -619,16 +607,12 @@ class CoreStore extends Service {
 
   // TODO Double check this return value is correct
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    if (HAS_MODEL_PACKAGE) {
-      if (CUSTOM_MODEL_CLASS) {
-        return this._relationshipsDefinitionFor(modelName)[key];
-      } else {
-        let modelClass = this.modelFor(modelName);
-        let relationshipsByName = get(modelClass, 'relationshipsByName');
-        return relationshipsByName.get(key);
-      }
-    } else {
+    if (CUSTOM_MODEL_CLASS || !HAS_MODEL_PACKAGE) {
       return this._relationshipsDefinitionFor(modelName)[key];
+    } else {
+      let modelClass = this.modelFor(modelName);
+      let relationshipsByName = get(modelClass, 'relationshipsByName');
+      return relationshipsByName.get(key);
     }
   }
 
