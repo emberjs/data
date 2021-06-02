@@ -821,11 +821,11 @@ abstract class CoreStore extends Service {
     }
     ```
 
+    **Example 2**
+
     `findRecord` can be called with a single identifier argument instead of the combination
     of `type` (modelName) and `id` as separate arguments. You may recognize this combo as
     the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
-
-    **Example 2**
 
     ```app/routes/post.js
     import Route from '@ember/routing/route';
@@ -837,13 +837,13 @@ abstract class CoreStore extends Service {
     }
     ```
 
+    **Example 3**
+
     If you have previously received an lid via an Identifier for this record, and the record
     has already been assigned an id, you can find the record again using just the lid.
 
-    **Example 3**
-
     ```app/routes/post.js
-    store.findRecord({ type: 'post', id });
+    store.findRecord({ lid });
     ```
 
     If the record is not yet available, the store will ask the adapter's `findRecord`
