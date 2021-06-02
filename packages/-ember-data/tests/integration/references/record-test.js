@@ -39,7 +39,7 @@ module('integration/references/record', function (hooks) {
 
     assert.equal(recordReference.remoteType(), 'identity');
     assert.equal(recordReference.type, 'person');
-    assert.equal(recordReference.id(), 1);
+    assert.equal(recordReference.id(), '1');
   });
 
   [
