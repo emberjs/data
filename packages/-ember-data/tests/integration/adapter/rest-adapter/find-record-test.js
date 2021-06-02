@@ -147,7 +147,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(record, foundPost, 'We were able to findRecord');
 
     // stress tests
-    let peekPost = await store.peekRecord(identifier);
+    let peekPost = store.peekRecord(identifier);
     assert.strictEqual(peekPost, foundPost, 'peekRecord returns same post');
 
     let recordReference = store.getReference(identifier);
