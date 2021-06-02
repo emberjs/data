@@ -252,7 +252,7 @@ abstract class CoreStore extends Service {
 
   // DEBUG-only properties
   declare _trackedAsyncRequests: AsyncTrackingToken[];
-  shouldAssertMethodCallsOnDestroyedStore: boolean = false;
+  shouldAssertMethodCallsOnDestroyedStore: boolean = true;
   shouldTrackAsyncRequests: boolean = false;
   generateStackTracesForTrackedRequests: boolean = false;
   declare _trackAsyncRequestStart: (str: string) => void;
