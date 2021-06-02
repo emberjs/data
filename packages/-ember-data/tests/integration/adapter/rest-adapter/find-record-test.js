@@ -120,7 +120,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       assert.equal(post.get('name'), 'Rails is omakase');
 
       // stress tests
-      let peekPost = await store.peekRecord(findRecordArgs);
+      let peekPost = store.peekRecord(findRecordArgs);
       assert.strictEqual(peekPost, post, 'peekRecord returns same post');
 
       let recordReference = store.getReference(findRecordArgs);
