@@ -843,8 +843,7 @@ abstract class CoreStore extends Service {
     has already been assigned an id, you can find the record again using just the lid.
 
     ```app/routes/post.js
-    let identifier = recordIdentifierFor(person);
-    store.findRecord({ lid: identifier.lid });
+    store.findRecord(identifier);
     ```
 
     If the record is not yet available, the store will ask the adapter's `findRecord`

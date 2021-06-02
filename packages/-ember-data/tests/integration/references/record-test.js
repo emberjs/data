@@ -46,41 +46,14 @@ module('integration/references/record', function (hooks) {
     { withType: true, withId: true, withLid: true, desc: 'type, id and lid' },
     { withType: true, withLid: true, desc: 'type and lid' },
     { withType: true, withLid: true, isCreate: true, desc: 'type and lid via store.createRecord (no local id)' },
-    {
-      withType: true,
-      withLid: true,
-      isCreate: true,
-      generateLid: true,
-      desc: 'type and generated lid via store.createRecord (no local id)',
-    },
-    { withType: true, withLid: true, generateLid: true, desc: 'type and generated lid' },
-    { withType: true, withId: true, withLid: true, desc: 'type, id and lid from cache' },
-    { withType: true, withLid: true, exta: { id: null }, desc: 'type, null id, and lid' },
-    {
-      withType: true,
-      withLid: true,
-      exta: { id: null },
-      isCreate: true,
-      desc: 'type, null id, and lid via store.createRecord',
-    },
-  ].forEach(({ withType, withId, withLid, extra, isCreate, generateLid, desc }) => {
+  ].forEach(({ withType, withId, withLid, isCreate, desc }) => {
     test(`a RecordReference can be retrieved with ${desc}`, function (assert) {
       let store = this.owner.lookup('service:store');
       let person;
       if (isCreate) {
         // no id
         person = store.createRecord('person');
-      } else {
-        person = store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'le name',
-            },
-          },
-        });
-      }
+      } 
 
       const getReferenceArgs = Object.create(null);
       if (withType) {
@@ -90,7 +63,7 @@ module('integration/references/record', function (hooks) {
         getReferenceArgs.id = '1';
       }
       if (withLid) {
-        if (generateLid) {
+        if (!isCreate) {
           // create the identifier instead of getting it via store record cache
           const identifier = store.identifierCache.getOrCreateRecordIdentifier(getReferenceArgs);
           getReferenceArgs.lid = identifier.lid;
@@ -98,15 +71,12 @@ module('integration/references/record', function (hooks) {
           getReferenceArgs.lid = recordIdentifierFor(person).lid;
         }
       }
-      if (extra) {
-        assign(getReferenceArgs, extra);
-      }
 
       let recordReference = store.getReference(getReferenceArgs);
 
       assert.equal(recordReference.remoteType(), 'identity');
       assert.equal(recordReference.type, 'person');
-      if (isCreate || (generateLid && !withId)) {
+      if (isCreate || !withId) {
         assert.equal(recordReference.id(), null);
       } else {
         assert.strictEqual(recordReference.id(), '1');
