@@ -109,7 +109,7 @@ module('integration/references/record', function (hooks) {
       if (isCreate || (fromCache && !withId)) {
         assert.equal(recordReference.id(), null);
       } else {
-        assert.equal(recordReference.id(), 1);
+        assert.strictEqual(recordReference.id(), '1');
       }
     });
   });
