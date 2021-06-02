@@ -133,6 +133,59 @@ All commits should be tagged. Tags are denoted by square brackets (`[]`) and com
 In general almost all commits should fall into one of the above categories. In the cases where they don't please submit
 your PR untagged.
 
+#### Commit Labeling
+
+All commits should be labeled. Commit labeling for changelog and backporting is enforced in CI, but labels may only be
+applied by project maintainers. PRs from non-maintainers will be labeled by maintainers prior to a PR being accepted and merged.
+
+**Changelog Labels**
+
+Labels used for the changelog include `skip-changelog` which should be used if the PR should not be considered for the changelog,
+and any labels listed in the [root package.json's changelog config](https://github.com/emberjs/data/blob/master/package.json#L154).
+These labels are prefixed with `changelog:` and currently the options are:
+
+- `changelog:breaking` which should be used to signify a breaking change
+- `changelog:feat` which should be used to signify an addition of a new public feature or behavior
+- `changelog:bugfix` which should be used to signify a fix for a reported issue
+- `changelog:perf` which should be used to signify that the commit will improve performance characteristics in a meaningful way
+- `changelog:cleanup` which should be used to signify removal of deprecated features or that a deprecation has become an assertion.
+- `changelog:deprecation` which should be used to signify addition of a new deprecation
+- `changelog:doc` which should be used to signify a fix or improvement to documentation generated for api.emberjs.com
+- `changelog:test` which should be used to signify addition of new tests or refactoring of existing tests
+- `changelog:chore` which should be used to signify refactoring of internal code that should not have an affect on public APIs or behaviors but which we may want to call out for potentially unintended consequences.
+
+**Backporting Labels**
+
+We use one set of labels to indicate that a PR needs to be backported and where it needs to be backported to, and a second set of labels to indicate that a PR **is** the backport PR.
+
+To indicate that a PR should be backported, the following labels, all prefixed with `target:` are available:
+
+- `target:canary` indicates that a PR will not require backporting.
+- `target:beta` indicates the PR requires being backported to the current beta release.
+- `target:release` indicates the PR requires being backported to the current active release.
+- `target:lts` indicates that a PR requires being backported to the most current LTS release.
+- `target:lts-prev` indicates that a PR requires being backported to the second-most recent LTS release.
+
+Note: a PR should add the individual label for *every* backport target required. We use this while releasing to search
+for any commits still requiring backport to include, and will eventually automate opening backport PRs via a bot when
+these labels are present. We remove the `target:` label from merged PRs only once the backport PR has been opened.
+
+To indicate that a PR **is** the backport PR, the following labels, all prefixed with `backport-` are available:
+
+- `backport-beta` for PRs to the beta branch
+- `backport-release` for PRs to the current active release branch
+- `backport-old-release` for PRs to previous release branches that are not LTS branches
+- `backport-lts` for PRs targetting the current active LTS branch
+- `backport-lts-prev` for PRs targetting the second most current LTS branch
+
+Note, we automatically add this label to any PR opened to a beta/release/lts branch, but for non-current non-lts backports
+it will need to be added manually.
+
+**Project Labels**
+
+Labels used for tracking work in [various projects](https://github.com/emberjs/data/projects) are not enforced, but PRs and issues
+should be labeled for any applicable projects and added to those projects when reviewed.
+
 ## Notes
 
 - Commit tagging section taken from [ember.js](https://github.com/emberjs/ember.js/blob/5641c3089180bdd1d4fa54e9dd2d3ac285f088e4/CONTRIBUTING.md#commit-tagging)
