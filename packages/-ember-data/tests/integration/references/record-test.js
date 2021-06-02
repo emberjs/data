@@ -35,7 +35,7 @@ module('integration/references/record', function (hooks) {
 
   test('a RecordReference can be retrieved via store.getReference(identifier) without local state', function (assert) {
     let store = this.owner.lookup('service:store');
-    let recordReference = store.getReference({ type: 'person', id: 1 });
+    let recordReference = store.getReference({ type: 'person', id: '1' });
 
     assert.equal(recordReference.remoteType(), 'identity');
     assert.equal(recordReference.type, 'person');
