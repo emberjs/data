@@ -126,7 +126,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       let recordReference = store.getReference(findRecordArgs);
       assert.equal(recordReference.remoteType(), 'identity');
       assert.equal(recordReference.type, 'post');
-      assert.equal(recordReference.id(), 1);
+      assert.equal(recordReference.id(), '1');
     });
   });
 
