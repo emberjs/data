@@ -1,4 +1,4 @@
-import { A, makeArray } from '@ember/array';
+import { A } from '@ember/array';
 import ArrayProxy from '@ember/array/proxy';
 import { computed, get } from '@ember/object';
 import { mapBy, not } from '@ember/object/computed';
@@ -7,9 +7,25 @@ import { DEBUG } from '@glimmer/env';
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 import { DeprecatedEvented } from '@ember-data/store/-private';
 
+type MutableArray<T> = import('@ember/array/mutable').default<T>;
+type EmberObject = import('@ember/object').default;
+type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
+type ValidationError = {
+  attribute: string;
+  message: string;
+};
 /**
   @module @ember-data/store
 */
+
+const Base = ArrayProxy.extend(DeprecatedEvented);
+type Readied = new () => Omit<MutableArray<ValidationError>, 'clear'> &
+  Omit<ArrayProxy<ValidationError>, 'clear'> & { clear(): void; _has(name: string): boolean } & EmberObject &
+  typeof DeprecatedEvented;
+// we force the type here to our own construct because mixin and extend patterns
+// lose generic signatures and lose types generally when Omit is used, which we need
+// for being able to override 'clear'.
+const ExtendableProxy: Readied = Base as unknown as Readied;
 
 /**
   Holds validation errors for a given record, organized by attribute names.
@@ -87,28 +103,34 @@ import { DeprecatedEvented } from '@ember-data/store/-private';
   @extends Ember.ArrayProxy
   @uses Ember.Evented
  */
-export default ArrayProxy.extend(DeprecatedEvented, {
+export default class Errors extends ExtendableProxy {
+  declare _registeredHandlers: {
+    becameInvalid: () => void;
+    becameValid: () => void;
+  };
+
   /**
     Register with target handler
 
     @method _registerHandlers
     @private
   */
-  _registerHandlers(becameInvalid, becameValid) {
+  _registerHandlers(becameInvalid: () => void, becameValid: () => void): void {
     this._registeredHandlers = {
       becameInvalid,
       becameValid,
     };
-  },
+  }
 
   /**
     @property errorsByAttributeName
     @type {MapWithDefault}
     @private
   */
-  errorsByAttributeName: computed(function () {
+  @computed()
+  get errorsByAttributeName(): Map<string, NativeArray<ValidationError>> {
     return new Map();
-  }),
+  }
 
   /**
     Returns errors for a given attribute
@@ -129,13 +151,13 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @param {String} attribute
     @return {Array}
   */
-  errorsFor(attribute) {
-    let map = get(this, 'errorsByAttributeName');
+  errorsFor(attribute: string): NativeArray<ValidationError> {
+    let map = this.errorsByAttributeName;
 
     let errors = map.get(attribute);
 
     if (errors === undefined) {
-      errors = A();
+      errors = A<ValidationError>();
       map.set(attribute, errors);
     }
 
@@ -146,7 +168,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     get(errors, '[]');
 
     return errors;
-  },
+  }
 
   /**
     An array containing all of the error messages for this
@@ -164,28 +186,30 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @public
     @type {Array}
   */
-  messages: mapBy('content', 'message'),
+  @mapBy('content', 'message')
+  declare messages: string[];
 
   /**
     @property content
     @type {Array}
     @private
   */
-  content: computed(function () {
+  @computed()
+  get content(): NativeArray<ValidationError> {
     return A();
-  }),
+  }
 
   /**
     @method unknownProperty
     @private
   */
-  unknownProperty(attribute) {
+  unknownProperty(attribute: string) {
     let errors = this.errorsFor(attribute);
     if (errors.length === 0) {
       return undefined;
     }
     return errors;
-  },
+  }
 
   /**
     Total number of errors.
@@ -204,7 +228,8 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @public
     @readOnly
   */
-  isEmpty: not('length').readOnly(),
+  @not('length')
+  declare isEmpty: boolean;
 
   /**
    Manually adds errors to the record. This will trigger the `becameInvalid` event/ lifecycle method on
@@ -238,17 +263,17 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     //   { attribute: 'username', message: 'This field is required' },
     // ]
    ```
-  @method add
+    @method add
     @public
-  @param {string} attribute - the property name of an attribute or relationship
-  @param {string[]|string} messages - an error message or array of error messages for the attribute
+    @param {string} attribute - the property name of an attribute or relationship
+    @param {string[]|string} messages - an error message or array of error messages for the attribute
    */
-  add(attribute, messages) {
-    let wasEmpty = get(this, 'isEmpty');
+  add(attribute: string, messages: string[] | string): void {
+    let wasEmpty: boolean = this.isEmpty;
 
     this._add(attribute, messages);
 
-    if (wasEmpty && !get(this, 'isEmpty')) {
+    if (wasEmpty && !this.isEmpty) {
       this._registeredHandlers && this._registeredHandlers.becameInvalid();
       if (DEPRECATE_EVENTED_API_USAGE) {
         if (this[DEBUG ? '_has' : 'has']('becameInvalid')) {
@@ -256,7 +281,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
         }
       }
     }
-  },
+  }
 
   /**
     Adds error messages to a given attribute without sending event.
@@ -264,23 +289,23 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @method _add
     @private
   */
-  _add(attribute, messages) {
-    messages = this._findOrCreateMessages(attribute, messages);
-    this.addObjects(messages);
+  _add(attribute: string, messages: string[] | string) {
+    const errors = this._findOrCreateMessages(attribute, messages);
+    this.addObjects(errors);
 
-    this.errorsFor(attribute).addObjects(messages);
+    this.errorsFor(attribute).addObjects(errors);
 
     this.notifyPropertyChange(attribute);
-  },
+  }
 
   /**
     @method _findOrCreateMessages
     @private
   */
-  _findOrCreateMessages(attribute, messages) {
+  _findOrCreateMessages(attribute: string, messages: string | string[]): ValidationError[] {
     let errors = this.errorsFor(attribute);
-    let messagesArray = makeArray(messages);
-    let _messages = new Array(messagesArray.length);
+    let messagesArray = Array.isArray(messages) ? messages : [messages];
+    let _messages: ValidationError[] = new Array(messagesArray.length) as ValidationError[];
 
     for (let i = 0; i < messagesArray.length; i++) {
       let message = messagesArray[i];
@@ -290,13 +315,13 @@ export default ArrayProxy.extend(DeprecatedEvented, {
       } else {
         _messages[i] = {
           attribute: attribute,
-          message: message,
+          message,
         };
       }
     }
 
     return _messages;
-  },
+  }
 
   /**
    Manually removes all errors for a given member from the record.
@@ -325,14 +350,14 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @public
    @param {string} member - the property name of an attribute or relationship
    */
-  remove(attribute) {
-    if (get(this, 'isEmpty')) {
+  remove(attribute: string) {
+    if (this.isEmpty) {
       return;
     }
 
     this._remove(attribute);
 
-    if (get(this, 'isEmpty')) {
+    if (this.isEmpty) {
       this._registeredHandlers && this._registeredHandlers.becameValid();
       if (DEPRECATE_EVENTED_API_USAGE) {
         if (this[DEBUG ? '_has' : 'has']('becameValid')) {
@@ -340,7 +365,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
         }
       }
     }
-  },
+  }
 
   /**
     Removes all error messages from the given attribute without sending event.
@@ -348,8 +373,8 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @method _remove
     @private
   */
-  _remove(attribute) {
-    if (get(this, 'isEmpty')) {
+  _remove(attribute: string) {
+    if (this.isEmpty) {
       return;
     }
 
@@ -369,7 +394,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
 
     this.notifyPropertyChange(attribute);
     this.notifyPropertyChange('length');
-  },
+  }
 
   /**
    Manually clears all errors for the record.
@@ -408,10 +433,10 @@ export default ArrayProxy.extend(DeprecatedEvented, {
    // => []
    ```
    @method clear
-    @public
+   @public
    */
-  clear() {
-    if (get(this, 'isEmpty')) {
+  clear(): void {
+    if (this.isEmpty) {
       return;
     }
 
@@ -422,7 +447,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
         this.trigger('becameValid');
       }
     }
-  },
+  }
 
   /**
     Removes all error messages.
@@ -431,13 +456,13 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @method _clear
     @private
   */
-  _clear() {
-    if (get(this, 'isEmpty')) {
+  _clear(): void {
+    if (this.isEmpty) {
       return;
     }
 
     let errorsByAttributeName = get(this, 'errorsByAttributeName');
-    let attributes = [];
+    let attributes: string[] = [];
 
     errorsByAttributeName.forEach(function (_, attribute) {
       attributes.push(attribute);
@@ -449,7 +474,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     });
 
     ArrayProxy.prototype.clear.call(this);
-  },
+  }
 
   /**
     Checks if there are error messages for the given attribute.
@@ -474,7 +499,7 @@ export default ArrayProxy.extend(DeprecatedEvented, {
     @param {String} attribute
     @return {Boolean} true if there some errors on given attribute
   */
-  has(attribute) {
+  has(attribute: string): boolean {
     return this.errorsFor(attribute).length > 0;
-  },
-});
+  }
+}
