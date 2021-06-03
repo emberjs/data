@@ -5,31 +5,47 @@ import { DEBUG } from '@glimmer/env';
 
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type EmberObject = import('@ember/object').default;
 
+type DeprecationsList = Dict<true>;
+
+// We require the ability to super into the mixin
+// from another method, with Mixins this is how
+// we achieve accessing them, since native `super.<method>`
+// is not available.
 interface PrivateEvented extends Evented {
   mixins: { properties: Evented }[];
 }
-type DeprecatedEvented = EmberObject &
-  Evented & {
-    _getDeprecatedEventedInfo(): string;
-    _deprecateEvented(eventName: string): void;
-    _has(name: string): boolean;
-    _on(...args: Parameters<Evented['on']>): ReturnType<Evented['on']>;
-  };
+
+// We don't directly extend the Evented type as the `this` type
+// would error on us. We also don't directly extend the EmberObject
+// type as that would result in us needing to define all of those
+// in our implementation.
+// Instead we specify the Evented methods directly on our
+// deprecated interface and set the `this` context to include
+// EmberObject when needed so as to gain _super ability
+interface DeprecatedEvented {
+  _getDeprecatedEventedInfo?(): string; // optionally implemented by consumers
+  _deprecateEvented(eventName: string): void;
+  has(name: string): boolean;
+  _has(name: string): boolean;
+  _on(...args: Parameters<Evented['on']>): ReturnType<Evented['on']>;
+  on(...args: Parameters<Evented['on']>): ReturnType<Evented['on']>;
+  one(...args: Parameters<Evented['one']>): ReturnType<Evented['one']>;
+  off(...args: Parameters<Evented['off']>): ReturnType<Evented['off']>;
+  trigger(...args: Parameters<Evented['trigger']>): void;
+}
 
 /**
   @module @ember-data/store
 */
-type DeprecationsList = {};
-let INSTANCE_DEPRECATIONS: WeakMap<DeprecatedEvented, DeprecationsList>;
-let lookupDeprecations: (instance: DeprecatedEvented) => DeprecationsList;
-let DeprecatedEvented;
+let DeprecatedEvented!: Mixin<DeprecatedEvented, EmberObject>;
 
 if (DEBUG) {
-  INSTANCE_DEPRECATIONS = new WeakMap();
+  let INSTANCE_DEPRECATIONS: WeakMap<DeprecatedEvented, DeprecationsList> = new WeakMap();
 
-  lookupDeprecations = function lookupInstanceDrecations(instance: DeprecatedEvented): DeprecationsList {
+  const lookupDeprecations = function lookupDeprecationsForInstance(instance: DeprecatedEvented): DeprecationsList {
     let deprecations = INSTANCE_DEPRECATIONS.get(instance);
 
     if (!deprecations) {
@@ -40,16 +56,10 @@ if (DEBUG) {
     return deprecations;
   };
 
-  /**
-   * `DeprecatedEvented` is a mixin that proxies to the `Ember.Evented`
-   * mixin while logging deprecations. It is used by classes that were previously instrumented with
-   * Evented whose evented APIs are now deprecated.
-   *
-   * @class DeprecatedEvented
-   * @private
-   * @uses Ember.Evented
-   */
-  DeprecatedEvented = Mixin.create(Evented, {
+  // creating our Mixin this way allows us to avoid casting the object when we pass it to the Mixin.
+  // which ensures that if we make changes to the interface in the future we will error in the implementation
+  // if not aligned.
+  const EventedOverrides: DeprecatedEvented = {
     _has(name: string): boolean {
       return (Evented as unknown as PrivateEvented).mixins[0].properties.has.call(this, name);
     },
@@ -58,11 +68,11 @@ if (DEBUG) {
       return (Evented as unknown as PrivateEvented).mixins[0].properties.on.call(this, ...args);
     },
 
-    _deprecateEvented(eventName: string) {
+    _deprecateEvented(this: DeprecatedEvented, eventName: string) {
       let deprecations = lookupDeprecations(this);
       const _deprecationData = this._getDeprecatedEventedInfo ? `on ${this._getDeprecatedEventedInfo()}` : '';
       const deprecationMessage = _deprecationData ? `Called ${eventName} ${_deprecationData}` : eventName;
-      deprecate(deprecationMessage, deprecations[eventName], {
+      deprecate(deprecationMessage, deprecations[eventName] || false, {
         id: 'ember-data:evented-api-usage',
         until: '4.0',
         url: 'https://deprecations.emberjs.com/ember-data/v3.x/#deprecatingrecordlifecycleeventmethods',
@@ -75,31 +85,42 @@ if (DEBUG) {
       deprecations[eventName] = true;
     },
 
-    has(name: string): boolean {
+    has(this: DeprecatedEvented & EmberObject, name: string): boolean {
       this._deprecateEvented(name);
       return this._super(name) as boolean;
     },
 
-    off(...args: Parameters<Evented['off']>): ReturnType<Evented['off']> {
+    off(this: DeprecatedEvented & EmberObject, ...args: Parameters<Evented['off']>): ReturnType<Evented['off']> {
       this._deprecateEvented(args[0]);
       return this._super(...args) as ReturnType<Evented['off']>;
     },
 
-    on(...args: Parameters<Evented['on']>): ReturnType<Evented['on']> {
+    on(this: DeprecatedEvented & EmberObject, ...args: Parameters<Evented['on']>): ReturnType<Evented['on']> {
       this._deprecateEvented(args[0]);
       return this._super(...args) as ReturnType<Evented['on']>;
     },
 
-    one(...args: Parameters<Evented['one']>): ReturnType<Evented['one']> {
+    one(this: DeprecatedEvented & EmberObject, ...args: Parameters<Evented['one']>): ReturnType<Evented['one']> {
       this._deprecateEvented(args[0]);
       return this._super(...args) as ReturnType<Evented['one']>;
     },
 
-    trigger(name: string): void {
+    trigger(this: DeprecatedEvented & EmberObject, name: string): void {
       this._deprecateEvented(name);
       this._super(name);
     },
-  } as DeprecatedEvented);
+  };
+
+  /**
+   * `DeprecatedEvented` is a mixin that proxies to the `Ember.Evented`
+   * mixin while logging deprecations. It is used by classes that were previously instrumented with
+   * Evented whose evented APIs are now deprecated.
+   *
+   * @class DeprecatedEvented
+   * @private
+   * @uses Ember.Evented
+   */
+  DeprecatedEvented = Mixin.create(Evented, EventedOverrides);
 }
 
 export default (DEPRECATE_EVENTED_API_USAGE ? (DEBUG ? DeprecatedEvented : Evented) : {}) as Evented;
