@@ -18,14 +18,15 @@ type ValidationError = {
   @module @ember-data/store
 */
 
-const Base = ArrayProxy.extend(DeprecatedEvented);
-type Readied = new () => Omit<MutableArray<ValidationError>, 'clear'> &
+type ArrayProxyWithDeprecatedEventedType = new () => Omit<MutableArray<ValidationError>, 'clear'> &
   Omit<ArrayProxy<ValidationError>, 'clear'> & { clear(): void; _has(name: string): boolean } & EmberObject &
   typeof DeprecatedEvented;
 // we force the type here to our own construct because mixin and extend patterns
-// lose generic signatures and lose types generally when Omit is used, which we need
-// for being able to override 'clear'.
-const ExtendableProxy: Readied = Base as unknown as Readied;
+// lose generic signatures. They also lose types generally when Omit is used on a constructable
+// type that is not a class, which we need to do for being able to override 'clear'.
+const ArrayProxyWithDeprecatedEvented: ArrayProxyWithDeprecatedEventedType = ArrayProxy.extend(
+  DeprecatedEvented
+) as unknown as ArrayProxyWithDeprecatedEventedType;
 
 /**
   Holds validation errors for a given record, organized by attribute names.
@@ -103,7 +104,7 @@ const ExtendableProxy: Readied = Base as unknown as Readied;
   @extends Ember.ArrayProxy
   @uses Ember.Evented
  */
-export default class Errors extends ExtendableProxy {
+export default class Errors extends ArrayProxyWithDeprecatedEvented {
   declare _registeredHandlers?: {
     becameInvalid: () => void;
     becameValid: () => void;
