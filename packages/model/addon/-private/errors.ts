@@ -104,7 +104,7 @@ const ExtendableProxy: Readied = Base as unknown as Readied;
   @uses Ember.Evented
  */
 export default class Errors extends ExtendableProxy {
-  declare _registeredHandlers: {
+  declare _registeredHandlers?: {
     becameInvalid: () => void;
     becameValid: () => void;
   };
@@ -379,7 +379,7 @@ export default class Errors extends ExtendableProxy {
     }
 
     let content = this.rejectBy('attribute', attribute);
-    get(this, 'content').setObjects(content);
+    this.content.setObjects(content);
 
     // Although errorsByAttributeName.delete is technically enough to sync errors state, we also
     // must mutate the array as well for autotracking
@@ -390,7 +390,7 @@ export default class Errors extends ExtendableProxy {
         errors.replace(i, 1);
       }
     }
-    get(this, 'errorsByAttributeName').delete(attribute);
+    this.errorsByAttributeName.delete(attribute);
 
     this.notifyPropertyChange(attribute);
     this.notifyPropertyChange('length');
@@ -461,7 +461,7 @@ export default class Errors extends ExtendableProxy {
       return;
     }
 
-    let errorsByAttributeName = get(this, 'errorsByAttributeName');
+    let errorsByAttributeName = this.errorsByAttributeName;
     let attributes: string[] = [];
 
     errorsByAttributeName.forEach(function (_, attribute) {
