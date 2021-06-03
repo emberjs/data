@@ -1,5 +1,4 @@
 import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 
 import { module, test } from 'qunit';
 import { defer, resolve } from 'rsvp';
@@ -53,7 +52,7 @@ module('integration/references/record', function (hooks) {
       if (isCreate) {
         // no id
         person = store.createRecord('person');
-      } 
+      }
 
       const getReferenceArgs = Object.create(null);
       if (withType) {
