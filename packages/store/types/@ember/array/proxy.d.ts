@@ -21,11 +21,7 @@ interface EmberArrayLike<T> {
  * may be used in this case.
  */
 interface ArrayProxy<ContentType, MaterializedType = ContentType> extends MutableArray<MaterializedType> {
-  objectAtContent(idx: number): MaterializedType | undefined;
-}
-declare class ArrayProxy<ContentType, MaterializedType = ContentType> extends EmberObject.extend((MutableArray = {})) {
   content: ContentType[] | EmberArrayLike<ContentType>;
-
   /**
    * Should actually retrieve the object at the specified index from the
    * content. You can override this method in subclasses to transform the
@@ -33,4 +29,6 @@ declare class ArrayProxy<ContentType, MaterializedType = ContentType> extends Em
    */
   objectAtContent(idx: number): MaterializedType | undefined;
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+declare class ArrayProxy<ContentType, MaterializedType = ContentType> extends EmberObject {}
 export default ArrayProxy;
