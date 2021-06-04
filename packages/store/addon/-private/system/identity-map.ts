@@ -1,5 +1,7 @@
 import InternalModelMap from './internal-model-map';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
+
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 /**
@@ -23,14 +25,14 @@ export default class IdentityMap {
 
    @method retrieve
    @internal
-   @param modelName a previously normalized modelName
+   @param type a previously normalized modelName
    @return {InternalModelMap} the InternalModelMap for the given modelName
    */
-  retrieve(modelName: string): InternalModelMap {
-    let map = this._map[modelName];
+  retrieve(type: keyof ModelRegistry): InternalModelMap {
+    let map = this._map[type];
 
     if (map === undefined) {
-      map = this._map[modelName] = new InternalModelMap(modelName);
+      map = this._map[type] = new InternalModelMap(type);
     }
 
     return map;

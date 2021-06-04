@@ -3,6 +3,12 @@ import { inject } from '@ember/service';
 
 type Store = import('@ember-data/store').default;
 
+declare module '@ember-data/store/-private/ts-interfaces/registries' {
+  export interface ModelRegistry {
+    foo: null;
+  }
+}
+
 export default class ApplicationRoute extends Route {
   @inject declare store: Store;
 

@@ -6,6 +6,17 @@ import Store from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
+type ExistingResourceObject =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceObject;
+
+declare module '@ember-data/store/-private/ts-interfaces/registries' {
+  export interface ModelRegistry {
+    person: null;
+    house: null;
+    'not house': null;
+  }
+}
+
 module('Integration | Identifiers - cache', function (hooks) {
   setupTest(hooks);
   let store, cache;
@@ -39,7 +50,7 @@ module('Integration | Identifiers - cache', function (hooks) {
     });
 
     test('returns the existing identifier when called with an identifier', async function (assert) {
-      const houseHash = {
+      const houseHash: ExistingResourceObject = {
         type: 'house',
         id: '1',
         attributes: {
@@ -57,7 +68,7 @@ module('Integration | Identifiers - cache', function (hooks) {
     });
 
     test('identifiers are cached by lid and can be looked up by lid', async function (assert) {
-      const houseHash = {
+      const houseHash: ExistingResourceObject = {
         type: 'house',
         id: '1',
         attributes: {

@@ -28,6 +28,8 @@ import Snapshot from '../snapshot';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
 import RootState from './states';
 
+type ModelRegistry = import('../../ts-interfaces/registries').ModelRegistry;
+
 type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
 type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
 
@@ -83,7 +85,7 @@ interface BelongsToMetaWrapper {
   key: string;
   store: CoreStore;
   originatingInternalModel: InternalModel;
-  modelName: string;
+  modelName: keyof ModelRegistry;
 }
 
 /*
@@ -110,7 +112,7 @@ function extractPivotName(name) {
 }
 export default class InternalModel {
   declare _id: string | null;
-  declare modelName: string;
+  declare modelName: keyof ModelRegistry;
   declare clientId: string;
   declare __recordData: RecordData | null;
   declare _isDestroyed: boolean;
@@ -1276,7 +1278,7 @@ export default class InternalModel {
   }
 
   // FOR USE DURING COMMIT PROCESS
-  adapterDidInvalidate(parsedErrors, error) {
+  adapterDidInvalidate(parsedErrors, error?) {
     if (RECORD_DATA_ERRORS) {
       // TODO @runspired this should be handled by RecordState
       // and errors should be dirtied but lazily fetch if at

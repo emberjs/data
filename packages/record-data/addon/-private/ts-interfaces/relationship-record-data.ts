@@ -1,3 +1,4 @@
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type SingleResourceRelationship =
   import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').SingleResourceRelationship;
@@ -15,7 +16,7 @@ export interface DefaultSingleResourceRelationship extends SingleResourceRelatio
 export interface RelationshipRecordData extends RecordData {
   //Required by the relationship layer
   isNew(): boolean;
-  modelName: string;
+  modelName: keyof ModelRegistry;
   storeWrapper: RecordDataStoreWrapper;
   identifier: StableRecordIdentifier;
   id: string | null;

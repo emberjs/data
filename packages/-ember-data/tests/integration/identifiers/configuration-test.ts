@@ -25,6 +25,24 @@ type IdentifierBucket = import('@ember-data/store/-private/ts-interfaces/identif
 type ResourceData = import('@ember-data/store/-private/ts-interfaces/identifier').ResourceData;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 
+class User extends Model {
+  @attr()
+  declare firstName: string;
+  @attr()
+  declare username: string;
+  @attr()
+  declare age: number;
+}
+
+declare module '@ember-data/store/-private/ts-interfaces/registries' {
+  export interface ModelRegistry {
+    user: User;
+    container: null;
+    retainer: null;
+    'retained-record': null;
+  }
+}
+
 module('Integration | Identifiers - configuration', function (hooks) {
   setupTest(hooks);
   let store: Store;
@@ -34,15 +52,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     owner.register('adapter:application', JSONAPIAdapter.extend());
     owner.register('serializer:application', JSONAPISerializer.extend());
-
-    class User extends Model {
-      @attr()
-      declare firstName: string;
-      @attr()
-      declare username: string;
-      @attr()
-      declare age: number;
-    }
 
     owner.register('model:user', User);
     owner.register('service:store', Store);

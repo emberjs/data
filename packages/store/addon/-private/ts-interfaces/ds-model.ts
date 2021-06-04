@@ -4,6 +4,7 @@ import RSVP from 'rsvp';
 
 import { RecordInstance } from './record-instance';
 
+type ModelRegistry = import('./registries').ModelRegistry;
 type RelationshipSchema = import('./record-data-schemas').RelationshipSchema;
 type AttributeSchema = import('./record-data-schemas').AttributeSchema;
 type JsonApiValidationError = import('./record-data-json-api').JsonApiValidationError;
@@ -23,7 +24,7 @@ export interface DSModel extends RecordInstance, EmberObject {
 
 // Implemented by both ShimModelClass and DSModel
 export interface ModelSchema {
-  modelName: string;
+  modelName: keyof ModelRegistry;
   fields: Map<string, 'attribute' | 'belongsTo' | 'hasMany'>;
   attributes: Map<string, AttributeSchema>;
   relationshipsByName: Map<string, RelationshipSchema>;

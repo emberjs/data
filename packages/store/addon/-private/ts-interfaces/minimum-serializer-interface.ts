@@ -4,9 +4,9 @@ type Snapshot = import('../system/snapshot').default;
 type JsonApiDocument = import('./ember-data-json-api').JsonApiDocument;
 type SingleResourceDocument = import('./ember-data-json-api').SingleResourceDocument;
 type Store = import('../system/core-store').default;
-type JSONObject = import('json-typescript').Object;
 
-type OptionsHash = Dict<any>;
+type JSONObject = Dict<unknown>;
+type OptionsHash = Dict<unknown>;
 
 /**
   @module @ember-data/serializer
@@ -22,7 +22,7 @@ type OptionsHash = Dict<any>;
   @class MinimumSerializerInterface
   @public
 */
-interface Serializer {
+export interface MinimumSerializerInterface {
   /**
    * This method is responsible for normalizing the value resolved from the promise returned
    * by an Adapter request into the format expected by the `Store`.
@@ -232,5 +232,3 @@ interface Serializer {
    */
   pushPayload?(store: Store, rawPayload: JSONObject): void;
 }
-
-export default Serializer;

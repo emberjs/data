@@ -2,6 +2,8 @@ import { assert } from '@ember/debug';
 
 import InternalModel from './model/internal-model';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
+
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
@@ -24,7 +26,7 @@ export default class InternalModelMap {
   private _idToModel: ConfidentDict<InternalModel> = Object.create(null);
   private _models: InternalModel[] = [];
 
-  constructor(public modelName: string) {}
+  constructor(public type: keyof ModelRegistry) {}
 
   get(id: string): InternalModel | null {
     return this._idToModel[id] || null;
@@ -68,7 +70,7 @@ export default class InternalModelMap {
 
     if (id) {
       assert(
-        `Duplicate InternalModel for ${this.modelName}:${id} detected.`,
+        `Duplicate InternalModel for ${this.type}:${id} detected.`,
         !this.has(id) || this.get(id) === internalModel
       );
 

@@ -13,6 +13,8 @@ import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
 
+type ModelRegistry = import('../ts-interfaces/registries').ModelRegistry;
+
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
 type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
@@ -55,117 +57,117 @@ class Store extends CoreStore {
     record.destroy();
   }
 
-  modelFor(modelName: string): ShimModelClass | DSModelClass {
+  modelFor(type: keyof ModelRegistry): ShimModelClass | DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
-    assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's modelFor method`, isPresent(type));
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
-    let maybeFactory = this._modelFactoryFor(modelName);
+    let maybeFactory = this._modelFactoryFor(type);
 
     // for factorFor factory/class split
     let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
     if (!klass || !klass.isModel) {
-      if (!CUSTOM_MODEL_CLASS || !this.getSchemaDefinitionService().doesTypeExist(modelName)) {
-        throw new EmberError(`No model was found for '${modelName}' and no schema handles the type`);
+      if (!CUSTOM_MODEL_CLASS || !this.getSchemaDefinitionService().doesTypeExist(type)) {
+        throw new EmberError(`No model was found for '${type}' and no schema handles the type`);
       }
-      return getShimClass(this, modelName);
+      return getShimClass(this, type);
     } else {
       return klass;
     }
   }
 
-  _modelFactoryFor(modelName: string): DSModelClass {
+  _modelFactoryFor(type: keyof ModelRegistry): DSModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, '_modelFactoryFor');
     }
-    assert(`You need to pass a model name to the store's _modelFactoryFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's _modelFactoryFor method`, isPresent(type));
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName(type);
     let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
     return factory;
   }
 
-  _hasModelFor(modelName) {
+  _hasModelFor(type: string): type is keyof ModelRegistry {
     if (DEBUG) {
       assertDestroyingStore(this, '_hasModelFor');
     }
-    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(type));
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
     if (CUSTOM_MODEL_CLASS) {
-      return this.getSchemaDefinitionService().doesTypeExist(modelName);
+      return this.getSchemaDefinitionService().doesTypeExist(type);
     } else {
-      assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+      assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(type));
       assert(
-        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-        typeof modelName === 'string'
+        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+        typeof type === 'string'
       );
-      let normalizedModelName = normalizeModelName(modelName);
+      let normalizedModelName = normalizeModelName(type);
       let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
       return factory !== null;
     }
   }
 
-  _relationshipMetaFor(modelName: string, id: string | null, key: string) {
+  _relationshipMetaFor(type: keyof ModelRegistry, id: string | null, key: string) {
     if (CUSTOM_MODEL_CLASS) {
-      return this._relationshipsDefinitionFor(modelName)[key];
+      return this._relationshipsDefinitionFor(type)[key];
     } else {
-      let modelClass = this.modelFor(modelName);
+      let modelClass = this.modelFor(type);
       let relationshipsByName = get(modelClass, 'relationshipsByName');
       return relationshipsByName.get(key);
     }
   }
 
-  _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
+  _attributesDefinitionFor(type: keyof ModelRegistry, identifier?: StableRecordIdentifier) {
     if (CUSTOM_MODEL_CLASS) {
       if (identifier) {
         return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
       } else {
-        return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+        return this.getSchemaDefinitionService().attributesDefinitionFor(type);
       }
     } else {
-      let attributes = this._attributesDefCache[modelName];
+      let attributes = this._attributesDefCache[type];
 
       if (attributes === undefined) {
-        let modelClass = this.modelFor(modelName);
+        let modelClass = this.modelFor(type);
         let attributeMap = get(modelClass, 'attributes');
 
         attributes = Object.create(null);
         attributeMap.forEach((meta, name) => (attributes[name] = meta));
-        this._attributesDefCache[modelName] = attributes;
+        this._attributesDefCache[type] = attributes;
       }
 
       return attributes;
     }
   }
 
-  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): RelationshipsSchema {
+  _relationshipsDefinitionFor(type: keyof ModelRegistry, identifier?: StableRecordIdentifier): RelationshipsSchema {
     if (CUSTOM_MODEL_CLASS) {
       if (identifier) {
         return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
       } else {
-        return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+        return this.getSchemaDefinitionService().relationshipsDefinitionFor(type);
       }
     } else {
-      let relationships = this._relationshipsDefCache[modelName];
+      let relationships = this._relationshipsDefCache[type];
 
       if (relationships === undefined) {
-        let modelClass = this.modelFor(modelName);
+        let modelClass = this.modelFor(type);
         relationships = get(modelClass, 'relationshipsObject') || null;
-        this._relationshipsDefCache[modelName] = relationships;
+        this._relationshipsDefCache[type] = relationships;
       }
 
       return relationships;

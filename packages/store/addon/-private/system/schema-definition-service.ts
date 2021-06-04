@@ -7,6 +7,8 @@ import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
 import normalizeModelName from './normalize-model-name';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
+
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
@@ -76,8 +78,8 @@ export class DSModelSchemaDefinitionService {
     return relationships;
   }
 
-  doesTypeExist(modelName: string): boolean {
-    let normalizedModelName = normalizeModelName(modelName);
+  doesTypeExist(type: string): type is keyof ModelRegistry {
+    let normalizedModelName = normalizeModelName(type);
     let factory = getModelFactory(this.store, this._modelFactoryCache, normalizedModelName);
 
     return factory !== null;

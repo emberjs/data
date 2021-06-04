@@ -13,12 +13,10 @@ import { addSymbol } from '../utils/symbol';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
 
+type ModelRegistry = import('../ts-interfaces/registries').ModelRegistry;
 type IdentifierBucket = import('../ts-interfaces/identifier').IdentifierBucket;
-
 type ResourceData = import('../ts-interfaces/identifier').ResourceData;
-
 type Identifier = import('../ts-interfaces/identifier').Identifier;
-
 type CoreStore = import('../system/core-store').default;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type GenerationMethod = import('../ts-interfaces/identifier').GenerationMethod;
@@ -197,7 +195,7 @@ export class IdentifierCache {
     // `type` must always be present
     assert('resource.type needs to be a string', 'type' in resource && isNonEmptyString(resource.type));
 
-    let type = resource.type && normalizeModelName(resource.type);
+    let type: keyof ModelRegistry = normalizeModelName<keyof ModelRegistry>(resource.type);
     let id = coerceId(resource.id);
 
     let keyOptions = getTypeIndex(this._cache.types, type);
@@ -321,7 +319,7 @@ export class IdentifierCache {
    @returns {StableRecordIdentifier}
    @public
   */
-  createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
+  createIdentifierForNewRecord(data: { type: keyof ModelRegistry; id?: string | null }): StableRecordIdentifier {
     let newLid = this._generate(data, 'record');
     let identifier = makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
     let keyOptions = getTypeIndex(this._cache.types, data.type);
@@ -484,7 +482,7 @@ function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
 
 function makeStableRecordIdentifier(
   id: string | null,
-  type: string,
+  type: keyof ModelRegistry,
   lid: string,
   bucket: IdentifierBucket,
   clientOriginated: boolean = false

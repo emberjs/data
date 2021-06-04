@@ -10,6 +10,8 @@ import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
+
 type AttributesSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').AttributesSchema;
 
 type RecordDataRecordWrapper =
@@ -48,7 +50,7 @@ if (CUSTOM_MODEL_CLASS) {
           relationshipsDefinitionFor() {
             return {};
           },
-          doesTypeExist() {
+          doesTypeExist(str: string): str is keyof ModelRegistry {
             return true;
           },
         });

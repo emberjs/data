@@ -3,6 +3,8 @@
 */
 import { symbol } from '../utils/symbol';
 
+type ModelRegistry = import('./registries').ModelRegistry;
+
 type ExistingResourceObject = import('./ember-data-json-api').ExistingResourceObject;
 type ResourceIdentifierObject = import('./ember-data-json-api').ResourceIdentifierObject;
 
@@ -62,7 +64,7 @@ export interface StableIdentifier extends Identifier {
  */
 export interface StableExistingRecordIdentifier extends StableIdentifier {
   id: string;
-  type: string;
+  type: keyof ModelRegistry;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
 }
 /**
@@ -78,7 +80,7 @@ export interface StableExistingRecordIdentifier extends StableIdentifier {
  */
 export interface StableNewRecordIdentifier extends StableIdentifier {
   id: string | null;
-  type: string;
+  type: keyof ModelRegistry;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
 }
 

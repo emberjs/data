@@ -5,6 +5,8 @@ import { identifierCacheFor } from '../../identifiers/cache';
 import constructResource from '../../utils/construct-resource';
 import { internalModelFactoryFor } from './internal-model-factory';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
+
 type StoreWrapper = import('../../ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type CoreStore = import('../core-store').default;
@@ -66,9 +68,9 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     backburner.schedule('notify', this, this._flushNotifications);
   }
 
-  notifyErrorsChange(type: string, id: string, lid: string | null): void;
-  notifyErrorsChange(type: string, id: string | null, lid: string): void;
-  notifyErrorsChange(type: string, id: string | null, lid: string | null): void {
+  notifyErrorsChange(type: keyof ModelRegistry, id: string, lid: string | null): void;
+  notifyErrorsChange(type: keyof ModelRegistry, id: string | null, lid: string): void;
+  notifyErrorsChange(type: keyof ModelRegistry, id: string | null, lid: string | null): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
 
@@ -103,15 +105,15 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     });
   }
 
-  attributesDefinitionFor(type: string): AttributesSchema {
+  attributesDefinitionFor(type: keyof ModelRegistry): AttributesSchema {
     return this._store._attributesDefinitionFor(type);
   }
 
-  relationshipsDefinitionFor(type: string): RelationshipsSchema {
+  relationshipsDefinitionFor(type: keyof ModelRegistry): RelationshipsSchema {
     return this._store._relationshipsDefinitionFor(type);
   }
 
-  inverseForRelationship(type: string, key: string): string | null {
+  inverseForRelationship(type: keyof ModelRegistry, key: string): string | null {
     const modelClass = this._store.modelFor(type);
     const definition = this.relationshipsDefinitionFor(type)[key];
     if (!definition) {
@@ -130,7 +132,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  inverseIsAsyncForRelationship(type: string, key: string): boolean {
+  inverseIsAsyncForRelationship(type: keyof ModelRegistry, key: string): boolean {
     const modelClass = this._store.modelFor(type);
     const definition = this.relationshipsDefinitionFor(type)[key];
     if (!definition) {
@@ -154,9 +156,14 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  notifyPropertyChange(type: string, id: string | null, lid: string, key: string): void;
-  notifyPropertyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
-  notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+  notifyPropertyChange(type: keyof ModelRegistry, id: string | null, lid: string, key: string): void;
+  notifyPropertyChange(type: keyof ModelRegistry, id: string, lid: string | null | undefined, key: string): void;
+  notifyPropertyChange(
+    type: keyof ModelRegistry,
+    id: string | null,
+    lid: string | null | undefined,
+    key: string
+  ): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
@@ -166,26 +173,31 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  notifyHasManyChange(type: string, id: string | null, lid: string, key: string): void;
-  notifyHasManyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
-  notifyHasManyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+  notifyHasManyChange(type: keyof ModelRegistry, id: string | null, lid: string, key: string): void;
+  notifyHasManyChange(type: keyof ModelRegistry, id: string, lid: string | null | undefined, key: string): void;
+  notifyHasManyChange(type: keyof ModelRegistry, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
     this._scheduleNotification(identifier, key, 'hasMany');
   }
 
-  notifyBelongsToChange(type: string, id: string | null, lid: string, key: string): void;
-  notifyBelongsToChange(type: string, id: string, lid: string | null | undefined, key: string): void;
-  notifyBelongsToChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
+  notifyBelongsToChange(type: keyof ModelRegistry, id: string | null, lid: string, key: string): void;
+  notifyBelongsToChange(type: keyof ModelRegistry, id: string, lid: string | null | undefined, key: string): void;
+  notifyBelongsToChange(
+    type: keyof ModelRegistry,
+    id: string | null,
+    lid: string | null | undefined,
+    key: string
+  ): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
 
     this._scheduleNotification(identifier, key, 'belongsTo');
   }
 
-  notifyStateChange(type: string, id: string, lid: string | null, key?: string): void;
-  notifyStateChange(type: string, id: string | null, lid: string, key?: string): void;
-  notifyStateChange(type: string, id: string | null, lid: string | null, key?: string): void {
+  notifyStateChange(type: keyof ModelRegistry, id: string, lid: string | null, key?: string): void;
+  notifyStateChange(type: keyof ModelRegistry, id: string | null, lid: string, key?: string): void;
+  notifyStateChange(type: keyof ModelRegistry, id: string | null, lid: string | null, key?: string): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
@@ -195,11 +207,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
   }
 
-  recordDataFor(type: string, id: string, lid?: string | null): RecordData;
-  recordDataFor(type: string, id: string | null, lid: string): RecordData;
-  recordDataFor(type: string): RecordData;
-  recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData {
-    let identifier: StableRecordIdentifier | { type: string };
+  recordDataFor(type: keyof ModelRegistry, id: string, lid?: string | null): RecordData;
+  recordDataFor(type: keyof ModelRegistry, id: string | null, lid: string): RecordData;
+  recordDataFor(type: keyof ModelRegistry): RecordData;
+  recordDataFor(type: keyof ModelRegistry, id?: string | null, lid?: string | null): RecordData {
+    let identifier: StableRecordIdentifier | { type: keyof ModelRegistry };
     let isCreate: boolean = false;
     if (!id && !lid) {
       isCreate = true;
@@ -212,13 +224,13 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     return this._store.recordDataFor(identifier, isCreate);
   }
 
-  setRecordId(type: string, id: string, lid: string) {
+  setRecordId(type: keyof ModelRegistry, id: string, lid: string) {
     this._store.setRecordId(type, id, lid);
   }
 
-  isRecordInUse(type: string, id: string | null, lid: string): boolean;
-  isRecordInUse(type: string, id: string, lid?: string | null): boolean;
-  isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
+  isRecordInUse(type: keyof ModelRegistry, id: string | null, lid: string): boolean;
+  isRecordInUse(type: keyof ModelRegistry, id: string, lid?: string | null): boolean;
+  isRecordInUse(type: keyof ModelRegistry, id: string | null, lid?: string | null): boolean {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
     const internalModel = internalModelFactoryFor(this._store).peek(identifier);
@@ -231,9 +243,9 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     return record && !(record.isDestroyed || record.isDestroying);
   }
 
-  disconnectRecord(type: string, id: string | null, lid: string): void;
-  disconnectRecord(type: string, id: string, lid?: string | null): void;
-  disconnectRecord(type: string, id: string | null, lid?: string | null): void {
+  disconnectRecord(type: keyof ModelRegistry, id: string | null, lid: string): void;
+  disconnectRecord(type: keyof ModelRegistry, id: string, lid?: string | null): void;
+  disconnectRecord(type: keyof ModelRegistry, id: string | null, lid?: string | null): void {
     const resource = constructResource(type, id, lid);
     const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
     if (HAS_RECORD_DATA_PACKAGE) {

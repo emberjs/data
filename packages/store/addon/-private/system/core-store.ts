@@ -61,6 +61,17 @@ import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } fro
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
+type RESTAdapter = import('@ember-data/adapter/rest').default;
+type JSONAPIAdapter = import('@ember-data/adapter/json-api').default;
+type RESTSerializer = import('@ember-data/serializer/rest').default;
+type JSONSerializer = import('@ember-data/serializer/json').default;
+type JSONAPISerializer = import('@ember-data/serializer/json-api').default;
+
+type ResolvedSerializerRegistry = import('../ts-interfaces/registries').ResolvedSerializerRegistry;
+type ResolvedAdapterRegistry = import('../ts-interfaces/registries').ResolvedAdapterRegistry;
+type ModelRegistry = import('../ts-interfaces/registries').ModelRegistry;
+type MinimumSerializerInterface = import('../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface;
+type MinimumAdapterInterface = import('../ts-interfaces/minimum-adapter-interface').MinimumAdapterInterface;
 type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
 type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
 
@@ -73,7 +84,7 @@ type HasManyReference = import('./references').HasManyReference;
 type BelongsToReference = import('./references').BelongsToReference;
 type IdentifierCache = import('../identifiers/cache').IdentifierCache;
 type InternalModel = import('./model/internal-model').default;
-
+type RecordArray = import('./record-arrays/record-array').default;
 type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
 type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
 type EmptyResourceDocument = import('../ts-interfaces/ember-data-json-api').EmptyResourceDocument;
@@ -220,6 +231,31 @@ interface CoreStore {
   adapter: string;
 }
 
+type ValuesOf<T> = T[keyof T];
+// Adapter and Serializer Types are intentionally broader
+// than ResolvedAdatperRegistry because otherwise we
+// will narrow internally simply due to not enough
+// adapters/serializers having been registered
+// or because we always hit the fallback
+type AdapterTypes =
+  | ValuesOf<ResolvedAdapterRegistry>
+  | MinimumAdapterInterface
+  | RESTAdapter
+  | JSONAPIAdapter
+  | JSONAPIAdapter;
+// this currently is equivalent to `any` because the serializers
+// are not yet converted to typescript
+type SerializerTypes =
+  | ValuesOf<ResolvedSerializerRegistry>
+  | MinimumSerializerInterface
+  | RESTSerializer
+  | JSONSerializer
+  | JSONAPISerializer;
+
+type PolymorphicRegistry<K, V, T extends V | undefined> = {
+  [P in keyof K]?: T;
+};
+
 abstract class CoreStore extends Service {
   /**
    * EmberData specific backburner instance
@@ -230,8 +266,12 @@ abstract class CoreStore extends Service {
   public recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
 
   declare _notificationManager: NotificationManager;
-  private _adapterCache = Object.create(null);
-  private _serializerCache = Object.create(null);
+  private declare _adapterCache: PolymorphicRegistry<ResolvedAdapterRegistry, MinimumAdapterInterface, AdapterTypes>;
+  private declare _serializerCache: PolymorphicRegistry<
+    ResolvedSerializerRegistry,
+    MinimumSerializerInterface,
+    SerializerTypes
+  >;
   public _storeWrapper = new RecordDataStoreWrapper(this);
 
   /*
@@ -247,7 +287,7 @@ abstract class CoreStore extends Service {
   private _updatedInternalModels: InternalModel[] = [];
 
   // used to keep track of all the find requests that need to be coalesced
-  private _pendingFetch = new Map<string, PendingFetchItem[]>();
+  private declare _pendingFetch: Map<keyof ModelRegistry, PendingFetchItem[]>;
 
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
@@ -307,6 +347,9 @@ abstract class CoreStore extends Service {
   */
   constructor() {
     super(...arguments);
+    this._adapterCache = Object.create(null);
+    this._serializerCache = Object.create(null);
+    this._pendingFetch = new Map();
 
     if (REQUEST_SERVICE) {
       this._fetchManager = new FetchManager(this);
@@ -441,7 +484,7 @@ abstract class CoreStore extends Service {
 
   _instantiateRecord(
     internalModel: InternalModel,
-    modelName: string,
+    modelName: keyof ModelRegistry,
     recordData: RecordData,
     identifier: StableRecordIdentifier,
     properties?: { [key: string]: any }
@@ -511,19 +554,19 @@ abstract class CoreStore extends Service {
   }
 
   // FeatureFlagged in the DSModelStore claas
-  _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): AttributesSchema {
+  _attributesDefinitionFor(type: keyof ModelRegistry, identifier?: StableRecordIdentifier): AttributesSchema {
     if (identifier) {
       return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
     } else {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+      return this.getSchemaDefinitionService().attributesDefinitionFor(type);
     }
   }
 
-  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
+  _relationshipsDefinitionFor(type: keyof ModelRegistry, identifier?: StableRecordIdentifier) {
     if (identifier) {
       return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
     } else {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+      return this.getSchemaDefinitionService().relationshipsDefinitionFor(type);
     }
   }
 
@@ -539,8 +582,8 @@ abstract class CoreStore extends Service {
   }
 
   // TODO Double check this return value is correct
-  _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    return this._relationshipsDefinitionFor(modelName)[key];
+  _relationshipMetaFor(type: keyof ModelRegistry, id: string | null, key: string) {
+    return this._relationshipsDefinitionFor(type)[key];
   }
 
   /**
@@ -559,7 +602,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return {subclass of Model | ShimModelClass}
     */
-  modelFor(modelName: string): ShimModelClass {
+  modelFor(modelName: keyof ModelRegistry): ShimModelClass {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
@@ -580,14 +623,14 @@ abstract class CoreStore extends Service {
     @method _hasModelFor
     @private
   */
-  _hasModelFor(modelName: string): boolean {
-    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
+  _hasModelFor(type: string): type is keyof ModelRegistry {
+    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(type));
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
-    return this.getSchemaDefinitionService().doesTypeExist(modelName);
+    return this.getSchemaDefinitionService().doesTypeExist(type);
   }
 
   // .....................
@@ -623,7 +666,7 @@ abstract class CoreStore extends Service {
       newly created record.
     @return {Model} record
   */
-  createRecord(modelName, inputProperties) {
+  createRecord(modelName: keyof ModelRegistry, inputProperties?: Dict<unknown>) {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
@@ -640,7 +683,7 @@ abstract class CoreStore extends Service {
     //   to remove this, we would need to move to a new `async` API.
     return emberBackburner.join(() => {
       return this._backburner.join(() => {
-        let normalizedModelName = normalizeModelName(modelName);
+        let normalizedModelName = normalizeModelName<keyof ModelRegistry>(modelName);
         let properties = assign({}, inputProperties);
 
         // If the passed properties do not include a primary key,
@@ -768,7 +811,7 @@ abstract class CoreStore extends Service {
     @return {Promise} promise
     @private
   */
-  find(modelName, id, options) {
+  find(modelName: keyof ModelRegistry, id: string, options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'find');
     }
@@ -1168,10 +1211,10 @@ abstract class CoreStore extends Service {
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord(resource: string, id: string | number, options?: FindOptions): PromiseProxy<DSModel>;
+  findRecord(resource: keyof ModelRegistry, id: string | number, options?: FindOptions): PromiseProxy<DSModel>;
   findRecord(resource: ResourceIdentifierObject, id?: FindOptions): PromiseProxy<DSModel>;
   findRecord(
-    resource: string | ResourceIdentifierObject,
+    resource: keyof ModelRegistry | ResourceIdentifierObject,
     id?: string | number | FindOptions,
     options?: FindOptions
   ): PromiseProxy<DSModel> {
@@ -1190,7 +1233,7 @@ abstract class CoreStore extends Service {
         `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${resource}`,
         typeof resource === 'string'
       );
-      const type = normalizeModelName(resource);
+      const type = normalizeModelName<keyof ModelRegistry>(resource);
       const normalizedId = ensureStringId(id as string | number);
       resource = constructResource(type, normalizedId);
     }
@@ -1286,7 +1329,7 @@ abstract class CoreStore extends Service {
     @param {Array} ids
     @return {Promise} promise
   */
-  findByIds(modelName, ids) {
+  findByIds(modelName: keyof ModelRegistry, ids) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findByIds');
     }
@@ -1298,7 +1341,7 @@ abstract class CoreStore extends Service {
 
     let promises = new Array(ids.length);
 
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<keyof ModelRegistry>(modelName);
 
     for (let i = 0; i < ids.length; i++) {
       promises[i] = this.findRecord(normalizedModelName, ids[i]);
@@ -1446,7 +1489,7 @@ abstract class CoreStore extends Service {
     }
   }
 
-  _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
+  _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: keyof ModelRegistry) {
     let store = this;
     let adapter = store.adapterFor(modelName);
     let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
@@ -1638,7 +1681,7 @@ abstract class CoreStore extends Service {
     @since 2.5.0
     @return {RecordReference}
   */
-  getReference(resource: string | ResourceIdentifierObject, id: string | number): RecordReference {
+  getReference(resource: keyof ModelRegistry | ResourceIdentifierObject, id: string | number): RecordReference {
     if (DEBUG) {
       assertDestroyingStore(this, 'getReference');
     }
@@ -1647,7 +1690,7 @@ abstract class CoreStore extends Service {
     if (arguments.length === 1 && isMaybeIdentifier(resource)) {
       resourceIdentifier = resource;
     } else {
-      const type = normalizeModelName(resource as string);
+      const type = normalizeModelName<keyof ModelRegistry>(resource as string);
       const normalizedId = ensureStringId(id);
       resourceIdentifier = constructResource(type, normalizedId);
     }
@@ -1738,7 +1781,7 @@ abstract class CoreStore extends Service {
       typeof identifier === 'string'
     );
 
-    const type = normalizeModelName(identifier);
+    const type = normalizeModelName<keyof ModelRegistry>(identifier);
     const normalizedId = ensureStringId(id);
 
     if (this.hasRecordForId(type, normalizedId)) {
@@ -1762,7 +1805,7 @@ abstract class CoreStore extends Service {
     @param options optional to include adapterOptions
     @return {Promise} promise
   */
-  _reloadRecord(internalModel, options): RSVP.Promise<InternalModel> {
+  _reloadRecord(internalModel: InternalModel, options): RSVP.Promise<InternalModel> {
     if (REQUEST_SERVICE) {
       options.isReloading = true;
     }
@@ -1773,7 +1816,7 @@ abstract class CoreStore extends Service {
     assert(`You tried to reload a record but you have no adapter (for ${modelName})`, adapter);
     assert(
       `You tried to reload a record but your adapter does not implement 'findRecord'`,
-      typeof adapter.findRecord === 'function' || typeof adapter.find === 'function'
+      typeof adapter.findRecord === 'function'
     );
 
     return this._scheduleFetch(internalModel, options);
@@ -1799,7 +1842,7 @@ abstract class CoreStore extends Service {
     @param {(String|Integer)} id
     @return {Boolean}
   */
-  hasRecordForId(modelName: string, id: string | number): boolean {
+  hasRecordForId(modelName: keyof ModelRegistry, id: string | number): boolean {
     if (DEBUG) {
       assertDestroyingStore(this, 'hasRecordForId');
     }
@@ -1809,7 +1852,7 @@ abstract class CoreStore extends Service {
       typeof modelName === 'string'
     );
 
-    const type = normalizeModelName(modelName);
+    const type = normalizeModelName<keyof ModelRegistry>(modelName);
     const trueId = ensureStringId(id);
     const resource = { type, id: trueId };
 
@@ -1829,7 +1872,7 @@ abstract class CoreStore extends Service {
     @param {(String|Integer)} id
     @return {Model} record
   */
-  recordForId(modelName: string, id: string | number): RecordInstance {
+  recordForId(modelName: keyof ModelRegistry, id: string | number): RecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordForId');
     }
@@ -2121,7 +2164,7 @@ abstract class CoreStore extends Service {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName: string, query, options): PromiseArray<DSModel> {
+  query(modelName: keyof ModelRegistry, query, options): PromiseArray<DSModel> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -2138,11 +2181,11 @@ abstract class CoreStore extends Service {
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
     }
 
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<keyof ModelRegistry>(modelName);
     return this._query(normalizedModelName, query, null, adapterOptionsWrapper);
   }
 
-  _query(modelName: string, query, array, options): PromiseArray<DSModel> {
+  _query(modelName: keyof ModelRegistry, query, array, options): PromiseArray<DSModel> {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
@@ -2485,7 +2528,10 @@ abstract class CoreStore extends Service {
     @param {Object} options
     @return {Promise} promise
   */
-  findAll(modelName, options) {
+  findAll(
+    modelName: keyof ModelRegistry,
+    options?: { reload?: boolean; backgroundReload?: boolean }
+  ): Promise<RecordArray> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findAll');
     }
@@ -2495,7 +2541,7 @@ abstract class CoreStore extends Service {
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<keyof ModelRegistry>(modelName);
     let fetch = this._fetchAll(normalizedModelName, this.peekAll(normalizedModelName), options);
 
     return fetch;
@@ -2508,7 +2554,11 @@ abstract class CoreStore extends Service {
     @param {RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll(modelName, array, options: { reload?: boolean; backgroundReload?: boolean } = {}) {
+  _fetchAll(
+    modelName: keyof ModelRegistry,
+    array: RecordArray,
+    options: { reload?: boolean; backgroundReload?: boolean } = {}
+  ): Promise<RecordArray> {
     let adapter = this.adapterFor(modelName);
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
@@ -2555,7 +2605,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @private
   */
-  _didUpdateAll(modelName) {
+  _didUpdateAll(modelName: keyof ModelRegistry) {
     this.recordArrayManager._didUpdateAll(modelName);
   }
 
@@ -2584,7 +2634,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return {RecordArray}
   */
-  peekAll(modelName) {
+  peekAll(modelName: keyof ModelRegistry): RecordArray {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekAll');
     }
@@ -2593,7 +2643,7 @@ abstract class CoreStore extends Service {
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName<keyof ModelRegistry>(modelName);
     return this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
   }
 
@@ -2612,7 +2662,7 @@ abstract class CoreStore extends Service {
     @public
     @param {String} modelName
   */
-  unloadAll(modelName?: string) {
+  unloadAll(modelName?: keyof ModelRegistry) {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'unloadAll');
     }
@@ -2626,7 +2676,7 @@ abstract class CoreStore extends Service {
     if (modelName === undefined) {
       factory.clear();
     } else {
-      let normalizedModelName = normalizeModelName(modelName);
+      let normalizedModelName = normalizeModelName<keyof ModelRegistry>(modelName);
       factory.clear(normalizedModelName);
     }
   }
@@ -2791,7 +2841,7 @@ abstract class CoreStore extends Service {
     @param {Object} data optional data (see above)
     @param {string} op the adapter operation that was committed
   */
-  didSaveRecord(internalModel, dataArg, op: 'createRecord' | 'updateRecord' | 'deleteRecord') {
+  didSaveRecord(internalModel: InternalModel, dataArg, op: 'createRecord' | 'updateRecord' | 'deleteRecord') {
     if (DEBUG) {
       assertDestroyingStore(this, 'didSaveRecord');
     }
@@ -2828,7 +2878,7 @@ abstract class CoreStore extends Service {
     @param {InternalModel} internalModel
     @param {Object} errors
   */
-  recordWasInvalid(internalModel, parsedErrors, error) {
+  recordWasInvalid(internalModel: InternalModel, parsedErrors, error) {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasInvalid');
     }
@@ -2849,7 +2899,7 @@ abstract class CoreStore extends Service {
     @param {InternalModel} internalModel
     @param {Error} error
   */
-  recordWasError(internalModel, error) {
+  recordWasError(internalModel: InternalModel, error) {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasError');
     }
@@ -2866,7 +2916,7 @@ abstract class CoreStore extends Service {
     @param {string} newId
     @param {string} clientId
    */
-  setRecordId(modelName: string, newId: string, clientId: string) {
+  setRecordId(modelName: keyof ModelRegistry, newId: string, clientId: string) {
     if (DEBUG) {
       assertDestroyingStore(this, 'setRecordId');
     }
@@ -3074,6 +3124,7 @@ abstract class CoreStore extends Service {
   push(data: EmptyResourceDocument): null;
   push(data: SingleResourceDocument): RecordInstance;
   push(data: CollectionResourceDocument): RecordInstance[];
+  push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null;
   push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
@@ -3102,13 +3153,17 @@ abstract class CoreStore extends Service {
     @param {Object} jsonApiDoc
     @return {InternalModel|Array<InternalModel>} pushed InternalModel(s)
   */
-  _push(jsonApiDoc): InternalModel | InternalModel[] | null {
+  _push(jsonApiDoc: EmptyResourceDocument): null;
+  _push(jsonApiDoc: SingleResourceDocument): InternalModel;
+  _push(jsonApiDoc: CollectionResourceDocument): InternalModel[];
+  _push(jsonApiDoc: JsonApiDocument): null | InternalModel | InternalModel[];
+  _push(jsonApiDoc: JsonApiDocument): null | InternalModel | InternalModel[] {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
     let internalModelOrModels = this._backburner.join(() => {
       let included = jsonApiDoc.included;
-      let i, length;
+      let i: number, length: number;
 
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {
@@ -3131,9 +3186,7 @@ abstract class CoreStore extends Service {
       }
 
       assert(
-        `Expected an object in the 'data' property in a call to 'push' for ${jsonApiDoc.type}, but was ${typeOf(
-          jsonApiDoc.data
-        )}`,
+        `Expected an object in the 'data' property in a call to 'push', but was ${typeOf(jsonApiDoc.data)}`,
         typeOf(jsonApiDoc.data) === 'object'
       );
 
@@ -3144,7 +3197,7 @@ abstract class CoreStore extends Service {
     return internalModelOrModels as unknown as InternalModel | InternalModel[];
   }
 
-  _pushInternalModel(data) {
+  _pushInternalModel(data: ExistingResourceObject) {
     let modelName = data.type;
     assert(
       `You must include an 'id' for ${modelName} in an object passed to 'push'`,
@@ -3308,7 +3361,7 @@ abstract class CoreStore extends Service {
    * @method _internalModelForId
    * @internal
    */
-  _internalModelForId(type: string, id: string | null, lid: string | null): InternalModel {
+  _internalModelForId(type: keyof ModelRegistry, id: string | null, lid: string | null): InternalModel {
     const resource = constructResource(type, id, lid);
     return internalModelFactoryFor(this).lookup(resource);
   }
@@ -3376,7 +3429,7 @@ abstract class CoreStore extends Service {
    * @param storeWrapper
    */
   createRecordDataFor(
-    modelName: string,
+    modelName: keyof ModelRegistry,
     id: string | null,
     clientId: string,
     storeWrapper: RecordDataStoreWrapper
@@ -3413,7 +3466,7 @@ abstract class CoreStore extends Service {
   /**
    * @internal
    */
-  recordDataFor(identifier: StableRecordIdentifier | { type: string }, isCreate: boolean): RecordData {
+  recordDataFor(identifier: StableRecordIdentifier | { type: keyof ModelRegistry }, isCreate: boolean): RecordData {
     let internalModel: InternalModel;
     if (isCreate === true) {
       internalModel = internalModelFactoryFor(this).build({ type: identifier.type, id: null });
@@ -3446,7 +3499,7 @@ abstract class CoreStore extends Service {
     @param {Object} payload
     @return {Object} The normalized payload
   */
-  normalize(modelName, payload) {
+  normalize(modelName: keyof ModelRegistry, payload: Dict<unknown>): SingleResourceDocument {
     if (DEBUG) {
       assertDestroyingStore(this, 'normalize');
     }
@@ -3457,12 +3510,13 @@ abstract class CoreStore extends Service {
       )}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
-    let serializer = this.serializerFor(normalizedModelName);
+    let normalizedModelName = normalizeModelName<keyof ModelRegistry>(modelName);
+    let serializer: MinimumSerializerInterface = this.serializerFor(normalizedModelName);
     let model = this.modelFor(normalizedModelName);
+    assert(`Cannot serialize as no serializer was found for ${modelName}`, serializer);
     assert(
       `You must define a normalize method in your serializer in order to call store.normalize`,
-      serializer.normalize
+      'normalize' in serializer && typeof serializer.normalize === 'function'
     );
     return serializer.normalize(model, payload);
   }
@@ -3480,7 +3534,7 @@ abstract class CoreStore extends Service {
    *
    * @internal
    */
-  _internalModelsFor(modelName: string) {
+  _internalModelsFor(modelName: keyof ModelRegistry) {
     return internalModelFactoryFor(this).modelMapFor(modelName);
   }
 
@@ -3505,21 +3559,31 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return Adapter
   */
-  adapterFor(modelName) {
+  // strictly speaking this is somewhat a lie since we will normalize the modelName
+  // but this matches the @types/ember-data pattern which works well and encourages
+  // a stricter, better behavior when using typescript. We're also deprecating passing
+  // non-normalized modelNames into the store soon so this is relatively low risk even
+  // in the near term.
+  adapterFor<K extends keyof ResolvedAdapterRegistry>(type: K): ResolvedAdapterRegistry[K];
+  adapterFor(type: string): asserts type is keyof ResolvedAdapterRegistry;
+  adapterFor<K extends keyof ResolvedAdapterRegistry>(type: K): ResolvedAdapterRegistry[K] {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
-    assert(`You need to pass a model name to the store's adapterFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's adapterFor method`, isPresent(type));
     assert(
-      `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName(type);
 
     let { _adapterCache } = this;
-    let adapter = _adapterCache[normalizedModelName];
+    // TODO deprecate auto-set of store on adapter in favor of service injection (or no-set at all)
+    // we have to keep adapter broader here than ResolvedAdapterRegistry[K] because otherwise we will
+    // narrow simply due to not having had any adapters/serializers registered
+    let adapter: (AdapterTypes & { store?: CoreStore }) | undefined = _adapterCache[normalizedModelName];
     if (adapter) {
-      return adapter;
+      return adapter as ResolvedAdapterRegistry[K];
     }
 
     let owner = getOwner(this);
@@ -3537,18 +3601,18 @@ abstract class CoreStore extends Service {
     }
 
     if (adapter !== undefined) {
-      set(adapter, 'store', this);
+      adapter.store = this;
       _adapterCache[normalizedModelName] = adapter;
-      return adapter;
+      return adapter as ResolvedAdapterRegistry[K];
     }
 
     // no adapter found for the specific model, fallback and check for application adapter
     adapter = _adapterCache.application || owner.lookup('adapter:application');
     if (adapter !== undefined) {
-      set(adapter, 'store', this);
+      adapter.store = this;
       _adapterCache[normalizedModelName] = adapter;
       _adapterCache.application = adapter;
-      return adapter;
+      return adapter as ResolvedAdapterRegistry[K];
     }
 
     // no model specific adapter or application adapter, check for an `adapter`
@@ -3567,23 +3631,23 @@ abstract class CoreStore extends Service {
     }
 
     if (adapter !== undefined) {
-      set(adapter, 'store', this);
+      adapter.store = this;
       _adapterCache[normalizedModelName] = adapter;
       _adapterCache[adapterName] = adapter;
-      return adapter;
+      return adapter as ResolvedAdapterRegistry[K];
     }
 
     // final fallback, no model specific adapter, no application adapter, no
     // `adapter` property on store: use json-api adapter
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
     assert(
-      `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
+      `No adapter was found for '${type}' and no 'application' adapter was found as a fallback.`,
       adapter !== undefined
     );
-    set(adapter, 'store', this);
+    adapter.store = this;
     _adapterCache[normalizedModelName] = adapter;
     _adapterCache['-json-api'] = adapter;
-    return adapter;
+    return adapter as ResolvedAdapterRegistry[K];
   }
 
   // ..............................
@@ -3608,22 +3672,24 @@ abstract class CoreStore extends Service {
 
     @method serializerFor
     @public
-    @param {String} modelName the record to serialize
+    @param {String} type the record to serialize
     @return {Serializer}
   */
-  serializerFor(modelName) {
+  serializerFor<K extends keyof ResolvedSerializerRegistry>(type: K): ResolvedSerializerRegistry[K];
+  serializerFor(type: string): asserts type is keyof ResolvedSerializerRegistry;
+  serializerFor<K extends keyof ResolvedSerializerRegistry>(type: K): ResolvedSerializerRegistry[K] {
     if (DEBUG) {
       assertDestroyingStore(this, 'serializerFor');
     }
-    assert(`You need to pass a model name to the store's serializerFor method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's serializerFor method`, isPresent(type));
     assert(
-      `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let normalizedModelName = normalizeModelName(type);
 
     let { _serializerCache } = this;
-    let serializer = _serializerCache[normalizedModelName];
+    let serializer: SerializerTypes | undefined = _serializerCache[normalizedModelName];
     if (serializer) {
       return serializer;
     }
@@ -3669,15 +3735,16 @@ abstract class CoreStore extends Service {
       return serializer;
     }
 
-    let serializerName;
+    let serializerName: keyof ResolvedSerializerRegistry | undefined;
     if (DEPRECATE_DEFAULT_SERIALIZER) {
       // no model specific serializer or application serializer, check for the `defaultSerializer`
       // property defined on the adapter
-      let adapter = this.adapterFor(modelName);
-      serializerName = get(adapter, 'defaultSerializer');
+      let adapter: MinimumAdapterInterface & { defaultSerializer?: keyof ResolvedSerializerRegistry } =
+        this.adapterFor(type);
+      serializerName = adapter.defaultSerializer;
 
       deprecate(
-        `store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
+        `store.serializerFor("${type}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
         !serializerName,
         {
           id: 'ember-data:default-serializer',
@@ -3720,7 +3787,7 @@ abstract class CoreStore extends Service {
       if (serializer !== undefined) {
         set(serializer, 'store', this);
         _serializerCache[normalizedModelName] = serializer;
-        _serializerCache[serializerName] = serializer;
+        _serializerCache[serializerName as keyof ResolvedSerializerRegistry] = serializer;
         return serializer;
       }
     }
@@ -3738,7 +3805,7 @@ abstract class CoreStore extends Service {
       }
 
       deprecate(
-        `store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`,
+        `store.serializerFor("${type}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`,
         !serializer,
         {
           id: 'ember-data:default-serializer',
@@ -3753,7 +3820,7 @@ abstract class CoreStore extends Service {
       );
 
       assert(
-        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
+        `No serializer was found for '${type}' and no 'application' serializer was found as a fallback`,
         serializer !== undefined
       );
 
@@ -3764,7 +3831,7 @@ abstract class CoreStore extends Service {
       return serializer;
     } else {
       assert(
-        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
+        `No serializer was found for '${type}' and no 'application' serializer was found as a fallback`,
         serializer !== undefined
       );
     }

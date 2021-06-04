@@ -1,5 +1,6 @@
 import { ModelSchema } from '../../ts-interfaces/ds-model';
 
+type ModelRegistry = import('../../ts-interfaces/registries').ModelRegistry;
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type RelationshipSchema = import('../../ts-interfaces/record-data-schemas').RelationshipSchema;
 type AttributeSchema = import('../../ts-interfaces/record-data-schemas').AttributeSchema;
@@ -7,7 +8,7 @@ type CoreStore = import('../core-store').default;
 
 const AvailableShims = new WeakMap<CoreStore, Dict<ShimModelClass>>();
 
-export function getShimClass(store: CoreStore, modelName: string): ShimModelClass {
+export function getShimClass(store: CoreStore, modelName: keyof ModelRegistry): ShimModelClass {
   let shims = AvailableShims.get(store);
 
   if (shims === undefined) {
@@ -36,7 +37,7 @@ function mapFromHash<T>(hash: Dict<T>): Map<string, T> {
 // Mimics the static apis of DSModel
 export default class ShimModelClass implements ModelSchema {
   // TODO Maybe expose the class here?
-  constructor(private __store: CoreStore, public modelName: string) {}
+  constructor(private __store: CoreStore, public modelName: keyof ModelRegistry) {}
 
   get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
     let attrs = this.__store._attributesDefinitionFor(this.modelName);

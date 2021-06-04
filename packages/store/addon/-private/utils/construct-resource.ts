@@ -4,20 +4,29 @@ import isStableIdentifier from '../identifiers/is-stable-identifier';
 import coerceId from '../system/coerce-id';
 import isNonEmptyString from './is-non-empty-string';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
 type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
 type ExistingResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
 
 function constructResource(type: ResourceIdentifierObject): ResourceIdentifierObject;
-function constructResource(type: string, id: string, lid: string): ExistingResourceIdentifierObject;
+function constructResource(type: keyof ModelRegistry, id: string, lid: string): ExistingResourceIdentifierObject;
 function constructResource(
-  type: string | undefined,
+  type: keyof ModelRegistry | undefined,
   id: null | undefined,
   lid: string
 ): ExistingResourceIdentifierObject;
-function constructResource(type: string, id: string, lid?: string | null): ExistingResourceIdentifierObject;
-function constructResource(type: string, id?: string | number | null, lid?: string | null): ResourceIdentifierObject;
 function constructResource(
-  type: string | ResourceIdentifierObject | undefined,
+  type: keyof ModelRegistry,
+  id: string,
+  lid?: string | null
+): ExistingResourceIdentifierObject;
+function constructResource(
+  type: keyof ModelRegistry,
+  id?: string | number | null,
+  lid?: string | null
+): ResourceIdentifierObject;
+function constructResource(
+  type: keyof ModelRegistry | ResourceIdentifierObject | undefined,
   id?: string | number | null,
   lid?: string | null
 ): ResourceIdentifierObject | ExistingResourceIdentifierObject {

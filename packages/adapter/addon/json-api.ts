@@ -9,9 +9,16 @@ import { pluralize } from 'ember-inflector';
 import { serializeIntoHash } from './-private';
 import RESTAdapter from './rest';
 
+type ResolvedSerializerRegistry =
+  import('@ember-data/store/-private/ts-interfaces/registries').ResolvedSerializerRegistry;
+
+type AdapterPayload = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').AdapterPayload;
+
 type FetchRequestInit = import('./rest').FetchRequestInit;
 type JQueryRequestInit = import('./rest').JQueryRequestInit;
 
+type MinimumAdapterInterface =
+  import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').MinimumAdapterInterface;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
@@ -153,8 +160,8 @@ type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
   @constructor
   @extends RESTAdapter
 */
-class JSONAPIAdapter extends RESTAdapter {
-  defaultSerializer = '-json-api';
+class JSONAPIAdapter extends RESTAdapter implements MinimumAdapterInterface {
+  defaultSerializer: keyof ResolvedSerializerRegistry = '-json-api';
 
   _defaultContentType = 'application/vnd.api+json';
 
@@ -246,7 +253,7 @@ class JSONAPIAdapter extends RESTAdapter {
     this._coalesceFindRequests = value;
   }
 
-  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<unknown> {
+  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
@@ -256,7 +263,7 @@ class JSONAPIAdapter extends RESTAdapter {
     return pluralize(dasherized);
   }
 
-  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     const data = serializeIntoHash(store, schema, snapshot);
     const type = snapshot.modelName;
     const id = snapshot.id;

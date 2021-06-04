@@ -2,10 +2,11 @@
   @module @ember-data/store
 */
 
+type ModelRegistry = import('./registries').ModelRegistry;
 type Dict<T> = import('./utils').Dict<T>;
 export interface RelationshipSchema {
   kind: 'belongsTo' | 'hasMany';
-  type: string; // related type
+  type: keyof ModelRegistry; // related type
   /**
    * @internal
    * @deprecated

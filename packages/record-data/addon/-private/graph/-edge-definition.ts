@@ -2,18 +2,20 @@ import { assert } from '@ember/debug';
 
 import { expandingGet, expandingSet } from './-utils';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
 type Graph = import('.').Graph;
-
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 
 export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
 
+type KnownRecordType = keyof ModelRegistry;
+
 export interface UpgradedMeta {
   kind: 'hasMany' | 'belongsTo' | 'implicit';
   key: string;
-  type: string;
+  type: KnownRecordType;
   isAsync: boolean;
   isImplicit: boolean;
   isCollection: boolean;
@@ -21,7 +23,7 @@ export interface UpgradedMeta {
 
   inverseKind: 'hasMany' | 'belongsTo' | 'implicit';
   inverseKey: string;
-  inverseType: string;
+  inverseType: KnownRecordType;
   inverseIsAsync: boolean;
   inverseIsImplicit: boolean;
   inverseIsCollection: boolean;
@@ -30,15 +32,15 @@ export interface UpgradedMeta {
 
 export interface EdgeDefinition {
   lhs_key: string;
-  lhs_modelNames: string[];
-  lhs_baseModelName: string;
+  lhs_modelNames: KnownRecordType[];
+  lhs_baseModelName: KnownRecordType;
   lhs_relationshipName: string;
   lhs_definition: UpgradedMeta;
   lhs_isPolymorphic: boolean;
 
   rhs_key: string;
-  rhs_modelNames: string[];
-  rhs_baseModelName: string;
+  rhs_modelNames: KnownRecordType[];
+  rhs_baseModelName: KnownRecordType;
   rhs_relationshipName: string;
   rhs_definition: UpgradedMeta | null;
   rhs_isPolymorphic: boolean;
@@ -48,7 +50,11 @@ export interface EdgeDefinition {
   isReflexive: boolean;
 }
 
+// means this value will be set to boolean by the end of the definition initialization
+// but we don't know the value at the beginning.
 const BOOL_LATER = null as unknown as boolean;
+// means this value will be set to a non-empty string by the end of the definition initialization
+// but we don't know the value at the beginning.
 const STR_LATER = '';
 const IMPLICIT_KEY_RAND = Date.now();
 
@@ -78,7 +84,7 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
   niceMeta.isPolymorphic = options && !!options.polymorphic;
 
   niceMeta.inverseKey = (options && options.inverse) || STR_LATER;
-  niceMeta.inverseType = STR_LATER;
+  niceMeta.inverseType = STR_LATER as KnownRecordType;
   niceMeta.inverseIsAsync = BOOL_LATER;
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;
   niceMeta.inverseIsCollection = BOOL_LATER;
@@ -86,7 +92,7 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
   return niceMeta;
 }
 
-export function isLHS(info: EdgeDefinition, type: string, key: string): boolean {
+export function isLHS(info: EdgeDefinition, type: KnownRecordType, key: string): boolean {
   let isSelfReferential = info.isSelfReferential;
   let isRelationship = key === info.lhs_relationshipName;
 
@@ -102,7 +108,7 @@ export function isLHS(info: EdgeDefinition, type: string, key: string): boolean 
   return false;
 }
 
-export function isRHS(info: EdgeDefinition, type: string, key: string): boolean {
+export function isRHS(info: EdgeDefinition, type: KnownRecordType, key: string): boolean {
   let isSelfReferential = info.isSelfReferential;
   let isRelationship = key === info.rhs_relationshipName;
 

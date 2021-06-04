@@ -1,3 +1,4 @@
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
 type RecordData = import('./record-data').RecordData;
 
 type RelationshipsSchema = import('./record-data-schemas').RelationshipsSchema;
@@ -15,8 +16,8 @@ type AttributesSchema = import('./record-data-schemas').AttributesSchema;
  * @public
  */
 export interface RecordDataStoreWrapper {
-  relationshipsDefinitionFor(modelName: string): RelationshipsSchema;
-  attributesDefinitionFor(modelName: string): AttributesSchema;
+  relationshipsDefinitionFor(type: keyof ModelRegistry): RelationshipsSchema;
+  attributesDefinitionFor(type: keyof ModelRegistry): AttributesSchema;
 
   /**
    * update the `id` for the record of type `modelName` with the corresponding `clientId`
@@ -25,34 +26,44 @@ export interface RecordDataStoreWrapper {
    * @method setRecordId
    * @public
    */
-  setRecordId(modelName: string, id: string, clientId: string): void;
+  setRecordId(type: keyof ModelRegistry, id: string, clientId: string): void;
 
-  disconnectRecord(modelName: string, id: string | null, clientId: string): void;
-  disconnectRecord(modelName: string, id: string, clientId?: string | null): void;
-  disconnectRecord(modelName: string, id: string | null, clientId?: string | null): void;
+  disconnectRecord(type: keyof ModelRegistry, id: string | null, clientId: string): void;
+  disconnectRecord(type: keyof ModelRegistry, id: string, clientId?: string | null): void;
+  disconnectRecord(type: keyof ModelRegistry, id: string | null, clientId?: string | null): void;
 
-  isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
-  isRecordInUse(modelName: string, id: string, clientId?: string | null): boolean;
-  isRecordInUse(modelName: string, id: string | null, clientId?: string | null): boolean;
+  isRecordInUse(type: keyof ModelRegistry, id: string | null, clientId: string): boolean;
+  isRecordInUse(type: keyof ModelRegistry, id: string, clientId?: string | null): boolean;
+  isRecordInUse(type: keyof ModelRegistry, id: string | null, clientId?: string | null): boolean;
 
-  notifyPropertyChange(modelName: string, id: string | null, clientId: string | null, key: string): void;
+  notifyPropertyChange(type: keyof ModelRegistry, id: string | null, clientId: string | null, key: string): void;
 
-  notifyHasManyChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  notifyHasManyChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  notifyHasManyChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
+  notifyHasManyChange(type: keyof ModelRegistry, id: string | null, clientId: string, key: string): void;
+  notifyHasManyChange(type: keyof ModelRegistry, id: string, clientId: string | null | undefined, key: string): void;
+  notifyHasManyChange(
+    type: keyof ModelRegistry,
+    id: string | null,
+    clientId: string | null | undefined,
+    key: string
+  ): void;
 
-  recordDataFor(type: string, id: string, lid?: string | null): RecordData;
-  recordDataFor(type: string, id: string | null, lid: string): RecordData;
-  recordDataFor(type: string): RecordData;
-  recordDataFor(type: string, id?: string | null, lid?: string | null): RecordData;
+  recordDataFor(type: keyof ModelRegistry, id: string, lid?: string | null): RecordData;
+  recordDataFor(type: keyof ModelRegistry, id: string | null, lid: string): RecordData;
+  recordDataFor(type: keyof ModelRegistry): RecordData;
+  recordDataFor(type: keyof ModelRegistry, id?: string | null, lid?: string | null): RecordData;
 
-  notifyBelongsToChange(modelName: string, id: string | null, clientId: string, key: string): void;
-  notifyBelongsToChange(modelName: string, id: string, clientId: string | null | undefined, key: string): void;
-  notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null | undefined, key: string): void;
+  notifyBelongsToChange(type: keyof ModelRegistry, id: string | null, clientId: string, key: string): void;
+  notifyBelongsToChange(type: keyof ModelRegistry, id: string, clientId: string | null | undefined, key: string): void;
+  notifyBelongsToChange(
+    type: keyof ModelRegistry,
+    id: string | null,
+    clientId: string | null | undefined,
+    key: string
+  ): void;
 
-  inverseForRelationship(modelName: string, key: string): string | null;
+  inverseForRelationship(type: keyof ModelRegistry, key: string): string | null;
 
-  inverseIsAsyncForRelationship(modelName: string, key: string): boolean;
-  notifyErrorsChange(modelName: string, id: string | null, clientId: string | null): void;
-  notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void;
+  inverseIsAsyncForRelationship(type: keyof ModelRegistry, key: string): boolean;
+  notifyErrorsChange(type: keyof ModelRegistry, id: string | null, clientId: string | null): void;
+  notifyStateChange(type: keyof ModelRegistry, id: string | null, clientId: string | null, key?: string): void;
 }

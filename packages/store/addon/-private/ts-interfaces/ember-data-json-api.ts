@@ -1,3 +1,4 @@
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
 type Dict<T> = import('./utils').Dict<T>;
 type JSONValue = import('json-typescript').Value;
 
@@ -31,7 +32,7 @@ export interface PaginationLinks extends Links {
  */
 export interface ExistingResourceIdentifierObject {
   id: string;
-  type: string;
+  type: keyof ModelRegistry;
 
   /**
    * While not officially part of the `JSON:API` spec,
@@ -78,7 +79,7 @@ export interface NewResourceIdentifierObject {
    * @internal
    */
   id: string | null;
-  type: string;
+  type: keyof ModelRegistry;
 
   /**
    * Resources newly created on the client _will always_

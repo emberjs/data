@@ -7,6 +7,8 @@ import constructResource from '../../utils/construct-resource';
 import IdentityMap from '../identity-map';
 import InternalModel from '../model/internal-model';
 
+type ModelRegistry = import('../../ts-interfaces/registries').ModelRegistry;
+
 type CoreStore = import('../core-store').default;
 type ResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
 type ExistingResourceObject = import('../../ts-interfaces/ember-data-json-api').ExistingResourceObject;
@@ -21,7 +23,7 @@ type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 */
 
 const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
-type NewResourceInfo = { type: string; id: string | null };
+type NewResourceInfo = { type: keyof ModelRegistry; id: string | null };
 
 const RecordCache = new WeakMap<RecordInstance, StableRecordIdentifier>();
 
@@ -43,11 +45,9 @@ export function peekRecordIdentifier(record: any): StableRecordIdentifier | unde
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   let identifier = RecordCache.get(record);
 
-  if (DEBUG && identifier === undefined) {
-    throw new Error(`${record} is not a record instantiated by @ember-data/store`);
-  }
+  assert(`${record} is not a record instantiated by @ember-data/store`, identifier !== undefined);
 
-  return identifier as StableRecordIdentifier;
+  return identifier;
 }
 
 export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
@@ -221,7 +221,7 @@ export default class InternalModelFactory {
     return this.lookup(normalizedResource);
   }
 
-  setRecordId(type: string, id: string, lid: string) {
+  setRecordId(type: keyof ModelRegistry, id: string, lid: string) {
     const resource: NewResourceIdentifierObject = { type, id: null, lid };
     const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     const internalModel = this.peek(identifier);
@@ -270,7 +270,7 @@ export default class InternalModelFactory {
     internalModel.setId(id, true);
   }
 
-  peekById(type: string, id: string): InternalModel | null {
+  peekById(type: keyof ModelRegistry, id: string): InternalModel | null {
     const identifier = this.identifierCache.peekRecordIdentifier({ type, id });
     let internalModel = identifier ? this.modelMapFor(type).get(identifier.lid) : null;
 
@@ -331,11 +331,11 @@ export default class InternalModelFactory {
     this.identifierCache.forgetRecordIdentifier(identifier);
   }
 
-  modelMapFor(type: string): InternalModelMap {
+  modelMapFor(type: keyof ModelRegistry): InternalModelMap {
     return this._identityMap.retrieve(type);
   }
 
-  clear(type?: string) {
+  clear(type?: keyof ModelRegistry) {
     if (type === undefined) {
       this._identityMap.clear();
     } else {

@@ -4,6 +4,7 @@ import { singularize } from 'ember-inflector';
 
 import { normalizeModelName } from '@ember-data/store/-private';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 
@@ -11,23 +12,23 @@ type CoreStore = import('@ember-data/store/-private/system/core-store').default;
   @module @ember-data/store
 */
 
-function typeForRelationshipMeta(meta) {
-  let modelName = normalizeModelName(meta.type || meta.key);
+function typeForRelationshipMeta(meta): keyof ModelRegistry {
+  let modelName = normalizeModelName<keyof ModelRegistry>(meta.type || meta.key);
 
   if (meta.kind === 'hasMany') {
-    modelName = singularize(modelName);
+    modelName = singularize(modelName) as keyof ModelRegistry;
   }
 
   return modelName;
 }
 
-function shouldFindInverse(relationshipMeta) {
+function shouldFindInverse(relationshipMeta): boolean {
   let options = relationshipMeta.options;
   return !(options && options.inverse === null);
 }
 
 export class RelationshipDefinition implements RelationshipSchema {
-  declare _type: string;
+  declare _type: keyof ModelRegistry | '';
   declare __inverseKey: string;
   declare __inverseIsAsync: boolean;
   declare __hasCalculatedInverse: boolean;
@@ -54,8 +55,8 @@ export class RelationshipDefinition implements RelationshipSchema {
   get kind(): 'belongsTo' | 'hasMany' {
     return this.meta.kind;
   }
-  get type(): string {
-    if (this._type) {
+  get type(): keyof ModelRegistry {
+    if (this._type !== '') {
       return this._type;
     }
     this._type = typeForRelationshipMeta(this.meta);

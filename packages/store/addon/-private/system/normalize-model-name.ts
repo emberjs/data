@@ -1,5 +1,10 @@
 import { dasherize } from '@ember/string';
 
+type AdapterRegistry = import('../ts-interfaces/registries').AdapterRegistry;
+type SerializerRegistry = import('../ts-interfaces/registries').SerializerRegistry;
+type ModelRegistry = import('../ts-interfaces/registries').ModelRegistry;
+type lookupKeys = keyof SerializerRegistry | keyof AdapterRegistry | keyof ModelRegistry;
+
 /**
   @module @ember-data/store
 */
@@ -15,9 +20,9 @@ import { dasherize } from '@ember/string';
   @static
   @public
   @for @ember-data/store
-  @param {String} modelName
+  @param {String} type
   @return {String} normalizedModelName
 */
-export default function normalizeModelName(modelName: string): string {
-  return dasherize(modelName);
+export default function normalizeModelName<K = lookupKeys>(type: string): K {
+  return dasherize(type) as Extract<K, string>;
 }

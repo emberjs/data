@@ -3,6 +3,8 @@ import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
+
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
@@ -24,21 +26,21 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
 interface BuildURLMixin {
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: string,
     snapshot: Snapshot,
     requestType: 'findRecord'
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: null,
     snapshot: SnapshotRecordArray,
     requestType: 'findAll'
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: null,
     snapshot: null,
     requestType: 'query',
@@ -46,7 +48,7 @@ interface BuildURLMixin {
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: null,
     snapshot: null,
     requestType: 'queryRecord',
@@ -54,60 +56,60 @@ interface BuildURLMixin {
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: string[],
     snapshot: Snapshot[],
     requestType: 'findMany'
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: string,
     snapshot: Snapshot,
     requestType: 'findHasMany'
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: string,
     snapshot: Snapshot,
     requestType: 'findBelongsTo'
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: string | null,
     snapshot: Snapshot,
     requestType: 'createRecord'
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: string,
     snapshot: Snapshot,
     requestType: 'updateRecord'
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
-    modelName: string,
+    type: keyof ModelRegistry,
     id: string,
     snapshot: Snapshot,
     requestType: 'deleteRecord'
   ): string;
-  buildURL(this: MixtBuildURLMixin, modelName: string, id: string, snapshot: Snapshot): string;
-  _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string;
-  urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: SnapshotRecordArray): string;
-  urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string;
-  urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string;
-  urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: string, snapshots: Snapshot[]): string;
-  urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot: Snapshot): string;
-  urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
-  urlForDeleteRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
+  buildURL(this: MixtBuildURLMixin, type: keyof ModelRegistry, id: string, snapshot: Snapshot): string;
+  _buildURL(this: MixtBuildURLMixin, type: keyof ModelRegistry | null | undefined, id?: string | null): string;
+  urlForFindRecord(this: MixtBuildURLMixin, id: string, type: keyof ModelRegistry, snapshot: Snapshot): string;
+  urlForFindAll(this: MixtBuildURLMixin, type: keyof ModelRegistry, snapshots: SnapshotRecordArray): string;
+  urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, type: keyof ModelRegistry): string;
+  urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, type: keyof ModelRegistry): string;
+  urlForFindMany(this: MixtBuildURLMixin, ids: string[], type: keyof ModelRegistry, snapshots: Snapshot[]): string;
+  urlForFindHasMany(this: MixtBuildURLMixin, id: string, type: keyof ModelRegistry, snapshot: Snapshot): string;
+  urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, type: keyof ModelRegistry, snapshot: Snapshot): string;
+  urlForCreateRecord(this: MixtBuildURLMixin, type: keyof ModelRegistry, snapshot: Snapshot): string;
+  urlForUpdateRecord(this: MixtBuildURLMixin, id: string, type: keyof ModelRegistry, snapshot: Snapshot): string;
+  urlForDeleteRecord(this: MixtBuildURLMixin, id: string, type: keyof ModelRegistry, snapshot: Snapshot): string;
   urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: string): string;
-  pathForType(this: MixtBuildURLMixin, modelName: string): string;
+  pathForType(this: MixtBuildURLMixin, type: keyof ModelRegistry): string;
 }
 
 // prevents the final constructed object from needing to add
@@ -159,7 +161,7 @@ interface MixtBuildURLMixin extends BuildURLMixin {
 
     @method buildURL
     @public
-    @param {String} modelName
+    @param {String} type
     @param {(String|Array|Object)} id single id or array of ids or query
     @param {(Snapshot|SnapshotRecordArray)} snapshot single snapshot or array of snapshots
     @param {String} requestType
@@ -168,21 +170,21 @@ interface MixtBuildURLMixin extends BuildURLMixin {
   */
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: string,
   snapshot: Snapshot,
   requestType: 'findRecord'
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: null,
   snapshot: SnapshotRecordArray,
   requestType: 'findAll'
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: null,
   snapshot: null,
   requestType: 'query',
@@ -190,7 +192,7 @@ function buildURL(
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: null,
   snapshot: null,
   requestType: 'queryRecord',
@@ -198,50 +200,50 @@ function buildURL(
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: string[],
   snapshot: Snapshot[],
   requestType: 'findMany'
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: string,
   snapshot: Snapshot,
   requestType: 'findHasMany'
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: string,
   snapshot: Snapshot,
   requestType: 'findBelongsTo'
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: string | null,
   snapshot: Snapshot,
   requestType: 'createRecord'
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: string,
   snapshot: Snapshot,
   requestType: 'updateRecord'
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: string,
   snapshot: Snapshot,
   requestType: 'deleteRecord'
 ): string;
-function buildURL(this: MixtBuildURLMixin, modelName: string, id: string, snapshot: Snapshot): string;
+function buildURL(this: MixtBuildURLMixin, type: keyof ModelRegistry, id: string, snapshot: Snapshot): string;
 function buildURL(
   this: MixtBuildURLMixin,
-  modelName: string,
+  type: keyof ModelRegistry,
   id: string | string[] | Dict<unknown> | null,
   snapshot: Snapshot | Snapshot[] | SnapshotRecordArray | null,
   requestType?:
@@ -267,47 +269,47 @@ function buildURL(
   */
   switch (requestType) {
     case 'findRecord':
-      return this.urlForFindRecord(id as string, modelName, snapshot as Snapshot);
+      return this.urlForFindRecord(id as string, type, snapshot as Snapshot);
     case 'findAll':
-      return this.urlForFindAll(modelName, snapshot as SnapshotRecordArray);
+      return this.urlForFindAll(type, snapshot as SnapshotRecordArray);
     case 'query':
-      return this.urlForQuery(query || {}, modelName);
+      return this.urlForQuery(query || {}, type);
     case 'queryRecord':
-      return this.urlForQueryRecord(query || {}, modelName);
+      return this.urlForQueryRecord(query || {}, type);
     case 'findMany':
-      return this.urlForFindMany(id as string[], modelName, snapshot as Snapshot[]);
+      return this.urlForFindMany(id as string[], type, snapshot as Snapshot[]);
     case 'findHasMany':
-      return this.urlForFindHasMany(id as string, modelName, snapshot as Snapshot);
+      return this.urlForFindHasMany(id as string, type, snapshot as Snapshot);
     case 'findBelongsTo':
-      return this.urlForFindBelongsTo(id as string, modelName, snapshot as Snapshot);
+      return this.urlForFindBelongsTo(id as string, type, snapshot as Snapshot);
     case 'createRecord':
-      return this.urlForCreateRecord(modelName, snapshot as Snapshot);
+      return this.urlForCreateRecord(type, snapshot as Snapshot);
     case 'updateRecord':
-      return this.urlForUpdateRecord(id as string, modelName, snapshot as Snapshot);
+      return this.urlForUpdateRecord(id as string, type, snapshot as Snapshot);
     case 'deleteRecord':
-      return this.urlForDeleteRecord(id as string, modelName, snapshot as Snapshot);
+      return this.urlForDeleteRecord(id as string, type, snapshot as Snapshot);
     default:
       // this is the 'never' case but someone may call `buildURL` manually so
       // we try to do something for them.
-      return this._buildURL(modelName, id as string | null);
+      return this._buildURL(type, id as string | null);
   }
 }
 
 /**
     @method _buildURL
     @private
-    @param {String} modelName
+    @param {String} type
     @param {String} id
     @return {String} url
   */
-function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string {
+function _buildURL(this: MixtBuildURLMixin, type: keyof ModelRegistry | null | undefined, id?: string | null): string {
   let path;
   let url: string[] = [];
   let { host } = this;
   let prefix = this.urlPrefix();
 
-  if (modelName) {
-    path = this.pathForType(modelName);
+  if (type) {
+    path = this.pathForType(type);
     if (path) {
       url.push(path);
     }
@@ -347,13 +349,13 @@ function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined
    @method urlForFindRecord
    @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
 
    */
-function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForFindRecord(this: MixtBuildURLMixin, id: string, type: keyof ModelRegistry, snapshot: Snapshot): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -374,12 +376,12 @@ function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string
 
    @method urlForFindAll
     @public
-   @param {String} modelName
+   @param {String} type
    @param {SnapshotRecordArray} snapshot
    @return {String} url
    */
-function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: SnapshotRecordArray): string {
-  return this._buildURL(modelName);
+function urlForFindAll(this: MixtBuildURLMixin, type: keyof ModelRegistry, snapshots: SnapshotRecordArray): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -406,11 +408,11 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
    @method urlForQuery
     @public
    @param {Object} query
-   @param {String} modelName
+   @param {String} type
    @return {String} url
    */
-function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string {
-  return this._buildURL(modelName);
+function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, type: keyof ModelRegistry): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -432,11 +434,11 @@ function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: s
    @method urlForQueryRecord
     @public
    @param {Object} query
-   @param {String} modelName
+   @param {String} type
    @return {String} url
    */
-function urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string {
-  return this._buildURL(modelName);
+function urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, type: keyof ModelRegistry): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -460,12 +462,17 @@ function urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelN
    @method urlForFindMany
     @public
    @param {Array} ids
-   @param {String} modelName
+   @param {String} type
    @param {Array} snapshots
    @return {String} url
    */
-function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: string, snapshots: Snapshot[]): string {
-  return this._buildURL(modelName);
+function urlForFindMany(
+  this: MixtBuildURLMixin,
+  ids: string[],
+  type: keyof ModelRegistry,
+  snapshots: Snapshot[]
+): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -488,12 +495,12 @@ function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: strin
    @method urlForFindHasMany
     @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForFindHasMany(this: MixtBuildURLMixin, id: string, type: keyof ModelRegistry, snapshot: Snapshot): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -516,12 +523,17 @@ function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: strin
    @method urlForFindBelongsTo
     @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForFindBelongsTo(
+  this: MixtBuildURLMixin,
+  id: string,
+  type: keyof ModelRegistry,
+  snapshot: Snapshot
+): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -542,12 +554,12 @@ function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: str
 
    @method urlForCreateRecord
     @public
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName);
+function urlForCreateRecord(this: MixtBuildURLMixin, type: keyof ModelRegistry, snapshot: Snapshot): string {
+  return this._buildURL(type);
 }
 
 /**
@@ -568,12 +580,17 @@ function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot
    @method urlForUpdateRecord
     @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForUpdateRecord(
+  this: MixtBuildURLMixin,
+  id: string,
+  type: keyof ModelRegistry,
+  snapshot: Snapshot
+): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -594,12 +611,17 @@ function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: stri
    @method urlForDeleteRecord
     @public
    @param {String} id
-   @param {String} modelName
+   @param {String} type
    @param {Snapshot} snapshot
    @return {String} url
    */
-function urlForDeleteRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string {
-  return this._buildURL(modelName, id);
+function urlForDeleteRecord(
+  this: MixtBuildURLMixin,
+  id: string,
+  type: keyof ModelRegistry,
+  snapshot: Snapshot
+): string {
+  return this._buildURL(type, id);
 }
 
 /**
@@ -668,11 +690,11 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
 
     @method pathForType
     @public
-    @param {String} modelName
+    @param {String} type
     @return {String} path
   **/
-function pathForType(this: MixtBuildURLMixin, modelName: string): string {
-  let camelized = camelize(modelName);
+function pathForType(this: MixtBuildURLMixin, type: keyof ModelRegistry): string {
+  let camelized = camelize(type);
   return pluralize(camelized);
 }
 

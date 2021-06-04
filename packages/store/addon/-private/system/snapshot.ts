@@ -10,6 +10,8 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import recordDataFor from './record-data-for';
 
+type ModelRegistry = import('../ts-interfaces/registries').ModelRegistry;
+
 type InternalModel = import('./model/internal-model').default;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
@@ -52,7 +54,7 @@ export default class Snapshot implements Snapshot {
   declare _changedAttributes: ChangedAttributesHash;
 
   declare identifier: StableRecordIdentifier;
-  declare modelName: string;
+  declare modelName: keyof ModelRegistry;
   declare id: string | null;
   declare include?: unknown;
   declare adapterOptions?: Dict<unknown>;
@@ -558,7 +560,7 @@ export default class Snapshot implements Snapshot {
     @return {Object} an object whose values are primitive JSON values only
     @public
    */
-  serialize(options: unknown): unknown {
+  serialize(options?: Dict<unknown>): Dict<unknown> {
     return this._store.serializerFor(this.modelName).serialize(this, options);
   }
 }

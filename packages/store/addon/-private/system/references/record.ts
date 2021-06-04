@@ -2,6 +2,7 @@ import RSVP, { resolve } from 'rsvp';
 
 import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
@@ -19,7 +20,7 @@ type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRec
    @extends Reference
 */
 export default class RecordReference extends Reference {
-  public get type(): string {
+  public get type(): keyof ModelRegistry {
     return this.identifier().type;
   }
 

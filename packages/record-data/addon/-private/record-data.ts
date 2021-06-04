@@ -13,12 +13,13 @@ import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
 
+type ModelRegistry = import('@ember-data/store/-private/ts-interfaces/registries').ModelRegistry;
+
 type CollectionResourceRelationship =
   import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
 type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
 type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultSingleResourceRelationship =
   import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
@@ -52,7 +53,7 @@ const EMPTY_ITERATOR = {
  */
 export default class RecordDataDefault implements RelationshipRecordData {
   declare _errors?: JsonApiValidationError[];
-  declare modelName: string;
+  declare modelName: keyof ModelRegistry;
   declare clientId: string;
   declare identifier: StableRecordIdentifier;
   declare id: string | null;
@@ -67,7 +68,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   declare _isDeletionCommited: boolean;
   declare storeWrapper: RecordDataStoreWrapper;
 
-  constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+  constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
     this.id = identifier.id;

@@ -188,9 +188,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
-    assert(this.warnMessageForUndefinedType(), !isNone(resourceHash.type), {
-      id: 'ds.serializer.type-is-undefined',
-    });
+    assert(this.warnMessageForUndefinedType(), !isNone(resourceHash.type));
 
     let modelName, usedLookup;
 
@@ -244,10 +242,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     assert(
       'Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.',
-      !Array.isArray(normalized.data),
-      {
-        id: 'ds.serializer.json-api.queryRecord-array-response',
-      }
+      !Array.isArray(normalized.data)
     );
 
     return normalized;
@@ -745,10 +740,7 @@ if (DEBUG) {
 
       assert(
         `You've used the EmbeddedRecordsMixin in ${this.toString()} which is not fully compatible with the JSON:API specification. Please confirm that this works for your specific API and add \`this.isEmbeddedRecordsMixinCompatible = true\` to your serializer.`,
-        !this.isEmbeddedRecordsMixin || this.isEmbeddedRecordsMixinCompatible === true,
-        {
-          id: 'ds.serializer.embedded-records-mixin-not-supported',
-        }
+        !this.isEmbeddedRecordsMixin || this.isEmbeddedRecordsMixinCompatible === true
       );
 
       let constructor = this.constructor;
