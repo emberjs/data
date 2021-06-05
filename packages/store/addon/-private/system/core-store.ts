@@ -1402,7 +1402,7 @@ abstract class CoreStore extends Service {
     );
   }
 
-  _scheduleFetch(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
+  _scheduleFetch(internalModel: InternalModel, options?: FindOptions): Promise<InternalModel> {
     if (REQUEST_SERVICE) {
       return this._scheduleFetchThroughFetchManager(internalModel, options);
     } else {
@@ -1995,7 +1995,7 @@ abstract class CoreStore extends Service {
     internalModel: InternalModel,
     link: Link,
     relationship: RelationshipSchema,
-    options: Dict<unknown>
+    options?: Dict<unknown>
   ): Promise<InternalModel> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
@@ -2018,7 +2018,7 @@ abstract class CoreStore extends Service {
     resource: DefaultSingleResourceRelationship,
     parentInternalModel: InternalModel,
     relationshipMeta: RelationshipSchema,
-    options: Dict<unknown>
+    options?: Dict<unknown>
   ): Promise<RecordInstance | null> {
     if (!resource || !resource.links || !resource.links.related) {
       // should we warn here, not sure cause its an internal method
@@ -2035,7 +2035,7 @@ abstract class CoreStore extends Service {
     resource: DefaultSingleResourceRelationship,
     parentInternalModel: InternalModel,
     relationshipMeta: RelationshipSchema,
-    options: Dict<unknown>
+    options?: Dict<unknown>
   ): Promise<RecordInstance | null> {
     if (!resource) {
       return resolve(null);

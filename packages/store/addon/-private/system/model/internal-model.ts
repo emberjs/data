@@ -467,7 +467,7 @@ export default class InternalModel {
     });
   }
 
-  save(options: Dict<unknown>): Promise<void> {
+  save(options?: Dict<unknown>): Promise<void> {
     if (this._deletedRecordWasNew) {
       return Promise.resolve();
     }
@@ -483,7 +483,7 @@ export default class InternalModel {
     }
   }
 
-  reload(options: Dict<unknown>) {
+  reload(options?: Dict<unknown>) {
     if (REQUEST_SERVICE) {
       if (!options) {
         options = {};
@@ -596,7 +596,7 @@ export default class InternalModel {
     key: string,
     resource: DefaultSingleResourceRelationship,
     relationshipMeta: RelationshipSchema,
-    options: Dict<unknown>
+    options?: Dict<unknown>
   ): Promise<RecordInstance | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
@@ -605,7 +605,7 @@ export default class InternalModel {
     );
   }
 
-  getBelongsTo(key: string, options: Dict<unknown>): PromiseBelongsTo | RecordInstance | null {
+  getBelongsTo(key: string, options?: Dict<unknown>): PromiseBelongsTo | RecordInstance | null {
     let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     let identifier =
       resource && resource.data ? identifierCacheFor(this.store).getOrCreateRecordIdentifier(resource.data) : null;
@@ -799,7 +799,7 @@ export default class InternalModel {
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  reloadBelongsTo(key: string, options: Dict<unknown>): Promise<RecordInstance | null> {
+  reloadBelongsTo(key: string, options?: Dict<unknown>): Promise<RecordInstance | null> {
     let loadingPromise = this._relationshipPromisesCache[key];
     if (loadingPromise) {
       return loadingPromise;

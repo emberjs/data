@@ -16,6 +16,8 @@ import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
 
+type AdapterPayload = import('../ts-interfaces/minimum-adapter-interface').AdapterPayload;
+
 type MinimumSerializerInterface = import('../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface;
 type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
@@ -62,7 +64,7 @@ interface PendingSaveItem {
   resolver: RSVP.Deferred<any>;
   snapshot: Snapshot;
   identifier: StableRecordIdentifier;
-  options: { [k: string]: unknown; [SaveOp]: 'createRecord' | 'saveRecord' | 'updateRecord' };
+  options: { [k: string]: unknown; [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
   queryRequest: Request;
 }
 
@@ -155,7 +157,7 @@ export default class FetchManager {
     promise = guardDestroyedStore(promise, store, label);
     promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
-    promise = promise.then(
+    let normalizedPayloadPromise = promise.then(
       (adapterPayload) => {
         if (adapterPayload) {
           return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
@@ -178,7 +180,7 @@ export default class FetchManager {
       },
       label
     );
-    resolver.resolve(promise);
+    resolver.resolve(normalizedPayloadPromise);
   }
 
   /**
@@ -281,7 +283,7 @@ export default class FetchManager {
     let snapshot = new Snapshot(fetchItem.options, identifier, this._store);
     let klass = this._store.modelFor(identifier.type);
 
-    let promise = Promise.resolve().then(() => {
+    let promise: Promise<AdapterPayload> = Promise.resolve().then(() => {
       return adapter.findRecord(this._store, klass, identifier.id, snapshot);
     });
 
@@ -290,7 +292,7 @@ export default class FetchManager {
     let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
 
     promise = guardDestroyedStore(promise, this._store, label);
-    promise = promise.then(
+    let normalizedPayloadPromise = promise.then(
       (adapterPayload) => {
         assert(
           `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
@@ -323,7 +325,7 @@ export default class FetchManager {
       `DS: Extract payload of '${modelName}'`
     );
 
-    fetchItem.resolver.resolve(promise);
+    fetchItem.resolver.resolve(normalizedPayloadPromise);
   }
 
   // TODO should probably refactor expectedSnapshots to be identifiers
