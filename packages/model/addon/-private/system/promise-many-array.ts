@@ -7,6 +7,16 @@ import { resolve } from 'rsvp';
 
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
+type ManyArray = import('ember-data/-private').ManyArray;
+type ArrayProxy<K, V> = import('@ember/array/proxy').default<K, V>;
+type Evented = import('@ember/object/evented').default;
+type RecordInstance = import('@ember-data/store/-private/ts-interfaces/record-instance').RecordInstance;
+type InternalModel = import('@ember-data/store/-private').InternalModel;
+
+export interface HasManyProxyCreateArgs {
+  promise: Promise<ManyArray>;
+  content?: ManyArray;
+}
 /**
  @module @ember-data/model
  */
@@ -32,12 +42,13 @@ import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/dep
   @class PromiseManyArray
   @public
 */
-export default class PromiseManyArray {
+interface PromiseManyArray extends Evented, Omit<ArrayProxy<InternalModel, RecordInstance>, 'destroy'> {}
+class PromiseManyArray {
   declare promise: Promise<any> | null;
   declare isDestroyed: boolean;
   declare isDestroying: boolean;
 
-  constructor(promise, content) {
+  constructor(promise: Promise<ManyArray>, content?: ManyArray) {
     this._update(promise, content);
     this.isDestroyed = false;
     this.isDestroying = false;
@@ -194,7 +205,7 @@ export default class PromiseManyArray {
 
   //---- Our own stuff
 
-  _update(promise, content) {
+  _update(promise: Promise<ManyArray>, content?: ManyArray) {
     if (content !== undefined) {
       this.content = content;
     }
@@ -202,7 +213,7 @@ export default class PromiseManyArray {
     this.promise = tapPromise(this, promise);
   }
 
-  static create({ promise, content }) {
+  static create({ promise, content }: HasManyProxyCreateArgs): PromiseManyArray {
     return new this(promise, content);
   }
 
@@ -222,6 +233,8 @@ export default class PromiseManyArray {
     return this.content ? this.content.lastObject : undefined;
   }
 }
+
+export default PromiseManyArray;
 
 function tapPromise(proxy, promise) {
   proxy.isPending = true;

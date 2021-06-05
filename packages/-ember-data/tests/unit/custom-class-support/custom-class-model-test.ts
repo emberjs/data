@@ -10,6 +10,13 @@ import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 
+type RecordInstance = import('@ember-data/store/-private/ts-interfaces/record-instance').RecordInstance;
+
+type RelationshipsSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipsSchema;
+
+type SchemaDefinitionService =
+  import('@ember-data/store/-private/ts-interfaces/schema-definition-service').SchemaDefinitionService;
+
 type AttributesSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').AttributesSchema;
 
 type RecordDataRecordWrapper =
@@ -27,7 +34,7 @@ if (CUSTOM_MODEL_CLASS) {
         this.store = store;
       }
       save() {
-        return this.store.saveRecord(this);
+        return this.store.saveRecord(this as unknown as RecordInstance);
       }
     }
 
@@ -185,10 +192,10 @@ if (CUSTOM_MODEL_CLASS) {
             snapshot.eachAttribute((attr, attrDef) => {
               if (count === 0) {
                 assert.equal(attr, 'name', 'attribute key is correct');
-                assert.deepEqual(attrDef, { type: 'string', key: 'name', name: 'name' }, 'attribute def matches schem');
+                assert.deepEqual(attrDef, { type: 'string', name: 'name' }, 'attribute def matches schem');
               } else if (count === 1) {
                 assert.equal(attr, 'age', 'attribute key is correct');
-                assert.deepEqual(attrDef, { type: 'number', key: 'age', name: 'age' }, 'attribute def matches schem');
+                assert.deepEqual(attrDef, { type: 'number', name: 'age' }, 'attribute def matches schem');
               }
               count++;
             });
@@ -201,9 +208,10 @@ if (CUSTOM_MODEL_CLASS) {
                   {
                     type: 'ship',
                     kind: 'hasMany',
-                    inverse: null,
-                    options: {},
-                    key: 'boats',
+                    options: {
+                      inverse: null,
+                    },
+                    name: 'boats',
                   },
                   'relationships def matches schem'
                 );
@@ -211,7 +219,7 @@ if (CUSTOM_MODEL_CLASS) {
                 assert.equal(rel, 'house', 'relationship key is correct');
                 assert.deepEqual(
                   relDef,
-                  { type: 'house', kind: 'belongsTo', inverse: null, options: {}, key: 'house', name: 'house' },
+                  { type: 'house', kind: 'belongsTo', options: { inverse: null }, name: 'house' },
                   'relationship def matches schem'
                 );
               }
@@ -223,8 +231,8 @@ if (CUSTOM_MODEL_CLASS) {
       );
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
-      let schema = {
-        attributesDefinitionFor(identifier: string | RecordIdentifier) {
+      let schema: SchemaDefinitionService = {
+        attributesDefinitionFor(identifier: string | RecordIdentifier): AttributesSchema {
           if (typeof identifier === 'string') {
             assert.equal(identifier, 'person', 'type passed in to the schema hooks');
           } else {
@@ -233,17 +241,15 @@ if (CUSTOM_MODEL_CLASS) {
           return {
             name: {
               type: 'string',
-              key: 'name',
               name: 'name',
             },
             age: {
               type: 'number',
-              key: 'age',
               name: 'age',
             },
           };
         },
-        relationshipsDefinitionFor(identifier: string | RecordIdentifier) {
+        relationshipsDefinitionFor(identifier: string | RecordIdentifier): RelationshipsSchema {
           if (typeof identifier === 'string') {
             assert.equal(identifier, 'person', 'type passed in to the schema hooks');
           } else {
@@ -253,16 +259,17 @@ if (CUSTOM_MODEL_CLASS) {
             boats: {
               type: 'ship',
               kind: 'hasMany',
-              inverse: null,
-              options: {},
-              key: 'boats',
+              options: {
+                inverse: null,
+              },
+              name: 'boats',
             },
             house: {
               type: 'house',
               kind: 'belongsTo',
-              inverse: null,
-              options: {},
-              key: 'house',
+              options: {
+                inverse: null,
+              },
               name: 'house',
             },
           };
@@ -323,28 +330,41 @@ if (CUSTOM_MODEL_CLASS) {
 
     test('store.deleteRecord', async function (assert) {
       let rd: RecordDataRecordWrapper;
-      assert.expect(9);
+      let adapterDeleteCalled = 0;
+      assert.expect(13);
       this.owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
           shouldBackgroundReloadRecord: () => false,
           deleteRecord: (store, type, snapshot) => {
             assert.ok(true, 'adapter method called');
+            adapterDeleteCalled++;
+            assert.strictEqual(adapterDeleteCalled, 1, `expected only one call to persist deletion`);
             return RSVP.resolve();
           },
         })
       );
+      let subscribeCalls = 0;
+      let teardownCalls = 0;
       let CreationStore = CustomStore.extend({
         instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
           rd = recordDataFor(identifier);
           assert.false(rd.isDeleted!(), 'we are not deleted when we start');
           notificationManager.subscribe(identifier, (passedId, key) => {
+            // we should hit this 2 times
+            // once for setIsDeleted
+            // once for didCommit
+            // legacy would have hit it 3x more, 1 more for isDeleted, 1 for willCommit, 1 more for didCommit
+            subscribeCalls++;
+            assert.true(subscribeCalls <= 2, `We should only call subscribe 2x, called ${subscribeCalls}`);
             assert.equal(key, 'state', 'state change to deleted has been notified');
             assert.true(recordDataFor(identifier).isDeleted(), 'we have been marked as deleted');
           });
           return {};
         },
         teardownRecord(record) {
+          teardownCalls++;
+          assert.true(teardownCalls <= 1, `We should only call teardown 1x, called ${teardownCalls}`);
           assert.equal(record, person, 'Passed in person to teardown');
         },
       });

@@ -14,7 +14,8 @@ import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
 import require from 'require';
-import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
+import type RSVP from 'rsvp';
+import { all, defer, resolve } from 'rsvp';
 
 import {
   CUSTOM_MODEL_CLASS,
@@ -61,19 +62,30 @@ import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } fro
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
+type DSModel = import('../ts-interfaces/ds-model').DSModel;
+
+type Link = import('../ts-interfaces/ember-data-json-api').Link;
+type RelationshipSchema = import('../ts-interfaces/record-data-schemas').RelationshipSchema;
+type DefaultSingleResourceRelationship =
+  import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
+type AdapterPopulatedRecordArray = import('ember-data/-private').AdapterPopulatedRecordArray;
+type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
+type Promise<T> = import('rsvp').Promise<T>;
+type PromiseBelongsTo = import('@ember-data/model/-private').PromiseBelongsTo;
+type InternalModelMap = import('./internal-model-map').default;
+type MinimumSerializerInterface = import('../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface;
+type MinimumAdapterInterface = import('../ts-interfaces/minimum-adapter-interface').MinimumAdapterInterface;
+type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
 type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
 type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
-
-type RelationshipState = import('@ember-data/record-data/-private/graph/-state').RelationshipState;
 type ShimModelClass = import('./model/shim-model-class').default;
 type Snapshot = import('./snapshot').default;
 type Backburner = import('@ember/runloop/-private/backburner').Backburner;
-type RecordReference = import('./references').RecordReference;
 type HasManyReference = import('./references').HasManyReference;
 type BelongsToReference = import('./references').BelongsToReference;
 type IdentifierCache = import('../identifiers/cache').IdentifierCache;
 type InternalModel = import('./model/internal-model').default;
-
+type RecordArray = import('./record-arrays/record-array').default;
 type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
 type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
 type EmptyResourceDocument = import('../ts-interfaces/ember-data-json-api').EmptyResourceDocument;
@@ -86,8 +98,6 @@ type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecord
 type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
 type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
 type RecordData = import('../ts-interfaces/record-data').RecordData;
-type DSModel = import('../ts-interfaces/ds-model').DSModel;
-type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
 type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
@@ -96,22 +106,29 @@ type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
 type RequestCache = import('./request-cache').default;
 type FindOptions = import('../ts-interfaces/store').FindOptions;
+type PromiseArray<T, V = NativeArray<T>> = import('./promise-proxies').PromiseArray<T, V>;
+type PromiseObject<T> = import('./promise-proxies').PromiseObject<T>;
+type Deferred<T> = RSVP.Deferred<T>;
 
 let _RecordData: RecordDataClass | undefined;
 
 const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
-type PromiseArray<T> = Promise<T[]>;
 type PendingFetchItem = {
   internalModel: InternalModel;
-  resolver: RSVP.Deferred<InternalModel>;
+  resolver: Deferred<InternalModel>;
   options: any;
   trace?: Error;
 };
 type PendingSaveItem = {
   snapshot: Snapshot;
-  resolver: RSVP.Deferred<void>;
+  resolver: Deferred<void>;
 };
+
+export interface CreateRecordProperties {
+  id?: string | null;
+  [key: string]: unknown;
+}
 
 const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
 
@@ -226,13 +243,13 @@ abstract class CoreStore extends Service {
    * @property _backburner
    * @private
    */
-  public _backburner: Backburner = edBackburner;
-  public recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
+  declare _backburner: Backburner;
+  declare recordArrayManager: RecordArrayManager;
 
   declare _notificationManager: NotificationManager;
-  private _adapterCache = Object.create(null);
-  private _serializerCache = Object.create(null);
-  public _storeWrapper = new RecordDataStoreWrapper(this);
+  private declare _adapterCache: Dict<MinimumAdapterInterface & { store: CoreStore }>;
+  private declare _serializerCache: Dict<MinimumSerializerInterface & { store: CoreStore }>;
+  declare _storeWrapper: RecordDataStoreWrapper;
 
   /*
     Ember Data uses several specialized micro-queues for organizing
@@ -247,7 +264,7 @@ abstract class CoreStore extends Service {
   private _updatedInternalModels: InternalModel[] = [];
 
   // used to keep track of all the find requests that need to be coalesced
-  private _pendingFetch = new Map<string, PendingFetchItem[]>();
+  private declare _pendingFetch: Map<string, PendingFetchItem[]>;
 
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
@@ -307,6 +324,12 @@ abstract class CoreStore extends Service {
   */
   constructor() {
     super(...arguments);
+    this._adapterCache = Object.create(null);
+    this._serializerCache = Object.create(null);
+    this._pendingFetch = new Map();
+    this._storeWrapper = new RecordDataStoreWrapper(this);
+    this._backburner = edBackburner;
+    this.recordArrayManager = new RecordArrayManager({ store: this });
 
     if (REQUEST_SERVICE) {
       this._fetchManager = new FetchManager(this);
@@ -559,7 +582,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return {subclass of Model | ShimModelClass}
     */
-  modelFor(modelName: string): ShimModelClass {
+  modelFor(modelName: string): ShimModelClass | DSModelSchema {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
@@ -623,7 +646,7 @@ abstract class CoreStore extends Service {
       newly created record.
     @return {Model} record
   */
-  createRecord(modelName, inputProperties) {
+  createRecord(modelName: string, inputProperties?: CreateRecordProperties): RecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
@@ -641,7 +664,7 @@ abstract class CoreStore extends Service {
     return emberBackburner.join(() => {
       return this._backburner.join(() => {
         let normalizedModelName = normalizeModelName(modelName);
-        let properties = assign({}, inputProperties);
+        let properties: CreateRecordProperties = assign({}, inputProperties);
 
         // If the passed properties do not include a primary key,
         // give the adapter an opportunity to generate one. Typically,
@@ -677,7 +700,7 @@ abstract class CoreStore extends Service {
     @param {Object} properties from the new record
     @return {String} if the adapter can generate one, an ID
   */
-  _generateId(modelName, properties) {
+  _generateId(modelName: string, properties: CreateRecordProperties): string | null {
     let adapter = this.adapterFor(modelName);
 
     if (adapter && adapter.generateIdForRecord) {
@@ -708,7 +731,7 @@ abstract class CoreStore extends Service {
     @public
     @param {Model} record
   */
-  deleteRecord(record) {
+  deleteRecord(record: RecordInstance): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'deleteRecord');
     }
@@ -720,7 +743,7 @@ abstract class CoreStore extends Service {
           internalModel.deleteRecord();
         }
       } else {
-        record.deleteRecord();
+        (record as DSModel).deleteRecord();
       }
     });
   }
@@ -741,7 +764,7 @@ abstract class CoreStore extends Service {
     @public
     @param {Model} record
   */
-  unloadRecord(record) {
+  unloadRecord(record: RecordInstance): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
@@ -752,7 +775,7 @@ abstract class CoreStore extends Service {
         internalModel.unloadRecord();
       }
     } else {
-      record.unloadRecord();
+      (record as DSModel).unloadRecord();
     }
   }
 
@@ -768,7 +791,7 @@ abstract class CoreStore extends Service {
     @return {Promise} promise
     @private
   */
-  find(modelName, id, options) {
+  find(modelName: string, id: string | number, options?) {
     if (DEBUG) {
       assertDestroyingStore(this, 'find');
     }
@@ -1168,13 +1191,13 @@ abstract class CoreStore extends Service {
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord(resource: string, id: string | number, options?: FindOptions): PromiseProxy<DSModel>;
-  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): PromiseProxy<DSModel>;
+  findRecord(resource: string, id: string | number, options?: FindOptions): PromiseObject<RecordInstance>;
+  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): PromiseObject<RecordInstance>;
   findRecord(
     resource: string | ResourceIdentifierObject,
     id?: string | number | FindOptions,
     options?: FindOptions
-  ): PromiseProxy<DSModel> {
+  ): PromiseObject<RecordInstance> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
     }
@@ -1198,13 +1221,14 @@ abstract class CoreStore extends Service {
     const internalModel = internalModelFactoryFor(this).lookup(resource);
     options = options || {};
 
+    let promise: Promise<InternalModel>;
     if (!internalModel.currentState.isLoaded) {
-      return this._findByInternalModel(internalModel, options);
+      promise = this._findByInternalModel(internalModel, options);
+    } else {
+      promise = this._findRecord(internalModel, options);
     }
 
-    let fetchedInternalModel = this._findRecord(internalModel, options);
-
-    return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${internalModel.identifier}`);
+    return promiseRecord(promise, `DS: Store#findRecord ${internalModel.identifier}`);
   }
 
   _findRecord(internalModel: InternalModel, options: FindOptions) {
@@ -1226,7 +1250,7 @@ abstract class CoreStore extends Service {
     }
 
     if (options.backgroundReload === false) {
-      return Promise.resolve(internalModel);
+      return resolve(internalModel);
     }
 
     // Trigger the background refetch if backgroundReload option is passed
@@ -1239,25 +1263,23 @@ abstract class CoreStore extends Service {
     }
 
     // Return the cached record
-    return Promise.resolve(internalModel);
+    return resolve(internalModel);
   }
 
-  _findByInternalModel(internalModel, options: { preload?: any } = {}) {
+  _findByInternalModel(
+    internalModel: InternalModel,
+    options: { preload?: Dict<unknown> } = {}
+  ): Promise<InternalModel> {
     if (options.preload) {
       this._backburner.join(() => {
         internalModel.preloadData(options.preload);
       });
     }
 
-    let fetchedInternalModel = this._findEmptyInternalModel(internalModel, options);
-
-    return promiseRecord(
-      fetchedInternalModel,
-      `DS: Store#findRecord ${internalModel.modelName} with id: ${internalModel.id}`
-    );
+    return this._findEmptyInternalModel(internalModel, options);
   }
 
-  _findEmptyInternalModel(internalModel, options) {
+  _findEmptyInternalModel(internalModel: InternalModel, options: Dict<unknown>): Promise<InternalModel> {
     if (internalModel.currentState.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
@@ -1273,11 +1295,11 @@ abstract class CoreStore extends Service {
       }
     }
 
-    return Promise.resolve(internalModel);
+    return resolve(internalModel);
   }
 
   /**
-    This method makes a series of requests to the adapter's `find` method
+    This method makes a series of requests to the adapter's `findRecord` method
     and returns a promise that resolves once they are all loaded.
 
     @private
@@ -1286,7 +1308,7 @@ abstract class CoreStore extends Service {
     @param {Array} ids
     @return {Promise} promise
   */
-  findByIds(modelName, ids) {
+  findByIds(modelName: string, ids: string[]): PromiseArray<RecordInstance> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findByIds');
     }
@@ -1304,7 +1326,12 @@ abstract class CoreStore extends Service {
       promises[i] = this.findRecord(normalizedModelName, ids[i]);
     }
 
-    return promiseArray(all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
+    let promise: Promise<NativeArray<RecordInstance>> = all(promises).then(
+      A,
+      null,
+      `DS: Store#findByIds of ${normalizedModelName} complete`
+    );
+    return promiseArray<RecordInstance>(promise);
   }
 
   /**
@@ -1337,10 +1364,10 @@ abstract class CoreStore extends Service {
       fetches[i] = this._scheduleFetch(internalModels[i], options);
     }
 
-    return Promise.all(fetches);
+    return all(fetches);
   }
 
-  _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
+  _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
     // TODO  remove this once we don't rely on state machine
     internalModel.send('loadingData');
@@ -1375,7 +1402,7 @@ abstract class CoreStore extends Service {
     );
   }
 
-  _scheduleFetch(internalModel: InternalModel, options): RSVP.Promise<InternalModel> {
+  _scheduleFetch(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
     if (REQUEST_SERVICE) {
       return this._scheduleFetchThroughFetchManager(internalModel, options);
     } else {
@@ -1658,15 +1685,13 @@ abstract class CoreStore extends Service {
     );
 
     let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resourceIdentifier);
-    if (identifier) {
-      if (RECORD_REFERENCES.has(identifier)) {
-        return RECORD_REFERENCES.get(identifier);
-      }
-
-      let reference = new RecordReference(this, identifier);
+    let reference = RECORD_REFERENCES.get(identifier);
+    if (!reference) {
+      reference = new RecordReference(this, identifier);
       RECORD_REFERENCES.set(identifier, reference);
-      return reference;
     }
+
+    return reference;
   }
 
   /**
@@ -1723,7 +1748,8 @@ abstract class CoreStore extends Service {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       let stableIdentifier = identifierCacheFor(this).peekRecordIdentifier(identifier);
       if (stableIdentifier) {
-        return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord();
+        let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
+        return internalModel ? internalModel.getRecord() : null;
       }
       return null;
     }
@@ -1762,7 +1788,7 @@ abstract class CoreStore extends Service {
     @param options optional to include adapterOptions
     @return {Promise} promise
   */
-  _reloadRecord(internalModel, options): RSVP.Promise<InternalModel> {
+  _reloadRecord(internalModel: InternalModel, options): Promise<InternalModel> {
     if (REQUEST_SERVICE) {
       options.isReloading = true;
     }
@@ -1773,7 +1799,7 @@ abstract class CoreStore extends Service {
     assert(`You tried to reload a record but you have no adapter (for ${modelName})`, adapter);
     assert(
       `You tried to reload a record but your adapter does not implement 'findRecord'`,
-      typeof adapter.findRecord === 'function' || typeof adapter.find === 'function'
+      typeof adapter.findRecord === 'function'
     );
 
     return this._scheduleFetch(internalModel, options);
@@ -1860,7 +1886,7 @@ abstract class CoreStore extends Service {
       finds[i] = this._findEmptyInternalModel(internalModels[i], options);
     }
 
-    return Promise.all(finds);
+    return all(finds);
   }
 
   /**
@@ -1904,7 +1930,7 @@ abstract class CoreStore extends Service {
     parentInternalModel: InternalModel,
     relationship: ManyRelationship | BelongsToRelationship,
     options: any
-  ): RSVP.Promise<unknown> {
+  ): Promise<unknown> {
     if (HAS_RECORD_DATA_PACKAGE) {
       if (!resource) {
         return resolve([]);
@@ -1965,7 +1991,12 @@ abstract class CoreStore extends Service {
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(internalModel, link, relationship, options) {
+  findBelongsTo(
+    internalModel: InternalModel,
+    link: Link,
+    relationship: RelationshipSchema,
+    options: Dict<unknown>
+  ): Promise<InternalModel> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
     }
@@ -1983,7 +2014,12 @@ abstract class CoreStore extends Service {
     return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
   }
 
-  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options) {
+  _fetchBelongsToLinkFromResource(
+    resource: DefaultSingleResourceRelationship,
+    parentInternalModel: InternalModel,
+    relationshipMeta: RelationshipSchema,
+    options: Dict<unknown>
+  ): Promise<RecordInstance | null> {
     if (!resource || !resource.links || !resource.links.related) {
       // should we warn here, not sure cause its an internal method
       return resolve(null);
@@ -1995,14 +2031,19 @@ abstract class CoreStore extends Service {
     );
   }
 
-  _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
+  _findBelongsToByJsonApiResource(
+    resource: DefaultSingleResourceRelationship,
+    parentInternalModel: InternalModel,
+    relationshipMeta: RelationshipSchema,
+    options: Dict<unknown>
+  ): Promise<RecordInstance | null> {
     if (!resource) {
       return resolve(null);
     }
 
     const internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
-    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = resource._relationship
-      .state as RelationshipState;
+    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } =
+      resource._relationship.state;
     const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this, resource);
 
     let shouldFindViaLink =
@@ -2049,10 +2090,15 @@ abstract class CoreStore extends Service {
         return resolve(null);
       }
 
-      return this._findByInternalModel(internalModel, options);
+      // TODO it's not clear why internalModel is always an internalModel by the time
+      // we arrive here. It likely is because if localDataIsEmpty is true then
+      // we exit before this.
+      return this._findByInternalModel(internalModel as InternalModel, options).then((im) => {
+        return im.getRecord();
+      });
     }
 
-    let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
+    let resourceIsLocal = !localDataIsEmpty && resource.data && 'id' in resource.data && resource.data.id === null;
 
     if (internalModel && resourceIsLocal) {
       return resolve(internalModel.getRecord());
@@ -2121,7 +2167,7 @@ abstract class CoreStore extends Service {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName: string, query, options): PromiseArray<DSModel> {
+  query(modelName: string, query, options): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -2142,7 +2188,7 @@ abstract class CoreStore extends Service {
     return this._query(normalizedModelName, query, null, adapterOptionsWrapper);
   }
 
-  _query(modelName: string, query, array, options): PromiseArray<DSModel> {
+  _query(modelName: string, query, array, options): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
@@ -2259,7 +2305,7 @@ abstract class CoreStore extends Service {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName, query, options) {
+  queryRecord(modelName, query, options): PromiseObject<RecordInstance> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
@@ -2284,7 +2330,7 @@ abstract class CoreStore extends Service {
       typeof adapter.queryRecord === 'function'
     );
 
-    return promiseObject(
+    return promiseObject<RecordInstance>(
       _queryRecord(adapter, this, normalizedModelName, query, adapterOptionsWrapper).then((internalModel) => {
         // the promise returned by store.queryRecord is expected to resolve with
         // an instance of Model
@@ -2485,7 +2531,7 @@ abstract class CoreStore extends Service {
     @param {Object} options
     @return {Promise} promise
   */
-  findAll(modelName, options) {
+  findAll(modelName: string, options: FindOptions): PromiseArray<RecordInstance, RecordArray> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findAll');
     }
@@ -2508,7 +2554,11 @@ abstract class CoreStore extends Service {
     @param {RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll(modelName, array, options: { reload?: boolean; backgroundReload?: boolean } = {}) {
+  _fetchAll(
+    modelName: string,
+    array: RecordArray,
+    options: FindOptions = {}
+  ): PromiseArray<RecordInstance, RecordArray> {
     let adapter = this.adapterFor(modelName);
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
@@ -2519,7 +2569,7 @@ abstract class CoreStore extends Service {
 
     if (options.reload) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, options));
+      return promiseArray<RecordInstance, RecordArray>(_findAll(adapter, this, modelName, options));
     }
 
     let snapshotArray = array._createSnapshot(options);
@@ -2530,12 +2580,12 @@ abstract class CoreStore extends Service {
         (!adapter.shouldReloadAll && snapshotArray.length === 0)
       ) {
         set(array, 'isUpdating', true);
-        return promiseArray(_findAll(adapter, this, modelName, options));
+        return promiseArray<RecordInstance, RecordArray>(_findAll(adapter, this, modelName, options));
       }
     }
 
     if (options.backgroundReload === false) {
-      return promiseArray(Promise.resolve(array));
+      return promiseArray<RecordInstance, RecordArray>(resolve(array));
     }
 
     if (
@@ -2547,7 +2597,7 @@ abstract class CoreStore extends Service {
       _findAll(adapter, this, modelName, options);
     }
 
-    return promiseArray(Promise.resolve(array));
+    return promiseArray<RecordInstance, RecordArray>(resolve(array));
   }
 
   /**
@@ -2555,7 +2605,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @private
   */
-  _didUpdateAll(modelName) {
+  _didUpdateAll(modelName: string) {
     this.recordArrayManager._didUpdateAll(modelName);
   }
 
@@ -2584,7 +2634,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return {RecordArray}
   */
-  peekAll(modelName) {
+  peekAll(modelName: string): RecordArray {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekAll');
     }
@@ -2654,7 +2704,7 @@ abstract class CoreStore extends Service {
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave(internalModel: InternalModel, resolver: RSVP.Deferred<void>, options): void | RSVP.Promise<void> {
+  scheduleSave(internalModel: InternalModel, resolver: Deferred<void>, options?: Dict<unknown>): void | Promise<void> {
     if (REQUEST_SERVICE) {
       if (internalModel._isRecordFullyDeleted()) {
         resolver.resolve();
@@ -2733,7 +2783,7 @@ abstract class CoreStore extends Service {
     @method flushPendingSave
     @private
   */
-  flushPendingSave() {
+  flushPendingSave(): void {
     if (REQUEST_SERVICE) {
       // assert here
       return;
@@ -2791,7 +2841,7 @@ abstract class CoreStore extends Service {
     @param {Object} data optional data (see above)
     @param {string} op the adapter operation that was committed
   */
-  didSaveRecord(internalModel, dataArg, op: 'createRecord' | 'updateRecord' | 'deleteRecord') {
+  didSaveRecord(internalModel: InternalModel, dataArg, op: 'createRecord' | 'updateRecord' | 'deleteRecord'): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'didSaveRecord');
     }
@@ -2828,7 +2878,7 @@ abstract class CoreStore extends Service {
     @param {InternalModel} internalModel
     @param {Object} errors
   */
-  recordWasInvalid(internalModel, parsedErrors, error) {
+  recordWasInvalid(internalModel: InternalModel, parsedErrors, error): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasInvalid');
     }
@@ -2849,7 +2899,7 @@ abstract class CoreStore extends Service {
     @param {InternalModel} internalModel
     @param {Error} error
   */
-  recordWasError(internalModel, error) {
+  recordWasError(internalModel: InternalModel, error): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasError');
     }
@@ -2866,7 +2916,7 @@ abstract class CoreStore extends Service {
     @param {string} newId
     @param {string} clientId
    */
-  setRecordId(modelName: string, newId: string, clientId: string) {
+  setRecordId(modelName: string, newId: string, clientId: string): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'setRecordId');
     }
@@ -2884,7 +2934,7 @@ abstract class CoreStore extends Service {
     @private
     @param {Object} data
   */
-  _load(data: ExistingResourceObject) {
+  _load(data: ExistingResourceObject): InternalModel {
     const resource = constructResource(normalizeModelName(data.type), ensureStringId(data.id), coerceId(data.lid));
 
     let internalModel = internalModelFactoryFor(this).lookup(resource, data);
@@ -3072,9 +3122,14 @@ abstract class CoreStore extends Service {
       updated.
   */
   push(data: EmptyResourceDocument): null;
-  push(data: SingleResourceDocument): RecordInstance;
-  push(data: CollectionResourceDocument): RecordInstance[];
-  push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null {
+  push(data: SingleResourceDocument): ReturnType<CoreStore['instantiateRecord']>;
+  push(data: CollectionResourceDocument): ReturnType<CoreStore['instantiateRecord']>[];
+  push(
+    data: JsonApiDocument
+  ): ReturnType<CoreStore['instantiateRecord']> | ReturnType<CoreStore['instantiateRecord']>[] | null;
+  push(
+    data: JsonApiDocument
+  ): ReturnType<CoreStore['instantiateRecord']> | ReturnType<CoreStore['instantiateRecord']>[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
@@ -3102,13 +3157,17 @@ abstract class CoreStore extends Service {
     @param {Object} jsonApiDoc
     @return {InternalModel|Array<InternalModel>} pushed InternalModel(s)
   */
-  _push(jsonApiDoc): InternalModel | InternalModel[] | null {
+  _push(jsonApiDoc: EmptyResourceDocument): null;
+  _push(jsonApiDoc: SingleResourceDocument): InternalModel;
+  _push(jsonApiDoc: CollectionResourceDocument): InternalModel[];
+  _push(jsonApiDoc: JsonApiDocument): null | InternalModel | InternalModel[];
+  _push(jsonApiDoc: JsonApiDocument): null | InternalModel | InternalModel[] {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
     let internalModelOrModels = this._backburner.join(() => {
       let included = jsonApiDoc.included;
-      let i, length;
+      let i: number, length: number;
 
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {
@@ -3131,9 +3190,7 @@ abstract class CoreStore extends Service {
       }
 
       assert(
-        `Expected an object in the 'data' property in a call to 'push' for ${jsonApiDoc.type}, but was ${typeOf(
-          jsonApiDoc.data
-        )}`,
+        `Expected an object in the 'data' property in a call to 'push', but was ${typeOf(jsonApiDoc.data)}`,
         typeOf(jsonApiDoc.data) === 'object'
       );
 
@@ -3144,7 +3201,7 @@ abstract class CoreStore extends Service {
     return internalModelOrModels as unknown as InternalModel | InternalModel[];
   }
 
-  _pushInternalModel(data) {
+  _pushInternalModel(data: ExistingResourceObject): InternalModel {
     let modelName = data.type;
     assert(
       `You must include an 'id' for ${modelName} in an object passed to 'push'`,
@@ -3261,7 +3318,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
     @param {Object} inputPayload
   */
-  pushPayload(modelName, inputPayload) {
+  pushPayload(modelName: string, inputPayload): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'pushPayload');
     }
@@ -3290,11 +3347,16 @@ abstract class CoreStore extends Service {
     serializer.pushPayload(this, payload);
   }
 
-  reloadManyArray(manyArray, internalModel, key, options) {
+  reloadManyArray(manyArray, internalModel: InternalModel, key: string, options) {
     return internalModel.reloadHasMany(key, options);
   }
 
-  reloadBelongsTo(belongsToProxy, internalModel, key, options) {
+  reloadBelongsTo(
+    belongsToProxy: PromiseBelongsTo,
+    internalModel: InternalModel,
+    key: string,
+    options: Dict<unknown>
+  ): Promise<RecordInstance | null> {
     return internalModel.reloadBelongsTo(key, options);
   }
 
@@ -3324,14 +3386,14 @@ abstract class CoreStore extends Service {
     assert('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
   }
 
-  saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
+  saveRecord(record: RecordInstance, options?: Dict<unknown>): Promise<RecordInstance> {
     if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);
       // TODO we used to check if the record was destroyed here
       // Casting can be removed once REQUEST_SERVICE ff is turned on
       // because a `Record` is provided there will always be a matching internalModel
-      return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
+      return (internalModel!.save(options) as Promise<void>).then(() => record);
     }
 
     assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
@@ -3446,7 +3508,7 @@ abstract class CoreStore extends Service {
     @param {Object} payload
     @return {Object} The normalized payload
   */
-  normalize(modelName, payload) {
+  normalize(modelName: string, payload: Dict<unknown>): SingleResourceDocument {
     if (DEBUG) {
       assertDestroyingStore(this, 'normalize');
     }
@@ -3460,6 +3522,7 @@ abstract class CoreStore extends Service {
     let normalizedModelName = normalizeModelName(modelName);
     let serializer = this.serializerFor(normalizedModelName);
     let model = this.modelFor(normalizedModelName);
+    assert(`Cannot normalize as no serializer was found for ${modelName}`, serializer);
     assert(
       `You must define a normalize method in your serializer in order to call store.normalize`,
       serializer.normalize
@@ -3467,7 +3530,7 @@ abstract class CoreStore extends Service {
     return serializer.normalize(model, payload);
   }
 
-  newClientId() {
+  newClientId(): never {
     assert(`Private API Removed`, false);
   }
 
@@ -3480,7 +3543,7 @@ abstract class CoreStore extends Service {
    *
    * @internal
    */
-  _internalModelsFor(modelName: string) {
+  _internalModelsFor(modelName: string): InternalModelMap {
     return internalModelFactoryFor(this).modelMapFor(modelName);
   }
 
@@ -3505,7 +3568,12 @@ abstract class CoreStore extends Service {
     @param {String} modelName
     @return Adapter
   */
-  adapterFor(modelName) {
+  // strictly speaking this is somewhat a lie since we will normalize the modelName
+  // but this matches the @types/ember-data pattern which works well and encourages
+  // a stricter, better behavior when using typescript. We're also deprecating passing
+  // non-normalized modelNames into the store soon so this is relatively low risk even
+  // in the near term.
+  adapterFor(modelName: string): MinimumAdapterInterface {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
@@ -3537,7 +3605,7 @@ abstract class CoreStore extends Service {
     }
 
     if (adapter !== undefined) {
-      set(adapter, 'store', this);
+      adapter.store = this;
       _adapterCache[normalizedModelName] = adapter;
       return adapter;
     }
@@ -3545,7 +3613,7 @@ abstract class CoreStore extends Service {
     // no adapter found for the specific model, fallback and check for application adapter
     adapter = _adapterCache.application || owner.lookup('adapter:application');
     if (adapter !== undefined) {
-      set(adapter, 'store', this);
+      adapter.store = this;
       _adapterCache[normalizedModelName] = adapter;
       _adapterCache.application = adapter;
       return adapter;
@@ -3567,7 +3635,7 @@ abstract class CoreStore extends Service {
     }
 
     if (adapter !== undefined) {
-      set(adapter, 'store', this);
+      adapter.store = this;
       _adapterCache[normalizedModelName] = adapter;
       _adapterCache[adapterName] = adapter;
       return adapter;
@@ -3580,7 +3648,7 @@ abstract class CoreStore extends Service {
       `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
       adapter !== undefined
     );
-    set(adapter, 'store', this);
+    adapter.store = this;
     _adapterCache[normalizedModelName] = adapter;
     _adapterCache['-json-api'] = adapter;
     return adapter;
@@ -3611,7 +3679,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName the record to serialize
     @return {Serializer}
   */
-  serializerFor(modelName) {
+  serializerFor(modelName: string): MinimumSerializerInterface {
     if (DEBUG) {
       assertDestroyingStore(this, 'serializerFor');
     }
@@ -3623,7 +3691,8 @@ abstract class CoreStore extends Service {
     let normalizedModelName = normalizeModelName(modelName);
 
     let { _serializerCache } = this;
-    let serializer = _serializerCache[normalizedModelName];
+    let serializer: (MinimumSerializerInterface & { store: CoreStore }) | undefined =
+      _serializerCache[normalizedModelName];
     if (serializer) {
       return serializer;
     }
@@ -3655,7 +3724,7 @@ abstract class CoreStore extends Service {
     }
 
     if (serializer !== undefined) {
-      set(serializer, 'store', this);
+      serializer.store = this;
       _serializerCache[normalizedModelName] = serializer;
       return serializer;
     }
@@ -3663,18 +3732,18 @@ abstract class CoreStore extends Service {
     // no serializer found for the specific model, fallback and check for application serializer
     serializer = _serializerCache.application || owner.lookup('serializer:application');
     if (serializer !== undefined) {
-      set(serializer, 'store', this);
+      serializer.store = this;
       _serializerCache[normalizedModelName] = serializer;
       _serializerCache.application = serializer;
       return serializer;
     }
 
-    let serializerName;
+    let serializerName: string | undefined;
     if (DEPRECATE_DEFAULT_SERIALIZER) {
       // no model specific serializer or application serializer, check for the `defaultSerializer`
       // property defined on the adapter
-      let adapter = this.adapterFor(modelName);
-      serializerName = get(adapter, 'defaultSerializer');
+      let adapter: MinimumAdapterInterface & { defaultSerializer?: string } = this.adapterFor(modelName);
+      serializerName = adapter.defaultSerializer;
 
       deprecate(
         `store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
@@ -3718,9 +3787,9 @@ abstract class CoreStore extends Service {
       }
 
       if (serializer !== undefined) {
-        set(serializer, 'store', this);
+        serializer.store = this;
         _serializerCache[normalizedModelName] = serializer;
-        _serializerCache[serializerName] = serializer;
+        _serializerCache[serializerName as string] = serializer;
         return serializer;
       }
     }
@@ -3757,30 +3826,26 @@ abstract class CoreStore extends Service {
         serializer !== undefined
       );
 
-      set(serializer, 'store', this);
+      serializer.store = this;
       _serializerCache[normalizedModelName] = serializer;
       _serializerCache['-default'] = serializer;
 
       return serializer;
-    } else {
-      assert(
-        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
-        serializer !== undefined
-      );
     }
+    assert(`No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`);
   }
 
   destroy() {
     // enqueue destruction of any adapters/serializers we have created
     for (let adapterName in this._adapterCache) {
-      let adapter = this._adapterCache[adapterName];
+      let adapter = this._adapterCache[adapterName] as MinimumAdapterInterface;
       if (typeof adapter.destroy === 'function') {
         adapter.destroy();
       }
     }
 
     for (let serializerName in this._serializerCache) {
-      let serializer = this._serializerCache[serializerName];
+      let serializer = this._serializerCache[serializerName] as MinimumSerializerInterface;
       if (typeof serializer.destroy === 'function') {
         serializer.destroy();
       }
@@ -3906,7 +3971,7 @@ function _commit(adapter, store, operation, snapshot) {
     typeof adapter[operation] === 'function'
   );
 
-  let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
+  let promise = resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer = store.serializerFor(modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 

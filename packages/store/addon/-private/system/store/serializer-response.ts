@@ -1,6 +1,14 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+type RequestType = import('../../ts-interfaces/minimum-serializer-interface').RequestType;
+type AdapterPayload = import('../../ts-interfaces/minimum-adapter-interface').AdapterPayload;
+type ShimModelClass = import('../model/shim-model-class').default;
+type CoreStore = import('../core-store').default;
+type DSModelSchema = import('../../ts-interfaces/ds-model').DSModelSchema;
+type MinimumSerializerInterface = import('../../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface;
+type JsonApiDocument = import('../../ts-interfaces/ember-data-json-api').JsonApiDocument;
+
 /**
   This is a helper method that validates a JSON API top-level document
 
@@ -9,8 +17,8 @@ import { DEBUG } from '@glimmer/env';
 
   @internal
 */
-export function validateDocumentStructure(doc) {
-  let errors = [];
+export function validateDocumentStructure(doc: JsonApiDocument) {
+  let errors: string[] = [];
   if (!doc || typeof doc !== 'object') {
     errors.push('Top level of a JSON API document must be an object');
   } else {
@@ -56,16 +64,22 @@ export function validateDocumentStructure(doc) {
   return errors;
 }
 
-export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
+export function normalizeResponseHelper(
+  serializer: MinimumSerializerInterface,
+  store: CoreStore,
+  modelClass: ShimModelClass | DSModelSchema,
+  payload: AdapterPayload,
+  id: string | null,
+  requestType: RequestType
+) {
   let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
-  let validationErrors = [];
   if (DEBUG) {
-    validationErrors = validateDocumentStructure(normalizedResponse);
+    let validationErrors = validateDocumentStructure(normalizedResponse);
+    assert(
+      `normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`,
+      validationErrors.length === 0
+    );
   }
-  assert(
-    `normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`,
-    validationErrors.length === 0
-  );
 
   return normalizedResponse;
 }

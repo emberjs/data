@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "allowJs": false,
+    "allowJs": true,
     "checkJs": false,
     "moduleResolution": "node",
     "alwaysStrict": true,

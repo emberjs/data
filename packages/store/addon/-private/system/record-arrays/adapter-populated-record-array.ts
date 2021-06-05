@@ -52,11 +52,11 @@ import RecordArray from './record-array';
   @public
   @extends RecordArray
 */
-let AdapterPopulatedRecordArray = RecordArray.extend({
+export default class AdapterPopulatedRecordArray extends RecordArray {
   init() {
     this.set('content', this.get('content') || A());
 
-    this._super(...arguments);
+    super.init();
     this.query = this.query || null;
     this.links = this.links || null;
 
@@ -64,18 +64,18 @@ let AdapterPopulatedRecordArray = RecordArray.extend({
       this._getDeprecatedEventedInfo = () =>
         `AdapterPopulatedRecordArray containing ${this.modelName} for query: ${this.query}`;
     }
-  },
+  }
 
   replace() {
     throw new Error(`The result of a server query (on ${this.modelName}) is immutable.`);
-  },
+  }
 
   _update() {
     let store = get(this, 'store');
     let query = get(this, 'query');
 
     return store._query(this.modelName, query, this);
-  },
+  }
 
   _setObjects(identifiersOrInternalModels, payload) {
     // TODO: initial load should not cause change events at all, only
@@ -99,7 +99,7 @@ let AdapterPopulatedRecordArray = RecordArray.extend({
         once(this, 'trigger', 'didLoad');
       }
     }
-  },
+  }
 
   /**
     @method _setIdentifiers
@@ -109,7 +109,5 @@ let AdapterPopulatedRecordArray = RecordArray.extend({
   */
   _setIdentifiers(identifiers, payload) {
     this._setObjects(identifiers, payload);
-  },
-});
-
-export default AdapterPopulatedRecordArray;
+  }
+}

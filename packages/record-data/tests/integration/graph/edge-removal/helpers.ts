@@ -5,6 +5,9 @@ import { recordIdentifierFor } from '@ember-data/store';
 
 import { stateOf } from './setup';
 
+type CollectionResourceDocument =
+  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceDocument;
+
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type ImplicitRelationship = import('@ember-data/record-data/-private').Relationship;
 
@@ -102,7 +105,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
 
   let chris, john, johnIdentifier;
   if (!config.useCreate) {
-    const data = {
+    const data: CollectionResourceDocument = {
       data: [
         {
           type: 'user',

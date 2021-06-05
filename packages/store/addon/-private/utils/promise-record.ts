@@ -1,8 +1,9 @@
 import { promiseObject } from '../system/promise-proxies';
 
-type DSModel = import('../ts-interfaces/ds-model').DSModel;
-type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
+type PromiseObject<T> = import('../system/promise-proxies').PromiseObject<T>;
+type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
 type InternalModel = import('../system/model/internal-model').default;
+
 /**
   @module @ember-data/store
 */
@@ -17,9 +18,9 @@ type InternalModel = import('../system/model/internal-model').default;
  */
 export default function promiseRecord(
   internalModelPromise: Promise<InternalModel>,
-  label: string
-): PromiseProxy<DSModel> {
-  let toReturn = internalModelPromise.then((internalModel) => internalModel.getRecord());
+  label?: string
+): PromiseObject<RecordInstance> {
+  let toReturn = internalModelPromise.then<RecordInstance>((internalModel: InternalModel) => internalModel.getRecord());
 
-  return promiseObject(toReturn, label);
+  return promiseObject<RecordInstance>(toReturn, label);
 }

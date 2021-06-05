@@ -10,7 +10,7 @@ type EmberArray<T> = import('@ember/array').default<T>;
  * It builds upon the Array mixin and adds methods to modify the array.
  * One concrete implementations of this class include ArrayProxy.
  */
-interface MutableArray<T> extends EmberArray<T>, MutableEnumerable<T> {
+interface MutableArray<T, T = M> extends EmberArray<T>, MutableEnumerable<T> {
   /**
    * __Required.__ You must implement this method to apply this mixin.
    */

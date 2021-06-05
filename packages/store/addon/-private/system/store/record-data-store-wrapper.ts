@@ -228,7 +228,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
 
     const record = internalModel._record;
-    return record && !(record.isDestroyed || record.isDestroying);
+    return record ? !(record.isDestroyed || record.isDestroying) : false;
   }
 
   disconnectRecord(type: string, id: string | null, lid: string): void;

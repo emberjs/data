@@ -12,7 +12,16 @@ import { PromiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
-function recordForIdentifier(store, identifier) {
+type CoreStore = import('../core-store').default;
+
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
+type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
+type Evented = import('@ember/object/evented').default;
+type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
+
+type DSModel = import('../../ts-interfaces/ds-model').DSModel;
+
+function recordForIdentifier(store: CoreStore, identifier: StableRecordIdentifier): RecordInstance {
   return internalModelFactoryFor(store).lookup(identifier).getRecord();
 }
 
@@ -31,9 +40,17 @@ function recordForIdentifier(store, identifier) {
   @uses Ember.Evented
 */
 
-let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
-  init(args) {
-    this._super(args);
+interface ArrayProxyWithDeprecatedEvented<T, M = T> extends Evented, ArrayProxy<T, M> {}
+const ArrayProxyWithDeprecatedEvented = ArrayProxy.extend(DeprecatedEvented) as unknown as new <
+  T,
+  M = T
+>() => ArrayProxyWithDeprecatedEvented<T, M>;
+
+class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier, RecordInstance> {
+  declare content: NativeArray<StableRecordIdentifier>;
+
+  init() {
+    super.init();
 
     if (DEBUG) {
       this._getDeprecatedEventedInfo = () => `RecordArray containing ${this.modelName}`;
@@ -93,13 +110,13 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     */
     this.store = this.store || null;
     this._updatingPromise = null;
-  },
+  }
 
   replace() {
     throw new Error(
       `The result of a server query (for all ${this.modelName} types) is immutable. To modify contents, use toArray()`
     );
-  },
+  }
 
   /**
    The modelClass represented by this record array.
@@ -108,12 +125,13 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     @public
    @type {subclass of Model}
    */
-  type: computed('modelName', function () {
+  @computed('modelName')
+  get type() {
     if (!this.modelName) {
       return null;
     }
     return this.store.modelFor(this.modelName);
-  }).readOnly(),
+  }
 
   /**
     Retrieves an object from the content by index.
@@ -123,10 +141,10 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     @param {Number} index
     @return {Model} record
   */
-  objectAtContent(index) {
-    let identifier = get(this, 'content').objectAt(index);
+  objectAtContent(index: number): RecordInstance | undefined {
+    let identifier = this.content.objectAt(index);
     return identifier ? recordForIdentifier(this.store, identifier) : undefined;
-  },
+  }
 
   /**
     Used to get the latest version of all of the records in this array
@@ -166,7 +184,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     this._updatingPromise = updatingPromise;
 
     return updatingPromise;
-  },
+  }
 
   /*
     Update this RecordArray and return a promise which resolves once the update
@@ -174,7 +192,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
    */
   _update() {
     return this.store.findAll(this.modelName, { reload: true });
-  },
+  }
 
   /**
     Saves all of the records in the `RecordArray`.
@@ -195,14 +213,14 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
   */
   save() {
     let promiseLabel = `DS: RecordArray#save ${this.modelName}`;
-    let promise = Promise.all(this.invoke('save'), promiseLabel).then(
+    let promise = Promise.all(this.invoke<DSModel>('save'), promiseLabel).then(
       () => this,
       null,
       'DS: RecordArray#save return RecordArray'
     );
 
     return PromiseArray.create({ promise });
-  },
+  }
 
   /**
     @method _unregisterFromManager
@@ -210,7 +228,7 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
   */
   _unregisterFromManager() {
     this.manager.unregisterRecordArray(this);
-  },
+  }
 
   willDestroy() {
     this._unregisterFromManager();
@@ -222,10 +240,10 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     //   * the exception being: if an dominator has a reference to this object,
     //     and must be informed to release e.g. e.g. removing itself from th
     //     recordArrayMananger
-    set(this, 'content', null);
+    set(this, 'content', null as unknown as NativeArray<StableRecordIdentifier>);
     set(this, 'length', 0);
-    this._super(...arguments);
-  },
+    super.willDestroy();
+  }
 
   /**
     @method _createSnapshot
@@ -234,21 +252,21 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
   _createSnapshot(options) {
     // this is private for users, but public for ember-data internals
     return new SnapshotRecordArray(this, this.get('meta'), options);
-  },
+  }
 
   /**
     @method _dissociateFromOwnRecords
     @internal
   */
   _dissociateFromOwnRecords() {
-    this.get('content').forEach((identifier) => {
+    this.content.forEach((identifier) => {
       let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
 
       if (recordArrays) {
         recordArrays.delete(this);
       }
     });
-  },
+  }
 
   /**
     Adds identifiers to the `RecordArray` without duplicates
@@ -258,8 +276,8 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     @param {StableRecordIdentifier[]} identifiers
   */
   _pushIdentifiers(identifiers) {
-    get(this, 'content').pushObjects(identifiers);
-  },
+    this.content.pushObjects(identifiers);
+  }
 
   /**
     Removes identifiers from the `RecordArray`.
@@ -269,18 +287,16 @@ let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
     @param {StableRecordIdentifier[]} identifiers
   */
   _removeIdentifiers(identifiers) {
-    get(this, 'content').removeObjects(identifiers);
-  },
+    this.content.removeObjects(identifiers);
+  }
 
   /**
     @method _takeSnapshot
     @internal
   */
   _takeSnapshot() {
-    return get(this, 'content').map((identifier) =>
-      internalModelFactoryFor(this.store).lookup(identifier).createSnapshot()
-    );
-  },
-});
+    return this.content.map((identifier) => internalModelFactoryFor(this.store).lookup(identifier).createSnapshot());
+  }
+}
 
 export default RecordArray;

@@ -6,9 +6,10 @@ import { errorsArrayToHash } from '@ember-data/store/-private';
 
 import notifyChanges from './notify-changes';
 
+type DSModel = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModel;
+
 type RecordData = import('@ember-data/record-data/-private').RecordData;
 type RequestCache = import('@ember-data/store/-private/system/request-cache').default;
-type Model = InstanceType<typeof import('./model')>;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type NotificationType = import('@ember-data/store/-private/system/record-notification-manager').NotificationType;
@@ -141,7 +142,7 @@ root
 export default class RecordState {
   declare store: CoreStore;
   declare identifier: StableRecordIdentifier;
-  declare record: Model;
+  declare record: DSModel;
   declare rs: RequestCache;
 
   declare pendingCount: number;
@@ -151,13 +152,13 @@ export default class RecordState {
   declare _errorRequests: any[];
   declare _lastError: any;
 
-  constructor(record: Model) {
+  constructor(record: DSModel) {
     const { store } = record;
 
     let id = record._internalModel.identifier;
 
     this.record = record;
-    this.recordData = record._internalModel._recordData;
+    this.recordData = record._internalModel._recordData as RecordData;
 
     this.pendingCount = 0;
     this.fulfilledCount = 0;

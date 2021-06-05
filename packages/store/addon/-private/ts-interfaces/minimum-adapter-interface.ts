@@ -5,12 +5,14 @@
 type Dict<T> = import('./utils').Dict<T>;
 type Snapshot = import('../system/snapshot').default;
 type SnapshotRecordArray = import('../system/snapshot-record-array').default;
-type Store = import('../system/core-store').default;
+type Store = import('@ember-data/store/-private/system/core-store').default;
 type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
 type AdapterPopulatedRecordArray = import('../system/record-arrays/adapter-populated-record-array').default;
 type RelationshipSchema = import('./record-data-schemas').RelationshipSchema;
 
 type Group = Snapshot[];
+
+export type AdapterPayload = Dict<unknown> | unknown[];
 
 /**
  * @module @ember-data/adapter
@@ -26,7 +28,7 @@ type Group = Snapshot[];
   @class MinimumAdapterInterface
   @public
 */
-interface Adapter {
+export interface MinimumAdapterInterface {
   /**
    * `adapter.findRecord` takes a request for a resource of a given `type` and `id` combination
    * and should return a `Promise` which fulfills with data for a single resource matching that
@@ -54,7 +56,7 @@ interface Adapter {
    * @param {Snapshot} snapshot
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot): Promise<unknown>;
+  findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot): Promise<AdapterPayload>;
 
   /**
    * `adapter.findAll` takes a request for resources of a given `type` and should return
@@ -91,7 +93,7 @@ interface Adapter {
     schema: ModelSchema,
     sinceToken: null,
     snapshotRecordArray: SnapshotRecordArray
-  ): Promise<unknown>;
+  ): Promise<AdapterPayload>;
 
   /**
    * `adapter.query` takes a request for resources of a given `type` and should return
@@ -130,7 +132,7 @@ interface Adapter {
     query: Dict<any>,
     recordArray: AdapterPopulatedRecordArray,
     options: { adapterOptions?: unknown }
-  ): Promise<unknown>;
+  ): Promise<AdapterPayload>;
 
   /**
    * `adapter.queryRecord` takes a request for resource of a given `type` and should return
@@ -160,7 +162,7 @@ interface Adapter {
     schema: ModelSchema,
     query: Dict<any>,
     options: { adapterOptions?: unknown }
-  ): Promise<unknown>;
+  ): Promise<AdapterPayload>;
 
   /**
    * `adapter.createRecord` takes a request to create a resource of a given `type` and should
@@ -213,7 +215,7 @@ interface Adapter {
    * @param {Snapshot} snapshot
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  createRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<unknown>;
+  createRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload>;
 
   /**
    * `adapter.updateRecord` takes a request to update a resource of a given `type` and should
@@ -265,7 +267,7 @@ interface Adapter {
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {Snapshot} snapshot
    */
-  updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<unknown>;
+  updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload>;
 
   /**
    * `adapter.deleteRecord` takes a request to delete a resource of a given `type` and
@@ -293,7 +295,7 @@ interface Adapter {
    * @param {Snapshot} snapshot A Snapshot containing the record's current data
    * @return
    */
-  deleteRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<unknown>;
+  deleteRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload | void>;
 
   /**
    * `adapter.findBelongsTo` takes a request to fetch a related resource located at a
@@ -330,7 +332,7 @@ interface Adapter {
     snapshot: Snapshot,
     relatedLink: string,
     relationship: RelationshipSchema
-  ): Promise<unknown>;
+  ): Promise<AdapterPayload>;
 
   /**
    * `adapter.findHasMany` takes a request to fetch a related resource collection located
@@ -368,7 +370,7 @@ interface Adapter {
     snapshot: Snapshot,
     relatedLink: string,
     relationship: RelationshipSchema
-  ): Promise<unknown>;
+  ): Promise<AdapterPayload>;
 
   /**
    * ⚠️ This Method is only called if `coalesceFindRequests` is `true`. The array passed to it is determined
@@ -399,7 +401,7 @@ interface Adapter {
    * @param {Array<Snapshot>} snapshots An array of snapshots of the available data for the resources to fetch
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findMany?(store: Store, schema: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<unknown>;
+  findMany?(store: Store, schema: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload>;
 
   /**
    * This method provides the ability to generate an ID to assign to a new record whenever `store.createRecord`
@@ -581,5 +583,3 @@ interface Adapter {
    */
   destroy?(): void;
 }
-
-export default Adapter;

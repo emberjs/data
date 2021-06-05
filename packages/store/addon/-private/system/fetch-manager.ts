@@ -16,16 +16,29 @@ import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
 
+type MinimumSerializerInterface = import('../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface;
+type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+type ShimModelClass = import('./model/shim-model-class').default;
+type JsonApiValidationError = import('../ts-interfaces/record-data-json-api').JsonApiValidationError;
+type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
 type CoreStore = import('./core-store').default;
 type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
 type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
 type Request = import('../ts-interfaces/fetch-manager').Request;
 type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
 type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type ExistingRecordIdentifier = import('../ts-interfaces/identifier').ExistingRecordIdentifier;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
+
+interface ErrorHandlingSerializer {
+  extractErrors?(
+    store: CoreStore,
+    modelClass: ShimModelClass | DSModelSchema,
+    error: Error & { isAdapterError: true; code: 'InvalidError'; errors: unknown[] },
+    id: string | null
+  ): JsonApiValidationError[];
+}
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -38,7 +51,7 @@ function payloadIsNotBlank(adapterPayload): boolean {
 export const SaveOp: unique symbol = symbol('SaveOp');
 
 interface PendingFetchItem {
-  identifier: ExistingRecordIdentifier;
+  identifier: StableExistingRecordIdentifier;
   queryRequest: Request;
   resolver: RSVP.Deferred<any>;
   options: { [k: string]: unknown };
@@ -48,7 +61,7 @@ interface PendingFetchItem {
 interface PendingSaveItem {
   resolver: RSVP.Deferred<any>;
   snapshot: Snapshot;
-  identifier: RecordIdentifier;
+  identifier: StableRecordIdentifier;
   options: { [k: string]: unknown; [SaveOp]: 'createRecord' | 'saveRecord' | 'updateRecord' };
   queryRequest: Request;
 }
@@ -83,7 +96,7 @@ export default class FetchManager {
 
     @internal
   */
-  scheduleSave(identifier: RecordIdentifier, options: any = {}): RSVP.Promise<null | SingleResourceDocument> {
+  scheduleSave(identifier: StableRecordIdentifier, options: any = {}): RSVP.Promise<null | SingleResourceDocument> {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<null | SingleResourceDocument>(promiseLabel);
     let query: SaveRecordMutation = {
@@ -131,7 +144,7 @@ export default class FetchManager {
     );
 
     let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-    let serializer = store.serializerFor(modelName);
+    let serializer: MinimumSerializerInterface & ErrorHandlingSerializer = store.serializerFor(modelName);
     let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
     assert(
@@ -184,7 +197,7 @@ export default class FetchManager {
     }
   }
 
-  scheduleFetch(identifier: ExistingRecordIdentifier, options: any, shouldTrace: boolean): RSVP.Promise<any> {
+  scheduleFetch(identifier: StableExistingRecordIdentifier, options: any, shouldTrace: boolean): RSVP.Promise<any> {
     // TODO Probably the store should pass in the query object
 
     let query: FindRecordQuery = {
@@ -391,7 +404,7 @@ export default class FetchManager {
     store: CoreStore,
     modelName: string,
     snapshots: Snapshot[],
-    identifiers: RecordIdentifier[],
+    identifiers: StableRecordIdentifier[],
     optionsMap
   ) {
     let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
@@ -461,7 +474,7 @@ export default class FetchManager {
     let identifiers = new Array(totalItems);
     let seeking: { [id: string]: PendingFetchItem } = Object.create(null);
 
-    let optionsMap = new WeakMap<RecordIdentifier, Dict<unknown>>();
+    let optionsMap = new WeakMap<StableRecordIdentifier, Dict<unknown>>();
 
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];
@@ -492,7 +505,7 @@ export default class FetchManager {
 
       let groups: Snapshot[][];
       if (adapter.groupRecordsForFindMany) {
-        groups = adapter.groupRecordsForFindMany(this, snapshots);
+        groups = adapter.groupRecordsForFindMany(this._store, snapshots);
       } else {
         groups = [snapshots];
       }

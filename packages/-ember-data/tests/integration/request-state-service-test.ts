@@ -11,6 +11,8 @@ import { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import { identifierCacheFor } from '@ember-data/store/-private';
 
+type DSModel = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModel;
+
 type RequestStateEnum = import('@ember-data/store/-private/ts-interfaces/fetch-manager').RequestStateEnum;
 type Store = import('ember-data/store').default;
 
@@ -98,7 +100,7 @@ if (REQUEST_SERVICE) {
       };
       assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
 
-      let person = await promise;
+      let person = (await promise) as DSModel;
       let lastRequest = requestService.getLastRequestForRecord(identifier);
       let requestStateResult = {
         type: 'query' as const,
@@ -229,7 +231,7 @@ if (REQUEST_SERVICE) {
         count++;
       });
 
-      let person = await store.findRecord('person', '1');
+      let person = (await store.findRecord('person', '1')) as DSModel;
       await person.save();
       assert.equal(count, 4, 'callback called four times');
     });

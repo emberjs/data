@@ -27,6 +27,11 @@ import { addSymbol, symbol } from '@ember-data/store/-private';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 
+type AdapterPayload = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').AdapterPayload;
+
+type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
+type MinimumAdapterInterface =
+  import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').MinimumAdapterInterface;
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type FastBoot = import('./-private/fastboot-interface').FastBoot;
 type Payload = Dict<unknown> | unknown[] | string | undefined;
@@ -338,7 +343,7 @@ const hasJQuery = typeof jQuery !== 'undefined';
   @extends Adapter
   @uses BuildURLMixin
 */
-class RESTAdapter extends Adapter.extend(BuildURLMixin) {
+class RESTAdapter extends Adapter.extend(BuildURLMixin) implements MinimumAdapterInterface {
   /**
      If jQuery or nAjax are installed, this property
     allows fetch to still be used instead when `true`.
@@ -573,7 +578,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<unknown> {
+  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
     let query: QueryState = this.buildQuery(snapshot);
 
@@ -595,7 +600,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  findAll(store: Store, type: ShimModelClass, sinceToken, snapshotRecordArray: SnapshotRecordArray): Promise<unknown> {
+  findAll(
+    store: Store,
+    type: ShimModelClass,
+    sinceToken,
+    snapshotRecordArray: SnapshotRecordArray
+  ): Promise<AdapterPayload> {
     let query: QueryState = this.buildQuery(snapshotRecordArray);
     let url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
 
@@ -626,7 +636,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  query(store: Store, type: ShimModelClass, query): Promise<unknown> {
+  query(store: Store, type: ShimModelClass, query): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, null, null, 'query', query);
 
     if (this.sortQueryParams) {
@@ -661,7 +671,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     type: ShimModelClass,
     query: Dict<unknown>,
     adapterOptions: Dict<unknown>
-  ): Promise<unknown> {
+  ): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
 
     if (this.sortQueryParams) {
@@ -705,7 +715,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<unknown> {
+  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
   }
@@ -747,7 +757,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findHasMany(store: Store, snapshot: Snapshot, url: string, relationship: Dict<unknown>): Promise<unknown> {
+  findHasMany(
+    store: Store,
+    snapshot: Snapshot,
+    url: string,
+    relationship: RelationshipSchema
+  ): Promise<AdapterPayload> {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -797,7 +812,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findBelongsTo(store: Store, snapshot: Snapshot, url: string, relationship): Promise<unknown> {
+  findBelongsTo(store: Store, snapshot: Snapshot, url: string, relationship): Promise<AdapterPayload> {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -826,7 +841,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
     const data = serializeIntoHash(store, type, snapshot);
@@ -851,7 +866,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     const data = serializeIntoHash(store, schema, snapshot, {});
     const type = snapshot.modelName;
     const id = snapshot.id;
@@ -873,7 +888,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+  deleteRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload | void> {
     const type = snapshot.modelName;
     const id = snapshot.id;
     assert(`Attempted to delete the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
@@ -1099,7 +1114,21 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Promise} promise
   */
-  async ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<unknown> {
+  async ajax<K = AdapterPayload | void>(
+    url: string,
+    type: 'DELETE',
+    options?: JQueryAjaxSettings | RequestInit
+  ): Promise<K>;
+  async ajax<K = AdapterPayload>(
+    url: string,
+    type: 'GET' | 'POST' | 'PUT' | 'PATCH',
+    options?: JQueryAjaxSettings | RequestInit
+  ): Promise<K>;
+  async ajax<K = AdapterPayload | void>(
+    url: string,
+    type: 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH',
+    options: JQueryAjaxSettings | RequestInit = {}
+  ): Promise<K> {
     let adapter = this;
 
     let requestData: RequestData = {
@@ -1113,7 +1142,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       let payload = await determineBodyPromise(response, requestData);
 
       if (response.ok && !(payload instanceof Error)) {
-        return fetchSuccessHandler(adapter, payload, response, requestData);
+        return fetchSuccessHandler<K>(adapter, payload, response, requestData);
       } else {
         throw fetchErrorHandler(adapter, payload, response, null, requestData);
       }
@@ -1340,12 +1369,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 }
 
-function ajaxSuccess(
+function ajaxSuccess<K>(
   adapter: RESTAdapter,
   payload: Payload,
   requestData: RequestData,
   responseData: ResponseData
-): Promise<unknown> {
+): Promise<K> {
   let response;
   try {
     response = adapter.handleResponse(responseData.status, responseData.headers, payload, requestData);
@@ -1408,14 +1437,14 @@ function endsWith(string: string, suffix: string): boolean {
   }
 }
 
-function fetchSuccessHandler(
+function fetchSuccessHandler<K>(
   adapter: RESTAdapter,
   payload: Payload,
   response: Response,
   requestData: RequestData
-): Promise<unknown> {
+): Promise<K> {
   let responseData = fetchResponseData(response);
-  return ajaxSuccess(adapter, payload, requestData, responseData);
+  return ajaxSuccess<K>(adapter, payload, requestData, responseData);
 }
 
 function fetchErrorHandler(

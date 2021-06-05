@@ -12,6 +12,8 @@ import { RECORD_DATA_STATE } from '@ember-data/canary-features';
 import { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
+type JsonApiResource = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiResource;
+
 type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
 type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
 
@@ -44,7 +46,13 @@ class TestRecordData implements RecordData {
   // Use correct interface once imports have been fix
   _storeWrapper: any;
 
-  pushData(data, calculateChange?: boolean) {}
+  pushData(data: JsonApiResource, calculateChange: true): string[];
+  pushData(data: JsonApiResource, calculateChange?: false): void;
+  pushData(data: JsonApiResource, calculateChange?: boolean): string[] | void {
+    if (calculateChange) {
+      return [];
+    }
+  }
   clientDidCreate() {}
 
   willCommit() {}
@@ -93,8 +101,9 @@ class TestRecordData implements RecordData {
   }
 
   setDirtyBelongsTo(name: string, recordData: RecordData | null) {}
-
-  didCommit(data) {}
+  didCommit(data): string[] {
+    return [];
+  }
 
   isAttrDirty(key: string) {
     return false;

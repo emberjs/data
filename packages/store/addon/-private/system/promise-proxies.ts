@@ -3,7 +3,12 @@ import { reads } from '@ember/object/computed';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ObjectProxy from '@ember/object/proxy';
 
-import { Promise } from 'rsvp';
+import { resolve } from 'rsvp';
+
+type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
+
+type ComputedProperty<T> = import('@ember/object/computed').default<T>;
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 
 /**
   @module @ember-data/store
@@ -40,9 +45,25 @@ import { Promise } from 'rsvp';
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
-  meta: reads('content.meta'),
-});
+
+interface EmberNativeArrayLike<T> {
+  length: number | ComputedProperty<number>;
+  objectAt(idx: number): T | undefined;
+}
+interface EmberArrayProxyLike<T> {
+  length: number | ComputedProperty<number>;
+  objectAtContent(idx: number): T | undefined;
+}
+type EmberArrayLike<T> = EmberNativeArrayLike<T> | EmberArrayProxyLike<T>;
+
+export interface PromiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>> extends PromiseLike<T> {}
+export class PromiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>> extends ArrayProxy.extend(
+  PromiseProxyMixin
+) {
+  declare content: T;
+  @reads('content.meta')
+  declare meta?: Dict<unknown>;
+}
 
 /**
   A `PromiseObject` is an object that acts like both an `EmberObject`
@@ -75,16 +96,23 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-export let PromiseObject = ObjectProxy.extend(PromiseProxyMixin);
-
-export function promiseObject(promise, label) {
-  return PromiseObject.create({
-    promise: Promise.resolve(promise, label),
-  });
+export interface PromiseObject<T extends object> extends PromiseLike<T> {}
+export class PromiseObject<T extends object> extends ObjectProxy.extend(PromiseProxyMixin) {
+  declare content: T | undefined;
+  declare promise: Promise<T>;
 }
 
-export function promiseArray(promise, label) {
+export function promiseObject<T extends object>(promise: Promise<T>, label?: string): PromiseObject<T> {
+  return PromiseObject.create({
+    promise: resolve(promise, label),
+  }) as unknown as PromiseObject<T>;
+}
+
+export function promiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>>(
+  promise: Promise<T>,
+  label?: string
+): PromiseArray<I, T> {
   return PromiseArray.create({
-    promise: Promise.resolve(promise, label),
-  });
+    promise: resolve(promise, label),
+  }) as unknown as PromiseArray<I, T>;
 }

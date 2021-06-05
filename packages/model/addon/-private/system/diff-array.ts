@@ -13,12 +13,17 @@
       removedCount: <integer>       // 0 if no change
     }
 */
-export default function diffArray(oldArray, newArray) {
+export interface ArrayDiffResult {
+  firstChangeIndex: number | null;
+  removedCount: number;
+  addedCount: number;
+}
+export default function diffArray(oldArray: unknown[], newArray: unknown[]): ArrayDiffResult {
   const oldLength = oldArray.length;
   const newLength = newArray.length;
 
   const shortestLength = Math.min(oldLength, newLength);
-  let firstChangeIndex = null; // null signifies no changes
+  let firstChangeIndex: number | null = null; // null signifies no changes
 
   // find the first change
   for (let i = 0; i < shortestLength; i++) {

@@ -12,6 +12,20 @@ import { DeprecatedEvented, PromiseArray, recordDataFor } from '@ember-data/stor
 
 import diffArray from './diff-array';
 
+type Links = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Links;
+type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
+type DSModelSchema = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModelSchema;
+type RecordState = import('../record-state').default;
+type ArrayDiffResult = import('./diff-array').ArrayDiffResult;
+type Evented = import('@ember/object/evented').default;
+type RecordInstance = import('@ember-data/store/-private/ts-interfaces/record-instance').RecordInstance;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type CreateRecordProperties = import('@ember-data/store/-private/system/core-store').CreateRecordProperties;
+type RelationshipRecordData =
+  import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
+type InternalModel = import('@ember-data/store/-private').InternalModel;
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
   relationship.
@@ -57,12 +71,45 @@ import diffArray from './diff-array';
   @extends Ember.EmberObject
   @uses Ember.MutableArray, DeprecatedEvented
 */
-export default EmberObject.extend(MutableArray, DeprecatedEvented, {
-  isAsync: false,
-  isLoaded: false,
+interface MutableArrayWithDeprecatedEvented<T, M = T> extends EmberObject, Evented, MutableArray<M> {}
+const MutableArrayWithDeprecatedEvented = EmberObject.extend(MutableArray, DeprecatedEvented) as unknown as new <
+  T,
+  M = T
+>() => MutableArrayWithDeprecatedEvented<T, M>;
+
+export interface ManyArrayCreateArgs {
+  store: CoreStore;
+  type: DSModelSchema;
+  recordData: RelationshipRecordData;
+  key: string;
+  isPolymorphic: boolean;
+  isAsync: boolean;
+  _inverseIsAsync: boolean;
+  internalModel: InternalModel;
+  isLoaded: boolean;
+}
+
+export default class ManyArray extends MutableArrayWithDeprecatedEvented<InternalModel, RecordInstance> {
+  declare isAsync: boolean;
+  declare isLoaded: boolean;
+  declare isPolymorphic: boolean;
+  declare _isDirty: boolean;
+  declare _isUpdating: boolean;
+  declare _hasNotified: boolean;
+  declare __hasArrayObservers: boolean;
+  declare hasArrayObservers: boolean; // override the base declaration
+  declare _length: number;
+  declare _meta: Dict<unknown> | null;
+  declare _links: Links | PaginationLinks | null;
+  declare currentState: InternalModel[];
+  declare recordData: RelationshipRecordData;
+  declare internalModel: InternalModel;
+  declare store: CoreStore;
+  declare key: string;
+  declare type: DSModelSchema;
 
   init() {
-    this._super(...arguments);
+    super.init();
 
     /**
     The loading state of this array
@@ -71,6 +118,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     @public
     */
     this.isLoaded = this.isLoaded || false;
+    this.isAsync = this.isAsync || false;
 
     this._length = 0;
 
@@ -158,12 +206,13 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     // make sure we initialize to the correct state
     // since the user has already accessed
     this.retrieveLatest();
-  },
+  }
 
   // TODO refactor away _hasArrayObservers for tests
-  get _hasArrayObservers() {
+  get _hasArrayObservers(): boolean {
+    // cast necessary because hasArrayObservers is typed as a ComputedProperty<boolean> vs a boolean;
     return this.hasArrayObservers || this.__hasArrayObservers;
-  },
+  }
 
   notify() {
     this._isDirty = true;
@@ -175,7 +224,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       this.notifyPropertyChange('firstObject');
       this.notifyPropertyChange('lastObject');
     }
-  },
+  }
 
   get length() {
     if (this._isDirty) {
@@ -185,11 +234,11 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     get(this, '[]');
 
     return this._length;
-  },
+  }
 
   set length(value) {
     this._length = value;
-  },
+  }
 
   get links() {
     get(this, '[]');
@@ -197,10 +246,10 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       this.retrieveLatest();
     }
     return this._links;
-  },
+  }
   set links(v) {
     this._links = v;
-  },
+  }
 
   get meta() {
     get(this, '[]');
@@ -208,12 +257,12 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       this.retrieveLatest();
     }
     return this._meta;
-  },
+  }
   set meta(v) {
     this._meta = v;
-  },
+  }
 
-  objectAt(index) {
+  objectAt(index: number): RecordInstance | undefined {
     if (this._isDirty) {
       this.retrieveLatest();
     }
@@ -223,12 +272,12 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     }
 
     return internalModel.getRecord();
-  },
+  }
 
-  replace(idx, amt, objects) {
+  replace(idx: number, amt: number, objects?: RecordInstance[]) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
     this.store._backburner.join(() => {
-      let internalModels;
+      let internalModels: InternalModel[];
       if (amt > 0) {
         internalModels = this.currentState.slice(idx, idx + amt);
         this.recordData.removeFromHasMany(
@@ -249,7 +298,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
       }
       this.notify();
     });
-  },
+  }
 
   retrieveLatest() {
     // It’s possible the parent side of the relationship may have been destroyed by this point
@@ -260,11 +309,14 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     this._isUpdating = true;
     let jsonApi = this.recordData.getHasMany(this.key);
 
-    let internalModels = [];
+    let internalModels: InternalModel[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
-        let im = this.store._internalModelForResource(jsonApi.data[i]);
-        let shouldRemove = im._isDematerializing || im.currentState.isEmpty || !im.currentState.isLoaded;
+        let im: InternalModel = this.store._internalModelForResource(jsonApi.data[i]);
+        let shouldRemove: boolean =
+          im._isDematerializing ||
+          (im.currentState as RecordState).isEmpty ||
+          !(im.currentState as RecordState).isLoaded;
 
         if (!shouldRemove) {
           internalModels.push(im);
@@ -282,7 +334,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
 
     if (this._hasArrayObservers && !this._hasNotified) {
       // diff to find changes
-      let diff = diffArray(this.currentState, internalModels);
+      let diff: ArrayDiffResult = diffArray(this.currentState, internalModels);
       // it's null if no change found
       if (diff.firstChangeIndex !== null) {
         // we found a change
@@ -298,7 +350,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     }
 
     this._isUpdating = false;
-  },
+  }
 
   /**
     Reloads all of the records in the manyArray. If the manyArray
@@ -325,7 +377,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   reload(options) {
     // TODO this is odd, we don't ask the store for anything else like this?
     return this.store.reloadManyArray(this, this.internalModel, this.key, options);
-  },
+  }
 
   /**
     Saves all of the records in the `ManyArray`.
@@ -347,7 +399,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
   */
   save() {
     let manyArray = this;
-    let promiseLabel = 'DS: ManyArray#save ' + this.type;
+    let promiseLabel = 'DS: ManyArray#save ' + this.type.modelName;
     let promise = all(this.invoke('save'), promiseLabel).then(
       () => manyArray,
       null,
@@ -356,7 +408,7 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
 
     // TODO deprecate returning a promiseArray here
     return PromiseArray.create({ promise });
-  },
+  }
 
   /**
     Create a child record within the owner
@@ -366,12 +418,12 @@ export default EmberObject.extend(MutableArray, DeprecatedEvented, {
     @param {Object} hash
     @return {Model} record
   */
-  createRecord(hash) {
+  createRecord(hash: CreateRecordProperties): RecordInstance {
     const { store, type } = this;
 
     let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
-  },
-});
+  }
+}

@@ -18,7 +18,6 @@ type CollectionResourceRelationship =
 type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
 type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
 type DefaultSingleResourceRelationship =
   import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
@@ -67,7 +66,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   declare _isDeletionCommited: boolean;
   declare storeWrapper: RecordDataStoreWrapper;
 
-  constructor(identifier: RecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
+  constructor(identifier: StableRecordIdentifier, storeWrapper: RecordDataStoreWrapper) {
     this.modelName = identifier.type;
     this.clientId = identifier.lid;
     this.id = identifier.id;
@@ -88,8 +87,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return this.identifier;
   }
 
-  pushData(data: JsonApiResource, calculateChange: boolean) {
-    let changedKeys;
+  pushData(data: JsonApiResource, calculateChange: true): string[];
+  pushData(data: JsonApiResource, calculateChange: false): void;
+  pushData(data: JsonApiResource, calculateChange?: boolean): string[] | void {
+    let changedKeys: string[] | void;
 
     if (this._isNew) {
       this._isNew = false;
@@ -286,7 +287,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this.removeFromInverseRelationships();
   }
 
-  didCommit(data: JsonApiResource | null) {
+  didCommit(data: JsonApiResource | null): string[] {
     if (this._isDeleted) {
       this._deletionConfirmed();
       this._isDeletionCommited = true;

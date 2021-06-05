@@ -1,3 +1,4 @@
+type JsonApiValidationError = import('./record-data-json-api').JsonApiValidationError;
 type Dict<T> = import('./utils').Dict<T>;
 type JSONValue = import('json-typescript').Value;
 
@@ -123,7 +124,12 @@ export interface ExistingResourceObject extends ExistingResourceIdentifierObject
 
 interface Document {
   meta?: Dict<JSONValue>;
+  links?: Links | PaginationLinks;
   included?: ExistingResourceObject[];
+  // TODO create specific Errors / Meta only document types
+  // for proper narrowing and validation
+  errors?: JsonApiValidationError[];
+  jsonapi?: Dict<unknown>;
 }
 
 export interface EmptyResourceDocument extends Document {

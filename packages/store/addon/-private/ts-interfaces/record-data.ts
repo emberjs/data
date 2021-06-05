@@ -14,7 +14,9 @@ export interface ChangedAttributesHash {
 
 export interface RecordData {
   getResourceIdentifier(): RecordIdentifier | undefined;
-  pushData(data: JsonApiResource, calculateChange?: boolean): void;
+
+  pushData(data: JsonApiResource, calculateChange: true): string[];
+  pushData(data: JsonApiResource, calculateChange?: false): void;
   clientDidCreate(): void;
   willCommit(): void;
 
@@ -41,7 +43,7 @@ export interface RecordData {
   getBelongsTo(key: string): SingleResourceRelationship;
 
   setDirtyBelongsTo(name: string, recordData: RecordData | null): void;
-  didCommit(data: JsonApiResource | null): void;
+  didCommit(data: JsonApiResource | null): string[];
 
   // ----- unspecced
   isAttrDirty(key: string): boolean;

@@ -1,12 +1,24 @@
+type AdapterPayload = import('./minimum-adapter-interface').AdapterPayload;
 type Dict<T> = import('./utils').Dict<T>;
 type ModelSchema = import('./ds-model').ModelSchema;
 type Snapshot = import('../system/snapshot').default;
 type JsonApiDocument = import('./ember-data-json-api').JsonApiDocument;
 type SingleResourceDocument = import('./ember-data-json-api').SingleResourceDocument;
 type Store = import('../system/core-store').default;
-type JSONObject = import('json-typescript').Object;
 
-type OptionsHash = Dict<any>;
+type JSONObject = Dict<unknown>;
+export type OptionsHash = Dict<unknown>;
+export type RequestType =
+  | 'findRecord'
+  | 'queryRecord'
+  | 'findAll'
+  | 'findBelongsTo'
+  | 'findHasMany'
+  | 'findMany'
+  | 'query'
+  | 'createRecord'
+  | 'deleteRecord'
+  | 'updateRecord';
 
 /**
   @module @ember-data/serializer
@@ -22,7 +34,7 @@ type OptionsHash = Dict<any>;
   @class MinimumSerializerInterface
   @public
 */
-interface Serializer {
+export interface MinimumSerializerInterface {
   /**
    * This method is responsible for normalizing the value resolved from the promise returned
    * by an Adapter request into the format expected by the `Store`.
@@ -56,7 +68,7 @@ interface Serializer {
   normalizeResponse(
     store: Store,
     schema: ModelSchema,
-    rawPayload: JSONObject,
+    rawPayload: AdapterPayload,
     id: string | null,
     requestType:
       | 'findRecord'
@@ -231,6 +243,16 @@ interface Serializer {
    * @returns {void}
    */
   pushPayload?(store: Store, rawPayload: JSONObject): void;
-}
 
-export default Serializer;
+  /**
+   * In some situations the serializer may need to perform cleanup when destroyed,
+   * that cleanup can be done in `destroy`.
+   *
+   * If not implemented, the store does not inform the serializer of destruction.
+   *
+   * @method destroy [OPTIONAL]
+   * @public
+   * @optional
+   */
+  destroy?(): void;
+}

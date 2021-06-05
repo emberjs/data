@@ -209,6 +209,8 @@ module.exports = {
         'packages/store/addon/-private/system/record-notification-manager.ts',
         'packages/store/addon/-private/system/record-data-for.ts',
         'packages/store/addon/-private/system/record-arrays.ts',
+        'packages/store/addon/-private/system/record-arrays/record-array.ts',
+        'packages/store/addon/-private/system/record-arrays/adapter-populated-record-array.ts',
         'packages/store/addon/-private/system/normalize-model-name.ts',
         'packages/store/addon/-private/system/model/shim-model-class.ts',
         'packages/store/addon/-private/system/model/internal-model.ts',

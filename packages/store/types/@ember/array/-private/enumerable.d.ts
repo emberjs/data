@@ -119,7 +119,7 @@ interface Enumerable<T> {
    * implements it. This method corresponds to the implementation in
    * Prototype 1.6.
    */
-  invoke(methodName: keyof T, ...args: unknown[]): unknown[];
+  invoke<I = T>(methodName: keyof I, ...args: unknown[]): unknown[];
   /**
    * Simply converts the enumerable into a genuine array. The order is not
    * guaranteed. Corresponds to the method implemented by Prototype.

@@ -1,15 +1,15 @@
 import { cacheFor } from '@ember/object/internals';
 
+type DSModel = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModel;
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type NotificationType = import('@ember-data/store/-private/system/record-notification-manager').NotificationType;
-type Model = InstanceType<typeof import('@ember-data/model').default>;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 
 export default function notifyChanges(
   identifier: StableRecordIdentifier,
   value: NotificationType,
   key: string | undefined,
-  record: Model,
+  record: DSModel,
   store: CoreStore
 ) {
   if (value === 'attributes') {
@@ -34,7 +34,7 @@ export default function notifyChanges(
   }
 }
 
-function notifyRelationship(store: CoreStore, identifier: StableRecordIdentifier, key: string, record: Model, meta) {
+function notifyRelationship(store: CoreStore, identifier: StableRecordIdentifier, key: string, record: DSModel, meta) {
   let internalModel = store._internalModelForResource(identifier);
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
@@ -54,7 +54,7 @@ function notifyRelationship(store: CoreStore, identifier: StableRecordIdentifier
   }
 }
 
-function notifyAttribute(store: CoreStore, identifier: StableRecordIdentifier, key: string, record: Model) {
+function notifyAttribute(store: CoreStore, identifier: StableRecordIdentifier, key: string, record: DSModel) {
   let currentValue = cacheFor(record, key);
   let internalModel = store._internalModelForResource(identifier);
   if (currentValue !== internalModel._recordData.getAttr(key)) {

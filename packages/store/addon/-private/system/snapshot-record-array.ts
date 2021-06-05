@@ -5,6 +5,13 @@ type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type RecordArray = import('./record-arrays/record-array').default;
 type Snapshot = import('./snapshot').default;
 type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
+
+interface Options {
+  adapterOptions?: Dict<unknown>;
+  include?: string;
+  [key: string]: unknown;
+}
+
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's
@@ -14,14 +21,14 @@ type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
   @public
 */
 export default class SnapshotRecordArray {
-  private _snapshots: Snapshot[] | null;
-  private _recordArray: RecordArray | null;
-  private _type: ModelSchema | null;
+  private declare _snapshots: Snapshot[] | null;
+  private declare _recordArray: RecordArray;
+  private declare _type: ModelSchema | null;
 
-  public length: number;
-  public meta?: Dict<any>;
-  public adapterOptions: Dict<any>;
-  public include?: string;
+  public declare length: number;
+  public declare meta?: Dict<unknown>;
+  public declare adapterOptions?: Dict<unknown>;
+  public declare include?: string;
 
   /**
     SnapshotRecordArray is not directly instantiable.
@@ -35,7 +42,7 @@ export default class SnapshotRecordArray {
     @param {Object} meta
     @param options 
    */
-  constructor(recordArray: RecordArray, meta?: Dict<any>, options: Dict<any> = {}) {
+  constructor(recordArray: RecordArray, meta?: Dict<unknown>, options: Options = {}) {
     /**
       An array of snapshots
       @private

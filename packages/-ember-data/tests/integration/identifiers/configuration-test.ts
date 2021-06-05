@@ -20,6 +20,8 @@ import Store, {
 } from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
 
+type DSModel = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModel;
+
 type StableIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableIdentifier;
 type IdentifierBucket = import('@ember-data/store/-private/ts-interfaces/identifier').IdentifierBucket;
 type ResourceData = import('@ember-data/store/-private/ts-interfaces/identifier').ResourceData;
@@ -168,7 +170,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 });
+    const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 }) as DSModel;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,
@@ -231,7 +233,12 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const record = store.createRecord('user', { id: '1', firstName: 'Chris', username: '@runspired', age: 31 });
+    const record = store.createRecord('user', {
+      id: '1',
+      firstName: 'Chris',
+      username: '@runspired',
+      age: 31,
+    }) as DSModel;
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,

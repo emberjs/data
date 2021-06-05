@@ -13,6 +13,11 @@ import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
 
+type ModelFactory = import('./schema-definition-service').ModelFactory;
+
+type CreateOptions = import('./schema-definition-service').CreateOptions;
+
+type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
 type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
@@ -20,7 +25,6 @@ type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecord
 type NotificationManager = import('./record-notification-manager').default;
 type DSModel = import('../ts-interfaces/ds-model').DSModel;
 type ShimModelClass = import('./model/shim-model-class').default;
-type DSModelClass = import('@ember-data/model').default;
 
 class Store extends CoreStore {
   public _modelFactoryCache = Object.create(null);
@@ -36,7 +40,7 @@ class Store extends CoreStore {
     let modelName = identifier.type;
 
     let internalModel = this._internalModelForResource(identifier);
-    let createOptions: any = {
+    let createOptions: CreateOptions = {
       store: this,
       _internalModel: internalModel,
       container: null,
@@ -47,7 +51,9 @@ class Store extends CoreStore {
     setOwner(createOptions, getOwner(this));
 
     delete createOptions.container;
-    let record = this._modelFactoryFor(modelName).create(createOptions);
+    const factory = this._modelFactoryFor(modelName);
+    assert(`Attempted to instantiate a ${modelName} record but no class was found for that type`, factory !== null);
+    let record = factory.create<DSModel>(createOptions);
     return record;
   }
 
@@ -55,7 +61,7 @@ class Store extends CoreStore {
     record.destroy();
   }
 
-  modelFor(modelName: string): ShimModelClass | DSModelClass {
+  modelFor(modelName: string): ShimModelClass | DSModelSchema {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
@@ -68,7 +74,7 @@ class Store extends CoreStore {
     let maybeFactory = this._modelFactoryFor(modelName);
 
     // for factorFor factory/class split
-    let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
+    let klass = maybeFactory !== null ? maybeFactory.class : null;
     if (!klass || !klass.isModel) {
       if (!CUSTOM_MODEL_CLASS || !this.getSchemaDefinitionService().doesTypeExist(modelName)) {
         throw new EmberError(`No model was found for '${modelName}' and no schema handles the type`);
@@ -79,7 +85,7 @@ class Store extends CoreStore {
     }
   }
 
-  _modelFactoryFor(modelName: string): DSModelClass {
+  _modelFactoryFor(modelName: string): ModelFactory | null {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, '_modelFactoryFor');
     }
@@ -94,7 +100,7 @@ class Store extends CoreStore {
     return factory;
   }
 
-  _hasModelFor(modelName) {
+  _hasModelFor(modelName: string): boolean {
     if (DEBUG) {
       assertDestroyingStore(this, '_hasModelFor');
     }
@@ -163,7 +169,7 @@ class Store extends CoreStore {
       let relationships = this._relationshipsDefCache[modelName];
 
       if (relationships === undefined) {
-        let modelClass = this.modelFor(modelName);
+        let modelClass = this.modelFor(modelName) as DSModelSchema;
         relationships = get(modelClass, 'relationshipsObject') || null;
         this._relationshipsDefCache[modelName] = relationships;
       }

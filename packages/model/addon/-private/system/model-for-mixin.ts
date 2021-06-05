@@ -2,7 +2,10 @@ import { getOwner } from '@ember/application';
 
 import Model from '../model';
 
-type Store = import('@ember-data/store').default;
+type DSModelSchema = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModelSchema;
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+type Mixin<T> = import('@ember/object/mixin').default<T>;
+type Store = import('@ember-data/store/-private/system/core-store').default;
 /* 
     In case someone defined a relationship to a mixin, for example:
     ```
@@ -22,12 +25,13 @@ type Store = import('@ember-data/store').default;
     Model, so we can access the relationship CPs of the mixin (`comments`)
     in this case
   */
-export default function modelForMixin(store: Store, normalizedModelName: string): Model | null {
+const BaseModel: DSModelSchema = Model as unknown as DSModelSchema;
+export default function modelForMixin(store: Store, normalizedModelName: string): DSModelSchema | null {
   let owner = getOwner(store);
   let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-  let mixin = MaybeMixin && MaybeMixin.class;
+  let mixin: Mixin<Dict<unknown>> = MaybeMixin && MaybeMixin.class;
   if (mixin) {
-    let ModelForMixin = Model.extend(mixin);
+    let ModelForMixin: DSModelSchema = BaseModel.extend(mixin);
     ModelForMixin.reopenClass({
       __isMixin: true,
       __mixin: mixin,

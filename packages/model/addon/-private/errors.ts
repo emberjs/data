@@ -14,7 +14,7 @@ type ValidationError = {
   message: string;
 };
 /**
-  @module @ember-data/store
+  @module @ember-data/model
 */
 interface ArrayProxyWithDeprecatedEvented<T, M = T> extends Evented, Omit<ArrayProxy<T, M>, 'clear' | 'content'> {
   // Omit causes `content` to be merged with the class def for ArrayProxy

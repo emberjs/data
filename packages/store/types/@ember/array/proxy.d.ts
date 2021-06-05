@@ -20,8 +20,10 @@ interface EmberArrayLike<T> {
  * behave as expected. [`Ember.A`](https://api.emberjs.com/ember/release/functions/@ember%2Farray/A)
  * may be used in this case.
  */
-interface ArrayProxy<ContentType, MaterializedType = ContentType> extends MutableArray<MaterializedType> {
-  content: ContentType[] | EmberArrayLike<ContentType>;
+interface ArrayProxy<ContentType, MaterializedType = ContentType> extends MutableArray<MaterializedType> {}
+declare class ArrayProxy<ContentType, MaterializedType = ContentType> extends EmberObject.extend((MutableArray = {})) {
+  content: NativeArray<ContentType> | EmberArrayLike<ContentType>;
+
   /**
    * Should actually retrieve the object at the specified index from the
    * content. You can override this method in subclasses to transform the

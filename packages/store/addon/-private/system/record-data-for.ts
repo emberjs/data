@@ -1,5 +1,7 @@
 import { assert } from '@ember/debug';
 
+type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
+
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type RecordData = import('../ts-interfaces/record-data').RecordData;
 /*
@@ -37,6 +39,7 @@ export function removeRecordDataFor(identifier) {
 
 export default function recordDataFor(instance: StableRecordIdentifier): RecordData | null;
 export default function recordDataFor(instance: Instance): RecordData;
+export default function recordDataFor(instance: RecordInstance): RecordData;
 export default function recordDataFor(instance: object): null;
 export default function recordDataFor(instance: Instance | object): RecordData | null {
   if (IdentifierCache.has(instance as StableRecordIdentifier)) {

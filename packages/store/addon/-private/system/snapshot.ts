@@ -558,7 +558,7 @@ export default class Snapshot implements Snapshot {
     @return {Object} an object whose values are primitive JSON values only
     @public
    */
-  serialize(options: unknown): unknown {
+  serialize(options?: Dict<unknown>): Dict<unknown> {
     return this._store.serializerFor(this.modelName).serialize(this, options);
   }
 }

@@ -11,7 +11,7 @@ type CoreStore = import('@ember-data/store/-private/system/core-store').default;
   @module @ember-data/store
 */
 
-function typeForRelationshipMeta(meta) {
+function typeForRelationshipMeta(meta): string {
   let modelName = normalizeModelName(meta.type || meta.key);
 
   if (meta.kind === 'hasMany') {
@@ -21,7 +21,7 @@ function typeForRelationshipMeta(meta) {
   return modelName;
 }
 
-function shouldFindInverse(relationshipMeta) {
+function shouldFindInverse(relationshipMeta): boolean {
   let options = relationshipMeta.options;
   return !(options && options.inverse === null);
 }
@@ -55,7 +55,7 @@ export class RelationshipDefinition implements RelationshipSchema {
     return this.meta.kind;
   }
   get type(): string {
-    if (this._type) {
+    if (this._type !== '') {
       return this._type;
     }
     this._type = typeForRelationshipMeta(this.meta);

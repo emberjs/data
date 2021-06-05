@@ -1,7 +1,8 @@
+type Dict<T> = import('./utils').Dict<T>;
 /**
   @module @ember-data/store
 */
-
+type DSModel = import('./ds-model').DSModel;
 /*
   A `Record` is the result of the store instantiating a class to present data for a resource to the UI.
 
@@ -13,4 +14,4 @@
   The type belows allows for anything extending object.
 */
 
-export type RecordInstance = Object;
+export type RecordInstance = DSModel | Dict<unknown>;

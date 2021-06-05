@@ -2,7 +2,8 @@ import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
-import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
+
+type DSModel = import('@ember-data/store/-private/ts-interfaces/ds-model').DSModel;
 
 type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
 
@@ -10,7 +11,6 @@ type CollectionResourceDocument =
   import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceDocument;
 type EmptyResourceDocument =
   import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').EmptyResourceDocument;
-type JsonApiDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').JsonApiDocument;
 type SingleResourceDocument =
   import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
@@ -147,11 +147,10 @@ export interface Context {
   owner: any;
 }
 
-interface TestStore<T> extends CoreStore {
+interface TestStore<T extends DSModel> extends CoreStore {
   push(data: EmptyResourceDocument): null;
   push(data: SingleResourceDocument): T;
   push(data: CollectionResourceDocument): T[];
-  push(data: JsonApiDocument): T | T[] | null;
 }
 
 export function setupGraphTest(hooks) {

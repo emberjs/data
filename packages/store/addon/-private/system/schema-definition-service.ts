@@ -1,32 +1,41 @@
 import { getOwner } from '@ember/application';
-import { get } from '@ember/object';
 
 import require from 'require';
 
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
+import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import normalizeModelName from './normalize-model-name';
 
+type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
+type InternalModel = import('ember-data/-private').InternalModel;
+type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type Store = import('./ds-model-store').default;
-
-type Model = import('@ember-data/model').default;
-type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
+type Store = import('./core-store').default;
+type ModelForMixin = (store: Store, normalizedModelName: string) => ModelFactory | null;
 
 let _modelForMixin: ModelForMixin;
 if (HAS_MODEL_PACKAGE) {
-  let _found;
-  _modelForMixin = function () {
+  let _found: ModelForMixin | undefined;
+  _modelForMixin = function (store: Store, normalizedModelName: string): ModelFactory | null {
     if (!_found) {
-      _found = require('@ember-data/model/-private')._modelForMixin;
+      _found = require('@ember-data/model/-private')._modelForMixin as ModelForMixin;
     }
-    return _found(...arguments);
+    return _found(store, normalizedModelName);
   };
 }
 
-export class DSModelSchemaDefinitionService {
+export type CreateOptions = {
+  store: Store;
+  container?: null;
+  _internalModel: InternalModel;
+  [key: string]: unknown;
+};
+export type ModelFactory = { class: DSModelSchema; create<T>(createOptions: CreateOptions): T };
+
+export class DSModelSchemaDefinitionService implements SchemaDefinitionService {
   private _modelFactoryCache = Object.create(null);
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);
@@ -35,7 +44,7 @@ export class DSModelSchemaDefinitionService {
 
   // Following the existing RD implementation
   attributesDefinitionFor(identifier: RecordIdentifier | string): AttributesSchema {
-    let modelName, attributes;
+    let modelName: string, attributes: AttributesSchema;
     if (typeof identifier === 'string') {
       modelName = identifier;
     } else {
@@ -45,8 +54,8 @@ export class DSModelSchemaDefinitionService {
     attributes = this._attributesDefCache[modelName];
 
     if (attributes === undefined) {
-      let modelClass = this.store.modelFor(modelName);
-      let attributeMap = get(modelClass, 'attributes');
+      let schema = this.store.modelFor(modelName);
+      let attributeMap = schema.attributes;
 
       attributes = Object.create(null);
       attributeMap.forEach((meta, name) => (attributes[name] = meta));
@@ -58,7 +67,7 @@ export class DSModelSchemaDefinitionService {
 
   // Following the existing RD implementation
   relationshipsDefinitionFor(identifier: RecordIdentifier | string): RelationshipsSchema {
-    let modelName, relationships;
+    let modelName: string, relationships: RelationshipsSchema;
     if (typeof identifier === 'string') {
       modelName = identifier;
     } else {
@@ -68,8 +77,8 @@ export class DSModelSchemaDefinitionService {
     relationships = this._relationshipsDefCache[modelName];
 
     if (relationships === undefined) {
-      let modelClass = this.store.modelFor(modelName);
-      relationships = get(modelClass, 'relationshipsObject') || null;
+      let modelClass = this.store.modelFor(modelName) as DSModelSchema;
+      relationships = modelClass.relationshipsObject || {};
       this._relationshipsDefCache[modelName] = relationships;
     }
 
@@ -84,8 +93,12 @@ export class DSModelSchemaDefinitionService {
   }
 }
 
-export function getModelFactory(store: Store, cache, normalizedModelName: string): Model | null {
-  let factory = cache[normalizedModelName];
+export function getModelFactory(
+  store: Store,
+  cache: Dict<ModelFactory>,
+  normalizedModelName: string
+): ModelFactory | null {
+  let factory: ModelFactory | null = cache[normalizedModelName] || null;
 
   if (!factory) {
     factory = _lookupModelFactory(store, normalizedModelName);
@@ -115,8 +128,8 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
   return factory;
 }
 
-export function _lookupModelFactory(store: Store, normalizedModelName: string): Model | null {
+export function _lookupModelFactory(store: Store, normalizedModelName: string): ModelFactory | null {
   let owner = getOwner(store);
 
-  return owner.factoryFor(`model:${normalizedModelName}`);
+  return owner.factoryFor(`model:${normalizedModelName}`) || null;
 }
