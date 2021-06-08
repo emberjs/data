@@ -6,7 +6,7 @@ exclude_paths:
   - 'tests/*'
   - 'generators/*'
   - 'blueprints/*'
-  - 'bin/*'
+  - 'scripts/*'
   - 'lib/*'
   - 'node-tests/*'
   - 'packages/*/tests/*'
