@@ -1,3 +1,4 @@
+type FindOptions = import('../ts-interfaces/store').FindOptions;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 /**
   @module @ember-data/store
@@ -5,12 +6,6 @@ type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type RecordArray = import('./record-arrays/record-array').default;
 type Snapshot = import('./snapshot').default;
 type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
-
-interface Options {
-  adapterOptions?: Dict<unknown>;
-  include?: string;
-  [key: string]: unknown;
-}
 
 /**
   SnapshotRecordArray is not directly instantiable.
@@ -42,7 +37,7 @@ export default class SnapshotRecordArray {
     @param {Object} meta
     @param options 
    */
-  constructor(recordArray: RecordArray, meta?: Dict<unknown>, options: Options = {}) {
+  constructor(recordArray: RecordArray, meta?: Dict<unknown>, options: FindOptions = {}) {
     /**
       An array of snapshots
       @private

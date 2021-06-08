@@ -20,12 +20,15 @@ export interface DebugInfo {
 }
 
 export interface Backburner {
+  join<T = unknown>(fn: () => T): T;
   join(...args: any[]): void;
   on(...args: any[]): void;
   run(...args: any[]): void;
   scheduleOnce(...args: any[]): void;
-  schedule(queueName: string, target: object | null, method: () => void | string): void;
+  schedule(queueName: string, target: object | null, method: (() => void) | string): void;
   ensureInstance(): void;
   DEBUG: boolean;
   getDebugInfo(): DebugInfo;
 }
+
+export default Backburner;

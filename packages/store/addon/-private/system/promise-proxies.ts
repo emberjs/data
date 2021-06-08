@@ -6,7 +6,6 @@ import ObjectProxy from '@ember/object/proxy';
 import { resolve } from 'rsvp';
 
 type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
-
 type ComputedProperty<T> = import('@ember/object/computed').default<T>;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 
@@ -56,7 +55,7 @@ interface EmberArrayProxyLike<T> {
 }
 type EmberArrayLike<T> = EmberNativeArrayLike<T> | EmberArrayProxyLike<T>;
 
-export interface PromiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>> extends PromiseLike<T> {}
+export interface PromiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>> extends Promise<T> {}
 export class PromiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>> extends ArrayProxy.extend(
   PromiseProxyMixin
 ) {
@@ -96,7 +95,7 @@ export class PromiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>> exten
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-export interface PromiseObject<T extends object> extends PromiseLike<T> {}
+export interface PromiseObject<T extends object> extends Promise<T> {}
 export class PromiseObject<T extends object> extends ObjectProxy.extend(PromiseProxyMixin) {
   declare content: T | undefined;
   declare promise: Promise<T>;

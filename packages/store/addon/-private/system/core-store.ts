@@ -2167,7 +2167,11 @@ abstract class CoreStore extends Service {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName: string, query, options): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
+  query(
+    modelName: string,
+    query: unknown,
+    options: { adapterOptions?: Dict<unknown> }
+  ): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -2178,17 +2182,22 @@ abstract class CoreStore extends Service {
       typeof modelName === 'string'
     );
 
-    let adapterOptionsWrapper: { adapterOptions?: any } = {};
+    let adapterOptionsWrapper: { adapterOptions?: Dict<unknown> } = {};
 
     if (options && options.adapterOptions) {
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
     }
 
     let normalizedModelName = normalizeModelName(modelName);
-    return this._query(normalizedModelName, query, null, adapterOptionsWrapper);
+    return promiseArray(this._query(normalizedModelName, query, null, adapterOptionsWrapper));
   }
 
-  _query(modelName: string, query, array, options): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
+  _query(
+    modelName: string,
+    query: unknown,
+    array: AdapterPopulatedRecordArray | null,
+    options?: Dict<unknown>
+  ): Promise<AdapterPopulatedRecordArray> {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
@@ -2204,7 +2213,7 @@ abstract class CoreStore extends Service {
       typeof adapter.query === 'function'
     );
 
-    return promiseArray(_query(adapter, this, modelName, query, array, options));
+    return _query(adapter, this, modelName, query, array, options);
   }
 
   /**

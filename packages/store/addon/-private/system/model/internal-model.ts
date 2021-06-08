@@ -765,9 +765,9 @@ export default class InternalModel {
     if (promiseProxy) {
       const { promise, content } = args as BelongsToProxyCreateArgs;
       if (content !== undefined) {
-        promiseProxy.set('content', content);
+        (promiseProxy as PromiseBelongsTo).set('content', content);
       }
-      promiseProxy.set('promise', promise);
+      (promiseProxy as PromiseBelongsTo).set('promise', promise);
     } else {
       this._relationshipProxyCache[key] = promiseProxy = PromiseBelongsTo.create(args as BelongsToProxyCreateArgs);
     }
@@ -1502,7 +1502,7 @@ function handleCompletedRelationshipRequest(
     // has never been accessed
     if (proxy && !isHasMany) {
       if (proxy.content && proxy.content.isDestroying) {
-        proxy.set('content', null);
+        (proxy as PromiseBelongsTo).set('content', null);
       }
     }
 

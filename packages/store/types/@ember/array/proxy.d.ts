@@ -20,8 +20,8 @@ interface EmberArrayLike<T> {
  * behave as expected. [`Ember.A`](https://api.emberjs.com/ember/release/functions/@ember%2Farray/A)
  * may be used in this case.
  */
-interface ArrayProxy<ContentType, MaterializedType = ContentType> extends MutableArray<MaterializedType> {}
-declare class ArrayProxy<ContentType, MaterializedType = ContentType> extends EmberObject.extend((MutableArray = {})) {
+interface ArrayProxy<ContentType, MaterializedType = ContentType> extends EmberObject, MutableArray<MaterializedType> {}
+declare class ArrayProxy<ContentType, MaterializedType = ContentType> extends EmberObject {
   content: NativeArray<ContentType> | EmberArrayLike<ContentType>;
 
   /**
@@ -31,6 +31,4 @@ declare class ArrayProxy<ContentType, MaterializedType = ContentType> extends Em
    */
   objectAtContent(idx: number): MaterializedType | undefined;
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare class ArrayProxy<ContentType, MaterializedType = ContentType> extends EmberObject {}
 export default ArrayProxy;

@@ -129,7 +129,7 @@ export interface MinimumAdapterInterface {
   query(
     store: Store,
     schema: ModelSchema,
-    query: Dict<any>,
+    query: Dict<unknown>,
     recordArray: AdapterPopulatedRecordArray,
     options: { adapterOptions?: unknown }
   ): Promise<AdapterPayload>;
