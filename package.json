@@ -12,13 +12,13 @@
     "lint:js:changed"
   ],
   "scripts": {
-    "add-dev": "./bin/add-dev-dependency",
-    "sync-dev": "./bin/sync-dev-dependency",
+    "add-dev": "node ./bin/add-dev-dependency.js",
+    "sync-dev": "node ./bin/sync-dev-dependency.js",
     "build": "yarn workspace ember-data build",
     "build:production": "yarn workspace ember-data build:production",
-    "lint:features": "./bin/lint-features",
+    "lint:features": "node ./bin/lint-features.js",
     "lint:js": "eslint --cache --ext=js,ts .",
-    "lint:js:changed": "./bin/lint-changed-js",
+    "lint:js:changed": "node ./bin/lint-changed-js.js",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "start": "yarn workspace ember-data start",
     "test": "lerna run --stream --no-private --ignore='@ember-data/{private-build-infra,canary-features,debug}' test",
