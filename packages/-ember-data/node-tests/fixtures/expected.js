@@ -243,6 +243,7 @@ module.exports = {
     '(public) @ember-data/serializer MinimumSerializerInterface#pushPayload [OPTIONAL]',
     '(public) @ember-data/serializer MinimumSerializerInterface#serialize',
     '(public) @ember-data/serializer MinimumSerializerInterface#serializeIntoHash [OPTIONAL]',
+    '(public) @ember-data/serializer MinimumSerializerInterface#destroy [OPTIONAL]',
     '(public) @ember-data/serializer Serializer#normalize',
     '(public) @ember-data/serializer Serializer#normalizeResponse',
     '(public) @ember-data/serializer Serializer#serialize',
