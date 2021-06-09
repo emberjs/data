@@ -10,6 +10,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const { RecordArray } = DS;
 
@@ -37,15 +38,33 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let recordArray = RecordArray.create({
       modelName: 'apple',
       isLoaded: true,
-      isUpdating: true,
       content,
       store,
     });
-    assert.true(get(recordArray, 'isLoaded'));
-    assert.false(get(recordArray, 'isUpdating')); // cannot set as default value:
-    assert.equal(get(recordArray, 'modelName'), 'apple');
-    assert.deepEqual(get(recordArray, 'content'), content);
-    assert.equal(get(recordArray, 'store'), store);
+    assert.true(recordArray.isLoaded, 'we are loading');
+    assert.false(recordArray.isUpdating, 'isUpdating is not settable during create'); // cannot set as default value:
+    assert.equal(recordArray.modelName, 'apple', 'we have the right modelName');
+    assert.deepEqual(recordArray.content, content);
+    assert.strictEqual(recordArray.store, store, 'we have the store instance');
+  });
+
+  testInDebug('cannot set isUpdating in init', async function (assert) {
+    try {
+      RecordArray.create({
+        modelName: 'apple',
+        isLoaded: true,
+        isUpdating: true,
+        content: A(),
+        store: {},
+      });
+      assert.ok(false, 'we should have erred but did not');
+    } catch (e) {
+      assert.strictEqual(
+        e.message,
+        'Assertion Failed: Cannot initialize RecordArray with isUpdating',
+        'we errored appropriately'
+      );
+    }
   });
 
   test('#replace() throws error', async function (assert) {

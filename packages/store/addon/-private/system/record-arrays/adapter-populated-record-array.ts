@@ -1,13 +1,13 @@
 import { A } from '@ember/array';
+import { assert } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 import { once } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import { SnapshotRecordArray } from 'ember-data/-private';
-
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 import { promiseArray } from '../promise-proxies';
+import SnapshotRecordArray from '../snapshot-record-array';
 import RecordArray from './record-array';
 
 type Meta = import('../../ts-interfaces/ember-data-json-api').Meta;
@@ -88,7 +88,9 @@ export default class AdapterPopulatedRecordArray extends RecordArray {
   declare meta?: Dict<unknown>;
   declare query: Dict<unknown> | null;
 
-  init() {
+  init(props?: { isUpdating?: boolean }) {
+    assert(`Cannot initialize AdapterPopulatedRecordArray with isUpdating`, !props || !('isUpdating' in props));
+    super.init();
     this.set('content', this.get('content') || A());
 
     super.init();

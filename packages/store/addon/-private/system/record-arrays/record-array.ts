@@ -2,6 +2,7 @@
   @module @ember-data/store
 */
 import ArrayProxy from '@ember/array/proxy';
+import { assert } from '@ember/debug';
 import { computed, set } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
@@ -92,7 +93,8 @@ class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier
   @tracked
   isUpdating: boolean = false;
 
-  init() {
+  init(props?: { isUpdating?: boolean }) {
+    assert(`Cannot initialize RecordArray with isUpdating`, !props || !('isUpdating' in props));
     super.init();
 
     if (DEBUG) {

@@ -11,6 +11,7 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor } from '@ember-data/store';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 const { AdapterPopulatedRecordArray, RecordArrayManager } = DS;
 
@@ -39,7 +40,6 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     let recordArray = AdapterPopulatedRecordArray.create({
       modelName: 'apple',
       isLoaded: true,
-      isUpdating: true,
       content,
       store,
       query: 'some-query',
@@ -52,6 +52,27 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.equal(recordArray.get('store'), store);
     assert.equal(recordArray.get('query'), 'some-query');
     assert.strictEqual(recordArray.get('links'), 'foo');
+  });
+
+  testInDebug('cannot set isUpdating in init', async function (assert) {
+    try {
+      AdapterPopulatedRecordArray.create({
+        isUpdating: true,
+        modelName: 'apple',
+        isLoaded: true,
+        content: A(),
+        store: {},
+        query: 'some-query',
+        links: 'foo',
+      });
+      assert.ok(false, 'we should have erred but did not');
+    } catch (e) {
+      assert.strictEqual(
+        e.message,
+        'Assertion Failed: Cannot initialize AdapterPopulatedRecordArray with isUpdating',
+        'we errored appropriately'
+      );
+    }
   });
 
   test('#replace() throws error', function (assert) {
@@ -87,7 +108,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       query: 'some-query',
     });
 
-    assert.false(recordArray.get('isUpdating'), 'should not yet be updating');
+    assert.false(recordArray.isUpdating, 'should not yet be updating');
 
     assert.equal(queryCalled, 0);
 
@@ -95,14 +116,13 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     assert.equal(queryCalled, 1);
 
-    deferred.resolve('return value');
+    deferred.resolve(['return value']);
 
-    assert.true(recordArray.get('isUpdating'), 'should be updating');
+    assert.true(recordArray.isUpdating, 'should be updating');
 
-    return updateResult.then((result) => {
-      assert.equal(result, 'return value');
-      assert.false(recordArray.get('isUpdating'), 'should no longer be updating');
-    });
+    let result = await updateResult;
+    assert.deepEqual(result, ['return value']);
+    assert.false(recordArray.isUpdating, 'should no longer be updating');
   });
 
   // TODO: is this method required, i suspect store._query should be refactor so this is not needed
