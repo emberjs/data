@@ -158,10 +158,7 @@ export function configureDeprecationHandler() {
 
     if (callback) {
       DEPRECATIONS_FOR_TEST = [];
-      let result = callback();
-      if (isThenable(result)) {
-        await result;
-      }
+      await callback();
     }
 
     let result = verifyDeprecation(config, label);

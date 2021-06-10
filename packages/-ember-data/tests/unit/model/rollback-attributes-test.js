@@ -494,6 +494,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
           assert.equal(dog.get('rolledBackCount'), 1, 'we only rolled back once');
         }
       }
+
+      assert.expectDeprecation({ id: 'array-observers', count: 1 });
     });
   });
 

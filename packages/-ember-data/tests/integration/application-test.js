@@ -8,6 +8,7 @@ import { module, test } from 'qunit';
 import initializeEmberData from 'ember-data/setup-container';
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
+import Resolver from 'ember-resolver';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
@@ -19,9 +20,21 @@ module('integration/application - Injecting a Custom Store', function (hooks) {
 
     owner.unregister('service:store');
     owner.register('service:store', Store.extend({ isCustom: true }));
-    owner.register('controller:foo', Controller.extend());
-    owner.register('controller:baz', {});
-    owner.register('controller:application', Controller.extend());
+    owner.register('controller:foo', Controller.extend({ store: service() }));
+    owner.register(
+      'controller:baz',
+      class Controller {
+        constructor(args) {
+          Object.assign(this, args);
+        }
+        @service('store') store;
+        static create(args) {
+          return new this(args);
+        }
+      },
+      { singleton: true, instantiate: true }
+    );
+    owner.register('controller:application', Controller.extend({ store: service() }));
   });
 
   test('If a Store property exists on an Application, it should be instantiated.', async function (assert) {
@@ -30,9 +43,10 @@ module('integration/application - Injecting a Custom Store', function (hooks) {
   });
 
   test('If a store is instantiated, it should be made available to each controller.', async function (assert) {
-    let fooController = this.owner.lookup('controller:foo');
-    let isCustom = fooController.get('store.isCustom');
-    assert.ok(isCustom, 'the custom store was injected');
+    ['foo', 'baz', 'application'].forEach((type) => {
+      let controller = this.owner.lookup(`controller:${type}`);
+      assert.true(controller.store.isCustom, 'the custom store was injected');
+    });
   });
 
   test('The JSONAPIAdapter is the default adapter when no custom adapter is provided', async function (assert) {
@@ -49,9 +63,21 @@ module('integration/application - Injecting the Default Store', function (hooks)
   hooks.beforeEach(function () {
     let { owner } = this;
 
-    owner.register('controller:foo', Controller.extend());
-    owner.register('controller:baz', {});
-    owner.register('controller:application', Controller.extend());
+    owner.register('controller:foo', Controller.extend({ store: service() }));
+    owner.register(
+      'controller:baz',
+      class Controller {
+        constructor(args) {
+          Object.assign(this, args);
+        }
+        @service('store') store;
+        static create(args) {
+          return new this(args);
+        }
+      },
+      { singleton: true, instantiate: true }
+    );
+    owner.register('controller:application', Controller.extend({ store: service() }));
   });
 
   test('If a Store property exists on an Application, it should be instantiated.', async function (assert) {
@@ -65,7 +91,12 @@ module('integration/application - Injecting the Default Store', function (hooks)
   });
 
   test('the DS namespace should be accessible', async function (assert) {
-    assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');
+    assert.expectDeprecation(
+      () => {
+        assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');
+      },
+      { id: 'ember-global', count: 2 }
+    );
   });
 });
 
@@ -75,9 +106,21 @@ module('integration/application - Using the store as a service', function (hooks
   hooks.beforeEach(function () {
     let { owner } = this;
 
-    owner.register('controller:foo', Controller.extend());
-    owner.register('controller:baz', {});
-    owner.register('controller:application', Controller.extend());
+    owner.register('controller:foo', Controller.extend({ store: service() }));
+    owner.register(
+      'controller:baz',
+      class Controller {
+        constructor(args) {
+          Object.assign(this, args);
+        }
+        @service('store') store;
+        static create(args) {
+          return new this(args);
+        }
+      },
+      { singleton: true, instantiate: true }
+    );
+    owner.register('controller:application', Controller.extend({ store: service() }));
     owner.register('service:doodle', Service.extend({ store: service() }));
     owner.register('service:second-store', Store);
   });
@@ -99,7 +142,10 @@ module('integration/application - Using the store as a service', function (hooks
 
 module('integration/application - Attaching initializer', function (hooks) {
   hooks.beforeEach(function () {
-    this.TestApplication = Application.extend();
+    this.TestApplication = Application.extend({
+      modulePrefix: '--none',
+      Resolver,
+    });
     this.TestApplication.initializer({
       name: 'ember-data',
       initialize: initializeEmberData,

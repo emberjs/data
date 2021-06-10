@@ -597,7 +597,7 @@ module('async belongs-to rendering tests', function (hooks) {
     };
 
     await render(hbs`
-    <p>{{sedona.parent.name}}</p>
+    <p>{{this.sedona.parent.name}}</p>
     `);
 
     const newParent = store.createRecord('person', { name: 'New Person' });

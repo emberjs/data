@@ -53,12 +53,19 @@ module('integration/injection eager injections', function (hooks) {
   });
 
   test('did inject', async function (assert) {
-    let foo = store.createRecord('foo');
-    let apple = foo.get('apple');
-    let appleService = this.owner.lookup('service:apple');
+    // TODO likely this test should instead test that we can use service injections
+    // on models (e.g. that owner is properly setup for it).
+    assert.expectDeprecation(
+      () => {
+        let foo = store.createRecord('foo');
+        let apple = foo.get('apple');
+        let appleService = this.owner.lookup('service:apple');
 
-    assert.ok(apple, `'model:foo' instance should have an 'apple' property`);
-    assert.ok(apple === appleService, `'model:foo.apple' should be the apple service`);
-    assert.ok(apple instanceof Apple, `'model:foo'.apple should be an instance of 'service:apple'`);
+        assert.ok(apple, `'model:foo' instance should have an 'apple' property`);
+        assert.ok(apple === appleService, `'model:foo.apple' should be the apple service`);
+        assert.ok(apple instanceof Apple, `'model:foo'.apple should be an instance of 'service:apple'`);
+      },
+      { id: 'implicit-injections', count: 1 }
+    );
   });
 });
