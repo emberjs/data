@@ -1,6 +1,7 @@
 import Application from '@ember/application';
 import Namespace from '@ember/application/namespace';
 import Controller from '@ember/controller';
+import { assign } from '@ember/polyfills';
 import Service, { inject as service } from '@ember/service';
 
 import { module, test } from 'qunit';
@@ -25,7 +26,7 @@ module('integration/application - Injecting a Custom Store', function (hooks) {
       'controller:baz',
       class Controller {
         constructor(args) {
-          Object.assign(this, args);
+          assign(this, args);
         }
         @service('store') store;
         static create(args) {
@@ -87,7 +88,7 @@ module('integration/application - Injecting the Default Store', function (hooks)
 
   test('If a store is instantiated, it should be made available to each controller.', async function (assert) {
     let fooController = this.owner.lookup('controller:foo');
-    assert.ok(fooController.get('store') instanceof Store, 'the store was injected');
+    assert.ok(fooController.store instanceof Store, 'the store was injected');
   });
 
   test('the DS namespace should be accessible', async function (assert) {
