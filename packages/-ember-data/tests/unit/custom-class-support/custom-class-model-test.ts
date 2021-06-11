@@ -34,7 +34,7 @@ if (CUSTOM_MODEL_CLASS) {
         this.store = store;
       }
       save() {
-        return this.store.saveRecord(this as unknown as RecordInstance);
+        return this.store.saveRecord(this);
       }
     }
 
@@ -60,7 +60,7 @@ if (CUSTOM_MODEL_CLASS) {
           },
         });
       }
-      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager) {
+      instantiateRecord(identifier, createOptions, recordDataFor, notificationManager): Person {
         return new Person(this);
       }
       teardownRecord(record) {}
