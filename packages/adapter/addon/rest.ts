@@ -11,7 +11,10 @@ import { DEBUG } from '@glimmer/env';
 import { has } from 'require';
 import { Promise as RSVPPromise } from 'rsvp';
 
-import Adapter, { BuildURLMixin } from '@ember-data/adapter';
+import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
+import { addSymbol, symbol } from '@ember-data/store/-private';
+
+import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 import AdapterError, {
   AbortError,
   ConflictError,
@@ -21,11 +24,8 @@ import AdapterError, {
   ServerError,
   TimeoutError,
   UnauthorizedError,
-} from '@ember-data/adapter/error';
-import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
-import { addSymbol, symbol } from '@ember-data/store/-private';
-
-import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
+} from './error';
+import Adapter, { BuildURLMixin } from './index';
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type FastBoot = import('./-private/fastboot-interface').FastBoot;

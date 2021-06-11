@@ -69,7 +69,7 @@ module('integration/application - Injecting the Default Store', function (hooks)
       'controller:baz',
       class Controller {
         constructor(args) {
-          Object.assign(this, args);
+          assign(this, args);
         }
         @service('store') store;
         static create(args) {
@@ -112,7 +112,7 @@ module('integration/application - Using the store as a service', function (hooks
       'controller:baz',
       class Controller {
         constructor(args) {
-          Object.assign(this, args);
+          assign(this, args);
         }
         @service('store') store;
         static create(args) {
