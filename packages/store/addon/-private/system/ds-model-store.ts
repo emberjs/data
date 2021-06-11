@@ -12,6 +12,7 @@ import CoreStore from './core-store';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 
 type ModelFactory = import('./schema-definition-service').ModelFactory;
 
@@ -26,7 +27,7 @@ type NotificationManager = import('./record-notification-manager').default;
 type DSModel = import('../ts-interfaces/ds-model').DSModel;
 type ShimModelClass = import('./model/shim-model-class').default;
 
-class Store extends CoreStore<DSModel> {
+class Store extends CoreStore<DSModel | RecordInstance> {
   public _modelFactoryCache = Object.create(null);
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);
@@ -36,7 +37,7 @@ class Store extends CoreStore<DSModel> {
     createRecordArgs: { [key: string]: any },
     recordDataFor: (identifier: StableRecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): DSModel {
+  ): DSModel | RecordInstance {
     let modelName = identifier.type;
 
     let internalModel = this._internalModelForResource(identifier);
