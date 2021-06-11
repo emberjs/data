@@ -8,6 +8,7 @@ import { DEBUG } from '@glimmer/env';
 import coerceId from '../system/coerce-id';
 import normalizeModelName from '../system/normalize-model-name';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import { addSymbol } from '../utils/symbol';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
@@ -19,7 +20,7 @@ type ResourceData = import('../ts-interfaces/identifier').ResourceData;
 
 type Identifier = import('../ts-interfaces/identifier').Identifier;
 
-type CoreStore = import('../system/core-store').default;
+type CoreStore<K = RecordInstance> = import('../system/core-store').default<K>;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type GenerationMethod = import('../ts-interfaces/identifier').GenerationMethod;
 type UpdateMethod = import('../ts-interfaces/identifier').UpdateMethod;
@@ -86,11 +87,10 @@ function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 
   return uuidv4();
 }
 
-const IdentifierCaches = new WeakMap<CoreStore, IdentifierCache>();
+const IdentifierCaches = new WeakMap<CoreStore<any>, IdentifierCache>();
 
-export function identifierCacheFor(store: CoreStore): IdentifierCache {
+export function identifierCacheFor(store: CoreStore<any>): IdentifierCache {
   let cache = IdentifierCaches.get(store);
-
   if (cache === undefined) {
     cache = new IdentifierCache();
     IdentifierCaches.set(store, cache);

@@ -170,7 +170,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
-    const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 }) as DSModel;
+    const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 });
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
       identifier.lid,

@@ -2,25 +2,27 @@ import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import { identifierCacheFor } from '../../identifiers/cache';
+import { DSModel } from '../../ts-interfaces/ds-model';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
 import { internalModelFactoryFor } from './internal-model-factory';
 
 type StoreWrapper = import('../../ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
-type CoreStore = import('../core-store').default;
+type CoreStore<K> = import('../core-store').default<K>;
 type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
 type AttributesSchema = import('../../ts-interfaces/record-data-schemas').AttributesSchema;
 type RelationshipsSchema = import('../../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type RelationshipSchema = import('../../ts-interfaces/record-data-schemas').RelationshipSchema;
-type RelationshipDefinition =
-  import('@ember-data/model/-private/system/relationships/relationship-meta').RelationshipDefinition;
+type RelationshipDefinition<K> =
+  import('@ember-data/model/-private/system/relationships/relationship-meta').RelationshipDefinition<K>;
 /**
   @module @ember-data/store
 */
 
-function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
-  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
+function metaIsRelationshipDefinition<K>(meta: RelationshipSchema): meta is RelationshipDefinition<K> {
+  return typeof (meta as RelationshipDefinition<K>)._inverseKey === 'function';
 }
 
 let peekGraph;
@@ -32,12 +34,12 @@ if (HAS_RECORD_DATA_PACKAGE) {
   };
 }
 
-export default class RecordDataStoreWrapper implements StoreWrapper {
+export default class RecordDataStoreWrapper<K extends RecordInstance = RecordInstance> implements StoreWrapper {
   declare _willNotify: boolean;
   declare _pendingNotifies: Map<StableRecordIdentifier, Map<string, string>>;
-  declare _store: CoreStore;
+  declare _store: CoreStore<K>;
 
-  constructor(_store: CoreStore) {
+  constructor(_store: CoreStore<K>) {
     this._store = _store;
     this._willNotify = false;
     this._pendingNotifies = new Map();
@@ -118,7 +120,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
       return null;
     }
     if (CUSTOM_MODEL_CLASS) {
-      if (metaIsRelationshipDefinition(definition)) {
+      if (metaIsRelationshipDefinition<K>(definition)) {
         return definition._inverseKey(this._store, modelClass);
       } else if (definition.options && definition.options.inverse !== undefined) {
         return definition.options.inverse;
@@ -126,7 +128,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
         return null;
       }
     } else {
-      return (definition as RelationshipDefinition)._inverseKey(this._store, modelClass);
+      return (definition as RelationshipDefinition<K>)._inverseKey(this._store, modelClass);
     }
   }
 
@@ -144,13 +146,13 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
         // TODO do we need to amend the RFC for this prop?
         // else we should add it to the TS interface and document.
         return !!(definition as unknown as { inverseIsAsync: boolean }).inverseIsAsync;
-      } else if (metaIsRelationshipDefinition(definition)) {
+      } else if (metaIsRelationshipDefinition<K>(definition)) {
         return definition._inverseIsAsync(this._store, modelClass);
       } else {
         return false;
       }
     } else {
-      return (definition as RelationshipDefinition)._inverseIsAsync(this._store, modelClass);
+      return (definition as RelationshipDefinition<K>)._inverseIsAsync(this._store, modelClass);
     }
   }
 
@@ -228,7 +230,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     }
 
     const record = internalModel._record;
-    return record ? !(record.isDestroyed || record.isDestroying) : false;
+    return record ? !((record as DSModel).isDestroyed || (record as DSModel).isDestroying) : false;
   }
 
   disconnectRecord(type: string, id: string | null, lid: string): void;

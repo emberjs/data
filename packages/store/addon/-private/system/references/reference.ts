@@ -3,15 +3,16 @@ import { deprecate } from '@ember/debug';
 import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
 
 import { internalModelFactoryFor } from '../store/internal-model-factory';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
 type PaginationLinks = import('../../ts-interfaces/ember-data-json-api').PaginationLinks;
 type LinkObject = import('../../ts-interfaces/ember-data-json-api').LinkObject;
-type CoreStore = import('../core-store').default;
+type CoreStore<K> = import('../core-store').default<K>;
 type JSONObject = import('json-typescript').Object;
 type JSONValue = import('json-typescript').Value;
-type InternalModel = import('../model/internal-model').default;
+type InternalModel<K> = import('../model/internal-model').default<K>;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
@@ -31,9 +32,9 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-export const REFERENCE_CACHE = new WeakMap<Reference, StableRecordIdentifier>();
+export const REFERENCE_CACHE = new WeakMap<Reference<any>, StableRecordIdentifier>();
 
-export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
+export function internalModelForReference<K extends RecordInstance>(reference: Reference<K>): InternalModel<K> | null | undefined {
   return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
 }
 
@@ -44,11 +45,11 @@ export function internalModelForReference(reference: Reference): InternalModel |
  @class Reference
  @public
  */
-interface Reference {
+interface Reference<K> {
   links(): PaginationLinks | null;
 }
-abstract class Reference {
-  constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
+abstract class Reference<K extends RecordInstance> {
+  constructor(public store: CoreStore<K>, identifier: StableRecordIdentifier) {
     REFERENCE_CACHE.set(this, identifier);
   }
 

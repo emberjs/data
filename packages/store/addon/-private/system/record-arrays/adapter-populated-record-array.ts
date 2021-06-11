@@ -12,8 +12,8 @@ import RecordArray from './record-array';
 
 type Meta = import('../../ts-interfaces/ember-data-json-api').Meta;
 
-type CoreStore = import('../core-store').default;
-type RecordArrayManager = import('ember-data/-private').RecordArrayManager;
+type CoreStore<K> = import('../core-store').default<K>;
+type RecordArrayManager<T> = import('ember-data/-private').RecordArrayManager<T>;
 type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
 
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
@@ -70,10 +70,10 @@ type PaginationLinks = import('../../ts-interfaces/ember-data-json-api').Paginat
   @public
   @extends RecordArray
 */
-export interface AdapterPopulatedRecordArrayCreateArgs {
+export interface AdapterPopulatedRecordArrayCreateArgs<K extends RecordInstance> {
   modelName: string;
-  store: CoreStore;
-  manager: RecordArrayManager;
+  store: CoreStore<K>;
+  manager: RecordArrayManager<K>;
   content: NativeArray<StableRecordIdentifier>;
   isLoaded?: boolean;
   query?: Dict<unknown>;
@@ -81,9 +81,9 @@ export interface AdapterPopulatedRecordArrayCreateArgs {
   links?: Links | PaginationLinks | null;
 }
 export interface AdapterPopulatedRecordArrayCreator {
-  create(args: AdapterPopulatedRecordArrayCreateArgs): AdapterPopulatedRecordArray;
+  create<K extends RecordInstance>(args: AdapterPopulatedRecordArrayCreateArgs<K>): AdapterPopulatedRecordArray<K>;
 }
-export default class AdapterPopulatedRecordArray extends RecordArray {
+export default class AdapterPopulatedRecordArray<K extends RecordInstance= RecordInstance> extends RecordArray<K> {
   declare links?: Links | PaginationLinks | null;
   declare meta?: Dict<unknown>;
   declare query: Dict<unknown> | null;
@@ -107,7 +107,7 @@ export default class AdapterPopulatedRecordArray extends RecordArray {
     throw new Error(`The result of a server query (on ${this.modelName}) is immutable.`);
   }
 
-  _update(): PromiseArray<RecordInstance, AdapterPopulatedRecordArray> {
+  _update(): PromiseArray<K, AdapterPopulatedRecordArray<K>> {
     const { store, query } = this;
 
     // TODO save options from initial request?

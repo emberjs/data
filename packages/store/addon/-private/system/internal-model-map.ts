@@ -1,4 +1,5 @@
 import { assert } from '@ember/debug';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 
 import InternalModel from './model/internal-model';
 
@@ -20,13 +21,13 @@ type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
  @class InternalModelMap
  @internal
  */
-export default class InternalModelMap {
-  private _idToModel: ConfidentDict<InternalModel> = Object.create(null);
-  private _models: InternalModel[] = [];
+export default class InternalModelMap<T extends RecordInstance = RecordInstance> {
+  private _idToModel: ConfidentDict<InternalModel<T>> = Object.create(null);
+  private _models: InternalModel<T>[] = [];
 
   constructor(public modelName: string) {}
 
-  get(id: string): InternalModel | null {
+  get(id: string): InternalModel<T> | null {
     return this._idToModel[id] || null;
   }
 
@@ -42,7 +43,7 @@ export default class InternalModelMap {
     return this._models.map((m) => m.identifier);
   }
 
-  set(id: string, internalModel: InternalModel): void {
+  set(id: string, internalModel: InternalModel<T>): void {
     assert(`You cannot index an internalModel by an empty id'`, typeof id === 'string' && id.length > 0);
     assert(
       `You cannot set an index for an internalModel to something other than an internalModel`,
@@ -60,7 +61,7 @@ export default class InternalModelMap {
     this._idToModel[id] = internalModel;
   }
 
-  add(internalModel: InternalModel, id: string | null): void {
+  add(internalModel: InternalModel<T>, id: string | null): void {
     assert(
       `You cannot re-add an already present InternalModel to the InternalModelMap.`,
       !this.contains(internalModel)
@@ -78,7 +79,7 @@ export default class InternalModelMap {
     this._models.push(internalModel);
   }
 
-  remove(internalModel: InternalModel, id: string): void {
+  remove(internalModel: InternalModel<T>, id: string): void {
     delete this._idToModel[id];
 
     let loc = this._models.indexOf(internalModel);
@@ -88,7 +89,7 @@ export default class InternalModelMap {
     }
   }
 
-  contains(internalModel: InternalModel): boolean {
+  contains(internalModel: InternalModel<T>): boolean {
     return this._models.indexOf(internalModel) !== -1;
   }
 
@@ -98,7 +99,7 @@ export default class InternalModelMap {
    @internal
    @type Array
    */
-  get models(): InternalModel[] {
+  get models(): InternalModel<T>[] {
     return this._models;
   }
 

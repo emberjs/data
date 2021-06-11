@@ -1,13 +1,14 @@
 import { ModelSchema } from '../../ts-interfaces/ds-model';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type RelationshipSchema = import('../../ts-interfaces/record-data-schemas').RelationshipSchema;
 type AttributeSchema = import('../../ts-interfaces/record-data-schemas').AttributeSchema;
-type CoreStore = import('../core-store').default;
+type CoreStore<T> = import('../core-store').default<T>;
 
-const AvailableShims = new WeakMap<CoreStore, Dict<ShimModelClass>>();
+const AvailableShims = new WeakMap<CoreStore<any>, Dict<ShimModelClass>>();
 
-export function getShimClass(store: CoreStore, modelName: string): ShimModelClass {
+export function getShimClass(store: CoreStore<any>, modelName: string): ShimModelClass {
   let shims = AvailableShims.get(store);
 
   if (shims === undefined) {
@@ -38,7 +39,7 @@ export default class ShimModelClass implements ModelSchema {
   declare isModel: false;
 
   // TODO Maybe expose the class here?
-  constructor(private __store: CoreStore, public modelName: string) {
+  constructor(private __store: CoreStore<RecordInstance>, public modelName: string) {
     this.isModel = false;
   }
 

@@ -1,3 +1,4 @@
+import { RecordInstance } from '../ts-interfaces/record-instance';
 import InternalModelMap from './internal-model-map';
 
 type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
@@ -13,8 +14,8 @@ type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
  @class IdentityMap
  @internal
  */
-export default class IdentityMap {
-  private _map: ConfidentDict<InternalModelMap> = Object.create(null);
+export default class IdentityMap<K extends RecordInstance = RecordInstance> {
+  private _map: ConfidentDict<InternalModelMap<K>> = Object.create(null);
 
   /**
    Retrieves the `InternalModelMap` for a given modelName,
@@ -26,7 +27,7 @@ export default class IdentityMap {
    @param modelName a previously normalized modelName
    @return {InternalModelMap} the InternalModelMap for the given modelName
    */
-  retrieve(modelName: string): InternalModelMap {
+  retrieve(modelName: string): InternalModelMap<K> {
     let map = this._map[modelName];
 
     if (map === undefined) {

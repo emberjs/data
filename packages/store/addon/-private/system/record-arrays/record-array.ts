@@ -14,19 +14,19 @@ import { promiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
-type Snapshot = import('ember-data/-private').Snapshot;
+type Snapshot<K> = import('ember-data/-private').Snapshot<K>;
 type EmberObject = import('@ember/object').default;
 type PromiseArray<K, V> = import('../promise-proxies').PromiseArray<K, V>;
 type FindOptions = import('../../ts-interfaces/store').FindOptions;
-type RecordArrayManager = import('ember-data/-private').RecordArrayManager;
-type CoreStore = import('../core-store').default;
+type RecordArrayManager<K> = import('ember-data/-private').RecordArrayManager<K>;
+type CoreStore<K> = import('../core-store').default<K>;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
 type Evented = import('@ember/object/evented').default;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
 type DSModel = import('../../ts-interfaces/ds-model').DSModel;
 
-function recordForIdentifier(store: CoreStore, identifier: StableRecordIdentifier): RecordInstance {
+function recordForIdentifier<K extends RecordInstance>(store: CoreStore<K>, identifier: StableRecordIdentifier): K {
   return internalModelFactoryFor(store).lookup(identifier).getRecord();
 }
 
@@ -54,25 +54,25 @@ const ArrayProxyWithDeprecatedEvented = ArrayProxy.extend(DeprecatedEvented) as 
   M = T
 >() => ArrayProxyWithDeprecatedEvented<T, M>;
 
-export interface RecordArrayCreateArgs {
+export interface RecordArrayCreateArgs<K extends RecordInstance> {
   modelName: string;
-  store: CoreStore;
-  manager: RecordArrayManager;
+  store: CoreStore<K>;
+  manager: RecordArrayManager<K>;
   content: NativeArray<StableRecordIdentifier>;
   isLoaded: boolean;
 }
 export interface RecordArrayCreator {
-  create(args: RecordArrayCreateArgs): RecordArray;
+  create<K extends RecordInstance>(args: RecordArrayCreateArgs<K>): RecordArray<K>;
 }
 
-class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier, RecordInstance> {
+class RecordArray<K extends RecordInstance = RecordInstance> extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier, K> {
   declare content: NativeArray<StableRecordIdentifier>;
   declare _getDeprecatedEventedInfo: () => string;
   declare modelName: string;
   declare isLoaded: boolean;
-  declare store: CoreStore;
-  declare _updatingPromise: PromiseArray<RecordInstance, RecordArray> | null;
-  declare manager: RecordArrayManager;
+  declare store: CoreStore<K>;
+  declare _updatingPromise: PromiseArray<K, RecordArray<K>> | null;
+  declare manager: RecordArrayManager<K>;
 
   /**
     The flag to signal a `RecordArray` is currently loading data.
@@ -169,7 +169,7 @@ class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier
     @param {Number} index
     @return {Model} record
   */
-  objectAtContent(index: number): RecordInstance | undefined {
+  objectAtContent(index: number): K | undefined {
     let identifier = this.content.objectAt(index);
     return identifier ? recordForIdentifier(this.store, identifier) : undefined;
   }
@@ -194,9 +194,9 @@ class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier
     @method update
     @public
   */
-  update(): PromiseArray<RecordInstance, RecordArray> {
+  update(): PromiseArray<K, RecordArray<K>> {
     if (this.isUpdating) {
-      return this._updatingPromise as PromiseArray<RecordInstance, RecordArray>;
+      return this._updatingPromise as PromiseArray<K, RecordArray<K>>;
     }
 
     this.isUpdating = true;
@@ -219,7 +219,7 @@ class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier
     Update this RecordArray and return a promise which resolves once the update
     is finished.
    */
-  _update(): PromiseArray<RecordInstance, RecordArray> {
+  _update(): PromiseArray<K, RecordArray<K>> {
     return this.store.findAll(this.modelName, { reload: true });
   }
 
@@ -240,7 +240,7 @@ class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier
     @public
     @return {PromiseArray} promise
   */
-  save(): PromiseArray<RecordInstance, RecordArray> {
+  save(): PromiseArray<RecordInstance, RecordArray<K>> {
     let promiseLabel = `DS: RecordArray#save ${this.modelName}`;
     let promise = Promise.all(this.invoke<DSModel>('save'), promiseLabel).then(
       () => this,
@@ -248,7 +248,7 @@ class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier
       'DS: RecordArray#save return RecordArray'
     );
 
-    return promiseArray<RecordInstance, RecordArray>(promise);
+    return promiseArray<K, RecordArray<K>>(promise);
   }
 
   /**
@@ -324,7 +324,7 @@ class RecordArray extends ArrayProxyWithDeprecatedEvented<StableRecordIdentifier
     @method _takeSnapshot
     @internal
   */
-  _takeSnapshot(): Snapshot[] {
+  _takeSnapshot(): Snapshot<K>[] {
     return this.content.map((identifier) => internalModelFactoryFor(this.store).lookup(identifier).createSnapshot());
   }
 }

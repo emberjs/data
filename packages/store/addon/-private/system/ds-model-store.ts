@@ -26,7 +26,7 @@ type NotificationManager = import('./record-notification-manager').default;
 type DSModel = import('../ts-interfaces/ds-model').DSModel;
 type ShimModelClass = import('./model/shim-model-class').default;
 
-class Store extends CoreStore {
+class Store extends CoreStore<DSModel> {
   public _modelFactoryCache = Object.create(null);
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);

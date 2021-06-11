@@ -6,12 +6,13 @@ import Ember from 'ember';
 import { resolve } from 'rsvp';
 
 import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
+import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 
 type ManyArray = import('ember-data/-private').ManyArray;
 type ArrayProxy<K, V> = import('@ember/array/proxy').default<K, V>;
 type Evented = import('@ember/object/evented').default;
 type RecordInstance = import('@ember-data/store/-private/ts-interfaces/record-instance').RecordInstance;
-type InternalModel = import('@ember-data/store/-private').InternalModel;
+type InternalModel<T> = import('@ember-data/store/-private').InternalModel<T>;
 
 export interface HasManyProxyCreateArgs {
   promise: Promise<ManyArray>;
@@ -42,7 +43,7 @@ export interface HasManyProxyCreateArgs {
   @class PromiseManyArray
   @public
 */
-interface PromiseManyArray extends Evented, Omit<ArrayProxy<InternalModel, RecordInstance>, 'destroy'> {}
+interface PromiseManyArray extends Evented, Omit<ArrayProxy<InternalModel<DSModel>, RecordInstance>, 'destroy'> {}
 class PromiseManyArray {
   declare promise: Promise<any> | null;
   declare isDestroyed: boolean;

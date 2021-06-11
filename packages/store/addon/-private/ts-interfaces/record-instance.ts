@@ -14,4 +14,5 @@ type DSModel = import('./ds-model').DSModel;
   The type belows allows for anything extending object.
 */
 
-export type RecordInstance = DSModel | Dict<unknown>;
+//export type RecordInstance = DSModel | Dict<unknown>;
+export type RecordInstance = object;

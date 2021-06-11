@@ -9,20 +9,28 @@ import InternalModel from '../model/internal-model';
 
 type RecordData = import('../../ts-interfaces/record-data').RecordData;
 
-type CoreStore = import('../core-store').default;
+type CoreStore<T> = import('../core-store').default<T>;
 type ResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
 type ExistingResourceObject = import('../../ts-interfaces/ember-data-json-api').ExistingResourceObject;
 type NewResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').NewResourceIdentifierObject;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
-type InternalModelMap = import('../internal-model-map').default;
+type InternalModelMap<K> = import('../internal-model-map').default<K>;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 
 /**
   @module @ember-data/store
 */
+// type FactoyCacheWeakMap<T extends RecordInstance> = WeakMap<CoreStore<T>, InternalModelFactory>;
 
-const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
+// const FactoryCache: FactoyCacheWeakMap = new WeakMap<CoreStore, InternalModelFactory>();
+interface FactoyCacheWeakMapInt extends WeakMap<CoreStore<any>, InternalModelFactory<any>> {
+  get<Z extends RecordInstance>(key: CoreStore<Z>): InternalModelFactory<Z> | undefined;
+  set<Z extends RecordInstance>(key: CoreStore<Z>, value: InternalModelFactory<Z>): this;
+}
+
+const FactoryCache: FactoyCacheWeakMapInt = new WeakMap<CoreStore<any>, InternalModelFactory<any>>();
+
 type NewResourceInfo = { type: string; id: string | null };
 
 const RecordCache = new WeakMap<RecordInstance | RecordData, StableRecordIdentifier>();
@@ -66,7 +74,7 @@ export function setRecordIdentifier(record: RecordInstance | RecordData, identif
   RecordCache.set(record, identifier);
 }
 
-export function internalModelFactoryFor(store: CoreStore): InternalModelFactory {
+export function internalModelFactoryFor<Z extends RecordInstance>(store: CoreStore<Z>): InternalModelFactory<Z> {
   let factory = FactoryCache.get(store);
 
   if (factory === undefined) {
@@ -85,12 +93,12 @@ export function internalModelFactoryFor(store: CoreStore): InternalModelFactory 
  * @class InternalModelFactory
  * @internal
  */
-export default class InternalModelFactory {
-  declare _identityMap: IdentityMap;
+export default class InternalModelFactory<K extends RecordInstance> {
+  declare _identityMap: IdentityMap<K>;
   declare identifierCache: IdentifierCache;
-  declare store: CoreStore;
+  declare store: CoreStore<K>;
 
-  constructor(store: CoreStore) {
+  constructor(store: CoreStore<K>) {
     this.store = store;
     this.identifierCache = identifierCacheFor(store);
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
@@ -175,7 +183,7 @@ export default class InternalModelFactory {
    * @method lookup
    * @private
    */
-  lookup(resource: ResourceIdentifierObject, data?: ExistingResourceObject): InternalModel {
+  lookup(resource: ResourceIdentifierObject, data?: ExistingResourceObject): InternalModel<K> {
     if (data !== undefined) {
       // if we've been given data associated with this lookup
       // we must first give secondary-caches for LIDs the
@@ -211,11 +219,11 @@ export default class InternalModelFactory {
    * @method peek
    * @private
    */
-  peek(identifier: StableRecordIdentifier): InternalModel | null {
+  peek(identifier: StableRecordIdentifier): InternalModel<K> | null {
     return this.modelMapFor(identifier.type).get(identifier.lid);
   }
 
-  getByResource(resource: ResourceIdentifierObject): InternalModel {
+  getByResource(resource: ResourceIdentifierObject): InternalModel<K> {
     const normalizedResource = constructResource(resource);
 
     return this.lookup(normalizedResource);
@@ -270,7 +278,7 @@ export default class InternalModelFactory {
     internalModel.setId(id, true);
   }
 
-  peekById(type: string, id: string): InternalModel | null {
+  peekById(type: string, id: string): InternalModel<K> | null {
     const identifier = this.identifierCache.peekRecordIdentifier({ type, id });
     let internalModel = identifier ? this.modelMapFor(type).get(identifier.lid) : null;
 
@@ -287,13 +295,13 @@ export default class InternalModelFactory {
     return internalModel;
   }
 
-  build(newResourceInfo: NewResourceInfo): InternalModel {
+  build(newResourceInfo: NewResourceInfo): InternalModel<K> {
     return this._build(newResourceInfo, true);
   }
 
-  _build(resource: StableRecordIdentifier, isCreate: false): InternalModel;
-  _build(resource: NewResourceInfo, isCreate: true): InternalModel;
-  _build(resource: StableRecordIdentifier | NewResourceInfo, isCreate: boolean = false): InternalModel {
+  _build(resource: StableRecordIdentifier, isCreate: false): InternalModel<K>;
+  _build(resource: NewResourceInfo, isCreate: true): InternalModel<K>;
+  _build(resource: StableRecordIdentifier | NewResourceInfo, isCreate: boolean = false): InternalModel<K> {
     if (isCreate === true && resource.id) {
       let existingInternalModel = this.peekById(resource.type, resource.id);
 
@@ -321,7 +329,7 @@ export default class InternalModelFactory {
     return internalModel;
   }
 
-  remove(internalModel: InternalModel): void {
+  remove(internalModel: InternalModel<K>): void {
     let recordMap = this.modelMapFor(internalModel.modelName);
     let clientId = internalModel.identifier.lid;
 
@@ -331,7 +339,7 @@ export default class InternalModelFactory {
     this.identifierCache.forgetRecordIdentifier(identifier);
   }
 
-  modelMapFor(type: string): InternalModelMap {
+  modelMapFor(type: string): InternalModelMap<K> {
     return this._identityMap.retrieve(type);
   }
 

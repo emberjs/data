@@ -10,7 +10,7 @@ import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import recordDataFor from './record-data-for';
 
-type InternalModel = import('./model/internal-model').default;
+type InternalModel<T> = import('./model/internal-model').default<T>;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type ChangedAttributesHash = import('../ts-interfaces/record-data').ChangedAttributesHash;
@@ -20,7 +20,7 @@ type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
 type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
 type AttributeSchema = import('../ts-interfaces/record-data-schemas').AttributeSchema;
 type RelationshipSchema = import('../ts-interfaces/record-data-schemas').RelationshipSchema;
-type Store = import('./core-store').default;
+type Store<T> = import('./core-store').default<T>;
 type FindOptions = import('../ts-interfaces/store').FindOptions;
 type RecordId = string | null;
 
@@ -29,10 +29,10 @@ function schemaIsDSModel(schema: ModelSchema | DSModelSchema): schema is DSModel
 }
 
 type ProtoExntends<T, U> = U & Omit<T, keyof U>;
-interface _PrivateSnapshot {
-  _internalModel: InternalModel;
+interface _PrivateSnapshot<K> {
+  _internalModel: InternalModel<K>;
 }
-export type PrivateSnapshot = ProtoExntends<Snapshot, _PrivateSnapshot>;
+export type PrivateSnapshot<K> = ProtoExntends<Snapshot, _PrivateSnapshot<K>>;
 
 /**
   Snapshot is not directly instantiable.
@@ -42,13 +42,13 @@ export type PrivateSnapshot = ProtoExntends<Snapshot, _PrivateSnapshot>;
   @class Snapshot
   @public
 */
-export default class Snapshot implements Snapshot {
+export default class Snapshot<K extends RecordInstance = RecordInstance> implements Snapshot<K> {
   private __attributes: Dict<unknown> | null = null;
-  private _belongsToRelationships: Dict<Snapshot> = Object.create(null);
+  private _belongsToRelationships: Dict<Snapshot<K>> = Object.create(null);
   private _belongsToIds: Dict<RecordId> = Object.create(null);
-  private _hasManyRelationships: Dict<Snapshot[]> = Object.create(null);
+  private _hasManyRelationships: Dict<Snapshot<K>[]> = Object.create(null);
   private _hasManyIds: Dict<RecordId[]> = Object.create(null);
-  declare _internalModel: InternalModel;
+  declare _internalModel: InternalModel<K>;
   declare _changedAttributes: ChangedAttributesHash;
 
   declare identifier: StableRecordIdentifier;
@@ -65,7 +65,7 @@ export default class Snapshot implements Snapshot {
    * @param identifier
    * @param _store
    */
-  constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store) {
+  constructor(options: FindOptions, identifier: StableRecordIdentifier, private _store: Store<K>) {
     let internalModel = (this._internalModel = _store._internalModelForResource(identifier));
     this.modelName = identifier.type;
 
@@ -307,10 +307,10 @@ export default class Snapshot implements Snapshot {
    relationship or null if the relationship is known but unset. undefined
    will be returned if the contents of the relationship is unknown.
    */
-  belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
+  belongsTo(keyName: string, options?: { id?: boolean }): Snapshot<K> | RecordId | undefined {
     let returnModeIsId = !!(options && options.id);
-    let inverseInternalModel: InternalModel | null;
-    let result: Snapshot | RecordId | undefined;
+    let inverseInternalModel: InternalModel<K> | null;
+    let result: Snapshot<K> | RecordId | undefined;
     let store = this._internalModel.store;
 
     if (returnModeIsId === true && keyName in this._belongsToIds) {
@@ -369,7 +369,7 @@ export default class Snapshot implements Snapshot {
     if (returnModeIsId) {
       this._belongsToIds[keyName] = result as RecordId;
     } else {
-      this._belongsToRelationships[keyName] = result as Snapshot;
+      this._belongsToRelationships[keyName] = result as Snapshot<K>;
     }
 
     return result;
@@ -405,11 +405,11 @@ export default class Snapshot implements Snapshot {
    relationship or an empty array if the relationship is known but unset.
    undefined will be returned if the contents of the relationship is unknown.
    */
-  hasMany(keyName: string, options?: { ids?: boolean }): RecordId[] | Snapshot[] | undefined {
+  hasMany(keyName: string, options?: { ids?: boolean }): RecordId[] | Snapshot<K>[] | undefined {
     let returnModeIsIds = !!(options && options.ids);
-    let results: RecordId[] | Snapshot[] | undefined;
+    let results: RecordId[] | Snapshot<K>[] | undefined;
     let cachedIds: RecordId[] | undefined = this._hasManyIds[keyName];
-    let cachedSnapshots: Snapshot[] | undefined = this._hasManyRelationships[keyName];
+    let cachedSnapshots: Snapshot<K>[] | undefined = this._hasManyRelationships[keyName];
 
     if (returnModeIsIds === true && keyName in this._hasManyIds) {
       return cachedIds;
@@ -457,7 +457,7 @@ export default class Snapshot implements Snapshot {
           if (returnModeIsIds) {
             (results as RecordId[]).push(member.id || null);
           } else {
-            (results as Snapshot[]).push(internalModel.createSnapshot());
+            (results as Snapshot<K>[]).push(internalModel.createSnapshot());
           }
         }
       });
@@ -468,7 +468,7 @@ export default class Snapshot implements Snapshot {
     if (returnModeIsIds) {
       this._hasManyIds[keyName] = results as RecordId[];
     } else {
-      this._hasManyRelationships[keyName] = results as Snapshot[];
+      this._hasManyRelationships[keyName] = results as Snapshot<K>[];
     }
 
     return results;
@@ -477,7 +477,7 @@ export default class Snapshot implements Snapshot {
   /**
     Iterates through all the attributes of the model, calling the passed
     function on each attribute.
-
+s
     Example
 
     ```javascript

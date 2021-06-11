@@ -7,6 +7,7 @@ import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { default as RSVP, Promise } from 'rsvp';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 
 import { symbol } from '../utils/symbol';
 import coerceId from './coerce-id';
@@ -18,24 +19,24 @@ import { normalizeResponseHelper } from './store/serializer-response';
 
 type AdapterPayload = import('../ts-interfaces/minimum-adapter-interface').AdapterPayload;
 
-type MinimumSerializerInterface = import('../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface;
+type MinimumSerializerInterface<T> = import('../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface<T>;
 type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 type ShimModelClass = import('./model/shim-model-class').default;
 type JsonApiValidationError = import('../ts-interfaces/record-data-json-api').JsonApiValidationError;
 type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
-type CoreStore = import('./core-store').default;
+type CoreStore<T> = import('./core-store').default<T>;
 type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
 type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
 type Request = import('../ts-interfaces/fetch-manager').Request;
 type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
 type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
-type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
+type PrivateSnapshot<T> = import('./snapshot').PrivateSnapshot<T>;
 
 interface ErrorHandlingSerializer {
-  extractErrors?(
-    store: CoreStore,
+  extractErrors?<K extends RecordInstance>(
+    store: CoreStore<K>,
     modelClass: ShimModelClass | DSModelSchema,
     error: Error & { isAdapterError: true; code: 'InvalidError'; errors: unknown[] },
     id: string | null
@@ -60,9 +61,9 @@ interface PendingFetchItem {
   trace?: any;
 }
 
-interface PendingSaveItem {
+interface PendingSaveItem<K extends RecordInstance> {
   resolver: RSVP.Deferred<any>;
-  snapshot: Snapshot;
+  snapshot: Snapshot<K>;
   identifier: StableRecordIdentifier;
   options: { [k: string]: unknown; [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
   queryRequest: Request;
@@ -74,15 +75,15 @@ interface PendingSaveItem {
  * @class FetchManager
  * @private
  */
-export default class FetchManager {
+export default class FetchManager<K extends RecordInstance>{
   declare isDestroyed: boolean;
   declare requestCache: RequestCache;
   // saves which are pending in the runloop
-  declare _pendingSave: PendingSaveItem[];
+  declare _pendingSave: PendingSaveItem<K>[];
   // fetches pending in the runloop, waiting to be coalesced
   declare _pendingFetch: Map<string, PendingFetchItem[]>;
 
-  constructor(private _store: CoreStore) {
+  constructor(private _store: CoreStore<K>) {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
@@ -127,14 +128,14 @@ export default class FetchManager {
     return resolver.promise;
   }
 
-  _flushPendingSave(pending: PendingSaveItem) {
+  _flushPendingSave(pending: PendingSaveItem<K>) {
     let { snapshot, resolver, identifier, options } = pending;
     let adapter = this._store.adapterFor(identifier.type);
     let operation = options[SaveOp];
 
     // TODO We have to cast due to our reliance on this private property
     // this will be refactored away once we change our pending API to be identifier based
-    let internalModel = (snapshot as unknown as PrivateSnapshot)._internalModel;
+    let internalModel = (snapshot as unknown as PrivateSnapshot<K>)._internalModel;
     let modelName = snapshot.modelName;
     let store = this._store;
     let modelClass = store.modelFor(modelName);
@@ -145,8 +146,8 @@ export default class FetchManager {
       typeof adapter[operation] === 'function'
     );
 
-    let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-    let serializer: MinimumSerializerInterface & ErrorHandlingSerializer = store.serializerFor(modelName);
+    let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot as Snapshot<any>));
+    let serializer: MinimumSerializerInterface<K> & ErrorHandlingSerializer = store.serializerFor(modelName);
     let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
     assert(
@@ -403,9 +404,9 @@ export default class FetchManager {
 
   _findMany(
     adapter: any,
-    store: CoreStore,
+    store: CoreStore<K>,
     modelName: string,
-    snapshots: Snapshot[],
+    snapshots: Snapshot<K>[],
     identifiers: StableRecordIdentifier[],
     optionsMap
   ) {
@@ -437,7 +438,7 @@ export default class FetchManager {
 
   _processCoalescedGroup(
     seeking: { [id: string]: PendingFetchItem },
-    group: Snapshot[],
+    group: Snapshot<K>[],
     adapter: any,
     optionsMap,
     modelName: string
@@ -497,7 +498,7 @@ export default class FetchManager {
       // But since the _findMany() finder is a store method we need to get the
       // records from the grouped snapshots even though the _findMany() finder
       // will once again convert the records to snapshots for adapter.findMany()
-      let snapshots = new Array<Snapshot>(totalItems);
+      let snapshots = new Array<Snapshot<K>>(totalItems);
       for (let i = 0; i < totalItems; i++) {
         // we know options is in the map due to having just set it above
         // but TS doesn't know so we cast it
@@ -505,7 +506,7 @@ export default class FetchManager {
         snapshots[i] = new Snapshot(options, identifiers[i], this._store);
       }
 
-      let groups: Snapshot[][];
+      let groups: Snapshot<K>[][];
       if (adapter.groupRecordsForFindMany) {
         groups = adapter.groupRecordsForFindMany(this._store, snapshots);
       } else {

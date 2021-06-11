@@ -1,12 +1,13 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 
 type RequestType = import('../../ts-interfaces/minimum-serializer-interface').RequestType;
 type AdapterPayload = import('../../ts-interfaces/minimum-adapter-interface').AdapterPayload;
 type ShimModelClass = import('../model/shim-model-class').default;
-type CoreStore = import('../core-store').default;
+type CoreStore<K> = import('../core-store').default<K>;
 type DSModelSchema = import('../../ts-interfaces/ds-model').DSModelSchema;
-type MinimumSerializerInterface = import('../../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface;
+type MinimumSerializerInterface<K> = import('../../ts-interfaces/minimum-serializer-interface').MinimumSerializerInterface<K>;
 type JsonApiDocument = import('../../ts-interfaces/ember-data-json-api').JsonApiDocument;
 
 /**
@@ -64,9 +65,9 @@ export function validateDocumentStructure(doc: JsonApiDocument) {
   return errors;
 }
 
-export function normalizeResponseHelper(
-  serializer: MinimumSerializerInterface,
-  store: CoreStore,
+export function normalizeResponseHelper<K extends RecordInstance>(
+  serializer: MinimumSerializerInterface<K>,
+  store: CoreStore<K>,
   modelClass: ShimModelClass | DSModelSchema,
   payload: AdapterPayload,
   id: string | null,

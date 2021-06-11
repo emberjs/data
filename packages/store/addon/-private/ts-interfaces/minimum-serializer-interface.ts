@@ -1,10 +1,12 @@
+import { RecordInstance } from './record-instance';
+
 type AdapterPayload = import('./minimum-adapter-interface').AdapterPayload;
 type Dict<T> = import('./utils').Dict<T>;
 type ModelSchema = import('./ds-model').ModelSchema;
-type Snapshot = import('../system/snapshot').default;
+type Snapshot<K> = import('../system/snapshot').default<K>;
 type JsonApiDocument = import('./ember-data-json-api').JsonApiDocument;
 type SingleResourceDocument = import('./ember-data-json-api').SingleResourceDocument;
-type Store = import('../system/core-store').default;
+type Store<T> = import('../system/core-store').default<T>;
 
 type JSONObject = Dict<unknown>;
 export type OptionsHash = Dict<unknown>;
@@ -34,10 +36,10 @@ export type RequestType =
   @class MinimumSerializerInterface
   @public
 */
-export interface MinimumSerializerInterface {
+export interface MinimumSerializerInterface<K extends RecordInstance = RecordInstance> {
   /**
    * This method is responsible for normalizing the value resolved from the promise returned
-   * by an Adapter request into the format expected by the `Store`.
+   * by an Adapter request into the format expected by the `Store<K>`.
    *
    * The output should be a [JSON:API Document](https://jsonapi.org/format/#document-structure)
    * with the following additional restrictions:
@@ -52,7 +54,7 @@ export interface MinimumSerializerInterface {
    *
    * @method normalizeResponse
    * @public
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {JSONObject} rawPayload The raw JSON response data returned from an API request.
@@ -66,7 +68,7 @@ export interface MinimumSerializerInterface {
    * @returns {JsonApiDocument} a document following the structure of a JSON:API Document.
    */
   normalizeResponse(
-    store: Store,
+    store: Store<K>,
     schema: ModelSchema,
     rawPayload: AdapterPayload,
     id: string | null,
@@ -100,7 +102,7 @@ export interface MinimumSerializerInterface {
    * @param {Snapshot} snapshot A Snapshot for the record to serialize
    * @param {object} [options]
    */
-  serialize(snapshot: Snapshot, options?: OptionsHash): JSONObject;
+  serialize(snapshot: Snapshot<K>, options?: OptionsHash): JSONObject;
 
   /**
    * This method is intended to normalize data into a [JSON:API Document](https://jsonapi.org/format/#document-structure)
@@ -114,7 +116,7 @@ export interface MinimumSerializerInterface {
    *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
    *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
-   * This method is called by the `Store` when `store.normalize(modelName, payload)` is
+   * This method is called by the `Store<K>` when `store.normalize(modelName, payload)` is
    * called. It is recommended to use `store.serializerFor(modelName).normalizeResponse`
    * over `store.normalize`.
    *
@@ -198,7 +200,7 @@ export interface MinimumSerializerInterface {
    * @param [options]
    * @returns {void}
    */
-  serializeIntoHash?(hash: object, schema: ModelSchema, snapshot: Snapshot, options?: OptionsHash): void;
+  serializeIntoHash?(hash: object, schema: ModelSchema, snapshot: Snapshot<K>, options?: OptionsHash): void;
 
   /**
    * This method allows for normalization of data when `store.pushPayload` is called
@@ -237,12 +239,12 @@ export interface MinimumSerializerInterface {
    * @method pushPayload [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {JSONObject} rawPayload The raw JSON response data returned from an API request.
    *  This JSON should be in the API format expected by the serializer.
    * @returns {void}
    */
-  pushPayload?(store: Store, rawPayload: JSONObject): void;
+  pushPayload?(store: Store<K>, rawPayload: JSONObject): void;
 
   /**
    * In some situations the serializer may need to perform cleanup when destroyed,

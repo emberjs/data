@@ -1,16 +1,19 @@
 /* eslint-disable no-restricted-globals */
 // the above eslint rule checks return types. This is an interface
 // and we intend Promise whether it is Native or polyfilled is of
+
+import { RecordInstance } from './record-instance';
+
 // no consequence.
 type Dict<T> = import('./utils').Dict<T>;
-type Snapshot = import('../system/snapshot').default;
+type Snapshot<K> = import('../system/snapshot').default<K>;
 type SnapshotRecordArray = import('../system/snapshot-record-array').default;
-type Store = import('@ember-data/store/-private/system/core-store').default;
+type Store<T> = import('@ember-data/store/-private/system/core-store').default<T>;
 type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
 type AdapterPopulatedRecordArray = import('../system/record-arrays/adapter-populated-record-array').default;
 type RelationshipSchema = import('./record-data-schemas').RelationshipSchema;
 
-type Group = Snapshot[];
+type Group<K> = Snapshot<K>[];
 
 export type AdapterPayload = Dict<unknown> | unknown[];
 
@@ -28,7 +31,7 @@ export type AdapterPayload = Dict<unknown> | unknown[];
   @class MinimumAdapterInterface
   @public
 */
-export interface MinimumAdapterInterface {
+export interface MinimumAdapterInterface<K extends RecordInstance = RecordInstance> {
   /**
    * `adapter.findRecord` takes a request for a resource of a given `type` and `id` combination
    * and should return a `Promise` which fulfills with data for a single resource matching that
@@ -53,10 +56,10 @@ export interface MinimumAdapterInterface {
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {String} id
-   * @param {Snapshot} snapshot
+   * @param {Snapshot<K>} snapshot
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot): Promise<AdapterPayload>;
+  findRecord(store: Store<K>, schema: ModelSchema, id: string, snapshot: Snapshot<K>): Promise<AdapterPayload>;
 
   /**
    * `adapter.findAll` takes a request for resources of a given `type` and should return
@@ -80,16 +83,16 @@ export interface MinimumAdapterInterface {
    *
    * @method findAll
    * @public
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {null} sinceToken This parameter is no longer used and will always be null.
-   * @param {SnapshotRecordArray} snapshotRecordArray an object containing any passed in options,
+   * @param {Snapshot<K>RecordArray} snapshotRecordArray an object containing any passed in options,
    *  adapterOptions, and the ability to access a snapshot for each existing record of the type.
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
   findAll(
-    store: Store,
+    store: Store<K>,
     schema: ModelSchema,
     sinceToken: null,
     snapshotRecordArray: SnapshotRecordArray
@@ -118,7 +121,7 @@ export interface MinimumAdapterInterface {
    *
    * @method query
    * @public
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {object} query
@@ -127,7 +130,7 @@ export interface MinimumAdapterInterface {
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
   query(
-    store: Store,
+    store: Store<K>,
     schema: ModelSchema,
     query: Dict<unknown>,
     recordArray: AdapterPopulatedRecordArray,
@@ -150,7 +153,7 @@ export interface MinimumAdapterInterface {
    *
    * @method queryRecord
    * @public
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param query
@@ -158,7 +161,7 @@ export interface MinimumAdapterInterface {
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
   queryRecord(
-    store: Store,
+    store: Store<K>,
     schema: ModelSchema,
     query: Dict<any>,
     options: { adapterOptions?: unknown }
@@ -209,13 +212,13 @@ export interface MinimumAdapterInterface {
    *
    * @method createRecord
    * @public
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
-   * @param {Snapshot} snapshot
+   * @param {Snapshot<K>} snapshot
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  createRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload>;
+  createRecord(store: Store<K>, schema: ModelSchema, snapshot: Snapshot<K>): Promise<AdapterPayload>;
 
   /**
    * `adapter.updateRecord` takes a request to update a resource of a given `type` and should
@@ -262,12 +265,12 @@ export interface MinimumAdapterInterface {
    *
    * @method updateRecord
    * @public
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
-   * @param {Snapshot} snapshot
+   * @param {Snapshot<K>} snapshot
    */
-  updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload>;
+  updateRecord(store: Store<K>, schema: ModelSchema, snapshot: Snapshot<K>): Promise<AdapterPayload>;
 
   /**
    * `adapter.deleteRecord` takes a request to delete a resource of a given `type` and
@@ -289,13 +292,13 @@ export interface MinimumAdapterInterface {
    *
    * @method deleteRecord
    * @public
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
-   * @param {Snapshot} snapshot A Snapshot containing the record's current data
+   * @param {Snapshot<K>} snapshot A Snapshot<K> containing the record's current data
    * @return
    */
-  deleteRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload | void>;
+  deleteRecord(store: Store<K>, schema: ModelSchema, snapshot: Snapshot<K>): Promise<AdapterPayload | void>;
 
   /**
    * `adapter.findBelongsTo` takes a request to fetch a related resource located at a
@@ -321,15 +324,15 @@ export interface MinimumAdapterInterface {
    * @method findBelongsTo [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
-   * @param {Snapshot} snapshot A Snapshot containing the parent record's current data
+   * @param {Store<K>} store The store service that initiated the request being normalized
+   * @param {Snapshot<K>} snapshot A Snapshot<K> containing the parent record's current data
    * @param {string} relatedLink The link at which the associated resource might be found
    * @param {RelationshipSchema} relationship
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
   findBelongsTo?(
-    store: Store,
-    snapshot: Snapshot,
+    store: Store<K>,
+    snapshot: Snapshot<K>,
     relatedLink: string,
     relationship: RelationshipSchema
   ): Promise<AdapterPayload>;
@@ -359,15 +362,15 @@ export interface MinimumAdapterInterface {
    * @method findhasMany [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
-   * @param {Snapshot} snapshot A Snapshot containing the parent record's current data
+   * @param {Store<K>} store The store service that initiated the request being normalized
+   * @param {Snapshot<K>} snapshot A Snapshot<K> containing the parent record's current data
    * @param {string} relatedLink The link at which the associated resource collection might be found
    * @param {RelationshipSchema} relationship
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
   findHasMany?(
-    store: Store,
-    snapshot: Snapshot,
+    store: Store<K>,
+    snapshot: Snapshot<K>,
     relatedLink: string,
     relationship: RelationshipSchema
   ): Promise<AdapterPayload>;
@@ -394,14 +397,14 @@ export interface MinimumAdapterInterface {
    * @method findMany [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {Array<string>} ids An array of the ids of the resources to fetch
-   * @param {Array<Snapshot>} snapshots An array of snapshots of the available data for the resources to fetch
+   * @param {Array<Snapshot<K>>} snapshots An array of snapshots of the available data for the resources to fetch
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
-  findMany?(store: Store, schema: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload>;
+  findMany?(store: Store<K>, schema: ModelSchema, ids: string[], snapshots: Snapshot<K>[]): Promise<AdapterPayload>;
 
   /**
    * This method provides the ability to generate an ID to assign to a new record whenever `store.createRecord`
@@ -417,12 +420,12 @@ export interface MinimumAdapterInterface {
    * @method generateIdForRecord [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {String} type The type (or modelName) of record being created
    * @param properties the properties passed as the second arg to `store.createRecord`
    * @return {String} a string ID that should be unique (no other models of `type` in the cache should have this `id`)
    */
-  generateIdForRecord?(store: Store, type: string, properties: unknown): string;
+  generateIdForRecord?(store: Store<K>, type: string, properties: unknown): string;
 
   /**
    * If your adapter implements `findMany`, setting this to `true` will cause `findRecord`
@@ -461,11 +464,11 @@ export interface MinimumAdapterInterface {
    * @method groupRecordsForFindMany [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
-   * @param {Array<Snapshot>} snapshots An array of snapshots
-   * @return {Array<Array<Snapshot>>} An array of Snapshot arrays
+   * @param {Store<K>} store The store service that initiated the request being normalized
+   * @param {Array<Snapshot<K>>} snapshots An array of snapshots
+   * @return {Array<Array<Snapshot<K>>>} An array of Snapshot<K> arrays
    */
-  groupRecordsForFindMany?(store: Store, snapshots: Snapshot[]): Group[];
+  groupRecordsForFindMany?(store: Store<K>, snapshots: Snapshot<K>[]): Group<K>[];
 
   /**
    * When a record is already available in the store and is requested again via `store.findRecord`,
@@ -487,11 +490,11 @@ export interface MinimumAdapterInterface {
    * @method shouldReloadRecord [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
-   * @param {Snapshot} snapshot A Snapshot containing the record's current data
+   * @param {Store<K>} store The store service that initiated the request being normalized
+   * @param {Snapshot<K>} snapshot A Snapshot<K> containing the record's current data
    * @return {boolean} true if the record should be reloaded immediately, false otherwise
    */
-  shouldReloadRecord?(store: Store, snapshot: Snapshot): boolean;
+  shouldReloadRecord?(store: Store<K>, snapshot: Snapshot<K>): boolean;
 
   /**
    * When `store.findAll(<type>)` is called without a `reload` option, the adapter
@@ -514,11 +517,11 @@ export interface MinimumAdapterInterface {
    * @method shouldReloadAll [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
-   * @param {SnapshotRecordArray} snapshotArray
-   * @return {boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made immediately, false otherwise
+   * @param {Store<K>} store The store service that initiated the request being normalized
+   * @param {Snapshot<K>RecordArray} snapshotArray
+   * @return {boolean} true if the a new request for all records of the type in Snapshot<K>RecordArray should be made immediately, false otherwise
    */
-  shouldReloadAll?(store: Store, snapshotArray: SnapshotRecordArray): boolean;
+  shouldReloadAll?(store: Store<K>, snapshotArray: SnapshotRecordArray): boolean;
 
   /**
    * When a record is already available in the store and is requested again via `store.findRecord`,
@@ -541,11 +544,11 @@ export interface MinimumAdapterInterface {
    * @method shouldBackgroundReloadRecord [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
-   * @param {Snapshot} snapshot A Snapshot containing the record's current data
+   * @param {Store<K>} store The store service that initiated the request being normalized
+   * @param {Snapshot<K>} snapshot A Snapshot containing the record's current data
    * @return {boolean} true if the record should be reloaded in the background, false otherwise
    */
-  shouldBackgroundReloadRecord?(store: Store, snapshot: Snapshot): boolean;
+  shouldBackgroundReloadRecord?(store: Store<K>, snapshot: Snapshot<K>): boolean;
 
   /**
    * When `store.findAll(<type>)` is called and a `reload` is not initiated, the adapter
@@ -565,11 +568,11 @@ export interface MinimumAdapterInterface {
    * @method shouldBackgroundReloadAll [OPTIONAL]
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
+   * @param {Store<K>} store The store service that initiated the request being normalized
    * @param {SnapshotRecordArray} snapshotArray
    * @return {boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made in the background, false otherwise
    */
-  shouldBackgroundReloadAll?(store: Store, snapshotArray: SnapshotRecordArray): boolean;
+  shouldBackgroundReloadAll?(store: Store<K>, snapshotArray: SnapshotRecordArray): boolean;
 
   /**
    * In some situations the adapter may need to perform cleanup when destroyed,

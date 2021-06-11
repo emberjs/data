@@ -13,26 +13,27 @@ import { REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-fe
 import isStableIdentifier from '../identifiers/is-stable-identifier';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import { internalModelFactoryFor } from './store/internal-model-factory';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 
 type Meta = import('../ts-interfaces/ember-data-json-api').Meta;
 type AdapterPopulatedRecordArrayCreator =
   import('./record-arrays/adapter-populated-record-array').AdapterPopulatedRecordArrayCreator;
 type RecordArrayCreator = import('./record-arrays/record-array').RecordArrayCreator;
-type InternalModelFactory = import('./store/internal-model-factory').default;
+type InternalModelFactory<K> = import('./store/internal-model-factory').default<K>;
 type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
-type CoreStore = import('./core-store').default;
-type InternalModel = import('ember-data/-private').InternalModel;
+type CoreStore<T> = import('./core-store').default<T>;
+type InternalModel<K> = import('ember-data/-private').InternalModel<K>;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 
 interface LegacyRecordArray {
-  _removeInternalModels(ims: InternalModel[]): void;
-  _pushInternalModels(ims: InternalModel[]): void;
+  _removeInternalModels<K extends RecordInstance>(ims: InternalModel<K>[]): void;
+  _pushInternalModels<K extends RecordInstance>(ims: InternalModel<K>[]): void;
 }
 
-const RecordArraysCache: WeakMap<StableRecordIdentifier, Set<RecordArray>> = new WeakMap();
+const RecordArraysCache: WeakMap<StableRecordIdentifier, Set<RecordArray<object>>> = new WeakMap();
 
-export function recordArraysForIdentifier(identifier: StableRecordIdentifier): Set<RecordArray> {
+export function recordArraysForIdentifier(identifier: StableRecordIdentifier): Set<RecordArray<RecordInstance>> {
   let rdSet = RecordArraysCache.get(identifier);
   if (!rdSet) {
     rdSet = new Set();
@@ -43,9 +44,9 @@ export function recordArraysForIdentifier(identifier: StableRecordIdentifier): S
 }
 
 const pendingForIdentifier: Set<StableRecordIdentifier> = new Set([]);
-const IMDematerializing: WeakMap<StableRecordIdentifier, InternalModel> = new WeakMap();
+const IMDematerializing: WeakMap<StableRecordIdentifier, InternalModel<any>> = new WeakMap();
 
-function getIdentifier(identifierOrInternalModel: StableRecordIdentifier | InternalModel): StableRecordIdentifier {
+function getIdentifier(identifierOrInternalModel: StableRecordIdentifier | InternalModel<any>): StableRecordIdentifier {
   let i = identifierOrInternalModel;
   if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !isStableIdentifier(identifierOrInternalModel)) {
     // identifier may actually be an internalModel
@@ -59,9 +60,9 @@ function getIdentifier(identifierOrInternalModel: StableRecordIdentifier | Inter
 }
 
 // REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT only
-function peekIMCache(cache: InternalModelFactory, identifier: StableRecordIdentifier): InternalModel | null {
+function peekIMCache<K extends RecordInstance>(cache: InternalModelFactory<K>, identifier: StableRecordIdentifier): InternalModel<K> | null {
   if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
-    let im: InternalModel | null | undefined = IMDematerializing.get(identifier);
+    let im: InternalModel<K> | null | undefined = IMDematerializing.get(identifier);
     if (im === undefined) {
       // if not im._isDematerializing
       im = cache.peek(identifier);
@@ -73,7 +74,7 @@ function peekIMCache(cache: InternalModelFactory, identifier: StableRecordIdenti
   return cache.peek(identifier);
 }
 
-function shouldIncludeInRecordArrays(store: CoreStore, identifier: StableRecordIdentifier): boolean {
+function shouldIncludeInRecordArrays<K extends RecordInstance>(store: CoreStore<K>, identifier: StableRecordIdentifier): boolean {
   const cache = internalModelFactoryFor(store);
   const internalModel = cache.peek(identifier);
 
@@ -87,19 +88,19 @@ function shouldIncludeInRecordArrays(store: CoreStore, identifier: StableRecordI
   @class RecordArrayManager
   @internal
 */
-class RecordArrayManager {
-  declare store: CoreStore;
+class RecordArrayManager<K extends RecordInstance> {
+  declare store: CoreStore<K>;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
-  declare _liveRecordArrays: Dict<RecordArray>;
+  declare _liveRecordArrays: Dict<RecordArray<K>>;
   declare _pendingIdentifiers: Dict<StableRecordIdentifier[]>;
-  declare _adapterPopulatedRecordArrays: RecordArray[];
+  declare _adapterPopulatedRecordArrays: RecordArray<K>[];
 
-  constructor(options: { store: CoreStore }) {
+  constructor(options: { store: CoreStore<K> }) {
     this.store = options.store;
     this.isDestroying = false;
     this.isDestroyed = false;
-    this._liveRecordArrays = Object.create(null) as Dict<RecordArray>;
+    this._liveRecordArrays = Object.create(null) as Dict<RecordArray<K>>;
     this._pendingIdentifiers = Object.create(null) as Dict<StableRecordIdentifier[]>;
     this._adapterPopulatedRecordArrays = [];
   }
@@ -110,8 +111,8 @@ class RecordArrayManager {
    * @param {StableIdentifier} param
    * @return {RecordArray} array
    */
-  getRecordArraysForIdentifier(identifier: StableRecordIdentifier): Set<RecordArray> {
-    return recordArraysForIdentifier(identifier);
+  getRecordArraysForIdentifier(identifier: StableRecordIdentifier): Set<RecordArray<K>> {
+    return recordArraysForIdentifier(identifier) as unknown as Set<RecordArray<K>>;
   }
 
   _flushPendingIdentifiersForModelName(modelName: string, identifiers: StableRecordIdentifier[]) {
@@ -154,7 +155,7 @@ class RecordArrayManager {
     }
   }
 
-  _syncLiveRecordArray(array: RecordArray, modelName: string): void {
+  _syncLiveRecordArray<K extends RecordInstance>(array: RecordArray<K>, modelName: string): void {
     assert(
       `recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`,
       typeof modelName === 'string'
@@ -185,7 +186,7 @@ class RecordArrayManager {
     let modelsToAdd: StableRecordIdentifier[] = [];
     for (let i = 0; i < identifiers.length; i++) {
       let identifier = identifiers[i];
-      let recordArrays = recordArraysForIdentifier(identifier);
+      let recordArrays = recordArraysForIdentifier(identifier) as unknown as Set<RecordArray<K>>;
       if (recordArrays.has(array) === false) {
         recordArrays.add(array);
         modelsToAdd.push(identifier);
@@ -213,7 +214,7 @@ class RecordArrayManager {
     @param {String} modelName
     @return {RecordArray}
   */
-  liveRecordArrayFor(modelName: string): RecordArray {
+  liveRecordArrayFor(modelName: string): RecordArray<K> {
     assert(
       `recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`,
       typeof modelName === 'string'
@@ -258,13 +259,13 @@ class RecordArrayManager {
     @param {Array} [identifiers]
     @return {RecordArray}
   */
-  createRecordArray(modelName: string, identifiers: StableRecordIdentifier[] = []): RecordArray {
+  createRecordArray(modelName: string, identifiers: StableRecordIdentifier[] = []): RecordArray<K> {
     assert(
       `recordArrayManger.createRecordArray expects modelName not modelClass as the param`,
       typeof modelName === 'string'
     );
 
-    let array: RecordArray = (RecordArray as unknown as RecordArrayCreator).create({
+    let array: RecordArray<K> = (RecordArray as unknown as RecordArrayCreator).create({
       modelName,
       content: A(identifiers),
       store: this.store,
@@ -293,13 +294,13 @@ class RecordArrayManager {
     query: Dict<unknown> | undefined,
     identifiers: StableRecordIdentifier[],
     payload?: CollectionResourceDocument
-  ): AdapterPopulatedRecordArray {
+  ): AdapterPopulatedRecordArray<K> {
     assert(
       `recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`,
       typeof modelName === 'string'
     );
 
-    let array: AdapterPopulatedRecordArray;
+    let array: AdapterPopulatedRecordArray<K>;
     if (Array.isArray(identifiers)) {
       array = (AdapterPopulatedRecordArray as unknown as AdapterPopulatedRecordArrayCreator).create({
         modelName,
@@ -340,7 +341,7 @@ class RecordArrayManager {
     @internal
     @param {RecordArray} array
   */
-  unregisterRecordArray(array: RecordArray): void {
+  unregisterRecordArray(array: RecordArray<K>): void {
     let modelName = array.modelName;
 
     // remove from adapter populated record array
@@ -363,7 +364,7 @@ class RecordArrayManager {
    * @param {StableIdentifier} identifiers
    * @param {RecordArray} array
    */
-  _associateWithRecordArray(identifiers: StableRecordIdentifier[], array: RecordArray): void {
+  _associateWithRecordArray(identifiers: StableRecordIdentifier[], array: RecordArray<K>): void {
     for (let i = 0, l = identifiers.length; i < l; i++) {
       let identifier = identifiers[i];
       identifier = getIdentifier(identifier);
@@ -422,7 +423,7 @@ class RecordArrayManager {
   }
 }
 
-function removeFromArray(array: RecordArray[], item: RecordArray): boolean {
+function removeFromArray<K extends RecordInstance>(array: RecordArray<K>[], item: RecordArray<K>): boolean {
   let index = array.indexOf(item);
 
   if (index !== -1) {
@@ -433,9 +434,9 @@ function removeFromArray(array: RecordArray[], item: RecordArray): boolean {
   return false;
 }
 
-function updateLiveRecordArray(
-  store: CoreStore,
-  recordArray: RecordArray,
+function updateLiveRecordArray<K extends RecordInstance>(
+  store: CoreStore<K>,
+  recordArray: RecordArray<K>,
   identifiers: StableRecordIdentifier[]
 ): void {
   let identifiersToAdd: StableRecordIdentifier[] = [];
@@ -444,7 +445,7 @@ function updateLiveRecordArray(
   for (let i = 0; i < identifiers.length; i++) {
     let identifier = identifiers[i];
     let shouldInclude = shouldIncludeInRecordArrays(store, identifier);
-    let recordArrays = recordArraysForIdentifier(identifier);
+    let recordArrays = recordArraysForIdentifier(identifier) as unknown as Set<RecordArray<K>>;
 
     if (shouldInclude) {
       if (!recordArrays.has(recordArray)) {
@@ -467,44 +468,44 @@ function updateLiveRecordArray(
   }
 }
 
-function pushIdentifiers(
-  recordArray: RecordArray,
+function pushIdentifiers<K extends RecordInstance>(
+  recordArray: RecordArray<K>,
   identifiers: StableRecordIdentifier[],
-  cache: InternalModelFactory
+  cache: InternalModelFactory<K>
 ): void {
   if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._pushIdentifiers) {
     // TODO deprecate('not allowed to use this intimate api any more');
     (recordArray as unknown as LegacyRecordArray)._pushInternalModels(
-      identifiers.map((i) => peekIMCache(cache, i) as InternalModel) // always InternalModel when legacy compat is present
+      identifiers.map((i) => peekIMCache(cache, i) as InternalModel<K>) // always InternalModel when legacy compat is present
     );
   } else {
     recordArray._pushIdentifiers(identifiers);
   }
 }
-function removeIdentifiers(
-  recordArray: RecordArray,
+function removeIdentifiers<K extends RecordInstance>(
+  recordArray: RecordArray<K>,
   identifiers: StableRecordIdentifier[],
-  cache: InternalModelFactory
+  cache: InternalModelFactory<K>
 ): void {
   if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._removeIdentifiers) {
     // TODO deprecate('not allowed to use this intimate api any more');
     (recordArray as unknown as LegacyRecordArray)._removeInternalModels(
-      identifiers.map((i) => peekIMCache(cache, i) as InternalModel) // always InternalModel when legacy compat is present
+      identifiers.map((i) => peekIMCache(cache, i) as InternalModel<K>) // always InternalModel when legacy compat is present
     );
   } else {
     recordArray._removeIdentifiers(identifiers);
   }
 }
 
-function removeFromAdapterPopulatedRecordArrays(store: CoreStore, identifiers: StableRecordIdentifier[]): void {
+function removeFromAdapterPopulatedRecordArrays<K extends RecordInstance>(store: CoreStore<K>, identifiers: StableRecordIdentifier[]): void {
   for (let i = 0; i < identifiers.length; i++) {
     removeFromAll(store, identifiers[i]);
   }
 }
 
-function removeFromAll(store: CoreStore, identifier: StableRecordIdentifier): void {
+function removeFromAll<K extends RecordInstance>(store: CoreStore<K>, identifier: StableRecordIdentifier): void {
   identifier = getIdentifier(identifier);
-  const recordArrays = recordArraysForIdentifier(identifier);
+  const recordArrays = recordArraysForIdentifier(identifier) as unknown as Set<RecordArray<K>>;
   const cache = internalModelFactoryFor(store);
 
   recordArrays.forEach(function (recordArray) {

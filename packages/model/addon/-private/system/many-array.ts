@@ -11,6 +11,7 @@ import { all } from 'rsvp';
 import { DeprecatedEvented, PromiseArray, recordDataFor } from '@ember-data/store/-private';
 
 import diffArray from './diff-array';
+import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 
 type Links = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Links;
 type PaginationLinks = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').PaginationLinks;
@@ -19,11 +20,11 @@ type RecordState = import('../record-state').default;
 type ArrayDiffResult = import('./diff-array').ArrayDiffResult;
 type Evented = import('@ember/object/evented').default;
 type RecordInstance = import('@ember-data/store/-private/ts-interfaces/record-instance').RecordInstance;
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type CoreStore<DSModel> = import('@ember-data/store/-private/system/core-store').default<DSModel>;
 type CreateRecordProperties = import('@ember-data/store/-private/system/core-store').CreateRecordProperties;
 type RelationshipRecordData =
   import('@ember-data/record-data/-private/ts-interfaces/relationship-record-data').RelationshipRecordData;
-type InternalModel = import('@ember-data/store/-private').InternalModel;
+type InternalModel<K> = import('@ember-data/store/-private').InternalModel<K>;
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 
 /**
@@ -78,18 +79,18 @@ const MutableArrayWithDeprecatedEvented = EmberObject.extend(MutableArray, Depre
 >() => MutableArrayWithDeprecatedEvented<T, M>;
 
 export interface ManyArrayCreateArgs {
-  store: CoreStore;
+  store: CoreStore<DSModel>;
   type: DSModelSchema;
   recordData: RelationshipRecordData;
   key: string;
   isPolymorphic: boolean;
   isAsync: boolean;
   _inverseIsAsync: boolean;
-  internalModel: InternalModel;
+  internalModel: InternalModel<DSModel>;
   isLoaded: boolean;
 }
 
-export default class ManyArray extends MutableArrayWithDeprecatedEvented<InternalModel, RecordInstance> {
+export default class ManyArray extends MutableArrayWithDeprecatedEvented<InternalModel<DSModel>, RecordInstance> {
   declare isAsync: boolean;
   declare isLoaded: boolean;
   declare isPolymorphic: boolean;
@@ -101,10 +102,10 @@ export default class ManyArray extends MutableArrayWithDeprecatedEvented<Interna
   declare _length: number;
   declare _meta: Dict<unknown> | null;
   declare _links: Links | PaginationLinks | null;
-  declare currentState: InternalModel[];
+  declare currentState: InternalModel<DSModel>[];
   declare recordData: RelationshipRecordData;
-  declare internalModel: InternalModel;
-  declare store: CoreStore;
+  declare internalModel: InternalModel<DSModel>;
+  declare store: CoreStore<DSModel>;
   declare key: string;
   declare type: DSModelSchema;
 
@@ -277,7 +278,7 @@ export default class ManyArray extends MutableArrayWithDeprecatedEvented<Interna
   replace(idx: number, amt: number, objects?: RecordInstance[]) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
     this.store._backburner.join(() => {
-      let internalModels: InternalModel[];
+      let internalModels: InternalModel<DSModel>[];
       if (amt > 0) {
         internalModels = this.currentState.slice(idx, idx + amt);
         this.recordData.removeFromHasMany(
@@ -309,10 +310,11 @@ export default class ManyArray extends MutableArrayWithDeprecatedEvented<Interna
     this._isUpdating = true;
     let jsonApi = this.recordData.getHasMany(this.key);
 
-    let internalModels: InternalModel[] = [];
+    let internalModels: InternalModel<DSModel>[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
-        let im: InternalModel = this.store._internalModelForResource(jsonApi.data[i]);
+        // TOD IGOR TYPE FIX
+        let im: InternalModel<DSModel> = this.store._internalModelForResource(jsonApi.data[i]) as InternalModel<DSModel>;
         let shouldRemove: boolean =
           im._isDematerializing ||
           (im.currentState as RecordState).isEmpty ||

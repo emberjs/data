@@ -17,7 +17,8 @@ type JQueryRequestInit = import('./rest').JQueryRequestInit;
 type MinimumAdapterInterface =
   import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').MinimumAdapterInterface;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
-type Store = import('@ember-data/store').default;
+type Store = import('@ember-data/store/-private/system/core-store').default;
+
 type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 
 /**

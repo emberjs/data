@@ -18,7 +18,7 @@ type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRec
    @public
    @extends Reference
 */
-export default class RecordReference extends Reference {
+export default class RecordReference<K extends RecordInstance> extends Reference<K> {
   public get type(): string {
     return this.identifier().type;
   }

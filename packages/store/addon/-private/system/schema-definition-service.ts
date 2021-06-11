@@ -8,18 +8,18 @@ import { SchemaDefinitionService } from '../ts-interfaces/schema-definition-serv
 import normalizeModelName from './normalize-model-name';
 
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
-type InternalModel = import('ember-data/-private').InternalModel;
+type InternalModel<T> = import('ember-data/-private').InternalModel<T>;
 type DSModelSchema = import('../ts-interfaces/ds-model').DSModelSchema;
 type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
 type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type Store = import('./core-store').default;
-type ModelForMixin = (store: Store, normalizedModelName: string) => ModelFactory | null;
+type Store<T> = import('./core-store').default<T>;
+type ModelForMixin = (store: Store<any>, normalizedModelName: string) => ModelFactory | null;
 
 let _modelForMixin: ModelForMixin;
 if (HAS_MODEL_PACKAGE) {
   let _found: ModelForMixin | undefined;
-  _modelForMixin = function (store: Store, normalizedModelName: string): ModelFactory | null {
+  _modelForMixin = function (store: Store<any>, normalizedModelName: string): ModelFactory | null {
     if (!_found) {
       _found = require('@ember-data/model/-private')._modelForMixin as ModelForMixin;
     }
@@ -28,9 +28,9 @@ if (HAS_MODEL_PACKAGE) {
 }
 
 export type CreateOptions = {
-  store: Store;
+  store: Store<any>;
   container?: null;
-  _internalModel: InternalModel;
+  _internalModel: InternalModel<any>;
   [key: string]: unknown;
 };
 export type ModelFactory = { class: DSModelSchema; create<T>(createOptions: CreateOptions): T };
@@ -40,7 +40,7 @@ export class DSModelSchemaDefinitionService implements SchemaDefinitionService {
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);
 
-  constructor(public store: Store) {}
+  constructor(public store: Store<any>) {}
 
   // Following the existing RD implementation
   attributesDefinitionFor(identifier: RecordIdentifier | string): AttributesSchema {
@@ -94,7 +94,7 @@ export class DSModelSchemaDefinitionService implements SchemaDefinitionService {
 }
 
 export function getModelFactory(
-  store: Store,
+  store: Store<any>,
   cache: Dict<ModelFactory>,
   normalizedModelName: string
 ): ModelFactory | null {
@@ -128,7 +128,7 @@ export function getModelFactory(
   return factory;
 }
 
-export function _lookupModelFactory(store: Store, normalizedModelName: string): ModelFactory | null {
+export function _lookupModelFactory(store: Store<any>, normalizedModelName: string): ModelFactory | null {
   let owner = getOwner(store);
 
   return owner.factoryFor(`model:${normalizedModelName}`) || null;

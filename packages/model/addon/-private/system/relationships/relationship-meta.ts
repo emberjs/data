@@ -3,9 +3,10 @@ import { DEBUG } from '@glimmer/env';
 import { singularize } from 'ember-inflector';
 
 import { normalizeModelName } from '@ember-data/store/-private';
+import { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 
 type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type CoreStore<K> = import('@ember-data/store/-private/system/core-store').default<K>;
 
 /**
   @module @ember-data/store
@@ -26,7 +27,7 @@ function shouldFindInverse(relationshipMeta): boolean {
   return !(options && options.inverse === null);
 }
 
-export class RelationshipDefinition implements RelationshipSchema {
+export class RelationshipDefinition<K extends RecordInstance = RecordInstance> implements RelationshipSchema {
   declare _type: string;
   declare __inverseKey: string;
   declare __inverseIsAsync: boolean;
@@ -68,21 +69,21 @@ export class RelationshipDefinition implements RelationshipSchema {
     return this.meta.name;
   }
 
-  _inverseKey(store: CoreStore, modelClass): string {
+  _inverseKey(store: CoreStore<K>, modelClass): string {
     if (this.__hasCalculatedInverse === false) {
       this._calculateInverse(store, modelClass);
     }
     return this.__inverseKey;
   }
 
-  _inverseIsAsync(store: CoreStore, modelClass): boolean {
+  _inverseIsAsync(store: CoreStore<K>, modelClass): boolean {
     if (this.__hasCalculatedInverse === false) {
       this._calculateInverse(store, modelClass);
     }
     return this.__inverseIsAsync;
   }
 
-  _calculateInverse(store: CoreStore, modelClass): void {
+  _calculateInverse(store: CoreStore<K>, modelClass): void {
     this.__hasCalculatedInverse = true;
     let inverseKey, inverseIsAsync;
     let inverse: any = null;

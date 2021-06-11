@@ -1,6 +1,6 @@
 type Errors = import('@ember-data/model/-private').Errors;
 type CoreStore = import('../system/core-store').default;
-type InternalModel = import('../system/model/internal-model').default;
+type InternalModel<K> = import('../system/model/internal-model').default<K>;
 type Promise<T> = import('rsvp').Promise<T>;
 type EmberObject = import('@ember/object').default;
 type RelationshipsSchema = import('./record-data-schemas').RelationshipsSchema;
@@ -13,7 +13,7 @@ export interface DSModel extends EmberObject {
   constructor: DSModelSchema;
   store: CoreStore;
   errors: Errors;
-  _internalModel: InternalModel;
+  _internalModel: InternalModel<DSModel>;
   toString(): string;
   save(): Promise<DSModel>;
   eachRelationship<T>(callback: (this: T, key: string, meta: RelationshipSchema) => void, binding?: T): void;

@@ -1,6 +1,7 @@
 import { identifierCacheFor } from '../identifiers/cache';
+import { RecordInstance } from '../ts-interfaces/record-instance';
 
-type CoreStore = import('./core-store').default;
+type CoreStore<K> = import('./core-store').default<K>;
 type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
 type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 
@@ -37,7 +38,7 @@ export function unsubscribe(token: UnsubscribeToken) {
   Currently only support a single callback per identifier
 */
 export default class NotificationManager {
-  constructor(private store: CoreStore) {}
+  constructor(private store: CoreStore<any>) {}
 
   subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);

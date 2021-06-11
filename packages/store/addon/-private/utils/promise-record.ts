@@ -2,7 +2,7 @@ import { promiseObject } from '../system/promise-proxies';
 
 type PromiseObject<T> = import('../system/promise-proxies').PromiseObject<T>;
 type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
-type InternalModel = import('../system/model/internal-model').default;
+type InternalModel<T> = import('../system/model/internal-model').default<T>;
 
 /**
   @module @ember-data/store
@@ -16,11 +16,11 @@ type InternalModel = import('../system/model/internal-model').default;
  *
  * @internal
  */
-export default function promiseRecord(
-  internalModelPromise: Promise<InternalModel>,
+export default function promiseRecord<R extends RecordInstance>(
+  internalModelPromise: Promise<InternalModel<R>>,
   label?: string
-): PromiseObject<RecordInstance> {
-  let toReturn = internalModelPromise.then<RecordInstance>((internalModel: InternalModel) => internalModel.getRecord());
+): PromiseObject<R> {
+  let toReturn = internalModelPromise.then<R>((internalModel: InternalModel<R>) => internalModel.getRecord());
 
-  return promiseObject<RecordInstance>(toReturn, label);
+  return promiseObject<R>(toReturn, label);
 }
