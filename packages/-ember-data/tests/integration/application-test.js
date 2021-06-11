@@ -7,11 +7,11 @@ import Service, { inject as service } from '@ember/service';
 import { module, test } from 'qunit';
 
 import initializeEmberData from 'ember-data/setup-container';
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 import Resolver from 'ember-resolver';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import Store from '@ember-data/store';
 
 module('integration/application - Injecting a Custom Store', function (hooks) {
   setupTest(hooks);

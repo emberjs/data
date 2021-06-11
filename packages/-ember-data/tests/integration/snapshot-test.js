@@ -1,12 +1,12 @@
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
-import { Snapshot } from 'ember-data/-private';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { Snapshot } from '@ember-data/store/-private';
 
 let owner, store, _Post;
 

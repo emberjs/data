@@ -3,16 +3,15 @@ import EmberObject from '@ember/object';
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import Model from 'ember-data/model';
 import { setupTest } from 'ember-qunit';
 
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
-import { attr } from '@ember-data/model';
+import Model, { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import { identifierCacheFor } from '@ember-data/store/-private';
 
 type RequestStateEnum = import('@ember-data/store/-private/ts-interfaces/fetch-manager').RequestStateEnum;
-type Store = import('ember-data/store').default;
+type Store = import('@ember-data/store').default;
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

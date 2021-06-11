@@ -17,7 +17,7 @@ type RecordDataRecordWrapper =
 type NotificationManager = import('@ember-data/store/-private/system/record-notification-manager').default;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type Snapshot = import('ember-data/-private').Snapshot;
+type Snapshot = import('@ember-data/store/-private').Snapshot;
 
 if (CUSTOM_MODEL_CLASS) {
   module('unit/model - Custom Class Model', function (hooks) {

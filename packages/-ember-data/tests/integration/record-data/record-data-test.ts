@@ -4,13 +4,12 @@ import { settled } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import Model from 'ember-data/model';
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { attr, belongsTo, hasMany } from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
