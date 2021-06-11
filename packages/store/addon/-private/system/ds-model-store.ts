@@ -27,7 +27,7 @@ type NotificationManager = import('./record-notification-manager').default;
 type DSModel = import('../ts-interfaces/ds-model').DSModel;
 type ShimModelClass = import('./model/shim-model-class').default;
 
-class Store extends CoreStore<DSModel | RecordInstance> {
+class Store<T extends RecordInstance = DSModel> extends CoreStore<T> {
   public _modelFactoryCache = Object.create(null);
   private _relationshipsDefCache = Object.create(null);
   private _attributesDefCache = Object.create(null);
@@ -37,7 +37,7 @@ class Store extends CoreStore<DSModel | RecordInstance> {
     createRecordArgs: { [key: string]: any },
     recordDataFor: (identifier: StableRecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
-  ): DSModel | RecordInstance {
+  ): T {
     let modelName = identifier.type;
 
     let internalModel = this._internalModelForResource(identifier);
@@ -54,12 +54,13 @@ class Store extends CoreStore<DSModel | RecordInstance> {
     delete createOptions.container;
     const factory = this._modelFactoryFor(modelName);
     assert(`Attempted to instantiate a ${modelName} record but no class was found for that type`, factory !== null);
-    let record = factory.create<DSModel>(createOptions);
+    let record = factory.create<T>(createOptions);
     return record;
   }
 
-  teardownRecord(record: DSModel) {
-    record.destroy();
+  teardownRecord(record: T) {
+    // guard for DSModel here
+    //record.destroy();
   }
 
   modelFor(modelName: string): ShimModelClass | DSModelSchema {

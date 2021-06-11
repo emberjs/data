@@ -30,7 +30,7 @@ if (CUSTOM_MODEL_CLASS) {
   module('unit/model - Custom Class Model', function (hooks) {
     let store;
     class Person {
-      constructor(public store: Store) {
+      constructor(public store: CustomStore) {
         this.store = store;
       }
       save() {
@@ -38,7 +38,7 @@ if (CUSTOM_MODEL_CLASS) {
       }
     }
 
-    class CustomStore extends Store {
+    class CustomStore extends Store<Person> {
       init() {
         super.init();
         this.registerSchemaDefinitionService({
