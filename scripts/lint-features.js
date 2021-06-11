@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
 
@@ -8,7 +7,7 @@ const violations = [];
 
 if (fs.existsSync(configPath)) {
   const features = require(configPath);
-  Object.keys(features).forEach(function(feature) {
+  Object.keys(features).forEach(function (feature) {
     if (!beginsWithDS.exec(feature)) {
       violations.push(feature);
     }

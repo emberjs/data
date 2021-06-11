@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 'use strict';
 /* eslint-disable node/no-unsupported-features/es-syntax */
 

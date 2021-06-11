@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Adds or updates a dev dependency in root
  * and ensures that all packages that have this
@@ -12,10 +10,11 @@
  * ```
  */
 
-const execa = require('execa');
-const cliArgs = require('command-line-args');
 const path = require('path');
 const fs = require('fs');
+
+const execa = require('execa');
+const cliArgs = require('command-line-args');
 const chalk = require('chalk');
 
 const packageArgDef = [{ name: 'package', defaultOption: true }];
@@ -38,7 +37,7 @@ const updatedFiles = [`package.json`];
 execWithLog(`yarn add ${cliOptions.package} --dev -W`);
 
 // grab all packages
-packages.forEach(localName => {
+packages.forEach((localName) => {
   const pkgDir = path.join(packagesDir, localName);
   const pkgPath = path.join(pkgDir, 'package.json');
 
