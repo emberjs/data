@@ -12,13 +12,13 @@
     "lint:js:changed"
   ],
   "scripts": {
-    "add-dev": "./bin/add-dev-dependency",
-    "sync-dev": "./bin/sync-dev-dependency",
+    "add-dev": "node ./scripts/add-dev-dependency.js",
+    "sync-dev": "node ./scripts/sync-dev-dependency.js",
     "build": "yarn workspace ember-data build",
     "build:production": "yarn workspace ember-data build:production",
-    "lint:features": "./bin/lint-features",
+    "lint:features": "node ./scripts/lint-features.js",
     "lint:js": "eslint --cache --ext=js,ts .",
-    "lint:js:changed": "./bin/lint-changed-js",
+    "lint:js:changed": "node ./scripts/lint-changed-js.js",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "start": "yarn workspace ember-data start",
     "test": "lerna run --stream --no-private --ignore='@ember-data/{private-build-infra,canary-features,debug}' test",
@@ -30,16 +30,16 @@
     "test:encapsulation": "lerna run --stream --scope='*-encapsulation-test-app' test",
     "test:fastboot": "yarn workspace fastboot-test-app test:scenario",
     "test:infra": "yarn workspace @ember-data/unpublished-test-infra test",
-    "test-external:ember-m3": "./bin/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
-    "test-external:ember-data-change-tracker": "./bin/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
-    "test-external:model-fragments": "./bin/test-external-partner-project.js model-fragments https://github.com/lytics/ember-data-model-fragments.git",
-    "test-external:ember-observer": "./bin/test-external-partner-project.js ember-observer https://github.com/emberobserver/client.git --noLockFile",
-    "test-external:travis-web": "./bin/test-external-partner-project.js travis-web https://github.com/travis-ci/travis-web.git",
-    "test-external:storefront": "./bin/test-external-partner-project.js storefront https://github.com/embermap/ember-data-storefront.git",
-    "test-external:factory-guy": "./bin/test-external-partner-project.js factory-guy https://github.com/adopted-ember-addons/ember-data-factory-guy.git",
-    "test-external:ilios-frontend": "./bin/test-external-partner-project.js ilios-frontend https://github.com/ilios/frontend.git --skipSmokeTest",
-    "test-external:ember-resource-metadata": "./bin/test-external-partner-project.js ember-resource-metadata https://github.com/ef4/ember-resource-metadata.git --noLockFile",
-    "test-external:ember-data-relationship-tracker": "./bin/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
+    "test-external:ember-m3": "node ./scripts/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
+    "test-external:ember-data-change-tracker": "node ./scripts/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
+    "test-external:model-fragments": "node ./scripts/test-external-partner-project.js model-fragments https://github.com/lytics/ember-data-model-fragments.git",
+    "test-external:ember-observer": "node ./scripts/test-external-partner-project.js ember-observer https://github.com/emberobserver/client.git --noLockFile",
+    "test-external:travis-web": "node ./scripts/test-external-partner-project.js travis-web https://github.com/travis-ci/travis-web.git",
+    "test-external:storefront": "node ./scripts/test-external-partner-project.js storefront https://github.com/embermap/ember-data-storefront.git",
+    "test-external:factory-guy": "node ./scripts/test-external-partner-project.js factory-guy https://github.com/adopted-ember-addons/ember-data-factory-guy.git",
+    "test-external:ilios-frontend": "node ./scripts/test-external-partner-project.js ilios-frontend https://github.com/ilios/frontend.git --skipSmokeTest",
+    "test-external:ember-resource-metadata": "node ./scripts/test-external-partner-project.js ember-resource-metadata https://github.com/ef4/ember-resource-metadata.git --noLockFile",
+    "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
     "@babel/plugin-transform-typescript": "^7.13.0",
@@ -136,11 +136,6 @@
     "url": "^0.11.0",
     "webpack": "^5.37.1",
     "zlib": "1.0.5"
-  },
-  "bin": {
-    "test-partner-project": "./bin/test-external-partner-project.js",
-    "prepare-local-packages": "./bin/packages-for-commit.js",
-    "publish": "./bin/publish.js"
   },
   "dependencies": {},
   "engines": {

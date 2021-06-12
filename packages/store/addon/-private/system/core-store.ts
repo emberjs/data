@@ -3385,7 +3385,7 @@ abstract class CoreStore extends Service {
       // a cycle we can't easily fix (or clearly pin point) at present.
       //
       // it can be reproduced in partner tests by running
-      // node ./bin/packages-for-commit.js && yarn test-external:ember-observer
+      // node ./scripts/packages-for-commit.js && yarn test-external:ember-observer
       if (_RecordData === undefined) {
         _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataClass;
       }

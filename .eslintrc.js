@@ -331,7 +331,7 @@ module.exports = {
         '.mocharc.js',
         '.eslintrc.js',
         '.prettierrc.js',
-        'bin/**',
+        'scripts/**',
         'packages/-ember-data/lib/*.js',
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',
@@ -403,9 +403,9 @@ module.exports = {
       },
     },
 
-    // bin files
+    // scripts files
     {
-      files: ['bin/**'],
+      files: ['scripts/**'],
       // eslint-disable-next-line node/no-unpublished-require
       rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
         'no-console': 'off',

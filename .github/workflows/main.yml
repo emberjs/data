@@ -327,7 +327,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Generate package tarballs
-        run: node ./bin/packages-for-commit.js
+        run: node ./scripts/packages-for-commit.js
       - name: Run Tests
         timeout-minutes: 16
         env:

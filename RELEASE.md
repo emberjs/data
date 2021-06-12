@@ -92,7 +92,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 3. Publish the LTS
 
     ```
-    node ./bin/publish.js lts
+    node ./scripts/publish.js lts
     ```
 
 4. Update the Release Notes on Github
@@ -181,7 +181,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 5. Publish the release
 
     ```
-    node ./bin/publish.js release
+    node ./scripts/publish.js release
     ```
 
 6. Update the Release Notes on Github
@@ -246,7 +246,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 3. Publish the weekly beta
 
     ```
-    node ./bin/publish.js beta
+    node ./scripts/publish.js beta
     ```
 
 4. Update the Release Notes on Github
@@ -275,19 +275,19 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    a. If this is the very first `canary` release for a new minor
 
       ```
-      node ./bin/publish.js canary --bumpMinor
+      node ./scripts/publish.js canary --bumpMinor
       ```
 
    b. If this is the very first `canary` release for a new major
 
       ```
-      node ./bin/publish.js canary --bumpMajor
+      node ./scripts/publish.js canary --bumpMajor
       ```
 
    c. For all other "nightly" canary releases
 
       ```
-      node ./bin/publish.js canary
+      node ./scripts/publish.js canary
       ```
 
 Congrats, you are finished!
@@ -298,5 +298,5 @@ It will always increment the pre-release version of what's currently in `lerna.j
 to `3.25.0-alpha.2`. **It requires a human to manually bump minor and major versions and publish**.
 
 To try out the script that will be executed in the GitHub action, use:
-`node bin/publish.js canary --dryRun --force --skipSmokeTest`. The `--dryRun` param will skip auto committing the
+`node scripts/publish.js canary --dryRun --force --skipSmokeTest`. The `--dryRun` param will skip auto committing the
 version change and publishing.

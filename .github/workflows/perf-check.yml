@@ -67,7 +67,7 @@ jobs:
         run: |
           COMMENT_MARKER="Performance Report for "
           sha=$(cat tmp/sha-for-commit.txt)
-          node ./bin/perf-tracking/create-comment.js $sha > tracerbench-results/comment.txt
+          node ./scripts/perf-tracking/create-comment.js $sha > tracerbench-results/comment.txt
           COMMENT_TEXT="@./tracerbench-results/comment.txt"
-          source bin/asset-size-tracking/src/post-comment.sh
-      
+          source scripts/asset-size-tracking/src/post-comment.sh
+

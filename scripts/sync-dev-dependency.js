@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Ensures that the version of a devDependency in root
  * is reflected in individual packages. Hoists any
@@ -12,9 +10,10 @@
  * ```
  */
 
-const execa = require('execa');
 const path = require('path');
 const fs = require('fs');
+
+const execa = require('execa');
 const debug = require('debug')('sync-dev');
 const semver = require('semver');
 
@@ -44,7 +43,7 @@ function writeJsonToFile(path, json) {
 }
 
 // hoist anything needed to root
-packages.forEach(localName => {
+packages.forEach((localName) => {
   const pkgDir = path.join(packagesDir, localName);
   const pkgPath = path.join(pkgDir, 'package.json');
 
@@ -59,7 +58,7 @@ packages.forEach(localName => {
     packageJsons[pkgPath] = pkg;
     const packageNames = Object.keys(pkg.devDependencies);
 
-    packageNames.forEach(name => {
+    packageNames.forEach((name) => {
       debug(`checking devDependency "${name}"`);
       if (!rootPackage.devDependencies[name]) {
         if (
@@ -82,7 +81,7 @@ packages.forEach(localName => {
 // merge hoisted to root and write
 if (Object.keys(rootUpdates).length > 0) {
   // sync deps that need us to find the latest version
-  Object.keys(rootUpdates).forEach(packageName => {
+  Object.keys(rootUpdates).forEach((packageName) => {
     const version = rootUpdates[packageName];
 
     if (version === '*') {
@@ -105,10 +104,10 @@ if (Object.keys(rootUpdates).length > 0) {
 }
 
 // assign root versions to sub-packages and write
-Object.keys(packageJsons).forEach(key => {
+Object.keys(packageJsons).forEach((key) => {
   const pkg = packageJsons[key];
 
-  Object.keys(rootPackage.devDependencies).forEach(packageName => {
+  Object.keys(rootPackage.devDependencies).forEach((packageName) => {
     if (pkg.devDependencies[packageName]) {
       pkg.devDependencies[packageName] = rootPackage.devDependencies[packageName];
     }

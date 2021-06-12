@@ -44,7 +44,7 @@ jobs:
           git config --local user.email 'tomster@emberjs.com'
           git config --local user.name 'Ember.js Alpha Releaser'
       - name: Publish with script
-        run: node bin/publish.js canary
+        run: node scripts/publish.js canary
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Push branch + tag
