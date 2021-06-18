@@ -1,4 +1,5 @@
-import RSVP, { resolve } from 'rsvp';
+import type RSVP from 'rsvp';
+import { resolve } from 'rsvp';
 
 import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
 

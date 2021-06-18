@@ -14,7 +14,8 @@ import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
 import require from 'require';
-import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
+import type { default as RSVP } from 'rsvp';
+import { all, defer, Promise, resolve } from 'rsvp';
 
 import {
   CUSTOM_MODEL_CLASS,

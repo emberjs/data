@@ -1,4 +1,4 @@
-import { ModelSchema } from '../../ts-interfaces/ds-model';
+import type { ModelSchema } from '../../ts-interfaces/ds-model';
 
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
 type RelationshipSchema = import('../../ts-interfaces/record-data-schemas').RelationshipSchema;

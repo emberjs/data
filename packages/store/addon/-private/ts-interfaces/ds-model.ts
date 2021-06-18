@@ -1,8 +1,8 @@
-import EmberObject from '@ember/object';
+import type EmberObject from '@ember/object';
 
-import RSVP from 'rsvp';
+import type RSVP from 'rsvp';
 
-import { RecordInstance } from './record-instance';
+import type { RecordInstance } from './record-instance';
 
 type RelationshipSchema = import('./record-data-schemas').RelationshipSchema;
 type AttributeSchema = import('./record-data-schemas').AttributeSchema;

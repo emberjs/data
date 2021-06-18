@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import type Ember from 'ember';
 
 declare global {
   interface Array<T> extends Ember.ArrayPrototypeExtensions<T> {}

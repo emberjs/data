@@ -2,7 +2,7 @@ import { setupTest } from 'ember-qunit';
 
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
-import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
+import type { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 
 type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
 
