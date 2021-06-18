@@ -1,12 +1,20 @@
 import { registerDeprecationHandler } from '@ember/debug';
+import { VERSION } from '@ember/version';
 import { DEBUG } from '@glimmer/env';
 
 import QUnit from 'qunit';
-
-import { gte, lte } from 'ember-compatibility-helpers';
+import semver from 'semver';
 
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
+
+function gte(version: string): boolean {
+  return semver.satisfies(VERSION, version);
+}
+
+function lte(version: string): boolean {
+  return semver.satisfies(VERSION, version);
+}
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 
@@ -167,14 +175,17 @@ export function configureDeprecationHandler() {
       for (let i = 0; i < libs.length; i++) {
         let library = libs[i];
         let version = config.when[library]!;
-        let sanitizedVersion = version.replace(/[\^><=~]/g, '');
+
+        if (library !== 'ember') {
+          throw new Error(`when only supports setting a version for 'ember' currently.`);
+        }
 
         if (version.indexOf('<=') === 0) {
-          if (!lte(library, sanitizedVersion)) {
+          if (!lte(version)) {
             skipAssert = true;
           }
         } else if (version.indexOf('>=') === 0) {
-          if (!gte(library, sanitizedVersion)) {
+          if (!gte(version)) {
             skipAssert = true;
           }
         } else {
