@@ -3,8 +3,12 @@ import { DEBUG } from '@glimmer/env';
 
 import QUnit from 'qunit';
 
+import { gte, lte } from 'ember-compatibility-helpers';
+
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
+
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 
 let HAS_REGISTERED = false;
 let DEPRECATIONS_FOR_TEST: FoundDeprecation[];
@@ -17,6 +21,7 @@ interface DeprecationConfig {
   message?: string | RegExp;
   url?: string;
   stacktrace?: string;
+  when?: Dict<string>;
 }
 interface FoundDeprecation {
   message: string;
@@ -154,6 +159,29 @@ export function configureDeprecationHandler() {
         message: config,
         until: '4.0',
       };
+    }
+
+    if (config.when) {
+      let libs = Object.keys(config.when);
+      for (let i = 0; i < libs.length; i++) {
+        let library = libs[i];
+        let version = config.when[library]!;
+        let sanitizedVersion = version.replace(/[\^><=~]/g, '');
+
+        if (version.indexOf('<=') === 0) {
+          if (!lte(library, sanitizedVersion)) {
+            return;
+          }
+        } else if (version.indexOf('>=') === 0) {
+          if (!gte(library, sanitizedVersion)) {
+            return;
+          }
+        } else {
+          throw new Error(
+            `Expected a version range set to either >= or <= for the library ${library} when the deprecation ${config.id} is present, found ${version}.`
+          );
+        }
+      }
     }
 
     if (callback) {

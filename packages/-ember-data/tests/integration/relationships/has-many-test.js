@@ -2704,7 +2704,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           observe = false;
         });
       },
-      { id: 'array-observers', count: 1 }
+      { id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } }
     );
   });
 
@@ -2772,7 +2772,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           observe = false;
         });
       },
-      { id: 'array-observers', count: 1 }
+      { id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } }
     );
   });
 

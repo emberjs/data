@@ -96,7 +96,7 @@ module('integration/application - Injecting the Default Store', function (hooks)
       () => {
         assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');
       },
-      { id: 'ember-global', count: 2 }
+      { id: 'ember-global', count: 2, when: { ember: '>=3.27.0' } }
     );
   });
 });

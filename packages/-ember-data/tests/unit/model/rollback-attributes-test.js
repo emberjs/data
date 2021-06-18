@@ -495,7 +495,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         }
       }
 
-      assert.expectDeprecation({ id: 'array-observers', count: 1 });
+      assert.expectDeprecation({ id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } });
     });
   });
 

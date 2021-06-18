@@ -569,7 +569,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
         siblings.removeArrayObserver(observer);
       },
-      { id: 'array-observers', count: 2 }
+      { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
     );
   });
 
@@ -649,7 +649,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
         siblings.removeArrayObserver(observer);
       },
-      { id: 'array-observers', count: 2 }
+      { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
     );
   });
 
@@ -733,7 +733,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
         siblingsProxy.removeArrayObserver(observer);
       },
-      { id: 'array-observers', count: 2 }
+      { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
     );
   });
 
@@ -811,7 +811,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
         siblings.removeArrayObserver(observer);
       },
-      { id: 'array-observers', count: 2 }
+      { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
     );
   });
 
@@ -889,7 +889,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
         siblings.removeArrayObserver(observer);
       },
-      { id: 'array-observers', count: 2 }
+      { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
     );
   });
 
