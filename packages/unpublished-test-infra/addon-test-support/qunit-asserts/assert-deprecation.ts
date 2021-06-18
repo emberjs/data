@@ -161,7 +161,8 @@ export function configureDeprecationHandler() {
       };
     }
 
-    if (config.when) {
+    let skipAssert = !DEBUG;
+    if (!skipAssert && config.when) {
       let libs = Object.keys(config.when);
       for (let i = 0; i < libs.length; i++) {
         let library = libs[i];
@@ -170,11 +171,11 @@ export function configureDeprecationHandler() {
 
         if (version.indexOf('<=') === 0) {
           if (!lte(library, sanitizedVersion)) {
-            return;
+            skipAssert = true;
           }
         } else if (version.indexOf('>=') === 0) {
           if (!gte(library, sanitizedVersion)) {
-            return;
+            skipAssert = true;
           }
         } else {
           throw new Error(
@@ -189,15 +190,16 @@ export function configureDeprecationHandler() {
       await callback();
     }
 
-    let result = verifyDeprecation(config, label);
-
-    if (!DEBUG) {
+    let result;
+    if (skipAssert) {
       result = {
         result: true,
         actual: { id: config.id, count: 0 },
         expected: { id: config.id, count: 0 },
         message: `Deprecations do not trigger in production environments`,
       };
+    } else {
+      result = verifyDeprecation(config, label);
     }
 
     this.pushResult(result);
