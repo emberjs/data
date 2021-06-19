@@ -106,7 +106,7 @@ module.exports = {
         'no-unused-vars': 'off',
         'prefer-rest-params': 'off',
         'prefer-const': 'off',
-        'ember-data/prefer-type-only-import': 'error',
+        'ember-data/prefer-static-type-only-import-syntax': 'error',
         '@typescript-eslint/no-explicit-any': 'error',
       },
     },
@@ -130,7 +130,7 @@ module.exports = {
         'no-unused-vars': 'off',
         'prefer-rest-params': 'off',
         'prefer-const': 'off',
-        'ember-data/prefer-type-only-import': 'error',
+        'ember-data/prefer-static-type-only-import-syntax': 'error',
         // rules we should likely activate but which currently have too many violations
         // files converted to strict must pass these rules before they can be removed from
         // the files list here and the files list in tsconfig.json

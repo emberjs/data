@@ -1,7 +1,7 @@
-const preferTypeOnlyImport = require('./rules/prefer-type-only-import');
+const preferTypeOnlyImport = require('./rules/prefer-static-type-only-import-syntax');
 
 module.exports = {
   rules: {
-    'prefer-type-only-import': preferTypeOnlyImport,
+    'prefer-static-type-only-import-syntax': preferTypeOnlyImport,
   },
 };
