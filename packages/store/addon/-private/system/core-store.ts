@@ -98,9 +98,6 @@ import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } fro
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
-let _RecordData: typeof RecordDataClass | undefined;
-
-const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
 type PromiseArray<T> = Promise<T[]>;
 type PendingFetchItem = {
@@ -113,8 +110,11 @@ type PendingSaveItem = {
   snapshot: Snapshot;
   resolver: RSVP.Deferred<void>;
 };
+type RecordDataConstruct = typeof RecordDataClass;
 
+let _RecordData: RecordDataConstruct | undefined;
 const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
+const { ENV } = Ember;
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
@@ -3382,20 +3382,21 @@ abstract class CoreStore extends Service {
     storeWrapper: RecordDataStoreWrapper
   ): RecordData {
     if (HAS_RECORD_DATA_PACKAGE) {
+      let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+        type: modelName,
+        id,
+        lid: clientId,
+      });
+
       // we can't greedily use require as this causes
       // a cycle we can't easily fix (or clearly pin point) at present.
       //
       // it can be reproduced in partner tests by running
       // node ./scripts/packages-for-commit.js && yarn test-external:ember-observer
       if (_RecordData === undefined) {
-        _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataClass;
+        _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataConstruct;
       }
 
-      let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
-        type: modelName,
-        id,
-        lid: clientId,
-      });
       return new _RecordData(identifier, storeWrapper);
     }
 
