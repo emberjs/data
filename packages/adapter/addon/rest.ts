@@ -69,6 +69,8 @@ type ResponseData = {
   errorThrown?: any;
 };
 
+type Payload = Dict<unknown> | unknown[] | string | undefined;
+
 declare const najax: Function | undefined;
 declare const jQuery: JQueryStatic | undefined;
 

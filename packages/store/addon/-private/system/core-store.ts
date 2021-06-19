@@ -86,18 +86,19 @@ import { promiseArray, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
 import { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
-import type { BelongsToReference, HasManyReference, RecordReference } from './references';
+import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
 import type RequestCache from './request-cache';
 import { RequestPromise } from './request-cache';
-import type Snapshot, { PrivateSnapshot } from './snapshot';
+import type Snapshot from './snapshot';
+import type { PrivateSnapshot } from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
 import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
-let _RecordData: RecordDataClass | undefined;
+let _RecordData: typeof RecordDataClass | undefined;
 
 const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
