@@ -65,7 +65,7 @@ module('integration/injection eager injections', function (hooks) {
         assert.ok(apple === appleService, `'model:foo.apple' should be the apple service`);
         assert.ok(apple instanceof Apple, `'model:foo'.apple should be an instance of 'service:apple'`);
       },
-      { id: 'implicit-injections', count: 1 }
+      { id: 'implicit-injections', count: 1, when: { ember: '>=3.27.0' } }
     );
   });
 });
