@@ -140,12 +140,13 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise as RSVPPromise } from 'rsvp';
 
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type MinimumAdapterInterface = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
-type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
-type Store = import('@ember-data/store/-private/system/core-store').default;
-type Snapshot = import('@ember-data/store/-private').Snapshot;
-type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
+import type { Snapshot } from '@ember-data/store/-private';
+
+import type Store from '@ember-data/store/-private/system/core-store';
+import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
+import type MinimumAdapterInterface from '@ember-data/store/-private/ts-interfaces/minimum-adapter-interface';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 /**
   An adapter is an object that receives requests from a store and

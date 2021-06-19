@@ -1,4 +1,5 @@
-type RecordIdentifier = import('./identifier').RecordIdentifier;
+import type { RecordIdentifier } from './identifier';
+
 export interface Operation {
   op: string;
 }

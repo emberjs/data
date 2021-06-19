@@ -7,28 +7,26 @@ import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { recordDataFor, recordIdentifierFor, removeRecordDataFor } from '@ember-data/store/-private';
+import type { CollectionResourceRelationship } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { ChangedAttributesHash, RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+import type {
+  AttributesHash,
+  JsonApiResource,
+  JsonApiValidationError,
+} from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
 
 import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
-
-type CollectionResourceRelationship =
-  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
-type DefaultSingleResourceRelationship =
-  import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
-type JsonApiResource = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiResource;
-type JsonApiValidationError =
-  import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
-type AttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').AttributesHash;
-type ChangedAttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data').ChangedAttributesHash;
-type ManyRelationship = import('./relationships/state/has-many').default;
-type BelongsToRelationship = import('./relationships/state/belongs-to').default;
+import type BelongsToRelationship from './relationships/state/belongs-to';
+import type ManyRelationship from './relationships/state/has-many';
+import type {
+  DefaultSingleResourceRelationship,
+  RelationshipRecordData,
+} from './ts-interfaces/relationship-record-data';
 
 let nextBfsId = 1;
 

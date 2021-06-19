@@ -11,8 +11,8 @@ import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
-type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
+import type { NewRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

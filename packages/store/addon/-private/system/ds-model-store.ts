@@ -7,20 +7,19 @@ import { isPresent } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import type DSModelClass from '@ember-data/model';
 
+import type { DSModel } from '../ts-interfaces/ds-model';
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
+import type { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
+import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import CoreStore from './core-store';
+import type ShimModelClass from './model/shim-model-class';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
+import type NotificationManager from './record-notification-manager';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
-
-type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
-type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
-type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
-type NotificationManager = import('./record-notification-manager').default;
-type DSModel = import('../ts-interfaces/ds-model').DSModel;
-type ShimModelClass = import('./model/shim-model-class').default;
-type DSModelClass = import('@ember-data/model').default;
 
 class Store extends CoreStore {
   public _modelFactoryCache = Object.create(null);

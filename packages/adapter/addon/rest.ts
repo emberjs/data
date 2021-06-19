@@ -27,13 +27,12 @@ import AdapterError, {
 } from './error';
 import Adapter, { BuildURLMixin } from './index';
 
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type FastBoot = import('./-private/fastboot-interface').FastBoot;
-type Payload = Dict<unknown> | unknown[] | string | undefined;
-type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
-type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
-type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
-type Store = import('@ember-data/store/-private/system/core-store').default;
+import type Store from '@ember-data/store/-private/system/core-store';
+import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type Snapshot from '@ember-data/store/-private/system/snapshot';
+import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import type { FastBoot } from './-private/fastboot-interface';
 
 type QueryState = {
   include?: unknown;
@@ -1317,8 +1316,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
   /**
     Used by `findAll` and `findRecord` to build the query's `data` hash
-    supplied to the ajax method. 
-   
+    supplied to the ajax method.
+
     @method buildQuery
     @since 2.5.0
     @public

@@ -1,9 +1,8 @@
 import { cacheFor } from '@ember/object/internals';
 
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
-type NotificationType = import('@ember-data/store/-private/system/record-notification-manager').NotificationType;
-type Model = InstanceType<typeof import('@ember-data/model').default>;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
 export default function notifyChanges(
   identifier: StableRecordIdentifier,

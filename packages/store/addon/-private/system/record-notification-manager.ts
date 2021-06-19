@@ -1,8 +1,6 @@
 import { identifierCacheFor } from '../identifiers/cache';
-
-type CoreStore = import('./core-store').default;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+import type { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type CoreStore from './core-store';
 
 type UnsubscribeToken = Object;
 

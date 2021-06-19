@@ -17,9 +17,23 @@ import {
   REQUEST_SERVICE,
 } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import type {
+  BelongsToRelationship,
+  ManyRelationship,
+  RecordData as DefaultRecordData,
+} from '@ember-data/record-data/-private';
+import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 
 import { identifierCacheFor } from '../../identifiers/cache';
+import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { RecordData } from '../../ts-interfaces/record-data';
+import type { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
+import type { RecordInstance } from '../../ts-interfaces/record-instance';
+import type { FindOptions } from '../../ts-interfaces/store';
+import type { ConfidentDict } from '../../ts-interfaces/utils';
 import coerceId from '../coerce-id';
+import type CoreStore from '../core-store';
+import type Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
 import { recordArraysForIdentifier } from '../record-array-manager';
 import recordDataFor from '../record-data-for';
@@ -27,22 +41,6 @@ import { BelongsToReference, HasManyReference, RecordReference } from '../refere
 import Snapshot from '../snapshot';
 import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
 import RootState from './states';
-
-type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
-type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
-
-type UpgradedMeta = import('@ember-data/record-data/-private/graph/-edge-definition').UpgradedMeta;
-
-type CoreStore = import('../core-store').default;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
-type ConfidentDict<T> = import('../../ts-interfaces/utils').ConfidentDict<T>;
-type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
-type JsonApiResource = import('../../ts-interfaces/record-data-json-api').JsonApiResource;
-type JsonApiValidationError = import('../../ts-interfaces/record-data-json-api').JsonApiValidationError;
-type RecordData = import('../../ts-interfaces/record-data').RecordData;
-type FindOptions = import('../../ts-interfaces/store').FindOptions;
-type Store = import('../ds-model-store').default;
-type DefaultRecordData = import('@ember-data/record-data/-private').RecordData;
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
 type ManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;

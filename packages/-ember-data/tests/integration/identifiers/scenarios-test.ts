@@ -15,15 +15,13 @@ import Store, {
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
-
-type IdentifierBucket = import('@ember-data/store/-private/ts-interfaces/identifier').IdentifierBucket;
-
-type StableIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableIdentifier;
-
-type ResourceData = import('@ember-data/store/-private/ts-interfaces/identifier').ResourceData;
-
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type ConfidentDict<T> = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<T>;
+import type {
+  IdentifierBucket,
+  ResourceData,
+  StableIdentifier,
+  StableRecordIdentifier,
+} from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { ConfidentDict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;

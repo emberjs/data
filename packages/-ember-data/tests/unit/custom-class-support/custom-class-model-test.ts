@@ -3,6 +3,7 @@ import settled from '@ember/test-helpers/settled';
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
+import type { Snapshot } from 'ember-data/-private';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
@@ -14,13 +15,10 @@ type RelationshipsSchema = import('@ember-data/store/-private/ts-interfaces/reco
 type SchemaDefinitionService =
   import('@ember-data/store/-private/ts-interfaces/schema-definition-service').SchemaDefinitionService;
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
-type AttributesSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').AttributesSchema;
-type RecordDataRecordWrapper =
-  import('@ember-data/store/-private/ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
-type NotificationManager = import('@ember-data/store/-private/system/record-notification-manager').default;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type Snapshot = import('@ember-data/store/-private').Snapshot;
+import type NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RecordDataRecordWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
+import type { AttributesSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 
 if (CUSTOM_MODEL_CLASS) {
   module('unit/model - Custom Class Model', function (hooks) {
