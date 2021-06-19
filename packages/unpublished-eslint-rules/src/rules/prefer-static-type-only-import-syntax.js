@@ -1,11 +1,11 @@
 const RULE_FAILURE_MESSAGE = `TS Type alias dynamic 'import()' usage should be converted to static 'import type' syntax.`;
 
 function reportRuleViolation(violation) {
-  let { context, declaration, lastImportNode, rangesToRemove, newTypeImports } = violation;
+  let { context, declarations, lastImportNode, rangeToRemove, newTypeImports } = violation;
 
   context.report({
     message: RULE_FAILURE_MESSAGE,
-    node: declaration,
+    node: declarations[0], // report from perspective of first declaration
     fix(fixer) {
       let changes = [];
       if (lastImportNode) {
@@ -13,42 +13,48 @@ function reportRuleViolation(violation) {
         changes.push(fixer.insertTextAfter(lastImportNode, newTypeImports));
       } else {
         // no more ES imports remain after we remove this one
-        changes.push(fixer.insertTextBeforeRange(declaration.range, newTypeImports));
+        changes.push(fixer.insertTextBeforeRange(rangeToRemove, newTypeImports));
       }
-      rangesToRemove.forEach((range) => {
-        changes.push(fixer.removeRange(range));
-      });
+      changes.push(fixer.removeRange(rangeToRemove));
       return changes;
     },
   });
 }
 
-function lintDeclarationForTypeOnlyImports(declaration, lastImportNode, context) {
-  let name = declaration.typeAnnotation.qualifier.name;
-  let localName = declaration.id.name;
-  let isDefault = name === 'default';
-  let isRenamed = !isDefault && name !== localName;
-  let location = declaration.typeAnnotation.parameter.literal.raw;
-  let importNameStr = '';
+function lintDeclarationForTypeOnlyImports(declarations, lastImportNode, context) {
+  let newTypeImports = '';
+  let start, end;
+  for (let i = 0; i < declarations.length; i++) {
+    let declaration = declarations[i];
+    let name = declaration.typeAnnotation.qualifier.name;
+    let localName = declaration.id.name;
+    let isDefault = name === 'default';
+    let isRenamed = !isDefault && name !== localName;
+    let location = declaration.typeAnnotation.parameter.literal.raw;
+    let importNameStr = '';
 
-  if (isDefault) {
-    importNameStr = `${localName}`;
-  } else if (isRenamed) {
-    importNameStr = `{ ${name} as ${localName} }`;
-  } else {
-    importNameStr = `{ ${localName} }`;
+    if (isDefault) {
+      importNameStr = `${localName}`;
+    } else if (isRenamed) {
+      importNameStr = `{ ${name} as ${localName} }`;
+    } else {
+      importNameStr = `{ ${localName} }`;
+    }
+
+    newTypeImports += `\nimport type ${importNameStr} from ${location};`;
+    if (i === 0) {
+      [start] = declaration.range;
+    }
+    if (i === declarations.length - 1) {
+      [, end] = declaration.range;
+    }
   }
-
-  let newTypeImports = `\nimport type ${importNameStr} from ${location};`;
-  let [start, end] = declaration.range;
-  let range = [start, end];
-  let rangesToRemove = [range];
 
   reportRuleViolation({
     context,
-    declaration,
+    declarations,
     lastImportNode,
-    rangesToRemove,
+    rangeToRemove: [start, end],
     newTypeImports,
   });
 }
@@ -84,8 +90,8 @@ module.exports = {
         // our approach lets us autofix more things by collapsing fixes for
         // a single import declaration into one error+change instead of fix
         // by individual imports within a declaration
-        for (let i = 0; i < declarations.length; i++) {
-          lintDeclarationForTypeOnlyImports(declarations[i], lastImportNode, context);
+        if (declarations.length > 0) {
+          lintDeclarationForTypeOnlyImports(declarations, lastImportNode, context);
         }
       },
       ImportDeclaration(node) {
