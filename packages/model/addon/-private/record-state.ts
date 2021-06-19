@@ -2,13 +2,13 @@ import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
+import type Model from '@ember-data/model';
 import type { RecordData } from '@ember-data/record-data/-private';
 import { errorsArrayToHash } from '@ember-data/store/-private';
 import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
 import type RequestCache from '@ember-data/store/-private/system/request-cache';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
-import type Model from '@ember-data/model';
 
 import notifyChanges from './notify-changes';
 
