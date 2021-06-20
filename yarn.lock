@@ -6874,10 +6874,9 @@ ember-cache-primitive-polyfill@^1.0.1:
     ember-compatibility-helpers "^1.2.1"
     silent-error "^1.1.1"
 
-ember-cached-decorator-polyfill@^0.1.3:
+"ember-cached-decorator-polyfill@github:dcyriller/ember-cached-decorator-polyfill#fix-addons":
   version "0.1.3"
-  resolved "https://registry.npmjs.org/ember-cached-decorator-polyfill/-/ember-cached-decorator-polyfill-0.1.3.tgz#9da71cacad87330e8bf090f922984cb827588a60"
-  integrity sha512-I3AJ3sJkPoJdSOnXw8E1ww8h9Ly62djVugLySrQhNerOnTSGmbSx/iAXtojFfepo7q29HfUlFcM7DSFp5shQ7g==
+  resolved "https://codeload.github.com/dcyriller/ember-cached-decorator-polyfill/tar.gz/8a88281537d31305befac361e1b6683011485798"
   dependencies:
     "@glimmer/tracking" "^1.0.4"
     ember-cache-primitive-polyfill "^1.0.1"
@@ -7871,7 +7870,8 @@ eslint-module-utils@^2.6.1:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "3.29.0-alpha.5"
+  version "0.0.0"
+  uid ""
 
 eslint-plugin-ember@^10.3.0, eslint-plugin-ember@^10.4.1:
   version "10.5.1"
