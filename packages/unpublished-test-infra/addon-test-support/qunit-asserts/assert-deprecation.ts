@@ -1,3 +1,5 @@
+import './utils/symbol-ponyfill';
+
 import { registerDeprecationHandler } from '@ember/debug';
 import { VERSION } from '@ember/version';
 import { DEBUG } from '@glimmer/env';
