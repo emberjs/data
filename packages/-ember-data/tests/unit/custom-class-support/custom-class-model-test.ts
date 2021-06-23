@@ -3,13 +3,13 @@ import settled from '@ember/test-helpers/settled';
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
-import type { Snapshot } from '@ember-data/store/-private';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import type { Snapshot } from '@ember-data/store/-private';
 import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';

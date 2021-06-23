@@ -3,12 +3,12 @@ import EmberObject from '@ember/object';
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import type Store from '@ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
+import type Store from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
 import type { RequestStateEnum } from '@ember-data/store/-private/ts-interfaces/fetch-manager';
 
