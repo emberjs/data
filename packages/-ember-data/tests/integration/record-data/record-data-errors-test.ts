@@ -10,7 +10,6 @@ import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-
 import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 import type { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';

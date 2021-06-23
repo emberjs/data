@@ -7,6 +7,8 @@ import { DEBUG } from '@glimmer/env';
 import QUnit from 'qunit';
 import semver from 'semver';
 
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
 
@@ -17,8 +19,6 @@ function gte(version: string): boolean {
 function lte(version: string): boolean {
   return semver.satisfies(VERSION, version);
 }
-
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 
 let HAS_REGISTERED = false;
 let DEPRECATIONS_FOR_TEST: FoundDeprecation[];

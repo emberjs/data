@@ -13,8 +13,14 @@ import { Promise as RSVPPromise } from 'rsvp';
 
 import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
 import { addSymbol, symbol } from '@ember-data/store/-private';
+import type Store from '@ember-data/store/-private/system/core-store';
+import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type Snapshot from '@ember-data/store/-private/system/snapshot';
+import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
+import type { FastBoot } from './-private/fastboot-interface';
 import AdapterError, {
   AbortError,
   ConflictError,
@@ -26,13 +32,6 @@ import AdapterError, {
   UnauthorizedError,
 } from './error';
 import Adapter, { BuildURLMixin } from './index';
-
-import type Store from '@ember-data/store/-private/system/core-store';
-import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
-import type Snapshot from '@ember-data/store/-private/system/snapshot';
-import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
-import type { FastBoot } from './-private/fastboot-interface';
 
 type QueryState = {
   include?: unknown;
