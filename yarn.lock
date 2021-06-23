@@ -1390,10 +1390,10 @@
   resolved "https://registry.npmjs.org/@glimmer/validator/-/validator-0.44.0.tgz#03d127097dc9cb23052cdb7fcae59d0a9dca53e1"
   integrity sha512-i01plR0EgFVz69GDrEuFgq1NheIjZcyTy3c7q+w7d096ddPVeVcRzU3LKaqCfovvLJ+6lJx40j45ecycASUUyw==
 
-"@glimmer/vm-babel-plugins@0.79.3":
-  version "0.79.3"
-  resolved "https://registry.npmjs.org/@glimmer/vm-babel-plugins/-/vm-babel-plugins-0.79.3.tgz#a8e6949f8ecc10786831d188f1001eb80927297f"
-  integrity sha512-346xmhP7J3wqCFKqIlwcaui/A+iHKm0ZWoaKb4lIkuro7/u5j094eEtdbonGq4eTj+UnDPpmzuqLWodXXxxo1Q==
+"@glimmer/vm-babel-plugins@0.78.2":
+  version "0.78.2"
+  resolved "https://registry.npmjs.org/@glimmer/vm-babel-plugins/-/vm-babel-plugins-0.78.2.tgz#b530a19f54da385c7099a22cf348e9062d186838"
+  integrity sha512-GSEf16h6OCtKx7PsSvD21cLXZuVc6swW2rSOAvfLeZco1DEWMRgYTwkCkColydKZcQ3gvwbPBeYwTC2K6tlnjg==
   dependencies:
     babel-plugin-debug-macros "^0.3.4"
 
@@ -6824,7 +6824,7 @@ ember-auto-import@^1.10.1, ember-auto-import@^1.2.15:
     walk-sync "^0.3.3"
     webpack "^4.43.0"
 
-ember-auto-import@^2.0.0:
+ember-auto-import@^2.0.0, ember-auto-import@^2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/ember-auto-import/-/ember-auto-import-2.0.1.tgz#3c993f2cee3a93758029bbc903302a951bd9e3f8"
   integrity sha512-quJbesruo7Z1tZ8faKSuSBMcNHgQYwVsod3mw3qZY2rHeQz/D1gmOm61HBvPBo4kM43FpKIL+lrzkQS8WIihZQ==
@@ -7524,15 +7524,15 @@ ember-source-channel-url@^3.0.0:
     node-fetch "^2.6.0"
 
 ember-source@~3.27.1:
-  version "3.27.3"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.27.3.tgz#96489643809b95d1804c21f31bbf83cb3b2a30a1"
-  integrity sha512-ouAk/hlrmaFTfwfc66DqXdEWe3Y4kvWkjgPxXctzUdluuaXzhPBwMKMgVLW/+F70UMIrcWhTe+bQiY4ZgKZMnQ==
+  version "3.27.5"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.27.5.tgz#8e9ce24c17e7a16dc3c2b128d3d3e24ea79e6726"
+  integrity sha512-oSGM9mD6BuOcGilYqU+F2MtCferQhKWO3REX1P9qgN1Wzfa5kXjbjBBdPNWfBtg7bZLGM27H8JgiV6+t3uGegA==
   dependencies:
     "@babel/helper-module-imports" "^7.8.3"
     "@babel/plugin-transform-block-scoping" "^7.8.3"
     "@babel/plugin-transform-object-assign" "^7.8.3"
     "@ember/edition-utils" "^1.2.0"
-    "@glimmer/vm-babel-plugins" "0.79.3"
+    "@glimmer/vm-babel-plugins" "0.78.2"
     babel-plugin-debug-macros "^0.3.3"
     babel-plugin-filter-imports "^4.0.0"
     broccoli-concat "^4.2.4"
