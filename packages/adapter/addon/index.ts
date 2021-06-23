@@ -144,7 +144,7 @@ type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 type MinimumAdapterInterface = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
 type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
 type Store = import('@ember-data/store/-private/system/core-store').default;
-type Snapshot = import('ember-data/-private').Snapshot;
+type Snapshot = import('@ember-data/store/-private').Snapshot;
 type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
 
 /**

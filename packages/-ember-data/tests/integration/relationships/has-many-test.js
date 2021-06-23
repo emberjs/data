@@ -2638,134 +2638,142 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('ManyArray notifies the array observers and flushes bindings when removing', function (assert) {
-    assert.expect(2);
+    assert.expect(3);
+    assert.expectDeprecation(
+      () => {
+        let store = this.owner.lookup('service:store');
 
-    let store = this.owner.lookup('service:store');
+        let chapter, page2;
+        let observe = false;
 
-    let chapter, page2;
-    let observe = false;
-
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'page',
-            id: '1',
-            attributes: {
-              number: 1,
-            },
-          },
-          {
-            type: 'page',
-            id: '2',
-            attributes: {
-              number: 2,
-            },
-          },
-          {
-            type: 'chapter',
-            id: '1',
-            attributes: {
-              title: 'Sailing the Seven Seas',
-            },
-            relationships: {
-              pages: {
-                data: [
-                  { type: 'page', id: '1' },
-                  { type: 'page', id: '2' },
-                ],
+        run(() => {
+          store.push({
+            data: [
+              {
+                type: 'page',
+                id: '1',
+                attributes: {
+                  number: 1,
+                },
               },
+              {
+                type: 'page',
+                id: '2',
+                attributes: {
+                  number: 2,
+                },
+              },
+              {
+                type: 'chapter',
+                id: '1',
+                attributes: {
+                  title: 'Sailing the Seven Seas',
+                },
+                relationships: {
+                  pages: {
+                    data: [
+                      { type: 'page', id: '1' },
+                      { type: 'page', id: '2' },
+                    ],
+                  },
+                },
+              },
+            ],
+          });
+          let page = store.peekRecord('page', 1);
+          page2 = store.peekRecord('page', 2);
+          chapter = store.peekRecord('chapter', 1);
+
+          chapter.get('pages').addArrayObserver(this, {
+            willChange(pages, index, removeCount, addCount) {
+              if (observe) {
+                assert.equal(pages.objectAt(index), page2, 'page2 is passed to willChange');
+              }
             },
-          },
-        ],
-      });
-      let page = store.peekRecord('page', 1);
-      page2 = store.peekRecord('page', 2);
-      chapter = store.peekRecord('chapter', 1);
+            didChange(pages, index, removeCount, addCount) {
+              if (observe) {
+                assert.equal(removeCount, 1, 'removeCount is correct');
+              }
+            },
+          });
+        });
 
-      chapter.get('pages').addArrayObserver(this, {
-        willChange(pages, index, removeCount, addCount) {
-          if (observe) {
-            assert.equal(pages.objectAt(index), page2, 'page2 is passed to willChange');
-          }
-        },
-        didChange(pages, index, removeCount, addCount) {
-          if (observe) {
-            assert.equal(removeCount, 1, 'removeCount is correct');
-          }
-        },
-      });
-    });
-
-    run(() => {
-      observe = true;
-      page2.set('chapter', null);
-      observe = false;
-    });
+        run(() => {
+          observe = true;
+          page2.set('chapter', null);
+          observe = false;
+        });
+      },
+      { id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } }
+    );
   });
 
   test('ManyArray notifies the array observers and flushes bindings when adding', function (assert) {
-    assert.expect(2);
+    assert.expect(3);
+    assert.expectDeprecation(
+      () => {
+        let store = this.owner.lookup('service:store');
 
-    let store = this.owner.lookup('service:store');
+        let chapter, page2;
+        let observe = false;
 
-    let chapter, page2;
-    let observe = false;
-
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'page',
-            id: '1',
-            attributes: {
-              number: 1,
-            },
-          },
-          {
-            type: 'page',
-            id: '2',
-            attributes: {
-              number: 2,
-            },
-          },
-          {
-            type: 'chapter',
-            id: '1',
-            attributes: {
-              title: 'Sailing the Seven Seas',
-            },
-            relationships: {
-              pages: {
-                data: [{ type: 'page', id: '1' }],
+        run(() => {
+          store.push({
+            data: [
+              {
+                type: 'page',
+                id: '1',
+                attributes: {
+                  number: 1,
+                },
               },
+              {
+                type: 'page',
+                id: '2',
+                attributes: {
+                  number: 2,
+                },
+              },
+              {
+                type: 'chapter',
+                id: '1',
+                attributes: {
+                  title: 'Sailing the Seven Seas',
+                },
+                relationships: {
+                  pages: {
+                    data: [{ type: 'page', id: '1' }],
+                  },
+                },
+              },
+            ],
+          });
+          let page = store.peekRecord('page', 1);
+          page2 = store.peekRecord('page', 2);
+          chapter = store.peekRecord('chapter', 1);
+
+          chapter.get('pages').addArrayObserver(this, {
+            willChange(pages, index, removeCount, addCount) {
+              if (observe) {
+                assert.equal(addCount, 1, 'addCount is correct');
+              }
             },
-          },
-        ],
-      });
-      let page = store.peekRecord('page', 1);
-      page2 = store.peekRecord('page', 2);
-      chapter = store.peekRecord('chapter', 1);
+            didChange(pages, index, removeCount, addCount) {
+              if (observe) {
+                assert.equal(pages.objectAt(index), page2, 'page2 is passed to didChange');
+              }
+            },
+          });
+        });
 
-      chapter.get('pages').addArrayObserver(this, {
-        willChange(pages, index, removeCount, addCount) {
-          if (observe) {
-            assert.equal(addCount, 1, 'addCount is correct');
-          }
-        },
-        didChange(pages, index, removeCount, addCount) {
-          if (observe) {
-            assert.equal(pages.objectAt(index), page2, 'page2 is passed to didChange');
-          }
-        },
-      });
-    });
-
-    run(() => {
-      observe = true;
-      page2.set('chapter', chapter);
-      observe = false;
-    });
+        run(() => {
+          observe = true;
+          page2.set('chapter', chapter);
+          observe = false;
+        });
+      },
+      { id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } }
+    );
   });
 
   testInDebug('Passing a model as type to hasMany should not work', function (assert) {

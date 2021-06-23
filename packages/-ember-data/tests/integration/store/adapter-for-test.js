@@ -3,8 +3,9 @@ import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
+
+import Store from '@ember-data/store';
 
 class TestAdapter {
   constructor(args) {

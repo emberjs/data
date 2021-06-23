@@ -2,7 +2,7 @@ import { A } from '@ember/array';
 
 import { module, test } from 'qunit';
 
-import { SnapshotRecordArray } from 'ember-data/-private';
+import { SnapshotRecordArray } from '@ember-data/store/-private';
 
 module('Unit - snapshot-record-array', function () {
   test('constructor', function (assert) {

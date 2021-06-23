@@ -8,20 +8,23 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
+import Store, { recordIdentifierFor } from '@ember-data/store';
 
+type RelationshipsSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipsSchema;
+type SchemaDefinitionService =
+  import('@ember-data/store/-private/ts-interfaces/schema-definition-service').SchemaDefinitionService;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type AttributesSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').AttributesSchema;
-
 type RecordDataRecordWrapper =
   import('@ember-data/store/-private/ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
 type NotificationManager = import('@ember-data/store/-private/system/record-notification-manager').default;
 type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type Snapshot = import('ember-data/-private').Snapshot;
+type Snapshot = import('@ember-data/store/-private').Snapshot;
 
 if (CUSTOM_MODEL_CLASS) {
   module('unit/model - Custom Class Model', function (hooks) {
-    let store;
+    let store: CoreStore;
     class Person {
       constructor(public store: Store) {
         this.store = store;
@@ -108,7 +111,7 @@ if (CUSTOM_MODEL_CLASS) {
       });
       this.owner.register('service:store', CreationStore);
       store = this.owner.lookup('service:store');
-      store.push({ data: { id: '1', type: 'person', name: 'chris' } });
+      store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
       recordData.storeWrapper.notifyHasManyChange(identifier.type, identifier.id, identifier.lid, 'key');
       recordData.storeWrapper.notifyBelongsToChange(identifier.type, identifier.id, identifier.lid, 'key');
       recordData.storeWrapper.notifyStateChange(identifier.type, identifier.id, identifier.lid, 'key');
@@ -151,18 +154,18 @@ if (CUSTOM_MODEL_CLASS) {
       });
       this.owner.register('service:store', CreationStore);
       store = this.owner.lookup('service:store');
-      let schema = {
-        attributesDefinitionFor(modelName: string) {
+      let schema: SchemaDefinitionService = {
+        attributesDefinitionFor(modelName: string): AttributesSchema {
           return {
             name: {
               type: 'string',
-              key: 'name',
+              options: {},
               name: 'name',
               kind: 'attribute',
             },
           };
         },
-        relationshipsDefinitionFor(modelName: string) {
+        relationshipsDefinitionFor(modelName: string): RelationshipsSchema {
           return {};
         },
         doesTypeExist() {
@@ -185,10 +188,18 @@ if (CUSTOM_MODEL_CLASS) {
             snapshot.eachAttribute((attr, attrDef) => {
               if (count === 0) {
                 assert.equal(attr, 'name', 'attribute key is correct');
-                assert.deepEqual(attrDef, { type: 'string', key: 'name', name: 'name' }, 'attribute def matches schem');
+                assert.deepEqual(
+                  attrDef,
+                  { kind: 'attribute', type: 'string', options: {}, name: 'name' },
+                  'attribute def matches schem'
+                );
               } else if (count === 1) {
                 assert.equal(attr, 'age', 'attribute key is correct');
-                assert.deepEqual(attrDef, { type: 'number', key: 'age', name: 'age' }, 'attribute def matches schem');
+                assert.deepEqual(
+                  attrDef,
+                  { kind: 'attribute', type: 'number', options: {}, name: 'age' },
+                  'attribute def matches schem'
+                );
               }
               count++;
             });
@@ -201,8 +212,10 @@ if (CUSTOM_MODEL_CLASS) {
                   {
                     type: 'ship',
                     kind: 'hasMany',
-                    inverse: null,
-                    options: {},
+                    options: {
+                      inverse: null,
+                    },
+                    name: 'boats',
                     key: 'boats',
                   },
                   'relationships def matches schem'
@@ -211,7 +224,7 @@ if (CUSTOM_MODEL_CLASS) {
                 assert.equal(rel, 'house', 'relationship key is correct');
                 assert.deepEqual(
                   relDef,
-                  { type: 'house', kind: 'belongsTo', inverse: null, options: {}, key: 'house', name: 'house' },
+                  { type: 'house', kind: 'belongsTo', options: { inverse: null }, key: 'house', name: 'house' },
                   'relationship def matches schem'
                 );
               }
@@ -223,8 +236,8 @@ if (CUSTOM_MODEL_CLASS) {
       );
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
-      let schema = {
-        attributesDefinitionFor(identifier: string | RecordIdentifier) {
+      let schema: SchemaDefinitionService = {
+        attributesDefinitionFor(identifier: string | RecordIdentifier): AttributesSchema {
           if (typeof identifier === 'string') {
             assert.equal(identifier, 'person', 'type passed in to the schema hooks');
           } else {
@@ -233,17 +246,19 @@ if (CUSTOM_MODEL_CLASS) {
           return {
             name: {
               type: 'string',
-              key: 'name',
+              kind: 'attribute',
+              options: {},
               name: 'name',
             },
             age: {
               type: 'number',
-              key: 'age',
+              kind: 'attribute',
+              options: {},
               name: 'age',
             },
           };
         },
-        relationshipsDefinitionFor(identifier: string | RecordIdentifier) {
+        relationshipsDefinitionFor(identifier: string | RecordIdentifier): RelationshipsSchema {
           if (typeof identifier === 'string') {
             assert.equal(identifier, 'person', 'type passed in to the schema hooks');
           } else {
@@ -253,15 +268,18 @@ if (CUSTOM_MODEL_CLASS) {
             boats: {
               type: 'ship',
               kind: 'hasMany',
-              inverse: null,
-              options: {},
+              options: {
+                inverse: null,
+              },
               key: 'boats',
+              name: 'boats',
             },
             house: {
               type: 'house',
               kind: 'belongsTo',
-              inverse: null,
-              options: {},
+              options: {
+                inverse: null,
+              },
               key: 'house',
               name: 'house',
             },
@@ -370,14 +388,15 @@ if (CUSTOM_MODEL_CLASS) {
       );
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
-      let schema = {
-        attributesDefinitionFor(identifier: string | RecordIdentifier) {
+      let schema: SchemaDefinitionService = {
+        attributesDefinitionFor(identifier: string | RecordIdentifier): AttributesSchema {
           let modelName = (identifier as RecordIdentifier).type || identifier;
           if (modelName === 'person') {
             return {
               name: {
                 type: 'string',
-                key: 'name',
+                kind: 'attribute',
+                options: {},
                 name: 'name',
               },
             };
@@ -385,19 +404,25 @@ if (CUSTOM_MODEL_CLASS) {
             return {
               address: {
                 type: 'string',
+                kind: 'attribute',
+                options: {},
+                name: 'address',
               },
             };
+          } else {
+            return {};
           }
         },
-        relationshipsDefinitionFor(identifier: string | RecordIdentifier) {
+        relationshipsDefinitionFor(identifier: string | RecordIdentifier): RelationshipsSchema {
           let modelName = (identifier as RecordIdentifier).type || identifier;
           if (modelName === 'person') {
             return {
               house: {
                 type: 'house',
                 kind: 'belongsTo',
-                inverse: null,
-                options: {},
+                options: {
+                  inverse: null,
+                },
                 key: 'house',
                 name: 'house',
               },
@@ -447,13 +472,14 @@ if (CUSTOM_MODEL_CLASS) {
       assert.expect(3);
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
-      let schema = {
-        attributesDefinitionFor(modelName: string) {
+      let schema: SchemaDefinitionService = {
+        attributesDefinitionFor(modelName: string): AttributesSchema {
           if (modelName === 'person') {
             return {
               name: {
                 type: 'string',
-                key: 'name',
+                kind: 'attribute',
+                options: {},
                 name: 'name',
               },
             };
@@ -461,18 +487,25 @@ if (CUSTOM_MODEL_CLASS) {
             return {
               address: {
                 type: 'string',
+                kind: 'attribute',
+                options: {},
+                name: 'address',
               },
             };
+          } else {
+            return {};
           }
         },
-        relationshipsDefinitionFor(modelName: string) {
+        relationshipsDefinitionFor(modelName: string): RelationshipsSchema {
           if (modelName === 'person') {
             return {
               house: {
                 type: 'house',
                 kind: 'belongsTo',
-                inverse: null,
-                options: {},
+                options: {
+                  inverse: null,
+                },
+                key: 'house',
                 name: 'house',
               },
             };
@@ -492,7 +525,7 @@ if (CUSTOM_MODEL_CLASS) {
           attributes: { address: 'boat' },
         },
       });
-      store.push({
+      let person = store.push({
         data: {
           type: 'person',
           id: '7',
@@ -500,7 +533,8 @@ if (CUSTOM_MODEL_CLASS) {
           relationships: { house: { data: { type: 'house', id: '1' } } },
         },
       });
-      let relationship = store.relationshipReferenceFor({ type: 'person', id: '7' }, 'house');
+      let identifier = recordIdentifierFor(person);
+      let relationship = store.relationshipReferenceFor({ type: 'person', id: '7', lid: identifier.lid }, 'house');
       assert.equal(relationship.id(), '1', 'house relationship id found');
       assert.equal(relationship.type, 'house', 'house relationship type found');
       assert.equal(relationship.parent.id(), '7', 'house relationship parent found');
@@ -510,13 +544,14 @@ if (CUSTOM_MODEL_CLASS) {
       assert.expect(3);
       this.owner.register('service:store', CustomStore);
       store = this.owner.lookup('service:store');
-      let schema = {
-        attributesDefinitionFor(modelName: string) {
+      let schema: SchemaDefinitionService = {
+        attributesDefinitionFor(modelName: string): AttributesSchema {
           if (modelName === 'person') {
             return {
               name: {
                 type: 'string',
-                key: 'name',
+                kind: 'attribute',
+                options: {},
                 name: 'name',
               },
             };
@@ -524,18 +559,25 @@ if (CUSTOM_MODEL_CLASS) {
             return {
               address: {
                 type: 'string',
+                kind: 'attribute',
+                options: {},
+                name: 'address',
               },
             };
+          } else {
+            return {};
           }
         },
-        relationshipsDefinitionFor(modelName: string) {
+        relationshipsDefinitionFor(modelName: string): RelationshipsSchema {
           if (modelName === 'person') {
             return {
               house: {
                 type: 'house',
                 kind: 'hasMany',
-                inverse: null,
-                options: {},
+                options: {
+                  inverse: null,
+                },
+                key: 'house',
                 name: 'house',
               },
             };
@@ -555,7 +597,7 @@ if (CUSTOM_MODEL_CLASS) {
           attributes: { address: 'boat' },
         },
       });
-      store.push({
+      let person = store.push({
         data: {
           type: 'person',
           id: '7',
@@ -570,7 +612,8 @@ if (CUSTOM_MODEL_CLASS) {
           },
         },
       });
-      let relationship = store.relationshipReferenceFor({ type: 'person', id: '7' }, 'house');
+      let identifier = recordIdentifierFor(person);
+      let relationship = store.relationshipReferenceFor({ type: 'person', id: '7', lid: identifier.lid }, 'house');
       assert.deepEqual(relationship.ids(), ['1', '2'], 'relationship found');
       assert.equal(relationship.type, 'house', 'house relationship type found');
       assert.equal(relationship.parent.id(), '7', 'house relationship parent found');
