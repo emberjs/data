@@ -3,7 +3,7 @@ import settled from '@ember/test-helpers/settled';
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
 
-import type { Snapshot } from 'ember-data/-private';
+import type { Snapshot } from '@ember-data/store/-private';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
