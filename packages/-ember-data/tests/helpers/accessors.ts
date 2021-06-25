@@ -32,7 +32,7 @@ export function hasRelationshipForRecord(
 export function implicitRelationshipsFor(
   storeWrapper: RecordDataStoreWrapper,
   identifier: StableRecordIdentifier
-): RelationshipDict {
+): RelationshipDict<ImplicitRelationship> {
   const rels = graphFor(storeWrapper).identifiers.get(identifier);
   if (!rels) {
     throw new Error(`Expected at least one relationship to be populated`);

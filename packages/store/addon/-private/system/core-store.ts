@@ -86,7 +86,7 @@ import { promiseArray, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
 import { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
-import type { BelongsToReference, HasManyReference, RecordReference } from './references';
+import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
 import type RequestCache from './request-cache';
 import { RequestPromise } from './request-cache';
@@ -97,7 +97,8 @@ import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } fro
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
-let _RecordData: RecordDataClass | undefined;
+type RecordDataConstruct = typeof RecordDataClass;
+let _RecordData: RecordDataConstruct | undefined;
 
 const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
@@ -3387,7 +3388,7 @@ abstract class CoreStore extends Service {
       // it can be reproduced in partner tests by running
       // node ./scripts/packages-for-commit.js && yarn test-external:ember-observer
       if (_RecordData === undefined) {
-        _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataClass;
+        _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataConstruct;
       }
 
       let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
