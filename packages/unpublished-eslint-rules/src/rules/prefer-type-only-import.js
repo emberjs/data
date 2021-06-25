@@ -260,7 +260,7 @@ function lintDeclarationForTypeOnlyImports(declaration, usageData, context) {
 }
 
 module.exports = {
-  name: 'prefer-type-only-import',
+  name: 'prefer-static-type-import',
   meta: {
     type: 'Suggestion',
     docs: {
