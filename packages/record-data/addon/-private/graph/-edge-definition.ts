@@ -1,12 +1,11 @@
 import { assert } from '@ember/debug';
 
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+
+import type { Graph } from '.';
 import { expandingGet, expandingSet } from './-utils';
-
-type Graph = import('.').Graph;
-
-type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
 
 export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
 

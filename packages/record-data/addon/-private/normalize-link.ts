@@ -1,5 +1,4 @@
-type Link = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').Link;
-type LinkObject = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').LinkObject;
+import type { Link, LinkObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 
 /*
   This method normalizes a link to an "links object". If the passed link is

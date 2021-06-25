@@ -47,7 +47,7 @@ function lintDeclarationForTypeOnlyImports(declarations, lastImportNode, context
 
     newTypeImports += `\nimport type ${importNameStr} from ${location};`;
     let [start, end] = declaration.range;
-    rangesToRemove.push([start, end + 1]);
+    rangesToRemove.push([start, end]);
   }
 
   reportRuleViolation({

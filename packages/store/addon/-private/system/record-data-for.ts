@@ -1,7 +1,8 @@
 import { assert } from '@ember/debug';
 
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
-type RecordData = import('../ts-interfaces/record-data').RecordData;
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { RecordData } from '../ts-interfaces/record-data';
+
 /*
  * Returns the RecordData instance associated with a given
  * Model or InternalModel.

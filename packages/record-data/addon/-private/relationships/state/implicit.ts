@@ -1,6 +1,7 @@
-type Graph = import('../../graph').Graph;
-type UpgradedMeta = import('../../graph/-edge-definition').UpgradedMeta;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+
+import type { Graph } from '../../graph';
+import type { UpgradedMeta } from '../../graph/-edge-definition';
 
 /**
   @module @ember-data/store

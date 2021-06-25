@@ -1,4 +1,4 @@
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 /**
   @module @ember-data/store
 */

@@ -1,10 +1,9 @@
 import RSVP, { resolve } from 'rsvp';
 
+import type { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
-
-type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
-type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store

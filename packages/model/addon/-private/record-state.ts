@@ -2,16 +2,16 @@ import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
+import type { RecordData } from '@ember-data/record-data/-private';
 import { errorsArrayToHash } from '@ember-data/store/-private';
+import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
+import type RequestCache from '@ember-data/store/-private/system/request-cache';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
 import notifyChanges from './notify-changes';
 
-type RecordData = import('@ember-data/record-data/-private').RecordData;
-type RequestCache = import('@ember-data/store/-private/system/request-cache').default;
 type Model = InstanceType<typeof import('./model')>;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
-type NotificationType = import('@ember-data/store/-private/system/record-notification-manager').NotificationType;
 
 function isInvalidError(error) {
   return error && error.isAdapterError === true && error.code === 'InvalidError';

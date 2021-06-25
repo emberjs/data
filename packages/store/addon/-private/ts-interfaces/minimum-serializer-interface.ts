@@ -1,10 +1,10 @@
-type Dict<T> = import('./utils').Dict<T>;
-type ModelSchema = import('./ds-model').ModelSchema;
-type Snapshot = import('../system/snapshot').default;
-type JsonApiDocument = import('./ember-data-json-api').JsonApiDocument;
-type SingleResourceDocument = import('./ember-data-json-api').SingleResourceDocument;
-type Store = import('../system/core-store').default;
-type JSONObject = import('json-typescript').Object;
+import type { Object as JSONObject } from 'json-typescript';
+
+import type Store from '../system/core-store';
+import type Snapshot from '../system/snapshot';
+import type { ModelSchema } from './ds-model';
+import type { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
+import type { Dict } from './utils';
 
 type OptionsHash = Dict<any>;
 

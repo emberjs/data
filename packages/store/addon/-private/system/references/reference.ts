@@ -1,18 +1,16 @@
 import { deprecate } from '@ember/debug';
 
+import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
+
 import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
 
+import type { LinkObject, PaginationLinks } from '../../ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
+import type { Dict } from '../../ts-interfaces/utils';
+import type CoreStore from '../core-store';
+import type InternalModel from '../model/internal-model';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
-
-type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
-type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
-type PaginationLinks = import('../../ts-interfaces/ember-data-json-api').PaginationLinks;
-type LinkObject = import('../../ts-interfaces/ember-data-json-api').LinkObject;
-type CoreStore = import('../core-store').default;
-type JSONObject = import('json-typescript').Object;
-type JSONValue = import('json-typescript').Value;
-type InternalModel = import('../model/internal-model').default;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store

@@ -2,9 +2,7 @@
   @module @ember-data/store
 */
 import { symbol } from '../utils/symbol';
-
-type ExistingResourceObject = import('./ember-data-json-api').ExistingResourceObject;
-type ResourceIdentifierObject = import('./ember-data-json-api').ResourceIdentifierObject;
+import type { ExistingResourceObject, ResourceIdentifierObject } from './ember-data-json-api';
 
 export type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
 export type IdentifierBucket = 'record';

@@ -2,7 +2,8 @@
   @module @ember-data/store
 */
 
-type Dict<T> = import('./utils').Dict<T>;
+import type { Dict } from './utils';
+
 export interface RelationshipSchema {
   kind: 'belongsTo' | 'hasMany';
   type: string; // related type

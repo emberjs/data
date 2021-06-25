@@ -6,29 +6,26 @@ import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
+import type CoreStore from '../system/core-store';
 import normalizeModelName from '../system/normalize-model-name';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
+import type {
+  ForgetMethod,
+  GenerationMethod,
+  Identifier,
+  IdentifierBucket,
+  RecordIdentifier,
+  ResetMethod,
+  ResourceData,
+  StableRecordIdentifier,
+  UpdateMethod,
+} from '../ts-interfaces/identifier';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
+import type { ConfidentDict } from '../ts-interfaces/utils';
 import isNonEmptyString from '../utils/is-non-empty-string';
 import { addSymbol } from '../utils/symbol';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
-
-type IdentifierBucket = import('../ts-interfaces/identifier').IdentifierBucket;
-
-type ResourceData = import('../ts-interfaces/identifier').ResourceData;
-
-type Identifier = import('../ts-interfaces/identifier').Identifier;
-
-type CoreStore = import('../system/core-store').default;
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
-type GenerationMethod = import('../ts-interfaces/identifier').GenerationMethod;
-type UpdateMethod = import('../ts-interfaces/identifier').UpdateMethod;
-type ForgetMethod = import('../ts-interfaces/identifier').ForgetMethod;
-type ResetMethod = import('../ts-interfaces/identifier').ResetMethod;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
-type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
-type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {

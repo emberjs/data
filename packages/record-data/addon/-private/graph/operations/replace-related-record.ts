@@ -1,13 +1,12 @@
 import { assert } from '@ember/debug';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
+import type { ReplaceRelatedRecordOperation } from '../-operations';
 import { isBelongsTo, isNew } from '../-utils';
+import type { Graph } from '../index';
 import { addToInverse, removeFromInverse } from './replace-related-records';
-
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type ReplaceRelatedRecordOperation = import('../-operations').ReplaceRelatedRecordOperation;
-type Graph = import('../index').Graph;
 
 export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRecordOperation, isRemote = false) {
   const relationship = graph.get(op.record, op.field);

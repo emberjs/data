@@ -8,24 +8,19 @@ import { DEBUG } from '@glimmer/env';
 
 import { default as RSVP, Promise } from 'rsvp';
 
+import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
+import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
+import type { ExistingRecordIdentifier, RecordIdentifier } from '../ts-interfaces/identifier';
+import type { Dict } from '../ts-interfaces/utils';
 import { symbol } from '../utils/symbol';
 import coerceId from './coerce-id';
+import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
 import RequestCache from './request-cache';
+import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
-
-type CoreStore = import('./core-store').default;
-type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
-type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
-type Request = import('../ts-interfaces/fetch-manager').Request;
-type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
-type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type ExistingRecordIdentifier = import('../ts-interfaces/identifier').ExistingRecordIdentifier;
-type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
-type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {

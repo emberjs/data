@@ -2,11 +2,9 @@ import EmberObject from '@ember/object';
 
 import RSVP from 'rsvp';
 
+import type { JsonApiValidationError } from './record-data-json-api';
+import type { AttributeSchema, RelationshipSchema } from './record-data-schemas';
 import { RecordInstance } from './record-instance';
-
-type RelationshipSchema = import('./record-data-schemas').RelationshipSchema;
-type AttributeSchema = import('./record-data-schemas').AttributeSchema;
-type JsonApiValidationError = import('./record-data-json-api').JsonApiValidationError;
 
 // Placeholder until model.js is typed
 export interface DSModel extends RecordInstance, EmberObject {

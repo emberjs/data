@@ -3,16 +3,14 @@ import { get } from '@ember/object';
 
 import require from 'require';
 
+import type Model from '@ember-data/model';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
+import type { RecordIdentifier } from '../ts-interfaces/identifier';
+import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
+import type Store from './ds-model-store';
 import normalizeModelName from './normalize-model-name';
 
-type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
-type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type Store = import('./ds-model-store').default;
-
-type Model = import('@ember-data/model').default;
 type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
 
 let _modelForMixin: ModelForMixin;

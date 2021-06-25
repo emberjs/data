@@ -1,10 +1,11 @@
-type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
 /**
   @module @ember-data/store
 */
-type RecordArray = import('./record-arrays/record-array').default;
-type Snapshot = import('./snapshot').default;
-type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
+
+import type { ModelSchema } from '../ts-interfaces/ds-model';
+import type { Dict } from '../ts-interfaces/utils';
+import type RecordArray from './record-arrays/record-array';
+import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's

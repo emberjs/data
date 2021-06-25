@@ -10,12 +10,9 @@ import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
-
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
-type JsonApiValidationError =
-  import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
+import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+import type { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

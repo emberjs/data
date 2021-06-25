@@ -19,11 +19,12 @@ import Store, {
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
 import { identifierCacheFor } from '@ember-data/store/-private';
-
-type StableIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableIdentifier;
-type IdentifierBucket = import('@ember-data/store/-private/ts-interfaces/identifier').IdentifierBucket;
-type ResourceData = import('@ember-data/store/-private/ts-interfaces/identifier').ResourceData;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+import type {
+  IdentifierBucket,
+  ResourceData,
+  StableIdentifier,
+  StableRecordIdentifier,
+} from '@ember-data/store/-private/ts-interfaces/identifier';
 
 module('Integration | Identifiers - configuration', function (hooks) {
   setupTest(hooks);

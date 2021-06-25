@@ -6,15 +6,13 @@ import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
+import type Store from '@ember-data/store/-private/system/core-store';
+import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type Snapshot from '@ember-data/store/-private/system/snapshot';
+
 import { serializeIntoHash } from './-private';
+import type { FetchRequestInit, JQueryRequestInit } from './rest';
 import RESTAdapter from './rest';
-
-type FetchRequestInit = import('./rest').FetchRequestInit;
-type JQueryRequestInit = import('./rest').JQueryRequestInit;
-
-type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
-type Store = import('@ember-data/store/-private/system/core-store').default;
-type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
 
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It

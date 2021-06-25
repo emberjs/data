@@ -1,11 +1,11 @@
 import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+
+import type { RequestData } from '../../rest';
 import continueOnReject from './continue-on-reject';
 
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-
-type RequestData = import('../../rest').RequestData;
 type Payload = Dict<unknown> | unknown[] | string | undefined;
 
 interface CustomSyntaxError extends SyntaxError {

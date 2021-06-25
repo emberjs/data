@@ -1,8 +1,7 @@
-type ChangedAttributesHash = import('./record-data').ChangedAttributesHash;
-type RecordIdentifier = import('./identifier').RecordIdentifier;
-type SingleResourceRelationship = import('./ember-data-json-api').SingleResourceRelationship;
-type CollectionResourceRelationship = import('./ember-data-json-api').CollectionResourceRelationship;
-type JsonApiValidationError = import('./record-data-json-api').JsonApiValidationError;
+import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
+import type { RecordIdentifier } from './identifier';
+import type { ChangedAttributesHash } from './record-data';
+import type { JsonApiValidationError } from './record-data-json-api';
 
 /**
   @module @ember-data/store

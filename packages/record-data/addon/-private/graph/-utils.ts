@@ -1,16 +1,16 @@
 import { assert, inspect, warn } from '@ember/debug';
 
 import { coerceId, recordDataFor as peekRecordData } from '@ember-data/store/-private';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
-type Graph = import('./index').Graph;
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
-type RelationshipRecordData = import('../ts-interfaces/relationship-record-data').RelationshipRecordData;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type ImplicitRelationship = import('../relationships/state/implicit').default;
-type ManyRelationship = import('../relationships/state/has-many').default;
-type BelongsToRelationship = import('../relationships/state/belongs-to').default;
-type UpdateRelationshipOperation = import('./-operations').UpdateRelationshipOperation;
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+import type BelongsToRelationship from '../relationships/state/belongs-to';
+import type ManyRelationship from '../relationships/state/has-many';
+import type ImplicitRelationship from '../relationships/state/implicit';
+import type { RelationshipRecordData } from '../ts-interfaces/relationship-record-data';
+import type { UpdateRelationshipOperation } from './-operations';
+import type { Graph } from './index';
 
 export function expandingGet<T>(cache: Dict<Dict<T>>, key1: string, key2: string): T | undefined {
   let mainCache = (cache[key1] = cache[key1] || Object.create(null));

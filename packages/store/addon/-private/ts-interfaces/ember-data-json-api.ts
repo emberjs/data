@@ -1,5 +1,6 @@
-type Dict<T> = import('./utils').Dict<T>;
-type JSONValue = import('json-typescript').Value;
+import type { Value as JSONValue } from 'json-typescript';
+
+import type { Dict } from './utils';
 
 /**
   @module @ember-data/store

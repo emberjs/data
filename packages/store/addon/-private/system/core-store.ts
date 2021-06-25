@@ -7,6 +7,7 @@ import { assert, deprecate, inspect, warn } from '@ember/debug';
 import { computed, defineProperty, get, set } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner } from '@ember/runloop';
+import type { Backburner } from '@ember/runloop/-private/backburner';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { isNone, isPresent, typeOf } from '@ember/utils';
@@ -33,8 +34,38 @@ import {
   DEPRECATE_DEFAULT_SERIALIZER,
   DEPRECATE_LEGACY_TEST_REGISTRATIONS,
 } from '@ember-data/private-build-infra/deprecations';
+import type {
+  BelongsToRelationship,
+  ManyRelationship,
+  RecordData as RecordDataClass,
+} from '@ember-data/record-data/-private';
+import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 
+import type { IdentifierCache } from '../identifiers/cache';
 import { identifierCacheFor } from '../identifiers/cache';
+import type { DSModel } from '../ts-interfaces/ds-model';
+import type {
+  CollectionResourceDocument,
+  EmptyResourceDocument,
+  ExistingResourceObject,
+  JsonApiDocument,
+  ResourceIdentifierObject,
+  SingleResourceDocument,
+} from '../ts-interfaces/ember-data-json-api';
+import type {
+  RecordIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '../ts-interfaces/identifier';
+import type { PromiseProxy } from '../ts-interfaces/promise-proxies';
+import type { RecordData } from '../ts-interfaces/record-data';
+import type { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
+import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
+import type { AttributesSchema } from '../ts-interfaces/record-data-schemas';
+import type { RecordInstance } from '../ts-interfaces/record-instance';
+import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
+import type { FindOptions } from '../ts-interfaces/store';
+import type { Dict } from '../ts-interfaces/utils';
 import constructResource from '../utils/construct-resource';
 import promiseRecord from '../utils/promise-record';
 import { addSymbol } from '../utils/symbol';
@@ -42,60 +73,29 @@ import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
 import { errorsArrayToHash } from './errors-utils';
 import FetchManager, { SaveOp } from './fetch-manager';
+import type InternalModel from './model/internal-model';
 import {
   assertRecordsPassedToHasMany,
   extractRecordDataFromRecord,
   extractRecordDatasFromRecords,
 } from './model/internal-model';
+import type ShimModelClass from './model/shim-model-class';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { promiseArray, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
 import { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
+import type { BelongsToReference, HasManyReference, RecordReference } from './references';
 import { RecordReference } from './references';
+import type RequestCache from './request-cache';
 import { RequestPromise } from './request-cache';
+import type Snapshot, { PrivateSnapshot } from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
 import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
-
-type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
-type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
-
-type RelationshipState = import('@ember-data/record-data/-private/graph/-state').RelationshipState;
-type ShimModelClass = import('./model/shim-model-class').default;
-type Snapshot = import('./snapshot').default;
-type Backburner = import('@ember/runloop/-private/backburner').Backburner;
-type RecordReference = import('./references').RecordReference;
-type HasManyReference = import('./references').HasManyReference;
-type BelongsToReference = import('./references').BelongsToReference;
-type IdentifierCache = import('../identifiers/cache').IdentifierCache;
-type InternalModel = import('./model/internal-model').default;
-
-type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
-type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
-type EmptyResourceDocument = import('../ts-interfaces/ember-data-json-api').EmptyResourceDocument;
-type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
-type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
-type JsonApiDocument = import('../ts-interfaces/ember-data-json-api').JsonApiDocument;
-type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
-type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
-type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
-type RecordData = import('../ts-interfaces/record-data').RecordData;
-type DSModel = import('../ts-interfaces/ds-model').DSModel;
-type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
-type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
-type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
-type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
-type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
-type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
-type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
-type RequestCache = import('./request-cache').default;
-type FindOptions = import('../ts-interfaces/store').FindOptions;
 
 let _RecordData: RecordDataClass | undefined;
 
