@@ -89,19 +89,19 @@ function getDefaultValue(record, options, key) {
   ```app/transforms/text.js
   import Transform from '@ember-data/serializer/transform';
 
-  export default Transform.extend({
+  export default class TextTransform extends Transform {
     serialize(value, options) {
       if (options.uppercase) {
         return value.toUpperCase();
       }
 
       return value;
-    },
+    }
 
     deserialize(value) {
       return value;
     }
-  })
+  }
   ```
 
   @method attr
