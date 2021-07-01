@@ -54,9 +54,9 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       namespace: 'api/v1',
     });
 
-    ajaxResponse({ posts: [{ id: 1 }] });
+    ajaxResponse({ posts: [{ id: '1' }] });
 
-    await store.findRecord('post', 1);
+    await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl, 'http://example.com/api/v1/posts/1');
   });
@@ -79,7 +79,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       namespace: 'api/v1',
     });
 
-    ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
+    ajaxResponse({ posts: [{ id: '1', links: { comments: 'comments' } }] });
 
     let post = await store.findRecord('post', '1');
     ajaxResponse({ comments: [{ id: '1' }] });
