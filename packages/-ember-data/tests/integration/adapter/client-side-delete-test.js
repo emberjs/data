@@ -69,7 +69,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
       ],
     });
 
-    assert.deepEqual(bookstore.get('books').mapBy('id'), ['1', '2'], 'initial hasmany loaded');
+    assert.deepEqual(bookstore.books.mapBy('id'), ['1', '2'], 'initial hasmany loaded');
 
     let book2 = store.peekRecord('book', '2');
 
@@ -80,7 +80,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
     await settled();
 
     assert.false(store.hasRecordForId('book', '2'), 'book 2 unloaded');
-    assert.deepEqual(bookstore.get('books').mapBy('id'), ['1'], 'one book client-side deleted');
+    assert.deepEqual(bookstore.books.mapBy('id'), ['1'], 'one book client-side deleted');
 
     store.push({
       data: {
@@ -98,7 +98,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
     });
 
     assert.deepEqual(
-      bookstore.get('books').mapBy('id'),
+      bookstore.books.mapBy('id'),
       ['1', '2'],
       'the deleted book (with same id) is pushed back into the store'
     );
