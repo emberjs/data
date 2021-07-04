@@ -52,7 +52,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       return resolve({
         data: [
           {
-            id: 1,
+            id: '1',
             type: 'person',
             attributes: {
               name: 'Braaaahm Dale',
@@ -94,7 +94,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
         return resolve({
           data: [
             {
-              id: 1,
+              id: '1',
               type: 'person',
               attributes: {
                 name: 'Braaaahm Dale',
@@ -188,7 +188,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       data: [
         {
           type: 'person',
-          id: 1,
+          id: '1',
         },
       ],
     });
@@ -200,7 +200,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
     assert.true(persons.isUpdating);
 
-    findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
+    findAllDeferred.resolve({ data: [{ id: '2', type: 'person' }] });
 
     await promise;
     assert.false(persons.isUpdating);
@@ -220,7 +220,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       data: [
         {
           type: 'person',
-          id: 1,
+          id: '1',
         },
       ],
     });
@@ -234,7 +234,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
     assert.true(persons.isUpdating);
 
-    findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
+    findAllDeferred.resolve({ data: [{ id: '2', type: 'person' }] });
 
     await settled();
 
@@ -257,7 +257,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       data: [
         {
           type: 'person',
-          id: 1,
+          id: '1',
         },
       ],
     });
