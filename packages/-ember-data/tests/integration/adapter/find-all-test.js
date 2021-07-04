@@ -11,17 +11,13 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Person extends Model {
-  @attr()
-  updatedAt;
+  @attr updatedAt;
 
-  @attr()
-  name;
+  @attr name;
 
-  @attr()
-  firstName;
+  @attr firstName;
 
-  @attr()
-  lastName;
+  @attr lastName;
 
   toString() {
     return 'Person';
