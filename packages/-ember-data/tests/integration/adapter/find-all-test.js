@@ -196,17 +196,15 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     let persons = store.peekAll('person');
     assert.strictEqual(persons.length, 1);
 
-    let promise = store.findAll('person').then((persons) => {
-      assert.false(persons.isUpdating);
-      assert.strictEqual(persons.length, 2);
-      return persons;
-    });
+    let promise = store.findAll('person');
 
     assert.true(persons.isUpdating);
 
     findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
 
     await promise;
+    assert.false(persons.isUpdating);
+    assert.strictEqual(persons.length, 2);
   });
 
   test('isUpdating is true while records are fetched in the background', async function (assert) {
