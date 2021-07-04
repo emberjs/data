@@ -1,4 +1,3 @@
-import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
@@ -64,9 +63,9 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     };
 
     let allRecords = await store.findAll('person');
-    assert.strictEqual(get(allRecords, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
+    assert.strictEqual(allRecords.length, 1, "the record array's length is 1 after a record is loaded into it");
     assert.strictEqual(
-      allRecords.objectAt(0).get('name'),
+      allRecords.objectAt(0).name,
       'Braaaahm Dale',
       'the first item in the record array is Braaaahm Dale'
     );
@@ -110,12 +109,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       assert.ok(true, 'The rejection should get here');
       return store.findAll('person');
     });
-    assert.strictEqual(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
-    assert.strictEqual(
-      all.objectAt(0).get('name'),
-      'Braaaahm Dale',
-      'the first item in the record array is Braaaahm Dale'
-    );
+    assert.strictEqual(all.length, 1, "the record array's length is 1 after a record is loaded into it");
+    assert.strictEqual(all.objectAt(0).name, 'Braaaahm Dale', 'the first item in the record array is Braaaahm Dale');
   });
 
   test('When all records for a type are requested, records that are already loaded should be returned immediately.', async function (assert) {
@@ -137,14 +132,14 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
     let allRecords = store.peekAll('person');
 
-    assert.strictEqual(get(allRecords, 'length'), 2, "the record array's length is 2");
+    assert.strictEqual(allRecords.length, 2, "the record array's length is 2");
     assert.strictEqual(
-      allRecords.objectAt(0).get('name'),
+      allRecords.objectAt(0).name,
       'Jeremy Ashkenas',
       'the first item in the record array is Jeremy Ashkenas'
     );
     assert.strictEqual(
-      allRecords.objectAt(1).get('name'),
+      allRecords.objectAt(1).name,
       'Alex MacCaw',
       'the second item in the record array is Alex MacCaw'
     );
@@ -156,7 +151,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     let allRecords = store.peekAll('person');
 
     assert.strictEqual(
-      get(allRecords, 'length'),
+      allRecords.length,
       0,
       "precond - the record array's length is zero before any records are loaded"
     );
@@ -166,9 +161,9 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
     await settled();
 
-    assert.strictEqual(get(allRecords, 'length'), 1, "the record array's length is 1");
+    assert.strictEqual(allRecords.length, 1, "the record array's length is 1");
     assert.strictEqual(
-      allRecords.objectAt(0).get('name'),
+      allRecords.objectAt(0).name,
       'Carsten Nielsen',
       'the first item in the record array is Carsten Nielsen'
     );
@@ -199,15 +194,15 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     });
 
     let persons = store.peekAll('person');
-    assert.strictEqual(persons.get('length'), 1);
+    assert.strictEqual(persons.length, 1);
 
     let promise = store.findAll('person').then((persons) => {
-      assert.false(persons.get('isUpdating'));
-      assert.strictEqual(persons.get('length'), 2);
+      assert.false(persons.isUpdating);
+      assert.strictEqual(persons.length, 2);
       return persons;
     });
 
-    assert.true(persons.get('isUpdating'));
+    assert.true(persons.isUpdating);
 
     findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
 
@@ -233,13 +228,13 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     });
 
     let persons = store.peekAll('person');
-    assert.strictEqual(persons.get('length'), 1);
+    assert.strictEqual(persons.length, 1);
 
     persons = await store.findAll('person');
-    assert.true(persons.get('isUpdating'));
-    assert.strictEqual(persons.get('length'), 1, 'persons are updated in the background');
+    assert.true(persons.isUpdating);
+    assert.strictEqual(persons.length, 1, 'persons are updated in the background');
 
-    assert.true(persons.get('isUpdating'));
+    assert.true(persons.isUpdating);
 
     findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
 
@@ -247,8 +242,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
     await findAllDeferred.promise;
 
-    assert.false(persons.get('isUpdating'));
-    assert.strictEqual(persons.get('length'), 2);
+    assert.false(persons.isUpdating);
+    assert.strictEqual(persons.length, 2);
   });
 
   test('isUpdating is false if records are not fetched in the background', async function (assert) {
@@ -270,9 +265,9 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     });
 
     let persons = store.peekAll('person');
-    assert.strictEqual(persons.get('length'), 1);
+    assert.strictEqual(persons.length, 1);
 
     persons = await store.findAll('person');
-    assert.false(persons.get('isUpdating'));
+    assert.false(persons.isUpdating);
   });
 });
