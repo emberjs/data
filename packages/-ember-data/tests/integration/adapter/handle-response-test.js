@@ -34,14 +34,14 @@ module('integration/adapter/handle-response', function (hooks) {
     let samplePayload = {
       data: [
         {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: {
             name: 'John Smith',
           },
         },
         {
-          id: 2,
+          id: '2',
           type: 'person',
           attributes: {
             name: 'Zhang San',
@@ -51,7 +51,7 @@ module('integration/adapter/handle-response', function (hooks) {
     };
 
     this.server.get('/people', function () {
-      return [200, { 'Content-Type': 'application/json' }, JSON.stringify(samplePayload)];
+      return ['200', { 'Content-Type': 'application/json' }, JSON.stringify(samplePayload)];
     });
 
     class TestAdapter extends JSONAPIAdapter {
@@ -77,7 +77,7 @@ module('integration/adapter/handle-response', function (hooks) {
     };
 
     this.server.get('/people', function () {
-      return [200, { 'Content-Type': 'application/json' }, JSON.stringify(samplePayload)];
+      return ['200', { 'Content-Type': 'application/json' }, JSON.stringify(samplePayload)];
     });
 
     class TestAdapter extends JSONAPIAdapter {
@@ -99,7 +99,7 @@ module('integration/adapter/handle-response', function (hooks) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function () {
-      return [200, { 'Content-Type': 'application/json' }, ''];
+      return ['200', { 'Content-Type': 'application/json' }, ''];
     });
 
     class TestAdapter extends JSONAPIAdapter {
@@ -126,7 +126,7 @@ module('integration/adapter/handle-response', function (hooks) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function () {
-      return [200, { 'Content-Type': 'application/json' }, 'bogus response'];
+      return ['200', { 'Content-Type': 'application/json' }, 'bogus response'];
     });
 
     class TestAdapter extends JSONAPIAdapter {
@@ -153,7 +153,7 @@ module('integration/adapter/handle-response', function (hooks) {
     let handleResponseCalled = 0;
 
     this.server.get('/people', function () {
-      return [400, { 'Content-Type': 'application/json' }, ''];
+      return ['400', { 'Content-Type': 'application/json' }, ''];
     });
 
     class TestAdapter extends JSONAPIAdapter {
@@ -182,7 +182,7 @@ module('integration/adapter/handle-response', function (hooks) {
     let errorObject = { errors: {} };
 
     this.server.get('/people', function () {
-      return [422, { 'Content-Type': 'application/json' }, JSON.stringify(errorObject)];
+      return ['422', { 'Content-Type': 'application/json' }, JSON.stringify(errorObject)];
     });
 
     class TestAdapter extends JSONAPIAdapter {
