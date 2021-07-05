@@ -12,9 +12,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   setupTest(hooks);
 
   testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', async function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
@@ -34,9 +34,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function (assert) {
     assert.expect(2);
 
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
@@ -73,9 +73,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   });
 
   test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', async function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
@@ -119,9 +119,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   });
 
   test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', async function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
@@ -146,9 +146,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   });
 
   test('When a single record is requested, and the promise is rejected, the record should be unloaded.', async function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
@@ -174,9 +174,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   });
 
   testInDebug('When a single record is requested, and the payload is blank', async function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
@@ -202,9 +202,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   });
 
   testInDebug('When multiple records are requested, and the payload is blank', async function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
@@ -231,9 +231,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   });
 
   testInDebug('warns when returned record has different id', async function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
@@ -263,9 +263,9 @@ module('integration/adapter/find - Finding Records', function (hooks) {
   });
 
   testInDebug('coerces ids before warning when returned record has different id', async function (assert) {
-    const Person = Model.extend({
-      name: attr('string'),
-    });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
