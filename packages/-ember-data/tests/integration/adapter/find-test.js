@@ -283,7 +283,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
         findRecord() {
           return {
             data: {
-              id: 1,
+              id: '1',
               type: 'person',
               attributes: {
                 name: 'camilo-zuniga',
