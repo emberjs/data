@@ -95,15 +95,13 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
     let store = this.owner.lookup('service:store');
 
-    let firstPlayerRequest = store.findRecord('person', '1').then(function (firstPlayerRequest) {
-      assert.strictEqual(firstPlayerRequest.id, '1');
-      assert.strictEqual(firstPlayerRequest.name, 'Totono Grisales');
-    });
+    let firstPlayerRequest = await store.findRecord('person', '1');
+    assert.strictEqual(firstPlayerRequest.id, '1');
+    assert.strictEqual(firstPlayerRequest.name, 'Totono Grisales');
 
-    let secondPlayerRequest = store.findRecord('person', '1').then(function (secondPlayerRequest) {
-      assert.strictEqual(secondPlayerRequest.id, '1');
-      assert.strictEqual(secondPlayerRequest.name, 'Totono Grisales');
-    });
+    let secondPlayerRequest = await store.findRecord('person', '1');
+    assert.strictEqual(secondPlayerRequest.id, '1');
+    assert.strictEqual(secondPlayerRequest.name, 'Totono Grisales');
 
     resolveFindRecordPromise({
       data: {
