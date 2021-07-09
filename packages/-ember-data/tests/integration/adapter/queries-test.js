@@ -19,7 +19,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
   });
 
   testInDebug('It raises an assertion when no type is passed', function (assert) {
-    const Person = Model.extend();
+    class Person extends Model {}
 
     this.owner.register('model:person', Person);
 
@@ -31,7 +31,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
   });
 
   testInDebug('It raises an assertion when no query hash is passed', function (assert) {
-    const Person = Model.extend();
+    class Person extends Model {}
 
     this.owner.register('model:person', Person);
 
@@ -43,7 +43,9 @@ module('integration/adapter/queries - Queries', function (hooks) {
   });
 
   test('When a query is made, the adapter should receive a record array it can populate with the results of the query.', async function (assert) {
-    const Person = Model.extend({ name: attr() });
+    class Person extends Model {
+      @attr name;
+    }
 
     this.owner.register('model:person', Person);
 
@@ -85,7 +87,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
   test('a query can be updated via `update()`', async function (assert) {
     assert.expect(8);
 
-    const Person = Model.extend();
+    class Person extends Model {}
 
     this.owner.register('model:person', Person);
 
@@ -132,7 +134,9 @@ module('integration/adapter/queries - Queries', function (hooks) {
   testInDebug(
     'The store asserts when query is made and the adapter responses with a single record.',
     async function (assert) {
-      const Person = Model.extend({ name: attr() });
+      class Person extends Model {
+        @attr name;
+      }
 
       this.owner.register('model:person', Person);
 
