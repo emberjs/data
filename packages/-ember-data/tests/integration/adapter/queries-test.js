@@ -53,7 +53,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.query = function (store, type, query, recordArray) {
-      assert.equal(type, Person, 'the query method is called with the correct type');
+      assert.strictEqual(type, Person, 'the query method is called with the correct type');
 
       return EmberPromise.resolve({
         data: [
@@ -77,11 +77,11 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
     let queryResults = await store.query('person', { page: '1' });
 
-    assert.equal(queryResults.length, 2, 'the record array has a length of 2 after the results are loaded');
+    assert.strictEqual(queryResults.length, 2, 'the record array has a length of 2 after the results are loaded');
     assert.true(queryResults.isLoaded, "the record array's `isLoaded` property should be true");
 
-    assert.equal(queryResults.objectAt(0).name, 'Peter Wagenet', "the first record is 'Peter Wagenet'");
-    assert.equal(queryResults.objectAt(1).name, 'Brohuda Katz', "the second record is 'Brohuda Katz'");
+    assert.strictEqual(queryResults.objectAt(0).name, 'Peter Wagenet', "the first record is 'Peter Wagenet'");
+    assert.strictEqual(queryResults.objectAt(1).name, 'Brohuda Katz', "the second record is 'Brohuda Katz'");
   });
 
   test('a query can be updated via `update()`', async function (assert) {
@@ -100,8 +100,8 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
     let personsQuery = await store.query('person', {});
 
-    assert.equal(personsQuery.length, 1, 'There is one person');
-    assert.equal(personsQuery.firstObject.id, 'first', 'the right person is present');
+    assert.strictEqual(personsQuery.length, 1, 'There is one person');
+    assert.strictEqual(personsQuery.firstObject.id, 'first', 'the right person is present');
     assert.false(personsQuery.isUpdating, 'RecordArray is not updating');
 
     let resolveQueryPromise;
@@ -127,8 +127,8 @@ module('integration/adapter/queries - Queries', function (hooks) {
     await settled();
 
     assert.false(personsQuery.isUpdating, 'RecordArray is not updating anymore');
-    assert.equal(personsQuery.length, 1, 'There is still one person after update resolves');
-    assert.equal(personsQuery.firstObject.id, 'second', 'Now it is a different person');
+    assert.strictEqual(personsQuery.length, 1, 'There is still one person after update resolves');
+    assert.strictEqual(personsQuery.firstObject.id, 'second', 'Now it is a different person');
   });
 
   testInDebug(
@@ -144,7 +144,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
       let adapter = store.adapterFor('application');
 
       adapter.query = function (store, type, query, recordArray) {
-        assert.equal(type, Person, 'the query method is called with the correct type');
+        assert.strictEqual(type, Person, 'the query method is called with the correct type');
 
         return resolve({
           data: { id: '1', type: 'person', attributes: { name: 'Peter Wagenet' } },
