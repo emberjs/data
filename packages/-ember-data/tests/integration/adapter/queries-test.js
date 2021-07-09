@@ -75,7 +75,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
       });
     };
 
-    let queryResults = await store.query('person', { page: 1 });
+    let queryResults = await store.query('person', { page: '1' });
 
     assert.equal(queryResults.length, 2, 'the record array has a length of 2 after the results are loaded');
     assert.true(queryResults.isLoaded, "the record array's `isLoaded` property should be true");
@@ -147,12 +147,12 @@ module('integration/adapter/queries - Queries', function (hooks) {
         assert.equal(type, Person, 'the query method is called with the correct type');
 
         return resolve({
-          data: { id: 1, type: 'person', attributes: { name: 'Peter Wagenet' } },
+          data: { id: '1', type: 'person', attributes: { name: 'Peter Wagenet' } },
         });
       };
 
       await assert.expectAssertion(async () => {
-        await store.query('person', { page: 1 });
+        await store.query('person', { page: '1' });
       }, /The response to store.query is expected to be an array but it was a single record/);
     }
   );
