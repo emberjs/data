@@ -12,17 +12,17 @@ module('integration/adapter/record_persistence - Persisting Records', function (
 
   test("When a store is committed, the adapter's `updateRecord` method should be called with records that have been changed.", async function (assert) {
     assert.expect(2);
-
-    const Person = Model.extend({
-      updatedAt: attr('string'),
-      name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
-    });
-
-    const ApplicationAdapter = Adapter.extend({
-      shouldBackgroundReloadRecord: () => false,
-    });
+    class Person extends Model {
+      @attr('string') updatedAt;
+      @attr('string') name;
+      @attr('string') firstName;
+      @attr('string') lastName;
+    }
+    class ApplicationAdapter extends Adapter {
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
@@ -56,16 +56,17 @@ module('integration/adapter/record_persistence - Persisting Records', function (
   test("When a store is committed, the adapter's `createRecord` method should be called with records that have been created.", async function (assert) {
     assert.expect(2);
 
-    const Person = Model.extend({
-      updatedAt: attr('string'),
-      name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
-    });
-
-    const ApplicationAdapter = Adapter.extend({
-      shouldBackgroundReloadRecord: () => false,
-    });
+    class Person extends Model {
+      @attr('string') updatedAt;
+      @attr('string') name;
+      @attr('string') firstName;
+      @attr('string') lastName;
+    }
+    class ApplicationAdapter extends Adapter {
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
@@ -91,16 +92,17 @@ module('integration/adapter/record_persistence - Persisting Records', function (
   test('After a created record has been assigned an ID, finding a record by that ID returns the original record.', async function (assert) {
     assert.expect(1);
 
-    const Person = Model.extend({
-      updatedAt: attr('string'),
-      name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
-    });
-
-    const ApplicationAdapter = Adapter.extend({
-      shouldBackgroundReloadRecord: () => false,
-    });
+    class Person extends Model {
+      @attr('string') updatedAt;
+      @attr('string') name;
+      @attr('string') firstName;
+      @attr('string') lastName;
+    }
+    class ApplicationAdapter extends Adapter {
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
@@ -124,16 +126,17 @@ module('integration/adapter/record_persistence - Persisting Records', function (
   });
 
   test("when a store is committed, the adapter's `deleteRecord` method should be called with records that have been deleted.", async function (assert) {
-    const Person = Model.extend({
-      updatedAt: attr('string'),
-      name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
-    });
-
-    const ApplicationAdapter = Adapter.extend({
-      shouldBackgroundReloadRecord: () => false,
-    });
+    class Person extends Model {
+      @attr('string') updatedAt;
+      @attr('string') name;
+      @attr('string') firstName;
+      @attr('string') lastName;
+    }
+    class ApplicationAdapter extends Adapter {
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
@@ -169,16 +172,17 @@ module('integration/adapter/record_persistence - Persisting Records', function (
   });
 
   test('An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.', async function (assert) {
-    const Person = Model.extend({
-      updatedAt: attr('string'),
-      name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
-    });
-
-    const ApplicationAdapter = Adapter.extend({
-      shouldBackgroundReloadRecord: () => false,
-    });
+    class Person extends Model {
+      @attr('string') updatedAt;
+      @attr('string') name;
+      @attr('string') firstName;
+      @attr('string') lastName;
+    }
+    class ApplicationAdapter extends Adapter {
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
@@ -265,16 +269,17 @@ module('integration/adapter/record_persistence - Persisting Records', function (
   });
 
   test('An adapter can notify the store that records were deleted by calling `didSaveRecords`.', async function (assert) {
-    const Person = Model.extend({
-      updatedAt: attr('string'),
-      name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
-    });
-
-    const ApplicationAdapter = Adapter.extend({
-      shouldBackgroundReloadRecord: () => false,
-    });
+    class Person extends Model {
+      @attr('string') updatedAt;
+      @attr('string') name;
+      @attr('string') firstName;
+      @attr('string') lastName;
+    }
+    class ApplicationAdapter extends Adapter {
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
@@ -322,16 +327,17 @@ module('integration/adapter/record_persistence - Persisting Records', function (
   test('Create record response does not have to include the type property', async function (assert) {
     assert.expect(2);
 
-    const Person = Model.extend({
-      updatedAt: attr('string'),
-      name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
-    });
-
-    const ApplicationAdapter = Adapter.extend({
-      shouldBackgroundReloadRecord: () => false,
-    });
+    class Person extends Model {
+      @attr('string') updatedAt;
+      @attr('string') name;
+      @attr('string') firstName;
+      @attr('string') lastName;
+    }
+    class ApplicationAdapter extends Adapter {
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    }
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
