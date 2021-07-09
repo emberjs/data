@@ -114,7 +114,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     let tom;
 
     adapter.createRecord = function (store, type, snapshot) {
-      return resolve({ data: { id: 1, type: 'person', attributes: { name: 'Tom Dale' } } });
+      return resolve({ data: { id: '1', type: 'person', attributes: { name: 'Tom Dale' } } });
     };
 
     tom = store.createRecord('person', { name: 'Tom Dale' });
