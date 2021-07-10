@@ -116,11 +116,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let tom = store.createRecord('person', { name: 'Tom Dale' });
     let yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
 
-    let promise = run(() => {
-      return hash({
-        tom: tom.save(),
-        yehuda: yehuda.save(),
-      });
+    let promise = hash({
+      tom: tom.save(),
+      yehuda: yehuda.save(),
     });
 
     return promise.then((records) => {
@@ -178,11 +176,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = run(() => {
-      return hash({
-        tom: store.findRecord('person', 1),
-        yehuda: store.findRecord('person', 2),
-      });
+    let promise = hash({
+      tom: store.findRecord('person', 1),
+      yehuda: store.findRecord('person', 2),
     });
 
     return promise
@@ -318,11 +314,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = run(() => {
-      return hash({
-        tom: store.findRecord('person', 1),
-        yehuda: store.findRecord('person', 2),
-      });
+    let promise = hash({
+      tom: store.findRecord('person', 1),
+      yehuda: store.findRecord('person', 2),
     });
 
     return promise.then((records) => {
@@ -381,11 +375,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = run(() => {
-      return hash({
-        tom: store.findRecord('person', 1),
-        yehuda: store.findRecord('person', 2),
-      });
+    let promise = hash({
+      tom: store.findRecord('person', 1),
+      yehuda: store.findRecord('person', 2),
     });
 
     return promise.then((records) => {
@@ -705,19 +697,17 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Brohuda Brokatz',
-          },
+    let yehuda = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Brohuda Brokatz',
         },
-      });
-
-      return store.peekRecord('person', 1);
+      },
     });
+
+    store.peekRecord('person', 1);
 
     return store
       .findRecord('person', 1)
@@ -774,18 +764,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Brohuda Brokatz',
-          },
+    let yehuda = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Brohuda Brokatz',
         },
-      });
-      return store.peekRecord('person', 1);
+      },
     });
+    store.peekRecord('person', 1);
 
     return store
       .findRecord('person', 1)
@@ -855,18 +843,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Brohuda Brokatz',
-          },
+    let yehuda = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Brohuda Brokatz',
         },
-      });
-      return store.peekRecord('person', 1);
+      },
     });
+    store.peekRecord('person', 1);
 
     return store
       .findRecord('person', 1)
@@ -921,18 +907,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return reject(error);
     };
 
-    let person = run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'John Doe',
-          },
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'John Doe',
         },
-      });
-      return store.peekRecord('person', 1);
+      },
     });
+    store.peekRecord('person', 1);
 
     store
       .findRecord('person', 1)
@@ -1559,7 +1543,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.createRecord = null;
 
-    let tom = run(() => store.createRecord('person', { name: 'Tom Dale' }));
+    let tom = store.createRecord('person', { name: 'Tom Dale' });
 
     assert.expectAssertion(() => {
       run(() => tom.save());
@@ -1574,7 +1558,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.updateRecord = null;
 
-    let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
+    let tom = store.push({ data: { type: 'person', id: 1 } });
+
     assert.expectAssertion(() => {
       run(() => tom.save());
     }, /does not implement 'updateRecord'/);
@@ -1588,7 +1573,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.deleteRecord = null;
 
-    let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
+    let tom = store.push({ data: { type: 'person', id: 1 } });
 
     assert.expectAssertion(() => {
       run(() => {
