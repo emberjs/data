@@ -52,14 +52,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve({
         data: [
           {
-            id: 1,
+            id: '1',
             type: 'person',
             attributes: {
               name: 'Mickael Ramírez',
             },
           },
           {
-            id: 2,
+            id: '2',
             type: 'person',
             attributes: {
               name: 'Johny Fontana',
@@ -125,8 +125,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     tom = records.tom;
     yehuda = records.yehuda;
 
-    assert.asyncEqual(tom, store.findRecord('person', 1), 'Once an ID is in, findRecord returns the same object');
-    assert.asyncEqual(yehuda, store.findRecord('person', 2), 'Once an ID is in, findRecord returns the same object');
+    assert.asyncEqual(tom, store.findRecord('person', '1'), 'Once an ID is in, findRecord returns the same object');
+    assert.asyncEqual(yehuda, store.findRecord('person', '2'), 'Once an ID is in, findRecord returns the same object');
     assert.strictEqual(tom.updatedAt, 'now', 'The new information is received');
     assert.strictEqual(yehuda.updatedAt, 'now', 'The new information is received');
   });
@@ -176,8 +176,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
 
     let promise = hash({
-      tom: store.findRecord('person', 1),
-      yehuda: store.findRecord('person', 2),
+      tom: store.findRecord('person', '1'),
+      yehuda: store.findRecord('person', '2'),
     });
 
     let records1 = await promise;
@@ -216,13 +216,13 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       if (count === 1) {
         assert.strictEqual(snapshot.attr('name'), 'Tom Dale');
         return resolve({
-          data: { id: 1, type: 'person', attributes: { name: 'Tom Dale', 'updated-at': 'now' } },
+          data: { id: '1', type: 'person', attributes: { name: 'Tom Dale', 'updated-at': 'now' } },
         });
       } else if (count === 2) {
         assert.strictEqual(snapshot.attr('name'), 'Yehuda Katz');
         return resolve({
           data: {
-            id: 2,
+            id: '2',
             type: 'person',
             attributes: { name: 'Yehuda Katz', 'updated-at': 'now!' },
           },
@@ -311,8 +311,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
 
     let promise = hash({
-      tom: store.findRecord('person', 1),
-      yehuda: store.findRecord('person', 2),
+      tom: store.findRecord('person', '1'),
+      yehuda: store.findRecord('person', '2'),
     });
 
     let records = await promise;
@@ -371,8 +371,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
 
     let promise = hash({
-      tom: store.findRecord('person', 1),
-      yehuda: store.findRecord('person', 2),
+      tom: store.findRecord('person', '1'),
+      yehuda: store.findRecord('person', '2'),
     });
 
     let records = await promise;
@@ -493,7 +493,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.createRecord('person', { id: 1, name: 'Yehuda Katz' });
+    let yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
     // Wrap this in an Ember.run so that all chained async behavior is set up
     // before flushing any scheduled behavior.
 
@@ -545,7 +545,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.createRecord('person', { id: 1, name: 'Yehuda Katz' });
+    let yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
 
     // Wrap this in an Ember.run so that all chained async behavior is set up
     // before flushing any scheduled behavior.
@@ -604,7 +604,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.createRecord('person', { id: 1, name: 'Yehuda Katz' });
+    let yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
 
     // Wrap this in an Ember.run so that all chained async behavior is set up
     // before flushing any scheduled behavior.
@@ -653,7 +653,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return reject(error);
     };
 
-    let person = store.createRecord('person', { id: 1, name: 'John Doe' });
+    let person = store.createRecord('person', { id: '1', name: 'John Doe' });
 
     return person.save().catch(() => {
       assert.ok(person.isError, 'the record is in the error state');
@@ -697,9 +697,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       },
     });
 
-    store.peekRecord('person', 1);
+    store.peekRecord('person', '1');
 
-    let person = await store.findRecord('person', 1);
+    let person = await store.findRecord('person', '1');
     assert.strictEqual(person, yehuda, 'The same object is passed through');
 
     assert.true(yehuda.isValid, 'precond - the record is valid');
@@ -758,9 +758,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    store.peekRecord('person', 1);
+    store.peekRecord('person', '1');
 
-    let person = await store.findRecord('person', 1);
+    let person = await store.findRecord('person', '1');
 
     assert.strictEqual(person, yehuda, 'The same object is passed through');
 
@@ -833,9 +833,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    store.peekRecord('person', 1);
+    store.peekRecord('person', '1');
 
-    let person = await store.findRecord('person', 1);
+    let person = await store.findRecord('person', '1');
     assert.strictEqual(person, yehuda, 'The same object is passed through');
 
     assert.true(yehuda.isValid, 'precond - the record is valid');
@@ -894,9 +894,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    store.peekRecord('person', 1);
+    store.peekRecord('person', '1');
 
-    let record = await store.findRecord('person', 1);
+    let record = await store.findRecord('person', '1');
 
     assert.strictEqual(record, person, 'The person was resolved');
     person.set('name', 'Jonathan Doe');
@@ -916,10 +916,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(type, Person, 'the type is correct');
-      return resolve({ data: { id: 1, type: 'person' } });
+      return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    store.findRecord('person', 1);
+    store.findRecord('person', '1');
   });
 
   test('relationships returned via `commit` do not trigger additional findManys', async function (assert) {
@@ -946,12 +946,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.findRecord = function (store, type, id, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: { name: 'Tom Dale' },
           relationships: {
             dogs: {
-              data: [{ id: 1, type: 'dog' }],
+              data: [{ id: '1', type: 'dog' }],
             },
           },
         },
@@ -987,7 +987,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           ],
         });
 
-        resolve({ data: { id: 1, type: 'dog', attributes: { name: 'Scruffy' } } });
+        resolve({ data: { id: '1', type: 'dog', attributes: { name: 'Scruffy' } } });
       });
     };
 
@@ -1018,7 +1018,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(count++, 0, 'findHasMany is only called once');
 
-      return resolve({ data: [{ id: 1, type: 'dog', attributes: { name: 'Scruffy' } }] });
+      return resolve({ data: [{ id: '1', type: 'dog', attributes: { name: 'Scruffy' } }] });
     };
 
     store.push({
@@ -1038,7 +1038,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       },
     });
 
-    let person = await store.findRecord('person', 1);
+    let person = await store.findRecord('person', '1');
 
     let tom = person;
     let dogs = tom.dogs;
@@ -1079,7 +1079,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.createRecord = function (store, type, snapshot) {
       return resolve({
         data: {
-          id: 1,
+          id: '1',
           type: 'person',
           attributes: {
             name: 'Tom Dale',
@@ -1110,7 +1110,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       return resolve();
     };
 
-    let record = store.createRecord('person', { name: 'Tom Dale', id: 1 });
+    let record = store.createRecord('person', { name: 'Tom Dale', id: '1' });
 
     record.save();
   });
@@ -1137,7 +1137,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', 1);
+    person = store.peekRecord('person', '1');
 
     set(person, 'name', 'Tomster');
     person.save();
@@ -1165,7 +1165,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', 1);
+    person = store.peekRecord('person', '1');
 
     person.deleteRecord();
     return person.save();
@@ -1179,10 +1179,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve({ data: { id: 1, type: 'person' } });
+      return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    store.findRecord('person', 1);
+    store.findRecord('person', '1');
   });
 
   test('findMany receives an array of snapshots', function (assert) {
@@ -1202,8 +1202,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       assert.ok(snapshots[1] instanceof Snapshot, 'snapshots[1] is an instance of Snapshot');
       return resolve({
         data: [
-          { id: 2, type: 'dog' },
-          { id: 3, type: 'dog' },
+          { id: '2', type: 'dog' },
+          { id: '3', type: 'dog' },
         ],
       });
     };
@@ -1224,7 +1224,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', 1);
+    person = store.peekRecord('person', '1');
 
     person.dogs;
   });
@@ -1244,8 +1244,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
       return resolve({
         data: [
-          { id: 2, type: 'dog' },
-          { id: 3, type: 'dog' },
+          { id: '2', type: 'dog' },
+          { id: '3', type: 'dog' },
         ],
       });
     };
@@ -1265,7 +1265,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', 1);
+    person = store.peekRecord('person', '1');
 
     person.dogs;
   });
@@ -1283,7 +1283,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
       assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve({ data: { id: 2, type: 'dog' } });
+      return resolve({ data: { id: '2', type: 'dog' } });
     };
 
     let person;
@@ -1301,7 +1301,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', 1);
+    person = store.peekRecord('person', '1');
 
     person.dog;
   });
@@ -1314,7 +1314,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.updateRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
-      return resolve({ data: { id: 1, type: 'person' } });
+      return resolve({ data: { id: '1', type: 'person' } });
     };
 
     store.push({
@@ -1326,7 +1326,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    let person = store.peekRecord('person', 1);
+    let person = store.peekRecord('person', '1');
     return person.save({ adapterOptions: { subscribe: true } });
   });
 
@@ -1338,7 +1338,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.createRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
-      return resolve({ data: { id: 1, type: 'person' } });
+      return resolve({ data: { id: '1', type: 'person' } });
     };
 
     store.createRecord('person', { name: 'Tom' }).save({ adapterOptions: { subscribe: true } });
@@ -1352,7 +1352,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.deleteRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
-      return resolve({ data: { id: 1, type: 'person' } });
+      return resolve({ data: { id: '1', type: 'person' } });
     };
 
     store.push({
@@ -1364,7 +1364,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    let person = store.peekRecord('person', 1);
+    let person = store.peekRecord('person', '1');
     person.destroyRecord({ adapterOptions: { subscribe: true } });
   });
 
@@ -1376,10 +1376,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
-      return resolve({ data: { id: 1, type: 'person' } });
+      return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    return store.findRecord('person', 1, { adapterOptions: { query: { embed: true } } });
+    return store.findRecord('person', '1', { adapterOptions: { query: { embed: true } } });
   });
 
   test('store.query should pass adapterOptions to adapter.query ', function (assert) {
@@ -1406,7 +1406,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.queryRecord = function (store, type, query, snapshot) {
       assert.notOk('adapterOptions' in query);
       assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
-      return { data: { type: 'person', id: 1, attributes: {} } };
+      return { data: { type: 'person', id: '1', attributes: {} } };
     };
 
     return store.queryRecord('person', {}, { adapterOptions: { query: { embed: true } } });
@@ -1420,10 +1420,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findRecord = (store, type, id, snapshot) => {
       assert.strictEqual(snapshot.include, 'books', 'include passed to adapter.findRecord');
-      return resolve({ data: { id: 1, type: 'person' } });
+      return resolve({ data: { id: '1', type: 'person' } });
     };
 
-    store.findRecord('person', 1, { include: 'books' });
+    store.findRecord('person', '1', { include: 'books' });
   });
 
   test('store.findAll should pass adapterOptions to the adapter.findAll method', function (assert) {
@@ -1435,7 +1435,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.findAll = function (store, type, sinceToken, arraySnapshot) {
       let adapterOptions = arraySnapshot.adapterOptions;
       assert.deepEqual(adapterOptions, { query: { embed: true } });
-      return resolve({ data: [{ id: 1, type: 'person' }] });
+      return resolve({ data: [{ id: '1', type: 'person' }] });
     };
 
     return store.findAll('person', { adapterOptions: { query: { embed: true } } });
@@ -1449,7 +1449,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findAll = function (store, type, sinceToken, arraySnapshot) {
       assert.strictEqual(arraySnapshot.include, 'books', 'include passed to adapter.findAll');
-      return resolve({ data: [{ id: 1, type: 'person' }] });
+      return resolve({ data: [{ id: '1', type: 'person' }] });
     };
 
     store.findAll('person', { include: 'books' });
@@ -1469,7 +1469,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       findRecord() {
         return {
           posts: {
-            id: 1,
+            id: '1',
             name: 'Rails is omakase',
             links: { comments: '/posts/1/comments' },
           },
@@ -1478,9 +1478,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       findHasMany() {
         return resolve({
           comments: [
-            { id: 1, name: 'FIRST' },
-            { id: 2, name: 'Rails is unagi' },
-            { id: 3, name: 'What is omakase?' },
+            { id: '1', name: 'FIRST' },
+            { id: '2', name: 'Rails is unagi' },
+            { id: '3', name: 'What is omakase?' },
           ],
         });
       },
@@ -1524,7 +1524,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.updateRecord = null;
 
-    let tom = store.push({ data: { type: 'person', id: 1 } });
+    let tom = store.push({ data: { type: 'person', id: '1' } });
 
     assert.expectAssertion(() => {
       run(() => tom.save());
@@ -1539,7 +1539,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.deleteRecord = null;
 
-    let tom = store.push({ data: { type: 'person', id: 1 } });
+    let tom = store.push({ data: { type: 'person', id: '1' } });
 
     assert.expectAssertion(() => {
       run(() => {
