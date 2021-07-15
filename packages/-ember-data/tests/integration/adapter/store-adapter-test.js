@@ -1908,7 +1908,6 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     store.findAll('person', { include: 'books' });
   });
-
   test('An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord', async function (assert) {
     class Person extends Model {
       @attr('string') updatedAt;
@@ -1918,7 +1917,6 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     class Dog extends Model {
       @attr('string') name;
     }
-
     class Post extends Model {
       @attr('string') name;
       @hasMany('comment', { async: true }) comments;
@@ -1958,19 +1956,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     this.owner.register('model:comment', Comment);
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', RESTSerializer.extend());
-    this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', JSONAPISerializer.extend());
 
     let store = this.owner.lookup('service:store');
 
-    store
-      .findRecord('post', '1')
-      .then((post) => {
-        return post.comments;
-      })
-      .then((comments) => {
-        assert.strictEqual(comments.length, 3);
-      });
+    let post = await store.findRecord('post', '1');
+
+    let comments = await post.comments;
+
+    assert.strictEqual(comments.length, 3);
   });
 
   testInDebug('There should be a friendly error for if the adapter does not implement createRecord', function (assert) {
