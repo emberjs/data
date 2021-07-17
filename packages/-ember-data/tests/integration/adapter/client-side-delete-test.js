@@ -6,7 +6,7 @@ import { resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import Model, { belongsTo, hasMany, attr } from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/adapter/store-adapter - client-side delete', function (hooks) {
