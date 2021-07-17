@@ -13,7 +13,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
   testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', async function (assert) {
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
@@ -35,7 +35,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
     assert.expect(2);
 
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
@@ -74,7 +74,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
   test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', async function (assert) {
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
@@ -118,7 +118,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
   test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', async function (assert) {
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
@@ -145,7 +145,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
   test('When a single record is requested, and the promise is rejected, the record should be unloaded.', async function (assert) {
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
@@ -173,7 +173,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
   testInDebug('When a single record is requested, and the payload is blank', async function (assert) {
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
@@ -201,7 +201,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
   testInDebug('When multiple records are requested, and the payload is blank', async function (assert) {
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
@@ -230,7 +230,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
   testInDebug('warns when returned record has different id', async function (assert) {
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
@@ -262,7 +262,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
 
   testInDebug('coerces ids before warning when returned record has different id', async function (assert) {
     class Person extends Model {
-      @attr name;
+      @attr('string') name;
     }
 
     this.owner.register('model:person', Person);
