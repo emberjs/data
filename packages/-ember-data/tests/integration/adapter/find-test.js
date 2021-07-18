@@ -96,10 +96,12 @@ module('integration/adapter/find - Finding Records', function (hooks) {
     let store = this.owner.lookup('service:store');
 
     let firstPlayerRequest = await store.findRecord('person', '1');
+    let first = firstPlayerRequest;
     assert.strictEqual(firstPlayerRequest.id, '1');
     assert.strictEqual(firstPlayerRequest.name, 'Totono Grisales');
 
     let secondPlayerRequest = await store.findRecord('person', '1');
+    let second = secondPlayerRequest;
     assert.strictEqual(secondPlayerRequest.id, '1');
     assert.strictEqual(secondPlayerRequest.name, 'Totono Grisales');
 
@@ -113,7 +115,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
       },
     });
 
-    await allSettled([firstPlayerRequest, secondPlayerRequest]);
+    await allSettled([first, second]);
   });
 
   test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', async function (assert) {
