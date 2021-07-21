@@ -26,7 +26,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
   hooks.beforeEach(function () {
     let { owner } = this;
-    const SuperUser = Model.extend({});
+    class SuperUser extends Model {}
 
     owner.register('adapter:application', RESTAdapter.extend());
     owner.register('serializer:application', RESTSerializer.extend());
@@ -39,12 +39,13 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - with host and namespace', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+    }
+
+    class CommentModel extends Model {
+      @attr('string') name;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -62,14 +63,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - with relative paths in links', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -89,14 +90,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - with absolute paths in links', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -116,14 +117,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - with absolute paths in links and protocol relative host', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -143,14 +144,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - with absolute paths in links and host is /', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -170,14 +171,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - with full URLs in links', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -218,14 +219,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - buildURL takes a record from find', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -249,14 +250,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - buildURL takes the records from findMany', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -291,14 +292,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - buildURL takes a record from create', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -322,14 +323,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: true }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: true }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -359,14 +360,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - buildURL takes a record from update', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: true }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: true }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -396,14 +397,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - buildURL takes a record from delete', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: false }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: false }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
@@ -435,14 +436,14 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   });
 
   test('buildURL - with absolute namespace', async function (assert) {
-    const PostModel = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: false }),
-    });
-    const CommentModel = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false }),
-    });
+    class PostModel extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: false }) comments;
+    }
+    class CommentModel extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false }) post;
+    }
 
     this.owner.register('model:post', PostModel);
     this.owner.register('model:comment', CommentModel);
