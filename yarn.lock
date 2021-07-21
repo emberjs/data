@@ -6874,9 +6874,10 @@ ember-cache-primitive-polyfill@^1.0.1:
     ember-compatibility-helpers "^1.2.1"
     silent-error "^1.1.1"
 
-"ember-cached-decorator-polyfill@github:dcyriller/ember-cached-decorator-polyfill#fix-addons":
-  version "0.1.3"
-  resolved "https://codeload.github.com/dcyriller/ember-cached-decorator-polyfill/tar.gz/8a88281537d31305befac361e1b6683011485798"
+ember-cached-decorator-polyfill@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.npmjs.org/ember-cached-decorator-polyfill/-/ember-cached-decorator-polyfill-0.1.4.tgz#f1e2c65cc78d0d9c4ac0e047e643af477eb85ace"
+  integrity sha512-JOK7kBCWsTVCzmCefK4nr9BACDJk0owt9oIUaVt6Q0UtQ4XeAHmoK5kQ/YtDcxQF1ZevHQFdGhsTR3JLaHNJgA==
   dependencies:
     "@glimmer/tracking" "^1.0.4"
     ember-cache-primitive-polyfill "^1.0.1"
