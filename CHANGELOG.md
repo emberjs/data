@@ -1,5 +1,13 @@
 # Ember Data Changelog
 
+## Release v3.28.0-beta.2 (Jul 30, 2021)
+
+#### :bug: Bug Fix
+- [#7643](https://github.com/emberjs/data/pull/7643) @ember-data/model: Simplify @cached transpilation (#7599) ([@igorT](https://github.com/igorT))
+
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
 ## Release v3.28.0-beta.1 (May 27, 2021)
 
 #### :rocket: Enhancement
