@@ -228,7 +228,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [ember-release, ember-beta, ember-canary]
+        scenario: [ember-release]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
