@@ -443,8 +443,8 @@ module('integration/store - findRecord', function (hooks) {
     assert.strictEqual(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
   });
 
-  test('store#findRecord caches the inflight request igor', async function (assert) {
-    assert.expect(5);
+  test('store#findRecord caches the inflight requests', async function (assert) {
+    assert.expect(2);
 
     let calls = 0;
     let resolveHandler;
@@ -454,7 +454,7 @@ module('integration/store - findRecord', function (hooks) {
         id: '1',
         attributes: {
           make: 'BMC',
-          model: 'Mini'
+          model: 'Mini',
         },
       },
     };
@@ -468,8 +468,7 @@ module('integration/store - findRecord', function (hooks) {
 
         return new Promise((resolve) => {
           resolveHandler = resolve;
-        })
-
+        });
       },
     });
 
@@ -486,9 +485,8 @@ module('integration/store - findRecord', function (hooks) {
     });
 
     assert.strictEqual(calls, 1, 'We made one call to findRecord');
-    assert.strictEqual(firstPromise, secondPromise, 'Promise is cached');
 
-    resolveHandler(result); 
+    resolveHandler(result);
     let car1 = await firstPromise;
     let car2 = await secondPromise;
 
