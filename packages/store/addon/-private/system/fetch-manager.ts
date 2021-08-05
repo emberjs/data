@@ -11,10 +11,12 @@ import { default as RSVP, Promise } from 'rsvp';
 import { symbol } from '../utils/symbol';
 import coerceId from './coerce-id';
 import { errorsArrayToHash } from './errors-utils';
-import RequestCache from './request-cache';
+import RequestCache, { RequestPromise } from './request-cache';
 import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
+
+type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
 
 type CoreStore = import('./core-store').default;
 type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
@@ -503,6 +505,16 @@ export default class FetchManager {
       for (let i = 0; i < totalItems; i++) {
         this._fetchRecord(pendingFetchItems[i]);
       }
+    }
+  }
+
+  getPendingFetch(identifier: StableRecordIdentifier) {
+    let pendingRequests = this.requestCache
+      .getPendingRequestsForRecord(identifier)
+      .filter((req) => req.type === 'query');
+
+    if (pendingRequests.length > 0) {
+      return pendingRequests[0][RequestPromise];
     }
   }
 
