@@ -54,7 +54,6 @@ import RecordArrayManager from './record-array-manager';
 import { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
 import { RecordReference } from './references';
-import { RequestPromise } from './request-cache';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
 import {
@@ -1190,6 +1189,10 @@ abstract class CoreStore extends Service {
       }
     } else {
       if (internalModel.currentState.isLoading) {
+        let pending = this._fetchManager.getPendingFetch(internalModel.identifier);
+        if (pending) {
+          return pending.then(() => Promise.resolve(internalModel));
+        }
         return this._scheduleFetch(internalModel, options);
       }
     }
@@ -1885,13 +1888,9 @@ abstract class CoreStore extends Service {
     if (internalModel) {
       // short circuit if we are already loading
       if (REQUEST_SERVICE) {
-        // Temporary fix for requests already loading until we move this inside the fetch manager
-        let pendingRequests = this.getRequestStateService()
-          .getPendingRequestsForRecord(internalModel.identifier)
-          .filter((req) => req.type === 'query');
-
-        if (pendingRequests.length > 0) {
-          return pendingRequests[0][RequestPromise].then(() => internalModel.getRecord());
+        let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier);
+        if (pendingRequest) {
+          return pendingRequest.then(() => internalModel.getRecord());
         }
       } else {
         if (internalModel.currentState.isLoading) {
