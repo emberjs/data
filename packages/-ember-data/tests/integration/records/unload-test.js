@@ -9,6 +9,7 @@ import { all, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordDataFor } from '@ember-data/store/-private';
@@ -2511,4 +2512,22 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     return run(() => store.findRecord('person', 1, { backgroundReload: true }).then((person) => person.unloadRecord()));
   });
+
+  if (CUSTOM_MODEL_CLASS) {
+    test('unloading a non store managed record is deprecated', function (assert) {
+      let didUnload = false;
+      let randomRecord = {
+        unloadRecord() {
+          didUnload = true;
+        },
+      };
+      assert.expectDeprecation(
+        () => {
+          store.unloadRecord(randomRecord);
+        },
+        { id: 'ember-data:unload-record-non-store' }
+      );
+      assert.ok(didUnload, 'Did unload a non store record');
+    });
+  }
 });
