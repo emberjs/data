@@ -287,7 +287,6 @@ jobs:
         run: yarn test
 
   external-partners:
-    needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
