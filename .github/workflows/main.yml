@@ -287,13 +287,38 @@ jobs:
         run: yarn test
 
   external-partners:
+    needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
+    if: |
+       github.event_name == 'pull_request' && (
+         github.base_ref == 'master' || github.base_ref == 'beta'
+       ) || github.event_name == 'push' && (
+         endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+       )
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         partner:
           [
+            ember-data-relationship-tracker,
             ember-m3,
+            ember-observer,
+            ember-resource-metadata,
+            factory-guy,
+            ilios-frontend,
+            model-fragments,
+            storefront,
+            travis-web,
           ]
+        include:
+          - partner: storefront
+            continue-on-error: true
+          - partner: factory-guy
+            continue-on-error: true
+          - partner: travis-web
+            continue-on-error: true
+          - partner: model-fragments
+            continue-on-error: true
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
