@@ -217,7 +217,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   releases:
-    timeout-minutes: 6
+    timeout-minutes: 12 
     needs: [lint, basic-tests]
     if: |
       github.event_name == 'pull_request' && (
