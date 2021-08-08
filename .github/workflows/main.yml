@@ -300,25 +300,8 @@ jobs:
       matrix:
         partner:
           [
-            ember-data-relationship-tracker,
             ember-m3,
-            ember-observer,
-            ember-resource-metadata,
-            factory-guy,
-            ilios-frontend,
-            model-fragments,
-            storefront,
-            travis-web,
           ]
-        include:
-          - partner: storefront
-            continue-on-error: true
-          - partner: factory-guy
-            continue-on-error: true
-          - partner: travis-web
-            continue-on-error: true
-          - partner: model-fragments
-            continue-on-error: true
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2-beta
