@@ -288,12 +288,6 @@ jobs:
 
   external-partners:
     needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
-    if: |
-      github.event_name == 'pull_request' && (
-        github.base_ref == 'master' || github.base_ref == 'beta'
-      ) || github.event_name == 'push' && (
-        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
-      )
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
