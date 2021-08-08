@@ -56,7 +56,12 @@ import NotificationManager from './record-notification-manager';
 import { RecordReference } from './references';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
-import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
+import {
+  internalModelFactoryFor,
+  peekRecordIdentifier,
+  recordIdentifierFor,
+  setRecordIdentifier,
+} from './store/internal-model-factory';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
@@ -713,10 +718,27 @@ abstract class CoreStore extends Service {
     }
     this._backburner.join(() => {
       if (CUSTOM_MODEL_CLASS) {
-        let identifier = recordIdentifierFor(record);
-        let internalModel = internalModelFactoryFor(this).peek(identifier);
-        if (internalModel) {
-          internalModel.deleteRecord();
+        let identifier = peekRecordIdentifier(record);
+        if (identifier) {
+          let internalModel = internalModelFactoryFor(this).peek(identifier);
+          if (internalModel) {
+            internalModel.deleteRecord();
+          }
+        } else {
+          deprecate(
+            `You passed a non ember-data managed record ${record} to store.deleteRecord. Ember Data store is not meant to manage non store records. This is not supported and will be removed`,
+            false,
+            {
+              id: 'ember-data:delete-record-non-store',
+              until: '4.0',
+              for: '@ember-data/store',
+              since: {
+                available: '3.28',
+                enabled: '3.28',
+              },
+            }
+          );
+          record.deleteRecord();
         }
       } else {
         record.deleteRecord();
@@ -745,10 +767,27 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'unloadRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      let identifier = recordIdentifierFor(record);
-      let internalModel = internalModelFactoryFor(this).peek(identifier);
-      if (internalModel) {
-        internalModel.unloadRecord();
+      let identifier = peekRecordIdentifier(record);
+      if (identifier) {
+        let internalModel = internalModelFactoryFor(this).peek(identifier);
+        if (internalModel) {
+          internalModel.unloadRecord();
+        }
+      } else {
+        deprecate(
+          `You passed a non ember-data managed record ${record} to store.unloadRecord. Ember Data store is not meant to manage non store records. This is not supported and will be removed`,
+          false,
+          {
+            id: 'ember-data:unload-record-non-store',
+            until: '4.0',
+            for: '@ember-data/store',
+            since: {
+              available: '3.28',
+              enabled: '3.28',
+            },
+          }
+        );
+        record.unloadRecord();
       }
     } else {
       record.unloadRecord();

@@ -9,6 +9,7 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
@@ -1099,6 +1100,25 @@ module('integration/store - deleteRecord', function (hooks) {
     store.deleteRecord(person);
     assert.ok(person.isDeleted, 'expect person to be isDeleted');
   });
+
+  if (CUSTOM_MODEL_CLASS) {
+    test('deleting a non store managed record is deprecated', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let didDelete = false;
+      let randomRecord = {
+        deleteRecord() {
+          didDelete = true;
+        },
+      };
+      assert.expectDeprecation(
+        () => {
+          store.deleteRecord(randomRecord);
+        },
+        { id: 'ember-data:delete-record-non-store' }
+      );
+      assert.ok(didDelete, 'Did delete a non store record');
+    });
+  }
 
   test('Store should accept a null value for `data`', function (assert) {
     assert.expect(0);
