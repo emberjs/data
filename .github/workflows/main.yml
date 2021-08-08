@@ -289,7 +289,6 @@ jobs:
   external-partners:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         partner:
           [
@@ -309,11 +308,4 @@ jobs:
         env:
           CI: true
         run: yarn test-external:${{ matrix.partner }}
-        continue-on-error: ${{ matrix['continue-on-error'] == true }}
-      - name: upload built assets
-        if: failure() || success()
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.partner }}-dist
-          path: ${{ github.workspace }}/__external-test-cache/${{ matrix.partner }}/dist/assets
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
