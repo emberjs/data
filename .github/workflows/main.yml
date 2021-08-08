@@ -217,7 +217,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   releases:
-    timeout-minutes: 12 
+    timeout-minutes: 6
     needs: [lint, basic-tests]
     if: |
       github.event_name == 'pull_request' && (
@@ -228,7 +228,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [ember-release, ember-beta, ember-canary]
+        scenario: [ember-release, ember-beta]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
