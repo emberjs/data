@@ -1,5 +1,15 @@
 # Ember Data Changelog
 
+## Release v3.28.0-beta.3 (Aug 09, 2021)
+
+#### :bug: Bug Fix
+- [#7651](https://github.com/emberjs/data/pull/7651) Return inflight requests for findRecord when CUSTOM_MODEL_CLASS is on (#7651) ([@igorT](https://github.com/igorT))
+- [#7652](https://github.com/emberjs/data/pull/7652) Fir for CUSTOM_MODEL_CLASS and deprecate passing non ember data records to unloadRecord and deleteRecord (#7652) ([@igorT](https://github.com/igorT))
+
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
+
 ## Release v3.28.0-beta.2 (Jul 30, 2021)
 
 #### :bug: Bug Fix
