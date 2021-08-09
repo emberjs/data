@@ -1,6 +1,6 @@
 {
   "name": "adapter-encapsulation-test-app",
-  "version": "3.28.0-beta.2",
+  "version": "3.28.0-beta.3",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
   "repository": "",
@@ -18,15 +18,15 @@
     "test": "ember test  --test-port=0"
   },
   "dependencies": {
-    "@ember-data/debug": "3.28.0-beta.2",
-    "@ember-data/model": "3.28.0-beta.2",
-    "@ember-data/record-data": "3.28.0-beta.2",
-    "@ember-data/serializer": "3.28.0-beta.2",
-    "@ember-data/store": "3.28.0-beta.2",
+    "@ember-data/debug": "3.28.0-beta.3",
+    "@ember-data/model": "3.28.0-beta.3",
+    "@ember-data/record-data": "3.28.0-beta.3",
+    "@ember-data/serializer": "3.28.0-beta.3",
+    "@ember-data/store": "3.28.0-beta.3",
     "ember-inflector": "^4.0.1"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "3.28.0-beta.2",
+    "@ember-data/unpublished-test-infra": "3.28.0-beta.3",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.2.5",
     "broccoli-asset-rev": "^3.0.0",
