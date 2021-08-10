@@ -228,7 +228,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [ember-release, ember-beta]
+        scenario: [ember-release, ember-beta, ember-canary]
+        include:
+          - scenario: ember-beta
+            continue-on-error: true
+          - scenario: ember-canary
+            continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -241,6 +246,7 @@ jobs:
         env:
           CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
+        continue-on-error: ${{ matrix['continue-on-error'] == true }}
 
   additional-scenarios:
     timeout-minutes: 7
