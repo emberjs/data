@@ -228,11 +228,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        release: [ember-release, ember-beta, ember-canary]
+        release: [ember-release, ember-beta]
         include:
           - release: ember-beta
-            continue-on-error: true
-          - release: ember-canary
             continue-on-error: true
     runs-on: ubuntu-latest
     steps:
