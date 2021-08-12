@@ -228,11 +228,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [ember-release, ember-beta, ember-canary]
+        release: [ember-release, ember-beta, ember-canary]
         include:
-          - scenario: ember-beta
+          - release: ember-beta
             continue-on-error: true
-          - scenario: ember-canary
+          - release: ember-canary
             continue-on-error: true
     runs-on: ubuntu-latest
     steps:
@@ -242,10 +242,10 @@ jobs:
           node-version: 14.x
       - name: Install dependencies
         run: yarn install
-      - name: Basic tests with ${{ matrix.scenario }}
+      - name: Basic tests with ${{ matrix.release }}
         env:
           CI: true
-        run: yarn test:try-one ${{ matrix.scenario }}
+        run: yarn test:try-one ${{ matrix.release }}
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
 
   additional-scenarios:
