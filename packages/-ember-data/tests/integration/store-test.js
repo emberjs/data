@@ -9,6 +9,7 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
@@ -441,6 +442,56 @@ module('integration/store - findRecord', function (hooks) {
 
     assert.strictEqual(calls, 2, 'We made a second call to findRecord');
     assert.strictEqual(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
+  });
+
+  test('store#findRecord caches the inflight requests', async function (assert) {
+    assert.expect(2);
+
+    let calls = 0;
+    let resolveHandler;
+    let result = {
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini',
+        },
+      },
+    };
+
+    const testAdapter = DS.JSONAPIAdapter.extend({
+      shouldReloadRecord(store, type, id, snapshot) {
+        assert.ok(false, 'shouldReloadRecord should not be called when { reload: true }');
+      },
+      async findRecord() {
+        calls++;
+
+        return new Promise((resolve) => {
+          resolveHandler = resolve;
+        });
+      },
+    });
+
+    this.owner.register('adapter:application', testAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    let firstPromise, secondPromise;
+
+    run(() => {
+      firstPromise = store.findRecord('car', '1');
+    });
+
+    run(() => {
+      secondPromise = store.findRecord('car', '1');
+    });
+
+    assert.strictEqual(calls, 1, 'We made one call to findRecord');
+
+    resolveHandler(result);
+    let car1 = await firstPromise;
+    let car2 = await secondPromise;
+
+    assert.strictEqual(car1, car2, 'we receive the same car back');
   });
 
   test('store#findRecord { backgroundReload: false } returns cached record and does not reload in the background', async function (assert) {
@@ -1049,6 +1100,25 @@ module('integration/store - deleteRecord', function (hooks) {
     store.deleteRecord(person);
     assert.ok(person.isDeleted, 'expect person to be isDeleted');
   });
+
+  if (CUSTOM_MODEL_CLASS) {
+    test('deleting a non store managed record is deprecated', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let didDelete = false;
+      let randomRecord = {
+        deleteRecord() {
+          didDelete = true;
+        },
+      };
+      assert.expectDeprecation(
+        () => {
+          store.deleteRecord(randomRecord);
+        },
+        { id: 'ember-data:delete-record-non-store' }
+      );
+      assert.ok(didDelete, 'Did delete a non store record');
+    });
+  }
 
   test('Store should accept a null value for `data`', function (assert) {
     assert.expect(0);

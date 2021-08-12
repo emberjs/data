@@ -10,13 +10,13 @@ import { default as RSVP, Promise } from 'rsvp';
 
 import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
-import type { ExistingRecordIdentifier, RecordIdentifier } from '../ts-interfaces/identifier';
+import type { ExistingRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { Dict } from '../ts-interfaces/utils';
 import { symbol } from '../utils/symbol';
 import coerceId from './coerce-id';
 import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
-import RequestCache from './request-cache';
+import RequestCache, { RequestPromise } from './request-cache';
 import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
@@ -499,6 +499,16 @@ export default class FetchManager {
       for (let i = 0; i < totalItems; i++) {
         this._fetchRecord(pendingFetchItems[i]);
       }
+    }
+  }
+
+  getPendingFetch(identifier: StableRecordIdentifier) {
+    let pendingRequests = this.requestCache
+      .getPendingRequestsForRecord(identifier)
+      .filter((req) => req.type === 'query');
+
+    if (pendingRequests.length > 0) {
+      return pendingRequests[0][RequestPromise];
     }
   }
 

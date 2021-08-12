@@ -89,11 +89,15 @@ import NotificationManager from './record-notification-manager';
 import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
 import type RequestCache from './request-cache';
-import { RequestPromise } from './request-cache';
 import type { default as Snapshot, PrivateSnapshot } from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
-import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
+import {
+  internalModelFactoryFor,
+  peekRecordIdentifier,
+  recordIdentifierFor,
+  setRecordIdentifier,
+} from './store/internal-model-factory';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 import { normalizeResponseHelper } from './store/serializer-response';
 
@@ -715,10 +719,27 @@ abstract class CoreStore extends Service {
     }
     this._backburner.join(() => {
       if (CUSTOM_MODEL_CLASS) {
-        let identifier = recordIdentifierFor(record);
-        let internalModel = internalModelFactoryFor(this).peek(identifier);
-        if (internalModel) {
-          internalModel.deleteRecord();
+        let identifier = peekRecordIdentifier(record);
+        if (identifier) {
+          let internalModel = internalModelFactoryFor(this).peek(identifier);
+          if (internalModel) {
+            internalModel.deleteRecord();
+          }
+        } else {
+          deprecate(
+            `You passed a non ember-data managed record ${record} to store.deleteRecord. Ember Data store is not meant to manage non store records. This is not supported and will be removed`,
+            false,
+            {
+              id: 'ember-data:delete-record-non-store',
+              until: '4.0',
+              for: '@ember-data/store',
+              since: {
+                available: '3.28',
+                enabled: '3.28',
+              },
+            }
+          );
+          record.deleteRecord();
         }
       } else {
         record.deleteRecord();
@@ -747,10 +768,27 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'unloadRecord');
     }
     if (CUSTOM_MODEL_CLASS) {
-      let identifier = recordIdentifierFor(record);
-      let internalModel = internalModelFactoryFor(this).peek(identifier);
-      if (internalModel) {
-        internalModel.unloadRecord();
+      let identifier = peekRecordIdentifier(record);
+      if (identifier) {
+        let internalModel = internalModelFactoryFor(this).peek(identifier);
+        if (internalModel) {
+          internalModel.unloadRecord();
+        }
+      } else {
+        deprecate(
+          `You passed a non ember-data managed record ${record} to store.unloadRecord. Ember Data store is not meant to manage non store records. This is not supported and will be removed`,
+          false,
+          {
+            id: 'ember-data:unload-record-non-store',
+            until: '4.0',
+            for: '@ember-data/store',
+            since: {
+              available: '3.28',
+              enabled: '3.28',
+            },
+          }
+        );
+        record.unloadRecord();
       }
     } else {
       record.unloadRecord();
@@ -1269,6 +1307,10 @@ abstract class CoreStore extends Service {
       }
     } else {
       if (internalModel.currentState.isLoading) {
+        let pending = this._fetchManager.getPendingFetch(internalModel.identifier);
+        if (pending) {
+          return pending.then(() => Promise.resolve(internalModel));
+        }
         return this._scheduleFetch(internalModel, options);
       }
     }
@@ -2013,13 +2055,9 @@ abstract class CoreStore extends Service {
     if (internalModel) {
       // short circuit if we are already loading
       if (REQUEST_SERVICE) {
-        // Temporary fix for requests already loading until we move this inside the fetch manager
-        let pendingRequests = this.getRequestStateService()
-          .getPendingRequestsForRecord(internalModel.identifier)
-          .filter((req) => req.type === 'query');
-
-        if (pendingRequests.length > 0) {
-          return pendingRequests[0][RequestPromise].then(() => internalModel.getRecord());
+        let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier);
+        if (pendingRequest) {
+          return pendingRequest.then(() => internalModel.getRecord());
         }
       } else {
         if (internalModel.currentState.isLoading) {
