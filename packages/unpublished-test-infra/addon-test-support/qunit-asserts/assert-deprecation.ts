@@ -11,11 +11,11 @@ import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
 
 function gte(version: string): boolean {
-  return semver.satisfies(VERSION, version);
+  return semver.satisfies(semver.coerce(VERSION), version);
 }
 
 function lte(version: string): boolean {
-  return semver.satisfies(VERSION, version);
+  return semver.satisfies(semver.coerce(VERSION), version);
 }
 
 type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
