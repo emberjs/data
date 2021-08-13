@@ -2,9 +2,8 @@
   @module @ember-data/store
 */
 
-type AttributesSchema = import('./record-data-schemas').AttributesSchema;
-type RelationshipsSchema = import('./record-data-schemas').RelationshipsSchema;
-type RecordIdentifier = import('./identifier').RecordIdentifier;
+import type { RecordIdentifier } from './identifier';
+import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
 
 export interface SchemaDefinitionService {
   doesTypeExist(modelName: string): boolean;

@@ -1,13 +1,14 @@
+import type {
+  BelongsToRelationship,
+  ManyRelationship,
+  Relationship as ImplicitRelationship,
+} from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
 import { recordIdentifierFor } from '@ember-data/store';
-
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
-type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
-type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
-type ImplicitRelationship = import('@ember-data/record-data/-private').Relationship;
-type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type RelationshipDict = import('@ember-data/store/-private/ts-interfaces/utils').ConfidentDict<ImplicitRelationship>;
+import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
+import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { ConfidentDict as RelationshipDict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 export function getRelationshipStateForRecord(
   record: { store: CoreStore },
@@ -31,7 +32,7 @@ export function hasRelationshipForRecord(
 export function implicitRelationshipsFor(
   storeWrapper: RecordDataStoreWrapper,
   identifier: StableRecordIdentifier
-): RelationshipDict {
+): RelationshipDict<ImplicitRelationship> {
   const rels = graphFor(storeWrapper).identifiers.get(identifier);
   if (!rels) {
     throw new Error(`Expected at least one relationship to be populated`);

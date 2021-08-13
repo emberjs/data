@@ -2,19 +2,20 @@ import { assert, warn } from '@ember/debug';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
+import type { IdentifierCache } from '../../identifiers/cache';
 import { identifierCacheFor } from '../../identifiers/cache';
+import type {
+  ExistingResourceObject,
+  NewResourceIdentifierObject,
+  ResourceIdentifierObject,
+} from '../../ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
+import type CoreStore from '../core-store';
 import IdentityMap from '../identity-map';
+import type InternalModelMap from '../internal-model-map';
 import InternalModel from '../model/internal-model';
-
-type CoreStore = import('../core-store').default;
-type ResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
-type ExistingResourceObject = import('../../ts-interfaces/ember-data-json-api').ExistingResourceObject;
-type NewResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').NewResourceIdentifierObject;
-type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
-type InternalModelMap = import('../internal-model-map').default;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
-type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
 
 /**
   @module @ember-data/store

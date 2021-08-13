@@ -1,15 +1,12 @@
 import settled from '@ember/test-helpers/settled';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import type { Relationship as ImplicitRelationship } from '@ember-data/record-data/-private';
 import { recordIdentifierFor } from '@ember-data/store';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
+import type { Context, UserRecord } from './setup';
 import { stateOf } from './setup';
-
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type ImplicitRelationship = import('@ember-data/record-data/-private').Relationship;
-
-type Context = import('./setup').Context;
-type UserRecord = import('./setup').UserRecord;
 
 export interface TestConfig {
   /**

@@ -1,26 +1,28 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
+import type Store from '@ember-data/store/-private/system/core-store';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
 import ImplicitRelationship from '../relationships/state/implicit';
+import type { EdgeCache } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
+import type {
+  DeleteRecordOperation,
+  LocalRelationshipOperation,
+  RemoteRelationshipOperation,
+  UnknownOperation,
+} from './-operations';
 import { assertValidRelationshipPayload, isBelongsTo, isHasMany, isImplicit } from './-utils';
 import addToRelatedRecords from './operations/add-to-related-records';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
-
-type DeleteRecordOperation = import('./-operations').DeleteRecordOperation;
-type RemoteRelationshipOperation = import('./-operations').RemoteRelationshipOperation;
-type UnknownOperation = import('./-operations').UnknownOperation;
-type LocalRelationshipOperation = import('./-operations').LocalRelationshipOperation;
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type EdgeCache = import('./-edge-definition').EdgeCache;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type Store = import('@ember-data/store/-private/system/core-store').default;
-type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
 
 type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 

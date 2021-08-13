@@ -1,6 +1,6 @@
-type Dict<T> = import('./utils').Dict<T>;
-type SingleResourceRelationship = import('./ember-data-json-api').SingleResourceRelationship;
-type CollectionResourceRelationship = import('./ember-data-json-api').CollectionResourceRelationship;
+import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
+import type { Dict } from './utils';
+
 /**
   @module @ember-data/store
 */

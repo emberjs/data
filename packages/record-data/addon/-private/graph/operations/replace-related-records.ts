@@ -1,15 +1,12 @@
 import { assert } from '@ember/debug';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
+import type { ManyRelationship } from '../..';
+import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew } from '../-utils';
-
-type ManyRelationship = import('../..').ManyRelationship;
-
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-
-type ReplaceRelatedRecordsOperation = import('../-operations').ReplaceRelatedRecordsOperation;
-type Graph = import('../index').Graph;
+import type { Graph } from '../index';
 
 /*
     case many:1

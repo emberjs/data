@@ -1,4 +1,4 @@
-type Dict<T> = import('./utils').Dict<T>;
+import type { Dict } from './utils';
 
 export interface FindOptions {
   reload?: boolean;

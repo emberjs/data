@@ -1,8 +1,8 @@
+import type InternalModel from '../system/model/internal-model';
 import { promiseObject } from '../system/promise-proxies';
+import type { DSModel } from '../ts-interfaces/ds-model';
+import type { PromiseProxy } from '../ts-interfaces/promise-proxies';
 
-type DSModel = import('../ts-interfaces/ds-model').DSModel;
-type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
-type InternalModel = import('../system/model/internal-model').default;
 /**
   @module @ember-data/store
 */

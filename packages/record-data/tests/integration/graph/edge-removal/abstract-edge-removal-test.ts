@@ -3,11 +3,10 @@ import settled from '@ember/test-helpers/settled';
 
 import { module, test as runTest } from 'qunit';
 
+import type { TestConfig } from './helpers';
 import { setInitialState, testFinalState } from './helpers';
+import type { Context } from './setup';
 import { setupGraphTest } from './setup';
-
-type TestConfig = import('./helpers').TestConfig;
-type Context = import('./setup').Context;
 
 /**
  * qunit-console-grouper groups by test but includes setup/teardown
