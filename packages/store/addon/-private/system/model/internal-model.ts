@@ -1071,14 +1071,17 @@ export default class InternalModel {
   }
 
   triggerLater(...args) {
+    /*
     if (this._deferredTriggers.push(args) !== 1) {
       return;
     }
 
     this.store._updateInternalModel(this);
+    */
   }
 
   _triggerDeferredTriggers() {
+    /*
     //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
     //but for now, we queue up all the events triggered before the record was materialized, and flush
     //them once we have the record
@@ -1097,6 +1100,7 @@ export default class InternalModel {
     }
 
     triggers.length = 0;
+    */
   }
 
   removeFromInverseRelationships() {
