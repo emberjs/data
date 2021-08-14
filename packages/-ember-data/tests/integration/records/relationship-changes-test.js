@@ -573,7 +573,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
     );
   });
 
-  test('Calling push with relationship triggers willChange and didChange with detail when truncating', function (assert) {
+  test('Calling push with relationship triggers willChange and didChange with detail when truncating', async function (assert) {
     assert.expectDeprecation(
       async () => {
         let store = this.owner.lookup('service:store');
@@ -581,27 +581,25 @@ module('integration/records/relationship-changes - Relationship changes', functi
         let willChangeCount = 0;
         let didChangeCount = 0;
 
-        run(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: 'wat',
-              attributes: {
-                firstName: 'Yehuda',
-                lastName: 'Katz',
-              },
-              relationships: {
-                siblings: {
-                  data: [sibling1Ref, sibling2Ref],
-                },
+        store.push({
+          data: {
+            type: 'person',
+            id: 'wat',
+            attributes: {
+              firstName: 'Yehuda',
+              lastName: 'Katz',
+            },
+            relationships: {
+              siblings: {
+                data: [sibling1Ref, sibling2Ref],
               },
             },
-            included: [sibling1, sibling2],
-          });
+          },
+          included: [sibling1, sibling2],
         });
 
         let person = store.peekRecord('person', 'wat');
-        let siblings = run(() => person.get('siblings'));
+        let siblings = person.get('siblings');
 
         // flush initial state since
         // nothing is consuming us.
@@ -628,20 +626,18 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
         siblings.addArrayObserver(observer);
 
-        run(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: 'wat',
-              attributes: {},
-              relationships: {
-                siblings: {
-                  data: [sibling1Ref],
-                },
+        store.push({
+          data: {
+            type: 'person',
+            id: 'wat',
+            attributes: {},
+            relationships: {
+              siblings: {
+                data: [sibling1Ref],
               },
             },
-            included: [],
-          });
+          },
+          included: [],
         });
 
         assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
