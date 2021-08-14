@@ -174,10 +174,19 @@ function addonBuildConfigForDataPackage(PackageName) {
       let checker = new VersionChecker(this.project);
       let emberVersion = checker.for('ember-source');
 
+      const babelOptions = Object.assign({}, this.options.babel);
+
+      // we only want to add this to the options passed to the babel transpiler for the rolled up files
+      // other files get it from the inherited app config
+      if (this.pkg.dependencies['ember-cached-decorator-polyfill']) {
+        babelOptions.plugins = babelOptions.plugins.slice();
+        babelOptions.plugins.push([require.resolve('ember-cached-decorator-polyfill/lib/transpile-modules.js')]); // eslint-disable-line
+      }
+
       let privateTree = rollupPrivateModule(tree, {
         packageName: PackageName,
         babelCompiler: babel,
-        babelOptions: this.options.babel,
+        babelOptions,
         emberVersion: emberVersion,
         emberCliBabelOptions: host.options && host.options['ember-cli-babel'] ? host.options['ember-cli-babel'] : {},
         onWarn: this._suppressUneededRollupWarnings.bind(this),
