@@ -46,13 +46,6 @@ function initializeStore(application) {
   }
 }
 
-function initializeStoreInjections(application) {
-  let inject = application.inject || application.injection;
-  inject.call(application, 'controller', 'store', 'service:store');
-  inject.call(application, 'route', 'store', 'service:store');
-}
-
 export default function setupContainer(application) {
-  initializeStoreInjections(application);
   initializeStore(application);
 }
