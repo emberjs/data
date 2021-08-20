@@ -1,37 +1,27 @@
 # Ember Data Changelog
 
-## Release v3.28.0-beta.3 (Aug 09, 2021)
+## Release 3.28.0 (Aug 20, 2021)
 
 #### :bug: Bug Fix
-- [#7651](https://github.com/emberjs/data/pull/7651) Return inflight requests for findRecord when CUSTOM_MODEL_CLASS is on (#7651) ([@igorT](https://github.com/igorT))
-- [#7652](https://github.com/emberjs/data/pull/7652) Fir for CUSTOM_MODEL_CLASS and deprecate passing non ember data records to unloadRecord and deleteRecord (#7652) ([@igorT](https://github.com/igorT))
-
-#### Committers: 1
-- Igor Terzic ([@igorT](https://github.com/igorT))
-
-
-## Release v3.28.0-beta.2 (Jul 30, 2021)
-
-#### :bug: Bug Fix
-- [#7643](https://github.com/emberjs/data/pull/7643) @ember-data/model: Simplify @cached transpilation (#7599) ([@igorT](https://github.com/igorT))
-
-#### Committers: 1
-- Igor Terzic ([@igorT](https://github.com/igorT))
-
-## Release v3.28.0-beta.1 (May 27, 2021)
 
 #### :rocket: Enhancement
 
 - [#7258](https://github.com/emberjs/data/pull/7258) feat: record.destroyRecord should also unload the record ([@snewcomer](https://github.com/snewcomer))
-- [#7510](https://github.com/emberjs/data/pull/7510) feat: activate all feature flags related to custom model classes ([@runspired](https://github.com/runspired))
+- [#7510](https://github.com/emberjs/data/pull/7510) feat: activate all feature flags related to CUSTOM_MODEL_CLASSES ([@runspired](https://github.com/runspired))
 
 #### :zap: Performance
 
 - [#7505](https://github.com/emberjs/data/pull/7505) Perf: Refactor PromiseManyArray and prep for RFC#745 ([@runspired](https://github.com/runspired))
 - [#7516](https://github.com/emberjs/data/pull/7516) Perf: eliminate retainedManyArrayCache ([@runspired](https://github.com/runspired))
+- [#7454](https://github.com/emberjs/data/pull/7454) [PERF] Class Fields Use Optimization & Made OrderedSet Faster (Again) (#7454)
+- [#7491](https://github.com/emberjs/data/pull/7491) relationship refactor part-1 (#7491)
+- [#7493](https://github.com/emberjs/data/pull/7493) Relationship Refactor (part 2): The graph should coordinate state updates (#7493)
 
 #### :bug: Bug Fix
 
+- [#7651](https://github.com/emberjs/data/pull/7651) Return inflight requests for findRecord when CUSTOM_MODEL_CLASS is on (#7651) ([@igorT](https://github.com/igorT))
+- [#7652](https://github.com/emberjs/data/pull/7652) Fix for CUSTOM_MODEL_CLASS and deprecate passing non ember data records to unloadRecord and deleteRecord (#7652) ([@igorT](https://github.com/igorT))
+- [#7643](https://github.com/emberjs/data/pull/7643) @ember-data/model: Simplify @cached transpilation (#7599) ([@igorT](https://github.com/igorT))
 - [#7554](https://github.com/emberjs/data/pull/7554) [BUGFIX] reset previously failed linked async belongs-to now works ([@sly7-7](https://github.com/sly7-7))
 - [#7532](https://github.com/emberjs/data/pull/7532) fix: belongsTo should not attempt load if inverse in payload provided its data (#7049) ([@sly7-7](https://github.com/sly7-7))
 - [#7550](https://github.com/emberjs/data/pull/7550) fix: add asserts and assert tests for belongsTo/hasMany/findRecord empty responses ([@runspired](https://github.com/runspired))
@@ -39,11 +29,19 @@
 - [#7545](https://github.com/emberjs/data/pull/7545) [BUGFIX Model] assert when 'content' is used as a property on a record ([@zinyando](https://github.com/zinyando))
 - [#7531](https://github.com/emberjs/data/pull/7531) fix: Closes [#7053](https://github.com/emberjs/data/issues/7053) issue preventing debug adapter removal from prod builds using the ember-data package ([@sly7-7](https://github.com/sly7-7))
 - [#7527](https://github.com/emberjs/data/pull/7527) [BUGFIX] rollup step should deactivate ember modules polyfill >= 3.27 ([@runspired](https://github.com/runspired))
+- [#7425](https://github.com/emberjs/data/pull/7425) Pass lid from relationship data to get record data (#7425)
+- [#7448](https://github.com/emberjs/data/pull/7448) Bugfix: coalesceFindRequests should work with non native Adapter classes (#7448)
+- [#7463](https://github.com/emberjs/data/pull/7463) chore: cleanup Implicit relationships (#7463)
+- [#7453](https://github.com/emberjs/data/pull/7453) [CHORE] burndown of InternalModel methods that can be eliminated safely (#7453)
+- [#7226](https://github.com/emberjs/data/pull/7226) refactor: Native Model (#7226)
+- [#7470](https://github.com/emberjs/data/pull/7470) chore: convert relationships to use identifiers (#7470)
 
 #### :memo: Documentation
 
 - [#7549](https://github.com/emberjs/data/pull/7549) [DOC] Fixes JSONAPISerializer serialize documentation ([@skaterdav85](https://github.com/skaterdav85))
 - [#7535](https://github.com/emberjs/data/pull/7535) fix adapter doc example ([@sly7-7](https://github.com/sly7-7))
+- [#7447](https://github.com/emberjs/data/pull/7447) Document adapterOptions on REST adapter (#7447)
+
 
 #### Committers: 9
 
@@ -56,19 +54,6 @@
 - Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
 - Steven Pham ([@spham92](https://github.com/spham92))
 - Igor Terzic ([@igorT](https://github.com/igorT))
-
-## Release 3.28.0-beta.0 (May 8, 2021)
-
-- [#7447](https://github.com/emberjs/data/pull/7447) Document adapterOptions on REST adapter (#7447)
-- [#7425](https://github.com/emberjs/data/pull/7425) Pass lid from relationship data to get record data (#7425)
-- [#7448](https://github.com/emberjs/data/pull/7448) Bugfix: coalesceFindRequests should work with non native Adapter classes (#7448)
-- [#7454](https://github.com/emberjs/data/pull/7454) [PERF] Class Fields Use Optimization & Made OrderedSet Faster (Again) (#7454)
-- [#7463](https://github.com/emberjs/data/pull/7463) chore: cleanup Implicit relationships (#7463)
-- [#7453](https://github.com/emberjs/data/pull/7453) [CHORE] burndown of InternalModel methods that can be eliminated safely (#7453)
-- [#7226](https://github.com/emberjs/data/pull/7226) refactor: Native Model (#7226)
-- [#7470](https://github.com/emberjs/data/pull/7470) chore: convert relationships to use identifiers (#7470)
-- [#7491](https://github.com/emberjs/data/pull/7491) relationship refactor part-1 (#7491)
-- [#7493](https://github.com/emberjs/data/pull/7493) Relationship Refactor (part 2): The graph should coordinate state updates (#7493)
 
 ## Release 3.27.1 (May 27, 2021)
 
