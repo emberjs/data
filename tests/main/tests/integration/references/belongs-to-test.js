@@ -21,11 +21,18 @@ module('integration/references/belongs-to', function (hooks) {
       name: attr(),
     });
 
+    const Team = Model.extend({
+      persons: hasMany('person', { async: true, inverse: 'team' }),
+      name: attr(),
+    });
+
     const Person = Model.extend({
       family: belongsTo('family', { async: true, inverse: 'persons' }),
+      team: belongsTo({ async: false, inverse: 'persons' }),
     });
 
     this.owner.register('model:family', Family);
+    this.owner.register('model:team', Team);
     this.owner.register('model:person', Person);
 
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
@@ -421,6 +428,51 @@ module('integration/references/belongs-to', function (hooks) {
     run(function () {
       familyReference.load({ adapterOptions }).then(function (record) {
         assert.strictEqual(get(record, 'name'), 'Coreleone');
+
+        done();
+      });
+    });
+  });
+
+  test('load() fetches the record (sync belongsTo)', function (assert) {
+    var done = assert.async();
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    const adapterOptions = { thing: 'one' };
+
+    adapter.findRecord = function (store, type, id, snapshot) {
+      assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+      return resolve({
+        data: {
+          id: 1,
+          type: 'team',
+          attributes: { name: 'Tomsters' },
+        },
+      });
+    };
+
+    var person;
+    run(function () {
+      person = store.push({
+        data: {
+          type: 'person',
+          id: 1,
+          relationships: {
+            team: {
+              data: { type: 'team', id: 1 },
+            },
+          },
+        },
+      });
+    });
+
+    var teamReference = person.belongsTo('team');
+
+    run(function () {
+      teamReference.load({ adapterOptions }).then(function (record) {
+        assert.equal(get(record, 'name'), 'Tomsters');
 
         done();
       });
