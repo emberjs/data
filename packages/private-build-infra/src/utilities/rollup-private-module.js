@@ -68,7 +68,7 @@ module.exports = function rollupPrivateModule(tree, options) {
       output: [
         {
           file: `${packageName}/-private.js`,
-          format: 'esm',
+          format: options.babelCompiler.shouldCompileModules() ? 'amd' : 'esm',
           amd: { id: `${packageName}/-private` },
           exports: 'named',
         },
