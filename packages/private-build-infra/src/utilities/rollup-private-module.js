@@ -68,7 +68,7 @@ module.exports = function rollupPrivateModule(tree, options) {
       output: [
         {
           file: `${packageName}/-private.js`,
-          format: 'amd',
+          format: 'esm',
           amd: { id: `${packageName}/-private` },
           exports: 'named',
         },
