@@ -140,7 +140,7 @@ function belongsTo(modelName, options) {
   return computed({
     get(key) {
       if (DEBUG) {
-        if (['_internalModel', 'content', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );
@@ -170,7 +170,7 @@ function belongsTo(modelName, options) {
     },
     set(key, value) {
       if (DEBUG) {
-        if (['_internalModel', 'content', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );
