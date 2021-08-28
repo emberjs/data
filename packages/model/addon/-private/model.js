@@ -2279,12 +2279,6 @@ if (DEBUG) {
         );
       }
 
-      if (!isDefaultEmptyDescriptor(this, 'content') || this.content !== undefined) {
-        throw new Error(
-          `'content' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
-        );
-      }
-
       let ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
       let theirDescriptor = lookupDescriptor(this, 'currentState');
       let realState = this.___recordState || this._internalModel.currentState;
