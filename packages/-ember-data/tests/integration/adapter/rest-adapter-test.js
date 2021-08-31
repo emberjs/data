@@ -1279,6 +1279,59 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], 'The correct records are in the array');
   });
 
+  test('findHasMany - can push the smae record in twice and fetch the link', async function (assert) {
+    adapter.shouldBackgroundReloadRecord = () => false;
+    Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
+            },
+          },
+        },
+      },
+    });
+
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
+            },
+          },
+        },
+      },
+    });
+
+    let post = store.peekRecord('post', '1');
+
+    ajaxResponse({
+      comments: [
+        { id: 1, name: 'FIRST' },
+        { id: 2, name: 'Rails is unagi' },
+        { id: 3, name: 'What is omakase?' },
+      ],
+    });
+
+    let comments = await post.get('comments');
+    assert.ok(post.comments.isFulfilled, 'comments promise is fulfilled');
+    assert.equal(comments.length, 3, 'The correct records are in the array');
+  });
+
   test('findHasMany - passes buildURL the requestType', async function (assert) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
