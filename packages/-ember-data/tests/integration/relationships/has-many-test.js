@@ -848,7 +848,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
   });
 
-  test('A hasMany relationship can be reloaded if it was fetched via a link', function (assert) {
+  test('A hasMany relationship can be reloaded if it was fetched via a link', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -888,35 +888,28 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    run(function () {
-      run(store, 'findRecord', 'post', 1)
-        .then(function (post) {
-          return post.get('comments');
-        })
-        .then(function (comments) {
-          assert.true(comments.get('isLoaded'), 'comments are loaded');
-          assert.equal(comments.get('length'), 2, 'comments have 2 length');
+    let post = await store.findRecord('post', 1);
+    let comments = await post.comments;
+    assert.true(comments.get('isLoaded'), 'comments are loaded');
+    assert.equal(comments.get('length'), 2, 'comments have 2 length');
 
-          adapter.findHasMany = function (store, snapshot, link, relationship) {
-            assert.equal(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-            assert.equal(relationship.key, 'comments', 'findHasMany relationship key was comments');
-            assert.equal(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
+    adapter.findHasMany = function (store, snapshot, link, relationship) {
+      assert.equal(relationship.type, 'comment', 'findHasMany relationship type was Comment');
+      assert.equal(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.equal(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
 
-            return resolve({
-              data: [
-                { id: 1, type: 'comment', attributes: { body: 'First' } },
-                { id: 2, type: 'comment', attributes: { body: 'Second' } },
-                { id: 3, type: 'comment', attributes: { body: 'Thirds' } },
-              ],
-            });
-          };
+      return resolve({
+        data: [
+          { id: 1, type: 'comment', attributes: { body: 'First' } },
+          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: 3, type: 'comment', attributes: { body: 'Thirds' } },
+        ],
+      });
+    };
 
-          return comments.reload();
-        })
-        .then(function (newComments) {
-          assert.equal(newComments.get('length'), 3, 'reloaded comments have 3 length');
-        });
-    });
+    await comments.reload();
+
+    assert.equal(comments.length, 3, 'reloaded comments have 3 length');
   });
 
   test('A sync hasMany relationship can be reloaded if it was fetched via ids', function (assert) {
@@ -4094,5 +4087,118 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           });
       });
     });
+  });
+
+  test('fetch records with chained async has-many, ensure the leafs are retrieved', async function (assert) {
+    assert.expect(4);
+
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+
+    store.modelFor('user').reopen({
+      messages: hasMany('message', { polymorphic: true, async: true }),
+    });
+
+    store.modelFor('post').reopen({
+      comments: hasMany('comment', { async: true }),
+    });
+
+    store.modelFor('comment').reopen({
+      message: belongsTo('post', { async: true }),
+    });
+
+    adapter.findRecord = function (store, type, id, snapshots) {
+      return resolve({
+        data: {
+          type: 'user',
+          id: '1',
+          relationships: {
+            messages: {
+              data: [
+                { type: 'post', id: '1' },
+                { type: 'post', id: '2' },
+              ],
+            },
+          },
+        },
+      });
+    };
+
+    adapter.findMany = function () {
+      assert.ok('findMany is called');
+      return resolve({
+        data: [
+          {
+            type: 'post',
+            id: '1',
+            attributes: {
+              name: 'A post',
+            },
+            relationships: {
+              owner: {
+                data: { type: 'user', id: '1' },
+              },
+              comments: {
+                links: {
+                  related: './comments',
+                },
+              },
+            },
+          },
+          {
+            type: 'post',
+            id: '2',
+            attributes: {
+              name: 'A second post',
+            },
+            relationships: {
+              owner: {
+                data: { type: 'user', id: '1' },
+              },
+              comments: {
+                links: {
+                  related: './comments',
+                },
+              },
+            },
+          },
+        ],
+      });
+    };
+
+    adapter.findHasMany = function () {
+      assert.ok('findHasMany is called');
+      return resolve({
+        data: [
+          {
+            type: 'comment',
+            id: '1',
+            attributes: {
+              body: 'Some weird words',
+            },
+          },
+          {
+            type: 'comment',
+            id: '2',
+            attributes: {
+              body: 'Some mean words',
+            },
+          },
+          {
+            type: 'comment',
+            id: '3',
+            attributes: {
+              body: 'Some kind words',
+            },
+          },
+        ],
+      });
+    };
+
+    let user = await store.findRecord('user', '1');
+    let posts = await user.messages;
+    assert.equal(posts.length, 2);
+    let comments = await posts.objectAt(0).comments;
+    assert.equal(comments.length, 3);
   });
 });
