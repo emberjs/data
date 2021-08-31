@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## Release 3.28.1 (Aug 30, 2021)
+
+#### :bug: Bug Fix
+- [#7689](https://github.com/emberjs/data/pull/7689) Do not error when 'content' is used as a property on a record #7689 [@mansona](https://github.com/mansona))
+
+#### Committers: 1
+
+- Chris Manson ([@mansona](https://github.com/mansona))
+
 ## Release 3.28.0 (Aug 20, 2021)
 
 #### :bug: Bug Fix
