@@ -158,4 +158,28 @@ module('unit/model/attr | attr syntax', function (hooks) {
 
     assert.strictEqual(userRecord.name, 'Chris', 'attr is correctly set: name');
   });
+
+  test('attr can be used to define an attribute with name "content"', async function (assert) {
+    class Blog extends Model {
+      @attr content;
+    }
+
+    owner.register('model:blog', Blog);
+
+    let BlogModel = store.modelFor('blog');
+    let attrs = BlogModel.attributes;
+    assert.true(attrs.has('content'), 'We have the attr: name');
+
+    let userRecord = store.push({
+      data: {
+        type: 'blog',
+        id: '1',
+        attributes: {
+          content: 'The best blog post',
+        },
+      },
+    });
+
+    assert.strictEqual(userRecord.content, 'The best blog post', 'attr is correctly set: content');
+  });
 });
