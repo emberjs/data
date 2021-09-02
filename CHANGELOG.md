@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## Release 3.28.2 (Sep 2, 2021)
+
+#### :bug: Bug Fix
+  * [#7694](https://github.com/emberjs/data/pull/7694) [Bugfix] ensure `shouldCompileModules` is once again respected - Embroider compat(#7680) ([@stefanpenner](https://github.com/stefanpenner))
+
+#### Committers: 1
+
+- Stefan Penner ([@stefanpenner](https://github.com/stefanpenner))
+
 ## Release 3.28.1 (Aug 30, 2021)
 
 #### :bug: Bug Fix
