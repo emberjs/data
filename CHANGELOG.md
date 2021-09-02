@@ -1,6 +1,12 @@
 # Ember Data Changelog
 
-## v4.0.0-beta.1 (2021-08-20)
+## v4.0.0-beta.1 (2021-09-02)
+
+#### :bug: Bug Fix
+  * [#7695](https://github.com/emberjs/data/pull/7695) [Bugfix] ensure `shouldCompileModules` is once again respected - Embroider compat(#7680) ([@stefanpenner](https://github.com/stefanpenner))
+  *  [#7690](https://github.com/emberjs/data/pull/7689) Do not error when 'content' is used as a property on a record #7689 [@mansona](https://github.com/mansona))
+
+## v4.0.0-beta.0 (2021-08-20)
 
 #### :rocket: Enhancement
 * `-ember-data`, `store`
