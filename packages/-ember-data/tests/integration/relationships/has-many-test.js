@@ -4198,7 +4198,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let user = await store.findRecord('user', '1');
     let posts = await user.messages;
     assert.equal(posts.length, 2);
-    let comments = await posts.objectAt(0).comments;
+    let firstPost = posts.objectAt(0);
+    let comments = await firstPost.comments;
+    assert.ok(firstPost.comments.isFulfilled, 'comments relationship is fulfilled');
     assert.equal(comments.length, 3);
   });
 });

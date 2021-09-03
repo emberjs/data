@@ -1332,8 +1332,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     let comments = await post.get('comments');
+    assert.ok(post.comments.isFulfilled, 'comments promise is fulfilled');
     assert.equal(comments.length, 3, 'The correct records are in the array');
-  
   });
 
   test('findHasMany - passes buildURL the requestType', async function (assert) {
