@@ -1,5 +1,13 @@
 # Ember Data Changelog
 
+## v4.0.0-beta.2  (2021-09-05)
+
+#### :bug: Bug Fix
+  * [#7697](https://github.com/emberjs/data/pull/7697) [BUGFIX] Update @ember/string to the latest version to fix compatibility with ember-source 4.x ([@kategengler](https://github.com/kategengler))
+
+#### Committers: 1
+- Katie Gengler ([@kategengler](https://github.com/kategengler))
+
 ## v4.0.0-beta.1 (2021-09-02)
 
 #### :bug: Bug Fix
