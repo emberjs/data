@@ -1,5 +1,13 @@
 # Ember Data Changelog
 
+## Release 3.28.3 (Sep 5, 2021)
+
+#### :bug: Bug Fix
+  * [#7698](https://github.com/emberjs/data/pull/7698) Upgrade @ember/string to the latest version. The prior version used deprecated import paths that error under ember-source v4.0 (#7697) ([@kategengler](https://github.com/kategengler))
+
+#### Committers: 1
+- Katie Gengler ([@kategengler](https://github.com/kategengler))
+
 ## Release 3.28.2 (Sep 2, 2021)
 
 #### :bug: Bug Fix
