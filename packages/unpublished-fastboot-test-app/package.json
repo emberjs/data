@@ -1,6 +1,6 @@
 {
   "name": "fastboot-test-app",
-  "version": "3.28.2",
+  "version": "3.28.3",
   "private": true,
   "description": "Small description for fastboot-test-app goes here",
   "repository": "",
@@ -19,11 +19,11 @@
     "test:scenario": "ember try:one"
   },
   "dependencies": {
-    "ember-data": "3.28.2",
+    "ember-data": "3.28.3",
     "ember-inflector": "^4.0.1"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "3.28.2",
+    "@ember-data/unpublished-test-infra": "3.28.3",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.2.5",
     "@types/ember": "^3.16.5",

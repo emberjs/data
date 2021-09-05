@@ -1,7 +1,7 @@
 {
   "name": "eslint-plugin-ember-data",
   "main": "./src/index.js",
-  "version": "3.28.2",
+  "version": "3.28.3",
   "private": true,
   "volta": {
     "node": "14.17.0",
