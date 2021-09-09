@@ -892,7 +892,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
         { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
       );
     });
-  });
+  }
 
   test('Calling push with updated belongsTo relationship trigger observer', function (assert) {
     assert.expect(1);
