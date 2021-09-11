@@ -501,10 +501,10 @@ export default class FetchManager {
     }
   }
 
-  getPendingFetch(identifier: StableRecordIdentifier) {
-    let pendingRequests = this.requestCache
-      .getPendingRequestsForRecord(identifier)
-      .filter((req) => req.type === 'query');
+  getPendingFetch(identifier: StableRecordIdentifier, options) {
+    let pendingRequests = this.requestCache.getPendingRequestsForRecord(identifier).filter((req) => {
+      return req.type === 'query' && isSameRequest(options, req.request.data[0].options);
+    });
 
     if (pendingRequests.length > 0) {
       return pendingRequests[0][RequestPromise];
@@ -531,4 +531,8 @@ function assertIsString(id: string | null): asserts id is string {
       throw new Error(`Cannot fetch record without an id`);
     }
   }
+}
+
+function isSameRequest(options: Dict<unknown> = {}, reqOptions: Dict<unknown> = {}) {
+  return options.include === reqOptions.include;
 }

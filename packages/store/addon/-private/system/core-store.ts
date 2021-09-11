@@ -1248,7 +1248,7 @@ abstract class CoreStore extends Service {
     return Promise.resolve(internalModel);
   }
 
-  _findByInternalModel(internalModel, options: { preload?: any } = {}) {
+  _findByInternalModel(internalModel: InternalModel, options: FindOptions = {}) {
     if (options.preload) {
       this._backburner.join(() => {
         internalModel.preloadData(options.preload);
@@ -1263,7 +1263,7 @@ abstract class CoreStore extends Service {
     );
   }
 
-  _findEmptyInternalModel(internalModel, options) {
+  _findEmptyInternalModel(internalModel: InternalModel, options: FindOptions) {
     if (internalModel.currentState.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
@@ -1275,9 +1275,9 @@ abstract class CoreStore extends Service {
       }
     } else {
       if (internalModel.currentState.isLoading) {
-        let pending = this._fetchManager.getPendingFetch(internalModel.identifier);
-        if (pending) {
-          return pending.then(() => Promise.resolve(internalModel));
+        let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
+        if (pendingRequest) {
+          return pendingRequest.then(() => Promise.resolve(internalModel));
         }
         return this._scheduleFetch(internalModel, options);
       }
@@ -2019,7 +2019,7 @@ abstract class CoreStore extends Service {
     if (internalModel) {
       // short circuit if we are already loading
       if (REQUEST_SERVICE) {
-        let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier);
+        let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
         if (pendingRequest) {
           return pendingRequest.then(() => internalModel.getRecord());
         }
@@ -2051,7 +2051,9 @@ abstract class CoreStore extends Service {
         return resolve(null);
       }
 
-      return this._findByInternalModel(internalModel, options);
+      if (internalModel) {
+        return this._findByInternalModel(internalModel, options);
+      }
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
