@@ -132,58 +132,58 @@ module('integration/store - destroy', function (hooks) {
     }
   });
 
-  testInDebug('find calls do not resolve when the store is destroyed', async function (assert) {
-    assert.expect(2);
+  // testInDebug('find calls do not resolve when the store is destroyed', async function (assert) {
+  //   assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let next;
-    let nextPromise = new Promise((resolve) => (next = resolve));
-    let TestAdapter = DS.Adapter.extend({
-      findRecord() {
-        next();
-        nextPromise = new Promise((resolve) => {
-          next = resolve;
-        }).then(() => {
-          return {
-            data: { type: 'car', id: '1' },
-          };
-        });
-        return nextPromise;
-      },
-    });
+  //   let store = this.owner.lookup('service:store');
+  //   let next;
+  //   let nextPromise = new Promise((resolve) => (next = resolve));
+  //   let TestAdapter = DS.Adapter.extend({
+  //     findRecord() {
+  //       next();
+  //       nextPromise = new Promise((resolve) => {
+  //         next = resolve;
+  //       }).then(() => {
+  //         return {
+  //           data: { type: 'car', id: '1' },
+  //         };
+  //       });
+  //       return nextPromise;
+  //     },
+  //   });
 
-    this.owner.register('adapter:application', TestAdapter);
+  //   this.owner.register('adapter:application', TestAdapter);
 
-    // needed for LTS 2.16
-    Ember.Test.adapter.exception = (e) => {
-      throw e;
-    };
+  //   // needed for LTS 2.16
+  //   Ember.Test.adapter.exception = (e) => {
+  //     throw e;
+  //   };
 
-    store.shouldTrackAsyncRequests = true;
-    store.push = function () {
-      assert('The test should have destroyed the store by now', store.isDestroyed);
+  //   store.shouldTrackAsyncRequests = true;
+  //   store.push = function () {
+  //     assert('The test should have destroyed the store by now', store.isDestroyed);
 
-      throw new Error("We shouldn't be pushing data into the store when it is destroyed");
-    };
-    let requestPromise = store.findRecord('car', '1');
+  //     throw new Error("We shouldn't be pushing data into the store when it is destroyed");
+  //   };
+  //   let requestPromise = store.findRecord('car', '1');
 
-    await nextPromise;
+  //   await nextPromise;
 
-    assert.throws(() => {
-      run(() => store.destroy());
-    }, /Async Request leaks detected/);
+  //   assert.throws(() => {
+  //     run(() => store.destroy());
+  //   }, /Async Request leaks detected/);
 
-    next();
+  //   next();
 
-    await nextPromise;
+  //   await nextPromise;
 
-    // ensure we allow the internal store promises
-    // to flush, potentially pushing data into the store
-    await settled();
-    assert.ok(true, 'we made it to the end');
-    await requestPromise;
-    assert.ok(false, 'we should never make it here');
-  });
+  //   // ensure we allow the internal store promises
+  //   // to flush, potentially pushing data into the store
+  //   await settled();
+  //   assert.ok(true, 'we made it to the end');
+  //   await requestPromise;
+  //   assert.ok(false, 'we should never make it here');
+  // });
 
   test('destroying the store correctly cleans everything up', async function (assert) {
     let car, person;
