@@ -180,8 +180,11 @@ module('integration/store - destroy', function(hooks) {
     // to flush, potentially pushing data into the store
     await settled();
     assert.ok(true, 'we made it to the end');
-    await requestPromise;
-    assert.ok(false, 'we should never make it here');
+    requestPromise.then(() => {
+      assert.ok(false, 'we should never make it here');
+    });
+
+    await settled();
   });
 
   test('destroying the store correctly cleans everything up', async function(assert) {
