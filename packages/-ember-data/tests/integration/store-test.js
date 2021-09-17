@@ -137,9 +137,10 @@ module('integration/store - destroy', function (hooks) {
 
     let store = this.owner.lookup('service:store');
     let next;
-    let nextPromise;
+    let nextPromise = new Promise((resolve) => (next = resolve));
     let TestAdapter = DS.Adapter.extend({
       findRecord() {
+        next();
         nextPromise = new Promise((resolve) => {
           next = resolve;
         }).then(() => {
@@ -164,8 +165,7 @@ module('integration/store - destroy', function (hooks) {
 
       throw new Error("We shouldn't be pushing data into the store when it is destroyed");
     };
-
-    store.findRecord('car', '1');
+    let requestPromise = store.findRecord('car', '1');
 
     await nextPromise;
 
@@ -175,12 +175,17 @@ module('integration/store - destroy', function (hooks) {
 
     next();
 
-    const result = await nextPromise;
+    await nextPromise;
 
     // ensure we allow the internal store promises
     // to flush, potentially pushing data into the store
     await settled();
-    assert.equal(result.data.type, 'car', 'we made it to the end');
+    assert.ok(true, 'we made it to the end');
+    requestPromise.then(() => {
+      assert.ok(false, 'we should never make it here');
+    });
+
+    await settled();
   });
 
   test('destroying the store correctly cleans everything up', async function (assert) {
