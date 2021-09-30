@@ -2051,9 +2051,11 @@ abstract class CoreStore extends Service {
         return resolve(null);
       }
 
-      if (internalModel) {
-        return this._findByInternalModel(internalModel, options);
+      if (!internalModel) {
+        assert(`No InternalModel found for ${resource.lid}`, internalModel);
       }
+
+      return this._findByInternalModel(internalModel, options);
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
