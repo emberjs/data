@@ -1,8 +1,11 @@
 import Route from '@ember/routing/route';
+import { inject as service } from '@ember/service';
 
 import { all } from 'rsvp';
 
 export default Route.extend({
+  store: service(),
+
   async model() {
     performance.mark('start-data-generation');
     const payload = await fetch('./fixtures/destroy.json').then((r) => r.json());

@@ -1,6 +1,9 @@
 import Route from '@ember/routing/route';
+import { inject as service } from '@ember/service';
 
 export default Route.extend({
+  store: service(),
+
   model() {
     performance.mark('start-find-all');
     return this.store.findAll('car', { reload: true }).then((cars) => {
