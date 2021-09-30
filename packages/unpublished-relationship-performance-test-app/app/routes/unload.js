@@ -1,7 +1,10 @@
 import Route from '@ember/routing/route';
 import { run } from '@ember/runloop';
+import { inject as service } from '@ember/service';
 
 export default Route.extend({
+  store: service(),
+
   async model() {
     performance.mark('start-data-generation');
     const payload = await fetch('./fixtures/unload.json').then((r) => r.json());
