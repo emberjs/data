@@ -1867,7 +1867,7 @@ class Model extends EmberObject {
 
    ```javascript
    import { get } from '@ember/object';
-   import Blog from 'app/models/blog'
+   import Person from 'app/models/person'
 
    let attributes = Person.attributes
 
