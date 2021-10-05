@@ -78,7 +78,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
 
 /*
  * This decorator allows us to lazily compute
- * an expensive getter on first-access and therafter
+ * an expensive getter on first-access and thereafter
  * never recompute it.
  */
 function computeOnce(target, key, desc) {
