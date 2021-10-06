@@ -7921,8 +7921,7 @@ eslint-module-utils@^2.6.1:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.1.0-alpha.7"
 
 eslint-plugin-ember@^10.3.0, eslint-plugin-ember@^10.4.1:
   version "10.5.1"
@@ -15581,10 +15580,10 @@ typescript-memoize@^1.0.0-alpha.3:
   resolved "https://registry.npmjs.org/typescript-memoize/-/typescript-memoize-1.0.1.tgz#0a8199aa28f6fe18517f6e9308ef7bfbe9a98d59"
   integrity sha512-oJNge1qUrOK37d5Y6Ly2txKeuelYVsFtNF6U9kXIN7juudcQaHJQg2MxLOy0CqtkW65rVDYuTCOjnSIVPd8z3w==
 
-typescript@~4.3.2:
-  version "4.3.2"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-4.3.2.tgz#399ab18aac45802d6f2498de5054fcbbe716a805"
-  integrity sha512-zZ4hShnmnoVnAHpVHWpTcxdv7dWP60S2FsydQLV8V5PbS3FifjWFFRiHSWpDJahly88PRyV5teTSLoq4eG7mKw==
+typescript@~4.4.3:
+  version "4.4.3"
+  resolved "https://registry.npmjs.org/typescript/-/typescript-4.4.3.tgz#bdc5407caa2b109efd4f82fe130656f977a29324"
+  integrity sha512-4xfscpisVgqqDfPaJo5vkd+Qd/ItkoagnHpufr+i2QCHBsNYp+G7UAoyFl8aPtx879u38wPV65rZ8qbGZijalA==
 
 typical@^4.0.0:
   version "4.0.0"
