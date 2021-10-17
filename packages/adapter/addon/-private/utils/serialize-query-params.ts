@@ -15,11 +15,15 @@ export function serializeQueryParams(queryParamsObject: object | string): string
 
     if (prefix) {
       if (Array.isArray(obj)) {
-        for (i = 0, len = obj.length; i < len; i++) {
-          if (RBRACKET.test(prefix)) {
-            add(s, prefix, obj[i]);
-          } else {
-            buildParams(prefix + '[' + (typeof obj[i] === 'object' ? i : '') + ']', obj[i]);
+        if (obj.length === 0) {
+          buildParams(prefix + '[]', obj[i]);
+        } else {
+          for (i = 0, len = obj.length; i < len; i++) {
+            if (RBRACKET.test(prefix)) {
+              add(s, prefix, obj[i]);
+            } else {
+              buildParams(prefix + '[' + (typeof obj[i] === 'object' ? i : '') + ']', obj[i]);
+            }
           }
         }
       } else if (isPlainObject(obj)) {
@@ -48,11 +52,7 @@ export function serializeQueryParams(queryParamsObject: object | string): string
  * Part of the `serializeQueryParams` helper function.
  */
 function add(s: Array<any>, k: string, v?: string | (() => string)) {
-  // Strip out keys with undefined value and replace null values with
-  // empty strings (mimics jQuery.ajax)
-  if (v === undefined) {
-    return;
-  } else if (v === null) {
+  if (v === null || v === undefined) {
     v = '';
   }
 

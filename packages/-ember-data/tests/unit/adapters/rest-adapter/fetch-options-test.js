@@ -200,4 +200,27 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
       "'options.url' is serialized"
     );
   });
+
+  test('fetchOptions serializes empty query params to the url', function (assert) {
+    assert.expect(1);
+
+    const postData = {
+      url: 'https://emberjs.com',
+      method: 'GET',
+      data: {
+        fields: {
+          post: '',
+          comments: null,
+          author: undefined,
+        },
+      },
+    };
+
+    const postOptions = fetchOptions(postData);
+    assert.equal(
+      postOptions.url,
+      'https://emberjs.com?fields%5Bpost%5D=&fields%5Bcomments%5D=&fields%5Bauthor%5D=',
+      "'options.url' is serialized"
+    );
+  });
 });
