@@ -241,7 +241,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     let oldData = this._data;
     let currentData = this._attributes;
     let inFlightData = this._inFlightAttributes;
-    let newData = assign({}, inFlightData, currentData);
+    let newData = { ...inFlightData, ...currentData };
     let diffData = Object.create(null);
     let newDataKeys = Object.keys(newData);
 

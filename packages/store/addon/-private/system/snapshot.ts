@@ -3,7 +3,6 @@
 */
 import { assert } from '@ember/debug';
 import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
@@ -234,7 +233,7 @@ export default class Snapshot implements Snapshot {
    @public
    */
   attributes(): Dict<unknown> {
-    return assign({}, this._attributes);
+    return { ...this._attributes };
   }
 
   /**

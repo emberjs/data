@@ -1,5 +1,4 @@
 import { assert, deprecate, warn } from '@ember/debug';
-import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
@@ -294,7 +293,7 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, modelName
     }
   } else {
     payload = relationshipData || {};
-    assign(payload, parentRelationshipData);
+    payload = { ...payload, ...parentRelationshipData };
   }
 
   return payload;

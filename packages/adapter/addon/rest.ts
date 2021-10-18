@@ -1191,7 +1191,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     );
 
     if (this.headers !== undefined) {
-      reqOptions.headers = assign({}, this.headers, reqOptions.headers);
+      reqOptions.headers = { ...this.headers, ...reqOptions.headers };
     } else if (!options.headers) {
       reqOptions.headers = {};
     }
@@ -1209,7 +1209,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       // GET requests without a body should not have a content-type header
       // and may be unexpected by a server
       if (reqOptions.data && reqOptions.type !== 'GET') {
-        reqOptions = assign(reqOptions, { contentType });
+        reqOptions = { ...reqOptions, contentType };
       }
       reqOptions = ajaxOptions(reqOptions, this);
     }
