@@ -4,7 +4,6 @@
 import { getOwner } from '@ember/application';
 import { assert, deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { join } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
@@ -1181,7 +1180,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     method: string,
     options: JQueryAjaxSettings | RequestInit
   ): JQueryRequestInit | FetchRequestInit {
-    let reqOptions: JQueryRequestInit | FetchRequestInit = assign(
+    let reqOptions: JQueryRequestInit | FetchRequestInit = Object.assign(
       {
         url,
         method,

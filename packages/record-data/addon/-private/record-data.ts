@@ -2,7 +2,6 @@
  * @module @ember-data/record-data
  */
 import { assert } from '@ember/debug';
-import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 
@@ -98,7 +97,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
       changedKeys = this._changedKeys(data.attributes);
     }
 
-    assign(this._data, data.attributes);
+    Object.assign(this._data, data.attributes);
     if (this.__attributes) {
       // only do if we have attribute changes
       this._updateChangedAttributes();
@@ -305,7 +304,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
     let changedKeys = this._changedKeys(newCanonicalAttributes);
 
-    assign(this._data, this.__inFlightAttributes, newCanonicalAttributes);
+    Object.assign(this._data, this.__inFlightAttributes, newCanonicalAttributes);
 
     this._inFlightAttributes = null;
 
@@ -752,7 +751,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
         attrs = this._attributes;
       }
 
-      original = assign(Object.create(null), this._data, this.__inFlightAttributes);
+      original = Object.assign(Object.create(null), this._data, this.__inFlightAttributes);
 
       for (i = 0; i < length; i++) {
         key = keys[i];
