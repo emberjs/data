@@ -101,9 +101,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
 
-    assert.equal(snapshot.id, '1', 'id is correct');
+    assert.strictEqual(snapshot.id, '1', 'id is correct');
     assert.ok(Model.detect(snapshot.type), 'type is correct');
-    assert.equal(snapshot.modelName, 'post', 'modelName is correct');
+    assert.strictEqual(snapshot.modelName, 'post', 'modelName is correct');
   });
 
   test('snapshot.type loads the class lazily', async function (assert) {
@@ -131,7 +131,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = await postInternalModel.createSnapshot();
 
     assert.false(postClassLoaded, 'model class is not eagerly loaded');
-    assert.equal(snapshot.type, _Post, 'type is correct');
+    assert.strictEqual(snapshot.type, _Post, 'type is correct');
     assert.true(postClassLoaded, 'model class is loaded');
   });
 
@@ -139,7 +139,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.expect(2);
     store.adapterFor('application').findRecord = (store, type, id, snapshot) => {
       assert.false(snapshot._internalModel.hasRecord, 'We do not have a materialized record');
-      assert.equal(snapshot.__attributes, null, 'attributes were not populated initially');
+      assert.strictEqual(snapshot.__attributes, null, 'attributes were not populated initially');
       return resolve({
         data: {
           type: 'post',
@@ -174,7 +174,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       title: 'Hello World',
     };
 
-    assert.equal(snapshot.__attributes, null, 'attributes were not populated initially');
+    assert.strictEqual(snapshot.__attributes, null, 'attributes were not populated initially');
     snapshot.attributes();
     assert.deepEqual(snapshot.__attributes, expected, 'attributes were populated on access');
   });
@@ -217,9 +217,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let post = store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
 
-    assert.equal(snapshot.attr('title'), 'Hello World', 'snapshot title is correct');
+    assert.strictEqual(snapshot.attr('title'), 'Hello World', 'snapshot title is correct');
     post.set('title', 'Tomster');
-    assert.equal(snapshot.attr('title'), 'Hello World', 'snapshot title is still correct');
+    assert.strictEqual(snapshot.attr('title'), 'Hello World', 'snapshot title is still correct');
   });
 
   test('snapshot.attr() throws an error attribute not found', function (assert) {
@@ -302,7 +302,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = comment._createSnapshot();
     let relationship = snapshot.belongsTo('post');
 
-    assert.equal(relationship, undefined, 'relationship is undefined');
+    assert.strictEqual(relationship, undefined, 'relationship is undefined');
   });
 
   test('snapshot.belongsTo() returns null if relationship is unset', function (assert) {
@@ -335,7 +335,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = comment._createSnapshot();
     let relationship = snapshot.belongsTo('post');
 
-    assert.equal(relationship, null, 'relationship is unset');
+    assert.strictEqual(relationship, null, 'relationship is unset');
   });
 
   test('snapshot.belongsTo() returns a snapshot if relationship is set', function (assert) {
@@ -369,8 +369,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let relationship = snapshot.belongsTo('post');
 
     assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
-    assert.equal(relationship.id, '1', 'post id is correct');
-    assert.equal(relationship.attr('title'), 'Hello World', 'post title is correct');
+    assert.strictEqual(relationship.id, '1', 'post id is correct');
+    assert.strictEqual(relationship.attr('title'), 'Hello World', 'post title is correct');
   });
 
   test('snapshot.belongsTo().changedAttributes() returns an empty object if belongsTo record in not instantiated #7015', function (assert) {
@@ -443,7 +443,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = comment._createSnapshot();
     let relationship = snapshot.belongsTo('post');
 
-    assert.equal(relationship, null, 'relationship unset after deleted');
+    assert.strictEqual(relationship, null, 'relationship unset after deleted');
   });
 
   test('snapshot.belongsTo() returns undefined if relationship is a link', function (assert) {
@@ -469,7 +469,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = comment._createSnapshot();
     let relationship = snapshot.belongsTo('post');
 
-    assert.equal(relationship, undefined, 'relationship is undefined');
+    assert.strictEqual(relationship, undefined, 'relationship is undefined');
   });
 
   test('snapshot.belongsTo() returns null after a fetched relationship link returns null', async function (assert) {
@@ -497,9 +497,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
     });
     let comment = store.peekRecord('comment', 2);
 
-    assert.equal(comment._createSnapshot().belongsTo('post'), undefined, 'relationship is undefined');
+    assert.strictEqual(comment._createSnapshot().belongsTo('post'), undefined, 'relationship is undefined');
     await comment.get('post');
-    assert.equal(comment._createSnapshot().belongsTo('post'), null, 'relationship is null');
+    assert.strictEqual(comment._createSnapshot().belongsTo('post'), undefined, 'relationship is undefined');
   });
 
   test("snapshot.belongsTo() throws error if relation doesn't exist", function (assert) {
@@ -582,10 +582,10 @@ module('integration/snapshot - Snapshot', function (hooks) {
         let belongsToRelationship = commentSnapshot.belongsTo('post');
 
         assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
-        assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
+        assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
         assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
-        assert.equal(
+        assert.strictEqual(
           belongsToRelationship.attr('title'),
           'Hello World',
           'belongsTo relationship contains related object'
@@ -628,10 +628,14 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let belongsToRelationship = commentSnapshot.belongsTo('post');
 
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
-    assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
+    assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
     assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
-    assert.equal(belongsToRelationship.attr('title'), 'Hello World', 'belongsTo relationship contains related object');
+    assert.strictEqual(
+      belongsToRelationship.attr('title'),
+      'Hello World',
+      'belongsTo relationship contains related object'
+    );
   });
 
   test('snapshot.belongsTo() and snapshot.hasMany() returns correctly when setting an object to a belongsTo relationship', function (assert) {
@@ -667,10 +671,14 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let belongsToRelationship = commentSnapshot.belongsTo('post');
 
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
-    assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
+    assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
     assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
-    assert.equal(belongsToRelationship.attr('title'), 'Hello World', 'belongsTo relationship contains related object');
+    assert.strictEqual(
+      belongsToRelationship.attr('title'),
+      'Hello World',
+      'belongsTo relationship contains related object'
+    );
   });
 
   test('snapshot.belongsTo() returns ID if option.id is set', function (assert) {
@@ -703,7 +711,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = comment._createSnapshot();
     let relationship = snapshot.belongsTo('post', { id: true });
 
-    assert.equal(relationship, '1', 'relationship ID correctly returned');
+    assert.strictEqual(relationship, '1', 'relationship ID correctly returned');
   });
 
   test('snapshot.belongsTo() returns null if option.id is set but relationship was deleted', function (assert) {
@@ -740,7 +748,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = comment._createSnapshot();
     let relationship = snapshot.belongsTo('post', { id: true });
 
-    assert.equal(relationship, null, 'relationship unset after deleted');
+    assert.strictEqual(relationship, null, 'relationship unset after deleted');
   });
 
   test('snapshot.hasMany() returns undefined if relationship is undefined', function (assert) {
@@ -759,7 +767,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = post._createSnapshot();
     let relationship = snapshot.hasMany('comments');
 
-    assert.equal(relationship, undefined, 'relationship is undefined');
+    assert.strictEqual(relationship, undefined, 'relationship is undefined');
   });
 
   test('snapshot.hasMany() returns empty array if relationship is empty', function (assert) {
@@ -784,7 +792,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
-    assert.equal(relationship.length, 0, 'relationship is empty');
+    assert.strictEqual(relationship.length, 0, 'relationship is empty');
   });
 
   test('snapshot.hasMany() returns array of snapshots if relationship is set', function (assert) {
@@ -828,13 +836,13 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
-    assert.equal(relationship.length, 2, 'relationship has two items');
+    assert.strictEqual(relationship.length, 2, 'relationship has two items');
 
     let relationship1 = relationship[0];
 
     assert.ok(relationship1 instanceof Snapshot, 'relationship item is an instance of Snapshot');
-    assert.equal(relationship1.id, '1', 'relationship item id is correct');
-    assert.equal(relationship1.attr('body'), 'This is the first comment', 'relationship item body is correct');
+    assert.strictEqual(relationship1.id, '1', 'relationship item id is correct');
+    assert.strictEqual(relationship1.attr('body'), 'This is the first comment', 'relationship item body is correct');
   });
 
   test('snapshot.hasMany() returns empty array if relationship records are deleted', function (assert) {
@@ -884,7 +892,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
-    assert.equal(relationship.length, 0, 'relationship is empty');
+    assert.strictEqual(relationship.length, 0, 'relationship is empty');
   });
 
   test('snapshot.hasMany() returns array of IDs if option.ids is set', function (assert) {
@@ -961,7 +969,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let relationship = snapshot.hasMany('comments', { ids: true });
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
-    assert.equal(relationship.length, 0, 'relationship is empty');
+    assert.strictEqual(relationship.length, 0, 'relationship is empty');
   });
 
   test('snapshot.hasMany() returns undefined if relationship is a link', function (assert) {
@@ -987,7 +995,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = post._createSnapshot();
     let relationship = snapshot.hasMany('comments');
 
-    assert.equal(relationship, undefined, 'relationship is undefined');
+    assert.strictEqual(relationship, undefined, 'relationship is undefined');
   });
 
   test('snapshot.hasMany() returns array of snapshots if relationship link has been fetched', async function (assert) {
@@ -1023,7 +1031,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       let relationship = snapshot.hasMany('comments');
 
       assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
-      assert.equal(relationship.length, 1, 'relationship has one item');
+      assert.strictEqual(relationship.length, 1, 'relationship has one item');
     });
   });
 
@@ -1104,9 +1112,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
     let snapshot = post._createSnapshot();
     let relationship = snapshot.hasMany('comments');
 
-    assert.equal(relationship[0].id, '3', 'order of comment 3 is correct');
-    assert.equal(relationship[1].id, '1', 'order of comment 1 is correct');
-    assert.equal(relationship[2].id, '2', 'order of comment 2 is correct');
+    assert.strictEqual(relationship[0].id, '3', 'order of comment 3 is correct');
+    assert.strictEqual(relationship[1].id, '1', 'order of comment 1 is correct');
+    assert.strictEqual(relationship[2].id, '2', 'order of comment 2 is correct');
   });
 
   test('snapshot.eachAttribute() proxies to record', function (assert) {

@@ -252,25 +252,29 @@ module('integration/store - destroy', function (hooks) {
 
     await store.findRecord('person', '2');
 
-    assert.equal(personWillDestroy.called.length, 0, 'expected person.willDestroy to not have been called');
-    assert.equal(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');
-    assert.equal(carsWillDestroy.called.length, 0, 'expected cars.willDestroy to not have been called');
-    assert.equal(
+    assert.strictEqual(personWillDestroy.called.length, 0, 'expected person.willDestroy to not have been called');
+    assert.strictEqual(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');
+    assert.strictEqual(carsWillDestroy.called.length, 0, 'expected cars.willDestroy to not have been called');
+    assert.strictEqual(
       adapterPopulatedPeopleWillDestroy.called.length,
       0,
       'expected adapterPopulatedPeople.willDestroy to not have been called'
     );
-    assert.equal(car.get('person'), person, "expected car's person to be the correct person");
-    assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
+    assert.strictEqual(car.get('person'), person, "expected car's person to be the correct person");
+    assert.strictEqual(
+      person.get('cars.firstObject'),
+      car,
+      " expected persons cars's firstRecord to be the correct car"
+    );
 
     store.destroy();
 
     await settled();
 
-    assert.equal(personWillDestroy.called.length, 1, 'expected person to have received willDestroy once');
-    assert.equal(carWillDestroy.called.length, 1, 'expected car to have received willDestroy once');
-    assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to have received willDestroy once');
-    assert.equal(
+    assert.strictEqual(personWillDestroy.called.length, 1, 'expected person to have received willDestroy once');
+    assert.strictEqual(carWillDestroy.called.length, 1, 'expected car to have received willDestroy once');
+    assert.strictEqual(carsWillDestroy.called.length, 1, 'expected person.cars to have received willDestroy once');
+    assert.strictEqual(
       adapterPopulatedPeopleWillDestroy.called.length,
       1,
       'expected adapterPopulatedPeople to receive willDestroy once'
@@ -735,11 +739,11 @@ module('integration/store - findAll', function (hooks) {
 
     let cars = store.peekAll('car');
 
-    assert.equal(cars.length, 1, 'There is one car in the store');
+    assert.strictEqual(cars.length, 1, 'There is one car in the store');
 
     cars = await store.findAll('car');
 
-    assert.equal(cars.length, 1, 'Store resolves with the existing records');
+    assert.strictEqual(cars.length, 1, 'Store resolves with the existing records');
 
     resolvefindAll();
 
@@ -747,11 +751,11 @@ module('integration/store - findAll', function (hooks) {
 
     cars = store.peekAll('car');
 
-    assert.equal(cars.length, 2, 'There is 2 cars in the store now');
+    assert.strictEqual(cars.length, 2, 'There is 2 cars in the store now');
 
     let mini = cars.findBy('id', '1');
 
-    assert.equal(mini.model, 'New Mini', 'Existing records have been updated');
+    assert.strictEqual(mini.model, 'New Mini', 'Existing records have been updated');
   });
 
   test('store#findAll { backgroundReload: false } skips shouldBackgroundReloadAll, returns cached records & does not reload in the background', async function (assert) {
@@ -786,15 +790,15 @@ module('integration/store - findAll', function (hooks) {
 
     let cars = await store.findAll('car', { backgroundReload: false });
 
-    assert.equal(cars.length, 1, 'single cached car record is returned');
-    assert.equal(cars.firstObject.model, 'Mini', 'correct cached car record is returned');
+    assert.strictEqual(cars.length, 1, 'single cached car record is returned');
+    assert.strictEqual(cars.firstObject.model, 'Mini', 'correct cached car record is returned');
 
     await settled();
 
     cars = store.peekAll('car');
 
-    assert.equal(cars.length, 1, 'single cached car record is returned again');
-    assert.equal(cars.firstObject.model, 'Mini', 'correct cached car record is returned again');
+    assert.strictEqual(cars.length, 1, 'single cached car record is returned again');
+    assert.strictEqual(cars.firstObject.model, 'Mini', 'correct cached car record is returned again');
   });
 
   test('store#findAll { backgroundReload: true } skips shouldBackgroundReloadAll, returns cached records, & reloads in background', async function (assert) {
@@ -845,16 +849,16 @@ module('integration/store - findAll', function (hooks) {
 
     let cars = await store.findAll('car', { backgroundReload: true });
 
-    assert.equal(cars.length, 1, 'single cached car record is returned');
-    assert.equal(cars.firstObject.model, 'Mini', 'correct cached car record is returned');
+    assert.strictEqual(cars.length, 1, 'single cached car record is returned');
+    assert.strictEqual(cars.firstObject.model, 'Mini', 'correct cached car record is returned');
 
     await settled();
 
     // IE11 hack
     cars = store.peekAll('car');
-    assert.equal(cars.length, 2, 'multiple cars now in the store');
-    assert.equal(cars.firstObject.model, 'New Mini', 'existing record updated correctly');
-    assert.equal(cars.lastObject.model, 'Isetta', 'new record added to the store');
+    assert.strictEqual(cars.length, 2, 'multiple cars now in the store');
+    assert.strictEqual(cars.firstObject.model, 'New Mini', 'existing record updated correctly');
+    assert.strictEqual(cars.lastObject.model, 'Isetta', 'new record added to the store');
   });
 
   test('store#findAll { backgroundReload: false } is ignored if adapter.shouldReloadAll is true', async function (assert) {
@@ -907,14 +911,14 @@ module('integration/store - findAll', function (hooks) {
 
     let cars = store.peekAll('car');
 
-    assert.equal(cars.length, 1, 'one car in the store');
-    assert.equal(cars.firstObject.model, 'Mini', 'correct car is in the store');
+    assert.strictEqual(cars.length, 1, 'one car in the store');
+    assert.strictEqual(cars.firstObject.model, 'Mini', 'correct car is in the store');
 
     cars = await store.findAll('car', { backgroundReload: false });
 
-    assert.equal(cars.length, 2, 'multiple car records are returned');
-    assert.equal(cars.firstObject.model, 'New Mini', 'initial car record was updated');
-    assert.equal(cars.lastObject.model, 'Isetta', 'second car record was loaded');
+    assert.strictEqual(cars.length, 2, 'multiple car records are returned');
+    assert.strictEqual(cars.firstObject.model, 'New Mini', 'initial car record was updated');
+    assert.strictEqual(cars.lastObject.model, 'Isetta', 'second car record was loaded');
   });
 
   test('store#findAll should eventually return all known records even if they are not in the adapter response', async function (assert) {
@@ -972,21 +976,21 @@ module('integration/store - findAll', function (hooks) {
 
     let cars = await store.findAll('car');
 
-    assert.equal(cars.length, 2, 'It returns all cars');
+    assert.strictEqual(cars.length, 2, 'It returns all cars');
 
     let mini = cars.findBy('id', '1');
-    assert.equal(mini.model, 'Mini', 'Records have not yet been updated');
+    assert.strictEqual(mini.model, 'Mini', 'Records have not yet been updated');
 
     resolvefindAll();
 
     await settled();
 
-    assert.equal(cars.length, 2, 'There are still 2 cars in the store after ajax promise resolves');
+    assert.strictEqual(cars.length, 2, 'There are still 2 cars in the store after ajax promise resolves');
     const peeked = store.peekAll('car');
     assert.strictEqual(peeked, cars, 'findAll and peekAll result are the same');
 
     mini = cars.findBy('id', '1');
-    assert.equal(mini.model, 'New Mini', 'Existing records have been updated');
+    assert.strictEqual(mini.model, 'New Mini', 'Existing records have been updated');
   });
 
   test('Using store#fetch on an empty record calls find', async function (assert) {
@@ -1033,7 +1037,7 @@ module('integration/store - findAll', function (hooks) {
 
     car = await store.findRecord('car', '20', { reload: true });
 
-    assert.equal(car.make, 'BMCW', 'Car with id=20 is now loaded');
+    assert.strictEqual(car.make, 'BMCW', 'Car with id=20 is now loaded');
   });
 
   test('Using store#adapterFor should not throw an error when looking up the application adapter', function (assert) {
@@ -1231,7 +1235,7 @@ module('integration/store - queryRecord', function (hooks) {
     try {
       await store.findRecord('car', '1');
     } catch (error) {
-      assert.equal(error.message, 'Refusing to find record');
+      assert.strictEqual(error.message, 'Refusing to find record');
     }
   });
 
@@ -1248,7 +1252,7 @@ module('integration/store - queryRecord', function (hooks) {
     try {
       await store.findAll('car');
     } catch (error) {
-      assert.equal(error.message, 'Refusing to find all records');
+      assert.strictEqual(error.message, 'Refusing to find all records');
     }
   });
 
@@ -1265,7 +1269,7 @@ module('integration/store - queryRecord', function (hooks) {
     try {
       await store.query('car', {});
     } catch (error) {
-      assert.equal(error.message, 'Refusing to query records');
+      assert.strictEqual(error.message, 'Refusing to query records');
     }
   });
 
@@ -1282,7 +1286,7 @@ module('integration/store - queryRecord', function (hooks) {
     try {
       await store.queryRecord('car', {});
     } catch (error) {
-      assert.equal(error.message, 'Refusing to query record');
+      assert.strictEqual(error.message, 'Refusing to query record');
     }
   });
 
@@ -1301,7 +1305,7 @@ module('integration/store - queryRecord', function (hooks) {
 
       await car.save();
     } catch (error) {
-      assert.equal(error.message, 'Refusing to serialize');
+      assert.strictEqual(error.message, 'Refusing to serialize');
     }
   });
 });

@@ -58,7 +58,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     await store.findRecord('post', 1);
 
-    assert.equal(passedUrl, 'http://example.com/api/v1/posts/1');
+    assert.strictEqual(passedUrl, 'http://example.com/api/v1/posts/1');
   });
 
   test('buildURL - with relative paths in links', async function (assert) {
@@ -85,7 +85,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
-    assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
+    assert.strictEqual(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
   test('buildURL - with absolute paths in links', async function (assert) {
@@ -112,7 +112,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ comments: [{ id: '1' }] });
     await post.comments;
-    assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
+    assert.strictEqual(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
   test('buildURL - with absolute paths in links and protocol relative host', async function (assert) {
@@ -139,7 +139,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
-    assert.equal(passedUrl, '//example.com/api/v1/posts/1/comments');
+    assert.strictEqual(passedUrl, '//example.com/api/v1/posts/1/comments');
   });
 
   test('buildURL - with absolute paths in links and host is /', async function (assert) {
@@ -166,7 +166,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
-    assert.equal(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
+    assert.strictEqual(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
   });
 
   test('buildURL - with full URLs in links', async function (assert) {
@@ -200,7 +200,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
-    assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
+    assert.strictEqual(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
   test('buildURL - with camelized names', async function (assert) {
@@ -214,7 +214,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     ajaxResponse({ superUsers: [{ id: '1' }] });
 
     await store.findRecord('super-user', '1');
-    assert.equal(passedUrl, '/super_users/1');
+    assert.strictEqual(passedUrl, '/super_users/1');
   });
 
   test('buildURL - buildURL takes a record from find', async function (assert) {
@@ -245,7 +245,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     await store.findRecord('comment', '1', { preload: { post } });
 
-    assert.equal(passedUrl, '/posts/2/comments/1');
+    assert.strictEqual(passedUrl, '/posts/2/comments/1');
   });
 
   test('buildURL - buildURL takes the records from findMany', async function (assert) {
@@ -287,7 +287,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     });
 
     await post.comments;
-    assert.equal(passedUrl, '/posts/2/comments/');
+    assert.strictEqual(passedUrl, '/posts/2/comments/');
   });
 
   test('buildURL - buildURL takes a record from create', async function (assert) {
@@ -318,7 +318,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     let comment = store.createRecord('comment');
     comment.set('post', post);
     await comment.save();
-    assert.equal(passedUrl, '/posts/2/comments/');
+    assert.strictEqual(passedUrl, '/posts/2/comments/');
   });
 
   test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', async function (assert) {
@@ -355,7 +355,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     await comment.save();
 
-    assert.equal(passedUrl, '/posts/2/comments/');
+    assert.strictEqual(passedUrl, '/posts/2/comments/');
   });
 
   test('buildURL - buildURL takes a record from update', async function (assert) {
@@ -392,7 +392,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     comment.set('post', post);
 
     await comment.save();
-    assert.equal(passedUrl, '/posts/2/comments/1');
+    assert.strictEqual(passedUrl, '/posts/2/comments/1');
   });
 
   test('buildURL - buildURL takes a record from delete', async function (assert) {
@@ -431,7 +431,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     comment.deleteRecord();
 
     await comment.save();
-    assert.equal(passedUrl, 'posts/2/comments/1');
+    assert.strictEqual(passedUrl, 'posts/2/comments/1');
   });
 
   test('buildURL - with absolute namespace', async function (assert) {
@@ -454,6 +454,6 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     ajaxResponse({ posts: [{ id: '1' }] });
 
     await store.findRecord('post', '1');
-    assert.equal(passedUrl, '/api/v1/posts/1');
+    assert.strictEqual(passedUrl, '/api/v1/posts/1');
   });
 });

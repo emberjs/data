@@ -64,10 +64,14 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
         assert.ok(true, 'Adapter#find was called');
-        assert.equal(store, currentStore, 'Adapter#find was called with the right store');
-        assert.equal(type, store.modelFor('test'), 'Adapter#find was called with the type passed into Store#find');
-        assert.equal(id, 1, 'Adapter#find was called with the id passed into Store#find');
-        assert.equal(snapshot.id, '1', 'Adapter#find was called with the record created from Store#find');
+        assert.strictEqual(store, currentStore, 'Adapter#find was called with the right store');
+        assert.strictEqual(
+          type,
+          store.modelFor('test'),
+          'Adapter#find was called with the type passed into Store#find'
+        );
+        assert.strictEqual(id, '1', 'Adapter#find was called with the id passed into Store#find');
+        assert.strictEqual(snapshot.id, '1', 'Adapter#find was called with the record created from Store#find');
 
         return resolve({
           data: {
@@ -137,7 +141,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
       findMany(store, type, ids, snapshots) {
         snapshots.forEach((snapshot) => {
-          assert.equal(
+          assert.strictEqual(
             snapshot.include,
             includedResourcesForIds[snapshot.id],
             `Snapshot #${snapshot.id} retains the 'include' adapter option in #findMany`
@@ -151,7 +155,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
 
       findRecord(store, type, id, snapshot) {
-        assert.equal(
+        assert.strictEqual(
           snapshot.include,
           includedResourcesForIds[snapshot.id],
           `Snapshot #${snapshot.id} retains the 'include' adapter option in #findRecord`
@@ -207,7 +211,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        assert.equal(typeof id, 'string', 'id has been normalized to a string');
+        assert.strictEqual(typeof id, 'string', 'id has been normalized to a string');
         return resolve({ data: { id, type: 'test', attributes: { name: 'Scumbag Sylvain' } } });
       },
     });
@@ -222,7 +226,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       return store
         .findRecord('test', 1)
         .then((object) => {
-          assert.equal(typeof object.get('id'), 'string', 'id was coerced to a string');
+          assert.strictEqual(typeof object.get('id'), 'string', 'id was coerced to a string');
           run(() => {
             store.push({
               data: {
@@ -239,7 +243,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         })
         .then((object) => {
           assert.ok(object, 'object was found');
-          assert.equal(
+          assert.strictEqual(
             typeof object.get('id'),
             'string',
             'id is a string despite being supplied and searched for as a number'
@@ -280,7 +284,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
       return store.findRecord('person', 1).then((tom) => {
         assert.false(get(tom, 'hasDirtyAttributes'), 'precond - record is not dirty');
-        assert.equal(get(tom, 'name'), 'Tom Dale', 'returns the correct name');
+        assert.strictEqual(get(tom, 'name'), 'Tom Dale', 'returns the correct name');
 
         store.push({
           data: {
@@ -291,7 +295,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
             },
           },
         });
-        assert.equal(get(tom, 'name'), 'Captain Underpants', 'updated record with new date');
+        assert.strictEqual(get(tom, 'name'), 'Captain Underpants', 'updated record with new date');
       });
     });
   });
@@ -307,8 +311,8 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       query(store, type, query) {
-        assert.equal(type, store.modelFor('person'), 'The type was Person');
-        assert.equal(query, passedQuery, 'The query was passed in');
+        assert.strictEqual(type, store.modelFor('person'), 'The type was Person');
+        assert.strictEqual(query, passedQuery, 'The query was passed in');
         return resolve({ data: [] });
       },
     });
@@ -351,7 +355,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     run(() => store.query('person', passedQuery));
 
-    assert.equal(callCount, 1, 'normalizeQueryResponse was called');
+    assert.strictEqual(callCount, 1, 'normalizeQueryResponse was called');
   });
 
   test('peekAll(type) returns a record array of all records of a specific type', function (assert) {
@@ -378,8 +382,8 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     let results = store.peekAll('person');
 
-    assert.equal(get(results, 'length'), 1, 'record array should have the original object');
-    assert.equal(get(results.objectAt(0), 'name'), 'Tom Dale', 'record has the correct information');
+    assert.strictEqual(get(results, 'length'), 1, 'record array should have the original object');
+    assert.strictEqual(get(results.objectAt(0), 'name'), 'Tom Dale', 'record has the correct information');
 
     run(() => {
       store.push({
@@ -393,8 +397,8 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
     });
 
-    assert.equal(get(results, 'length'), 2, 'record array should have the new object');
-    assert.equal(get(results.objectAt(1), 'name'), 'Yehuda Katz', 'record has the correct information');
+    assert.strictEqual(get(results, 'length'), 2, 'record array should have the new object');
+    assert.strictEqual(get(results.objectAt(1), 'name'), 'Yehuda Katz', 'record has the correct information');
 
     assert.strictEqual(results, store.peekAll('person'), 'subsequent calls to peekAll return the same recordArray)');
   });
@@ -414,7 +418,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     run(() => set(person, 'name', 'Braaahm Dale'));
 
-    assert.equal(get(person, 'name'), 'Braaahm Dale', 'Even if no hash is supplied, `set` still worked');
+    assert.strictEqual(get(person, 'name'), 'Braaahm Dale', 'Even if no hash is supplied, `set` still worked');
   });
 
   testInDebug(
@@ -456,7 +460,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.true(get(person, 'isNew'), 'A newly created record is new');
     assert.true(get(person, 'hasDirtyAttributes'), 'A newly created record is dirty');
 
-    assert.equal(get(person, 'name'), 'Brohuda Katz', 'The initial data hash is provided');
+    assert.strictEqual(get(person, 'name'), 'Brohuda Katz', 'The initial data hash is provided');
   });
 
   test('if an id is supplied in the initial data hash, it can be looked up using `store.find`', function (assert) {
@@ -493,7 +497,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        assert.equal(snapshot.attr('name'), 'Test', 'Preloaded attribtue set');
+        assert.strictEqual(snapshot.attr('name'), 'Test', 'Preloaded attribtue set');
         return { data: { id: '1', type: 'test', attributes: { name: 'Test' } } };
       },
     });
@@ -512,7 +516,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        assert.equal(snapshot.belongsTo('friend').attr('name'), 'Tom', 'Preloaded belongsTo set');
+        assert.strictEqual(snapshot.belongsTo('friend').attr('name'), 'Tom', 'Preloaded belongsTo set');
         return { data: { id, type: 'person' } };
       },
     });
@@ -570,7 +574,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
           .peekRecord('person', 1)
           .get('friend')
           .then((friend) => {
-            assert.equal(friend.get('id'), '2', 'Preloaded belongsTo set');
+            assert.strictEqual(friend.get('id'), '2', 'Preloaded belongsTo set');
           });
       });
     });
@@ -581,7 +585,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        assert.equal(snapshot.hasMany('friends')[0].attr('name'), 'Tom', 'Preloaded hasMany set');
+        assert.strictEqual(snapshot.hasMany('friends')[0].attr('name'), 'Tom', 'Preloaded hasMany set');
         return { data: { id, type: 'person' } };
       },
     });
@@ -618,7 +622,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        assert.equal(snapshot.hasMany('friends')[0].id, '2', 'Preloaded hasMany set');
+        assert.strictEqual(snapshot.hasMany('friends')[0].id, '2', 'Preloaded hasMany set');
         return { data: { id, type: 'person' } };
       },
     });
@@ -647,7 +651,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        assert.equal(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
+        assert.strictEqual(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
         return { data: { id, type: 'person' } };
       },
     });
@@ -673,7 +677,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        assert.equal(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
+        assert.strictEqual(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
         return { data: { id, type: 'person' } };
       },
     });
@@ -722,7 +726,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     return run(() => {
       return all([tom.save(), yehuda.save()]).then(() => {
         people.forEach((person, index) => {
-          assert.equal(person.get('id'), index + 1, `The record's id should be correct.`);
+          assert.strictEqual(person.get('id'), String(index + 1), `The record's id should be correct.`);
         });
       });
     });
@@ -792,7 +796,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       return store._scheduleFetchMany(internalModels).then(() => {
         let unloadedRecords = A(internalModels.map((r) => r.getRecord())).filterBy('isEmpty');
 
-        assert.equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
+        assert.strictEqual(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
       });
     });
   });
@@ -806,7 +810,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
 
       findRecord(store, type, id, snapshot) {
-        assert.equal(id, '10', 'The first group is passed to find');
+        assert.strictEqual(id, '10', 'The first group is passed to find');
         return { data: { id, type: 'test' } };
       },
 
@@ -1002,7 +1006,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
         wait.push(
           store.findRecord('test', 'igor').catch((e) => {
             igorDidReject = true;
-            assert.equal(
+            assert.strictEqual(
               e.message,
               `Expected: '<test:igor>' to be present in the adapter provided payload, but it was not found.`
             );
@@ -1105,7 +1109,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.equal(record.get('name'), 'Tom');
+        assert.strictEqual(record.get('name'), 'Tom');
       });
     });
   });
@@ -1145,7 +1149,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
 
       return store.findRecord('person', 1).then((record) => {
-        assert.equal(record.get('name'), 'Tom');
+        assert.strictEqual(record.get('name'), 'Tom');
       });
     });
   });
@@ -1217,7 +1221,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
     });
 
-    assert.equal(store.peekRecord('person', 1).get('name'), 'Tom');
+    assert.strictEqual(store.peekRecord('person', 1).get('name'), 'Tom');
 
     return done;
   });
@@ -1273,7 +1277,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.equal(records.get('firstObject.name'), 'Tom');
+        assert.strictEqual(records.get('firstObject.name'), 'Tom');
       });
     });
   });
@@ -1306,7 +1310,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     return run(() => {
       return store.findAll('person').then((records) => {
-        assert.equal(records.get('firstObject.name'), 'Tom');
+        assert.strictEqual(records.get('firstObject.name'), 'Tom');
       });
     });
   });
@@ -1376,7 +1380,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       });
     });
 
-    assert.equal(store.peekRecord('person', 1).get('name'), 'Tom');
+    assert.strictEqual(store.peekRecord('person', 1).get('name'), 'Tom');
 
     return done;
   });

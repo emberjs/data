@@ -58,15 +58,15 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let all = store.peekAll('person');
 
     // pre-condition
-    assert.equal(all.get('length'), 2, 'pre-condition: 2 records in array');
+    assert.strictEqual(all.get('length'), 2, 'pre-condition: 2 records in array');
 
     run(adam, 'deleteRecord');
 
-    assert.equal(all.get('length'), 2, '2 records in array after deleteRecord');
+    assert.strictEqual(all.get('length'), 2, '2 records in array after deleteRecord');
 
     run(adam, 'save');
 
-    assert.equal(all.get('length'), 1, '1 record in array after deleteRecord and save');
+    assert.strictEqual(all.get('length'), 1, '1 record in array after deleteRecord and save');
   });
 
   test('deleting a record that is part of a hasMany removes it from the hasMany recordArray', async function (assert) {
@@ -121,12 +121,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     let person = store.peekRecord('person', '1');
 
     // Sanity Check we are in the correct state.
-    assert.equal(group.get('people.length'), 2, 'expected 2 related records before delete');
-    assert.equal(person.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
+    assert.strictEqual(group.get('people.length'), 2, 'expected 2 related records before delete');
+    assert.strictEqual(person.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
 
     await person.destroyRecord();
 
-    assert.equal(group.get('people.length'), 1, 'expected 1 related records after delete');
+    assert.strictEqual(group.get('people.length'), 1, 'expected 1 related records after delete');
   });
 
   test('records can be deleted during record array enumeration', async function (assert) {
@@ -160,7 +160,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     var all = store.peekAll('person');
 
     // pre-condition
-    assert.equal(all.get('length'), 2, 'expected 2 records');
+    assert.strictEqual(all.get('length'), 2, 'expected 2 records');
 
     run(function () {
       all.forEach(function (record) {
@@ -168,8 +168,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       });
     });
 
-    assert.equal(all.get('length'), 0, 'expected 0 records');
-    assert.equal(all.objectAt(0), null, "can't get any records");
+    assert.strictEqual(all.get('length'), 0, 'expected 0 records');
+    assert.strictEqual(all.objectAt(0), undefined, "can't get any records");
   });
 
   test('Deleting an invalid newly created record should remove it from the store', async function (assert) {
@@ -195,19 +195,19 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     await record.save().catch(() => {});
 
     // Preconditions
-    assert.equal(
+    assert.strictEqual(
       record.currentState.stateName,
       'root.loaded.created.invalid',
       'records should start in the created.invalid state'
     );
-    assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let internalModel = record._internalModel;
 
     record.deleteRecord();
 
-    assert.equal(internalModel.currentState.stateName, 'root.empty', 'new person state is empty');
-    assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'new person state is empty');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
   test('Destroying an invalid newly created record should remove it from the store', async function (assert) {
@@ -237,19 +237,19 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     await record.save().catch(() => {});
 
     // Preconditions
-    assert.equal(
+    assert.strictEqual(
       get(record, 'currentState.stateName'),
       'root.loaded.created.invalid',
       'records should start in the created.invalid state'
     );
-    assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let internalModel = record._internalModel;
 
     await record.destroyRecord();
 
-    assert.equal(internalModel.currentState.stateName, 'root.empty', 'new person state is empty');
-    assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'new person state is empty');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
   });
 
   test('Will resolve destroy and save in same loop', async function (assert) {
@@ -297,7 +297,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     let record = store.createRecord('person', { name: 'pablobm' });
 
-    assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let internalModel = record._internalModel;
 
@@ -305,8 +305,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
     //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
-    assert.equal(internalModel.currentState.stateName, 'root.empty', 'We reached the correct persisted saved state');
-    assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
+    assert.strictEqual(
+      internalModel.currentState.stateName,
+      'root.empty',
+      'We reached the correct persisted saved state'
+    );
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
 
     // let cache = store._identityMap._map.person._models;
 
@@ -332,7 +336,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     let record = store.createRecord('person', { name: 'pablobm' });
 
-    assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     let internalModel = record._internalModel;
 
@@ -341,8 +345,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
     //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
-    assert.equal(internalModel.currentState.stateName, 'root.empty', 'We reached the correct persisted saved state');
-    assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
+    assert.strictEqual(
+      internalModel.currentState.stateName,
+      'root.empty',
+      'We reached the correct persisted saved state'
+    );
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
 
     // let cache = store._identityMap._map.person._models;
 
@@ -435,22 +443,22 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     // Sanity Check
     assert.ok(group, 'expected group to be found');
-    assert.equal(group.get('company.name'), 'Inc.', 'group belongs to our company');
-    assert.equal(group.get('employees.length'), 1, 'expected 1 related record before delete');
+    assert.strictEqual(group.get('company.name'), 'Inc.', 'group belongs to our company');
+    assert.strictEqual(group.get('employees.length'), 1, 'expected 1 related record before delete');
     employee = group.get('employees').objectAt(0);
-    assert.equal(employee.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
+    assert.strictEqual(employee.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
 
     await group.destroyRecord();
     await employee.destroyRecord();
 
-    assert.equal(store.peekAll('employee').get('length'), 0, 'no employee record loaded');
-    assert.equal(store.peekAll('group').get('length'), 0, 'no group record loaded');
+    assert.strictEqual(store.peekAll('employee').get('length'), 0, 'no employee record loaded');
+    assert.strictEqual(store.peekAll('group').get('length'), 0, 'no group record loaded');
 
     // Server pushes the same group and employee once more after they have been destroyed client-side. (The company is a long-lived record)
     store.push(jsonEmployee);
     store.push(jsonGroup);
 
     group = store.peekRecord('group', '1');
-    assert.equal(group.get('employees.length'), 1, 'expected 1 related record after delete and restore');
+    assert.strictEqual(group.get('employees.length'), 1, 'expected 1 related record after delete and restore');
   });
 });

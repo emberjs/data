@@ -13,7 +13,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof EmberError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'Adapter operation failed');
+    assert.strictEqual(error.message, 'Adapter operation failed');
   });
 
   test('DS.InvalidError', function (assert) {
@@ -22,7 +22,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter rejected the commit because it was invalid');
+    assert.strictEqual(error.message, 'The adapter rejected the commit because it was invalid');
   });
 
   test('DS.TimeoutError', function (assert) {
@@ -31,7 +31,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation timed out');
+    assert.strictEqual(error.message, 'The adapter operation timed out');
   });
 
   test('DS.AbortError', function (assert) {
@@ -40,7 +40,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation was aborted');
+    assert.strictEqual(error.message, 'The adapter operation was aborted');
   });
 
   test('DS.UnauthorizedError', function (assert) {
@@ -49,7 +49,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation is unauthorized');
+    assert.strictEqual(error.message, 'The adapter operation is unauthorized');
   });
 
   test('DS.ForbiddenError', function (assert) {
@@ -58,7 +58,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation is forbidden');
+    assert.strictEqual(error.message, 'The adapter operation is forbidden');
   });
 
   test('DS.NotFoundError', function (assert) {
@@ -67,7 +67,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter could not find the resource');
+    assert.strictEqual(error.message, 'The adapter could not find the resource');
   });
 
   test('DS.ConflictError', function (assert) {
@@ -76,7 +76,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation failed due to a conflict');
+    assert.strictEqual(error.message, 'The adapter operation failed due to a conflict');
   });
 
   test('DS.ServerError', function (assert) {
@@ -85,7 +85,7 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation failed due to a server error');
+    assert.strictEqual(error.message, 'The adapter operation failed due to a server error');
   });
 
   test('CustomAdapterError', function (assert) {
@@ -95,14 +95,14 @@ module('unit/adapter-errors - DS.AdapterError', function () {
     assert.ok(error instanceof Error);
     assert.ok(error instanceof DS.AdapterError);
     assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'Adapter operation failed');
+    assert.strictEqual(error.message, 'Adapter operation failed');
   });
 
   test('CustomAdapterError with default message', function (assert) {
     let CustomAdapterError = DS.AdapterError.extend({ message: 'custom error!' });
     let error = new CustomAdapterError();
 
-    assert.equal(error.message, 'custom error!');
+    assert.strictEqual(error.message, 'custom error!');
   });
 
   const errorsHash = {

@@ -210,7 +210,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
     run(() => {
       let cpResult = get(obj, 'siblings').toArray();
-      assert.equal(cpResult.length, 1, 'siblings cp should have recalculated');
+      assert.strictEqual(cpResult.length, 1, 'siblings cp should have recalculated');
       obj.destroy();
     });
   });
@@ -264,7 +264,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
     run(() => {
       let cpResult = get(obj, 'firstSibling');
-      assert.equal(get(cpResult, 'id'), 1, 'siblings cp should have recalculated');
+      assert.strictEqual(get(cpResult, 'id'), '1', 'siblings cp should have recalculated');
       obj.destroy();
     });
   });
@@ -491,7 +491,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
     });
 
     run(() => {
-      assert.equal(observerCount, 0, 'siblings observer should not be triggered');
+      assert.strictEqual(observerCount, 0, 'siblings observer should not be triggered');
     });
 
     person.removeObserver('siblings.[]', observerMethod);
@@ -508,16 +508,16 @@ module('integration/records/relationship-changes - Relationship changes', functi
         let observer = {
           arrayWillChange(array, start, removing, adding) {
             willChangeCount++;
-            assert.equal(start, 1, 'willChange.start');
-            assert.equal(removing, 0, 'willChange.removing');
-            assert.equal(adding, 1, 'willChange.adding');
+            assert.strictEqual(start, 1, 'willChange.start');
+            assert.strictEqual(removing, 0, 'willChange.removing');
+            assert.strictEqual(adding, 1, 'willChange.adding');
           },
 
           arrayDidChange(array, start, removed, added) {
             didChangeCount++;
-            assert.equal(start, 1, 'didChange.start');
-            assert.equal(removed, 0, 'didChange.removed');
-            assert.equal(added, 1, 'didChange.added');
+            assert.strictEqual(start, 1, 'didChange.start');
+            assert.strictEqual(removed, 0, 'didChange.removed');
+            assert.strictEqual(added, 1, 'didChange.added');
           },
         };
 
@@ -564,8 +564,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
           included: [sibling2],
         });
 
-        assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-        assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+        assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+        assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
 
         siblings.removeArrayObserver(observer);
       },
@@ -611,16 +611,16 @@ module('integration/records/relationship-changes - Relationship changes', functi
         let observer = {
           arrayWillChange(array, start, removing, adding) {
             willChangeCount++;
-            assert.equal(start, 1);
-            assert.equal(removing, 1);
-            assert.equal(adding, 0);
+            assert.strictEqual(start, 1);
+            assert.strictEqual(removing, 1);
+            assert.strictEqual(adding, 0);
           },
 
           arrayDidChange(array, start, removed, added) {
             didChangeCount++;
-            assert.equal(start, 1);
-            assert.equal(removed, 1);
-            assert.equal(added, 0);
+            assert.strictEqual(start, 1);
+            assert.strictEqual(removed, 1);
+            assert.strictEqual(added, 0);
           },
         };
 
@@ -640,8 +640,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
           included: [],
         });
 
-        assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-        assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+        assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+        assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
 
         siblings.removeArrayObserver(observer);
       },
@@ -680,16 +680,16 @@ module('integration/records/relationship-changes - Relationship changes', functi
         let observer = {
           arrayWillChange(array, start, removing, adding) {
             willChangeCount++;
-            assert.equal(start, 0, 'change will start at the beginning');
-            assert.equal(removing, 0, 'we have no removals');
-            assert.equal(adding, 1, 'we have one insertion');
+            assert.strictEqual(start, 0, 'change will start at the beginning');
+            assert.strictEqual(removing, 0, 'we have no removals');
+            assert.strictEqual(adding, 1, 'we have one insertion');
           },
 
           arrayDidChange(array, start, removed, added) {
             didChangeCount++;
-            assert.equal(start, 0, 'change did start at the beginning');
-            assert.equal(removed, 0, 'change had no removals');
-            assert.equal(added, 1, 'change had one insertion');
+            assert.strictEqual(start, 0, 'change did start at the beginning');
+            assert.strictEqual(removed, 0, 'change had no removals');
+            assert.strictEqual(added, 1, 'change had one insertion');
           },
         };
 
@@ -719,8 +719,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
           included: [sibling1],
         });
 
-        assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-        assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+        assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+        assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
         assert.deepEqual(
           siblings.map((i) => i.id),
           ['1', '2'],
@@ -763,15 +763,15 @@ module('integration/records/relationship-changes - Relationship changes', functi
         let observer = {
           arrayWillChange(array, start, removing, adding) {
             willChangeCount++;
-            assert.equal(start, 1);
-            assert.equal(removing, 0);
-            assert.equal(adding, 1);
+            assert.strictEqual(start, 1);
+            assert.strictEqual(removing, 0);
+            assert.strictEqual(adding, 1);
           },
           arrayDidChange(array, start, removed, added) {
             didChangeCount++;
-            assert.equal(start, 1);
-            assert.equal(removed, 0);
-            assert.equal(added, 1);
+            assert.strictEqual(start, 1);
+            assert.strictEqual(removed, 0);
+            assert.strictEqual(added, 1);
           },
         };
 
@@ -802,8 +802,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
           });
         });
 
-        assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-        assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+        assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+        assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
 
         siblings.removeArrayObserver(observer);
       },
@@ -842,16 +842,16 @@ module('integration/records/relationship-changes - Relationship changes', functi
         let observer = {
           arrayWillChange(array, start, removing, adding) {
             willChangeCount++;
-            assert.equal(start, 1);
-            assert.equal(removing, 1);
-            assert.equal(adding, 2);
+            assert.strictEqual(start, 1);
+            assert.strictEqual(removing, 1);
+            assert.strictEqual(adding, 2);
           },
 
           arrayDidChange(array, start, removed, added) {
             didChangeCount++;
-            assert.equal(start, 1);
-            assert.equal(removed, 1);
-            assert.equal(added, 2);
+            assert.strictEqual(start, 1);
+            assert.strictEqual(removed, 1);
+            assert.strictEqual(added, 2);
           },
         };
 
@@ -880,8 +880,8 @@ module('integration/records/relationship-changes - Relationship changes', functi
           });
         });
 
-        assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-        assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+        assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+        assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
 
         siblings.removeArrayObserver(observer);
       },
@@ -933,7 +933,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
       });
     });
 
-    assert.equal(observerCount, 1, 'author observer should be triggered once');
+    assert.strictEqual(observerCount, 1, 'author observer should be triggered once');
   });
 
   test('Calling push with same belongsTo relationship does not trigger observer', function (assert) {
@@ -972,6 +972,6 @@ module('integration/records/relationship-changes - Relationship changes', functi
       });
     });
 
-    assert.equal(observerCount, 0, 'author observer should not be triggered');
+    assert.strictEqual(observerCount, 0, 'author observer should not be triggered');
   });
 });

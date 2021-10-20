@@ -268,8 +268,8 @@ module('unit/model - init properties', function (hooks) {
     const Post = Model.extend({
       title: attr(),
       setUnknownProperty: function (key, value) {
-        assert.equal(key, 'randomProp', 'Passed the correct key to setUknownProperty');
-        assert.equal(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
+        assert.strictEqual(key, 'randomProp', 'Passed the correct key to setUknownProperty');
+        assert.strictEqual(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
       },
     });
 

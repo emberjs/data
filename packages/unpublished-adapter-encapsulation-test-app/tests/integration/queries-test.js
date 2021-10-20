@@ -66,12 +66,12 @@ module('integration/queries - Queries Tests', function (hooks) {
       findRecord(passedStore, type, id, snapshot) {
         findRecordCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Person, 'model is passed to findRecord');
-        assert.equal(id, '12', 'id is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Person, 'model is passed to findRecord');
+        assert.strictEqual(id, '12', 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, '12', 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, '12', 'snapshot is passed to findRecord with correct id');
 
         return resolve(expectedResultCopy);
       }
@@ -81,7 +81,7 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     let record = await store.findRecord('person', '12');
 
-    assert.equal(findRecordCalled, 1, 'findRecord is called once');
+    assert.strictEqual(findRecordCalled, 1, 'findRecord is called once');
     assert.deepEqual(record.serialize(), expectedResult, 'findRecord returns expected result');
   });
 
@@ -120,11 +120,11 @@ module('integration/queries - Queries Tests', function (hooks) {
       findAll(passedStore, type, sinceToken, snapshot) {
         findAllCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findAll');
-        assert.equal(type, Person, 'model is passed to findAll');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findAll');
+        assert.strictEqual(type, Person, 'model is passed to findAll');
         assert.strictEqual(sinceToken, null, 'sinceToken passed to findAll is null');
-        assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findAll with correct modelName');
-        assert.equal(snapshot.length, 0, 'snapshot is passed to findAll represnts empty array');
+        assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findAll with correct modelName');
+        assert.strictEqual(snapshot.length, 0, 'snapshot is passed to findAll represnts empty array');
 
         return resolve(expectedResultCopy);
       }
@@ -137,7 +137,7 @@ module('integration/queries - Queries Tests', function (hooks) {
     let result = manyArray.toArray().map((person) => person.serialize());
     expectedResult = expectedResult.data.map((person) => ({ data: person }));
 
-    assert.equal(findAllCalled, 1, 'findAll is called once');
+    assert.strictEqual(findAllCalled, 1, 'findAll is called once');
     assert.deepEqual(result, expectedResult, 'findAll returns expected result');
   });
 
@@ -160,8 +160,8 @@ module('integration/queries - Queries Tests', function (hooks) {
       queryRecord(passedStore, type, query, options) {
         queryRecordCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to queryRecord');
-        assert.equal(type, Person, 'model is passed to queryRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to queryRecord');
+        assert.strictEqual(type, Person, 'model is passed to queryRecord');
         assert.deepEqual(query, { firstName: 'Gaurav' }, 'query is passed to queryRecord');
         assert.deepEqual(options, {}, 'options is passsed to queryRecord');
 
@@ -173,7 +173,7 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     let record = await store.queryRecord('person', { firstName: 'Gaurav' });
 
-    assert.equal(queryRecordCalled, 1, 'queryRecord is called once');
+    assert.strictEqual(queryRecordCalled, 1, 'queryRecord is called once');
     assert.deepEqual(record.serialize(), expectedResult, 'queryRecord returns expected result');
   });
 
@@ -206,8 +206,8 @@ module('integration/queries - Queries Tests', function (hooks) {
       query(passedStore, type, query, recordArray, options) {
         queryCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to query');
-        assert.equal(type, Person, 'model is passed to query');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to query');
+        assert.strictEqual(type, Person, 'model is passed to query');
         assert.deepEqual(query, { firstName: 'Chris' }, 'query is passed to query');
         assert.deepEqual(recordArray.toArray(), [], 'recordArray is passsed to query');
         assert.deepEqual(options, {}, 'options is passed to query');
@@ -223,7 +223,7 @@ module('integration/queries - Queries Tests', function (hooks) {
     let result = manyArray.toArray().map((person) => person.serialize());
     expectedResult = expectedResult.data.map((person) => ({ data: person }));
 
-    assert.equal(queryCalled, 1, 'query is called once');
+    assert.strictEqual(queryCalled, 1, 'query is called once');
     assert.deepEqual(result, expectedResult, 'query returns expected result');
   });
 });

@@ -49,7 +49,7 @@ module(
 
       run(() => {
         store.findRecord('postNote', 1).then((postNote) => {
-          assert.equal(get(postNote, 'name'), 'Ember Data', 'record found');
+          assert.strictEqual(get(postNote, 'name'), 'Ember Data', 'record found');
         });
       });
     });
@@ -73,7 +73,7 @@ module(
 
       run(() => {
         store.findRecord('post_note', 1).then((postNote) => {
-          assert.equal(get(postNote, 'name'), 'Ember Data', 'record found');
+          assert.strictEqual(get(postNote, 'name'), 'Ember Data', 'record found');
         });
       });
     });
@@ -146,7 +146,7 @@ module(
 
       run(() => {
         store.findRecord('post-note', 1).then((postNote) => {
-          assert.equal(get(postNote, 'notePost.name'), 'Inverse', 'inverse record found');
+          assert.strictEqual(get(postNote, 'notePost.name'), 'Inverse', 'inverse record found');
         });
       });
     });

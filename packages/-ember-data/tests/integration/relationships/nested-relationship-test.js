@@ -135,13 +135,13 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
         assert.ok(middleAger, 'MiddleAger relationship was set up correctly');
 
         let middleAgerName = get(middleAger, 'name');
-        assert.equal(middleAgerName, 'Middle Ager 1', 'MiddleAger name is there');
+        assert.strictEqual(middleAgerName, 'Middle Ager 1', 'MiddleAger name is there');
         assert.ok(middleAger.get('kids').includes(kid));
 
         return middleAger.get('elder').then((elder) => {
           assert.notEqual(elder, null, 'Elder relationship was set up correctly');
           let elderName = get(elder, 'name');
-          assert.equal(elderName, 'Elder 1', 'Elder name is there');
+          assert.strictEqual(elderName, 'Elder 1', 'Elder name is there');
         });
       });
     });

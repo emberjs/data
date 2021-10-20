@@ -68,7 +68,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     const people = await store.query('person', { q: 'bla' });
     const people2 = await store.query('person', { q: 'bla2' });
-    assert.equal(people2.get('length'), 2, 'return the elements');
+    assert.strictEqual(people2.get('length'), 2, 'return the elements');
     assert.ok(people2.get('isLoaded'), 'array is loaded');
 
     const person = people.objectAt(0);
@@ -86,12 +86,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let count = 1;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.createRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
 
       if (count === 1) {
-        assert.equal(snapshot.attr('name'), 'Tom Dale');
+        assert.strictEqual(snapshot.attr('name'), 'Tom Dale');
       } else if (count === 2) {
-        assert.equal(snapshot.attr('name'), 'Yehuda Katz');
+        assert.strictEqual(snapshot.attr('name'), 'Yehuda Katz');
       } else {
         assert.ok(false, 'should not have invoked more than 2 times');
       }
@@ -126,8 +126,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
       assert.asyncEqual(tom, store.findRecord('person', 1), 'Once an ID is in, findRecord returns the same object');
       assert.asyncEqual(yehuda, store.findRecord('person', 2), 'Once an ID is in, findRecord returns the same object');
-      assert.equal(get(tom, 'updatedAt'), 'now', 'The new information is received');
-      assert.equal(get(yehuda, 'updatedAt'), 'now', 'The new information is received');
+      assert.strictEqual(get(tom, 'updatedAt'), 'now', 'The new information is received');
+      assert.strictEqual(get(yehuda, 'updatedAt'), 'now', 'The new information is received');
     });
   });
 
@@ -139,12 +139,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
 
       if (count === 0) {
-        assert.equal(snapshot.attr('name'), 'Tom Dale');
+        assert.strictEqual(snapshot.attr('name'), 'Tom Dale');
       } else if (count === 1) {
-        assert.equal(snapshot.attr('name'), 'Yehuda Katz');
+        assert.strictEqual(snapshot.attr('name'), 'Yehuda Katz');
       } else {
         assert.ok(false, 'should not get here');
       }
@@ -215,16 +215,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
 
       count++;
       if (count === 1) {
-        assert.equal(snapshot.attr('name'), 'Tom Dale');
+        assert.strictEqual(snapshot.attr('name'), 'Tom Dale');
         return resolve({
           data: { id: 1, type: 'person', attributes: { name: 'Tom Dale', 'updated-at': 'now' } },
         });
       } else if (count === 2) {
-        assert.equal(snapshot.attr('name'), 'Yehuda Katz');
+        assert.strictEqual(snapshot.attr('name'), 'Yehuda Katz');
         return resolve({
           data: {
             id: 2,
@@ -281,10 +281,10 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         let yehuda = records.yehuda;
 
         assert.false(get(tom, 'hasDirtyAttributes'), 'the record should not be dirty');
-        assert.equal(get(tom, 'updatedAt'), 'now', 'the hash was updated');
+        assert.strictEqual(get(tom, 'updatedAt'), 'now', 'the hash was updated');
 
         assert.false(get(yehuda, 'hasDirtyAttributes'), 'the record should not be dirty');
-        assert.equal(get(yehuda, 'updatedAt'), 'now!', 'the hash was updated');
+        assert.strictEqual(get(yehuda, 'updatedAt'), 'now!', 'the hash was updated');
       });
   });
 
@@ -298,12 +298,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
 
       if (count === 0) {
-        assert.equal(snapshot.attr('name'), 'Tom Dale');
+        assert.strictEqual(snapshot.attr('name'), 'Tom Dale');
       } else if (count === 1) {
-        assert.equal(snapshot.attr('name'), 'Yehuda Katz');
+        assert.strictEqual(snapshot.attr('name'), 'Yehuda Katz');
       } else {
         assert.ok(false, 'should not get here');
       }
@@ -361,12 +361,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
 
       if (count === 0) {
-        assert.equal(snapshot.attr('name'), 'Tom Dale');
+        assert.strictEqual(snapshot.attr('name'), 'Tom Dale');
       } else if (count === 1) {
-        assert.equal(snapshot.attr('name'), 'Yehuda Katz');
+        assert.strictEqual(snapshot.attr('name'), 'Yehuda Katz');
       } else {
         assert.ok(false, 'should not get here');
       }
@@ -420,8 +420,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = function (store, type, snapshot) {
       count++;
-      assert.equal(snapshot.id, 'deleted-record', 'should pass correct record to deleteRecord');
-      assert.equal(count, 1, 'should only call deleteRecord method of adapter once');
+      assert.strictEqual(snapshot.id, 'deleted-record', 'should pass correct record to deleteRecord');
+      assert.strictEqual(count, 1, 'should only call deleteRecord method of adapter once');
 
       return resolve();
     };
@@ -486,13 +486,13 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       assert.ok(false, 'We should throw during save');
     } catch (e) {
       assert.true(tom.isError, 'Tom is now errored');
-      assert.equal(tom.adapterError, error, 'error object is exposed');
+      assert.strictEqual(tom.adapterError, error, 'error object is exposed');
 
       // this time it succeeds
       await tom.save();
 
       assert.false(tom.isError, 'Tom is not errored anymore');
-      assert.equal(tom.adapterError, null, 'error object is discarded');
+      assert.strictEqual(tom.adapterError, null, 'error object is discarded');
     }
   });
 
@@ -502,7 +502,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let Person = store.modelFor('person');
 
     adapter.createRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
@@ -615,7 +615,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     let saveCount = 0;
     adapter.createRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
       saveCount++;
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
@@ -643,7 +643,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     return yehuda
       .save()
       .catch((reason) => {
-        assert.equal(saveCount, 1, 'The record has been saved once');
+        assert.strictEqual(saveCount, 1, 'The record has been saved once');
         assert.ok(
           reason.message.match('The adapter rejected the commit because it was invalid'),
           'It should fail due to being invalid'
@@ -655,7 +655,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         return yehuda.save();
       })
       .catch((reason) => {
-        assert.equal(saveCount, 2, 'The record has been saved twice');
+        assert.strictEqual(saveCount, 2, 'The record has been saved twice');
         assert.ok(
           reason.message.match('The adapter rejected the commit because it was invalid'),
           'It should fail due to being invalid'
@@ -668,7 +668,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         return yehuda.save();
       })
       .then((person) => {
-        assert.equal(saveCount, 3, 'The record has been saved thrice');
+        assert.strictEqual(saveCount, 3, 'The record has been saved thrice');
         assert.true(get(yehuda, 'isValid'), 'record is valid');
         assert.false(get(yehuda, 'hasDirtyAttributes'), 'record is not dirty');
         assert.true(get(yehuda, 'errors.isEmpty'), 'record has no errors');
@@ -689,7 +689,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     return person.save().catch(() => {
       assert.ok(get(person, 'isError'), 'the record is in the error state');
-      assert.equal(get(person, 'adapterError'), error, 'error object is exposed');
+      assert.strictEqual(get(person, 'adapterError'), error, 'error object is exposed');
     });
   });
 
@@ -700,7 +700,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
@@ -736,7 +736,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     return store
       .findRecord('person', 1)
       .then((person) => {
-        assert.equal(person, yehuda, 'The same object is passed through');
+        assert.strictEqual(person, yehuda, 'The same object is passed through');
 
         assert.true(get(yehuda, 'isValid'), 'precond - the record is valid');
         set(yehuda, 'name', 'Yehuda Katz');
@@ -804,7 +804,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     return store
       .findRecord('person', 1)
       .then((person) => {
-        assert.equal(person, yehuda, 'The same object is passed through');
+        assert.strictEqual(person, yehuda, 'The same object is passed through');
 
         assert.true(get(yehuda, 'isValid'), 'precond - the record is valid');
         set(yehuda, 'name', 'Yehuda Katz');
@@ -850,7 +850,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let saveCount = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
       saveCount++;
       if (snapshot.attr('name').indexOf('Bro') === -1) {
         return reject(
@@ -885,7 +885,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     return store
       .findRecord('person', 1)
       .then((person) => {
-        assert.equal(person, yehuda, 'The same object is passed through');
+        assert.strictEqual(person, yehuda, 'The same object is passed through');
 
         assert.true(get(yehuda, 'isValid'), 'precond - the record is valid');
         set(yehuda, 'name', 'Yehuda Katz');
@@ -896,7 +896,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         return yehuda.save();
       })
       .catch((reason) => {
-        assert.equal(saveCount, 1, 'The record has been saved once');
+        assert.strictEqual(saveCount, 1, 'The record has been saved once');
         assert.ok(
           reason.message.match('The adapter rejected the commit because it was invalid'),
           'It should fail due to being invalid'
@@ -906,7 +906,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         return yehuda.save();
       })
       .catch((reason) => {
-        assert.equal(saveCount, 2, 'The record has been saved twice');
+        assert.strictEqual(saveCount, 2, 'The record has been saved twice');
         assert.ok(
           reason.message.match('The adapter rejected the commit because it was invalid'),
           'It should fail due to being invalid'
@@ -917,7 +917,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         return yehuda.save();
       })
       .then((person) => {
-        assert.equal(saveCount, 3, 'The record has been saved thrice');
+        assert.strictEqual(saveCount, 3, 'The record has been saved thrice');
         assert.true(get(yehuda, 'isValid'), 'record is valid');
         assert.false(get(yehuda, 'hasDirtyAttributes'), 'record is not dirty');
         assert.true(get(yehuda, 'errors.isEmpty'), 'record has no errors');
@@ -951,13 +951,13 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     store
       .findRecord('person', 1)
       .then((record) => {
-        assert.equal(record, person, 'The person was resolved');
+        assert.strictEqual(record, person, 'The person was resolved');
         person.set('name', 'Jonathan Doe');
         return person.save();
       })
       .catch((reason) => {
         assert.ok(get(person, 'isError'), 'the record is in the error state');
-        assert.equal(get(person, 'adapterError'), error, 'error object is exposed');
+        assert.strictEqual(get(person, 'adapterError'), error, 'error object is exposed');
       });
   });
 
@@ -969,7 +969,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let Person = store.modelFor('person');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      assert.equal(type, Person, 'the type is correct');
+      assert.strictEqual(type, Person, 'the type is correct');
       return resolve({ data: { id: 1, type: 'person' } });
     };
 
@@ -1102,7 +1102,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         return dogs;
       })
       .then((dogs) => {
-        assert.equal(dogs.get('length'), 1, 'The dogs are loaded');
+        assert.strictEqual(dogs.get('length'), 1, 'The dogs are loaded');
         store.push({
           data: {
             type: 'person',
@@ -1123,7 +1123,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         return tom.get('dogs');
       })
       .then((dogs) => {
-        assert.equal(dogs.get('length'), 1, 'The same dogs are loaded');
+        assert.strictEqual(dogs.get('length'), 1, 'The same dogs are loaded');
       });
   });
 
@@ -1480,7 +1480,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     adapter.findRecord = (store, type, id, snapshot) => {
-      assert.equal(snapshot.include, 'books', 'include passed to adapter.findRecord');
+      assert.strictEqual(snapshot.include, 'books', 'include passed to adapter.findRecord');
       return resolve({ data: { id: 1, type: 'person' } });
     };
 
@@ -1509,7 +1509,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let adapter = store.adapterFor('application');
 
     adapter.findAll = function (store, type, sinceToken, arraySnapshot) {
-      assert.equal(arraySnapshot.include, 'books', 'include passed to adapter.findAll');
+      assert.strictEqual(arraySnapshot.include, 'books', 'include passed to adapter.findAll');
       return resolve({ data: [{ id: 1, type: 'person' }] });
     };
 
@@ -1563,7 +1563,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         return post.get('comments');
       })
       .then((comments) => {
-        assert.equal(comments.get('length'), 3);
+        assert.strictEqual(comments.get('length'), 3);
       });
   });
 

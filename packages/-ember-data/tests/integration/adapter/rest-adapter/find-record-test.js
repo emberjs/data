@@ -112,20 +112,20 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       }
       const { passedUrl, passedVerb, passedHash } = ajaxCallback();
 
-      assert.equal(passedUrl, '/posts/1');
-      assert.equal(passedVerb, 'GET');
+      assert.strictEqual(passedUrl, '/posts/1');
+      assert.strictEqual(passedVerb, 'GET');
       assert.deepEqual(passedHash.data, {});
 
-      assert.equal(post.get('id'), '1');
-      assert.equal(post.get('name'), 'Rails is omakase');
+      assert.strictEqual(post.get('id'), '1');
+      assert.strictEqual(post.get('name'), 'Rails is omakase');
 
       // stress tests
       let peekPost = store.peekRecord(findRecordArgs);
       assert.strictEqual(peekPost, post, 'peekRecord returns same post');
 
       let recordReference = store.getReference(findRecordArgs);
-      assert.equal(recordReference.remoteType(), 'identity');
-      assert.equal(recordReference.type, 'post');
+      assert.strictEqual(recordReference.remoteType(), 'identity');
+      assert.strictEqual(recordReference.type, 'post');
       assert.strictEqual(recordReference.id(), '1');
     });
   });
@@ -151,9 +151,9 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(peekPost, foundPost, 'peekRecord returns same post');
 
     let recordReference = store.getReference(identifier);
-    assert.equal(recordReference.remoteType(), 'identity');
-    assert.equal(recordReference.type, 'post');
-    assert.equal(recordReference.id(), null);
+    assert.strictEqual(recordReference.remoteType(), 'identity');
+    assert.strictEqual(recordReference.type, 'post');
+    assert.strictEqual(recordReference.id(), null);
   });
 
   // Error Identifier Tests

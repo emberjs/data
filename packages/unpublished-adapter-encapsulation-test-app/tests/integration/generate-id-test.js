@@ -62,12 +62,12 @@ module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
 
     let record = store.createRecord('person', expectedProps);
 
-    assert.equal(record.id, 'manually generated id 1', 'manually generated id used');
+    assert.strictEqual(record.id, 'manually generated id 1', 'manually generated id used');
 
     let recordFromPeekRecord = store.peekRecord('person', record.id);
 
     assert.strictEqual(record, recordFromPeekRecord, 'peekRecord returns the same record');
-    assert.equal(generateIdForRecordCalled, 1, 'generateIdForRecord is called once');
+    assert.strictEqual(generateIdForRecordCalled, 1, 'generateIdForRecord is called once');
     assert.deepEqual(record.serialize(), {
       data: {
         id: 'manually generated id 1',

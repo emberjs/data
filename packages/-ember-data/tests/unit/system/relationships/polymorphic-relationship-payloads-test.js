@@ -312,8 +312,8 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const finalBigResult = bigPerson.get('hats').toArray();
     const finalSmallResult = smallPerson.get('hats').toArray();
 
-    assert.equal(finalBigResult.length, 4, 'We got all our hats!');
-    assert.equal(finalSmallResult.length, 2, 'We got all our hats!');
+    assert.strictEqual(finalBigResult.length, 4, 'We got all our hats!');
+    assert.strictEqual(finalSmallResult.length, 2, 'We got all our hats!');
   });
 
   test('handles relationships where both sides are polymorphic reflexive', function (assert) {

@@ -36,17 +36,17 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
 
     // Tests POST method.
     let options = fetchOptions(baseOptions);
-    assert.equal(options.body, JSON.stringify(baseOptions.data), 'POST request body correctly set');
+    assert.strictEqual(options.body, JSON.stringify(baseOptions.data), 'POST request body correctly set');
 
     // Tests PUT method.
     baseOptions.method = 'PUT';
     options = fetchOptions(baseOptions);
-    assert.equal(options.body, JSON.stringify(baseOptions.data), 'PUT request body correctly set');
+    assert.strictEqual(options.body, JSON.stringify(baseOptions.data), 'PUT request body correctly set');
 
     // Tests DELETE method.
     baseOptions.method = 'DELETE';
     options = fetchOptions(baseOptions);
-    assert.equal(options.body, JSON.stringify(baseOptions.data), 'DELETE request has the correct body');
+    assert.strictEqual(options.body, JSON.stringify(baseOptions.data), 'DELETE request has the correct body');
   });
 
   test("fetchOptions sets the request body correctly when the method is POST and 'data' is a string", function (assert) {
@@ -61,7 +61,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
     };
 
     let options = fetchOptions(optionsWithStringData);
-    assert.equal(options.body, stringifiedData);
+    assert.strictEqual(options.body, stringifiedData);
   });
 
   test('fetchOptions does not set a request body when the method is GET or HEAD', function (assert) {
@@ -107,7 +107,11 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
     };
 
     const getOptions = fetchOptions(getData);
-    assert.equal(getOptions.url.indexOf('?'), -1, 'A question mark is not added if there are no query params to add');
+    assert.strictEqual(
+      getOptions.url.indexOf('?'),
+      -1,
+      'A question mark is not added if there are no query params to add'
+    );
 
     const postData = {
       url: 'https://emberjs.com',
@@ -116,7 +120,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
     };
 
     const postOptions = fetchOptions(postData);
-    assert.equal(postOptions.body, '{}', "'options.body' is an empty object");
+    assert.strictEqual(postOptions.body, '{}', "'options.body' is an empty object");
   });
 
   test("fetchOptions sets the request body correctly when 'data' is FormData", function (assert) {
@@ -144,7 +148,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
     };
 
     const postOptions = fetchOptions(postData);
-    assert.equal(postOptions.body, stringBody, "'options.body' is the String passed in");
+    assert.strictEqual(postOptions.body, stringBody, "'options.body' is the String passed in");
   });
 
   test("fetchOptions sets credentials when 'credentials' is empty", function (assert) {
@@ -157,7 +161,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
     };
 
     const postOptions = fetchOptions(postData);
-    assert.equal(postOptions.credentials, 'same-origin', "'options.credentials' is 'same-origin'");
+    assert.strictEqual(postOptions.credentials, 'same-origin', "'options.credentials' is 'same-origin'");
   });
 
   test("fetchOptions sets credentials when 'credentials' is not empty", function (assert) {
@@ -172,7 +176,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
     };
 
     const postOptions = fetchOptions(postData);
-    assert.equal(postOptions.credentials, credentials, "'options.credentials' is 'include'");
+    assert.strictEqual(postOptions.credentials, credentials, "'options.credentials' is 'include'");
   });
 
   test('fetchOptions serializes query params to the url', function (assert) {
@@ -190,7 +194,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
     };
 
     const postOptions = fetchOptions(postData);
-    assert.equal(
+    assert.strictEqual(
       postOptions.url,
       'https://emberjs.com?fields%5Bpost%5D=title%2Cemail&fields%5Bcomments%5D=body',
       "'options.url' is serialized"

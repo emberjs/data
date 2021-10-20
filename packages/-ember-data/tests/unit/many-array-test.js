@@ -130,9 +130,9 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
     };
 
     TestManyArray.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
-      assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
-      assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
-      assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
+      assert.strictEqual(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
+      assert.strictEqual(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
+      assert.strictEqual(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
 
       return originalArrayContentDidChange.apply(this, arguments);
     };

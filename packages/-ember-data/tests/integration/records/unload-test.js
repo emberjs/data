@@ -182,15 +182,15 @@ module('integration/unload - Unloading Records', function (hooks) {
       adam = store.peekRecord('person', 1);
     });
 
-    assert.equal(store.peekAll('person').get('length'), 1, 'one person record loaded');
-    assert.equal(store._internalModelsFor('person').length, 1, 'one person internalModel loaded');
+    assert.strictEqual(store.peekAll('person').get('length'), 1, 'one person record loaded');
+    assert.strictEqual(store._internalModelsFor('person').length, 1, 'one person internalModel loaded');
 
     run(function () {
       adam.unloadRecord();
     });
 
-    assert.equal(store.peekAll('person').get('length'), 0, 'no person records');
-    assert.equal(store._internalModelsFor('person').length, 0, 'no person internalModels');
+    assert.strictEqual(store.peekAll('person').get('length'), 0, 'no person records');
+    assert.strictEqual(store._internalModelsFor('person').length, 0, 'no person internalModels');
   });
 
   test('can unload all records for a given type', function (assert) {
@@ -237,20 +237,20 @@ module('integration/unload - Unloading Records', function (hooks) {
       bob = store.peekRecord('car', 1);
     });
 
-    assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
-    assert.equal(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
-    assert.equal(store.peekAll('car').get('length'), 1, 'one car record loaded');
-    assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
+    assert.strictEqual(store.peekAll('person').get('length'), 2, 'two person records loaded');
+    assert.strictEqual(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
+    assert.strictEqual(store.peekAll('car').get('length'), 1, 'one car record loaded');
+    assert.strictEqual(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
     run(function () {
       car.get('person');
       store.unloadAll('person');
     });
 
-    assert.equal(store.peekAll('person').get('length'), 0);
-    assert.equal(store.peekAll('car').get('length'), 1);
-    assert.equal(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
-    assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
+    assert.strictEqual(store.peekAll('person').get('length'), 0);
+    assert.strictEqual(store.peekAll('car').get('length'), 1);
+    assert.strictEqual(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
+    assert.strictEqual(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
     run(function () {
       store.push({
@@ -280,8 +280,8 @@ module('integration/unload - Unloading Records', function (hooks) {
    because the `person` relationship is never materialized, it's state was
    not cleared on unload, and thus the client-side delete never happened as intended.
   */
-    // assert.equal(person.get('id'), '1', 'Inverse can load relationship after the record is unloaded');
-    // assert.equal(person.get('name'), 'Richard II', 'Inverse can load relationship after the record is unloaded');
+    // assert.strictEqual(person.get('id'), '1', 'Inverse can load relationship after the record is unloaded');
+    // assert.strictEqual(person.get('name'), 'Richard II', 'Inverse can load relationship after the record is unloaded');
   });
 
   test('can unload all records', function (assert) {
@@ -327,19 +327,19 @@ module('integration/unload - Unloading Records', function (hooks) {
       bob = store.peekRecord('car', 1);
     });
 
-    assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
-    assert.equal(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
-    assert.equal(store.peekAll('car').get('length'), 1, 'one car record loaded');
-    assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
+    assert.strictEqual(store.peekAll('person').get('length'), 2, 'two person records loaded');
+    assert.strictEqual(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
+    assert.strictEqual(store.peekAll('car').get('length'), 1, 'one car record loaded');
+    assert.strictEqual(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
     run(function () {
       store.unloadAll();
     });
 
-    assert.equal(store.peekAll('person').get('length'), 0);
-    assert.equal(store.peekAll('car').get('length'), 0);
-    assert.equal(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
-    assert.equal(store._internalModelsFor('car').length, 0, 'zero car internalModels loaded');
+    assert.strictEqual(store.peekAll('person').get('length'), 0);
+    assert.strictEqual(store.peekAll('car').get('length'), 0);
+    assert.strictEqual(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
+    assert.strictEqual(store._internalModelsFor('car').length, 0, 'zero car internalModels loaded');
   });
 
   test('removes findAllCache after unloading all records', function (assert) {
@@ -368,16 +368,16 @@ module('integration/unload - Unloading Records', function (hooks) {
       let bob = store.peekRecord('person', 2);
     });
 
-    assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
-    assert.equal(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
+    assert.strictEqual(store.peekAll('person').get('length'), 2, 'two person records loaded');
+    assert.strictEqual(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
 
     run(function () {
       store.peekAll('person');
       store.unloadAll('person');
     });
 
-    assert.equal(store.peekAll('person').get('length'), 0, 'zero person records loaded');
-    assert.equal(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
+    assert.strictEqual(store.peekAll('person').get('length'), 0, 'zero person records loaded');
+    assert.strictEqual(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
   });
 
   test('unloading all records also updates record array from peekAll()', function (assert) {
@@ -405,12 +405,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
     let all = store.peekAll('person');
 
-    assert.equal(all.get('length'), 2);
+    assert.strictEqual(all.get('length'), 2);
 
     run(function () {
       store.unloadAll('person');
     });
-    assert.equal(all.get('length'), 0);
+    assert.strictEqual(all.get('length'), 0);
   });
 
   function makeBoatOneForPersonOne() {
@@ -454,8 +454,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let knownBoats = store._internalModelsFor('boat');
 
     // ensure we loaded the people and boats
-    assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-    assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+    assert.strictEqual(knownPeople.models.length, 1, 'one person record is loaded');
+    assert.strictEqual(knownBoats.models.length, 1, 'one boat record is loaded');
     assert.true(store.hasRecordForId('person', '1'));
     assert.true(store.hasRecordForId('boat', '1'));
 
@@ -463,8 +463,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let peopleBoats = await person.get('boats');
     let boatPerson = await boat.get('person');
 
-    assert.equal(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
-    assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
+    assert.strictEqual(relationshipState.members.size, 1, 'members size should be 1');
     assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
     assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
     assert.ok(boatPerson === person, 'Our boat has the right person');
@@ -474,10 +474,10 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     // ensure that our new state is correct
-    assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-    assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
-    assert.equal(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
-    assert.equal(relationshipState.members.size, 1, 'members size should still be 1');
+    assert.strictEqual(knownPeople.models.length, 1, 'one person record is loaded');
+    assert.strictEqual(knownBoats.models.length, 0, 'no boat records are loaded');
+    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
+    assert.strictEqual(relationshipState.members.size, 1, 'members size should still be 1');
     assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
 
     run(() =>
@@ -531,8 +531,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let knownBoats = store._internalModelsFor('boat');
 
     // ensure we loaded the people and boats
-    assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-    assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+    assert.strictEqual(knownPeople.models.length, 1, 'one person record is loaded');
+    assert.strictEqual(knownBoats.models.length, 1, 'one boat record is loaded');
     assert.true(store.hasRecordForId('person', '1'));
     assert.true(store.hasRecordForId('boat', '1'));
 
@@ -540,8 +540,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let peopleBoats = run(() => person.get('boats.content'));
     let boatPerson = run(() => boat.get('person.content'));
 
-    assert.equal(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
-    assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
+    assert.strictEqual(relationshipState.members.size, 1, 'members size should be 1');
     assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
     assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
     assert.ok(boatPerson === person, 'Our boat has the right person');
@@ -551,10 +551,10 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     // ensure that our new state is correct
-    assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-    assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
-    assert.equal(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
-    assert.equal(relationshipState.members.size, 1, 'members size should still be 1');
+    assert.strictEqual(knownPeople.models.length, 1, 'one person record is loaded');
+    assert.strictEqual(knownBoats.models.length, 0, 'no boat records are loaded');
+    assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
+    assert.strictEqual(relationshipState.members.size, 1, 'members size should still be 1');
     assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
 
     run(() => person.get('boats'));
@@ -731,8 +731,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       });
     });
 
-    assert.equal(store._internalModelsFor('person').models.length, 1, 'one person record is loaded');
-    assert.equal(store._internalModelsFor('boat').models.length, 2, 'two boat records are loaded');
+    assert.strictEqual(store._internalModelsFor('person').models.length, 1, 'one person record is loaded');
+    assert.strictEqual(store._internalModelsFor('boat').models.length, 2, 'two boat records are loaded');
     assert.true(store.hasRecordForId('person', 1));
     assert.true(store.hasRecordForId('boat', 1));
     assert.true(store.hasRecordForId('boat', 2));
@@ -771,11 +771,11 @@ module('integration/unload - Unloading Records', function (hooks) {
           store.peekRecord('boat', 2).unloadRecord();
         });
 
-        assert.equal(store._internalModelsFor('person').models.length, 0);
-        assert.equal(store._internalModelsFor('boat').models.length, 0);
+        assert.strictEqual(store._internalModelsFor('person').models.length, 0);
+        assert.strictEqual(store._internalModelsFor('boat').models.length, 0);
 
-        assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
-        assert.equal(cleanupOrphanCalls, 3, 'each model data tries to cleanup');
+        assert.strictEqual(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
+        assert.strictEqual(cleanupOrphanCalls, 3, 'each model data tries to cleanup');
       });
   });
 
@@ -823,7 +823,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     const internalModel = record._internalModel;
-    assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     run(function () {
       store.unloadRecord(record);
@@ -831,12 +831,12 @@ module('integration/unload - Unloading Records', function (hooks) {
       assert.false(internalModel.isDestroyed, 'the internal model is not destroyed');
       assert.true(internalModel._isDematerializing, 'the internal model is dematerializing');
       internalModel.cancelDestroy();
-      assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+      assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
     });
 
     assert.false(internalModel.isDestroyed, 'the internal model was not destroyed');
     assert.false(internalModel._isDematerializing, 'the internal model is no longer dematerializing');
-    assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are still unloaded after unloadRecord');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are still unloaded after unloadRecord');
   });
 
   test('after unloading a record, the record can be fetched again immediately', function (assert) {
@@ -887,16 +887,16 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     const internalModel = record._internalModel;
-    assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     // we test that we can sync call unloadRecord followed by findRecord
     return run(() => {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+      assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
       return store.findRecord('person', '1').then((newRecord) => {
         assert.ok(internalModel === newRecord._internalModel, 'the old internalModel is reused');
-        assert.equal(
+        assert.strictEqual(
           newRecord._internalModel.currentState.stateName,
           'root.loaded.saved',
           'We are loaded after findRecord'
@@ -958,23 +958,23 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     const internalModel = record._internalModel;
-    assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     // we test that we can sync call unloadRecord followed by findRecord
     return run(() => {
-      assert.equal(record.get('cars.firstObject.make'), 'jeep');
+      assert.strictEqual(record.get('cars.firstObject.make'), 'jeep');
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.equal(
+      assert.strictEqual(
         internalModel.currentState.stateName,
         'root.empty',
         'Expected the previous internal model tobe unloaded'
       );
 
       return store.findRecord('person', '1').then((record) => {
-        assert.equal(record.get('cars.length'), 0, 'Expected relationship to be cleared by the new push');
+        assert.strictEqual(record.get('cars.length'), 0, 'Expected relationship to be cleared by the new push');
         assert.ok(internalModel === record._internalModel, 'the old internalModel is reused');
-        assert.equal(
+        assert.strictEqual(
           record._internalModel.currentState.stateName,
           'root.loaded.saved',
           'Expected the NEW internal model to be loaded'
@@ -1024,16 +1024,16 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     const internalModel = record._internalModel;
     const bike = store.peekRecord('bike', '1');
-    assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
-    assert.equal(record.get('bike.name'), 'mr bike');
+    assert.strictEqual(record.get('bike.name'), 'mr bike');
 
     // we test that we can sync call unloadRecord followed by findRecord
     let wait = run(() => {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
       assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
-      assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+      assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
 
       let wait = store.findRecord('person', '1').then((newRecord) => {
         assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
@@ -1078,12 +1078,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     let internalModel = record._internalModel;
-    assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
     run(function () {
       store.unloadRecord(record);
       assert.true(record.isDestroying, 'the record is destroying');
-      assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+      assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
     });
 
     run(function () {
@@ -1093,7 +1093,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     record = store.peekRecord('person', '1');
     internalModel = record._internalModel;
 
-    assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
+    assert.strictEqual(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
   });
 
   test('after unloading a record, the record can be saved again immediately', function (assert) {
@@ -1157,16 +1157,16 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     let adam = store.peekRecord('person', 1);
-    assert.equal(adam.get('cars.length'), 0, 'cars hasMany starts off empty');
+    assert.strictEqual(adam.get('cars.length'), 0, 'cars hasMany starts off empty');
 
     run(() => pushCar());
-    assert.equal(adam.get('cars.length'), 1, 'pushing car setups inverse relationship');
+    assert.strictEqual(adam.get('cars.length'), 1, 'pushing car setups inverse relationship');
 
     run(() => adam.get('cars.firstObject').unloadRecord());
-    assert.equal(adam.get('cars.length'), 0, 'unloading car cleaned up hasMany');
+    assert.strictEqual(adam.get('cars.length'), 0, 'unloading car cleaned up hasMany');
 
     run(() => pushCar());
-    assert.equal(adam.get('cars.length'), 1, 'pushing car again setups inverse relationship');
+    assert.strictEqual(adam.get('cars.length'), 1, 'pushing car again setups inverse relationship');
   });
 
   test('1:1 sync unload', function (assert) {
@@ -1196,12 +1196,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     let person = store.peekRecord('person', 1);
     let house = store.peekRecord('house', 2);
 
-    assert.equal(person.get('house.id'), 2, 'initially relationship established lhs');
-    assert.equal(house.get('person.id'), 1, 'initially relationship established rhs');
+    assert.strictEqual(person.get('house.id'), '2', 'initially relationship established lhs');
+    assert.strictEqual(house.get('person.id'), '1', 'initially relationship established rhs');
 
     run(() => house.unloadRecord());
 
-    assert.equal(person.get('house'), null, 'unloading acts as a delete for sync relationships');
+    assert.strictEqual(person.get('house'), null, 'unloading acts as a delete for sync relationships');
     assert.false(store.hasRecordForId('house', 2), 'unloaded record gone from store');
 
     house = run(() =>
@@ -1214,8 +1214,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     );
 
     assert.true(store.hasRecordForId('house', 2), 'unloaded record can be restored');
-    assert.equal(person.get('house'), null, 'restoring unloaded record does not restore relationship');
-    assert.equal(house.get('person'), null, 'restoring unloaded record does not restore relationship');
+    assert.strictEqual(person.get('house'), null, 'restoring unloaded record does not restore relationship');
+    assert.strictEqual(house.get('person'), null, 'restoring unloaded record does not restore relationship');
 
     run(() =>
       store.push({
@@ -1234,8 +1234,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       })
     );
 
-    assert.equal(person.get('house.id'), 2, 'after unloading, relationship can be restored');
-    assert.equal(house.get('person.id'), 1, 'after unloading, relationship can be restored');
+    assert.strictEqual(person.get('house.id'), '2', 'after unloading, relationship can be restored');
+    assert.strictEqual(house.get('person.id'), '1', 'after unloading, relationship can be restored');
   });
 
   test('1:many sync unload 1 side', function (assert) {
@@ -1279,15 +1279,15 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.false(cars.isDestroyed, 'ManyArray not destroyed');
     assert.deepEqual(person.get('cars').mapBy('id'), ['2', '3'], 'initialy relationship established lhs');
-    assert.equal(car2.get('person.id'), 1, 'initially relationship established rhs');
-    assert.equal(car3.get('person.id'), 1, 'initially relationship established rhs');
+    assert.strictEqual(car2.get('person.id'), '1', 'initially relationship established rhs');
+    assert.strictEqual(car3.get('person.id'), '1', 'initially relationship established rhs');
 
     run(() => person.unloadRecord());
 
     assert.false(store.hasRecordForId('person', 1), 'unloaded record gone from store');
 
-    assert.equal(car2.get('person'), null, 'unloading acts as delete for sync relationships');
-    assert.equal(car3.get('person'), null, 'unloading acts as delete for sync relationships');
+    assert.strictEqual(car2.get('person'), null, 'unloading acts as delete for sync relationships');
+    assert.strictEqual(car3.get('person'), null, 'unloading acts as delete for sync relationships');
     assert.true(cars.isDestroyed, 'ManyArray destroyed');
 
     person = run(() =>
@@ -1301,8 +1301,8 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.true(store.hasRecordForId('person', 1), 'unloaded record can be restored');
     assert.deepEqual(person.get('cars').mapBy('id'), [], 'restoring unloaded record does not restore relationship');
-    assert.equal(car2.get('person'), null, 'restoring unloaded record does not restore relationship');
-    assert.equal(car3.get('person'), null, 'restoring unloaded record does not restore relationship');
+    assert.strictEqual(car2.get('person'), null, 'restoring unloaded record does not restore relationship');
+    assert.strictEqual(car3.get('person'), null, 'restoring unloaded record does not restore relationship');
 
     run(() =>
       store.push({
@@ -1327,8 +1327,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       })
     );
 
-    assert.equal(car2.get('person.id'), '1', 'after unloading, relationship can be restored');
-    assert.equal(car3.get('person.id'), '1', 'after unloading, relationship can be restored');
+    assert.strictEqual(car2.get('person.id'), '1', 'after unloading, relationship can be restored');
+    assert.strictEqual(car3.get('person.id'), '1', 'after unloading, relationship can be restored');
     assert.deepEqual(person.get('cars').mapBy('id'), ['2', '3'], 'after unloading, relationship can be restored');
   });
 
@@ -1373,8 +1373,8 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.false(cars.isDestroyed, 'ManyArray not destroyed');
     assert.deepEqual(person.get('cars').mapBy('id'), ['2', '3'], 'initialy relationship established lhs');
-    assert.equal(car2.get('person.id'), 1, 'initially relationship established rhs');
-    assert.equal(car3.get('person.id'), 1, 'initially relationship established rhs');
+    assert.strictEqual(car2.get('person.id'), '1', 'initially relationship established rhs');
+    assert.strictEqual(car3.get('person.id'), '1', 'initially relationship established rhs');
 
     run(() => car2.unloadRecord());
 
@@ -1382,7 +1382,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.false(cars.isDestroyed, 'ManyArray not destroyed');
     assert.deepEqual(person.get('cars').mapBy('id'), ['3'], 'unload sync relationship acts as delete');
-    assert.equal(car3.get('person.id'), '1', 'unloading one of a sync hasMany does not affect the rest');
+    assert.strictEqual(car3.get('person.id'), '1', 'unloading one of a sync hasMany does not affect the rest');
 
     car2 = run(() =>
       store.push({
@@ -1395,7 +1395,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.true(store.hasRecordForId('car', 2), 'unloaded record can be restored');
     assert.deepEqual(person.get('cars').mapBy('id'), ['3'], 'restoring unloaded record does not restore relationship');
-    assert.equal(car2.get('person'), null, 'restoring unloaded record does not restore relationship');
+    assert.strictEqual(car2.get('person'), null, 'restoring unloaded record does not restore relationship');
 
     run(() =>
       store.push({
@@ -1420,7 +1420,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       })
     );
 
-    assert.equal(car2.get('person.id'), '1', 'after unloading, relationship can be restored');
+    assert.strictEqual(car2.get('person.id'), '1', 'after unloading, relationship can be restored');
     assert.deepEqual(person.get('cars').mapBy('id'), ['2', '3'], 'after unloading, relationship can be restored');
   });
 
@@ -1562,8 +1562,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let findRecordCalls = 0;
 
     adapter.findRecord = (store, type, id) => {
-      assert.equal(type, Mortgage, 'findRecord(_, type) is correct');
-      assert.equal(id, '2', 'findRecord(_, _, id) is correct');
+      assert.strictEqual(type, Mortgage, 'findRecord(_, type) is correct');
+      assert.strictEqual(id, '2', 'findRecord(_, _, id) is correct');
       ++findRecordCalls;
 
       return {
@@ -1600,21 +1600,21 @@ module('integration/unload - Unloading Records', function (hooks) {
           return mortgage.get('person');
         })
         .then(() => {
-          assert.equal(mortgage.belongsTo('person').id(), '1', 'initially relationship established lhs');
-          assert.equal(person.belongsTo('mortgage').id(), '2', 'initially relationship established rhs');
+          assert.strictEqual(mortgage.belongsTo('person').id(), '1', 'initially relationship established lhs');
+          assert.strictEqual(person.belongsTo('mortgage').id(), '2', 'initially relationship established rhs');
 
           run(() => mortgage.unloadRecord());
 
-          assert.equal(person.belongsTo('mortgage').id(), '2', 'unload async is not treated as delete');
+          assert.strictEqual(person.belongsTo('mortgage').id(), '2', 'unload async is not treated as delete');
 
           return person.get('mortgage');
         })
         .then((refetchedMortgage) => {
           assert.notEqual(mortgage, refetchedMortgage, 'the previously loaded record is not reused');
 
-          assert.equal(person.belongsTo('mortgage').id(), '2', 'unload async is not treated as delete');
-          assert.equal(refetchedMortgage.belongsTo('person').id(), '1', 'unload async is not treated as delete');
-          assert.equal(findRecordCalls, 2);
+          assert.strictEqual(person.belongsTo('mortgage').id(), '2', 'unload async is not treated as delete');
+          assert.strictEqual(refetchedMortgage.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+          assert.strictEqual(findRecordCalls, 2);
         })
     );
   });
@@ -1626,7 +1626,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     adapter.coalesceFindRequests = true;
 
     adapter.findRecord = (store, type, id) => {
-      assert.equal(type, Person, 'findRecord(_, type) is correct');
+      assert.strictEqual(type, Person, 'findRecord(_, type) is correct');
       assert.deepEqual(id, '1', 'findRecord(_, _, id) is correct');
       ++findRecordCalls;
 
@@ -1639,7 +1639,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
 
     adapter.findMany = (store, type, ids) => {
-      assert.equal(type + '', Boat + '', 'findMany(_, type) is correct');
+      assert.strictEqual(type + '', Boat + '', 'findMany(_, type) is correct');
       assert.deepEqual(ids, ['2', '3'], 'findMany(_, _, ids) is correct');
       ++findManyCalls;
 
@@ -1691,16 +1691,16 @@ module('integration/unload - Unloading Records', function (hooks) {
         })
         .then(() => {
           assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'initially relationship established lhs');
-          assert.equal(boat2.belongsTo('person').id(), '1', 'initially relationship established rhs');
-          assert.equal(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
+          assert.strictEqual(boat2.belongsTo('person').id(), '1', 'initially relationship established rhs');
+          assert.strictEqual(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
           assert.false(boats.isDestroyed, 'ManyArray is not destroyed');
 
           run(() => person.unloadRecord());
 
           assert.false(boats.isDestroyed, 'ManyArray is not destroyed when 1 side is unloaded');
-          assert.equal(boat2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
-          assert.equal(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+          assert.strictEqual(boat2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+          assert.strictEqual(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
           return boat2.get('person');
         })
@@ -1708,11 +1708,11 @@ module('integration/unload - Unloading Records', function (hooks) {
           assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
 
           assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'unload async is not treated as delete');
-          assert.equal(boat2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
-          assert.equal(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+          assert.strictEqual(boat2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+          assert.strictEqual(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
-          assert.equal(findManyCalls, 1, 'findMany called as expected');
-          assert.equal(findRecordCalls, 1, 'findRecord called as expected');
+          assert.strictEqual(findManyCalls, 1, 'findMany called as expected');
+          assert.strictEqual(findRecordCalls, 1, 'findRecord called as expected');
         })
     );
   });
@@ -1723,7 +1723,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     adapter.coalesceFindRequests = true;
 
     adapter.findMany = (store, type, ids) => {
-      assert.equal(type + '', Boat + '', 'findMany(_, type) is correct');
+      assert.strictEqual(type + '', Boat + '', 'findMany(_, type) is correct');
       assert.deepEqual(ids, ['2', '3'], 'findMany(_, _, ids) is correct');
       ++findManyCalls;
 
@@ -1767,8 +1767,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     await all([boat2.person, boat3.person]);
 
     assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'initially relationship established lhs');
-    assert.equal(boat2.belongsTo('person').id(), '1', 'initially relationship established rhs');
-    assert.equal(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
+    assert.strictEqual(boat2.belongsTo('person').id(), '1', 'initially relationship established rhs');
+    assert.strictEqual(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
     assert.deepEqual(boats.mapBy('id'), ['2', '3'], 'many array is initially set up correctly');
 
     boat2.unloadRecord();
@@ -1779,16 +1779,16 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.deepEqual(boats.mapBy('id'), [], 'unload async removes from previous many array');
     assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'unload async is not treated as delete');
-    assert.equal(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+    assert.strictEqual(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
     const refetchedBoats = await person.boats;
 
     assert.true(refetchedBoats === boats, 'we have the same ManyArray');
     assert.deepEqual(refetchedBoats.mapBy('id'), ['2', '3'], 'boats refetched');
     assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'unload async is not treated as delete');
-    assert.equal(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+    assert.strictEqual(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
-    assert.equal(findManyCalls, 2, 'findMany called as expected');
+    assert.strictEqual(findManyCalls, 2, 'findMany called as expected');
   });
 
   test('many:many async unload', async function (assert) {
@@ -1797,7 +1797,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     adapter.coalesceFindRequests = true;
 
     adapter.findMany = (store, type, ids) => {
-      assert.equal(type + '', Person + '', 'findMany(_, type) is correct');
+      assert.strictEqual(type + '', Person + '', 'findMany(_, type) is correct');
       assert.deepEqual(ids, ['3', '4'], 'findMany(_, _, ids) is correct');
       ++findManyCalls;
 
@@ -1890,7 +1890,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       'unload async is not treated as delete'
     );
 
-    assert.equal(findManyCalls, 2, 'findMany called as expected');
+    assert.strictEqual(findManyCalls, 2, 'findMany called as expected');
   });
 
   test('1 sync : 1 async unload sync side', function (assert) {
@@ -1921,12 +1921,12 @@ module('integration/unload - Unloading Records', function (hooks) {
     let book = store.peekRecord('book', 2);
 
     return book.get('person').then(() => {
-      assert.equal(person.get('favoriteBook.id'), 2, 'initially relationship established lhs');
-      assert.equal(book.belongsTo('person').id(), 1, 'initially relationship established rhs');
+      assert.strictEqual(person.get('favoriteBook.id'), '2', 'initially relationship established lhs');
+      assert.strictEqual(book.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
       run(() => book.unloadRecord());
 
-      assert.equal(person.get('book'), null, 'unloading acts as a delete for sync relationships');
+      assert.strictEqual(person.get('book'), undefined, 'unloading acts as a delete for sync relationships');
       assert.false(store.hasRecordForId('book', 2), 'unloaded record gone from store');
 
       book = run(() =>
@@ -1939,8 +1939,12 @@ module('integration/unload - Unloading Records', function (hooks) {
       );
 
       assert.true(store.hasRecordForId('book', 2), 'unloaded record can be restored');
-      assert.equal(person.get('book'), null, 'restoring unloaded record does not restore relationship');
-      assert.equal(book.belongsTo('person').id(), null, 'restoring unloaded record does not restore relationship');
+      assert.strictEqual(person.get('book'), undefined, 'restoring unloaded record does not restore relationship');
+      assert.strictEqual(
+        book.belongsTo('person').id(),
+        null,
+        'restoring unloaded record does not restore relationship'
+      );
 
       run(() =>
         store.push({
@@ -1959,8 +1963,8 @@ module('integration/unload - Unloading Records', function (hooks) {
         })
       );
 
-      assert.equal(person.get('favoriteBook.id'), 2, 'after unloading, relationship can be restored');
-      assert.equal(book.get('person.id'), 1, 'after unloading, relationship can be restored');
+      assert.strictEqual(person.get('favoriteBook.id'), '2', 'after unloading, relationship can be restored');
+      assert.strictEqual(book.get('person.id'), '1', 'after unloading, relationship can be restored');
     });
   });
 
@@ -1968,8 +1972,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     let findRecordCalls = 0;
 
     adapter.findRecord = (store, type, id) => {
-      assert.equal(type, Person, 'findRecord(_, type) is correct');
-      assert.equal(id, '1', 'findRecord(_, _, id) is correct');
+      assert.strictEqual(type, Person, 'findRecord(_, type) is correct');
+      assert.strictEqual(id, '1', 'findRecord(_, _, id) is correct');
       ++findRecordCalls;
 
       return {
@@ -2010,21 +2014,21 @@ module('integration/unload - Unloading Records', function (hooks) {
       book
         .get('person')
         .then(() => {
-          assert.equal(person.get('favoriteBook.id'), 2, 'initially relationship established lhs');
-          assert.equal(book.belongsTo('person').id(), 1, 'initially relationship established rhs');
+          assert.strictEqual(person.get('favoriteBook.id'), '2', 'initially relationship established lhs');
+          assert.strictEqual(book.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
           run(() => person.unloadRecord());
 
-          assert.equal(book.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+          assert.strictEqual(book.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
           return book.get('person');
         })
         .then((refetchedPerson) => {
           assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
 
-          assert.equal(book.belongsTo('person').id(), '1', 'unload async is not treated as delete');
-          assert.equal(refetchedPerson.get('favoriteBook.id'), '2', 'unload async is not treated as delete');
-          assert.equal(findRecordCalls, 1);
+          assert.strictEqual(book.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+          assert.strictEqual(refetchedPerson.get('favoriteBook.id'), '2', 'unload async is not treated as delete');
+          assert.strictEqual(findRecordCalls, 1);
         })
     );
   });
@@ -2070,8 +2074,8 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.false(spoons.isDestroyed, 'ManyArray not destroyed');
     assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['2', '3'], 'initialy relationship established lhs');
-    assert.equal(spoon2.belongsTo('person').id(), '1', 'initially relationship established rhs');
-    assert.equal(spoon3.belongsTo('person').id(), '1', 'initially relationship established rhs');
+    assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'initially relationship established rhs');
+    assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
     run(() => spoon2.unloadRecord());
 
@@ -2079,7 +2083,11 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.false(spoons.isDestroyed, 'ManyArray not destroyed');
     assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['3'], 'unload sync relationship acts as delete');
-    assert.equal(spoon3.belongsTo('person').id(), '1', 'unloading one of a sync hasMany does not affect the rest');
+    assert.strictEqual(
+      spoon3.belongsTo('person').id(),
+      '1',
+      'unloading one of a sync hasMany does not affect the rest'
+    );
 
     spoon2 = run(() =>
       store.push({
@@ -2096,7 +2104,11 @@ module('integration/unload - Unloading Records', function (hooks) {
       ['3'],
       'restoring unloaded record does not restore relationship'
     );
-    assert.equal(spoon2.belongsTo('person').id(), null, 'restoring unloaded record does not restore relationship');
+    assert.strictEqual(
+      spoon2.belongsTo('person').id(),
+      null,
+      'restoring unloaded record does not restore relationship'
+    );
 
     run(() =>
       store.push({
@@ -2121,7 +2133,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       })
     );
 
-    assert.equal(spoon2.belongsTo('person').id(), '1', 'after unloading, relationship can be restored');
+    assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'after unloading, relationship can be restored');
     assert.deepEqual(
       person.get('favoriteSpoons').mapBy('id'),
       ['2', '3'],
@@ -2135,7 +2147,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     adapter.coalesceFindRequests = true;
 
     adapter.findRecord = (store, type, id) => {
-      assert.equal(type, Person, 'findRecord(_, type) is correct');
+      assert.strictEqual(type, Person, 'findRecord(_, type) is correct');
       assert.deepEqual(id, '1', 'findRecord(_, _, id) is correct');
       ++findRecordCalls;
 
@@ -2185,26 +2197,26 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     return run(() => {
       assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['2', '3'], 'initially relationship established lhs');
-      assert.equal(spoon2.belongsTo('person').id(), '1', 'initially relationship established rhs');
-      assert.equal(spoon3.belongsTo('person').id(), '1', 'initially relationship established rhs');
+      assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'initially relationship established rhs');
+      assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
       assert.false(spoons.isDestroyed, 'ManyArray is not destroyed');
 
       run(() => person.unloadRecord());
 
       assert.false(spoons.isDestroyed, 'ManyArray is not destroyed when 1 side is unloaded');
-      assert.equal(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
-      assert.equal(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+      assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+      assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
       return spoon2.get('person');
     }).then((refetchedPerson) => {
       assert.notEqual(person, refetchedPerson, 'the previously loaded record is not reused');
 
       assert.deepEqual(person.get('favoriteSpoons').mapBy('id'), ['2', '3'], 'unload async is not treated as delete');
-      assert.equal(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
-      assert.equal(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+      assert.strictEqual(spoon2.belongsTo('person').id(), '1', 'unload async is not treated as delete');
+      assert.strictEqual(spoon3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
 
-      assert.equal(findRecordCalls, 1, 'findRecord called as expected');
+      assert.strictEqual(findRecordCalls, 1, 'findRecord called as expected');
     });
   });
 
@@ -2214,7 +2226,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     adapter.coalesceFindRequests = true;
 
     adapter.findMany = (store, type, ids) => {
-      assert.equal(type + '', Show + '', 'findMany(_, type) is correct');
+      assert.strictEqual(type + '', Show + '', 'findMany(_, type) is correct');
       assert.deepEqual(ids, ['2', '3'], 'findMany(_, _, ids) is correct');
       ++findManyCalls;
 
@@ -2257,8 +2269,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     const [show2, show3] = shows.toArray();
 
     assert.deepEqual(person.hasMany('favoriteShows').ids(), ['2', '3'], 'initially relationship established lhs');
-    assert.equal(show2.get('person.id'), '1', 'initially relationship established rhs');
-    assert.equal(show3.get('person.id'), '1', 'initially relationship established rhs');
+    assert.strictEqual(show2.get('person.id'), '1', 'initially relationship established rhs');
+    assert.strictEqual(show3.get('person.id'), '1', 'initially relationship established rhs');
     assert.deepEqual(shows.mapBy('id'), ['2', '3'], 'many array is initially set up correctly');
 
     show2.unloadRecord();
@@ -2276,7 +2288,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.deepEqual(refetchedShows.mapBy('id'), ['2', '3'], 'shows refetched');
     assert.deepEqual(person.hasMany('favoriteShows').ids(), ['2', '3'], 'unload async is not treated as delete');
 
-    assert.equal(findManyCalls, 2, 'findMany called as expected');
+    assert.strictEqual(findManyCalls, 2, 'findMany called as expected');
   });
 
   test('1 sync : many async unload sync side', function (assert) {
@@ -2285,7 +2297,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     adapter.coalesceFindRequests = true;
 
     adapter.findMany = (store, type, ids) => {
-      assert.equal(type + '', Show + '', 'findMany(_, type) is correct');
+      assert.strictEqual(type + '', Show + '', 'findMany(_, type) is correct');
       assert.deepEqual(ids, ['2', '3'], 'findMany(_, _, ids) is correct');
       ++findManyCalls;
 
@@ -2336,8 +2348,8 @@ module('integration/unload - Unloading Records', function (hooks) {
           [show2, show3] = shows.toArray();
 
           assert.deepEqual(person.hasMany('favoriteShows').ids(), ['2', '3'], 'initially relationship established lhs');
-          assert.equal(show2.get('person.id'), '1', 'initially relationship established rhs');
-          assert.equal(show3.get('person.id'), '1', 'initially relationship established rhs');
+          assert.strictEqual(show2.get('person.id'), '1', 'initially relationship established rhs');
+          assert.strictEqual(show3.get('person.id'), '1', 'initially relationship established rhs');
           assert.deepEqual(shows.mapBy('id'), ['2', '3'], 'many array is initially set up correctly');
 
           run(() => person.unloadRecord());
@@ -2345,8 +2357,8 @@ module('integration/unload - Unloading Records', function (hooks) {
           assert.false(store.hasRecordForId('person', 1), 'unloaded record gone from store');
 
           assert.true(shows.isDestroyed, 'previous manyarray immediately destroyed');
-          assert.equal(show2.get('person.id'), null, 'unloading acts as delete for sync relationships');
-          assert.equal(show3.get('person.id'), null, 'unloading acts as delete for sync relationships');
+          assert.strictEqual(show2.get('person.id'), undefined, 'unloading acts as delete for sync relationships');
+          assert.strictEqual(show3.get('person.id'), undefined, 'unloading acts as delete for sync relationships');
 
           person = run(() =>
             store.push({
@@ -2363,8 +2375,16 @@ module('integration/unload - Unloading Records', function (hooks) {
             [],
             'restoring unloaded record does not restore relationship'
           );
-          assert.equal(show2.get('person.id'), null, 'restoring unloaded record does not restore relationship');
-          assert.equal(show3.get('person.id'), null, 'restoring unloaded record does not restore relationship');
+          assert.strictEqual(
+            show2.get('person.id'),
+            undefined,
+            'restoring unloaded record does not restore relationship'
+          );
+          assert.strictEqual(
+            show3.get('person.id'),
+            undefined,
+            'restoring unloaded record does not restore relationship'
+          );
 
           run(() =>
             store.push({
@@ -2397,7 +2417,7 @@ module('integration/unload - Unloading Records', function (hooks) {
           assert.notEqual(refetchedShows, shows, 'ManyArray not reused');
           assert.deepEqual(refetchedShows.mapBy('id'), ['2', '3'], 'unload async not treated as a delete');
 
-          assert.equal(findManyCalls, 1, 'findMany calls as expected');
+          assert.strictEqual(findManyCalls, 1, 'findMany calls as expected');
         })
     );
   });
@@ -2411,8 +2431,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
 
     adapter.findHasMany = (store, snapshot, link) => {
-      assert.equal(snapshot.modelName, 'person', 'findHasMany(_, snapshot) is correct');
-      assert.equal(link, 'boats', 'findHasMany(_, _, link) is correct');
+      assert.strictEqual(snapshot.modelName, 'person', 'findHasMany(_, snapshot) is correct');
+      assert.strictEqual(link, 'boats', 'findHasMany(_, _, link) is correct');
 
       let relationships = {
         person: {
@@ -2468,8 +2488,8 @@ module('integration/unload - Unloading Records', function (hooks) {
         })
         .then(() => {
           assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'initially relationship established rhs');
-          assert.equal(boat2.belongsTo('person').id(), '1', 'initially relationship established rhs');
-          assert.equal(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
+          assert.strictEqual(boat2.belongsTo('person').id(), '1', 'initially relationship established rhs');
+          assert.strictEqual(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
           isUnloaded = true;
           run(() => {
@@ -2483,14 +2503,14 @@ module('integration/unload - Unloading Records', function (hooks) {
           return run(() => person.get('boats'));
         })
         .then((newBoats) => {
-          assert.equal(newBoats.length, 1, 'new ManyArray has only 1 boat after unload');
+          assert.strictEqual(newBoats.length, 1, 'new ManyArray has only 1 boat after unload');
         })
     );
   });
 
   test('fetching records cancels unloading', function (assert) {
     adapter.findRecord = (store, type, id) => {
-      assert.equal(type, Person, 'findRecord(_, type) is correct');
+      assert.strictEqual(type, Person, 'findRecord(_, type) is correct');
       assert.deepEqual(id, '1', 'findRecord(_, _, id) is correct');
 
       return {

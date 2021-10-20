@@ -192,8 +192,8 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     await comment.save();
 
     assert.false(comment.get('hasDirtyAttributes'), "the post isn't dirty anymore");
-    assert.equal(comment.get('name'), 'Dat Parley Letter', 'the post was updated');
-    assert.equal(comment.get('post'), post, 'the post is still set');
+    assert.strictEqual(comment.get('name'), 'Dat Parley Letter', 'the post was updated');
+    assert.strictEqual(comment.get('post'), post, 'the post is still set');
   });
 
   test("createRecord - a serializer's primary key and attributes are consulted when building the payload", async function (assert) {

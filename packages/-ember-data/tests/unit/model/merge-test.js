@@ -42,13 +42,13 @@ module('unit/model/merge - Merging', function (hooks) {
     return run(() => {
       let save = person.save();
 
-      assert.equal(person.get('name'), 'Tom Dale');
+      assert.strictEqual(person.get('name'), 'Tom Dale');
 
       person.set('name', 'Thomas Dale');
 
       return save.then((person) => {
         assert.true(person.get('hasDirtyAttributes'), 'The person is still dirty');
-        assert.equal(person.get('name'), 'Thomas Dale', 'The changes made still apply');
+        assert.strictEqual(person.get('name'), 'Thomas Dale', 'The changes made still apply');
       });
     });
   });
@@ -58,7 +58,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     const ApplicationAdapter = Adapter.extend({
       updateRecord(store, type, snapshot) {
-        assert.equal(snapshot.attr('name'), 'Thomas Dale');
+        assert.strictEqual(snapshot.attr('name'), 'Thomas Dale');
 
         return resolve();
       },
@@ -83,15 +83,15 @@ module('unit/model/merge - Merging', function (hooks) {
     return run(() => {
       let promise = person.save();
 
-      assert.equal(person.get('name'), 'Thomas Dale');
+      assert.strictEqual(person.get('name'), 'Thomas Dale');
 
       person.set('name', 'Tomasz Dale');
 
-      assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes applied on top');
+      assert.strictEqual(person.get('name'), 'Tomasz Dale', 'the local changes applied on top');
 
       return promise.then((person) => {
         assert.true(person.get('hasDirtyAttributes'), 'The person is still dirty');
-        assert.equal(person.get('name'), 'Tomasz Dale', 'The local changes apply');
+        assert.strictEqual(person.get('name'), 'Tomasz Dale', 'The local changes apply');
       });
     });
   });
@@ -134,7 +134,7 @@ module('unit/model/merge - Merging', function (hooks) {
     return run(() => {
       var promise = person.save();
 
-      assert.equal(person.get('name'), 'Thomas Dale');
+      assert.strictEqual(person.get('name'), 'Thomas Dale');
 
       person.set('name', 'Tomasz Dale');
 
@@ -149,13 +149,17 @@ module('unit/model/merge - Merging', function (hooks) {
         },
       });
 
-      assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes applied on top');
-      assert.equal(person.get('city'), 'PDX', 'the pushed change is available');
+      assert.strictEqual(person.get('name'), 'Tomasz Dale', 'the local changes applied on top');
+      assert.strictEqual(person.get('city'), 'PDX', 'the pushed change is available');
 
       return promise.then((person) => {
         assert.true(person.get('hasDirtyAttributes'), 'The person is still dirty');
-        assert.equal(person.get('name'), 'Tomasz Dale', 'The local changes apply');
-        assert.equal(person.get('city'), 'Portland', 'The updates from the server apply on top of the previous pushes');
+        assert.strictEqual(person.get('name'), 'Tomasz Dale', 'The local changes apply');
+        assert.strictEqual(
+          person.get('city'),
+          'Portland',
+          'The updates from the server apply on top of the previous pushes'
+        );
       });
     });
   });
@@ -178,8 +182,8 @@ module('unit/model/merge - Merging', function (hooks) {
     });
 
     assert.true(person.get('hasDirtyAttributes'), 'the person is currently dirty');
-    assert.equal(person.get('name'), 'Tomasz Dale', 'the update was effective');
-    assert.equal(person.get('city'), 'San Francisco', 'the original data applies');
+    assert.strictEqual(person.get('name'), 'Tomasz Dale', 'the update was effective');
+    assert.strictEqual(person.get('city'), 'San Francisco', 'the original data applies');
 
     run(() => {
       this.store.push({
@@ -195,8 +199,8 @@ module('unit/model/merge - Merging', function (hooks) {
     });
 
     assert.true(person.get('hasDirtyAttributes'), 'the local changes are reapplied');
-    assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes are reapplied');
-    assert.equal(person.get('city'), 'Portland', 'if there are no local changes, the new data applied');
+    assert.strictEqual(person.get('name'), 'Tomasz Dale', 'the local changes are reapplied');
+    assert.strictEqual(person.get('city'), 'Portland', 'if there are no local changes, the new data applied');
   });
 
   test('When a record is invalid, pushes are overridden by local changes', async function (assert) {
@@ -233,8 +237,8 @@ module('unit/model/merge - Merging', function (hooks) {
     }
     assert.false(person.get('isValid'), 'the person is currently invalid');
     assert.true(person.get('hasDirtyAttributes'), 'the person is currently dirty');
-    assert.equal(person.get('name'), 'Brondan McLoughlin', 'the update was effective');
-    assert.equal(person.get('city'), 'Boston', 'the original data applies');
+    assert.strictEqual(person.get('name'), 'Brondan McLoughlin', 'the update was effective');
+    assert.strictEqual(person.get('city'), 'Boston', 'the original data applies');
 
     run(() => {
       this.store.push({
@@ -251,8 +255,8 @@ module('unit/model/merge - Merging', function (hooks) {
 
     assert.true(person.get('hasDirtyAttributes'), 'the local changes are reapplied');
     assert.false(person.get('isValid'), 'record is still invalid');
-    assert.equal(person.get('name'), 'Brondan McLoughlin', 'the local changes are reapplied');
-    assert.equal(person.get('city'), 'Prague', 'if there are no local changes, the new data applied');
+    assert.strictEqual(person.get('name'), 'Brondan McLoughlin', 'the local changes are reapplied');
+    assert.strictEqual(person.get('city'), 'Prague', 'if there are no local changes, the new data applied');
   });
 
   test('A record with no changes can still be saved', function (assert) {
@@ -280,7 +284,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     return run(() => {
       return person.save().then((foo) => {
-        assert.equal(person.get('name'), 'Thomas Dale', 'the updates occurred');
+        assert.strictEqual(person.get('name'), 'Thomas Dale', 'the updates occurred');
       });
     });
   });
@@ -316,8 +320,8 @@ module('unit/model/merge - Merging', function (hooks) {
     return run(() => {
       return person.reload().then(() => {
         assert.true(person.get('hasDirtyAttributes'), 'the person is dirty');
-        assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes remain');
-        assert.equal(person.get('city'), 'Portland', 'the new changes apply');
+        assert.strictEqual(person.get('name'), 'Tomasz Dale', 'the local changes remain');
+        assert.strictEqual(person.get('city'), 'Portland', 'the new changes apply');
       });
     });
   });

@@ -76,9 +76,9 @@ module(
       });
       run(function () {
         user.get('bestMessage').then(function (message) {
-          assert.equal(message, video, 'The message was loaded correctly');
+          assert.strictEqual(message, video, 'The message was loaded correctly');
           message.get('user').then(function (fetchedUser) {
-            assert.equal(fetchedUser, user, 'The inverse was setup correctly');
+            assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
           });
         });
       });
@@ -117,10 +117,10 @@ module(
       run(function () {
         user.set('bestMessage', video);
         video.get('user').then(function (fetchedUser) {
-          assert.equal(fetchedUser, user, 'user got set correctly');
+          assert.strictEqual(fetchedUser, user, 'user got set correctly');
         });
         user.get('bestMessage').then(function (message) {
-          assert.equal(message, video, 'The message was set correctly');
+          assert.strictEqual(message, video, 'The message was set correctly');
         });
       });
     });
@@ -194,10 +194,10 @@ module(
       run(function () {
         user.set('bestMessage', video);
         video.get('user').then(function (fetchedUser) {
-          assert.equal(fetchedUser, user, 'user got set correctly');
+          assert.strictEqual(fetchedUser, user, 'user got set correctly');
         });
         user.get('bestMessage').then(function (message) {
-          assert.equal(message, video, 'The message was set correctly');
+          assert.strictEqual(message, video, 'The message was set correctly');
         });
       });
     });

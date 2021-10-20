@@ -93,24 +93,24 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
     let dogPerson1 = await dog1.get('person');
-    assert.equal(
+    assert.strictEqual(
       dogPerson1.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     let dogPerson2 = await dogs.objectAt(1).get('person');
-    assert.equal(
+    assert.strictEqual(
       dogPerson2.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -179,24 +179,24 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
     let dogPerson1 = await dog1.get('person');
-    assert.equal(
+    assert.strictEqual(
       dogPerson1.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     let dogPerson2 = await dogs.objectAt(1).get('person');
-    assert.equal(
+    assert.strictEqual(
       dogPerson2.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -266,24 +266,24 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
     let dogPerson1 = await dog1.get('pal');
-    assert.equal(
+    assert.strictEqual(
       dogPerson1.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     let dogPerson2 = await dogs.objectAt(1).get('pal');
-    assert.equal(
+    assert.strictEqual(
       dogPerson2.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many (left hand async, right hand sync) - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -354,24 +354,24 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
     let dogPerson1 = await dog1.get('pal');
-    assert.equal(
+    assert.strictEqual(
       dogPerson1.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     let dogPerson2 = await dogs.objectAt(1).get('pal');
-    assert.equal(
+    assert.strictEqual(
       dogPerson2.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many - findHasMany/null inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -445,13 +445,13 @@ module('inverse relationship load test', function (hooks) {
 
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
-    assert.equal(dogs.get('length'), 2);
+    assert.strictEqual(dogs.get('length'), 2);
     assert.deepEqual(dogs.mapBy('id'), ['1', '2']);
 
     let dog1 = dogs.get('firstObject');
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), '1');
-    assert.equal(dogs.get('firstObject.id'), '2');
+    assert.strictEqual(dogs.get('length'), 1);
+    assert.strictEqual(dogs.get('firstObject.id'), '2');
   });
 
   test('one-to-one - findBelongsTo/implicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
@@ -514,16 +514,16 @@ module('inverse relationship load test', function (hooks) {
 
     let favoriteDog = await person.get('favoriteDog');
     assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
-    assert.equal(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
+    assert.strictEqual(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
     let favoriteDogPerson = await favoriteDog.get('person');
-    assert.equal(
+    assert.strictEqual(
       favoriteDogPerson.get('id'),
       '1',
       'favoriteDog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     await favoriteDog.destroyRecord();
     favoriteDog = await person.get('favoriteDog');
-    assert.equal(favoriteDog, null);
+    assert.strictEqual(favoriteDog, null);
   });
 
   test('one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
@@ -586,16 +586,16 @@ module('inverse relationship load test', function (hooks) {
 
     let favoriteDog = await person.get('favoriteDog');
     assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
-    assert.equal(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
+    assert.strictEqual(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
     let favoriteDogPerson = await favoriteDog.get('person');
-    assert.equal(
+    assert.strictEqual(
       favoriteDogPerson.get('id'),
       '1',
       'favoriteDog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     await favoriteDog.destroyRecord();
     favoriteDog = await person.get('favoriteDog');
-    assert.equal(favoriteDog, null);
+    assert.strictEqual(favoriteDog, null);
   });
 
   test('one-to-one - findBelongsTo/explicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
@@ -658,16 +658,16 @@ module('inverse relationship load test', function (hooks) {
 
     let favoriteDog = await person.get('favoriteDog');
     assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
-    assert.equal(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
+    assert.strictEqual(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
     let favoriteDogPerson = await favoriteDog.get('pal');
-    assert.equal(
+    assert.strictEqual(
       favoriteDogPerson.get('id'),
       '1',
       'favoriteDog.pal inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     await favoriteDog.destroyRecord();
     favoriteDog = await person.get('favoriteDog');
-    assert.equal(favoriteDog, null);
+    assert.strictEqual(favoriteDog, null);
   });
 
   test('one-to-one (left hand async, right hand sync) - findBelongsTo/explicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
@@ -730,16 +730,16 @@ module('inverse relationship load test', function (hooks) {
 
     let favoriteDog = await person.get('favoriteDog');
     assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
-    assert.equal(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
+    assert.strictEqual(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
     let favoriteDogPerson = await favoriteDog.get('pal');
-    assert.equal(
+    assert.strictEqual(
       favoriteDogPerson.get('id'),
       '1',
       'favoriteDog.pal inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     await favoriteDog.destroyRecord();
     favoriteDog = await person.get('favoriteDog');
-    assert.equal(favoriteDog, null);
+    assert.strictEqual(favoriteDog, null);
   });
 
   test('one-to-one - findBelongsTo/null inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
@@ -800,10 +800,10 @@ module('inverse relationship load test', function (hooks) {
 
     let favoriteDog = await person.get('favoriteDog');
     assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
-    assert.equal(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
+    assert.strictEqual(favoriteDog.get('id'), '1', 'favoriteDog id is set correctly');
     await favoriteDog.destroyRecord();
     favoriteDog = await person.get('favoriteDog');
-    assert.equal(favoriteDog, null);
+    assert.strictEqual(favoriteDog, null);
   });
 
   test('many-to-many - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -872,19 +872,19 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
 
-    assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
     let [dog1, dog2] = dogs.toArray();
     let dog1Walkers = await dog1.get('walkers');
-    assert.equal(dog1Walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
-    assert.equal(dog1Walkers.get('firstObject.id'), '1', 'dog1.walkers inverse relationship is set up correctly');
+    assert.strictEqual(dog1Walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
+    assert.strictEqual(dog1Walkers.get('firstObject.id'), '1', 'dog1.walkers inverse relationship is set up correctly');
 
     let dog2Walkers = await dog2.get('walkers');
-    assert.equal(dog2Walkers.length, 1, 'dog2.walkers inverse relationship includes correct number of records');
-    assert.equal(dog2Walkers.get('firstObject.id'), '1', 'dog2.walkers inverse relationship is set up correctly');
+    assert.strictEqual(dog2Walkers.length, 1, 'dog2.walkers inverse relationship includes correct number of records');
+    assert.strictEqual(dog2Walkers.get('firstObject.id'), '1', 'dog2.walkers inverse relationship is set up correctly');
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'person.dogs relationship was updated when record removed');
-    assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'person.dogs relationship was updated when record removed');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
   });
 
   test('many-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -953,19 +953,19 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
 
-    assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
     let [dog1, dog2] = dogs.toArray();
     let dog1Walkers = await dog1.get('walkers');
-    assert.equal(dog1Walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
-    assert.equal(dog1Walkers.get('firstObject.id'), '1', 'dog1.walkers inverse relationship is set up correctly');
+    assert.strictEqual(dog1Walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
+    assert.strictEqual(dog1Walkers.get('firstObject.id'), '1', 'dog1.walkers inverse relationship is set up correctly');
 
     let dog2Walkers = await dog2.get('walkers');
-    assert.equal(dog2Walkers.length, 1, 'dog2.walkers inverse relationship includes correct number of records');
-    assert.equal(dog2Walkers.get('firstObject.id'), '1', 'dog2.walkers inverse relationship is set up correctly');
+    assert.strictEqual(dog2Walkers.length, 1, 'dog2.walkers inverse relationship includes correct number of records');
+    assert.strictEqual(dog2Walkers.get('firstObject.id'), '1', 'dog2.walkers inverse relationship is set up correctly');
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'person.dogs relationship was updated when record removed');
-    assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'person.dogs relationship was updated when record removed');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
   });
 
   test('many-to-many - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -1035,19 +1035,19 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
 
-    assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
     let [dog1, dog2] = dogs.toArray();
     let dog1Pals = await dog1.get('pals');
-    assert.equal(dog1Pals.length, 1, 'dog1.pals inverse relationship includes correct number of records');
-    assert.equal(dog1Pals.get('firstObject.id'), '1', 'dog1.pals inverse relationship is set up correctly');
+    assert.strictEqual(dog1Pals.length, 1, 'dog1.pals inverse relationship includes correct number of records');
+    assert.strictEqual(dog1Pals.get('firstObject.id'), '1', 'dog1.pals inverse relationship is set up correctly');
 
     let dog2Pals = await dog2.get('pals');
-    assert.equal(dog2Pals.length, 1, 'dog2.pals inverse relationship includes correct number of records');
-    assert.equal(dog2Pals.get('firstObject.id'), '1', 'dog2.pals inverse relationship is set up correctly');
+    assert.strictEqual(dog2Pals.length, 1, 'dog2.pals inverse relationship includes correct number of records');
+    assert.strictEqual(dog2Pals.get('firstObject.id'), '1', 'dog2.pals inverse relationship is set up correctly');
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'person.dogs relationship was updated when record removed');
-    assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'person.dogs relationship was updated when record removed');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
   });
 
   test('many-to-many (left hand async, right hand sync) - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -1117,19 +1117,19 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
 
-    assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
     let [dog1, dog2] = dogs.toArray();
     let dog1Pals = await dog1.get('pals');
-    assert.equal(dog1Pals.length, 1, 'dog1.pals inverse relationship includes correct number of records');
-    assert.equal(dog1Pals.get('firstObject.id'), '1', 'dog1.pals inverse relationship is set up correctly');
+    assert.strictEqual(dog1Pals.length, 1, 'dog1.pals inverse relationship includes correct number of records');
+    assert.strictEqual(dog1Pals.get('firstObject.id'), '1', 'dog1.pals inverse relationship is set up correctly');
 
     let dog2Pals = await dog2.get('pals');
-    assert.equal(dog2Pals.length, 1, 'dog2.pals inverse relationship includes correct number of records');
-    assert.equal(dog2Pals.get('firstObject.id'), '1', 'dog2.pals inverse relationship is set up correctly');
+    assert.strictEqual(dog2Pals.length, 1, 'dog2.pals inverse relationship includes correct number of records');
+    assert.strictEqual(dog2Pals.get('firstObject.id'), '1', 'dog2.pals inverse relationship is set up correctly');
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'person.dogs relationship was updated when record removed');
-    assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'person.dogs relationship was updated when record removed');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
   });
 
   test('many-to-one - findBelongsTo/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -1191,17 +1191,17 @@ module('inverse relationship load test', function (hooks) {
       dog.belongsTo('person').belongsToRelationship.state.isEmpty,
       'belongsTo relationship state was populated'
     );
-    assert.equal(person.get('id'), '1', 'dog.person relationship is correctly set up');
+    assert.strictEqual(person.get('id'), '1', 'dog.person relationship is correctly set up');
 
     let dogs = await person.get('dogs');
 
-    assert.equal(dogs.get('length'), 1, 'person.dogs inverse relationship includes correct number of records');
+    assert.strictEqual(dogs.get('length'), 1, 'person.dogs inverse relationship includes correct number of records');
     let [dog1] = dogs.toArray();
-    assert.equal(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
+    assert.strictEqual(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
 
     await person.destroyRecord();
     dog = await dog.get('person');
-    assert.equal(dog, null, 'record deleted removed from belongsTo relationship');
+    assert.strictEqual(dog, null, 'record deleted removed from belongsTo relationship');
   });
 
   test('many-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -1263,17 +1263,17 @@ module('inverse relationship load test', function (hooks) {
       dog.belongsTo('person').belongsToRelationship.state.isEmpty,
       'belongsTo relationship state was populated'
     );
-    assert.equal(person.get('id'), '1', 'dog.person relationship is correctly set up');
+    assert.strictEqual(person.get('id'), '1', 'dog.person relationship is correctly set up');
 
     let dogs = await person.get('dogs');
 
-    assert.equal(dogs.get('length'), 1, 'person.dogs inverse relationship includes correct number of records');
+    assert.strictEqual(dogs.get('length'), 1, 'person.dogs inverse relationship includes correct number of records');
     let [dog1] = dogs.toArray();
-    assert.equal(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
+    assert.strictEqual(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
 
     await person.destroyRecord();
     dog = await dog.get('person');
-    assert.equal(dog, null, 'record deleted removed from belongsTo relationship');
+    assert.strictEqual(dog, null, 'record deleted removed from belongsTo relationship');
   });
 
   test('many-to-one - findBelongsTo/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -1336,17 +1336,17 @@ module('inverse relationship load test', function (hooks) {
       dog.belongsTo('pal').belongsToRelationship.state.isEmpty,
       'belongsTo relationship state was populated'
     );
-    assert.equal(person.get('id'), '1', 'dog.person relationship is correctly set up');
+    assert.strictEqual(person.get('id'), '1', 'dog.person relationship is correctly set up');
 
     let dogs = await person.get('dogs');
 
-    assert.equal(dogs.get('length'), 1, 'person.dogs inverse relationship includes correct number of records');
+    assert.strictEqual(dogs.get('length'), 1, 'person.dogs inverse relationship includes correct number of records');
     let [dog1] = dogs.toArray();
-    assert.equal(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
+    assert.strictEqual(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
 
     await person.destroyRecord();
     dog = await dog.get('pal');
-    assert.equal(dog, null, 'record deleted removed from belongsTo relationship');
+    assert.strictEqual(dog, null, 'record deleted removed from belongsTo relationship');
   });
 
   test('many-to-one (left hand async, right hand sync) - findBelongsTo/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
@@ -1409,17 +1409,17 @@ module('inverse relationship load test', function (hooks) {
       dog.belongsTo('pal').belongsToRelationship.state.isEmpty,
       'belongsTo relationship state was populated'
     );
-    assert.equal(person.get('id'), '1', 'dog.person relationship is correctly set up');
+    assert.strictEqual(person.get('id'), '1', 'dog.person relationship is correctly set up');
 
     let dogs = await person.get('dogs');
 
-    assert.equal(dogs.get('length'), 1, 'person.dogs inverse relationship includes correct number of records');
+    assert.strictEqual(dogs.get('length'), 1, 'person.dogs inverse relationship includes correct number of records');
     let [dog1] = dogs.toArray();
-    assert.equal(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
+    assert.strictEqual(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
 
     await person.destroyRecord();
     dog = await dog.get('pal');
-    assert.equal(dog, null, 'record deleted removed from belongsTo relationship');
+    assert.strictEqual(dog, null, 'record deleted removed from belongsTo relationship');
   });
 
   testInDebug(
@@ -1508,26 +1508,26 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
-      assert.equal(dogs.get('length'), 2);
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(dogs.get('length'), 2);
 
       let dog1 = dogs.get('firstObject');
       let dogPerson1 = await dog1.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
       let dogPerson2 = await dogs.objectAt(1).get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson2.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
 
       await dog1.destroyRecord();
-      assert.equal(dogs.get('length'), 1);
-      assert.equal(dogs.get('firstObject.id'), '2');
+      assert.strictEqual(dogs.get('length'), 1);
+      assert.strictEqual(dogs.get('firstObject.id'), '2');
     }
   );
 
@@ -1617,26 +1617,26 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
-      assert.equal(dogs.get('length'), 2);
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(dogs.get('length'), 2);
 
       let dog1 = dogs.get('firstObject');
       let dogPerson1 = await dog1.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
       let dogPerson2 = await dogs.objectAt(1).get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson2.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
 
       await dog1.destroyRecord();
-      assert.equal(dogs.get('length'), 1);
-      assert.equal(dogs.get('firstObject.id'), '2');
+      assert.strictEqual(dogs.get('length'), 1);
+      assert.strictEqual(dogs.get('firstObject.id'), '2');
     }
   );
 
@@ -1720,26 +1720,26 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
-      assert.equal(dogs.get('length'), 2);
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(dogs.get('length'), 2);
 
       let dog1 = dogs.get('firstObject');
       let dogPerson1 = await dog1.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
       let dogPerson2 = await dogs.objectAt(1).get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson2.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
 
       await dog1.destroyRecord();
-      assert.equal(dogs.get('length'), 1);
-      assert.equal(dogs.get('firstObject.id'), '2');
+      assert.strictEqual(dogs.get('length'), 1);
+      assert.strictEqual(dogs.get('firstObject.id'), '2');
     }
   );
 
@@ -1823,26 +1823,26 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
-      assert.equal(dogs.get('length'), 2);
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(dogs.get('length'), 2);
 
       let dog1 = dogs.get('firstObject');
       let dogPerson1 = await dog1.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
       let dogPerson2 = await dogs.objectAt(1).get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson2.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
 
       await dog1.destroyRecord();
-      assert.equal(dogs.get('length'), 1);
-      assert.equal(dogs.get('firstObject.id'), '2');
+      assert.strictEqual(dogs.get('length'), 1);
+      assert.strictEqual(dogs.get('firstObject.id'), '2');
     }
   );
 
@@ -1919,13 +1919,17 @@ module('inverse relationship load test', function (hooks) {
       let dogFromStore = await store.peekRecord('dog', '1');
 
       // weirdly these pass
-      assert.equal(dogFromStore.belongsTo('person').id(), '1');
-      assert.equal(person.belongsTo('dog').id(), '1');
-      assert.equal(dog.id, '1', 'dog.person relationship loaded correctly');
-      assert.equal(person.belongsTo('dog').belongsToRelationship.state.isEmpty, false, 'relationship is not empty');
+      assert.strictEqual(dogFromStore.belongsTo('person').id(), '1');
+      assert.strictEqual(person.belongsTo('dog').id(), '1');
+      assert.strictEqual(dog.id, '1', 'dog.person relationship loaded correctly');
+      assert.strictEqual(
+        person.belongsTo('dog').belongsToRelationship.state.isEmpty,
+        false,
+        'relationship is not empty'
+      );
 
       let dogPerson1 = await dog.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
@@ -1933,7 +1937,7 @@ module('inverse relationship load test', function (hooks) {
 
       await dog.destroyRecord();
       dog = await person.get('dog');
-      assert.equal(dog, null, 'record was removed from belongsTo relationship');
+      assert.strictEqual(dog, null, 'record was removed from belongsTo relationship');
     }
   );
 
@@ -2010,14 +2014,18 @@ module('inverse relationship load test', function (hooks) {
       let dogFromStore = store.peekRecord('dog', '1');
 
       // weirdly these pass
-      assert.equal(dogFromStore.belongsTo('person').id(), '1');
-      assert.equal(person.belongsTo('dog').id(), '1');
-      assert.equal(dog.id, '1', 'dog.person relationship loaded correctly');
+      assert.strictEqual(dogFromStore.belongsTo('person').id(), '1');
+      assert.strictEqual(person.belongsTo('dog').id(), '1');
+      assert.strictEqual(dog.id, '1', 'dog.person relationship loaded correctly');
 
-      assert.equal(person.belongsTo('dog').belongsToRelationship.state.isEmpty, false, 'relationship is not empty');
+      assert.strictEqual(
+        person.belongsTo('dog').belongsToRelationship.state.isEmpty,
+        false,
+        'relationship is not empty'
+      );
 
       let dogPerson1 = dog.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
@@ -2025,7 +2033,7 @@ module('inverse relationship load test', function (hooks) {
 
       await dog.destroyRecord();
       dog = await person.get('dog');
-      assert.equal(dog, null, 'record was removed from belongsTo relationship');
+      assert.strictEqual(dog, null, 'record was removed from belongsTo relationship');
     }
   );
 
@@ -2099,14 +2107,18 @@ module('inverse relationship load test', function (hooks) {
       let dogFromStore = await store.peekRecord('dog', '1');
 
       // weirdly these pass
-      assert.equal(dogFromStore.belongsTo('person').id(), '1');
-      assert.equal(person.belongsTo('dog').id(), '1');
-      assert.equal(dog.id, '1', 'dog.person relationship loaded correctly');
+      assert.strictEqual(dogFromStore.belongsTo('person').id(), '1');
+      assert.strictEqual(person.belongsTo('dog').id(), '1');
+      assert.strictEqual(dog.id, '1', 'dog.person relationship loaded correctly');
 
-      assert.equal(person.belongsTo('dog').belongsToRelationship.state.isEmpty, false, 'relationship is not empty');
+      assert.strictEqual(
+        person.belongsTo('dog').belongsToRelationship.state.isEmpty,
+        false,
+        'relationship is not empty'
+      );
 
       let dogPerson1 = await dog.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
@@ -2114,7 +2126,7 @@ module('inverse relationship load test', function (hooks) {
 
       await dog.destroyRecord();
       dog = await person.get('dog');
-      assert.equal(dog, null, 'record was removed from belongsTo relationship');
+      assert.strictEqual(dog, null, 'record was removed from belongsTo relationship');
     }
   );
 
@@ -2188,14 +2200,18 @@ module('inverse relationship load test', function (hooks) {
       let dogFromStore = await store.peekRecord('dog', '1');
 
       // weirdly these pass
-      assert.equal(dogFromStore.belongsTo('person').id(), '1');
-      assert.equal(person.belongsTo('dog').id(), '1');
-      assert.equal(dog.id, '1', 'dog.person relationship loaded correctly');
+      assert.strictEqual(dogFromStore.belongsTo('person').id(), '1');
+      assert.strictEqual(person.belongsTo('dog').id(), '1');
+      assert.strictEqual(dog.id, '1', 'dog.person relationship loaded correctly');
 
-      assert.equal(person.belongsTo('dog').belongsToRelationship.state.isEmpty, false, 'relationship is not empty');
+      assert.strictEqual(
+        person.belongsTo('dog').belongsToRelationship.state.isEmpty,
+        false,
+        'relationship is not empty'
+      );
 
       let dogPerson1 = await dog.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
@@ -2203,7 +2219,7 @@ module('inverse relationship load test', function (hooks) {
 
       await dog.destroyRecord();
       dog = await person.get('dog');
-      assert.equal(dog, null, 'record was removed from belongsTo relationship');
+      assert.strictEqual(dog, null, 'record was removed from belongsTo relationship');
     }
   );
 
@@ -2280,18 +2296,18 @@ module('inverse relationship load test', function (hooks) {
       });
       let dogFromStore = await store.peekRecord('dog', '1');
 
-      assert.equal(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
+      assert.strictEqual(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
       let dogPerson1 = await dog.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false, 'relationship is not empty');
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false, 'relationship is not empty');
 
       await dog.destroyRecord();
       dog = await person.get('dog');
-      assert.equal(dog, null, 'record was removed from belongsTo relationship');
+      assert.strictEqual(dog, undefined, 'record was removed from belongsTo relationship');
     }
   );
 
@@ -2368,18 +2384,18 @@ module('inverse relationship load test', function (hooks) {
       });
       let dogFromStore = await store.peekRecord('dog', '1');
 
-      assert.equal(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
+      assert.strictEqual(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
       let dogPerson1 = await dog.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false, 'relationship is not empty');
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false, 'relationship is not empty');
 
       await dog.destroyRecord();
       dog = await person.get('dog');
-      assert.equal(dog, null, 'record was removed from belongsTo relationship');
+      assert.strictEqual(dog, undefined, 'record was removed from belongsTo relationship');
     }
   );
 
@@ -2451,18 +2467,18 @@ module('inverse relationship load test', function (hooks) {
       });
       let dogFromStore = await store.peekRecord('dog', '1');
 
-      assert.equal(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
+      assert.strictEqual(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
       let dogPerson1 = await dog.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false, 'relationship is not empty');
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false, 'relationship is not empty');
 
       await dog.destroyRecord();
       dog = await person.get('dog');
-      assert.equal(dog, null, 'record was removed from belongsTo relationship');
+      assert.strictEqual(dog, undefined, 'record was removed from belongsTo relationship');
     }
   );
 
@@ -2534,18 +2550,18 @@ module('inverse relationship load test', function (hooks) {
       });
       let dogFromStore = await store.peekRecord('dog', '1');
 
-      assert.equal(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
+      assert.strictEqual(dogFromStore.belongsTo('person').id(), '1', 'dog relationship is set up correctly');
       let dogPerson1 = await dog.get('person');
-      assert.equal(
+      assert.strictEqual(
         dogPerson1.get('id'),
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false, 'relationship is not empty');
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false, 'relationship is not empty');
 
       await dog.destroyRecord();
       dog = await person.get('dog');
-      assert.equal(dog, null, 'record was removed from belongsTo relationship');
+      assert.strictEqual(dog, undefined, 'record was removed from belongsTo relationship');
     }
   );
 
@@ -2649,20 +2665,24 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person1.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(person1.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
       let dog2 = store.peekRecord('dog', '2');
 
       for (let person of [person1, person2]) {
         const dogs = await person.get('dogs');
-        assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+        assert.strictEqual(
+          dogs.get('length'),
+          2,
+          'left hand side relationship is set up with correct number of records'
+        );
         assert.ok(dogs.indexOf(dog1) >= 0, 'relationship includes the parent even though it was not specified');
         assert.ok(dogs.indexOf(dog2) >= 0, 'relationship also includes records the payload specified');
 
         for (let dog of [dog1, dog2]) {
           let walkers = await dog.get('walkers');
-          assert.equal(walkers.length, 2, 'dog1.walkers inverse relationship includes correct number of records');
+          assert.strictEqual(walkers.length, 2, 'dog1.walkers inverse relationship includes correct number of records');
           assert.ok(
             walkers.indexOf(person1) >= 0,
             'dog1Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -2678,12 +2698,16 @@ module('inverse relationship load test', function (hooks) {
 
       for (let person of [person1, person2]) {
         let dogs = await person.get('dogs');
-        assert.equal(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
-        assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+        assert.strictEqual(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
+        assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
       }
 
       let dog2Walkers = await dog2.get('walkers');
-      assert.equal(dog2Walkers.get('length'), 2, 'dog2 still has correct number of records for hasMany relationship');
+      assert.strictEqual(
+        dog2Walkers.get('length'),
+        2,
+        'dog2 still has correct number of records for hasMany relationship'
+      );
       assert.ok(
         dog2Walkers.indexOf(person1) >= 0,
         'dog2Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -2697,18 +2721,18 @@ module('inverse relationship load test', function (hooks) {
 
       await person2.destroyRecord();
 
-      assert.equal(person1Dogs.get('length'), 1, 'person1 has correct # of dogs');
-      assert.equal(
+      assert.strictEqual(person1Dogs.get('length'), 1, 'person1 has correct # of dogs');
+      assert.strictEqual(
         person1Dogs.get('firstObject.id'),
         dog2.get('id'),
         'person1 has dog2 in its hasMany relationship; dog1 is not present because it was destroyed.'
       );
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('length'),
         1,
         'dog2 has correct # of records after record specified by server response is destroyed'
       );
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('firstObject.id'),
         person1.get('id'),
         'dog2 has person1 in its hasMany relationship; person2 is not present because it was destroyed.'
@@ -2717,7 +2741,7 @@ module('inverse relationship load test', function (hooks) {
       // finally, destroy person1, the record that loaded all this data through the relationship
 
       await person1.destroyRecord();
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('length'),
         0,
         'dog2 hasMany relationship is empty after all person records are destroyed'
@@ -2825,20 +2849,24 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person1.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(person1.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
       let dog2 = store.peekRecord('dog', '2');
 
       for (let person of [person1, person2]) {
         const dogs = await person.get('dogs');
-        assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+        assert.strictEqual(
+          dogs.get('length'),
+          2,
+          'left hand side relationship is set up with correct number of records'
+        );
         assert.ok(dogs.indexOf(dog1) >= 0, 'relationship includes the parent even though it was not specified');
         assert.ok(dogs.indexOf(dog2) >= 0, 'relationship also includes records the payload specified');
 
         for (let dog of [dog1, dog2]) {
           let walkers = await dog.get('walkers');
-          assert.equal(walkers.length, 2, 'dog1.walkers inverse relationship includes correct number of records');
+          assert.strictEqual(walkers.length, 2, 'dog1.walkers inverse relationship includes correct number of records');
           assert.ok(
             walkers.indexOf(person1) >= 0,
             'dog1Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -2854,12 +2882,16 @@ module('inverse relationship load test', function (hooks) {
 
       for (let person of [person1, person2]) {
         let dogs = await person.get('dogs');
-        assert.equal(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
-        assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+        assert.strictEqual(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
+        assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
       }
 
       let dog2Walkers = await dog2.get('walkers');
-      assert.equal(dog2Walkers.get('length'), 2, 'dog2 still has correct number of records for hasMany relationship');
+      assert.strictEqual(
+        dog2Walkers.get('length'),
+        2,
+        'dog2 still has correct number of records for hasMany relationship'
+      );
       assert.ok(
         dog2Walkers.indexOf(person1) >= 0,
         'dog2Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -2873,18 +2905,18 @@ module('inverse relationship load test', function (hooks) {
 
       await person2.destroyRecord();
 
-      assert.equal(person1Dogs.get('length'), 1, 'person1 has correct # of dogs');
-      assert.equal(
+      assert.strictEqual(person1Dogs.get('length'), 1, 'person1 has correct # of dogs');
+      assert.strictEqual(
         person1Dogs.get('firstObject.id'),
         dog2.get('id'),
         'person1 has dog2 in its hasMany relationship; dog1 is not present because it was destroyed.'
       );
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('length'),
         1,
         'dog2 has correct # of records after record specified by server response is destroyed'
       );
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('firstObject.id'),
         person1.get('id'),
         'dog2 has person1 in its hasMany relationship; person2 is not present because it was destroyed.'
@@ -2893,7 +2925,7 @@ module('inverse relationship load test', function (hooks) {
       // finally, destroy person1, the record that loaded all this data through the relationship
 
       await person1.destroyRecord();
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('length'),
         0,
         'dog2 hasMany relationship is empty after all person records are destroyed'
@@ -2982,19 +3014,19 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
       let dog2 = store.peekRecord('dog', '2');
 
       const dogs = await person.get('dogs');
-      assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+      assert.strictEqual(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
       assert.ok(dogs.indexOf(dog1) >= 0, 'relationship includes the parent even though it was not specified');
       assert.ok(dogs.indexOf(dog2) >= 0, 'relationship also includes records the payload specified');
 
       for (let dog of [dog1, dog2]) {
         let walkers = await dog.get('walkers');
-        assert.equal(walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
+        assert.strictEqual(walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
         assert.ok(
           walkers.indexOf(person) >= 0,
           'dog1Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -3003,11 +3035,15 @@ module('inverse relationship load test', function (hooks) {
 
       await dog1.destroyRecord();
 
-      assert.equal(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
-      assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+      assert.strictEqual(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
+      assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
 
       let dog2Walkers = await dog2.get('walkers');
-      assert.equal(dog2Walkers.get('length'), 1, 'dog2 still has correct number of records for hasMany relationship');
+      assert.strictEqual(
+        dog2Walkers.get('length'),
+        1,
+        'dog2 still has correct number of records for hasMany relationship'
+      );
       assert.ok(
         dog2Walkers.indexOf(person) >= 0,
         'dog2Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -3015,7 +3051,7 @@ module('inverse relationship load test', function (hooks) {
 
       // finally, destroy person1, the record that loaded all this data through the relationship
       await person.destroyRecord();
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('length'),
         0,
         'dog2 hasMany relationship is empty after all person records are destroyed'
@@ -3104,19 +3140,19 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
       let dog2 = store.peekRecord('dog', '2');
 
       const dogs = await person.get('dogs');
-      assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+      assert.strictEqual(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
       assert.ok(dogs.indexOf(dog1) >= 0, 'relationship includes the parent even though it was not specified');
       assert.ok(dogs.indexOf(dog2) >= 0, 'relationship also includes records the payload specified');
 
       for (let dog of [dog1, dog2]) {
         let walkers = await dog.get('walkers');
-        assert.equal(walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
+        assert.strictEqual(walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
         assert.ok(
           walkers.indexOf(person) >= 0,
           'dog1Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -3125,11 +3161,15 @@ module('inverse relationship load test', function (hooks) {
 
       await dog1.destroyRecord();
 
-      assert.equal(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
-      assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+      assert.strictEqual(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
+      assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
 
       let dog2Walkers = await dog2.get('walkers');
-      assert.equal(dog2Walkers.get('length'), 1, 'dog2 still has correct number of records for hasMany relationship');
+      assert.strictEqual(
+        dog2Walkers.get('length'),
+        1,
+        'dog2 still has correct number of records for hasMany relationship'
+      );
       assert.ok(
         dog2Walkers.indexOf(person) >= 0,
         'dog2Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -3137,7 +3177,7 @@ module('inverse relationship load test', function (hooks) {
 
       // finally, destroy person1, the record that loaded all this data through the relationship
       await person.destroyRecord();
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('length'),
         0,
         'dog2 hasMany relationship is empty after all person records are destroyed'
@@ -3226,18 +3266,18 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
       let dog2 = store.peekRecord('dog', '2');
 
-      assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+      assert.strictEqual(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
       assert.ok(dogs.indexOf(dog1) >= 0, 'relationship includes the parent even though it was not specified');
       assert.ok(dogs.indexOf(dog2) >= 0, 'relationship also includes records the payload specified');
 
       for (let dog of [dog1, dog2]) {
         let walkers = await dog.get('walkers');
-        assert.equal(walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
+        assert.strictEqual(walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
         assert.ok(
           walkers.indexOf(person) >= 0,
           'dog1Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -3246,11 +3286,15 @@ module('inverse relationship load test', function (hooks) {
 
       await dog1.destroyRecord();
 
-      assert.equal(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
-      assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+      assert.strictEqual(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
+      assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
 
       let dog2Walkers = await dog2.get('walkers');
-      assert.equal(dog2Walkers.get('length'), 1, 'dog2 still has correct number of records for hasMany relationship');
+      assert.strictEqual(
+        dog2Walkers.get('length'),
+        1,
+        'dog2 still has correct number of records for hasMany relationship'
+      );
       assert.ok(
         dog2Walkers.indexOf(person) >= 0,
         'dog2Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -3258,7 +3302,7 @@ module('inverse relationship load test', function (hooks) {
 
       // finally, destroy person1, the record that loaded all this data through the relationship
       await person.destroyRecord();
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('length'),
         0,
         'dog2 hasMany relationship is empty after all person records are destroyed'
@@ -3347,18 +3391,18 @@ module('inverse relationship load test', function (hooks) {
         id: 'mismatched-inverse-relationship-data-from-payload',
         count: 2,
       });
-      assert.equal(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
+      assert.strictEqual(person.hasMany('dogs').hasManyRelationship.state.isEmpty, false);
 
       let dog1 = store.peekRecord('dog', '1');
       let dog2 = store.peekRecord('dog', '2');
 
-      assert.equal(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
+      assert.strictEqual(dogs.get('length'), 2, 'left hand side relationship is set up with correct number of records');
       assert.ok(dogs.indexOf(dog1) >= 0, 'relationship includes the parent even though it was not specified');
       assert.ok(dogs.indexOf(dog2) >= 0, 'relationship also includes records the payload specified');
 
       for (let dog of [dog1, dog2]) {
         let walkers = await dog.get('walkers');
-        assert.equal(walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
+        assert.strictEqual(walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
         assert.ok(
           walkers.indexOf(person) >= 0,
           'dog1Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -3367,11 +3411,15 @@ module('inverse relationship load test', function (hooks) {
 
       await dog1.destroyRecord();
 
-      assert.equal(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
-      assert.equal(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
+      assert.strictEqual(dogs.get('length'), 1, 'person1.dogs relationship was updated when record removed');
+      assert.strictEqual(dogs.get('firstObject.id'), '2', 'person.dogs relationship has the correct records');
 
       let dog2Walkers = await dog2.get('walkers');
-      assert.equal(dog2Walkers.get('length'), 1, 'dog2 still has correct number of records for hasMany relationship');
+      assert.strictEqual(
+        dog2Walkers.get('length'),
+        1,
+        'dog2 still has correct number of records for hasMany relationship'
+      );
       assert.ok(
         dog2Walkers.indexOf(person) >= 0,
         'dog2Walkers includes the record that requested the relationship but was not specified in the relationships of the records in the response'
@@ -3379,7 +3427,7 @@ module('inverse relationship load test', function (hooks) {
 
       // finally, destroy person1, the record that loaded all this data through the relationship
       await person.destroyRecord();
-      assert.equal(
+      assert.strictEqual(
         dog2Walkers.get('length'),
         0,
         'dog2 hasMany relationship is empty after all person records are destroyed'
@@ -3462,24 +3510,24 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
     let dogPerson1 = await dog1.get('person');
-    assert.equal(
+    assert.strictEqual(
       dogPerson1.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     let dogPerson2 = await dogs.objectAt(1).get('person');
-    assert.equal(
+    assert.strictEqual(
       dogPerson2.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
@@ -3557,24 +3605,24 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
     let dogPerson1 = await dog1.get('person');
-    assert.equal(
+    assert.strictEqual(
       dogPerson1.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     let dogPerson2 = await dogs.objectAt(1).get('person');
-    assert.equal(
+    assert.strictEqual(
       dogPerson2.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many - ids/non-link/explicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
@@ -3653,24 +3701,24 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
     let dogPerson1 = await dog1.get('pal');
-    assert.equal(
+    assert.strictEqual(
       dogPerson1.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     let dogPerson2 = await dogs.objectAt(1).get('pal');
-    assert.equal(
+    assert.strictEqual(
       dogPerson2.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
@@ -3749,24 +3797,24 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
     let dogPerson1 = await dog1.get('pal');
-    assert.equal(
+    assert.strictEqual(
       dogPerson1.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
     let dogPerson2 = await dogs.objectAt(1).get('pal');
-    assert.equal(
+    assert.strictEqual(
       dogPerson2.get('id'),
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many - ids/non-link/null inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
@@ -3840,12 +3888,12 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
+    assert.strictEqual(dogs.get('length'), 2, 'hasMany relationship has correct number of records');
     let dog1 = dogs.get('firstObject');
 
     await dog1.destroyRecord();
-    assert.equal(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
@@ -3949,10 +3997,10 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 0, 'hasMany relationship for parent is empty');
+    assert.strictEqual(dogs.get('length'), 0, 'hasMany relationship for parent is empty');
 
     let person2Dogs = await person2.get('dogs');
-    assert.equal(
+    assert.strictEqual(
       person2Dogs.get('length'),
       2,
       'hasMany relationship on specified record has correct number of associated records'
@@ -3962,13 +4010,13 @@ module('inverse relationship load test', function (hooks) {
     for (let i = 0; i < allDogs.length; i++) {
       let dog = allDogs[i];
       let dogPerson = await dog.get('person');
-      assert.equal(dogPerson.get('id'), person2.get('id'), 'right hand side has correct belongsTo value');
+      assert.strictEqual(dogPerson.get('id'), person2.get('id'), 'right hand side has correct belongsTo value');
     }
 
     let dog1 = store.peekRecord('dog', '1');
     await dog1.destroyRecord();
-    assert.equal(person2Dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(person2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(person2Dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(person2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
@@ -4072,10 +4120,10 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 0, 'hasMany relationship for parent is empty');
+    assert.strictEqual(dogs.get('length'), 0, 'hasMany relationship for parent is empty');
 
     let person2Dogs = await person2.get('dogs');
-    assert.equal(
+    assert.strictEqual(
       person2Dogs.get('length'),
       2,
       'hasMany relationship on specified record has correct number of associated records'
@@ -4085,13 +4133,13 @@ module('inverse relationship load test', function (hooks) {
     for (let i = 0; i < allDogs.length; i++) {
       let dog = allDogs[i];
       let dogPerson = await dog.get('person');
-      assert.equal(dogPerson.get('id'), person2.get('id'), 'right hand side has correct belongsTo value');
+      assert.strictEqual(dogPerson.get('id'), person2.get('id'), 'right hand side has correct belongsTo value');
     }
 
     let dog1 = store.peekRecord('dog', '1');
     await dog1.destroyRecord();
-    assert.equal(person2Dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(person2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(person2Dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(person2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies null as the relationship value in the response', async function (assert) {
@@ -4179,19 +4227,19 @@ module('inverse relationship load test', function (hooks) {
     let personDogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(personDogs.get('length'), 0, 'hasMany relationship for parent is empty');
+    assert.strictEqual(personDogs.get('length'), 0, 'hasMany relationship for parent is empty');
 
     let allDogs = store.peekAll('dogs').toArray();
     for (let i = 0; i < allDogs.length; i++) {
       let dog = allDogs[i];
       let dogPerson = await dog.get('person');
-      assert.equal(dogPerson, null, 'right hand side has correct belongsTo value');
+      assert.strictEqual(dogPerson, null, 'right hand side has correct belongsTo value');
     }
 
     let dog1 = store.peekRecord('dog', '1');
     await dog1.destroyRecord();
 
-    assert.equal(personDogs.get('length'), 0);
+    assert.strictEqual(personDogs.get('length'), 0);
   });
 
   test('one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies null as the relationship value in the response', async function (assert) {
@@ -4279,19 +4327,19 @@ module('inverse relationship load test', function (hooks) {
     let personDogs = await person.get('dogs');
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(personDogs.get('length'), 0, 'hasMany relationship for parent is empty');
+    assert.strictEqual(personDogs.get('length'), 0, 'hasMany relationship for parent is empty');
 
     let allDogs = store.peekAll('dogs').toArray();
     for (let i = 0; i < allDogs.length; i++) {
       let dog = allDogs[i];
       let dogPerson = await dog.get('person');
-      assert.equal(dogPerson, null, 'right hand side has correct belongsTo value');
+      assert.strictEqual(dogPerson, null, 'right hand side has correct belongsTo value');
     }
 
     let dog1 = store.peekRecord('dog', '1');
     await dog1.destroyRecord();
 
-    assert.equal(personDogs.get('length'), 0);
+    assert.strictEqual(personDogs.get('length'), 0);
   });
 
   test('one-to-many - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
@@ -4395,10 +4443,10 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await pal.get('dogs');
     assert.false(pal.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 0, 'hasMany relationship for parent is empty');
+    assert.strictEqual(dogs.get('length'), 0, 'hasMany relationship for parent is empty');
 
     let pal2Dogs = await pal2.get('dogs');
-    assert.equal(
+    assert.strictEqual(
       pal2Dogs.get('length'),
       2,
       'hasMany relationship on specified record has correct number of associated records'
@@ -4408,13 +4456,13 @@ module('inverse relationship load test', function (hooks) {
     for (let i = 0; i < allDogs.length; i++) {
       let dog = allDogs[i];
       let dogPerson = await dog.get('pal');
-      assert.equal(dogPerson.get('id'), pal2.get('id'), 'right hand side has correct belongsTo value');
+      assert.strictEqual(dogPerson.get('id'), pal2.get('id'), 'right hand side has correct belongsTo value');
     }
 
     let dog1 = store.peekRecord('dog', '1');
     await dog1.destroyRecord();
-    assert.equal(pal2Dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(pal2Dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
@@ -4518,10 +4566,10 @@ module('inverse relationship load test', function (hooks) {
     let dogs = await pal.get('dogs');
     assert.false(pal.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
-    assert.equal(dogs.get('length'), 0, 'hasMany relationship for parent is empty');
+    assert.strictEqual(dogs.get('length'), 0, 'hasMany relationship for parent is empty');
 
     let pal2Dogs = await pal2.get('dogs');
-    assert.equal(
+    assert.strictEqual(
       pal2Dogs.get('length'),
       2,
       'hasMany relationship on specified record has correct number of associated records'
@@ -4531,13 +4579,13 @@ module('inverse relationship load test', function (hooks) {
     for (let i = 0; i < allDogs.length; i++) {
       let dog = allDogs[i];
       let dogPerson = await dog.get('pal');
-      assert.equal(dogPerson.get('id'), pal2.get('id'), 'right hand side has correct belongsTo value');
+      assert.strictEqual(dogPerson.get('id'), pal2.get('id'), 'right hand side has correct belongsTo value');
     }
 
     let dog1 = store.peekRecord('dog', '1');
     await dog1.destroyRecord();
-    assert.equal(pal2Dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
-    assert.equal(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
+    assert.strictEqual(pal2Dogs.get('length'), 1, 'record removed from hasMany relationship after deletion');
+    assert.strictEqual(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test("loading belongsTo doesn't remove inverse relationship for other instances", async function (assert) {
@@ -4625,12 +4673,12 @@ module('inverse relationship load test', function (hooks) {
     let dog1 = await owner.lookup('service:store').findRecord('dog', '1');
     let dog2 = await owner.lookup('service:store').findRecord('dog', '2');
 
-    assert.equal(dog1.belongsTo('person').id(), '1');
-    assert.equal(dog2.belongsTo('person').id(), '1');
+    assert.strictEqual(dog1.belongsTo('person').id(), '1');
+    assert.strictEqual(dog2.belongsTo('person').id(), '1');
 
     await dog1.get('person');
 
-    assert.equal(dog1.belongsTo('person').id(), '1');
-    assert.equal(dog2.belongsTo('person').id(), '1');
+    assert.strictEqual(dog1.belongsTo('person').id(), '1');
+    assert.strictEqual(dog2.belongsTo('person').id(), '1');
   });
 });
