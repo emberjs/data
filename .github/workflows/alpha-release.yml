@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies for master
         run: yarn install --frozen-lockfile --non-interactive
       - name: Basic Tests
@@ -37,6 +38,7 @@ jobs:
         with:
           registry-url: 'https://registry.npmjs.org'
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies for master
         run: yarn install --frozen-lockfile --non-interactive
       - name: Make sure git user is setup
