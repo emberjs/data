@@ -138,7 +138,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
       - name: Fastboot Test ${{ matrix.scenario }}
-        timeout-minutes: 6
+        timeout-minutes: 12 
         run: yarn test:fastboot ${{ matrix.scenario }}
 
   browser-tests:
