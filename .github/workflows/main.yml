@@ -183,7 +183,7 @@ jobs:
           yarn test:production
 
   floating-dependencies:
-    timeout-minutes: 6
+    timeout-minutes: 10
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
@@ -211,13 +211,13 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
-        timeout-minutes: 6
+        timeout-minutes: 10
         env:
           CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
 
   releases:
-    timeout-minutes: 6
+    timeout-minutes: 10
     needs: [lint, basic-tests]
     if: |
       github.event_name == 'pull_request' && (
@@ -274,7 +274,7 @@ jobs:
 
   node-version-test:
     name: Use Node.js ${{ matrix.node-version }}
-    timeout-minutes: 6
+    timeout-minutes: 10
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     strategy:
