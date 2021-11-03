@@ -31,7 +31,7 @@ jobs:
         run: yarn problems
 
   test-infra:
-    timeout-minutes: 8
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -138,12 +138,12 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
       - name: Fastboot Test ${{ matrix.scenario }}
-        timeout-minutes: 6
+        timeout-minutes: 12 
         run: yarn test:fastboot ${{ matrix.scenario }}
 
   browser-tests:
     needs: [lint]
-    timeout-minutes: 20
+    timeout-minutes: 20 
     strategy:
       fail-fast: false
       matrix:
@@ -176,7 +176,7 @@ jobs:
         run: |
           yarn run testem launchers
       - name: Run Production Test
-        timeout-minutes: 8
+        timeout-minutes: 10
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
@@ -184,7 +184,7 @@ jobs:
           yarn test:try-one ${{ matrix.scenario }} --- ember test -e production
 
   floating-dependencies:
-    timeout-minutes: 6
+    timeout-minutes: 10
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
@@ -212,13 +212,13 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
-        timeout-minutes: 6
+        timeout-minutes: 10
         env:
           CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
 
   releases:
-    timeout-minutes: 6
+    timeout-minutes: 10
     needs: [lint, basic-tests]
     if: |
       github.event_name == 'pull_request' && (
@@ -244,7 +244,7 @@ jobs:
         run: yarn test:try-one ${{ matrix.scenario }}
 
   additional-scenarios:
-    timeout-minutes: 7
+    timeout-minutes: 8
     needs: [lint, basic-tests]
     strategy:
       matrix:
@@ -271,7 +271,7 @@ jobs:
 
   node-version-test:
     name: Use Node.js ${{ matrix.node-version }}
-    timeout-minutes: 6
+    timeout-minutes: 8
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     strategy:
