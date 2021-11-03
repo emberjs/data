@@ -31,7 +31,7 @@ jobs:
         run: yarn problems
 
   test-infra:
-    timeout-minutes: 15
+    timeout-minutes: 12
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
 
 
   basic-tests:
-    timeout-minutes: 15
+    timeout-minutes: 12
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
@@ -138,12 +138,12 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
       - name: Fastboot Test ${{ matrix.scenario }}
-        timeout-minutes: 15 
+        timeout-minutes: 12 
         run: yarn test:fastboot ${{ matrix.scenario }}
 
   browser-tests:
     needs: [lint]
-    timeout-minutes: 15
+    timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
@@ -175,7 +175,7 @@ jobs:
         run: |
           yarn run testem launchers
       - name: Run Production Test
-        timeout-minutes: 15
+        timeout-minutes: 12
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true
@@ -183,7 +183,7 @@ jobs:
           yarn test:production
 
   floating-dependencies:
-    timeout-minutes: 15
+    timeout-minutes: 12
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     steps:
@@ -211,13 +211,13 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
-        timeout-minutes: 15
+        timeout-minutes: 12
         env:
           CI: true
         run: yarn test:try-one ${{ matrix.scenario }}
 
   releases:
-    timeout-minutes: 15
+    timeout-minutes: 12
     needs: [lint, basic-tests]
     if: |
       github.event_name == 'pull_request' && (
@@ -247,7 +247,7 @@ jobs:
         continue-on-error: ${{ matrix['continue-on-error'] == true }}
 
   additional-scenarios:
-    timeout-minutes: 15
+    timeout-minutes: 12
     needs: [lint, basic-tests]
     strategy:
       matrix:
@@ -274,7 +274,7 @@ jobs:
 
   node-version-test:
     name: Use Node.js ${{ matrix.node-version }}
-    timeout-minutes: 15
+    timeout-minutes: 12
     needs: [lint, basic-tests]
     runs-on: ubuntu-latest
     strategy:
@@ -335,7 +335,7 @@ jobs:
       - name: Generate package tarballs
         run: node ./scripts/packages-for-commit.js
       - name: Run Tests
-        timeout-minutes: 15
+        timeout-minutes: 12
         env:
           CI: true
         run: yarn test-external:${{ matrix.partner }}
