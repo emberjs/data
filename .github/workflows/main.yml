@@ -63,7 +63,7 @@ jobs:
 
 
   basic-tests:
-    timeout-minutes: 18
+    timeout-minutes: 20
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
