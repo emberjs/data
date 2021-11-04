@@ -353,7 +353,7 @@ export default class InternalModel {
           }
 
           let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
-          createOptions = { ...createOptions, ...additionalCreateOptions };
+          Object.assign(createOptions, additionalCreateOptions);
 
           // ensure that `getOwner(this)` works inside a model instance
           setOwner(createOptions, getOwner(store));

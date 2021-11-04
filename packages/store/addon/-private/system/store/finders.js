@@ -293,7 +293,7 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, modelName
     }
   } else {
     payload = relationshipData || {};
-    payload = { ...payload, ...parentRelationshipData };
+    Object.assign(payload, parentRelationshipData);
   }
 
   return payload;

@@ -39,7 +39,7 @@ class Store extends CoreStore {
       _internalModel: internalModel,
       container: null,
     };
-    createOptions = { ...createOptions, ...createRecordArgs };
+    Object.assign(createOptions, createRecordArgs);
 
     // ensure that `getOwner(this)` works inside a model instance
     setOwner(createOptions, getOwner(this));
