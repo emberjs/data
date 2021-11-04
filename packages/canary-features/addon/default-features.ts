@@ -81,13 +81,13 @@
  * *Example activating a single feature flags*
  *
  * ```js
- * EMBER_DATA_FEATURE_OVERRIDE=REQUEST_SERVICE ember build
+ * EMBER_DATA_FEATURE_OVERRIDE=SAMPLE_FEATURE_FLAG ember build
  * ```
  *
  * *Example activating multiple feature flags*
  *
  * ```js
- * EMBER_DATA_FEATURE_OVERRIDE=REQUEST_SERVICE,CUSTOM_MODEL_CLASS ember build
+ * EMBER_DATA_FEATURE_OVERRIDE=SAMPLE_FEATURE_FLAG,CUSTOM_MODEL_CLASS ember build
  * ```
  *
  * *Example activating all feature flags*
@@ -173,7 +173,6 @@ export default {
   SAMPLE_FEATURE_FLAG: null,
   RECORD_DATA_ERRORS: true,
   RECORD_DATA_STATE: true,
-  REQUEST_SERVICE: true,
   CUSTOM_MODEL_CLASS: true,
   REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT: true,
 };

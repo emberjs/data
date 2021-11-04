@@ -12,7 +12,7 @@ import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import { RECORD_DATA_ERRORS, REQUEST_SERVICE } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EVENTED_API_USAGE,
@@ -380,19 +380,11 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get isError() {
-    if (REQUEST_SERVICE) {
-      return this.currentState.isError;
-    }
-    let tag = peekTag(this, 'isError');
-    tag.value = tag.value || false;
-    return tag.value;
+    return this.currentState.isError;
   }
   set isError(v) {
-    if (REQUEST_SERVICE && DEBUG) {
-      throw new Error(`isError is not directly settable when REQUEST_SERVICE is enabled`);
-    } else {
-      let tag = peekTag(this, 'isError');
-      tag.value = v;
+    if (DEBUG) {
+      throw new Error(`isError is not directly settable`);
     }
   }
 
@@ -575,20 +567,10 @@ class Model extends EmberObject {
   */
   @dependentKeyCompat
   get adapterError() {
-    if (REQUEST_SERVICE) {
-      return this.currentState.adapterError;
-    }
-    let tag = peekTag(this, 'adapterError');
-    tag.value = tag.value || null;
-    return tag.value;
+    return this.currentState.adapterError;
   }
   set adapterError(v) {
-    if (REQUEST_SERVICE && DEBUG) {
-      throw new Error(`adapterError is not directly settable when REQUEST_SERVICE is enabled`);
-    } else {
-      let tag = peekTag(this, 'adapterError');
-      tag.value = v;
-    }
+    throw new Error(`adapterError is not directly settable`);
   }
 
   /**
