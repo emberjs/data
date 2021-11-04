@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## v4.0.0-beta.3  (2021-11-03)
+
+#### :shower: Deprecation Removal
+* `-ember-data`
+  * [#7736](https://github.com/emberjs/data/pull/7736) [cleanup]: Remove implicit store injection slated for Ember v4.0.0 (#… ([@igorT](https://github.com/igorT))
+
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
 ## v4.0.0-beta.2  (2021-09-05)
 
 #### :bug: Bug Fix
