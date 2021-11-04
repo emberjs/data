@@ -3,7 +3,8 @@
 */
 import { assert } from '@ember/debug';
 
-import { CUSTOM_MODEL_CLASS, REQUEST_SERVICE } from '@ember-data/canary-features';
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
 /*
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
@@ -500,9 +501,6 @@ const RootState = {
 
     // EVENTS
     loadingData(internalModel, promise) {
-      if (!REQUEST_SERVICE) {
-        internalModel._promiseProxy = promise;
-      }
       internalModel.transitionTo('loading');
     },
 
@@ -593,11 +591,7 @@ const RootState = {
         internalModel.transitionTo('updated.inFlight');
       },
 
-      reloadRecord(internalModel, { resolve, options }) {
-        if (!REQUEST_SERVICE) {
-          resolve(internalModel.store._reloadRecord(internalModel, options));
-        }
-      },
+      reloadRecord() {},
 
       deleteRecord(internalModel) {
         internalModel.transitionTo('deleted.uncommitted');
