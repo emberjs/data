@@ -2,13 +2,6 @@
   @module @ember-data/store
 */
 
-// support IE11
-declare global {
-  interface Window {
-    msCrypto: Crypto;
-  }
-}
-
 const CRYPTO = (() => {
   const hasWindow = typeof window !== 'undefined';
   const isFastBoot = typeof FastBoot !== 'undefined';
@@ -27,12 +20,6 @@ const CRYPTO = (() => {
     };
   } else if (hasWindow && typeof window.crypto !== 'undefined') {
     return window.crypto;
-  } else if (
-    hasWindow &&
-    typeof window.msCrypto !== 'undefined' &&
-    typeof window.msCrypto.getRandomValues === 'function'
-  ) {
-    return window.msCrypto;
   } else {
     throw new Error('ember-data: Cannot find a valid way to generate local identifiers');
   }
