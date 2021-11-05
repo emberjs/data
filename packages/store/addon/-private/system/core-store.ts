@@ -67,7 +67,6 @@ import type { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
 import constructResource from '../utils/construct-resource';
 import promiseRecord from '../utils/promise-record';
-import { addSymbol } from '../utils/symbol';
 import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
 import { errorsArrayToHash } from './errors-utils';
@@ -2713,7 +2712,7 @@ abstract class CoreStore extends Service {
         operation = 'deleteRecord';
       }
 
-      addSymbol(options, SaveOp, operation);
+      options[SaveOp] = operation;
 
       let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
       let promise = fetchManagerPromise.then(
