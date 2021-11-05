@@ -1,5 +1,4 @@
 import EmberObject from '@ember/object';
-import { assign } from '@ember/polyfills';
 
 import { module, test } from 'qunit';
 
@@ -113,7 +112,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
         peekRecordArgs.lid = recordIdentifierFor(person).lid;
       }
       if (extra) {
-        assign(peekRecordArgs, extra);
+        Object.assign(peekRecordArgs, extra);
       }
 
       assert.strictEqual(
