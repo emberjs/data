@@ -40,7 +40,7 @@ module('integration/relationships - running requests for async relatonships with
     class TestMinimumSerializer extends EmberObject {
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
-        assert.equal(requestType, 'findMany', 'expected method name is correct');
+        assert.strictEqual(requestType, 'findMany', 'expected method name is correct');
         assert.deepEqual(rawPayload, { data: [] });
         return {
           data: [
@@ -117,7 +117,7 @@ module('integration/relationships - running requests for async relatonships with
     });
     let comments = await post.get('comments');
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(comments.mapBy('message'), ['Message 1', 'Message 2'], 'response is expected response');
   });
 
@@ -127,7 +127,7 @@ module('integration/relationships - running requests for async relatonships with
     class TestMinimumSerializer extends EmberObject {
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
-        assert.equal(requestType, 'findHasMany', 'expected method name is correct');
+        assert.strictEqual(requestType, 'findHasMany', 'expected method name is correct');
         assert.deepEqual(rawPayload, { data: [] });
         return {
           data: [
@@ -181,7 +181,7 @@ module('integration/relationships - running requests for async relatonships with
     });
     let comments = await post.get('comments');
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(comments.mapBy('message'), ['Message 1', 'Message 2'], 'response is expected response');
   });
 
@@ -191,7 +191,7 @@ module('integration/relationships - running requests for async relatonships with
     class TestMinimumSerializer extends EmberObject {
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
-        assert.equal(requestType, 'findBelongsTo', 'expected method name is correct');
+        assert.strictEqual(requestType, 'findBelongsTo', 'expected method name is correct');
         assert.deepEqual(rawPayload, {
           data: {
             id: 1,
@@ -252,7 +252,7 @@ module('integration/relationships - running requests for async relatonships with
     });
     let post = await comment.get('post');
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(post.title, 'Chris', 'response is expected response');
   });
 });

@@ -63,7 +63,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
 
     store.push(payload);
     let book = store.peekRecord('book', 1);
-    assert.equal(book.get('author.id'), 1);
+    assert.strictEqual(book.get('author.id'), '1');
 
     let payloadThatResetsBelongToRelationship = {
       data: {
@@ -125,7 +125,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     return book
       .get('author')
       .then((author) => {
-        assert.equal(author.get('id'), 1);
+        assert.strictEqual(author.get('id'), '1');
         store.push(payloadThatResetsBelongToRelationship);
         return book.get('author');
       })

@@ -176,14 +176,14 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       findHasMany(passedStore, snapshot, url, relationship) {
         findHasManyCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findHasMany');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findHasMany');
 
         let expectedURL = initialRecord.data.relationships.comments.links.related;
-        assert.equal(url, expectedURL, 'url is passed to findHasMany');
-        assert.equal(relationship.meta.key, 'comments', 'relationship is passed to findHasMany');
+        assert.strictEqual(url, expectedURL, 'url is passed to findHasMany');
+        assert.strictEqual(relationship.meta.key, 'comments', 'relationship is passed to findHasMany');
 
-        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
-        assert.equal(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');
+        assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
+        assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');
 
         return resolve(expectedResultCopy);
       }
@@ -198,9 +198,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findManyCalled, 0, 'findMany is not called');
-    assert.equal(findHasManyCalled, 1, 'findHasMany is called once');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findManyCalled, 0, 'findMany is not called');
+    assert.strictEqual(findHasManyCalled, 1, 'findHasMany is called once');
     assert.deepEqual(serializedComments, expectedResult, 'findHasMany returns expected result');
   });
 
@@ -280,12 +280,12 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         let index = findRecordCalled++;
         let expectedId = initialRecord.data.relationships.comments.data[index].id;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Comment, 'model is passed to findRecord');
-        assert.equal(id, expectedId, 'id is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Comment, 'model is passed to findRecord');
+        assert.strictEqual(id, expectedId, 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
         return resolve({ data: expectedResultCopy.data[index] });
       }
@@ -307,9 +307,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
-    assert.equal(findRecordCalled, 2, 'findRecord is called twice');
-    assert.equal(findManyCalled, 0, 'findMany is not called');
-    assert.equal(findHasManyCalled, 0, 'findHasMany is not called');
+    assert.strictEqual(findRecordCalled, 2, 'findRecord is called twice');
+    assert.strictEqual(findManyCalled, 0, 'findMany is not called');
+    assert.strictEqual(findHasManyCalled, 0, 'findHasMany is not called');
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
@@ -356,12 +356,12 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         let index = findRecordCalled++;
         let expectedId = initialRecord.data.relationships.comments.data[index].id;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Comment, 'model is passed to findRecord');
-        assert.equal(id, expectedId, 'id is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Comment, 'model is passed to findRecord');
+        assert.strictEqual(id, expectedId, 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
         return resolve({ data: expectedResultCopy.data[index] });
       }
@@ -379,8 +379,8 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
-    assert.equal(findRecordCalled, 2, 'findRecord is called twice');
-    assert.equal(findManyCalled, 0, 'findMany is not called');
+    assert.strictEqual(findRecordCalled, 2, 'findRecord is called twice');
+    assert.strictEqual(findManyCalled, 0, 'findMany is not called');
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
@@ -439,15 +439,15 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       findMany(passedStore, type, ids, snapshots) {
         findManyCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findMany');
-        assert.equal(type, Comment, 'model is passed to findMany');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findMany');
+        assert.strictEqual(type, Comment, 'model is passed to findMany');
 
         let expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
-          assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findMany with correct modelName');
-          assert.equal(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
+          assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findMany with correct modelName');
+          assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
         return resolve(expectedResultCopy);
@@ -462,9 +462,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findManyCalled, 1, 'findMany is called once');
-    assert.equal(findHasManyCalled, 0, 'findHasMany is not called');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findManyCalled, 1, 'findMany is called once');
+    assert.strictEqual(findHasManyCalled, 0, 'findHasMany is not called');
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
@@ -518,15 +518,15 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       findMany(passedStore, type, ids, snapshots) {
         findManyCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findMany');
-        assert.equal(type, Comment, 'model is passed to findMany');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findMany');
+        assert.strictEqual(type, Comment, 'model is passed to findMany');
 
         let expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
-          assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findMany with correct modelName');
-          assert.equal(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
+          assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findMany with correct modelName');
+          assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
         return resolve(expectedResultCopy);
@@ -541,8 +541,8 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findManyCalled, 1, 'findMany is called once');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findManyCalled, 1, 'findMany is called once');
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
@@ -598,14 +598,14 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       findHasMany(passedStore, snapshot, url, relationship) {
         findHasManyCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findHasMany');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findHasMany');
 
         let expectedURL = initialRecord.data.relationships.comments.links.related;
-        assert.equal(url, expectedURL, 'url is passed to findHasMany');
-        assert.equal(relationship.meta.key, 'comments', 'relationship is passed to findHasMany');
+        assert.strictEqual(url, expectedURL, 'url is passed to findHasMany');
+        assert.strictEqual(relationship.meta.key, 'comments', 'relationship is passed to findHasMany');
 
-        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
-        assert.equal(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');
+        assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findHasMany with correct modelName');
+        assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findHasMany with correct id');
 
         return resolve(expectedResultCopy);
       }
@@ -620,9 +620,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findManyCalled, 0, 'findMany is not called');
-    assert.equal(findHasManyCalled, 1, 'findHasMany is called once');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findManyCalled, 0, 'findMany is not called');
+    assert.strictEqual(findHasManyCalled, 1, 'findHasMany is called once');
     assert.deepEqual(serializedComments, expectedResult, 'findHasMany returns expected result');
   });
 
@@ -679,15 +679,15 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       findMany(passedStore, type, ids, snapshots) {
         findManyCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findMany');
-        assert.equal(type, Comment, 'model is passed to findMany');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findMany');
+        assert.strictEqual(type, Comment, 'model is passed to findMany');
 
         let expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
-          assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findMany with correct modelName');
-          assert.equal(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
+          assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findMany with correct modelName');
+          assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
         return resolve(expectedResultCopy);
@@ -702,8 +702,8 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findManyCalled, 1, 'findMany is called once');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findManyCalled, 1, 'findMany is called once');
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 
@@ -750,12 +750,12 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         let index = findRecordCalled++;
         let expectedId = initialRecord.data.relationships.comments.data[index].id;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Comment, 'model is passed to findRecord');
-        assert.equal(id, expectedId, 'id is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Comment, 'model is passed to findRecord');
+        assert.strictEqual(id, expectedId, 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
         return resolve({ data: expectedResultCopy.data[index] });
       }
@@ -773,8 +773,8 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       data: comments.toArray().map((comment) => comment.serialize().data),
     };
 
-    assert.equal(findRecordCalled, 2, 'findRecord is called twice');
-    assert.equal(findManyCalled, 0, 'findMany is not called');
+    assert.strictEqual(findRecordCalled, 2, 'findRecord is called twice');
+    assert.strictEqual(findManyCalled, 0, 'findMany is not called');
     assert.deepEqual(serializedComments, expectedResult, 'get returns expected result');
   });
 });

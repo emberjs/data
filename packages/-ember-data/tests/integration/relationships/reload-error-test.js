@@ -72,7 +72,7 @@ module('Relationships | unloading new records', function (hooks) {
       await entryNode.belongsTo('parent').reload();
       assert.ok(false, 'No error thrown');
     } catch (e) {
-      assert.equal(e.message, 'Bad Request', 'We caught the correct error');
+      assert.strictEqual(e.message, 'Bad Request', 'We caught the correct error');
     }
   });
 
@@ -81,7 +81,7 @@ module('Relationships | unloading new records', function (hooks) {
       await entryNode.belongsTo('relatedGraph').reload();
       assert.ok(false, 'No error thrown');
     } catch (e) {
-      assert.equal(e.message, 'Bad Request', 'We caught the correct error');
+      assert.strictEqual(e.message, 'Bad Request', 'We caught the correct error');
     }
   });
 });

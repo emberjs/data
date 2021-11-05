@@ -44,14 +44,14 @@ if (has('@ember-data/debug')) {
       let debugAdapter = owner.lookup('data-adapter:main');
 
       function added(types) {
-        assert.equal(types.length, 1, 'added one type');
-        assert.equal(types[0].name, 'post', 'the type is post');
-        assert.equal(types[0].count, 0, 'we added zero posts');
+        assert.strictEqual(types.length, 1, 'added one type');
+        assert.strictEqual(types[0].name, 'post', 'the type is post');
+        assert.strictEqual(types[0].count, 0, 'we added zero posts');
         assert.strictEqual(types[0].object, store.modelFor('post'), 'we received the ModelClass for post');
       }
 
       function updated(types) {
-        assert.equal(types[0].count, 1, 'We updated one record');
+        assert.strictEqual(types[0].count, 1, 'We updated one record');
       }
 
       debugAdapter.watchModelTypes(added, updated);
@@ -106,7 +106,7 @@ if (has('@ember-data/debug')) {
 
       debugAdapter.watchRecords('post', recordsAdded, recordsUpdated, recordsRemoved);
 
-      assert.equal(get(addedRecords, 'length'), 1, 'We initially have 1 post');
+      assert.strictEqual(get(addedRecords, 'length'), 1, 'We initially have 1 post');
       let record = addedRecords[0];
       assert.deepEqual(record.columnValues, { id: '1', title: 'Clean Post' }, 'The initial post has the right values');
       assert.deepEqual(
@@ -124,7 +124,7 @@ if (has('@ember-data/debug')) {
       // await updated callback
       await settled();
 
-      assert.equal(get(updatedRecords, 'length'), 1, 'We updated 1 post');
+      assert.strictEqual(get(updatedRecords, 'length'), 1, 'We updated 1 post');
       record = updatedRecords[0];
       assert.deepEqual(
         record.columnValues,
@@ -146,7 +146,7 @@ if (has('@ember-data/debug')) {
 
       await settled();
 
-      assert.equal(get(addedRecords, 'length'), 1, 'We are notified when we add a newly created post');
+      assert.strictEqual(get(addedRecords, 'length'), 1, 'We are notified when we add a newly created post');
       record = addedRecords[0];
       assert.deepEqual(
         record && record.columnValues,
@@ -174,11 +174,15 @@ if (has('@ember-data/debug')) {
       await settled();
 
       if (gte('3.26.0')) {
-        assert.equal(removedRecords.length, 1, 'We are notified of the total posts removed');
-        assert.equal(removedRecords[0][0].object, post, 'The removed post is correct');
+        assert.strictEqual(removedRecords.length, 1, 'We are notified of the total posts removed');
+        assert.strictEqual(removedRecords[0][0].object, post, 'The removed post is correct');
       } else {
-        assert.equal(removedRecords[0], 1, 'We are notified of the start index of a removal when we remove posts');
-        assert.equal(removedRecords[1], 1, 'We are notified of the total posts removed');
+        assert.strictEqual(
+          removedRecords[0],
+          1,
+          'We are notified of the start index of a removal when we remove posts'
+        );
+        assert.strictEqual(removedRecords[1], 1, 'We are notified of the total posts removed');
       }
     });
 
@@ -195,9 +199,9 @@ if (has('@ember-data/debug')) {
 
       const columns = debugAdapter.columnsForType(Person);
 
-      assert.equal(columns[0].desc, 'Id');
-      assert.equal(columns[1].desc, 'Title');
-      assert.equal(columns[2].desc, 'First or last name');
+      assert.strictEqual(columns[0].desc, 'Id');
+      assert.strictEqual(columns[1].desc, 'Title');
+      assert.strictEqual(columns[2].desc, 'First or last name');
     });
   });
 }

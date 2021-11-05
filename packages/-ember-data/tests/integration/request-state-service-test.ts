@@ -87,8 +87,8 @@ if (REQUEST_SERVICE) {
       normalizedHash.data.lid = identifier.lid;
       let request = requestService.getPendingRequestsForRecord(identifier)[0];
 
-      assert.equal(request.state, 'pending', 'request is pending');
-      assert.equal(request.type, 'query', 'request is a query');
+      assert.strictEqual(request.state, 'pending', 'request is pending');
+      assert.strictEqual(request.type, 'query', 'request is a query');
       let requestOp = {
         op: 'findRecord',
         recordIdentifier: identifier,
@@ -114,8 +114,8 @@ if (REQUEST_SERVICE) {
       let savingPromise = person.save();
       let savingRequest = requestService.getPendingRequestsForRecord(identifier)[0];
 
-      assert.equal(savingRequest.state, 'pending', 'request is pending');
-      assert.equal(savingRequest.type, 'mutation', 'request is a mutation');
+      assert.strictEqual(savingRequest.state, 'pending', 'request is pending');
+      assert.strictEqual(savingRequest.type, 'mutation', 'request is a mutation');
       let savingRequestOp = {
         op: 'saveRecord',
         recordIdentifier: identifier,
@@ -200,8 +200,8 @@ if (REQUEST_SERVICE) {
 
       requestService.subscribeForRecord(identifier, (request) => {
         if (count === 0) {
-          assert.equal(request.state, 'pending', 'request is pending');
-          assert.equal(request.type, 'query', 'request is a query');
+          assert.strictEqual(request.state, 'pending', 'request is pending');
+          assert.strictEqual(request.type, 'query', 'request is a query');
           assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
         } else if (count === 1) {
           let requestStateResult = {
@@ -212,8 +212,8 @@ if (REQUEST_SERVICE) {
           };
           assert.deepEqual(request, requestStateResult, 'request is correct after fulfilling');
         } else if (count === 2) {
-          assert.equal(request.state, 'pending', 'request is pending');
-          assert.equal(request.type, 'mutation', 'request is a mutation');
+          assert.strictEqual(request.state, 'pending', 'request is pending');
+          assert.strictEqual(request.type, 'mutation', 'request is a mutation');
           assert.deepEqual(request.request.data[0], savingRequestOp, 'request op is correct');
         } else if (count === 3) {
           let savingRequestStateResult = {
@@ -229,7 +229,7 @@ if (REQUEST_SERVICE) {
 
       let person = await store.findRecord('person', '1');
       await person.save();
-      assert.equal(count, 4, 'callback called four times');
+      assert.strictEqual(count, 4, 'callback called four times');
     });
   });
 }

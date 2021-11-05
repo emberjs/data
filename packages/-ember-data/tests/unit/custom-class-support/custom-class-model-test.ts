@@ -95,13 +95,13 @@ if (CUSTOM_MODEL_CLASS) {
           identifier = id;
           notificationManager.subscribe(identifier, (passedId, key) => {
             notificationCount++;
-            assert.equal(passedId, identifier, 'passed the identifier to the callback');
+            assert.strictEqual(passedId, identifier, 'passed the identifier to the callback');
             if (notificationCount === 1) {
-              assert.equal(key, 'state', 'passed the key');
+              assert.strictEqual(key, 'state', 'passed the key');
             } else if (notificationCount === 2) {
-              assert.equal(key, 'errors', 'passed the key');
+              assert.strictEqual(key, 'errors', 'passed the key');
             } else if (notificationCount === 3) {
-              assert.equal(key, 'relationships', 'passed the key');
+              assert.strictEqual(key, 'relationships', 'passed the key');
             }
           });
           return { hi: 'igor' };
@@ -116,7 +116,7 @@ if (CUSTOM_MODEL_CLASS) {
       recordData.storeWrapper.notifyErrorsChange(identifier.type, identifier.id, identifier.lid, 'key');
       await settled();
 
-      assert.equal(notificationCount, 3, 'called notification callback');
+      assert.strictEqual(notificationCount, 3, 'called notification callback');
     });
 
     test('record creation and teardown', function (assert) {
@@ -124,19 +124,19 @@ if (CUSTOM_MODEL_CLASS) {
       let returnValue;
       let CreationStore = CustomStore.extend({
         instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
-          assert.equal(identifier.type, 'person', 'Identifier type passed in correctly');
+          assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
           assert.deepEqual(createRecordArgs, { otherProp: 'unk' }, 'createRecordArg passed in');
           returnValue = {};
           return returnValue;
         },
         teardownRecord(record) {
-          assert.equal(record, person, 'Passed in person to teardown');
+          assert.strictEqual(record, person, 'Passed in person to teardown');
         },
       });
       this.owner.register('service:store', CreationStore);
       store = this.owner.lookup('service:store');
       let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
-      assert.equal(returnValue, person, 'createRecord returns the instantiated record');
+      assert.strictEqual(returnValue, person, 'createRecord returns the instantiated record');
       assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
     });
 
@@ -146,7 +146,7 @@ if (CUSTOM_MODEL_CLASS) {
       let CreationStore = CustomStore.extend({
         instantiateRecord(identifier, createRecordArgs, recordDataFor, notificationManager) {
           rd = recordDataFor(identifier);
-          assert.equal(rd.getAttr('name'), 'chris', 'Can look up record data from recordDataFor');
+          assert.strictEqual(rd.getAttr('name'), 'chris', 'Can look up record data from recordDataFor');
           return {};
         },
       });
@@ -185,14 +185,14 @@ if (CUSTOM_MODEL_CLASS) {
             let count = 0;
             snapshot.eachAttribute((attr, attrDef) => {
               if (count === 0) {
-                assert.equal(attr, 'name', 'attribute key is correct');
+                assert.strictEqual(attr, 'name', 'attribute key is correct');
                 assert.deepEqual(
                   attrDef,
                   { kind: 'attribute', type: 'string', options: {}, name: 'name' },
                   'attribute def matches schem'
                 );
               } else if (count === 1) {
-                assert.equal(attr, 'age', 'attribute key is correct');
+                assert.strictEqual(attr, 'age', 'attribute key is correct');
                 assert.deepEqual(
                   attrDef,
                   { kind: 'attribute', type: 'number', options: {}, name: 'age' },
@@ -204,7 +204,7 @@ if (CUSTOM_MODEL_CLASS) {
             count = 0;
             snapshot.eachRelationship((rel, relDef) => {
               if (count === 0) {
-                assert.equal(rel, 'boats', 'relationship key is correct');
+                assert.strictEqual(rel, 'boats', 'relationship key is correct');
                 assert.deepEqual(
                   relDef,
                   {
@@ -219,7 +219,7 @@ if (CUSTOM_MODEL_CLASS) {
                   'relationships def matches schem'
                 );
               } else if (count === 1) {
-                assert.equal(rel, 'house', 'relationship key is correct');
+                assert.strictEqual(rel, 'house', 'relationship key is correct');
                 assert.deepEqual(
                   relDef,
                   { type: 'house', kind: 'belongsTo', options: { inverse: null }, key: 'house', name: 'house' },
@@ -237,9 +237,9 @@ if (CUSTOM_MODEL_CLASS) {
       let schema: SchemaDefinitionService = {
         attributesDefinitionFor(identifier: string | RecordIdentifier): AttributesSchema {
           if (typeof identifier === 'string') {
-            assert.equal(identifier, 'person', 'type passed in to the schema hooks');
+            assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
           } else {
-            assert.equal(identifier.type, 'person', 'type passed in to the schema hooks');
+            assert.strictEqual(identifier.type, 'person', 'type passed in to the schema hooks');
           }
           return {
             name: {
@@ -258,9 +258,9 @@ if (CUSTOM_MODEL_CLASS) {
         },
         relationshipsDefinitionFor(identifier: string | RecordIdentifier): RelationshipsSchema {
           if (typeof identifier === 'string') {
-            assert.equal(identifier, 'person', 'type passed in to the schema hooks');
+            assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
           } else {
-            assert.equal(identifier.type, 'person', 'type passed in to the schema hooks');
+            assert.strictEqual(identifier.type, 'person', 'type passed in to the schema hooks');
           }
           return {
             boats: {
@@ -306,9 +306,9 @@ if (CUSTOM_MODEL_CLASS) {
         },
         doesTypeExist(modelName: string) {
           if (count === 0) {
-            assert.equal(modelName, 'person', 'type passed in to the schema hooks');
+            assert.strictEqual(modelName, 'person', 'type passed in to the schema hooks');
           } else if (count === 1) {
-            assert.equal(modelName, 'boat', 'type passed in to the schema hooks');
+            assert.strictEqual(modelName, 'boat', 'type passed in to the schema hooks');
           }
           count++;
           return modelName === 'person';
@@ -334,7 +334,7 @@ if (CUSTOM_MODEL_CLASS) {
       store = this.owner.lookup('service:store');
       let person = store.createRecord('person', { name: 'chris' });
       let promisePerson = await store.saveRecord(person);
-      assert.equal(person, promisePerson, 'save promise resolves with the same record');
+      assert.strictEqual(person, promisePerson, 'save promise resolves with the same record');
     });
 
     test('store.deleteRecord', async function (assert) {
@@ -355,13 +355,13 @@ if (CUSTOM_MODEL_CLASS) {
           rd = recordDataFor(identifier);
           assert.false(rd.isDeleted!(), 'we are not deleted when we start');
           notificationManager.subscribe(identifier, (passedId, key) => {
-            assert.equal(key, 'state', 'state change to deleted has been notified');
+            assert.strictEqual(key, 'state', 'state change to deleted has been notified');
             assert.true(recordDataFor(identifier).isDeleted(), 'we have been marked as deleted');
           });
           return {};
         },
         teardownRecord(record) {
-          assert.equal(record, person, 'Passed in person to teardown');
+          assert.strictEqual(record, person, 'Passed in person to teardown');
         },
       });
       this.owner.register('service:store', CreationStore);
@@ -533,9 +533,9 @@ if (CUSTOM_MODEL_CLASS) {
       });
       let identifier = recordIdentifierFor(person);
       let relationship = store.relationshipReferenceFor({ type: 'person', id: '7', lid: identifier.lid }, 'house');
-      assert.equal(relationship.id(), '1', 'house relationship id found');
-      assert.equal(relationship.type, 'house', 'house relationship type found');
-      assert.equal(relationship.parent.id(), '7', 'house relationship parent found');
+      assert.strictEqual(relationship.id(), '1', 'house relationship id found');
+      assert.strictEqual(relationship.type, 'house', 'house relationship type found');
+      assert.strictEqual(relationship.parent.id(), '7', 'house relationship parent found');
     });
 
     test('relationshipReferenceFor hasMany', async function (assert) {
@@ -613,8 +613,8 @@ if (CUSTOM_MODEL_CLASS) {
       let identifier = recordIdentifierFor(person);
       let relationship = store.relationshipReferenceFor({ type: 'person', id: '7', lid: identifier.lid }, 'house');
       assert.deepEqual(relationship.ids(), ['1', '2'], 'relationship found');
-      assert.equal(relationship.type, 'house', 'house relationship type found');
-      assert.equal(relationship.parent.id(), '7', 'house relationship parent found');
+      assert.strictEqual(relationship.type, 'house', 'house relationship type found');
+      assert.strictEqual(relationship.parent.id(), '7', 'house relationship parent found');
     });
   });
 }

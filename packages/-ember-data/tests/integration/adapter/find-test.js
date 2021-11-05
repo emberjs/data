@@ -48,8 +48,8 @@ module('integration/adapter/find - Finding Records', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord(_, type) {
-          assert.equal(type, Person, 'the find method is called with the correct type');
-          assert.equal(count, 0, 'the find method is only called once');
+          assert.strictEqual(type, Person, 'the find method is called with the correct type');
+          assert.strictEqual(count, 0, 'the find method is only called once');
 
           count++;
           return {

@@ -92,8 +92,8 @@ module('Integration | Identifiers - cache', function (hooks) {
       };
       const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
-      assert.equal(identifier.id, '1', 'identifier has id');
-      assert.equal(identifier.type, 'person', 'identifier has type');
+      assert.strictEqual(identifier.id, '1', 'identifier has id');
+      assert.strictEqual(identifier.type, 'person', 'identifier has type');
       assert.ok(identifier.lid, 'identifier has lid');
     });
   });
@@ -111,8 +111,8 @@ module('Integration | Identifiers - cache', function (hooks) {
 
       let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '1' });
 
-      assert.equal(mergedIdentifier.id, identifier.id, 'merged identifier has same id');
-      assert.equal(mergedIdentifier.type, identifier.type, 'merged identifier has same type');
+      assert.strictEqual(mergedIdentifier.id, identifier.id, 'merged identifier has same id');
+      assert.strictEqual(mergedIdentifier.type, identifier.type, 'merged identifier has same type');
     });
 
     test('returns new identifier with different id', async function (assert) {
@@ -127,8 +127,8 @@ module('Integration | Identifiers - cache', function (hooks) {
 
       let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '2' });
 
-      assert.equal(mergedIdentifier.id, '2', 'merged identifier has new id');
-      assert.equal(mergedIdentifier.type, 'person', 'merged identifier has same type');
+      assert.strictEqual(mergedIdentifier.id, '2', 'merged identifier has new id');
+      assert.strictEqual(mergedIdentifier.type, 'person', 'merged identifier has same type');
     });
 
     testInDebug('cannot create an existing identifier', async function (assert) {
@@ -157,8 +157,8 @@ module('Integration | Identifiers - cache', function (hooks) {
 
       let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: null });
 
-      assert.equal(mergedIdentifier.id, null, 'merged identifier has null id');
-      assert.equal(mergedIdentifier.type, identifier.type, 'merged identifier has same type');
+      assert.strictEqual(mergedIdentifier.id, null, 'merged identifier has null id');
+      assert.strictEqual(mergedIdentifier.type, identifier.type, 'merged identifier has same type');
     });
   });
 });
