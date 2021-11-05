@@ -147,13 +147,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        launcher: [Chrome, Firefox, IE]
+        launcher: [Chrome, Firefox]
         os: [macos-latest, windows-latest, ubuntu-latest]
         exclude:
-          - os: macos-latest
-            launcher: IE
-          - os: ubuntu-latest
-            launcher: IE
           - os: ubuntu-latest
             launcher: Firefox
           - os: windows-latest
@@ -253,7 +249,6 @@ jobs:
       matrix:
         scenario:
           [
-            with-max-transpilation,
             with-native-fetch,
             with-ember-fetch-no-jquery,
             with-ember-fetch-and-jquery,
