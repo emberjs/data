@@ -180,7 +180,6 @@ module.exports = {
         'packages/store/tests/dummy/app/config/environment.d.ts',
         'packages/store/tests/dummy/app/app.ts',
         'packages/store/addon/index.ts',
-        'packages/store/addon/-private/utils/symbol.ts',
         'packages/store/addon/-private/utils/promise-record.ts',
         'packages/store/addon/-private/utils/is-non-empty-string.ts',
         'packages/store/addon/-private/utils/construct-resource.ts',

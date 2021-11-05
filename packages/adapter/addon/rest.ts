@@ -12,7 +12,6 @@ import { has } from 'require';
 import { Promise as RSVPPromise } from 'rsvp';
 
 import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
-import { addSymbol, symbol } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/core-store';
 import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
 import type Snapshot from '@ember-data/store/-private/system/snapshot';
@@ -73,7 +72,7 @@ type ResponseData = {
 declare const najax: Function | undefined;
 declare const jQuery: JQueryStatic | undefined;
 
-const UseFetch = symbol('useFetch');
+const UseFetch = Symbol('useFetch');
 const hasJQuery = typeof jQuery !== 'undefined';
 
 /**
@@ -1629,13 +1628,13 @@ if (DEPRECATE_NAJAX) {
         shouldUseFetch = true;
       }
 
-      addSymbol(this, UseFetch, shouldUseFetch);
+      this[UseFetch] = shouldUseFetch;
 
       return shouldUseFetch;
     },
 
     set(value) {
-      addSymbol(this, UseFetch, value);
+      this[UseFetch] = value;
       return value;
     },
   });

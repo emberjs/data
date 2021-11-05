@@ -1,15 +1,14 @@
 /**
   @module @ember-data/store
 */
-import { symbol } from '../utils/symbol';
 import type { ExistingResourceObject, ResourceIdentifierObject } from './ember-data-json-api';
 
 export type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
 export type IdentifierBucket = 'record';
 
 // provided for additional debuggability
-export const DEBUG_CLIENT_ORIGINATED: unique symbol = symbol('record-originated-on-client');
-export const DEBUG_IDENTIFIER_BUCKET: unique symbol = symbol('identifier-bucket');
+export const DEBUG_CLIENT_ORIGINATED: unique symbol = Symbol('record-originated-on-client');
+export const DEBUG_IDENTIFIER_BUCKET: unique symbol = Symbol('identifier-bucket');
 
 export interface Identifier {
   lid: string;

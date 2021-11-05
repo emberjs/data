@@ -12,7 +12,6 @@ import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-i
 import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
 import type { ExistingRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { Dict } from '../ts-interfaces/utils';
-import { symbol } from '../utils/symbol';
 import coerceId from './coerce-id';
 import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
@@ -30,7 +29,7 @@ function payloadIsNotBlank(adapterPayload): boolean {
   }
 }
 
-export const SaveOp: unique symbol = symbol('SaveOp');
+export const SaveOp: unique symbol = Symbol('SaveOp');
 
 interface PendingFetchItem {
   identifier: ExistingRecordIdentifier;

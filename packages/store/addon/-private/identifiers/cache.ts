@@ -23,7 +23,6 @@ import type {
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
 import type { ConfidentDict } from '../ts-interfaces/utils';
 import isNonEmptyString from '../utils/is-non-empty-string';
-import { addSymbol } from '../utils/symbol';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
 
@@ -511,8 +510,8 @@ function makeStableRecordIdentifier(
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
       },
     };
-    addSymbol(wrapper, DEBUG_CLIENT_ORIGINATED, clientOriginated);
-    addSymbol(wrapper, DEBUG_IDENTIFIER_BUCKET, bucket);
+    wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
+    wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
     wrapper = freeze(wrapper);
     markStableIdentifier(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);
