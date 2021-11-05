@@ -1455,15 +1455,11 @@ export function extractRecordDataFromRecord(recordOrPromiseRecord) {
 }
 
 function anyUnloaded(store: CoreStore, relationship: ManyRelationship) {
-  // Can't use `find` because of IE11 and these arrays are potentially massive
   let state = relationship.currentState;
-  let unloaded = false;
-  for (let i = 0; i < state.length; i++) {
-    let im = store._internalModelForResource(state[i]);
-    if (im._isDematerializing || !im.currentState.isLoaded) {
-      unloaded = true;
-      break;
-    }
-  }
-  return unloaded;
+  const unloaded = state.find((s) => {
+    let im = store._internalModelForResource(s);
+    return im._isDematerializing || !im.currentState.isLoaded;
+  });
+
+  return unloaded || false;
 }

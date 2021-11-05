@@ -273,18 +273,12 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, modelName
   if (relationshipKind === 'hasMany') {
     payload = relationshipData || [];
     if (relationshipData) {
-      // IE11 does not support array.find
       // these arrays could be massive so this is better than filter
       // Note: this is potentially problematic if type/id are not in the
       // same state of normalization.
-      let found = false;
-      for (let i = 0; i < relationshipData.length; i++) {
-        let v = relationshipData[i];
-        if (v.type === parentRelationshipData.type && v.id === parentRelationshipData.id) {
-          found = true;
-          break;
-        }
-      }
+      let found = relationshipData.find((v) => {
+        return v.type === parentRelationshipData.type && v.id === parentRelationshipData.id;
+      });
       if (!found) {
         payload.push(parentRelationshipData);
       }
