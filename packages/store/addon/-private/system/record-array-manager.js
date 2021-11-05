@@ -5,7 +5,6 @@
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import { get, set } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
 import { REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
@@ -281,8 +280,8 @@ class RecordArrayManager {
         manager: this,
         isLoaded: true,
         isUpdating: false,
-        meta: assign({}, payload.meta),
-        links: assign({}, payload.links),
+        meta: { ...payload.meta },
+        links: { ...payload.links },
       });
 
       this._associateWithRecordArray(identifiers, array);

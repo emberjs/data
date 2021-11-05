@@ -3,7 +3,6 @@ import { A, default as EmberArray } from '@ember/array';
 import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get, set } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
@@ -354,7 +353,7 @@ export default class InternalModel {
           }
 
           let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
-          assign(createOptions, additionalCreateOptions);
+          Object.assign(createOptions, additionalCreateOptions);
 
           // ensure that `getOwner(this)` works inside a model instance
           setOwner(createOptions, getOwner(store));

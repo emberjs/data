@@ -4,7 +4,6 @@
 import { getOwner } from '@ember/application';
 import { assert, deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { join } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
@@ -1181,7 +1180,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     method: string,
     options: JQueryAjaxSettings | RequestInit
   ): JQueryRequestInit | FetchRequestInit {
-    let reqOptions: JQueryRequestInit | FetchRequestInit = assign(
+    let reqOptions: JQueryRequestInit | FetchRequestInit = Object.assign(
       {
         url,
         method,
@@ -1191,7 +1190,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     );
 
     if (this.headers !== undefined) {
-      reqOptions.headers = assign({}, this.headers, reqOptions.headers);
+      reqOptions.headers = { ...this.headers, ...reqOptions.headers };
     } else if (!options.headers) {
       reqOptions.headers = {};
     }
@@ -1209,7 +1208,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       // GET requests without a body should not have a content-type header
       // and may be unexpected by a server
       if (reqOptions.data && reqOptions.type !== 'GET') {
-        reqOptions = assign(reqOptions, { contentType });
+        reqOptions = { ...reqOptions, contentType };
       }
       reqOptions = ajaxOptions(reqOptions, this);
     }

@@ -1,4 +1,3 @@
-import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -52,7 +51,7 @@ module('RecordData Compatibility', function (hooks) {
       this.attributes = jsonApiResource.attributes || null;
 
       if (shouldCalculateChanges) {
-        changedKeys = Object.keys(assign({}, oldAttrs, this.attributes));
+        changedKeys = Object.keys(Object.assign({}, oldAttrs, this.attributes));
       }
 
       return changedKeys || [];
