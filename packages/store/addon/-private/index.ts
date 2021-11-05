@@ -25,7 +25,6 @@ export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
 
 export { PromiseArray, PromiseObject } from './system/promise-proxies';
-export { addSymbol, symbol } from './utils/symbol';
 
 export { RecordArray, AdapterPopulatedRecordArray } from './system/record-arrays';
 
