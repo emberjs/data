@@ -26,7 +26,7 @@ import Transform from './transform';
  @extends Transform
  */
 
-export default Transform.extend({
+export default class DateTransform extends Transform {
   deserialize(serialized) {
     let type = typeof serialized;
 
@@ -47,7 +47,7 @@ export default Transform.extend({
     } else {
       return null;
     }
-  },
+  }
 
   serialize(date) {
     if (date instanceof Date && !isNaN(date)) {
@@ -55,5 +55,5 @@ export default Transform.extend({
     } else {
       return null;
     }
-  },
-});
+  }
+}

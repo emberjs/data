@@ -28,11 +28,11 @@ import Transform from './transform';
   @public
   @extends Transform
  */
-export default Transform.extend({
+export default class StringTransform extends Transform {
   deserialize(serialized) {
     return none(serialized) ? null : String(serialized);
-  },
+  }
   serialize(deserialized) {
     return none(deserialized) ? null : String(deserialized);
-  },
-});
+  }
+}

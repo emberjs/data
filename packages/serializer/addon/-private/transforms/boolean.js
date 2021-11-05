@@ -42,7 +42,7 @@ import Transform from './transform';
   @public
   @extends Transform
  */
-export default Transform.extend({
+export default class BooleanTransform extends Transform {
   deserialize(serialized, options) {
     if (isNone(serialized) && options.allowNull === true) {
       return null;
@@ -58,7 +58,7 @@ export default Transform.extend({
     } else {
       return false;
     }
-  },
+  }
 
   serialize(deserialized, options) {
     if (isNone(deserialized) && options.allowNull === true) {
@@ -66,5 +66,5 @@ export default Transform.extend({
     }
 
     return Boolean(deserialized);
-  },
-});
+  }
+}
