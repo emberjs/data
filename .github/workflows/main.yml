@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        scenario: [fastboot-with-ember-fetch, fastboot-with-jquery]
+        scenario: [fastboot-with-ember-fetch]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
