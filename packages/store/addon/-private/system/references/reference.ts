@@ -1,8 +1,4 @@
-import { deprecate } from '@ember/debug';
-
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
-
-import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
 
 import type { LinkObject, PaginationLinks } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
@@ -211,24 +207,6 @@ abstract class Reference {
     }
     return meta;
   }
-}
-
-if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
-  Object.defineProperty(Reference.prototype, 'internalModel', {
-    get() {
-      deprecate('Accessing the internalModel property of Reference is deprecated', false, {
-        id: 'ember-data:reference-internal-model',
-        until: '3.21',
-        for: '@ember-data/store',
-        since: {
-          available: '3.19',
-          enabled: '3.19',
-        },
-      });
-
-      return REFERENCE_CACHE.get(this);
-    },
-  });
 }
 
 export default Reference;
