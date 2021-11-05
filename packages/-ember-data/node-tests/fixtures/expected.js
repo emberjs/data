@@ -19,7 +19,6 @@ module.exports = {
     '(private) @ember-data/adapter BuildURLMixin#_buildURL',
     '(private) @ember-data/adapter BuildURLMixin#urlPrefix',
     '(private) @ember-data/adapter/json-api JSONAPIAdapter#ajaxOptions',
-    '(private) @ember-data/adapter/rest @ember-data/adapter/rest#_najaxRequest',
     '(private) @ember-data/adapter/rest @ember-data/adapter/rest#fetchOptions',
     '(private) @ember-data/adapter/rest RESTAdapter#_ajaxRequest',
     '(private) @ember-data/adapter/rest RESTAdapter#ajax',

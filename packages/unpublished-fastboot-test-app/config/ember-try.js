@@ -25,7 +25,6 @@ module.exports = function () {
           devDependencies: {
             'ember-fetch': null,
             '@ember/jquery': '^1.1.0',
-            najax: '^1.0.4',
           },
         },
       },
