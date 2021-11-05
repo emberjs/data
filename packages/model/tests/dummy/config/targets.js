@@ -1,11 +1,10 @@
 'use strict';
 
-const browsers = ['last 1 Chrome versions', 'last 1 Firefox versions', 'last 1 Safari versions'];
+let browsers = ['last 1 Chrome versions', 'last 1 Firefox versions', 'last 1 Safari versions'];
+const isProd = process.env.EMBER_ENV === 'production';
 
-const needsIE11 = !!process.env.TARGET_IE11;
-
-if (needsIE11) {
-  browsers.push('ie 11');
+if (isProd) {
+  browsers = ['last 2 Chrome versions', 'last 2 Firefox versions', 'Safari 12', 'last 2 Edge versions'];
 }
 
 module.exports = {
