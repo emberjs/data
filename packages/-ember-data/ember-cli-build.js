@@ -5,14 +5,13 @@ const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 module.exports = function (defaults) {
   const isTest = process.env.EMBER_CLI_TEST_COMMAND;
   const isProd = process.env.EMBER_ENV === 'production';
-  const shouldTranspile = !!process.env.SHOULD_TRANSPILE;
   const compatWith = process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null;
 
   const terserSettings = {
     exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
   };
 
-  if (isTest && isProd && shouldTranspile) {
+  if (isTest && isProd) {
     terserSettings.enabled = false;
   }
 

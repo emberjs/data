@@ -249,7 +249,6 @@ jobs:
       matrix:
         scenario:
           [
-            with-max-transpilation,
             with-native-fetch,
             with-ember-fetch-no-jquery,
             with-ember-fetch-and-jquery,

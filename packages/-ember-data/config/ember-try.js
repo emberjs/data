@@ -8,13 +8,6 @@ module.exports = function () {
       useYarn: true,
       scenarios: [
         {
-          name: 'with-max-transpilation',
-          env: {
-            SHOULD_TRANSPILE: true,
-          },
-          npm: {},
-        },
-        {
           name: 'with-ember-fetch-no-jquery',
           env: {
             EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': false }),
