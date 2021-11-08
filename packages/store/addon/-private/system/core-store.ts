@@ -723,21 +723,6 @@ abstract class CoreStore extends Service {
           if (internalModel) {
             internalModel.deleteRecord();
           }
-        } else {
-          deprecate(
-            `You passed a non ember-data managed record ${record} to store.deleteRecord. Ember Data store is not meant to manage non store records. This is not supported and will be removed`,
-            false,
-            {
-              id: 'ember-data:delete-record-non-store',
-              until: '4.0',
-              for: '@ember-data/store',
-              since: {
-                available: '3.28',
-                enabled: '3.28',
-              },
-            }
-          );
-          record.deleteRecord();
         }
       } else {
         record.deleteRecord();
@@ -772,21 +757,6 @@ abstract class CoreStore extends Service {
         if (internalModel) {
           internalModel.unloadRecord();
         }
-      } else {
-        deprecate(
-          `You passed a non ember-data managed record ${record} to store.unloadRecord. Ember Data store is not meant to manage non store records. This is not supported and will be removed`,
-          false,
-          {
-            id: 'ember-data:unload-record-non-store',
-            until: '4.0',
-            for: '@ember-data/store',
-            since: {
-              available: '3.28',
-              enabled: '3.28',
-            },
-          }
-        );
-        record.unloadRecord();
       }
     } else {
       record.unloadRecord();
