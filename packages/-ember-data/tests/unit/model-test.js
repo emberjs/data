@@ -12,7 +12,7 @@ import { setupTest } from 'ember-qunit';
 import { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import Model, { attr, attr as DSattr, belongsTo, hasMany } from '@ember-data/model';
+import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordDataFor } from '@ember-data/store/-private';
@@ -915,73 +915,6 @@ module('unit/model - Model', function (hooks) {
 
       store.createRecord('odd-person', { name: 'bam!' });
     });
-  });
-
-  module('toJSON()', function (hooks) {
-    deprecatedTest(
-      'A Model can be JSONified',
-      {
-        id: 'ember-data:model.toJSON',
-        until: '4.0',
-      },
-      async function (assert) {
-        let record = store.createRecord('person', { name: 'TomHuda' });
-
-        assert.deepEqual(record.toJSON(), {
-          data: {
-            type: 'people',
-            attributes: {
-              name: 'TomHuda',
-              'is-archived': undefined,
-              'is-drug-addict': false,
-            },
-          },
-        });
-      }
-    );
-
-    deprecatedTest(
-      'toJSON looks up the JSONSerializer using the store instead of using JSONSerializer.create',
-      {
-        id: 'ember-data:model.toJSON',
-        until: '4.0',
-      },
-      async function (assert) {
-        class Author extends Model {
-          @hasMany('post', { async: false, inverse: 'author' })
-          posts;
-        }
-        class Post extends Model {
-          @belongsTo('author', { async: false, inverse: 'posts' })
-          author;
-        }
-        this.owner.register('model:author', Author);
-        this.owner.register('model:post', Post);
-
-        // Loading the person without explicitly
-        // loading its relationships seems to trigger the
-        // original bug where `this.store` was not
-        // present on the serializer due to using .create
-        // instead of `store.serializerFor`.
-        let person = store.push({
-          data: {
-            type: 'author',
-            id: '1',
-          },
-        });
-
-        let errorThrown = false;
-        let json;
-        try {
-          json = person.toJSON();
-        } catch (e) {
-          errorThrown = true;
-        }
-
-        assert.ok(!errorThrown, 'error not thrown due to missing store');
-        assert.deepEqual(json, { data: { type: 'authors' } });
-      }
-    );
   });
 
   module('Updating', function () {
