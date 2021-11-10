@@ -1,4 +1,3 @@
-import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -10,7 +9,7 @@ import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/
 
 class TestAdapter {
   constructor(args) {
-    assign(this, args);
+    Object.assign(this, args);
     this.didInit();
   }
 
@@ -23,7 +22,7 @@ class TestAdapter {
 
 class TestSerializer {
   constructor(args) {
-    assign(this, args);
+    Object.assign(this, args);
     this.didInit();
   }
 

@@ -1,7 +1,6 @@
 import Application from '@ember/application';
 import Namespace from '@ember/application/namespace';
 import Controller from '@ember/controller';
-import { assign } from '@ember/polyfills';
 import Service, { inject as service } from '@ember/service';
 
 import { module, test } from 'qunit';
@@ -26,7 +25,7 @@ module('integration/application - Injecting a Custom Store', function (hooks) {
       'controller:baz',
       class Controller {
         constructor(args) {
-          assign(this, args);
+          Object.assign(this, args);
         }
         @service('store') store;
         static create(args) {
@@ -69,7 +68,7 @@ module('integration/application - Injecting the Default Store', function (hooks)
       'controller:baz',
       class Controller {
         constructor(args) {
-          assign(this, args);
+          Object.assign(this, args);
         }
         @service('store') store;
         static create(args) {
@@ -112,7 +111,7 @@ module('integration/application - Using the store as a service', function (hooks
       'controller:baz',
       class Controller {
         constructor(args) {
-          assign(this, args);
+          Object.assign(this, args);
         }
         @service('store') store;
         static create(args) {
