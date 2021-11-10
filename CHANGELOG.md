@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## v4.0.0-beta.4  (2021-11-10)
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `record-data`, `serializer`, `store`
+  * [#7748](https://github.com/emberjs/data/pull/7748) Fix deprecated assign usage from @ember/assign (#7722) ([@igorT](https://github.com/igorT))
+
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
 ## v4.0.0-beta.3  (2021-11-03)
 
 #### :shower: Deprecation Removal
