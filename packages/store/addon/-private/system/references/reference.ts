@@ -181,9 +181,9 @@ abstract class Reference {
               related: {
                 href: '/articles/1/author'
               },
-              meta: {
-                lastUpdated: 1458014400000
-              }
+            },
+            meta: {
+              lastUpdated: 1458014400000
             }
           }
         }
