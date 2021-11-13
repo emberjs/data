@@ -44,8 +44,8 @@ module('integration/records/save - Save Record', function (hooks) {
       deferred.resolve({ data: { id: 123, type: 'post' } });
       saved.then(function (model) {
         assert.ok(true, 'save operation was resolved');
-        assert.equal(saved.get('id'), 123);
-        assert.equal(model, post, 'resolves with the model');
+        assert.strictEqual(saved.get('id'), '123');
+        assert.strictEqual(model, post, 'resolves with the model');
       });
     });
   });
@@ -97,7 +97,7 @@ module('integration/records/save - Save Record', function (hooks) {
           }
         )
         .then(function (post) {
-          assert.equal(post.get('id'), '123', 'The post ID made it through');
+          assert.strictEqual(post.get('id'), '123', 'The post ID made it through');
         });
     });
   });
@@ -116,11 +116,11 @@ module('integration/records/save - Save Record', function (hooks) {
     run(function () {
       post.save().then(null, function () {
         assert.ok(post.get('isError'));
-        assert.equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+        assert.strictEqual(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
 
         post.save().then(null, function () {
           assert.ok(post.get('isError'));
-          assert.equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+          assert.strictEqual(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
         });
       });
     });

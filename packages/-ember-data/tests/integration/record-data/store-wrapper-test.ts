@@ -189,8 +189,12 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         // Retrive only public values from the result
         // This should go away once we put private things in symbols/weakmaps
         assert.deepEqual(houseRelationships, result, 'can lookup relationship definitions');
-        assert.equal(storeWrapper.inverseForRelationship('house', 'car'), 'garage', 'can lookup inverses on self');
-        assert.equal(
+        assert.strictEqual(
+          storeWrapper.inverseForRelationship('house', 'car'),
+          'garage',
+          'can lookup inverses on self'
+        );
+        assert.strictEqual(
           storeWrapper.inverseForRelationship('car', 'garage'),
           'car',
           'can lookup inverses on other models'
@@ -235,14 +239,14 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         this.id = id;
 
         if (count === 1) {
-          assert.equal(
+          assert.strictEqual(
             storeWrapper.recordDataFor('house', 2).id,
-            2,
+            '2',
             'Can lookup another RecordData that has been loaded'
           );
-          assert.equal(
+          assert.strictEqual(
             storeWrapper.recordDataFor('person', 1).id,
-            1,
+            '1',
             'Can lookup another RecordData which hasnt been loaded'
           );
         }
@@ -266,7 +270,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       data: [houseHash, houseHash2],
     });
 
-    assert.equal(count, 2, 'two TestRecordDatas have been created');
+    assert.strictEqual(count, 2, 'two TestRecordDatas have been created');
   });
 
   test('recordDataFor - create new', async function (assert) {
@@ -326,7 +330,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       'The internalModel for a RecordData created via Wrapper.recordDataFor(type) is in the "new" state'
     );
 
-    assert.equal(count, 2, 'two TestRecordDatas have been created');
+    assert.strictEqual(count, 2, 'two TestRecordDatas have been created');
   });
 
   test('setRecordId', async function (assert) {
@@ -358,8 +362,8 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     let house = store.createRecord('house');
     // TODO there is a bug when setting id while creating the Record instance, preventing the id property lookup to work
-    // assert.equal(house.get('id'), '17', 'setRecordId correctly set the id');
-    assert.equal(
+    // assert.strictEqual(house.get('id'), '17', 'setRecordId correctly set the id');
+    assert.strictEqual(
       store.peekRecord('house', 17),
       house,
       'can lookup the record from the identify map based on the new id'
@@ -376,7 +380,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         if (!id) {
           assert.true(storeWrapper.isRecordInUse('house', '1'), 'house 1 is in use');
           // TODO isRecordInUse should coorce to false rather than null
-          assert.equal(storeWrapper.isRecordInUse('house', '2'), null, 'house 2 is not in use');
+          assert.strictEqual(storeWrapper.isRecordInUse('house', '2'), null, 'house 2 is not in use');
         }
       }
     }

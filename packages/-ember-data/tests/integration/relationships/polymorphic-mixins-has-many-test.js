@@ -78,12 +78,12 @@ module(
       });
       run(function () {
         user.get('messages').then(function (messages) {
-          assert.equal(messages.objectAt(0), video, 'The hasMany has loaded correctly');
+          assert.strictEqual(messages.objectAt(0), video, 'The hasMany has loaded correctly');
           messages
             .objectAt(0)
             .get('user')
             .then(function (fetchedUser) {
-              assert.equal(fetchedUser, user, 'The inverse was setup correctly');
+              assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
             });
         });
       });
@@ -128,7 +128,7 @@ module(
         user.get('messages').then(function (fetchedMessages) {
           fetchedMessages.pushObject(video);
           video.get('user').then(function (fetchedUser) {
-            assert.equal(fetchedUser, user, 'user got set correctly');
+            assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
         });
       });
@@ -174,7 +174,7 @@ module(
         user.get('messages').then(function (fetchedMessages) {
           fetchedMessages.pushObject(video);
           video.get('user').then(function (fetchedUser) {
-            assert.equal(fetchedUser, user, 'user got set correctly');
+            assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
         });
       });
@@ -263,7 +263,7 @@ module(
         user.get('messages').then(function (fetchedMessages) {
           fetchedMessages.pushObject(video);
           video.get('user').then(function (fetchedUser) {
-            assert.equal(fetchedUser, user, 'user got set correctly');
+            assert.strictEqual(fetchedUser, user, 'user got set correctly');
           });
         });
       });

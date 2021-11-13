@@ -63,7 +63,7 @@ module('PromiseManyArray', function () {
     assert.false(array.isFulfilled, 'should NOT be fulfilled');
 
     assert.ok(reloaded instanceof DS.PromiseManyArray);
-    assert.equal(reloaded, array);
+    assert.strictEqual(reloaded, array);
 
     let value = await reloaded;
     assert.false(array.isRejected, 'should NOT be rejected');
@@ -71,7 +71,7 @@ module('PromiseManyArray', function () {
     assert.true(array.isSettled, 'should be settled');
     assert.true(array.isFulfilled, 'should be fulfilled');
 
-    assert.equal(content, value);
+    assert.strictEqual(content, value);
   });
 
   test('.set to new promise should be like reload', async function (assert) {
@@ -111,7 +111,7 @@ module('PromiseManyArray', function () {
     assert.true(array.isSettled, 'should be settled');
     assert.true(array.isFulfilled, 'should be fulfilled');
 
-    assert.equal(content, value);
+    assert.strictEqual(content, value);
   });
 });
 
@@ -177,6 +177,6 @@ module('unit/PromiseBelongsTo', function (hooks) {
     assert.expectAssertion(() => {
       belongsToProxy.get('meta');
     }, 'You attempted to access meta on the promise for the async belongsTo relationship ' + `child:child'.` + '\nUse `record.belongsTo(relationshipName).meta()` instead.');
-    assert.equal(parent.belongsTo('child').meta(), meta);
+    assert.strictEqual(parent.belongsTo('child').meta(), meta);
   });
 });

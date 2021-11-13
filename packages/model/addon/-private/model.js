@@ -16,7 +16,6 @@ import { CUSTOM_MODEL_CLASS, RECORD_DATA_ERRORS, REQUEST_SERVICE } from '@ember-
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EVENTED_API_USAGE,
-  DEPRECATE_MODEL_TOJSON,
   DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
 } from '@ember-data/private-build-infra/deprecations';
 import {
@@ -2169,47 +2168,6 @@ if (DEPRECATE_EVENTED_API_USAGE) {
       if (_hasEvent) {
         this._super(...arguments);
       }
-    },
-  });
-}
-
-if (DEPRECATE_MODEL_TOJSON) {
-  /**
-    Use [JSONSerializer](JSONSerializer.html) to
-    get the JSON representation of a record.
-
-    `toJSON` takes an optional hash as a parameter, currently
-    supported options are:
-
-    - `includeId`: `true` if the record's ID should be included in the
-      JSON representation.
-
-    @method toJSON
-    @public
-    @param {Object} options
-    @return {Object} A JSON representation of the object.
-  */
-  Model.reopen({
-    toJSON(options) {
-      // container is for lazy transform lookups
-      deprecate(
-        `Called the built-in \`toJSON\` on the record "${this.constructor.modelName}:${this.id}". The built-in \`toJSON\` method on instances of classes extending \`Model\` is deprecated. For more information see the link below.`,
-        false,
-        {
-          id: 'ember-data:model.toJSON',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-toJSON',
-          for: '@ember-data/model',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-      let serializer = this._internalModel.store.serializerFor('-default');
-      let snapshot = this._internalModel.createSnapshot();
-
-      return serializer.serialize(snapshot, options);
     },
   });
 }

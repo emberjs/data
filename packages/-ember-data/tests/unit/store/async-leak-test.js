@@ -101,7 +101,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
 
     await findRecordWasInvokedPromise;
 
-    assert.equal(store._trackedAsyncRequests.length, 1, 'We return true even though a request is pending');
+    assert.strictEqual(store._trackedAsyncRequests.length, 1, 'We return true even though a request is pending');
     assert.true(waiter(), 'We return true even though a request is pending');
 
     await request;
@@ -208,7 +208,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
 
     // make the waiter complete
     run(() => next());
-    assert.equal(store._trackedAsyncRequests.length, 0, 'Our pending request is cleaned up');
+    assert.strictEqual(store._trackedAsyncRequests.length, 0, 'Our pending request is cleaned up');
     assert.true(waiter(), 'We return true because the waiter is cleared');
   });
 
@@ -238,12 +238,12 @@ module('unit/store async-waiter and leak detection', function (hooks) {
     store.findRecord('person', '1');
     let waiter = store.__asyncWaiter;
 
-    assert.equal(store._trackedAsyncRequests.length, 0, 'We have no requests yet');
+    assert.strictEqual(store._trackedAsyncRequests.length, 0, 'We have no requests yet');
     assert.true(waiter(), 'We return true when no requests have been initiated yet (pending queue flush is async)');
 
     await stepPromise;
 
-    assert.equal(store._trackedAsyncRequests.length, 1, 'We have a pending request');
+    assert.strictEqual(store._trackedAsyncRequests.length, 1, 'We have a pending request');
     assert.true(waiter(), 'We return true because the waiter is turned off');
     assert.expectWarning(() => {
       run(() => {
@@ -255,7 +255,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
 
     // make the waiter complete
     run(() => next());
-    assert.equal(store._trackedAsyncRequests.length, 0, 'Our pending request is cleaned up');
+    assert.strictEqual(store._trackedAsyncRequests.length, 0, 'Our pending request is cleaned up');
     assert.true(waiter(), 'We return true because the waiter is cleared');
   });
 
@@ -287,7 +287,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
     await stepPromise;
 
     assert.false(waiter(), 'We return false to keep waiting while requests are pending');
-    assert.equal(
+    assert.strictEqual(
       store._trackedAsyncRequests[0].trace,
       'set `store.generateStackTracesForTrackedRequests = true;` to get a detailed trace for where this request originated',
       'We provide a useful default message in place of a trace'
@@ -310,7 +310,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
       we should do something similar to capture where the fetch was scheduled
       from.
      */
-    assert.equal(
+    assert.strictEqual(
       store._trackedAsyncRequests[0].trace.message,
       "EmberData TrackedRequest: DS: Handle Adapter#findRecord of 'person' with id: '2'",
       'We captured a trace'

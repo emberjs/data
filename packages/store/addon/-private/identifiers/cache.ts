@@ -2,7 +2,6 @@
   @module @ember-data/store
 */
 import { assert, warn } from '@ember/debug';
-import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
@@ -23,7 +22,6 @@ import type {
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
 import type { ConfidentDict } from '../ts-interfaces/utils';
 import isNonEmptyString from '../utils/is-non-empty-string';
-import { addSymbol } from '../utils/symbol';
 import isStableIdentifier, { markStableIdentifier, unmarkStableIdentifier } from './is-stable-identifier';
 import uuidv4 from './utils/uuid-v4';
 
@@ -372,7 +370,7 @@ export class IdentifierCache {
       // If the incoming type does not match the identifier type, we need to create an identifier for the incoming
       // data so we can merge the incoming data with the existing identifier, see #7325 and #7363
       if ('type' in data && data.type && identifier.type !== normalizeModelName(data.type)) {
-        let incomingDataResource = assign({}, data);
+        let incomingDataResource = { ...data };
         // Need to strip the lid from the incomingData in order force a new identifier creation
         delete incomingDataResource.lid;
         existingIdentifier = this.getOrCreateRecordIdentifier(incomingDataResource);
@@ -511,8 +509,8 @@ function makeStableRecordIdentifier(
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
       },
     };
-    addSymbol(wrapper, DEBUG_CLIENT_ORIGINATED, clientOriginated);
-    addSymbol(wrapper, DEBUG_IDENTIFIER_BUCKET, bucket);
+    wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
+    wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
     wrapper = freeze(wrapper);
     markStableIdentifier(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);

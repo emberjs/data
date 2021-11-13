@@ -267,7 +267,7 @@ module('async has-many rendering tests', function (hooks) {
       this.set('parent', null);
 
       items = findAll('li');
-      assert.equal(items.length, 0, 'We have no items');
+      assert.strictEqual(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 
@@ -294,7 +294,7 @@ module('async has-many rendering tests', function (hooks) {
       let originalOnError = Ember.onerror;
       Ember.onerror = function (e) {
         assert.ok(true, 'Children promise did reject');
-        assert.equal(
+        assert.strictEqual(
           e.message,
           'hard error while finding <person>5:has-parent-no-children',
           'Rejection has the correct message'
@@ -382,7 +382,7 @@ module('async has-many rendering tests', function (hooks) {
       this.set('parent', null);
 
       items = findAll('li');
-      assert.equal(items.length, 0, 'We have no items');
+      assert.strictEqual(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 
@@ -410,7 +410,7 @@ module('async has-many rendering tests', function (hooks) {
       let originalOnError = Ember.onerror;
       Ember.onerror = function (e) {
         assert.ok(true, 'Children promise did reject');
-        assert.equal(
+        assert.strictEqual(
           e.message,
           'hard error while finding link ./person/3:has-2-children-and-parent/children',
           'Rejection has the correct message'
@@ -527,7 +527,7 @@ module('async has-many rendering tests', function (hooks) {
       this.set('parent', null);
 
       items = findAll('li');
-      assert.equal(items.length, 0, 'We have no items');
+      assert.strictEqual(items.length, 0, 'We have no items');
 
       this.set('parent', parent);
 

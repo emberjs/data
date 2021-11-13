@@ -72,7 +72,7 @@ module('integration/push-payload - pushPayload method forwards to Serializer#pus
     });
     let person = store.peekRecord('person', '1');
 
-    assert.equal(pushPayloadCalled, 1, 'pushPayload called once');
+    assert.strictEqual(pushPayloadCalled, 1, 'pushPayload called once');
     assert.deepEqual(
       person.toJSON(),
       {

@@ -338,7 +338,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
       store.serializerFor('post').normalizeResponse(store, Post, posts, null, 'findAll');
     });
 
-    assert.equal(postNormalizeCount, 2, 'two posts are normalized');
+    assert.strictEqual(postNormalizeCount, 2, 'two posts are normalized');
   });
 
   test('Serializer should respect the attrs hash when extracting records', function (assert) {
@@ -361,7 +361,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let store = this.owner.lookup('service:store');
     var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
 
-    assert.equal(post.data.attributes.title, 'Rails is omakase');
+    assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
     assert.deepEqual(post.data.relationships.comments.data, [
       { id: '1', type: 'comment' },
       { id: '2', type: 'comment' },
@@ -394,7 +394,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
 
-    assert.equal(post.data.attributes.authorName, 'DHH');
+    assert.strictEqual(post.data.attributes.authorName, 'DHH');
   });
 
   test('Serializer should respect the attrs hash when serializing records', function (assert) {
@@ -430,8 +430,8 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     });
     let payload = store.serializerFor('post').serialize(post._createSnapshot());
 
-    assert.equal(payload.title_payload_key, 'Rails is omakase');
-    assert.equal(payload.my_parent, '2');
+    assert.strictEqual(payload.title_payload_key, 'Rails is omakase');
+    assert.strictEqual(payload.my_parent, '2');
   });
 
   test('Serializer respects if embedded model has an attribute named "type" - #3726', function (assert) {
@@ -724,9 +724,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     });
     let payload = store.serializerFor('post').serialize(post._createSnapshot());
 
-    assert.equal(payload.title_payload_key, 'Rails is omakase');
-    assert.equal(payload.description_payload_key, 'Omakase is delicious');
-    assert.equal(payload.overwritten_another_string_key, 'yet another string');
+    assert.strictEqual(payload.title_payload_key, 'Rails is omakase');
+    assert.strictEqual(payload.description_payload_key, 'Omakase is delicious');
+    assert.strictEqual(payload.overwritten_another_string_key, 'yet another string');
     assert.notOk(payload.base_another_string_key, 'overwritten key is not added');
   });
 
@@ -742,8 +742,8 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let store = this.owner.lookup('service:store');
     let post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
 
-    assert.equal(post.data.id, '1');
-    assert.equal(post.data.attributes.title, 'Rails is omakase');
+    assert.strictEqual(post.data.id, '1');
+    assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
   });
 
   test('Serializer should respect the primaryKey attribute when serializing records', function (assert) {
@@ -758,7 +758,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let post = store.createRecord('post', { id: '1', title: 'Rails is omakase' });
     let payload = store.serializerFor('post').serialize(post._createSnapshot(), { includeId: true });
 
-    assert.equal(payload._ID_, '1');
+    assert.strictEqual(payload._ID_, '1');
   });
 
   test('Serializer should respect keyForAttribute when extracting records', function (assert) {
@@ -775,8 +775,8 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let store = this.owner.lookup('service:store');
     let post = store.serializerFor('post').normalize(Post, jsonHash);
 
-    assert.equal(post.data.id, '1');
-    assert.equal(post.data.attributes.title, 'Rails is omakase');
+    assert.strictEqual(post.data.id, '1');
+    assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
   });
 
   test('Serializer should respect keyForRelationship when extracting records', function (assert) {
@@ -1082,7 +1082,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     assert.expectWarning(function () {
       var post = store.serializerFor('post').normalizeResponse(store, Post, jsonHash, '1', 'findRecord');
-      assert.equal(post.data.attributes.title, 'Rails is omakase');
+      assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
     }, /There is no attribute or relationship with the name/);
   });
 
@@ -1158,7 +1158,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
     let store = this.owner.lookup('service:store');
     var post = this.owner.lookup('serializer:post').normalizeSingleResponse(store, Post, jsonHash);
 
-    assert.equal(post.data.attributes.title, 'Rails is omakase');
-    assert.equal(post.data.relationships.comments.links.related, 'posts/1/comments');
+    assert.strictEqual(post.data.attributes.title, 'Rails is omakase');
+    assert.strictEqual(post.data.relationships.comments.links.related, 'posts/1/comments');
   });
 });

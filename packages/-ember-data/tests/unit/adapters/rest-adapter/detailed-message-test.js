@@ -28,7 +28,7 @@ module('unit/adapters/rest_adapter/detailed_message_test - RESTAdapter#generated
       }
     );
 
-    assert.equal(
+    assert.strictEqual(
       friendlyMessage,
       [
         'Ember Data Request GET /teapots/testing returned a 418',
@@ -46,7 +46,7 @@ module('unit/adapters/rest_adapter/detailed_message_test - RESTAdapter#generated
       method: 'GET',
     });
 
-    assert.equal(
+    assert.strictEqual(
       friendlyMessage,
       [
         'Ember Data Request GET /teapots/testing returned a 418',

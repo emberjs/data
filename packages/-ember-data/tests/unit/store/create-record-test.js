@@ -114,13 +114,13 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
       storage = store.createRecord('storage', { name: 'Great store', records: records });
     });
 
-    assert.equal(storage.get('name'), 'Great store', 'The attribute is well defined');
-    assert.equal(
+    assert.strictEqual(storage.get('name'), 'Great store', 'The attribute is well defined');
+    assert.strictEqual(
       storage.get('records').findBy('id', '1'),
       A(records).findBy('id', '1'),
       'Defined relationships are allowed in createRecord'
     );
-    assert.equal(
+    assert.strictEqual(
       storage.get('records').findBy('id', '2'),
       A(records).findBy('id', '2'),
       'Defined relationships are allowed in createRecord'
@@ -142,7 +142,7 @@ module('unit/store/createRecord - Store with models by dash', function (hooks) {
     let attributes = { foo: 'bar' };
     let record = store.createRecord('some-thing', attributes);
 
-    assert.equal(record.get('foo'), attributes.foo, 'The record is created');
-    assert.equal(store.modelFor('some-thing').modelName, 'some-thing');
+    assert.strictEqual(record.get('foo'), attributes.foo, 'The record is created');
+    assert.strictEqual(store.modelFor('some-thing').modelName, 'some-thing');
   });
 });

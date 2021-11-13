@@ -105,8 +105,8 @@ module('integration/references/has-many', function (hooks) {
 
     var personsReference = family.hasMany('persons');
 
-    assert.equal(personsReference.remoteType(), 'ids');
-    assert.equal(personsReference.type, 'person');
+    assert.strictEqual(personsReference.remoteType(), 'ids');
+    assert.strictEqual(personsReference.type, 'person');
     assert.deepEqual(personsReference.ids(), ['1', '2']);
   });
 
@@ -130,9 +130,9 @@ module('integration/references/has-many', function (hooks) {
 
     var personsReference = family.hasMany('persons');
 
-    assert.equal(personsReference.remoteType(), 'link');
-    assert.equal(personsReference.type, 'person');
-    assert.equal(personsReference.link(), '/families/1/persons');
+    assert.strictEqual(personsReference.remoteType(), 'link');
+    assert.strictEqual(personsReference.type, 'person');
+    assert.strictEqual(personsReference.link(), '/families/1/persons');
   });
 
   test('HasManyReference#parent is a reference to the parent where the relationship is defined', function (assert) {
@@ -319,9 +319,9 @@ module('integration/references/has-many', function (hooks) {
 
       personsReference.push(data).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.equal(get(records, 'length'), 2);
-        assert.equal(records.objectAt(0).get('name'), 'Vito');
-        assert.equal(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(get(records, 'length'), 2);
+        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
+        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
 
         done();
       });
@@ -353,8 +353,8 @@ module('integration/references/has-many', function (hooks) {
 
       personsReference.push(data).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.equal(get(records, 'length'), 1);
-        assert.equal(records.objectAt(0).get('name'), 'Vito');
+        assert.strictEqual(get(records, 'length'), 1);
+        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
 
         done();
       });
@@ -420,9 +420,9 @@ module('integration/references/has-many', function (hooks) {
 
       personsReference.push(payload).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.equal(get(records, 'length'), 2);
-        assert.equal(records.objectAt(0).get('name'), 'Vito');
-        assert.equal(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(get(records, 'length'), 2);
+        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
+        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
 
         done();
       });
@@ -472,9 +472,9 @@ module('integration/references/has-many', function (hooks) {
     run(function () {
       push.then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.equal(get(records, 'length'), 2);
-        assert.equal(records.objectAt(0).get('name'), 'Vito');
-        assert.equal(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(get(records, 'length'), 2);
+        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
+        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
 
         done();
       });
@@ -532,7 +532,7 @@ module('integration/references/has-many', function (hooks) {
     run(function () {
       var personsReference = family.hasMany('persons');
       var records = personsReference.value();
-      assert.equal(get(records, 'length'), 2);
+      assert.strictEqual(get(records, 'length'), 2);
       assert.true(records.isEvery('isLoaded'));
     });
   });
@@ -558,7 +558,7 @@ module('integration/references/has-many', function (hooks) {
     run(function () {
       var personsReference = family.hasMany('persons');
       var records = personsReference.value();
-      assert.equal(get(records, 'length'), 0);
+      assert.strictEqual(get(records, 'length'), 0);
     });
   });
 
@@ -596,7 +596,7 @@ module('integration/references/has-many', function (hooks) {
     const adapterOptions = { thing: 'one' };
 
     adapter.findMany = function (store, type, id, snapshots) {
-      assert.equal(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
+      assert.strictEqual(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
       return resolve({
         data: [
           { id: 1, type: 'person', attributes: { name: 'Vito' } },
@@ -628,9 +628,9 @@ module('integration/references/has-many', function (hooks) {
     run(function () {
       personsReference.load({ adapterOptions }).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.equal(get(records, 'length'), 2);
-        assert.equal(records.objectAt(0).get('name'), 'Vito');
-        assert.equal(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(get(records, 'length'), 2);
+        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
+        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
 
         done();
       });
@@ -646,8 +646,8 @@ module('integration/references/has-many', function (hooks) {
     const adapterOptions = { thing: 'one' };
 
     adapter.findHasMany = function (store, snapshot, link) {
-      assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
-      assert.equal(link, '/families/1/persons');
+      assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+      assert.strictEqual(link, '/families/1/persons');
 
       return resolve({
         data: [
@@ -673,14 +673,14 @@ module('integration/references/has-many', function (hooks) {
     });
 
     var personsReference = family.hasMany('persons');
-    assert.equal(personsReference.remoteType(), 'link');
+    assert.strictEqual(personsReference.remoteType(), 'link');
 
     run(function () {
       personsReference.load({ adapterOptions }).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.equal(get(records, 'length'), 2);
-        assert.equal(records.objectAt(0).get('name'), 'Vito');
-        assert.equal(records.objectAt(1).get('name'), 'Michael');
+        assert.strictEqual(get(records, 'length'), 2);
+        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
+        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
 
         done();
       });
@@ -694,8 +694,8 @@ module('integration/references/has-many', function (hooks) {
     const adapterOptions = { thing: 'one' };
 
     adapter.findHasMany = function (store, snapshot, link) {
-      assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
-      assert.equal(link, '/families/1/persons');
+      assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+      assert.strictEqual(link, '/families/1/persons');
 
       return resolve({ data: [] });
     };
@@ -716,13 +716,13 @@ module('integration/references/has-many', function (hooks) {
     });
 
     let personsReference = family.hasMany('persons');
-    assert.equal(personsReference.remoteType(), 'link');
+    assert.strictEqual(personsReference.remoteType(), 'link');
 
     return run(() => {
       return personsReference.load({ adapterOptions }).then((records) => {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.equal(get(records, 'length'), 0);
-        assert.equal(get(personsReference.value(), 'length'), 0);
+        assert.strictEqual(get(records, 'length'), 0);
+        assert.strictEqual(get(personsReference.value(), 'length'), 0);
       });
     });
   });
@@ -738,7 +738,7 @@ module('integration/references/has-many', function (hooks) {
 
     adapter.findMany = function (store, type, id) {
       count++;
-      assert.equal(count, 1);
+      assert.strictEqual(count, 1);
 
       return deferred.promise;
     };
@@ -766,7 +766,7 @@ module('integration/references/has-many', function (hooks) {
     run(function () {
       personsReference.load();
       personsReference.load().then(function (records) {
-        assert.equal(get(records, 'length'), 2);
+        assert.strictEqual(get(records, 'length'), 2);
       });
     });
 
@@ -781,7 +781,7 @@ module('integration/references/has-many', function (hooks) {
 
     run(function () {
       personsReference.load().then(function (records) {
-        assert.equal(get(records, 'length'), 2);
+        assert.strictEqual(get(records, 'length'), 2);
 
         done();
       });
@@ -797,7 +797,7 @@ module('integration/references/has-many', function (hooks) {
     const adapterOptions = { thing: 'one' };
 
     adapter.findMany = function (store, type, id, snapshots) {
-      assert.equal(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
+      assert.strictEqual(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
       return resolve({
         data: [
           { id: 1, type: 'person', attributes: { name: 'Vito Coreleone' } },
@@ -831,9 +831,9 @@ module('integration/references/has-many', function (hooks) {
     run(function () {
       personsReference.reload({ adapterOptions }).then(function (records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.equal(get(records, 'length'), 2);
-        assert.equal(records.objectAt(0).get('name'), 'Vito Coreleone');
-        assert.equal(records.objectAt(1).get('name'), 'Michael Coreleone');
+        assert.strictEqual(get(records, 'length'), 2);
+        assert.strictEqual(records.objectAt(0).get('name'), 'Vito Coreleone');
+        assert.strictEqual(records.objectAt(1).get('name'), 'Michael Coreleone');
 
         done();
       });
@@ -850,9 +850,9 @@ module('integration/references/has-many', function (hooks) {
 
     var count = 0;
     adapter.findHasMany = function (store, snapshot, link) {
-      assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+      assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       count++;
-      assert.equal(link, '/families/1/persons');
+      assert.strictEqual(link, '/families/1/persons');
 
       if (count === 1) {
         return resolve({
@@ -887,7 +887,7 @@ module('integration/references/has-many', function (hooks) {
     });
 
     var personsReference = family.hasMany('persons');
-    assert.equal(personsReference.remoteType(), 'link');
+    assert.strictEqual(personsReference.remoteType(), 'link');
 
     run(function () {
       personsReference
@@ -897,9 +897,9 @@ module('integration/references/has-many', function (hooks) {
         })
         .then(function (records) {
           assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-          assert.equal(get(records, 'length'), 2);
-          assert.equal(records.objectAt(0).get('name'), 'Vito Coreleone');
-          assert.equal(records.objectAt(1).get('name'), 'Michael Coreleone');
+          assert.strictEqual(get(records, 'length'), 2);
+          assert.strictEqual(records.objectAt(0).get('name'), 'Vito Coreleone');
+          assert.strictEqual(records.objectAt(1).get('name'), 'Michael Coreleone');
 
           done();
         });
@@ -992,10 +992,10 @@ module('integration/references/has-many', function (hooks) {
     });
 
     let persons = family.hasMany('persons').value();
-    assert.equal(persons.length, 2);
+    assert.strictEqual(persons.length, 2);
     persons.forEach((person) => {
       let pets = person.hasMany('pets').value();
-      assert.equal(pets.length, 2);
+      assert.strictEqual(pets.length, 2);
     });
   });
 
@@ -1090,10 +1090,10 @@ module('integration/references/has-many', function (hooks) {
 
     let family = await store.findRecord('family', '1');
     let persons = family.hasMany('persons').value();
-    assert.equal(persons.length, 2);
+    assert.strictEqual(persons.length, 2);
     persons.forEach((person) => {
       let pets = person.hasMany('pets').value();
-      assert.equal(pets.length, 2);
+      assert.strictEqual(pets.length, 2);
     });
   });
 });

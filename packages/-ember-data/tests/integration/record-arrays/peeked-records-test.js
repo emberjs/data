@@ -214,11 +214,11 @@ module('integration/peeked-records', function (hooks) {
         'RecordArray state after unloadAll has not changed yet'
       );
 
-      assert.equal(get(peekedRecordArray, 'length'), 2, 'Array length is unchanged before the next peek');
+      assert.strictEqual(get(peekedRecordArray, 'length'), 2, 'Array length is unchanged before the next peek');
 
       store.peekAll('person');
 
-      assert.equal(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
+      assert.strictEqual(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
 
       assert.watchedPropertyCounts(
         watcher,
@@ -271,11 +271,11 @@ module('integration/peeked-records', function (hooks) {
     );
 
     unload();
-    assert.equal(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
+    assert.strictEqual(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state has signaled the unload');
 
     push();
-    assert.equal(get(peekedRecordArray, 'length'), 2, 'We have array content');
+    assert.strictEqual(get(peekedRecordArray, 'length'), 2, 'We have array content');
     assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state now has records again');
   });
 
@@ -320,11 +320,11 @@ module('integration/peeked-records', function (hooks) {
     );
 
     unload();
-    assert.equal(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
+    assert.strictEqual(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state has signaled the unload');
 
     _push();
-    assert.equal(get(peekedRecordArray, 'length'), 2, 'We have array content');
+    assert.strictEqual(get(peekedRecordArray, 'length'), 2, 'We have array content');
     assert.watchedPropertyCounts(watcher, { length: 3, '[]': 3 }, 'RecordArray state now has records again');
   });
 });

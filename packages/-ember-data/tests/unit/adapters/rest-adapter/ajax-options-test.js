@@ -39,10 +39,10 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
 
     adapter.ajax = function (url, method) {
       if (count === 0) {
-        assert.equal(url, '/people/1', 'should create the correct url');
+        assert.strictEqual(url, '/people/1', 'should create the correct url');
       }
       if (count === 1) {
-        assert.equal(url, '/places/1', 'should create the correct url');
+        assert.strictEqual(url, '/places/1', 'should create the correct url');
       }
       count++;
       return resolve();
@@ -60,7 +60,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
     let adapter = store.adapterFor('application');
 
     adapter.ajax = function (url, method) {
-      assert.equal(url, '/people/..%2Fplace%2F1', 'should create the correct url');
+      assert.strictEqual(url, '/people/..%2Fplace%2F1', 'should create the correct url');
       return resolve();
     };
 
@@ -240,7 +240,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
         error: noop,
       });
 
-      assert.equal(typeof fetchPlacePromise.then, 'function', '_fetchRequest does not return a promise');
+      assert.strictEqual(typeof fetchPlacePromise.then, 'function', '_fetchRequest does not return a promise');
 
       return fetchPlacePromise;
     });
@@ -292,7 +292,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
       let type = 'POST';
       let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
 
-      assert.equal(ajaxOptions.contentType, 'application/json; charset=utf-8', 'contentType is set with POST');
+      assert.strictEqual(ajaxOptions.contentType, 'application/json; charset=utf-8', 'contentType is set with POST');
     });
 
     test('ajaxOptions() Content-Type is set with ajax POST with data if useFetch', function (assert) {
@@ -309,7 +309,7 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
       let type = 'POST';
       let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
 
-      assert.equal(
+      assert.strictEqual(
         ajaxOptions.headers['content-type'],
         'application/json; charset=utf-8',
         'contentType is set with POST'

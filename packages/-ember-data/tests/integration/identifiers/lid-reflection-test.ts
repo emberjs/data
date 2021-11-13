@@ -219,7 +219,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     await cake.save();
 
     assert.deepEqual(cake.hasMany('ingredients').ids(), ['2']);
-    assert.equal(cake.ingredients.objectAt(0).name, 'Cheese');
+    assert.strictEqual(cake.ingredients.objectAt(0).name, 'Cheese');
   });
 
   test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function (assert) {
@@ -291,6 +291,6 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     await cake.save();
 
     assert.deepEqual(cake.belongsTo('topping').id(), '2');
-    assert.equal(cake.topping.name, 'Cheese');
+    assert.strictEqual(cake.topping.name, 'Cheese');
   });
 });

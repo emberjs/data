@@ -77,8 +77,8 @@ module('integration/relationship/json-api-links | Relationship state updates', f
         assert.ok(user1, 'user should be populated');
 
         return store.findRecord('organisation', 2).then((org2FromFind) => {
-          assert.equal(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
-          assert.equal(user1.belongsTo('organisation').id(), 1, `user's belongsTo has its id populated`);
+          assert.strictEqual(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
+          assert.strictEqual(user1.belongsTo('organisation').id(), '1', `user's belongsTo has its id populated`);
 
           return user1.get('organisation').then((orgFromUser) => {
             assert.false(

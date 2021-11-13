@@ -4,7 +4,6 @@
 import { getOwner } from '@ember/application';
 import { assert, deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { join } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
@@ -12,7 +11,6 @@ import { has } from 'require';
 import { Promise as RSVPPromise } from 'rsvp';
 
 import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
-import { addSymbol, symbol } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/core-store';
 import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
 import type Snapshot from '@ember-data/store/-private/system/snapshot';
@@ -73,7 +71,7 @@ type ResponseData = {
 declare const najax: Function | undefined;
 declare const jQuery: JQueryStatic | undefined;
 
-const UseFetch = symbol('useFetch');
+const UseFetch = Symbol('useFetch');
 const hasJQuery = typeof jQuery !== 'undefined';
 
 /**
@@ -1181,7 +1179,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     method: string,
     options: JQueryAjaxSettings | RequestInit
   ): JQueryRequestInit | FetchRequestInit {
-    let reqOptions: JQueryRequestInit | FetchRequestInit = assign(
+    let reqOptions: JQueryRequestInit | FetchRequestInit = Object.assign(
       {
         url,
         method,
@@ -1191,7 +1189,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     );
 
     if (this.headers !== undefined) {
-      reqOptions.headers = assign({}, this.headers, reqOptions.headers);
+      reqOptions.headers = { ...this.headers, ...reqOptions.headers };
     } else if (!options.headers) {
       reqOptions.headers = {};
     }
@@ -1209,7 +1207,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       // GET requests without a body should not have a content-type header
       // and may be unexpected by a server
       if (reqOptions.data && reqOptions.type !== 'GET') {
-        reqOptions = assign(reqOptions, { contentType });
+        reqOptions = { ...reqOptions, contentType };
       }
       reqOptions = ajaxOptions(reqOptions, this);
     }
@@ -1629,13 +1627,13 @@ if (DEPRECATE_NAJAX) {
         shouldUseFetch = true;
       }
 
-      addSymbol(this, UseFetch, shouldUseFetch);
+      this[UseFetch] = shouldUseFetch;
 
       return shouldUseFetch;
     },
 
     set(value) {
-      addSymbol(this, UseFetch, value);
+      this[UseFetch] = value;
       return value;
     },
   });

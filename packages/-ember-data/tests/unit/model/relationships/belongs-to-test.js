@@ -83,10 +83,10 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     return run(() => {
       return store.findRecord('person', 1).then((person) => {
-        assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
+        assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
         assert.true(get(person, 'tag') instanceof Tag, 'the tag property should return a tag');
-        assert.equal(get(person, 'tag.name'), 'friendly', 'the tag shuld have name');
+        assert.strictEqual(get(person, 'tag.name'), 'friendly', 'the tag shuld have name');
 
         assert.strictEqual(get(person, 'tag'), get(person, 'tag'), 'the returned object is always the same');
         assert.asyncEqual(
@@ -157,7 +157,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
       person.addObserver('tag', tagDidChange);
 
-      assert.equal(person.get('tag.name'), 'whatever', 'relationship is correct');
+      assert.strictEqual(person.get('tag.name'), 'whatever', 'relationship is correct');
 
       // This needs to be removed so it is not triggered when test context is torn down
       person.removeObserver('tag', tagDidChange);
@@ -184,7 +184,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Person) {
-        assert.equal(id, 1, 'id should be 1');
+        assert.strictEqual(id, '1', 'id should be 1');
 
         return {
           data: {
@@ -195,7 +195,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
           },
         };
       } else if (type === Tag) {
-        assert.equal(id, 2, 'id should be 2');
+        assert.strictEqual(id, '2', 'id should be 2');
 
         return { data: { id: 2, type: 'tag', attributes: { name: 'friendly' } } };
       }
@@ -205,14 +205,14 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       return store
         .findRecord('person', 1)
         .then((person) => {
-          assert.equal(get(person, 'name'), 'Tom Dale', 'The person is now populated');
+          assert.strictEqual(get(person, 'name'), 'Tom Dale', 'The person is now populated');
 
           return run(() => {
             return get(person, 'tag');
           });
         })
         .then((tag) => {
-          assert.equal(get(tag, 'name'), 'friendly', 'Tom Dale is now friendly');
+          assert.strictEqual(get(tag, 'name'), 'friendly', 'Tom Dale is now friendly');
           assert.true(get(tag, 'isLoaded'), 'Tom Dale is now loaded');
         });
     });
@@ -272,7 +272,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     };
 
     adapter.findRecord = function (store, type, id) {
-      assert.equal(type.modelName, 'tag', 'modelName is tag');
+      assert.strictEqual(type.modelName, 'tag', 'modelName is tag');
 
       if (id === '3') {
         return Promise.resolve({
@@ -296,10 +296,10 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     let persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
     let [tag1, tag2] = await Promise.all(persons.map((person) => get(person, 'tag')));
 
-    assert.equal(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
+    assert.strictEqual(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
     assert.true(get(tag1, 'isLoaded'), "Tom Dale's tag is now loaded");
 
-    assert.equal(get(tag2, 'name'), 'nice', 'Bob Dylan is now nice');
+    assert.strictEqual(get(tag2, 'name'), 'nice', 'Bob Dylan is now nice');
     assert.true(get(tag2, 'isLoaded'), "Bob Dylan's tag is now loaded");
   });
 
@@ -353,7 +353,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     });
 
     adapter.findMany = function (store, type, ids, snapshots) {
-      assert.equal(type.modelName, 'tag', 'modelName is tag');
+      assert.strictEqual(type.modelName, 'tag', 'modelName is tag');
       assert.deepEqual(ids, ['3', '4'], 'it coalesces the find requests correctly');
 
       return Promise.resolve({
@@ -379,10 +379,10 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     let persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
     let [tag1, tag2] = await Promise.all(persons.map((person) => get(person, 'tag')));
 
-    assert.equal(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
+    assert.strictEqual(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
     assert.true(get(tag1, 'isLoaded'), "Tom Dale's tag is now loaded");
 
-    assert.equal(get(tag2, 'name'), 'nice', 'Bob Dylan is now nice');
+    assert.strictEqual(get(tag2, 'name'), 'nice', 'Bob Dylan is now nice');
     assert.true(get(tag2, 'isLoaded'), "Bob Dylan's tag is now loaded");
   });
 
@@ -431,11 +431,11 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     return run(() => {
       let person = store.peekRecord('person', 1);
-      assert.equal(get(person, 'name'), 'Tom Dale', 'The person is now populated');
+      assert.strictEqual(get(person, 'name'), 'Tom Dale', 'The person is now populated');
       return run(() => {
         return get(person, 'tag');
       }).then((tag) => {
-        assert.equal(get(tag, 'name'), 'friendly', 'Tom Dale is now friendly');
+        assert.strictEqual(get(tag, 'name'), 'friendly', 'Tom Dale is now friendly');
         assert.true(get(tag, 'isLoaded'), 'Tom Dale is now loaded');
       });
     });
@@ -471,13 +471,13 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       ],
     });
 
-    assert.equal(tag1.label, 'A', 'tag1 is loaded');
-    assert.equal(tag2.label, 'B', 'tag2 is loaded');
-    assert.equal(user.tag.id, '1', 'user starts with tag1 as tag');
+    assert.strictEqual(tag1.label, 'A', 'tag1 is loaded');
+    assert.strictEqual(tag2.label, 'B', 'tag2 is loaded');
+    assert.strictEqual(user.tag.id, '1', 'user starts with tag1 as tag');
 
     user.set('tag', tag2);
 
-    assert.equal(user.tag.id, '2', 'user tag updated to tag2');
+    assert.strictEqual(user.tag.id, '2', 'user tag updated to tag2');
 
     adapter.updateRecord = function () {
       return {
@@ -497,7 +497,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     };
 
     await user.save();
-    assert.equal(user.tag.id, '1', 'expected new server state to be applied');
+    assert.strictEqual(user.tag.id, '1', 'expected new server state to be applied');
   });
 
   test('calling createRecord and passing in an undefined value for a relationship should be treated as if null', function (assert) {
@@ -550,7 +550,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => false;
 
     adapter.findMany = function (store, type, ids, snapshots) {
-      assert.equal(snapshots[0].belongsTo('person').id, '1');
+      assert.strictEqual(snapshots[0].belongsTo('person').id, '1');
       return {
         data: [
           { id: 5, type: 'occupation', attributes: { description: 'fifth' } },
@@ -586,14 +586,14 @@ module('unit/model/relationships - belongsTo', function (hooks) {
         .findRecord('person', 1)
         .then((person) => {
           assert.true(get(person, 'isLoaded'), 'isLoaded should be true');
-          assert.equal(get(person, 'name'), 'Tom Dale', 'the person is still Tom Dale');
+          assert.strictEqual(get(person, 'name'), 'Tom Dale', 'the person is still Tom Dale');
 
           return get(person, 'occupations');
         })
         .then((occupations) => {
-          assert.equal(get(occupations, 'length'), 2, 'the list of occupations should have the correct length');
+          assert.strictEqual(get(occupations, 'length'), 2, 'the list of occupations should have the correct length');
 
-          assert.equal(get(occupations.objectAt(0), 'description'), 'fifth', 'the occupation is the fifth');
+          assert.strictEqual(get(occupations.objectAt(0), 'description'), 'fifth', 'the occupation is the fifth');
           assert.true(get(occupations.objectAt(0), 'isLoaded'), 'the occupation is now loaded');
         });
     });
@@ -619,7 +619,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     let adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      assert.equal(snapshot.belongsTo('person').id, '1');
+      assert.strictEqual(snapshot.belongsTo('person').id, '1');
       return { data: { id: 5, type: 'occupation', attributes: { description: 'fifth' } } };
     };
 
@@ -706,10 +706,10 @@ module('unit/model/relationships - belongsTo', function (hooks) {
 
     return run(() => {
       return store.findRecord('person', 1).then((person) => {
-        assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
+        assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
 
         assert.true(get(person, 'tag') instanceof Tag, 'the tag property should return a tag');
-        assert.equal(get(person, 'tag.name'), 'friendly', 'the tag should have name');
+        assert.strictEqual(get(person, 'tag.name'), 'friendly', 'the tag should have name');
 
         assert.strictEqual(get(person, 'tag'), get(person, 'tag'), 'the returned object is always the same');
         assert.asyncEqual(

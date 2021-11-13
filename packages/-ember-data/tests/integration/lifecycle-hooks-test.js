@@ -43,9 +43,9 @@ module('integration/lifecycle_hooks - Lifecycle Hooks', function (hooks) {
       let person = store.createRecord('person', { name: 'Yehuda Katz' });
 
       person.on('didCreate', function () {
-        assert.equal(this, person, 'this is bound to the record');
-        assert.equal(this.get('id'), '99', 'the ID has been assigned');
-        assert.equal(this.get('name'), 'Yehuda Katz', 'the attribute has been assigned');
+        assert.strictEqual(this, person, 'this is bound to the record');
+        assert.strictEqual(this.get('id'), '99', 'the ID has been assigned');
+        assert.strictEqual(this.get('name'), 'Yehuda Katz', 'the attribute has been assigned');
         done();
       });
 
@@ -70,9 +70,9 @@ module('integration/lifecycle_hooks - Lifecycle Hooks', function (hooks) {
       let person = store.createRecord('person', { id: 99, name: 'Yehuda Katz' });
 
       person.on('didCreate', function () {
-        assert.equal(this, person, 'this is bound to the record');
-        assert.equal(this.get('id'), '99', 'the ID has been assigned');
-        assert.equal(this.get('name'), 'Yehuda Katz', 'the attribute has been assigned');
+        assert.strictEqual(this, person, 'this is bound to the record');
+        assert.strictEqual(this.get('id'), '99', 'the ID has been assigned');
+        assert.strictEqual(this.get('name'), 'Yehuda Katz', 'the attribute has been assigned');
       });
 
       await person.save();
