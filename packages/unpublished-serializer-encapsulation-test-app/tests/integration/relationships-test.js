@@ -81,7 +81,6 @@ module('integration/relationships - running requests for async relatonships with
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
       coalesceFindRequests = true;
 
       ajax(url, type) {
@@ -152,7 +151,6 @@ module('integration/relationships - running requests for async relatonships with
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
       coalesceFindRequests = true;
 
       ajax(url, type) {
@@ -215,7 +213,6 @@ module('integration/relationships - running requests for async relatonships with
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
       coalesceFindRequests = true;
 
       ajax(url, type) {

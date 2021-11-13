@@ -345,8 +345,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   */
   useFetch = true;
 
-  defaultSerializer = '-rest';
-
   _defaultContentType = 'application/json; charset=utf-8';
 
   @computed()

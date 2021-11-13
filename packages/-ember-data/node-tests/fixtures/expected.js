@@ -118,7 +118,6 @@ module.exports = {
     '(private) @ember-data/store Store#setRecordId',
     '(public) @ember-data/adapter Adapter#coalesceFindRequests',
     '(public) @ember-data/adapter Adapter#createRecord',
-    '(public) @ember-data/adapter Adapter#defaultSerializer',
     '(public) @ember-data/adapter Adapter#deleteRecord',
     '(public) @ember-data/adapter Adapter#findAll',
     '(public) @ember-data/adapter Adapter#findMany',

@@ -80,8 +80,6 @@ module('integration/create-record - running createRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({
           id: '1m',
@@ -177,8 +175,6 @@ module('integration/create-record - running createRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({
           person: {

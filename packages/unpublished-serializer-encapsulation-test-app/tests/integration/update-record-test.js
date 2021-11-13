@@ -95,8 +95,6 @@ module('integration/create-record - running createRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {
@@ -200,8 +198,6 @@ module('integration/create-record - running createRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {

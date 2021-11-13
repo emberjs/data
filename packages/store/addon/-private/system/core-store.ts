@@ -3600,10 +3600,6 @@ abstract class CoreStore extends Service {
     for an `App.ApplicationSerializer` (the default serializer for
     your entire application).
 
-    if no `App.ApplicationSerializer` is found, it will attempt
-    to get the `defaultSerializer` from the `PersonAdapter`
-    (`adapterFor('person')`).
-
     If a serializer cannot be found on the adapter, it will fall back
     to an instance of `JSONSerializer`.
 

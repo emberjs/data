@@ -37,8 +37,6 @@ module(
 
     test('can retrieve errors after findRecord', async function (assert) {
       class TestAdapter extends JSONAPIAdapter {
-        defaultSerializer = 'application';
-
         ajax(url, type) {
           return reject({
             errors: [
@@ -68,8 +66,6 @@ module(
 
     test('can retrieve errors after save', async function (assert) {
       class TestAdapter extends JSONAPIAdapter {
-        defaultSerializer = 'application';
-
         ajax(url, type) {
           return reject({
             errors: [
