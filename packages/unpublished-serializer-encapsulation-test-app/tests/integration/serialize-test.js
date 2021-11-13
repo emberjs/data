@@ -45,7 +45,7 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
         serializeCalled++;
 
         assert.strictEqual(snapshot.id, '1', 'id is correct');
-        assert.equal(snapshot.modelName, 'person', 'modelName is correct');
+        assert.strictEqual(snapshot.modelName, 'person', 'modelName is correct');
         assert.deepEqual(snapshot.attributes(), { firstName: 'John', lastName: 'Smith' }, 'attributes are correct');
 
         const serializedResource = {
@@ -81,7 +81,7 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
 
     let serializedPerson = person.serialize();
 
-    assert.equal(serializeCalled, 1, 'serialize called once');
+    assert.strictEqual(serializeCalled, 1, 'serialize called once');
     assert.deepEqual(serializedPerson, {
       id: '1',
       type: 'person',
@@ -100,7 +100,7 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
         serializeCalled++;
 
         assert.strictEqual(snapshot.id, '1', 'id is correct');
-        assert.equal(snapshot.modelName, 'person', 'modelName is correct');
+        assert.strictEqual(snapshot.modelName, 'person', 'modelName is correct');
         assert.deepEqual(snapshot.attributes(), { firstName: 'John', lastName: 'Smith' }, 'attributes are correct');
 
         const serializedResource = {
@@ -136,7 +136,7 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
 
     let serializedPerson = person._createSnapshot().serialize();
 
-    assert.equal(serializeCalled, 1, 'serialize called once');
+    assert.strictEqual(serializeCalled, 1, 'serialize called once');
     assert.deepEqual(serializedPerson, {
       id: '1',
       type: 'person',
@@ -156,7 +156,7 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
           serializeCalled++;
 
           assert.strictEqual(snapshot.id, '1', 'id is correct');
-          assert.equal(snapshot.modelName, 'person', 'modelName is correct');
+          assert.strictEqual(snapshot.modelName, 'person', 'modelName is correct');
           assert.deepEqual(snapshot.attributes(), { firstName: 'John', lastName: 'Smith' }, 'attributes are correct');
 
           const serializedResource = {
@@ -192,7 +192,7 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
 
       let serializedPerson = store.serializeRecord(person);
 
-      assert.equal(serializeCalled, 1, 'serialize called once');
+      assert.strictEqual(serializeCalled, 1, 'serialize called once');
       assert.deepEqual(serializedPerson, {
         id: '1',
         type: 'person',

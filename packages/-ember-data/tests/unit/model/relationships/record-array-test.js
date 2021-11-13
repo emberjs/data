@@ -53,7 +53,7 @@ module('unit/model/relationships - RecordArray', function (hooks) {
     });
 
     let tag = tags.objectAt(0);
-    assert.equal(get(tag, 'name'), 'friendly', `precond - we're working with the right tags`);
+    assert.strictEqual(get(tag, 'name'), 'friendly', `precond - we're working with the right tags`);
 
     set(
       tags,
@@ -67,7 +67,7 @@ module('unit/model/relationships - RecordArray', function (hooks) {
     );
 
     tag = tags.objectAt(0);
-    assert.equal(get(tag, 'name'), 'smarmy', 'the lookup was updated');
+    assert.strictEqual(get(tag, 'name'), 'smarmy', 'the lookup was updated');
   });
 
   test('can create child record from a hasMany relationship', async function (assert) {
@@ -104,8 +104,8 @@ module('unit/model/relationships - RecordArray', function (hooks) {
     let person = await store.findRecord('person', 1);
     person.get('tags').createRecord({ name: 'cool' });
 
-    assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
-    assert.equal(get(person, 'tags.length'), 1, 'tag is added to the parent record');
-    assert.equal(get(person, 'tags').objectAt(0).get('name'), 'cool', 'tag values are passed along');
+    assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
+    assert.strictEqual(get(person, 'tags.length'), 1, 'tag is added to the parent record');
+    assert.strictEqual(get(person, 'tags').objectAt(0).get('name'), 'cool', 'tag values are passed along');
   });
 });

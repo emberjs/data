@@ -82,7 +82,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     });
 
     let person = store.peekRecord('person', 1);
-    assert.equal(person.get('cars.length'), 1, 'The inital length of cars is correct');
+    assert.strictEqual(person.get('cars.length'), 1, 'The inital length of cars is correct');
 
     assert.true(store.hasRecordForId('person', 1), 'The person is in the store');
     assert.true(
@@ -116,8 +116,8 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     });
 
     let rematerializedPerson = bob.get('person');
-    assert.equal(rematerializedPerson.get('id'), '1');
-    assert.equal(rematerializedPerson.get('name'), 'Adam Sunderland');
+    assert.strictEqual(rematerializedPerson.get('id'), '1');
+    assert.strictEqual(rematerializedPerson.get('name'), 'Adam Sunderland');
     // the person is rematerialized; the previous person is *not* re-used
     assert.notEqual(rematerializedPerson, adam, 'the person is rematerialized, not recycled');
   });
@@ -222,10 +222,10 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.true(store._internalModelsFor('boat').has('@ember-data:lid-boat-1'), 'The boat internalModel is loaded');
 
     let boats = await adam.get('boats');
-    assert.equal(boats.get('length'), 2, 'Before unloading boats.length is correct');
+    assert.strictEqual(boats.get('length'), 2, 'Before unloading boats.length is correct');
 
     boaty.unloadRecord();
-    assert.equal(boats.get('length'), 1, 'after unloading boats.length is correct');
+    assert.strictEqual(boats.get('length'), 1, 'after unloading boats.length is correct');
 
     // assert our new cache state
     assert.false(store.hasRecordForId('boat', '1'), 'The boat is unloaded');
@@ -236,9 +236,9 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     let rematerializedBoaty = boats.objectAt(1);
 
     assert.ok(!!rematerializedBoaty, 'We have a boat!');
-    assert.equal(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
-    assert.equal(rematerializedBoaty.get('id'), '1', 'Rematerialized boat has the right id');
-    assert.equal(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
+    assert.strictEqual(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
+    assert.strictEqual(rematerializedBoaty.get('id'), '1', 'Rematerialized boat has the right id');
+    assert.strictEqual(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
     assert.ok(rematerializedBoaty !== boaty, 'the boat is rematerialized, not recycled');
 
     assert.true(store.hasRecordForId('boat', '1'), 'The boat is loaded');

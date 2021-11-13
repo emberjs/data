@@ -1,4 +1,3 @@
-import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
@@ -52,7 +51,7 @@ module('RecordData Compatibility', function (hooks) {
       this.attributes = jsonApiResource.attributes || null;
 
       if (shouldCalculateChanges) {
-        changedKeys = Object.keys(assign({}, oldAttrs, this.attributes));
+        changedKeys = Object.keys(Object.assign({}, oldAttrs, this.attributes));
       }
 
       return changedKeys || [];
@@ -153,7 +152,7 @@ module('RecordData Compatibility', function (hooks) {
     let pets = chris.get('pets');
     let shen = pets.objectAt(0);
 
-    assert.equal(shen.get('name'), 'Shen', 'We found Shen');
+    assert.strictEqual(shen.get('name'), 'Shen', 'We found Shen');
     assert.ok(recordDataFor(chris) instanceof RecordData, 'We used the default record-data for person');
     assert.ok(recordDataFor(shen) instanceof CustomRecordData, 'We used the custom record-data for pets');
 
@@ -211,7 +210,7 @@ module('RecordData Compatibility', function (hooks) {
     let pets = chris.get('pets');
     let shen = pets.objectAt(0);
 
-    assert.equal(shen.get('name'), 'Shen', 'We found Shen');
+    assert.strictEqual(shen.get('name'), 'Shen', 'We found Shen');
 
     try {
       run(() => shen.unloadRecord());
@@ -241,7 +240,11 @@ module('RecordData Compatibility', function (hooks) {
         }
 
         findRecord() {
-          assert.equal(recordDataInstances, 0, 'no instance created from findRecord before adapter promise resolves');
+          assert.strictEqual(
+            recordDataInstances,
+            0,
+            'no instance created from findRecord before adapter promise resolves'
+          );
 
           return resolve({
             data: {
@@ -268,10 +271,10 @@ module('RecordData Compatibility', function (hooks) {
       }
     );
 
-    assert.equal(recordDataInstances, 0, 'initially no instances');
+    assert.strictEqual(recordDataInstances, 0, 'initially no instances');
 
     await store.findRecord('pet', '1');
 
-    assert.equal(recordDataInstances, 1, 'record data created after promise fulfills');
+    assert.strictEqual(recordDataInstances, 1, 'record data created after promise fulfills');
   });
 });

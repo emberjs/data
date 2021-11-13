@@ -80,14 +80,14 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       coalesceFindRequests = true;
 
       findRecord(passedStore, type, id, snapshot) {
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Person, 'model is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Person, 'model is passed to findRecord');
 
         let expectedId = expectedResultsCopy[findRecordCalled].data.id;
-        assert.equal(id, expectedId, 'id is passed to findRecord');
+        assert.strictEqual(id, expectedId, 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
         return resolve(expectedResultsCopy[findRecordCalled++]);
       }
@@ -100,7 +100,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     let serializedRecords = records.map((record) => record.serialize());
 
-    assert.equal(findRecordCalled, 2, 'findRecord is called twice');
+    assert.strictEqual(findRecordCalled, 2, 'findRecord is called twice');
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
   });
 
@@ -148,15 +148,15 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       findMany(passedStore, type, ids, snapshots) {
         findManyCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findMany');
-        assert.equal(type, Person, 'model is passed to findMany');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findMany');
+        assert.strictEqual(type, Person, 'model is passed to findMany');
 
         let expectedIds = expectedResultsCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
-          assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findMany with correct modelName');
-          assert.equal(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
+          assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findMany with correct modelName');
+          assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
         return resolve(expectedResultsCopy);
@@ -176,9 +176,9 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     let serializedRecords = records.toArray().map((record) => record.serialize());
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findManyCalled, 1, 'findMany is called once');
-    assert.equal(groupRecordsForFindManyCalled, 1, 'groupRecordsForFindMany is called once');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findManyCalled, 1, 'findMany is called once');
+    assert.strictEqual(groupRecordsForFindManyCalled, 1, 'groupRecordsForFindMany is called once');
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
   });
 
@@ -221,15 +221,15 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       findMany(passedStore, type, ids, snapshots) {
         findManyCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findMany');
-        assert.equal(type, Person, 'model is passed to findMany');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findMany');
+        assert.strictEqual(type, Person, 'model is passed to findMany');
 
         let expectedIds = expectedResultsCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
-          assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findMany with correct modelName');
-          assert.equal(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
+          assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findMany with correct modelName');
+          assert.strictEqual(snapshot.id, expectedIds[index], 'snapshot is passed to findMany with correct id');
         });
 
         return resolve(expectedResultsCopy);
@@ -244,8 +244,8 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     let serializedRecords = records.toArray().map((record) => record.serialize());
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findManyCalled, 1, 'findMany is called once');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findManyCalled, 1, 'findMany is called once');
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
   });
 
@@ -289,14 +289,14 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       coalesceFindRequests = false;
 
       findRecord(passedStore, type, id, snapshot) {
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Person, 'model is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Person, 'model is passed to findRecord');
 
         let expectedId = expectedResultsCopy[findRecordCalled].data.id;
-        assert.equal(id, expectedId, 'id is passed to findRecord');
+        assert.strictEqual(id, expectedId, 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, expectedId, 'snapshot is passed to findRecord with correct id');
 
         return resolve(expectedResultsCopy[findRecordCalled++]);
       }
@@ -318,9 +318,9 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     let serializedRecords = records.map((record) => record.serialize());
 
-    assert.equal(findRecordCalled, 2, 'findRecord is called twice');
-    assert.equal(findManyCalled, 0, 'findMany is not called');
-    assert.equal(groupRecordsForFindManyCalled, 0, 'groupRecordsForFindMany is not called');
+    assert.strictEqual(findRecordCalled, 2, 'findRecord is called twice');
+    assert.strictEqual(findManyCalled, 0, 'findMany is not called');
+    assert.strictEqual(groupRecordsForFindManyCalled, 0, 'groupRecordsForFindMany is not called');
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
   });
 });

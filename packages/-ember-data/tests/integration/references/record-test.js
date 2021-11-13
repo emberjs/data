@@ -27,18 +27,18 @@ module('integration/references/record', function (hooks) {
     let store = this.owner.lookup('service:store');
     let recordReference = store.getReference('person', 1);
 
-    assert.equal(recordReference.remoteType(), 'identity');
-    assert.equal(recordReference.type, 'person');
-    assert.equal(recordReference.id(), 1);
+    assert.strictEqual(recordReference.remoteType(), 'identity');
+    assert.strictEqual(recordReference.type, 'person');
+    assert.strictEqual(recordReference.id(), '1');
   });
 
   test('a RecordReference can be retrieved via store.getReference(identifier) without local state', function (assert) {
     let store = this.owner.lookup('service:store');
     let recordReference = store.getReference({ type: 'person', id: '1' });
 
-    assert.equal(recordReference.remoteType(), 'identity');
-    assert.equal(recordReference.type, 'person');
-    assert.equal(recordReference.id(), '1');
+    assert.strictEqual(recordReference.remoteType(), 'identity');
+    assert.strictEqual(recordReference.type, 'person');
+    assert.strictEqual(recordReference.id(), '1');
   });
 
   [
@@ -73,10 +73,10 @@ module('integration/references/record', function (hooks) {
 
       let recordReference = store.getReference(getReferenceArgs);
 
-      assert.equal(recordReference.remoteType(), 'identity');
-      assert.equal(recordReference.type, 'person');
+      assert.strictEqual(recordReference.remoteType(), 'identity');
+      assert.strictEqual(recordReference.type, 'person');
       if (isCreate || !withId) {
-        assert.equal(recordReference.id(), null);
+        assert.strictEqual(recordReference.id(), null);
       } else {
         assert.strictEqual(recordReference.id(), '1');
       }
@@ -103,7 +103,7 @@ module('integration/references/record', function (hooks) {
 
     let record = await pushed;
     assert.ok(record instanceof Person, 'push resolves with the record');
-    assert.equal(get(record, 'name'), 'le name');
+    assert.strictEqual(get(record, 'name'), 'le name');
   });
 
   test('push(promise)', async function (assert) {
@@ -129,7 +129,7 @@ module('integration/references/record', function (hooks) {
 
     let record = await pushed;
     assert.ok(record instanceof Person, 'push resolves with the record');
-    assert.equal(get(record, 'name'), 'le name', 'name is updated');
+    assert.strictEqual(get(record, 'name'), 'le name', 'name is updated');
   });
 
   test('value() returns null when not yet loaded', function (assert) {
@@ -149,7 +149,7 @@ module('integration/references/record', function (hooks) {
     });
 
     let recordReference = store.getReference('person', 1);
-    assert.equal(recordReference.value(), person);
+    assert.strictEqual(recordReference.value(), person);
   });
 
   test('load() fetches the record', async function (assert) {
@@ -171,7 +171,7 @@ module('integration/references/record', function (hooks) {
     let recordReference = store.getReference('person', 1);
 
     let record = await recordReference.load();
-    assert.equal(get(record, 'name'), 'Vito');
+    assert.strictEqual(get(record, 'name'), 'Vito');
   });
 
   test('load() only a single find is triggered', async function (assert) {
@@ -189,7 +189,7 @@ module('integration/references/record', function (hooks) {
     };
     adapter.findRecord = function (store, type, id) {
       count++;
-      assert.equal(count, 1);
+      assert.strictEqual(count, 1);
 
       return deferred.promise;
     };
@@ -198,7 +198,7 @@ module('integration/references/record', function (hooks) {
 
     recordReference.load();
     let record = await recordReference.load();
-    assert.equal(get(record, 'name'), 'Vito');
+    assert.strictEqual(get(record, 'name'), 'Vito');
 
     deferred.resolve({
       data: {
@@ -211,7 +211,7 @@ module('integration/references/record', function (hooks) {
     });
 
     record = await recordReference.load();
-    assert.equal(get(record, 'name'), 'Vito');
+    assert.strictEqual(get(record, 'name'), 'Vito');
   });
 
   test('reload() loads the record if not yet loaded', async function (assert) {
@@ -221,7 +221,7 @@ module('integration/references/record', function (hooks) {
     let count = 0;
     adapter.findRecord = function (store, type, id) {
       count++;
-      assert.equal(count, 1);
+      assert.strictEqual(count, 1);
 
       return resolve({
         data: {
@@ -237,7 +237,7 @@ module('integration/references/record', function (hooks) {
     let recordReference = store.getReference('person', 1);
 
     let record = await recordReference.reload();
-    assert.equal(get(record, 'name'), 'Vito Coreleone');
+    assert.strictEqual(get(record, 'name'), 'Vito Coreleone');
   });
 
   test('reload() fetches the record', async function (assert) {
@@ -269,6 +269,6 @@ module('integration/references/record', function (hooks) {
     let recordReference = store.getReference('person', 1);
 
     let record = await recordReference.reload();
-    assert.equal(get(record, 'name'), 'Vito Coreleone');
+    assert.strictEqual(get(record, 'name'), 'Vito Coreleone');
   });
 });

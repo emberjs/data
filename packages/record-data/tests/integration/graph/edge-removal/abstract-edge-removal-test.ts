@@ -1,4 +1,3 @@
-import { assign } from '@ember/polyfills';
 import settled from '@ember/test-helpers/settled';
 
 import { module, test as runTest } from 'qunit';
@@ -129,11 +128,11 @@ module('Integration | Graph | Edge Removal', function (hooks) {
 
     TestScenarios.forEach(unpersistedDeletionTest);
     TestScenarios.forEach((testConfig) => {
-      const config = assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
+      const config = Object.assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
       unpersistedDeletionTest(config);
     });
     TestScenarios.forEach((testConfig) => {
-      const config = assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
+      const config = Object.assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
       unpersistedDeletionTest(config);
     });
   });
@@ -141,7 +140,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
   module('Unload of a Record does not remove it from the graph', function () {
     function unloadTest(_config: TestConfig) {
       test(_config.name, async function (this: Context, assert) {
-        const config = assign({}, _config, { isUnloadAsDelete: true });
+        const config = Object.assign({}, _config, { isUnloadAsDelete: true });
         const testState = await setInitialState(this, config, assert);
         const { john } = testState;
 
@@ -185,11 +184,11 @@ module('Integration | Graph | Edge Removal', function (hooks) {
 
     TestScenarios.forEach(unloadTest);
     TestScenarios.forEach((testConfig) => {
-      const config = assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
+      const config = Object.assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
       unloadTest(config);
     });
     TestScenarios.forEach((testConfig) => {
-      const config = assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
+      const config = Object.assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
       unloadTest(config);
     });
   });
@@ -231,11 +230,11 @@ module('Integration | Graph | Edge Removal', function (hooks) {
 
     TestScenarios.forEach(persistedDeletionTest);
     TestScenarios.forEach((testConfig) => {
-      const config = assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
+      const config = Object.assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
       persistedDeletionTest(config);
     });
     TestScenarios.forEach((testConfig) => {
-      const config = assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
+      const config = Object.assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
       persistedDeletionTest(config);
     });
   });
@@ -259,11 +258,11 @@ module('Integration | Graph | Edge Removal', function (hooks) {
 
     TestScenarios.forEach(persistedDeletionUnloadedTest);
     TestScenarios.forEach((testConfig) => {
-      const config = assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
+      const config = Object.assign({}, testConfig, { name: `[Newly Created] ${testConfig.name}`, useCreate: true });
       persistedDeletionUnloadedTest(config);
     });
     TestScenarios.forEach((testConfig) => {
-      const config = assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
+      const config = Object.assign({}, testConfig, { name: `[LOCAL STATE] ${testConfig.name}`, dirtyLocal: true });
       persistedDeletionUnloadedTest(config);
     });
   });

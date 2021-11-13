@@ -156,14 +156,14 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       findBelongsTo(passedStore, snapshot, url, relationship) {
         findBelongsToCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findBelongsTo');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findBelongsTo');
 
         let expectedURL = initialRecord.data.relationships.post.links.related;
-        assert.equal(url, expectedURL, 'url is passed to findBelongsTo');
-        assert.equal(relationship.meta.key, 'post', 'relationship is passed to findBelongsTo');
+        assert.strictEqual(url, expectedURL, 'url is passed to findBelongsTo');
+        assert.strictEqual(relationship.meta.key, 'post', 'relationship is passed to findBelongsTo');
 
-        assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
-        assert.equal(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
+        assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
+        assert.strictEqual(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
 
         return resolve(expectedResultCopy);
       }
@@ -175,8 +175,8 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let post = await comment.get('post');
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findBelongsToCalled, 1, 'findBelongsTo is called once');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findBelongsToCalled, 1, 'findBelongsTo is called once');
     assert.deepEqual(post.serialize(), expectedResult, 'findBelongsTo returns expected result');
   });
 
@@ -269,12 +269,12 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       findRecord(passedStore, type, id, snapshot) {
         findRecordCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Post, 'model is passed to findRecord');
-        assert.equal(id, '2', 'id is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Post, 'model is passed to findRecord');
+        assert.strictEqual(id, '2', 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
 
         return resolve(expectedResultCopy);
       }
@@ -290,8 +290,8 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let post = await comment.get('post');
 
-    assert.equal(findRecordCalled, 1, 'findRecord is called once');
-    assert.equal(findBelongsToCalled, 0, 'findBelongsTo is not called');
+    assert.strictEqual(findRecordCalled, 1, 'findRecord is called once');
+    assert.strictEqual(findBelongsToCalled, 0, 'findBelongsTo is not called');
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
   });
 
@@ -348,12 +348,12 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       findRecord(passedStore, type, id, snapshot) {
         findRecordCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Post, 'model is passed to findRecord');
-        assert.equal(id, '2', 'id is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Post, 'model is passed to findRecord');
+        assert.strictEqual(id, '2', 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
 
         return resolve(expectedResultCopy);
       }
@@ -365,7 +365,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let post = await comment.get('post');
 
-    assert.equal(findRecordCalled, 1, 'findRecord is called once');
+    assert.strictEqual(findRecordCalled, 1, 'findRecord is called once');
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
   });
 
@@ -430,14 +430,14 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       findBelongsTo(passedStore, snapshot, url, relationship) {
         findBelongsToCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findBelongsTo');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findBelongsTo');
 
         let expectedURL = initialRecord.data.relationships.post.links.related;
-        assert.equal(url, expectedURL, 'url is passed to findBelongsTo');
-        assert.equal(relationship.meta.key, 'post', 'relationship is passed to findBelongsTo');
+        assert.strictEqual(url, expectedURL, 'url is passed to findBelongsTo');
+        assert.strictEqual(relationship.meta.key, 'post', 'relationship is passed to findBelongsTo');
 
-        assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
-        assert.equal(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
+        assert.strictEqual(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
+        assert.strictEqual(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
 
         return resolve(expectedResultCopy);
       }
@@ -449,8 +449,8 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let post = await comment.get('post');
 
-    assert.equal(findRecordCalled, 0, 'findRecord is not called');
-    assert.equal(findBelongsToCalled, 1, 'findBelongsTo is called once');
+    assert.strictEqual(findRecordCalled, 0, 'findRecord is not called');
+    assert.strictEqual(findBelongsToCalled, 1, 'findBelongsTo is called once');
     assert.deepEqual(post.serialize(), expectedResult, 'findBelongsTo returns expected result');
   });
 
@@ -507,12 +507,12 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       findRecord(passedStore, type, id, snapshot) {
         findRecordCalled++;
 
-        assert.equal(passedStore, store, 'instance of store is passed to findRecord');
-        assert.equal(type, Post, 'model is passed to findRecord');
-        assert.equal(id, '2', 'id is passed to findRecord');
+        assert.strictEqual(passedStore, store, 'instance of store is passed to findRecord');
+        assert.strictEqual(type, Post, 'model is passed to findRecord');
+        assert.strictEqual(id, '2', 'id is passed to findRecord');
 
-        assert.equal(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
-        assert.equal(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
+        assert.strictEqual(snapshot.modelName, 'post', 'snapshot is passed to findRecord with correct modelName');
+        assert.strictEqual(snapshot.id, '2', 'snapshot is passed to findRecord with correct id');
 
         return resolve(expectedResultCopy);
       }
@@ -524,7 +524,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     let post = await comment.get('post');
 
-    assert.equal(findRecordCalled, 1, 'findRecord is called once');
+    assert.strictEqual(findRecordCalled, 1, 'findRecord is called once');
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
   });
 });

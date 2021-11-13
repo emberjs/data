@@ -84,13 +84,8 @@ export function isHasMany(
   return relationship.definition.kind === 'hasMany';
 }
 
-// Set.entries() and Set.values()
-// ...set and Array.from(set) don't
-// work in IE11
 function setToArray<T>(set: Set<T>): T[] {
-  let arr: T[] = [];
-  set.forEach((v) => arr.push(v));
-  return arr;
+  return Array.from(set);
 }
 
 export function stateOf(rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship): {

@@ -97,7 +97,7 @@ module('integration/records/collection_save - Save Collection of Records', funct
         .then((post) => {
           // the ID here is '2' because the second post saves on the first attempt,
           // while the first post saves on the second attempt
-          assert.equal(posts.get('firstObject.id'), '2', 'The post ID made it through');
+          assert.strictEqual(posts.get('firstObject.id'), '2', 'The post ID made it through');
         });
     });
   });

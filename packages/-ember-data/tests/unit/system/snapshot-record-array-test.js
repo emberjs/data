@@ -16,11 +16,11 @@ module('Unit - snapshot-record-array', function () {
 
     let snapshot = new SnapshotRecordArray(array, meta, options);
 
-    assert.equal(snapshot.length, 2);
-    assert.equal(snapshot.meta, meta);
-    assert.equal(snapshot.type, 'some type');
-    assert.equal(snapshot.adapterOptions, 'some options');
-    assert.equal(snapshot.include, 'include me');
+    assert.strictEqual(snapshot.length, 2);
+    assert.strictEqual(snapshot.meta, meta);
+    assert.strictEqual(snapshot.type, 'some type');
+    assert.strictEqual(snapshot.adapterOptions, 'some options');
+    assert.strictEqual(snapshot.include, 'include me');
   });
 
   test('#snapshot', function (assert) {
@@ -42,11 +42,11 @@ module('Unit - snapshot-record-array', function () {
 
     let snapshot = new SnapshotRecordArray(array, meta, options);
 
-    assert.equal(didTakeSnapshot, 0, 'no shapshot shouldn yet be taken');
-    assert.equal(snapshot.snapshots(), snapshotTaken, 'should be correct snapshot');
-    assert.equal(didTakeSnapshot, 1, 'one snapshot should have been taken');
-    assert.equal(snapshot.snapshots(), snapshotTaken, 'should return the exact same snapshot');
-    assert.equal(didTakeSnapshot, 1, 'still only one snapshot should have been taken');
+    assert.strictEqual(didTakeSnapshot, 0, 'no shapshot shouldn yet be taken');
+    assert.strictEqual(snapshot.snapshots(), snapshotTaken, 'should be correct snapshot');
+    assert.strictEqual(didTakeSnapshot, 1, 'one snapshot should have been taken');
+    assert.strictEqual(snapshot.snapshots(), snapshotTaken, 'should return the exact same snapshot');
+    assert.strictEqual(didTakeSnapshot, 1, 'still only one snapshot should have been taken');
   });
 
   test('SnapshotRecordArray.type loads the class lazily', function (assert) {
@@ -69,7 +69,7 @@ module('Unit - snapshot-record-array', function () {
     let snapshot = new SnapshotRecordArray(array, meta, options);
 
     assert.false(typeLoaded, 'model class is not eager loaded');
-    assert.equal(snapshot.type, 'some type');
+    assert.strictEqual(snapshot.type, 'some type');
     assert.true(typeLoaded, 'model class is loaded');
   });
 });

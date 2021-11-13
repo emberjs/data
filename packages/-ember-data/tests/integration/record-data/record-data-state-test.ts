@@ -286,11 +286,11 @@ module('integration/record-data - Record Data State', function (hooks) {
     assert.false(person.get('isDeleted'), 'calling deleteRecord does not automatically set isDeleted flag to true');
     assert.true(calledSetIsDeleted, 'called setIsDeleted');
 
-    assert.equal(people.get('length'), 1, 'live array starting length is 1');
+    assert.strictEqual(people.get('length'), 1, 'live array starting length is 1');
     isDeletionCommitted = true;
     Ember.run(() => {
       storeWrapper.notifyStateChange('person', '1', null, 'isDeletionCommitted');
     });
-    assert.equal(people.get('length'), 0, 'commiting a deletion updates the live array');
+    assert.strictEqual(people.get('length'), 0, 'commiting a deletion updates the live array');
   });
 });

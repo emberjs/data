@@ -45,8 +45,8 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
 
       return run(() => {
         return store.findRecord('person', 1).then((person) => {
-          assert.equal(person.get('id'), '1', `The person's ID is available`);
-          assert.equal(person.get('name'), 'Foo', `The person's properties are availablez`);
+          assert.strictEqual(person.get('id'), '1', `The person's ID is available`);
+          assert.strictEqual(person.get('name'), 'Foo', `The person's properties are availablez`);
         });
       });
     }
@@ -75,12 +75,12 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
 
       run(() => {
         store._pushInternalModel({ id: 1, type: 'person' });
-        assert.equal(didLoadCalled, 0, 'didLoad was not called');
+        assert.strictEqual(didLoadCalled, 0, 'didLoad was not called');
       });
 
       run(() => store.peekRecord('person', 1));
 
-      assert.equal(didLoadCalled, 1, 'didLoad was called');
+      assert.strictEqual(didLoadCalled, 1, 'didLoad was called');
     }
   );
 
@@ -101,8 +101,8 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
 
         didUpdate() {
           callCount++;
-          assert.equal(get(this, 'isSaving'), false, 'record should be saving');
-          assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
+          assert.strictEqual(get(this, 'isSaving'), false, 'record should be saving');
+          assert.strictEqual(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
         },
       });
 
@@ -112,7 +112,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
         },
 
         updateRecord(store, type, snapshot) {
-          assert.equal(callCount, 0, 'didUpdate callback was not called until didSaveRecord is called');
+          assert.strictEqual(callCount, 0, 'didUpdate callback was not called until didSaveRecord is called');
           return resolve();
         },
       });
@@ -123,7 +123,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
 
       let asyncPerson = run(() => this.owner.lookup('service:store').findRecord('person', 1));
 
-      assert.equal(callCount, 0, 'precond - didUpdate callback was not called yet');
+      assert.strictEqual(callCount, 0, 'precond - didUpdate callback was not called yet');
 
       return run(() => {
         return asyncPerson
@@ -134,7 +134,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
             });
           })
           .then(() => {
-            assert.equal(callCount, 1, 'didUpdate called after update');
+            assert.strictEqual(callCount, 1, 'didUpdate called after update');
           });
       });
     }
@@ -154,14 +154,14 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
       const Person = Model.extend({
         didCreate() {
           callCount++;
-          assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
-          assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
+          assert.strictEqual(get(this, 'isSaving'), false, 'record should not be saving');
+          assert.strictEqual(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
         },
       });
 
       const ApplicationAdapter = Adapter.extend({
         createRecord(store, type, snapshot) {
-          assert.equal(callCount, 0, 'didCreate callback was not called until didSaveRecord is called');
+          assert.strictEqual(callCount, 0, 'didCreate callback was not called until didSaveRecord is called');
           return resolve();
         },
       });
@@ -170,7 +170,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
       this.owner.register('adapter:application', ApplicationAdapter);
       this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-      assert.equal(callCount, 0, 'precond - didCreate callback was not called yet');
+      assert.strictEqual(callCount, 0, 'precond - didCreate callback was not called yet');
 
       let person = this.owner.lookup('service:store').createRecord('person', {
         id: 69,
@@ -179,7 +179,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
 
       return run(() => {
         return person.save().then(() => {
-          assert.equal(callCount, 1, 'didCreate called after commit');
+          assert.strictEqual(callCount, 1, 'didCreate called after commit');
         });
       });
     }
@@ -203,8 +203,8 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
         didDelete() {
           callCount++;
 
-          assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
-          assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
+          assert.strictEqual(get(this, 'isSaving'), false, 'record should not be saving');
+          assert.strictEqual(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
         },
       });
 
@@ -214,7 +214,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
         },
 
         deleteRecord(store, type, snapshot) {
-          assert.equal(callCount, 0, 'didDelete callback was not called until didSaveRecord is called');
+          assert.strictEqual(callCount, 0, 'didDelete callback was not called until didSaveRecord is called');
 
           return resolve();
         },
@@ -226,7 +226,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
 
       let asyncPerson = run(() => this.owner.lookup('service:store').findRecord('person', 1));
 
-      assert.equal(callCount, 0, 'precond - didDelete callback was not called yet');
+      assert.strictEqual(callCount, 0, 'precond - didDelete callback was not called yet');
 
       return run(() => {
         return asyncPerson
@@ -237,7 +237,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
             });
           })
           .then(() => {
-            assert.equal(callCount, 1, 'didDelete called after delete');
+            assert.strictEqual(callCount, 1, 'didDelete called after delete');
           });
       });
     }
@@ -260,8 +260,8 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
 
         didDelete() {
           callCount++;
-          assert.equal(this.isSaving, false, 'record should not be saving');
-          assert.equal(this.hasDirtyAttributes, false, 'record should not be dirty');
+          assert.strictEqual(this.isSaving, false, 'record should not be saving');
+          assert.strictEqual(this.hasDirtyAttributes, false, 'record should not be dirty');
         },
       });
 
@@ -271,11 +271,11 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
         name: 'Tomster',
       });
 
-      assert.equal(callCount, 0, 'precond - didDelete callback was not called yet');
+      assert.strictEqual(callCount, 0, 'precond - didDelete callback was not called yet');
 
       run(() => person.deleteRecord());
 
-      assert.equal(callCount, 1, 'didDelete called after delete');
+      assert.strictEqual(callCount, 1, 'didDelete called after delete');
     }
   );
 
@@ -297,8 +297,8 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
         becameInvalid() {
           callCount++;
 
-          assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
-          assert.equal(get(this, 'hasDirtyAttributes'), true, 'record should be dirty');
+          assert.strictEqual(get(this, 'isSaving'), false, 'record should not be saving');
+          assert.strictEqual(get(this, 'hasDirtyAttributes'), true, 'record should be dirty');
         },
       });
 
@@ -308,7 +308,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
         },
 
         updateRecord(store, type, snapshot) {
-          assert.equal(callCount, 0, 'becameInvalid callback was not called until recordWasInvalid is called');
+          assert.strictEqual(callCount, 0, 'becameInvalid callback was not called until recordWasInvalid is called');
 
           return reject(
             new InvalidError([
@@ -329,7 +329,7 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
       this.owner.register('serializer:application', JSONAPISerializer.extend());
 
       let asyncPerson = run(() => this.owner.lookup('service:store').findRecord('person', 1));
-      assert.equal(callCount, 0, 'precond - becameInvalid callback was not called yet');
+      assert.strictEqual(callCount, 0, 'precond - becameInvalid callback was not called yet');
 
       // Make sure that the error handler has a chance to attach before
       // save fails.
@@ -340,9 +340,9 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function (hooks) 
             return person.save().catch((reason) => {
               assert.ok(reason.isAdapterError, 'reason should have been an adapter error');
 
-              assert.equal(reason.errors.length, 1, 'reason should have one error');
-              assert.equal(reason.errors[0].title, 'Invalid Attribute');
-              assert.equal(callCount, 1, 'becameInvalid called after invalidating');
+              assert.strictEqual(reason.errors.length, 1, 'reason should have one error');
+              assert.strictEqual(reason.errors[0].title, 'Invalid Attribute');
+              assert.strictEqual(callCount, 1, 'becameInvalid called after invalidating');
             });
           });
         });

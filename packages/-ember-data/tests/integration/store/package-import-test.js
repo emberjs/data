@@ -50,7 +50,7 @@ module('integration/store/package-import', function (hooks) {
     });
 
     let all = store.peekAll('person');
-    assert.equal(get(all, 'length'), 2);
+    assert.strictEqual(get(all, 'length'), 2);
 
     store.push({
       data: [
@@ -65,6 +65,6 @@ module('integration/store/package-import', function (hooks) {
     });
 
     await settled();
-    assert.equal(get(all, 'length'), 3);
+    assert.strictEqual(get(all, 'length'), 3);
   });
 });

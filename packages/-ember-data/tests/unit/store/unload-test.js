@@ -65,7 +65,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
       record.set('title', 'toto2');
       record._internalModel.send('willCommit');
 
-      assert.equal(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
+      assert.strictEqual(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
 
       assert.expectAssertion(
         function () {
@@ -97,7 +97,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
       });
 
       return store.findRecord('record', 1).then((record) => {
-        assert.equal(get(record, 'id'), 1, 'found record with id 1');
+        assert.strictEqual(get(record, 'id'), '1', 'found record with id 1');
 
         run(() => store.unloadRecord(record));
 
@@ -232,7 +232,7 @@ module('Store - unload record with relationships', function (hooks) {
         return store.findRecord('product', 1);
       })
       .then((product) => {
-        assert.equal(
+        assert.strictEqual(
           product.get('description'),
           'cuisinart',
           "The record was unloaded and the adapter's `findRecord` was called"

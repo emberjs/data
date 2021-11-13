@@ -233,7 +233,6 @@ module.exports = {
     '(public) @ember-data/model Model#save',
     '(public) @ember-data/model Model#serialize',
     '(public) @ember-data/model Model#store',
-    '(public) @ember-data/model Model#toJSON',
     '(public) @ember-data/model Model#toString',
     '(public) @ember-data/model Model#transformedAttributes',
     '(public) @ember-data/model Model#typeForRelationship',

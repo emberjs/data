@@ -45,7 +45,7 @@ module('integration/peek-all - DS.Store#peekAll()', function (hooks) {
     });
 
     let all = store.peekAll('person');
-    assert.equal(get(all, 'length'), 2);
+    assert.strictEqual(get(all, 'length'), 2);
 
     store.push({
       data: [
@@ -61,15 +61,15 @@ module('integration/peek-all - DS.Store#peekAll()', function (hooks) {
 
     await settled();
 
-    assert.equal(get(all, 'length'), 3);
+    assert.strictEqual(get(all, 'length'), 3);
   });
 
   test('Calling store.peekAll() multiple times should update immediately', async function (assert) {
     assert.expect(3);
 
-    assert.equal(get(store.peekAll('person'), 'length'), 0, 'should initially be empty');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'should initially be empty');
     store.createRecord('person', { name: 'Tomster' });
-    assert.equal(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
     store.push({
       data: {
         type: 'person',
@@ -79,13 +79,13 @@ module('integration/peek-all - DS.Store#peekAll()', function (hooks) {
         },
       },
     });
-    assert.equal(get(store.peekAll('person'), 'length'), 2, 'should contain two people');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 2, 'should contain two people');
   });
 
   test('Calling store.peekAll() after creating a record should return correct data', async function (assert) {
     assert.expect(1);
 
     store.createRecord('person', { name: 'Tomster' });
-    assert.equal(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
+    assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
   });
 });

@@ -12,7 +12,7 @@ import { setupTest } from 'ember-qunit';
 import { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import Model, { attr, attr as DSattr, belongsTo, hasMany } from '@ember-data/model';
+import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordDataFor } from '@ember-data/store/-private';
@@ -67,7 +67,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      assert.equal(
+      assert.strictEqual(
         get(record, 'currentState.stateName'),
         'root.deleted.uncommitted',
         'record accepts pushedData is in root.deleted.uncommitted state'
@@ -178,7 +178,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      assert.equal(
+      assert.strictEqual(
         get(record, 'currentState.stateName'),
         'root.loaded.saved',
         'records pushed into the store start in the loaded state'
@@ -197,7 +197,7 @@ module('unit/model - Model', function (hooks) {
 
       let record = await store.findRecord('person', '1');
 
-      assert.equal(get(record, 'id'), 1, 'reports id as id by default');
+      assert.strictEqual(get(record, 'id'), '1', 'reports id as id by default');
     });
 
     test("a record's id is included in its toString representation", async function (assert) {
@@ -208,7 +208,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      assert.equal(
+      assert.strictEqual(
         person.toString(),
         `<dummy@model:${person.constructor.modelName}::${guidFor(person)}:1>`,
         'reports id in toString'
@@ -266,7 +266,7 @@ module('unit/model - Model', function (hooks) {
 
         let record = await store.findRecord('person', 'watch');
 
-        assert.equal(get(record, 'id'), 'watch', 'record is successfully created and could be found by its id');
+        assert.strictEqual(get(record, 'id'), 'watch', 'record is successfully created and could be found by its id');
       } finally {
         if (!hasWatchMethod) {
           delete Object.prototype.watch;
@@ -310,7 +310,7 @@ module('unit/model - Model', function (hooks) {
     test('setting the id during createRecord should correctly update the id', async function (assert) {
       let person = store.createRecord('person', { id: 'john' });
 
-      assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
+      assert.strictEqual(person.get('id'), 'john', 'new id should be correctly set.');
 
       let record = store.peekRecord('person', 'john');
 
@@ -320,11 +320,11 @@ module('unit/model - Model', function (hooks) {
     test('setting the id after createRecord should correctly update the id', async function (assert) {
       let person = store.createRecord('person');
 
-      assert.equal(person.get('id'), null, 'initial created model id should be null');
+      assert.strictEqual(person.get('id'), null, 'initial created model id should be null');
 
       person.set('id', 'john');
 
-      assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
+      assert.strictEqual(person.get('id'), 'john', 'new id should be correctly set.');
 
       let record = store.peekRecord('person', 'john');
 
@@ -334,7 +334,7 @@ module('unit/model - Model', function (hooks) {
     testInDebug('mutating the id after createRecord but before save works', async function (assert) {
       let person = store.createRecord('person', { id: 'chris' });
 
-      assert.equal(person.get('id'), 'chris', 'initial created model id should be null');
+      assert.strictEqual(person.get('id'), 'chris', 'initial created model id should be null');
 
       try {
         person.set('id', 'john');
@@ -362,16 +362,16 @@ module('unit/model - Model', function (hooks) {
       let person = store.createRecord('odd-person');
       let oddId = person.get('idComputed');
 
-      assert.equal(oddId, null, 'initial computed get is null');
+      assert.strictEqual(oddId, null, 'initial computed get is null');
       // test .get access of id
-      assert.equal(person.get('id'), null, 'initial created model id should be null');
+      assert.strictEqual(person.get('id'), null, 'initial created model id should be null');
 
       store.setRecordId('odd-person', 'john', person._internalModel.clientId);
 
       oddId = person.get('idComputed');
-      assert.equal(oddId, 'john', 'computed get is correct');
+      assert.strictEqual(oddId, 'john', 'computed get is correct');
       // test direct access of id
-      assert.equal(person.id, 'john', 'new id should be correctly set.');
+      assert.strictEqual(person.id, 'john', 'new id should be correctly set.');
     });
 
     test('ID mutation (complicated)', async function (assert) {
@@ -391,24 +391,24 @@ module('unit/model - Model', function (hooks) {
 
       let person = store.createRecord('odd-person');
       assert.strictEqual(person.get('idComputed'), 'not-the-id:0');
-      assert.equal(idChange, 0, 'we have had no changes initially');
+      assert.strictEqual(idChange, 0, 'we have had no changes initially');
 
       let personId = person.get('id');
       assert.strictEqual(personId, null, 'initial created model id should be null');
-      assert.equal(idChange, 0, 'we should still have no id changes');
+      assert.strictEqual(idChange, 0, 'we should still have no id changes');
 
       // simulate an update from the store or RecordData that doesn't
       // go through the internalModelFactory
       person._internalModel.setId('john');
-      assert.equal(idChange, 1, 'we should have one change after updating id');
+      assert.strictEqual(idChange, 1, 'we should have one change after updating id');
       let recordData = recordDataFor(person);
-      assert.equal(
+      assert.strictEqual(
         recordData.getResourceIdentifier().id,
         'john',
         'new id should be set on the identifier on record data.'
       );
-      assert.equal(recordData.id, 'john', 'new id should be correctly set on the record data itself.');
-      assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
+      assert.strictEqual(recordData.id, 'john', 'new id should be correctly set on the record data itself.');
+      assert.strictEqual(person.get('id'), 'john', 'new id should be correctly set.');
     });
 
     test('an ID of 0 is allowed', async function (assert) {
@@ -426,7 +426,7 @@ module('unit/model - Model', function (hooks) {
       // we can locate it in the identity map
       let record = store.peekRecord('person', 0);
 
-      assert.equal(record.get('name'), 'Tom Dale', 'found record with id 0');
+      assert.strictEqual(record.get('name'), 'Tom Dale', 'found record with id 0');
     });
   });
 
@@ -446,8 +446,8 @@ module('unit/model - Model', function (hooks) {
       let nativeTag = store.createRecord('native-tag', { name: 'test native' });
       let legacyTag = store.createRecord('legacy-tag', { name: 'test legacy' });
 
-      assert.equal(get(nativeTag, 'name'), 'test native', 'the value is persisted');
-      assert.equal(get(legacyTag, 'name'), 'test legacy', 'the value is persisted');
+      assert.strictEqual(get(nativeTag, 'name'), 'test native', 'the value is persisted');
+      assert.strictEqual(get(legacyTag, 'name'), 'test legacy', 'the value is persisted');
     });
 
     test('a Model can have a defaultValue without an attribute type', async function (assert) {
@@ -465,8 +465,8 @@ module('unit/model - Model', function (hooks) {
       let nativeTag = store.createRecord('native-tag');
       let legacyTag = store.createRecord('legacy-tag');
 
-      assert.equal(get(nativeTag, 'name'), 'unknown native tag', 'the default value is found');
-      assert.equal(get(legacyTag, 'name'), 'unknown legacy tag', 'the default value is found');
+      assert.strictEqual(get(nativeTag, 'name'), 'unknown native tag', 'the default value is found');
+      assert.strictEqual(get(legacyTag, 'name'), 'unknown legacy tag', 'the default value is found');
     });
 
     test('a defaultValue for an attribute can be a function', async function (assert) {
@@ -481,7 +481,7 @@ module('unit/model - Model', function (hooks) {
       this.owner.register('model:tag', Tag);
 
       let tag = store.createRecord('tag');
-      assert.equal(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
+      assert.strictEqual(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
     });
 
     test('a defaultValue function gets the record, options, and key', async function (assert) {
@@ -490,7 +490,7 @@ module('unit/model - Model', function (hooks) {
         @attr('string', {
           defaultValue(record, options, key) {
             assert.deepEqual(record, tag, 'the record is passed in properly');
-            assert.equal(key, 'createdAt', 'the attribute being defaulted is passed in properly');
+            assert.strictEqual(key, 'createdAt', 'the attribute being defaulted is passed in properly');
             return 'le default value';
           },
         })
@@ -649,13 +649,13 @@ module('unit/model - Model', function (hooks) {
 
         await settled();
 
-        assert.equal(count, 1, 'the event was triggered');
+        assert.strictEqual(count, 1, 'the event was triggered');
 
         record.trigger('event!');
 
         await settled();
 
-        assert.equal(count, 2, 'the event was triggered');
+        assert.strictEqual(count, 2, 'the event was triggered');
       }
     );
 
@@ -679,7 +679,7 @@ module('unit/model - Model', function (hooks) {
 
         await settled();
 
-        assert.equal(count, 1, 'the corresponding method was called');
+        assert.strictEqual(count, 1, 'the corresponding method was called');
       }
     );
 
@@ -702,8 +702,8 @@ module('unit/model - Model', function (hooks) {
 
         await settled();
 
-        assert.equal(eventMethodArgs[0], 1);
-        assert.equal(eventMethodArgs[1], 2);
+        assert.strictEqual(eventMethodArgs[0], 1);
+        assert.strictEqual(eventMethodArgs[1], 2);
       }
     );
 
@@ -836,7 +836,7 @@ module('unit/model - Model', function (hooks) {
 
       let person = await store.findRecord('person', 1);
 
-      assert.equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
+      assert.strictEqual(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
       assert.true(get(person, 'isLoaded'), 'model is loaded');
     });
 
@@ -857,11 +857,15 @@ module('unit/model - Model', function (hooks) {
 
       assert.false(person.isNew, 'push should put move the record into the loaded state');
       if (CUSTOM_MODEL_CLASS) {
-        assert.equal(person.currentState.stateName, 'root.loaded.saved', 'model is in loaded state');
+        assert.strictEqual(person.currentState.stateName, 'root.loaded.saved', 'model is in loaded state');
       } else {
         // TODO either this is a bug or being able to push a record with the same ID as a client created one is a bug
         //   probably the bug is the former
-        assert.equal(person.currentState.stateName, 'root.loaded.updated.uncommitted', 'model is in loaded state');
+        assert.strictEqual(
+          person.currentState.stateName,
+          'root.loaded.updated.uncommitted',
+          'model is in loaded state'
+        );
       }
     });
 
@@ -889,13 +893,13 @@ module('unit/model - Model', function (hooks) {
       this.owner.register('model:native-person', OddNativePerson);
       this.owner.register('model:legacy-person', OddLegacyPerson);
 
-      assert.equal(nameDidChange, 0, 'observer should not trigger on create');
+      assert.strictEqual(nameDidChange, 0, 'observer should not trigger on create');
       let person = store.createRecord('legacy-person');
-      assert.equal(nameDidChange, 0, 'observer should not trigger on create');
-      assert.equal(person.get('name'), 'my-name-set-in-init');
+      assert.strictEqual(nameDidChange, 0, 'observer should not trigger on create');
+      assert.strictEqual(person.get('name'), 'my-name-set-in-init');
 
       person = store.createRecord('native-person');
-      assert.equal(person.get('name'), 'my-name-set-in-init');
+      assert.strictEqual(person.get('name'), 'my-name-set-in-init');
     });
 
     test('accessing attributes during init should not throw an error', async function (assert) {
@@ -913,73 +917,6 @@ module('unit/model - Model', function (hooks) {
     });
   });
 
-  module('toJSON()', function (hooks) {
-    deprecatedTest(
-      'A Model can be JSONified',
-      {
-        id: 'ember-data:model.toJSON',
-        until: '4.0',
-      },
-      async function (assert) {
-        let record = store.createRecord('person', { name: 'TomHuda' });
-
-        assert.deepEqual(record.toJSON(), {
-          data: {
-            type: 'people',
-            attributes: {
-              name: 'TomHuda',
-              'is-archived': undefined,
-              'is-drug-addict': false,
-            },
-          },
-        });
-      }
-    );
-
-    deprecatedTest(
-      'toJSON looks up the JSONSerializer using the store instead of using JSONSerializer.create',
-      {
-        id: 'ember-data:model.toJSON',
-        until: '4.0',
-      },
-      async function (assert) {
-        class Author extends Model {
-          @hasMany('post', { async: false, inverse: 'author' })
-          posts;
-        }
-        class Post extends Model {
-          @belongsTo('author', { async: false, inverse: 'posts' })
-          author;
-        }
-        this.owner.register('model:author', Author);
-        this.owner.register('model:post', Post);
-
-        // Loading the person without explicitly
-        // loading its relationships seems to trigger the
-        // original bug where `this.store` was not
-        // present on the serializer due to using .create
-        // instead of `store.serializerFor`.
-        let person = store.push({
-          data: {
-            type: 'author',
-            id: '1',
-          },
-        });
-
-        let errorThrown = false;
-        let json;
-        try {
-          json = person.toJSON();
-        } catch (e) {
-          errorThrown = true;
-        }
-
-        assert.ok(!errorThrown, 'error not thrown due to missing store');
-        assert.deepEqual(json, { data: { type: 'authors' } });
-      }
-    );
-  });
-
   module('Updating', function () {
     test('a Model can update its attributes', async function (assert) {
       assert.expect(1);
@@ -995,7 +932,7 @@ module('unit/model - Model', function (hooks) {
       });
 
       set(person, 'name', 'Brohuda Katz');
-      assert.equal(get(person, 'name'), 'Brohuda Katz', 'setting took hold');
+      assert.strictEqual(get(person, 'name'), 'Brohuda Katz', 'setting took hold');
     });
 
     test(`clearing the value when a Model's defaultValue was in use works`, async function (assert) {
@@ -1007,10 +944,10 @@ module('unit/model - Model', function (hooks) {
       this.owner.register('model:tag', Tag);
 
       let tag = store.createRecord('tag');
-      assert.equal(get(tag, 'name'), 'unknown', 'the default value is found');
+      assert.strictEqual(get(tag, 'name'), 'unknown', 'the default value is found');
 
       set(tag, 'name', null);
-      assert.equal(get(tag, 'name'), null, `null doesn't shadow defaultValue`);
+      assert.strictEqual(get(tag, 'name'), null, `null doesn't shadow defaultValue`);
     });
 
     test(`a Model can define 'setUnknownProperty'`, async function (assert) {
@@ -1037,22 +974,22 @@ module('unit/model - Model', function (hooks) {
       this.owner.register('model:legacy-tag', LegacyTag);
 
       let legacyTag = store.createRecord('legacy-tag', { name: 'old' });
-      assert.equal(get(legacyTag, 'name'), 'old', 'precond - name is correct');
+      assert.strictEqual(get(legacyTag, 'name'), 'old', 'precond - name is correct');
 
       set(legacyTag, 'name', 'edited');
-      assert.equal(get(legacyTag, 'name'), 'edited', 'setUnknownProperty was not triggered');
+      assert.strictEqual(get(legacyTag, 'name'), 'edited', 'setUnknownProperty was not triggered');
 
       set(legacyTag, 'title', 'new');
-      assert.equal(get(legacyTag, 'name'), 'new', 'setUnknownProperty was triggered');
+      assert.strictEqual(get(legacyTag, 'name'), 'new', 'setUnknownProperty was triggered');
 
       let nativeTag = store.createRecord('native-tag', { name: 'old' });
-      assert.equal(get(nativeTag, 'name'), 'old', 'precond - name is correct');
+      assert.strictEqual(get(nativeTag, 'name'), 'old', 'precond - name is correct');
 
       set(nativeTag, 'name', 'edited');
-      assert.equal(get(nativeTag, 'name'), 'edited', 'setUnknownProperty was not triggered');
+      assert.strictEqual(get(nativeTag, 'name'), 'edited', 'setUnknownProperty was not triggered');
 
       set(nativeTag, 'title', 'new');
-      assert.equal(get(nativeTag, 'name'), 'new', 'setUnknownProperty was triggered');
+      assert.strictEqual(get(nativeTag, 'name'), 'new', 'setUnknownProperty was triggered');
     });
 
     test('setting a property to undefined on a newly created record should not impact the current state', async function (assert) {
@@ -1066,15 +1003,15 @@ module('unit/model - Model', function (hooks) {
 
       set(tag, 'name', 'testing');
 
-      assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
+      assert.strictEqual(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
 
       set(tag, 'name', undefined);
 
-      assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
+      assert.strictEqual(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
 
       tag = store.createRecord('tag', { name: undefined });
 
-      assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
+      assert.strictEqual(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
     });
 
     test('setting a property back to its original value removes the property from the `_attributes` hash', async function (assert) {
@@ -1089,15 +1026,19 @@ module('unit/model - Model', function (hooks) {
       });
 
       let recordData = recordDataFor(person);
-      assert.equal(recordData._attributes.name, undefined, 'the `_attributes` hash is clean');
+      assert.strictEqual(recordData._attributes.name, undefined, 'the `_attributes` hash is clean');
 
       set(person, 'name', 'Niceguy Dale');
 
-      assert.equal(recordData._attributes.name, 'Niceguy Dale', 'the `_attributes` hash contains the changed value');
+      assert.strictEqual(
+        recordData._attributes.name,
+        'Niceguy Dale',
+        'the `_attributes` hash contains the changed value'
+      );
 
       set(person, 'name', 'Scumbag Dale');
 
-      assert.equal(recordData._attributes.name, undefined, 'the `_attributes` hash is reset');
+      assert.strictEqual(recordData._attributes.name, undefined, 'the `_attributes` hash is reset');
     });
   });
 
@@ -1107,10 +1048,10 @@ module('unit/model - Model', function (hooks) {
       set(record, 'name', 'bar');
       set(record, 'anotherNotAnAttr', 'my other value');
 
-      assert.equal(get(record, 'notAnAttr'), 'my value', 'property was set on the record');
-      assert.equal(get(record, 'anotherNotAnAttr'), 'my other value', 'property was set on the record');
+      assert.strictEqual(get(record, 'notAnAttr'), 'my value', 'property was set on the record');
+      assert.strictEqual(get(record, 'anotherNotAnAttr'), 'my other value', 'property was set on the record');
       assert.false(get(record, 'isDrugAddict'), 'property was set on the record');
-      assert.equal(get(record, 'name'), 'bar', 'property was set on the record');
+      assert.strictEqual(get(record, 'name'), 'bar', 'property was set on the record');
     });
 
     test('setting a property on a record that has not changed does not cause it to become dirty', async function (assert) {
@@ -1183,13 +1124,13 @@ module('unit/model - Model', function (hooks) {
 
       let saving = person.save();
 
-      assert.equal(person.get('name'), 'Thomas');
+      assert.strictEqual(person.get('name'), 'Thomas');
 
       person.set('name', 'Tomathy');
-      assert.equal(person.get('name'), 'Tomathy');
+      assert.strictEqual(person.get('name'), 'Tomathy');
 
       person.set('name', 'Thomas');
-      assert.equal(person.get('name'), 'Thomas');
+      assert.strictEqual(person.get('name'), 'Thomas');
 
       await saving;
 
@@ -1375,7 +1316,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      assert.equal(Object.keys(mascot.changedAttributes()).length, 0, 'there are no initial changes');
+      assert.strictEqual(Object.keys(mascot.changedAttributes()).length, 0, 'there are no initial changes');
 
       mascot.set('name', 'Tomster'); // new value
       mascot.set('likes', 'Ember.js'); // changed value
@@ -1388,7 +1329,11 @@ module('unit/model - Model', function (hooks) {
 
       mascot.rollbackAttributes();
 
-      assert.equal(Object.keys(mascot.changedAttributes()).length, 0, 'after rollback attributes there are no changes');
+      assert.strictEqual(
+        Object.keys(mascot.changedAttributes()).length,
+        0,
+        'after rollback attributes there are no changes'
+      );
     });
 
     test('changedAttributes() works while the record is being saved', async function (assert) {
