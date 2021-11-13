@@ -3,7 +3,11 @@
   "version": "4.1.0-alpha.12",
   "private": true,
   "description": "Small description for encapsulation-test-app goes here",
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emberjs/data.git",
+    "directory": "packages/unpublished-record-data-encapsulation-test-app"
+  },
   "license": "MIT",
   "author": "",
   "directories": {
