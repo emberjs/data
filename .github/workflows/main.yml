@@ -21,6 +21,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Yarn install
         run: yarn --frozen-lockfile
       - name: Lint features
@@ -38,6 +39,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Yarn install
         run: yarn --frozen-lockfile
       - name: Yarn test infra compatWith 3.0
@@ -73,6 +75,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
       - name: Launcher Info
@@ -135,6 +138,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
       - name: Fastboot Test ${{ matrix.scenario }}
@@ -169,6 +173,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
       - name: Launcher Info
@@ -191,6 +196,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies w/o lockfile
         run: yarn install --no-lockfile --non-interactive
       - name: Basic Tests
@@ -208,6 +214,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.scenario }}
@@ -238,6 +245,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install
       - name: Basic tests with ${{ matrix.release }}
@@ -265,6 +273,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
       - name: Basic tests with ${{ matrix.scenario }}
@@ -285,6 +294,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
       - name: Install dependencies w/o lockfile
         run: yarn install --no-lockfile --non-interactive
       - name: Basic Tests
@@ -330,6 +340,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install
       - name: Generate package tarballs
