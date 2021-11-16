@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+concurrency:
+  group: asset-size-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   asset-size-check:
     runs-on: ubuntu-latest

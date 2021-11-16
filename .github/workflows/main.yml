@@ -12,6 +12,10 @@ on:
     tags:
       - '*'
 
+concurrency:
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     timeout-minutes: 5
@@ -142,12 +146,12 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --network-timeout=300000
       - name: Fastboot Test ${{ matrix.scenario }}
-        timeout-minutes: 12 
+        timeout-minutes: 12
         run: yarn test:fastboot ${{ matrix.scenario }}
 
   browser-tests:
     needs: [lint]
-    timeout-minutes: 20 
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
