@@ -5,6 +5,11 @@ on:
     types: [labeled, unlabeled, opened, reopened, edited, synchronize]
     branches:
       - beta
+
+concurrency:
+  group: pr-labels-beta-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   enforce-changelog-label:
     runs-on: ubuntu-latest
