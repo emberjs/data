@@ -1,7 +1,12 @@
+import { getOwner } from '@ember/application';
 import { deprecate } from '@ember/debug';
+import Route from '@ember/routing/route';
 import { DEBUG } from '@glimmer/env';
 
 import Store from '@ember-data/store';
+import { symbol } from '@ember-data/store/-private';
+
+const EMBER_DATA_STORE = symbol('ember-data-store');
 
 function initializeStore(application) {
   // we can just use registerOptionsForType when we no longer
@@ -45,6 +50,22 @@ function initializeStore(application) {
     application.register('service:store', Store);
   }
 }
+
+// Implicit injection was removed. This is a replacement for Ember Route implicit store
+// https://github.com/emberjs/rfcs/pull/774
+Object.defineProperty(Route, 'store', {
+  get() {
+    if (this[EMBER_DATA_STORE]) {
+      return this[EMBER_DATA_STORE];
+    }
+
+    const store = getOwner(this).lookup('service:store');
+    return store;
+  },
+  set(value) {
+    this[EMBER_DATA_STORE] = value;
+  },
+});
 
 export default function setupContainer(application) {
   initializeStore(application);
