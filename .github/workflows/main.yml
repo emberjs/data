@@ -237,6 +237,8 @@ jobs:
       matrix:
         release: [ember-release, ember-beta]
         include:
+          - release: ember-release
+            continue-on-error: true
           - release: ember-beta
             continue-on-error: true
     runs-on: ubuntu-latest
