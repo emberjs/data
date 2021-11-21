@@ -65,8 +65,6 @@ module('@ember-data/model klass.modelName', function (hooks) {
         startsWith(e.message, `Cannot assign to read only property 'modelName' of `) ||
           // Firefox has a different message
           startsWith(e.message, `"modelName" is read-only`) ||
-          // IE11 has a different message
-          startsWith(e.message, `Assignment to read-only properties is not allowed in strict mode`) ||
           // Safari aso has a different message
           startsWith(e.message, `Attempted to assign to readonly property`),
         `modelName is immutable: ${e.message}`

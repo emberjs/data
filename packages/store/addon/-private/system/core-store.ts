@@ -67,7 +67,6 @@ import type { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
 import constructResource from '../utils/construct-resource';
 import promiseRecord from '../utils/promise-record';
-import { addSymbol } from '../utils/symbol';
 import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
 import { errorsArrayToHash } from './errors-utils';
@@ -1600,18 +1599,14 @@ abstract class CoreStore extends Service {
         groups = [snapshots];
       }
 
-      // we use var here because babel transpiles let
-      // in a manner that causes a mega-bad perf scenario here
-      // when targets no longer include IE11 we can drop this.
-      /* eslint-disable no-var */
-      for (var i = 0, l = groups.length; i < l; i++) {
-        var group = groups[i];
-        var totalInGroup = groups[i].length;
-        var ids = new Array(totalInGroup);
-        var groupedInternalModels = new Array(totalInGroup);
+      for (let i = 0, l = groups.length; i < l; i++) {
+        let group = groups[i];
+        let totalInGroup = groups[i].length;
+        let ids = new Array(totalInGroup);
+        let groupedInternalModels = new Array(totalInGroup);
 
-        for (var j = 0; j < totalInGroup; j++) {
-          var internalModel = group[j]._internalModel;
+        for (let j = 0; j < totalInGroup; j++) {
+          let internalModel = group[j]._internalModel;
 
           groupedInternalModels[j] = internalModel;
           ids[j] = internalModel.id;
@@ -1628,7 +1623,7 @@ abstract class CoreStore extends Service {
               });
           })(groupedInternalModels);
         } else if (ids.length === 1) {
-          var pair = seeking[groupedInternalModels[0].id];
+          let pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
         } else {
           assert("You cannot return an empty array from adapter's method groupRecordsForFindMany");
@@ -2713,7 +2708,7 @@ abstract class CoreStore extends Service {
         operation = 'deleteRecord';
       }
 
-      addSymbol(options, SaveOp, operation);
+      options[SaveOp] = operation;
 
       let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
       let promise = fetchManagerPromise.then(
