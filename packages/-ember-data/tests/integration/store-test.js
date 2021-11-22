@@ -1,3 +1,4 @@
+import { set } from '@ember/object';
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 import Ember from 'ember';
@@ -10,6 +11,7 @@ import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
 import { REQUEST_SERVICE } from '@ember-data/canary-features';
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
@@ -1340,5 +1342,28 @@ module('integration/store - queryRecord', function (hooks) {
     } catch (error) {
       assert.strictEqual(error.message, 'Refusing to serialize');
     }
+  });
+});
+
+module('integration/store - createRecord', function (hooks) {
+  setupTest(hooks);
+
+  test("createRecord doesn't crash when setter is involved", async function (assert) {
+    class User extends Model {
+      @attr() email;
+
+      get name() {
+        return this.email ? this.email.substring(0, this.email.indexOf('@')) : '';
+      }
+
+      set name(value) {
+        set(this, 'email', `${value.toLowerCase()}@ember.js`);
+      }
+    }
+    this.owner.register(`model:user`, User);
+    const store = this.owner.lookup('service:store');
+
+    const user = store.createRecord('user', { name: 'Robert' });
+    assert.strictEqual(user.email, 'robert@ember.js');
   });
 });
