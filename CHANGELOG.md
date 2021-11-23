@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## Release 3.28.5 (LTS) (Nov 23, 2021)
+* No changes from `3.28.4`
+
 ## Release 3.28.4 (Nov 23, 2021)
 
 #### :bug: Bug Fix
