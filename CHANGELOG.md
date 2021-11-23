@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## Release 3.28.4 (Nov 23, 2021)
+
+#### :bug: Bug Fix
+* `-ember-data`, `private-build-infra`
+  * [#7762](https://github.com/emberjs/data/pull/7762) chore(deps): bump broccoli-rollup from 4.1.1 to 5.0.0 (#7559) ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
 ## Release 3.28.3 (Sep 5, 2021)
 
 #### :bug: Bug Fix
