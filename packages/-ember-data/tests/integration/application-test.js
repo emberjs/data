@@ -5,6 +5,7 @@ import Service, { inject as service } from '@ember/service';
 
 import { module, test } from 'qunit';
 
+import { gte } from 'ember-compatibility-helpers';
 import initializeEmberData from 'ember-data/setup-container';
 import { setupTest } from 'ember-qunit';
 import Resolver from 'ember-resolver';
@@ -90,14 +91,16 @@ module('integration/application - Injecting the Default Store', function (hooks)
     assert.ok(fooController.store instanceof Store, 'the store was injected');
   });
 
-  test('the DS namespace should be accessible', async function (assert) {
-    assert.expectDeprecation(
-      () => {
-        assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');
-      },
-      { id: 'ember-global', count: 2, when: { ember: '>=3.27.0' } }
-    );
-  });
+  if (!gte('4.0.0')) {
+    test('the DS namespace should be accessible', async function (assert) {
+      assert.expectDeprecation(
+        () => {
+          assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');
+        },
+        { id: 'ember-global', count: 2, when: { ember: '>=3.27.0' } }
+      );
+    });
+  }
 });
 
 module('integration/application - Using the store as a service', function (hooks) {
