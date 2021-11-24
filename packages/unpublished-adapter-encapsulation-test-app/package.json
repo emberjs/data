@@ -29,6 +29,8 @@
     "@ember-data/unpublished-test-infra": "4.0.0-beta.4",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.6.0",
+    "@glimmer/component": "^1.0.0",
+    "@glimmer/tracking": "^1.0.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-auto-import": "^2.2.4",
     "ember-cli": "~3.26.1",
@@ -54,6 +56,9 @@
   },
   "engines": {
     "node": "12.* || >= 14.*"
+  },
+  "ember": {
+    "edition": "octane"
   },
   "volta": {
     "node": "14.17.0",
