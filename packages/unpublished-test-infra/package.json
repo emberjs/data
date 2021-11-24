@@ -32,8 +32,10 @@
     "webpack": "^5.37.1"
   },
   "devDependencies": {
-    "@ember/optional-features": "^2.0.0",
+    "@ember/optional-features": "^1.3.0",
     "@ember/test-helpers": "^2.2.5",
+    "@glimmer/component": "^1.0.0",
+    "@glimmer/tracking": "^1.0.0",
     "broccoli-merge-trees": "^4.2.0",
     "ember-auto-import": "^2.0.0",
     "ember-cli": "~3.26.1",
@@ -53,6 +55,9 @@
   },
   "engines": {
     "node": "12.* || >= 14.*"
+  },
+  "ember": {
+    "edition": "octane"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
