@@ -498,7 +498,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         }
       }
 
-      assert.expectDeprecation({ id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } });
+      if (!gte('4.0.0')) {
+        assert.expectDeprecation({ id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } });
+      }
     });
   });
 
