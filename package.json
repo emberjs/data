@@ -45,7 +45,7 @@
     "@babel/plugin-transform-typescript": "^7.13.0",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "^2.2.5",
+    "@ember/test-helpers": "^2.6.0",
     "@glimmer/component": "^1.0.0",
     "@types/ember": "^3.16.5",
     "@types/ember-qunit": "^3.4.13",

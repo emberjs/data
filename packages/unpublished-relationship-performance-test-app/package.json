@@ -23,7 +23,7 @@
   "devDependencies": {
     "@ember-data/unpublished-test-infra": "4.0.0-beta.4",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "^2.2.5",
+    "@ember/test-helpers": "^2.6.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-auto-import": "^2.2.4",
     "ember-cli": "~3.26.1",
