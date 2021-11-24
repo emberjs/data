@@ -79,6 +79,7 @@ module.exports = {
     WeakMap: true,
     Set: true,
     Promise: false,
+    Symbol: true,
   },
   env: {
     browser: true,
