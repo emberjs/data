@@ -3,9 +3,9 @@ import { deprecate } from '@ember/debug';
 import Route from '@ember/routing/route';
 import { DEBUG } from '@glimmer/env';
 
-const EMBER_DATA_STORE = Symbol('ember-data-store');
-
 import Store from '@ember-data/store';
+
+const EMBER_DATA_STORE = Symbol('ember-data-store');
 
 function initializeStore(application) {
   // we can just use registerOptionsForType when we no longer
