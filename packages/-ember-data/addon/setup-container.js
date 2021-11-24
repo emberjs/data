@@ -51,21 +51,6 @@ function initializeStore(application) {
 }
 
 // Implicit injection was removed. This is a replacement for Ember Route implicit store
-// https://github.com/emberjs/rfcs/pull/774
-// Object.defineProperty(Route.prototype, 'store', {
-//   get() {
-//     if (this[EMBER_DATA_STORE]) {
-//       return this[EMBER_DATA_STORE];
-//     }
-
-//     const store = getOwner(this).lookup('service:store');
-//     return store;
-//   },
-//   set(value) {
-//     this[EMBER_DATA_STORE] = value;
-//   },
-// });
-
 Route.reopen({
   get store() {
     if (this[EMBER_DATA_STORE]) {
