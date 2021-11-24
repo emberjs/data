@@ -50,7 +50,7 @@ function initializeStore(application) {
   }
 }
 
-// Implicit injection was removed. This is a replacement for Ember Route implicit store
+// Implicit injection was removed. This is a replacement for Ember Route implicit store for >= v4.0
 Route.reopen({
   get store() {
     if (this[EMBER_DATA_STORE]) {
