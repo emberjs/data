@@ -305,7 +305,7 @@ jobs:
       github.event_name == 'pull_request' && (
         github.base_ref == 'master' || github.base_ref == 'beta' || github.base_ref == 'release'
       ) || github.event_name == 'push' && (
-        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta')
+        endsWith(github.ref, '/master') || endsWith(github.ref, '/beta') || endsWith(github.ref, '/release')
       )
     runs-on: ubuntu-latest
     strategy:
