@@ -45,7 +45,6 @@
     "ember-cli-fastboot-testing": "^0.5.0",
     "ember-cli-htmlbars": "^5.1.2",
     "ember-cli-inject-live-reload": "^2.0.2",
-    "ember-cli-template-lint": "^2.0.2",
     "ember-cli-typescript": "^4.1.0",
     "ember-cli-typescript-blueprints": "^3.0.0",
     "ember-export-application-global": "^2.0.1",

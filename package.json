@@ -85,7 +85,6 @@
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-string-utils": "^1.1.0",
-    "ember-cli-template-lint": "^2.0.2",
     "ember-cli-terser": "~4.0.1",
     "ember-cli-test-loader": "^3.0.0",
     "ember-cli-typescript": "^4.1.0",
