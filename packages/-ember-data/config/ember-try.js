@@ -21,9 +21,6 @@ module.exports = function () {
         },
         {
           name: 'with-ember-fetch-and-jquery',
-          env: {
-            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
-          },
           npm: {
             devDependencies: {
               'ember-fetch': '*',
