@@ -18,9 +18,6 @@ module.exports = function () {
       },
       {
         name: 'fastboot-with-jquery',
-        env: {
-          EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
-        },
         npm: {
           devDependencies: {
             'ember-fetch': null,
