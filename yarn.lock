@@ -5521,6 +5521,14 @@ chalk@^4.0.0, chalk@^4.1.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+chalk@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
+  integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
+  dependencies:
+    ansi-styles "^4.1.0"
+    supports-color "^7.1.0"
+
 chardet@^0.7.0:
   version "0.7.0"
   resolved "https://registry.npmjs.org/chardet/-/chardet-0.7.0.tgz#90094849f0937f2eedc2425d0d28a9e5f0cbad9e"
@@ -6751,42 +6759,7 @@ ember-auto-import@^1.11.3:
     walk-sync "^0.3.3"
     webpack "^4.43.0"
 
-ember-auto-import@^1.2.15:
-  version "1.11.3"
-  resolved "https://registry.npmjs.org/ember-auto-import/-/ember-auto-import-1.11.3.tgz#6e3384a7fbb163384a34546f2e902cd297b0e683"
-  integrity sha512-ekq/XCvsonESobFU30zjZ0I4XMy2E/2ZILCYWuQ1JdhcCSTYhnXDZcqRW8itUG7kbsPqAHT/XZ1LEZYm3seVwQ==
-  dependencies:
-    "@babel/core" "^7.1.6"
-    "@babel/preset-env" "^7.10.2"
-    "@babel/traverse" "^7.1.6"
-    "@babel/types" "^7.1.6"
-    "@embroider/core" "^0.33.0"
-    babel-core "^6.26.3"
-    babel-loader "^8.0.6"
-    babel-plugin-syntax-dynamic-import "^6.18.0"
-    babylon "^6.18.0"
-    broccoli-debug "^0.6.4"
-    broccoli-node-api "^1.7.0"
-    broccoli-plugin "^4.0.0"
-    broccoli-source "^3.0.0"
-    debug "^3.1.0"
-    ember-cli-babel "^7.0.0"
-    enhanced-resolve "^4.0.0"
-    fs-extra "^6.0.1"
-    fs-tree-diff "^2.0.0"
-    handlebars "^4.3.1"
-    js-string-escape "^1.0.1"
-    lodash "^4.17.19"
-    mkdirp "^0.5.1"
-    resolve-package-path "^3.1.0"
-    rimraf "^2.6.2"
-    semver "^7.3.4"
-    symlink-or-copy "^1.2.0"
-    typescript-memoize "^1.0.0-alpha.3"
-    walk-sync "^0.3.3"
-    webpack "^4.43.0"
-
-ember-auto-import@^2.2.0, ember-auto-import@^2.2.4:
+ember-auto-import@^2.2.0, ember-auto-import@^2.2.3, ember-auto-import@^2.2.4:
   version "2.2.4"
   resolved "https://registry.npmjs.org/ember-auto-import/-/ember-auto-import-2.2.4.tgz#68c08cb0b7533293024c97387fc449b00561185a"
   integrity sha512-iXHH+bSMP/uWvJmIhjt+PZz4ymqOLccIxZUouVcUFLKA5EAWE7gamlA684m0pIbSE/V9zKpOul4OfIgKXFprBg==
@@ -6876,7 +6849,7 @@ ember-cli-babel@^6.0.0-beta.4:
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.13.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.19.0, ember-cli-babel@^7.21.0, ember-cli-babel@^7.22.1, ember-cli-babel@^7.23.0, ember-cli-babel@^7.23.1, ember-cli-babel@^7.26.6, ember-cli-babel@^7.7.3, ember-cli-babel@^7.8.0:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.13.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.19.0, ember-cli-babel@^7.21.0, ember-cli-babel@^7.22.1, ember-cli-babel@^7.23.0, ember-cli-babel@^7.23.1, ember-cli-babel@^7.26.3, ember-cli-babel@^7.26.6, ember-cli-babel@^7.7.3:
   version "7.26.6"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.26.6.tgz#322fbbd3baad9dd99e3276ff05bc6faef5e54b39"
   integrity sha512-040svtfj2RC35j/WMwdWJFusZaXmNoytLAMyBDGLMSlRvznudTxZjGlPV6UupmtTBApy58cEF8Fq4a+COWoEmQ==
@@ -6934,40 +6907,41 @@ ember-cli-dependency-checker@^3.2.0:
     resolve "^1.5.0"
     semver "^5.3.0"
 
-ember-cli-fastboot-testing@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.npmjs.org/ember-cli-fastboot-testing/-/ember-cli-fastboot-testing-0.5.0.tgz#1efce4d6437e0f9597e2d705e7fd2df185e535d0"
-  integrity sha512-BZmqXSYI9zCDWby9AkpbUnwUK0ubm78a84NUpp5Mv3QSY2HDar6JgEu+XAQA49dKQBfMVuNU4YMq4AGG5dx6yA==
+ember-cli-fastboot-testing@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.npmjs.org/ember-cli-fastboot-testing/-/ember-cli-fastboot-testing-0.6.0.tgz#69cceecf05a64d79508e0de63166790d4539b46f"
+  integrity sha512-ppZyrb4qKjaF+JqsHgDtSic04V5Ut4i1z3FkT2n0IizzL1duQN3rqQgE0sKa8wR7B4tBd7Fc+JQL3VIkVwzBow==
   dependencies:
     body-parser "^1.18.3"
-    ember-auto-import "^1.2.15"
-    ember-cli-babel "^7.8.0"
+    ember-auto-import "^2.2.3"
+    ember-cli-babel "^7.26.6"
     fastboot "^3.0.3"
     json-fn "^1.1.1"
     minimist "^1.2.0"
-    nock "^12.0.3"
+    nock "^13.1.4"
     resolve "^1.10.0"
     whatwg-fetch "^3.0.0"
 
-ember-cli-fastboot@^3.2.0-beta.2:
-  version "3.2.0-beta.2"
-  resolved "https://registry.npmjs.org/ember-cli-fastboot/-/ember-cli-fastboot-3.2.0-beta.2.tgz#e1524ace55ffafce6918c05966067e2748aa81ba"
-  integrity sha512-P1gGQhXpDRqzfpaMI/68ZoVe1djIb15nyyVSh1RHIn6hvozE2/0CJZQDxSHKiFBCMI0XucyD6JvhaNiHpwMgHQ==
+ember-cli-fastboot@^3.2.0-beta.4:
+  version "3.2.0-beta.4"
+  resolved "https://registry.npmjs.org/ember-cli-fastboot/-/ember-cli-fastboot-3.2.0-beta.4.tgz#a73a13314eba074857ce9e7aa6648c5edac9aece"
+  integrity sha512-cu3gMav5ORnBx7hfK69764/pbSZNH2J2H31Sb5FGbEO6cNwl+Z1lus25QRjpDaH88SWhZhFr/C0rgvYvVxZ6Xw==
   dependencies:
     broccoli-concat "^3.7.1"
     broccoli-file-creator "^2.1.1"
     broccoli-funnel "^2.0.1"
     broccoli-merge-trees "^3.0.1"
     broccoli-plugin "^1.3.1"
-    chalk "^2.4.1"
-    ember-cli-babel "^7.1.0"
+    chalk "^4.1.2"
+    ember-cli-babel "^7.26.3"
+    ember-cli-htmlbars "^5.7.1"
     ember-cli-lodash-subset "2.0.1"
     ember-cli-preprocess-registry "^3.1.2"
     ember-cli-version-checker "^3.0.0"
-    fastboot "3.2.0-beta.2"
-    fastboot-express-middleware "3.2.0-beta.2"
+    fastboot "3.2.0-beta.4"
+    fastboot-express-middleware "3.2.0-beta.4"
     fastboot-transform "^0.1.3"
-    fs-extra "^7.0.0"
+    fs-extra "^10.0.0"
     json-stable-stringify "^1.0.1"
     md5-hex "^2.0.0"
     recast "^0.19.1"
@@ -8340,13 +8314,13 @@ fast-sourcemap-concat@^2.1.0:
     source-map-url "^0.3.0"
     sourcemap-validator "^1.1.0"
 
-fastboot-express-middleware@3.2.0-beta.2:
-  version "3.2.0-beta.2"
-  resolved "https://registry.npmjs.org/fastboot-express-middleware/-/fastboot-express-middleware-3.2.0-beta.2.tgz#4bf7ccbaf6bf698024fa9fb06c233cf3661b5816"
-  integrity sha512-H61DBnxp1OZi1Nzy2wA3QSTPtwrjH3SSDnFgvgC8T18PrUhzH5E4952e5WX/LRRIa+CBM4FcVnxSi26kJRksGQ==
+fastboot-express-middleware@3.2.0-beta.4:
+  version "3.2.0-beta.4"
+  resolved "https://registry.npmjs.org/fastboot-express-middleware/-/fastboot-express-middleware-3.2.0-beta.4.tgz#12bcbae44a800213ab286dea6f7c960d8aeadd0f"
+  integrity sha512-tJ4Dpv+2gQ1R6B08sMIlRnon2f4pVgGAAztIeQfj3b30Qjt1CsCgiNBuUytgotlM7U9w6dJaUsNx8970vinZDQ==
   dependencies:
     chalk "^2.0.1"
-    fastboot "3.2.0-beta.2"
+    fastboot "3.2.0-beta.4"
 
 fastboot-transform@^0.1.3:
   version "0.1.3"
@@ -8356,10 +8330,10 @@ fastboot-transform@^0.1.3:
     broccoli-stew "^1.5.0"
     convert-source-map "^1.5.1"
 
-fastboot@3.2.0-beta.2:
-  version "3.2.0-beta.2"
-  resolved "https://registry.npmjs.org/fastboot/-/fastboot-3.2.0-beta.2.tgz#e657a76c20880526e82cd5cabb82a7b46e532f15"
-  integrity sha512-oZwbzdXDBGQ0f8vZ+jHyrM9yYPPTXgbNZdo9a9xEny93gp7o5+G1ck1KK8DtNC+oM1Crwo4zsLPH37nMSOtt8A==
+fastboot@3.2.0-beta.4:
+  version "3.2.0-beta.4"
+  resolved "https://registry.npmjs.org/fastboot/-/fastboot-3.2.0-beta.4.tgz#f5e5ee47c7a895f5024531db2d2da7ad0145572a"
+  integrity sha512-0e+WxjKkZWaTXNRsTzmtIwogFQYxgdtfKIV65quhFLusAiqUiYzzdsE07XxH1LKrKgR0sOiUCxTxh49Rp/H0Ww==
   dependencies:
     chalk "^3.0.0"
     cookie "^0.4.0"
@@ -8369,7 +8343,7 @@ fastboot@3.2.0-beta.2:
     simple-dom "^1.4.0"
     source-map-support "^0.5.16"
 
-fastboot@^3.0.3, fastboot@^3.1.2:
+fastboot@^3.0.3:
   version "3.1.2"
   resolved "https://registry.npmjs.org/fastboot/-/fastboot-3.1.2.tgz#c10a97be3a61fbbf9e4bd8abc43373e8739d1787"
   integrity sha512-yvhJfIRd4wWWACk+qjJxQI+WBIQ+pyQyp0/fxrQyA/cYJgZAXOHb+22zXJbJXaPku3fHS+gBl7crwovIkl8bhQ==
@@ -8770,6 +8744,15 @@ fs-extra@^0.30.0:
     klaw "^1.0.0"
     path-is-absolute "^1.0.0"
     rimraf "^2.2.8"
+
+fs-extra@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-10.0.0.tgz#9ff61b655dde53fb34a82df84bb214ce802e17c1"
+  integrity sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
+  dependencies:
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
 
 fs-extra@^4.0.2, fs-extra@^4.0.3:
   version "4.0.3"
@@ -11019,6 +11002,11 @@ lodash.restparam@^3.0.0:
   resolved "https://registry.npmjs.org/lodash.restparam/-/lodash.restparam-3.6.1.tgz#936a4e309ef330a7645ed4145986c85ae5b20805"
   integrity sha1-k2pOMJ7zMKdkXtQUWYbIWuWyCAU=
 
+lodash.set@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.npmjs.org/lodash.set/-/lodash.set-4.3.2.tgz#d8757b1da807dde24816b0d6a84bea1a76230b23"
+  integrity sha1-2HV7HagH3eJIFrDWqEvqGnYjCyM=
+
 lodash.template@^4.5.0:
   version "4.5.0"
   resolved "https://registry.npmjs.org/lodash.template/-/lodash.template-4.5.0.tgz#f976195cf3f347d0d5f52483569fe8031ccce8ab"
@@ -11049,7 +11037,7 @@ lodash.uniqby@^4.7.0:
   resolved "https://registry.npmjs.org/lodash.uniqby/-/lodash.uniqby-4.7.0.tgz#d99c07a669e9e6d24e1362dfe266c67616af1302"
   integrity sha1-2ZwHpmnp5tJOE2Lf4mbGdhavEwI=
 
-lodash@^4.0.0, lodash@^4.16.1, lodash@^4.17.10, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.6.1, lodash@^4.7.0:
+lodash@^4.0.0, lodash@^4.16.1, lodash@^4.17.10, lodash@^4.17.12, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.6.1, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -11835,14 +11823,14 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
-nock@^12.0.3:
-  version "12.0.3"
-  resolved "https://registry.npmjs.org/nock/-/nock-12.0.3.tgz#83f25076dbc4c9aa82b5cdf54c9604c7a778d1c9"
-  integrity sha512-QNb/j8kbFnKCiyqi9C5DD0jH/FubFGj5rt9NQFONXwQm3IPB0CULECg/eS3AU1KgZb/6SwUa4/DTRKhVxkGABw==
+nock@^13.1.4:
+  version "13.2.1"
+  resolved "https://registry.npmjs.org/nock/-/nock-13.2.1.tgz#fcf5bdb9bb9f0554a84c25d3333166c0ffd80858"
+  integrity sha512-CoHAabbqq/xZEknubuyQMjq6Lfi5b7RtK6SoNK6m40lebGp3yiMagWtIoYaw2s9sISD7wPuCfwFpivVHX/35RA==
   dependencies:
     debug "^4.1.0"
     json-stringify-safe "^5.0.1"
-    lodash "^4.17.13"
+    lodash.set "^4.3.2"
     propagate "^2.0.0"
 
 node-fetch@^2.6.0, node-fetch@^2.6.1:
