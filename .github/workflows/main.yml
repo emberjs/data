@@ -300,7 +300,7 @@ jobs:
         run: yarn test
 
   external-partners:
-    needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts, releases]
+    needs: [additional-scenarios, basic-tests, floating-dependencies, lint, lts]
     if: |
       github.event_name == 'pull_request' && (
         github.base_ref == 'master' || github.base_ref == 'beta' || github.base_ref == 'release'
