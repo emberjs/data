@@ -31,9 +31,6 @@ module.exports = {
   root: true,
   parserOptions: {
     ecmaVersion: 2017,
-    ecmaFeatures: {
-      legacyDecorators: true,
-    },
     sourceType: 'module',
     requireConfigFile: false,
     babelOptions: {

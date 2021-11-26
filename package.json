@@ -61,7 +61,6 @@
     "@types/rsvp": "^4.0.3",
     "@typescript-eslint/eslint-plugin": "^4.21.0",
     "@typescript-eslint/parser": "^4.21.0",
-    "babel-eslint": "^10.1.0",
     "babel-plugin-debug-macros": "^0.3.3",
     "babel-plugin-filter-imports": "^4.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
