@@ -27,11 +27,18 @@ const ImportSortGroups = [
 ];
 
 module.exports = {
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   root: true,
   parserOptions: {
     ecmaVersion: 2017,
+    ecmaFeatures: {
+      legacyDecorators: true,
+    },
     sourceType: 'module',
+    requireConfigFile: false,
+    babelOptions: {
+      plugins: [['@babel/plugin-proposal-decorators', { legacy: true }]],
+    },
   },
   plugins: ['prettier', 'qunit', 'mocha', 'simple-import-sort', 'import'],
   extends: ['eslint:recommended', 'prettier', 'plugin:qunit/recommended'],
