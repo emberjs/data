@@ -293,4 +293,90 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     assert.deepEqual(cake.belongsTo('topping').id(), '2');
     assert.strictEqual(cake.topping.name, 'Cheese');
   });
+
+  test('child attributes are not updated correctly by .save() when sideposted record has different attribute than in the response payload with lid provided', async function (assert) {
+        class Topping extends Model {
+      @attr name;
+    }
+
+    class Cake extends Model {
+      @attr name;
+      @belongsTo('topping', { inverse: null, async: false }) topping;
+    }
+
+    this.owner.register('model:topping', Topping);
+    this.owner.register('model:cake', Cake);
+
+    class TestSerializer extends EmberObject {
+      normalizeResponse(_, __, payload) {
+        return payload;
+      }
+    }
+
+    class TestAdapter extends Adapter {
+      createRecord(_store, _ModelClass, snapshot) {
+        const lid = recordIdentifierFor(snapshot.record.topping).lid;
+
+        return resolve({
+          data: {
+            type: 'cake',
+            id: '1',
+            attributes: {
+              name: 'Cheesecake',
+            },
+            relationships: {
+              topping: {
+                data: {
+                  type: 'topping',
+                  id: '2',
+                  lid,
+                },
+              },
+            },
+          },
+          included: [
+            {
+              type: 'topping',
+              id: '2',
+              lid,
+              attributes: {
+                name: 'Cheese',
+              },
+              relationships: {
+                cake: {
+                  data: {
+                    type: 'cake',
+                    id: '1',
+                  },
+                },
+              },
+            },
+          ],
+        });
+      }
+    }
+
+    this.owner.register('serializer:application', TestSerializer);
+    this.owner.register('adapter:application', TestAdapter);
+
+    store.createRecord('topping', { name: 'Cheese' });
+    store.createRecord('topping', { name: 'Chocolate' });
+    const cheeseAndChocolate = store.createRecord('topping', { name: 'Cheese And Chocolate' });
+    const cake = store.createRecord('cake', { name: 'Cheesecake', topping: cheeseAndChocolate });
+    cake.name = 'Chocolate cheesecake';
+
+    assert.true(cake.hasDirtyAttributes, 'cake.hasDirtyAttributes is true before save');
+    assert.true(cake.topping.hasDirtyAttributes, 'cake.topping.hasDirtyAttributes is true before save');
+
+    await cake.save();
+
+    assert.deepEqual(cake.belongsTo('topping').id(), '2');
+    assert.strictEqual(cake.name, 'Cheesecake', 'Cake name is overridden by server');
+    assert.strictEqual(cake.topping.name, 'Cheese', 'Topping name is overridden by server');
+
+    assert.false(cake.hasDirtyAttributes, 'cake.hasDirtyAttributes is false for newly created record');
+    assert.false(cake.topping.hasDirtyAttributes, 'cake.topping.hasDirtyAttributes is false for newly created record');
+    assert.deepEqual(cake.changedAttributes(), {}, 'there is no changed attributes for cake for newly created record');
+    assert.deepEqual(cake.topping.changedAttributes(), {}, 'there is no changed attributes for cake.topping for newly created record');
+  });
 });
