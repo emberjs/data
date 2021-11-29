@@ -216,10 +216,16 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const cheese = store.createRecord('ingredient', { name: 'Cheese' });
     const cake = store.createRecord('cake', { name: 'Cheesecake', ingredients: [cheese] });
 
+    // Access ids before save()
+    assert.strictEqual(cake.id, null);
+    assert.strictEqual(cheese.id, null);
+
     await cake.save();
 
     assert.deepEqual(cake.hasMany('ingredients').ids(), ['2']);
     assert.strictEqual(cake.ingredients.objectAt(0).name, 'Cheese');
+    assert.strictEqual(cake.id, '1');
+    assert.strictEqual(cheese.id, '2');
   });
 
   test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function (assert) {
@@ -288,9 +294,15 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const cheese = store.createRecord('topping', { name: 'Cheese' });
     const cake = store.createRecord('cake', { name: 'Cheesecake', topping: cheese });
 
+    // Access ids before save()
+    assert.strictEqual(cake.id, null);
+    assert.strictEqual(cheese.id, null);
+
     await cake.save();
 
     assert.deepEqual(cake.belongsTo('topping').id(), '2');
     assert.strictEqual(cake.topping.name, 'Cheese');
+    assert.strictEqual(cake.id, '1');
+    assert.strictEqual(cheese.id, '2');
   });
 });
