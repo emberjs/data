@@ -23,6 +23,7 @@
     "@ember-data/model": "4.0.0-beta.4",
     "@ember-data/serializer": "4.0.0-beta.4",
     "@ember-data/store": "4.0.0-beta.4",
+    "ember-auto-import": "^2.2.4",
     "ember-inflector": "^4.0.1"
   },
   "devDependencies": {
@@ -32,7 +33,6 @@
     "@glimmer/component": "^1.0.0",
     "@glimmer/tracking": "^1.0.0",
     "broccoli-asset-rev": "^3.0.0",
-    "ember-auto-import": "^2.2.4",
     "ember-cli": "~3.26.1",
     "ember-cli-app-version": "^5.0.0",
     "ember-cli-babel": "^7.26.6",

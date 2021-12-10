@@ -18,6 +18,7 @@
     "test": "ember test --test-port=0"
   },
   "dependencies": {
+    "ember-auto-import": "^2.2.4",
     "ember-data": "4.0.0-beta.4"
   },
   "devDependencies": {
@@ -25,7 +26,6 @@
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.6.0",
     "broccoli-asset-rev": "^3.0.0",
-    "ember-auto-import": "^2.2.4",
     "ember-cli": "~3.26.1",
     "ember-cli-app-version": "^5.0.0",
     "ember-cli-babel": "^7.26.6",
