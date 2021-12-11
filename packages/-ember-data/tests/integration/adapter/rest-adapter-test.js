@@ -2123,27 +2123,29 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
   );
 
-  testInDebug(
-    'warns when an empty 201 response is returned, though a valid stringified JSON is expected',
-    function (assert) {
-      assert.expect(1);
+  if (typeof jQuery !== 'undefined') {
+    testInDebug(
+      'warns when an empty 201 response is returned, though a valid stringified JSON is expected - Ajax',
+      function (assert) {
+        assert.expect(1);
 
-      adapter.useFetch = false;
-      server.post('/posts', function () {
-        return [201, { 'Content-Type': 'application/json' }, ''];
-      });
+        adapter.useFetch = false;
+        server.post('/posts', function () {
+          return [201, { 'Content-Type': 'application/json' }, ''];
+        });
 
-      let post = store.createRecord('post');
-      return post.save().then(
-        () => {
-          assert.equal(true, false, 'should not have fulfilled');
-        },
-        (reason) => {
-          assert.ok(/JSON/.test(reason.message));
-        }
-      );
-    }
-  );
+        let post = store.createRecord('post');
+        return post.save().then(
+          () => {
+            assert.equal(true, false, 'should not have fulfilled');
+          },
+          (reason) => {
+            assert.ok(/JSON/.test(reason.message));
+          }
+        );
+      }
+    );
+  }
 
   testInDebug(
     'warns when an empty 200 response is returned, though a valid stringified JSON is expected',
