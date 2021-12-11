@@ -23,27 +23,28 @@
     "@ember-data/model": "4.0.0-beta.4",
     "@ember-data/serializer": "4.0.0-beta.4",
     "@ember-data/store": "4.0.0-beta.4",
+    "ember-auto-import": "^2.2.4",
     "ember-inflector": "^4.0.1"
   },
   "devDependencies": {
     "@ember-data/unpublished-test-infra": "4.0.0-beta.4",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "^2.2.5",
+    "@ember/test-helpers": "^2.6.0",
+    "@glimmer/component": "^1.0.0",
+    "@glimmer/tracking": "^1.0.0",
     "broccoli-asset-rev": "^3.0.0",
-    "ember-auto-import": "^2.0.0",
     "ember-cli": "~3.26.1",
     "ember-cli-app-version": "^5.0.0",
     "ember-cli-babel": "^7.26.6",
     "ember-cli-dependency-checker": "^3.2.0",
     "ember-cli-htmlbars": "^5.1.2",
     "ember-cli-inject-live-reload": "^2.0.2",
-    "ember-cli-template-lint": "^2.0.2",
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.1",
     "ember-maybe-import-regenerator": "^0.1.6",
-    "ember-qunit": "^5.1.4",
+    "ember-qunit": "^5.1.5",
     "ember-resolver": "^8.0.0",
-    "ember-source": "~3.27.1",
+    "ember-source": "~4.0.0",
     "eslint": "^7.23.0",
     "eslint-plugin-ember": "^10.3.0",
     "eslint-plugin-node": "^11.1.0",
@@ -54,6 +55,9 @@
   },
   "engines": {
     "node": "12.* || >= 14.*"
+  },
+  "ember": {
+    "edition": "octane"
   },
   "volta": {
     "node": "14.17.0",

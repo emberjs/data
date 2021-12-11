@@ -1,5 +1,3 @@
-/* globals jQuery */
-
 import { get } from '@ember/object';
 import { underscore } from '@ember/string';
 
@@ -17,8 +15,6 @@ import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
-
-const hasJQuery = typeof jQuery !== 'undefined';
 
 let store, adapter, Post, Comment, SuperUser;
 let passedUrl, passedVerb, passedHash;
@@ -1772,58 +1768,58 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     await post.get('comments');
   });
 
-  if (hasJQuery) {
-    test('calls adapter.handleResponse with the jqXHR and json', async function (assert) {
-      assert.expect(2);
+  //check
+  test('calls adapter.handleResponse with the jqXHR and json', async function (assert) {
+    assert.expect(2);
 
-      let data = {
-        post: {
-          id: '1',
-          name: 'Docker is amazing',
-        },
-      };
+    let data = {
+      post: {
+        id: '1',
+        name: 'Docker is amazing',
+      },
+    };
 
-      server.get('/posts/1', function () {
-        return [200, { 'Content-Type': 'application/json' }, JSON.stringify(data)];
-      });
+    server.get('/posts/1', function () {
+      return [200, { 'Content-Type': 'application/json' }, JSON.stringify(data)];
+    });
 
-      adapter.handleResponse = function (status, headers, json) {
-        assert.deepEqual(status, 200);
-        assert.deepEqual(json, data);
-        return json;
-      };
+    adapter.handleResponse = function (status, headers, json) {
+      assert.deepEqual(status, 200);
+      assert.deepEqual(json, data);
+      return json;
+    };
 
+    await store.findRecord('post', '1');
+  });
+
+  //check
+  test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', async function (assert) {
+    assert.expect(4);
+
+    let responseText = 'Nope lol';
+
+    let expectedRequestData = {
+      method: 'GET',
+      url: '/posts/1',
+    };
+
+    server.get('/posts/1', function () {
+      return [400, {}, responseText];
+    });
+
+    adapter.handleResponse = function (status, headers, json, requestData) {
+      assert.deepEqual(status, 400);
+      assert.deepEqual(json, responseText);
+      assert.deepEqual(requestData, expectedRequestData);
+      return new DS.AdapterError('nope!');
+    };
+
+    try {
       await store.findRecord('post', '1');
-    });
-
-    test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', async function (assert) {
-      assert.expect(4);
-
-      let responseText = 'Nope lol';
-
-      let expectedRequestData = {
-        method: 'GET',
-        url: '/posts/1',
-      };
-
-      server.get('/posts/1', function () {
-        return [400, {}, responseText];
-      });
-
-      adapter.handleResponse = function (status, headers, json, requestData) {
-        assert.deepEqual(status, 400);
-        assert.deepEqual(json, responseText);
-        assert.deepEqual(requestData, expectedRequestData);
-        return new DS.AdapterError('nope!');
-      };
-
-      try {
-        await store.findRecord('post', '1');
-      } catch (err) {
-        assert.ok(err, 'promise rejected');
-      }
-    });
-  }
+    } catch (err) {
+      assert.ok(err, 'promise rejected');
+    }
+  });
 
   test('rejects promise if DS.AdapterError is returned from adapter.handleResponse', async function (assert) {
     assert.expect(3);
@@ -1907,59 +1903,59 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
   });
 
-  if (hasJQuery) {
-    test('on error appends errorThrown for sanity', async function (assert) {
-      assert.expect(2);
+  test('on error appends errorThrown for sanity', async function (assert) {
+    assert.expect(2);
 
-      let jqXHR = {
-        responseText: 'Nope lol',
-        getAllResponseHeaders() {
-          return '';
-        },
-      };
+    let jqXHR = {
+      responseText: 'Nope lol',
+      getAllResponseHeaders() {
+        return '';
+      },
+    };
 
-      let errorThrown = new Error('nope!');
+    let errorThrown = new Error('nope!');
 
-      adapter._ajaxRequest = function (hash) {
-        hash.error(jqXHR, jqXHR.responseText, errorThrown);
-      };
+    adapter.useFetch = false;
+    adapter._ajaxRequest = function (hash) {
+      hash.error(jqXHR, jqXHR.responseText, errorThrown);
+    };
 
-      adapter.handleResponse = function (status, headers, payload) {
-        assert.ok(false);
-      };
+    adapter.handleResponse = function (status, headers, payload) {
+      assert.ok(false);
+    };
 
-      try {
-        await store.findRecord('post', '1');
-      } catch (err) {
-        assert.equal(err, errorThrown);
-        assert.ok(err, 'promise rejected');
-      }
-    });
+    try {
+      await store.findRecord('post', '1');
+    } catch (err) {
+      assert.equal(err, errorThrown);
+      assert.ok(err, 'promise rejected');
+    }
+  });
 
-    test('on error wraps the error string in an DS.AdapterError object', async function (assert) {
-      assert.expect(2);
+  test('on error wraps the error string in an DS.AdapterError object', async function (assert) {
+    assert.expect(2);
 
-      let jqXHR = {
-        responseText: '',
-        getAllResponseHeaders() {
-          return '';
-        },
-      };
+    let jqXHR = {
+      responseText: '',
+      getAllResponseHeaders() {
+        return '';
+      },
+    };
 
-      let errorThrown = 'nope!';
+    let errorThrown = 'nope!';
 
-      adapter._ajaxRequest = function (hash) {
-        hash.error(jqXHR, 'error', errorThrown);
-      };
+    adapter.useFetch = false;
+    adapter._ajaxRequest = function (hash) {
+      hash.error(jqXHR, 'error', errorThrown);
+    };
 
-      try {
-        await store.findRecord('post', '1');
-      } catch (err) {
-        assert.equal(err.errors[0].detail, errorThrown);
-        assert.ok(err, 'promise rejected');
-      }
-    });
-  }
+    try {
+      await store.findRecord('post', '1');
+    } catch (err) {
+      assert.equal(err.errors[0].detail, errorThrown);
+      assert.ok(err, 'promise rejected');
+    }
+  });
 
   test('rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes', async function (assert) {
     assert.expect(10);
@@ -2117,57 +2113,75 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
           assert.equal(true, false, 'should not have fulfilled');
         },
         (reason) => {
-          if (!hasJQuery) {
-            assert.ok(/saved to the server/.test(reason.message));
-            // Workaround for #7371 to get the record a correct state before teardown
-            let identifier = recordIdentifierFor(post);
-            let im = store._internalModelForResource(identifier);
-            store.didSaveRecord(im, { data: { id: '1', type: 'post' } }, 'createRecord');
-          } else {
-            assert.ok(/JSON/.test(reason.message));
-          }
+          assert.ok(/saved to the server/.test(reason.message));
+          // Workaround for #7371 to get the record a correct state before teardown
+          let identifier = recordIdentifierFor(post);
+          let im = store._internalModelForResource(identifier);
+          store.didSaveRecord(im, { data: { id: '1', type: 'post' } }, 'createRecord');
         }
       );
     }
   );
 
-  if (!hasJQuery) {
+  if (typeof jQuery !== 'undefined') {
     testInDebug(
-      'warns when an empty 200 response is returned, though a valid stringified JSON is expected',
-      async function (assert) {
-        assert.expect(2);
+      'warns when an empty 201 response is returned, though a valid stringified JSON is expected - Ajax',
+      function (assert) {
+        assert.expect(1);
 
-        server.put('/posts/1', function () {
-          return [200, { 'Content-Type': 'application/json' }, ''];
+        adapter.useFetch = false;
+        server.post('/posts', function () {
+          return [201, { 'Content-Type': 'application/json' }, ''];
         });
 
-        let post = store.push({ data: { id: '1', type: 'post' } });
-        await assert.expectWarning(async () => {
-          return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
-        }, /JSON/);
+        let post = store.createRecord('post');
+        return post.save().then(
+          () => {
+            assert.equal(true, false, 'should not have fulfilled');
+          },
+          (reason) => {
+            assert.ok(/JSON/.test(reason.message));
+          }
+        );
       }
     );
+  }
 
-    test('can return an empty 200 response, though a valid stringified JSON is expected', async function (assert) {
-      assert.expect(1);
+  testInDebug(
+    'warns when an empty 200 response is returned, though a valid stringified JSON is expected',
+    async function (assert) {
+      assert.expect(2);
 
       server.put('/posts/1', function () {
         return [200, { 'Content-Type': 'application/json' }, ''];
       });
 
       let post = store.push({ data: { id: '1', type: 'post' } });
-      return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
+      await assert.expectWarning(async () => {
+        return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
+      }, /JSON/);
+    }
+  );
+
+  test('can return an empty 200 response, though a valid stringified JSON is expected', async function (assert) {
+    assert.expect(1);
+
+    server.put('/posts/1', function () {
+      return [200, { 'Content-Type': 'application/json' }, ''];
     });
 
-    test('can return a null 200 response, though a valid stringified JSON is expected', async function (assert) {
-      assert.expect(1);
+    let post = store.push({ data: { id: '1', type: 'post' } });
+    return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
+  });
 
-      server.put('/posts/1', function () {
-        return [200, { 'Content-Type': 'application/json' }, null];
-      });
+  test('can return a null 200 response, though a valid stringified JSON is expected', async function (assert) {
+    assert.expect(1);
 
-      let post = store.push({ data: { id: '1', type: 'post' } });
-      return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
+    server.put('/posts/1', function () {
+      return [200, { 'Content-Type': 'application/json' }, null];
     });
-  }
+
+    let post = store.push({ data: { id: '1', type: 'post' } });
+    return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
+  });
 });
