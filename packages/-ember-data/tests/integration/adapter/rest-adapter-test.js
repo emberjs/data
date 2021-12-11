@@ -1,5 +1,3 @@
-/* globals jQuery */
-
 import { get } from '@ember/object';
 import { underscore } from '@ember/string';
 
