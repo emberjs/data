@@ -3,6 +3,7 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { resolve } from 'rsvp';
 
+import { gte } from 'ember-compatibility-helpers';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
@@ -98,64 +99,83 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
     });
   });
 
-  test('manyArray trigger arrayContentChange functions with the correct values', function (assert) {
-    assert.expect(6);
+  if (!gte('4.0.0')) {
+    test('manyArray trigger arrayContentChange functions with the correct values', function (assert) {
+      assert.expect(6);
 
-    const TestManyArray = DS.ManyArray.proto();
+      const TestManyArray = DS.ManyArray.proto();
 
-    let willChangeStartIdx;
-    let willChangeRemoveAmt;
-    let willChangeAddAmt;
+      let willChangeStartIdx;
+      let willChangeRemoveAmt;
+      let willChangeAddAmt;
 
-    let originalArrayContentWillChange = TestManyArray.arrayContentWillChange;
-    let originalArrayContentDidChange = TestManyArray.arrayContentDidChange;
-    let originalInit = TestManyArray.init;
+      let originalArrayContentWillChange = TestManyArray.arrayContentWillChange;
+      let originalArrayContentDidChange = TestManyArray.arrayContentDidChange;
+      let originalInit = TestManyArray.init;
 
-    // override DS.ManyArray temp (cleanup occures in afterTest);
+      // override DS.ManyArray temp (cleanup occures in afterTest);
 
-    TestManyArray.init = function (...args) {
-      // We aren't actually adding any observers in this test
-      // just testing the observer codepaths, so we use this to
-      // force the ManyArray instance to take the observer paths.
-      this.__hasArrayObservers = true;
-      originalInit.call(this, ...args);
-    };
+      TestManyArray.init = function (...args) {
+        // We aren't actually adding any observers in this test
+        // just testing the observer codepaths, so we use this to
+        // force the ManyArray instance to take the observer paths.
+        this.__hasArrayObservers = true;
+        originalInit.call(this, ...args);
+      };
 
-    TestManyArray.arrayContentWillChange = function (startIdx, removeAmt, addAmt) {
-      willChangeStartIdx = startIdx;
-      willChangeRemoveAmt = removeAmt;
-      willChangeAddAmt = addAmt;
+      TestManyArray.arrayContentWillChange = function (startIdx, removeAmt, addAmt) {
+        willChangeStartIdx = startIdx;
+        willChangeRemoveAmt = removeAmt;
+        willChangeAddAmt = addAmt;
 
-      return originalArrayContentWillChange.apply(this, arguments);
-    };
+        return originalArrayContentWillChange.apply(this, arguments);
+      };
 
-    TestManyArray.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
-      assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
-      assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
-      assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
+      TestManyArray.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
+        assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
+        assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
+        assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
 
-      return originalArrayContentDidChange.apply(this, arguments);
-    };
+        return originalArrayContentDidChange.apply(this, arguments);
+      };
 
-    try {
-      run(() => {
-        store.push({
-          data: [
-            {
-              type: 'tag',
-              id: '1',
-              attributes: {
-                name: 'Ember.js',
+      try {
+        run(() => {
+          store.push({
+            data: [
+              {
+                type: 'tag',
+                id: '1',
+                attributes: {
+                  name: 'Ember.js',
+                },
               },
-            },
-            {
-              type: 'tag',
-              id: '2',
-              attributes: {
-                name: 'Tomster',
+              {
+                type: 'tag',
+                id: '2',
+                attributes: {
+                  name: 'Tomster',
+                },
               },
-            },
-            {
+              {
+                type: 'post',
+                id: '3',
+                attributes: {
+                  title: 'A framework for creating ambitious web applications',
+                },
+                relationships: {
+                  tags: {
+                    data: [{ type: 'tag', id: '1' }],
+                  },
+                },
+              },
+            ],
+          });
+
+          store.peekRecord('post', 3).get('tags');
+
+          store.push({
+            data: {
               type: 'post',
               id: '3',
               attributes: {
@@ -163,37 +183,20 @@ module('unit/many_array - DS.ManyArray', function (hooks) {
               },
               relationships: {
                 tags: {
-                  data: [{ type: 'tag', id: '1' }],
+                  data: [
+                    { type: 'tag', id: '1' },
+                    { type: 'tag', id: '2' },
+                  ],
                 },
               },
             },
-          ],
+          });
         });
-
-        store.peekRecord('post', 3).get('tags');
-
-        store.push({
-          data: {
-            type: 'post',
-            id: '3',
-            attributes: {
-              title: 'A framework for creating ambitious web applications',
-            },
-            relationships: {
-              tags: {
-                data: [
-                  { type: 'tag', id: '1' },
-                  { type: 'tag', id: '2' },
-                ],
-              },
-            },
-          },
-        });
-      });
-    } finally {
-      TestManyArray.arrayContentWillChange = originalArrayContentWillChange;
-      TestManyArray.arrayContentDidChange = originalArrayContentDidChange;
-      TestManyArray.init = originalInit;
-    }
-  });
+      } finally {
+        TestManyArray.arrayContentWillChange = originalArrayContentWillChange;
+        TestManyArray.arrayContentDidChange = originalArrayContentDidChange;
+        TestManyArray.init = originalInit;
+      }
+    });
+  }
 });

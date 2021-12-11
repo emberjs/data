@@ -2,15 +2,13 @@
   @module @ember-data/adapter/rest
 */
 import { getOwner } from '@ember/application';
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { join } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import { has } from 'require';
 import { Promise as RSVPPromise } from 'rsvp';
 
-import { DEPRECATE_NAJAX } from '@ember-data/private-build-infra/deprecations';
 import type Store from '@ember-data/store/-private/system/core-store';
 import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
 import type Snapshot from '@ember-data/store/-private/system/snapshot';
@@ -68,11 +66,7 @@ type ResponseData = {
   errorThrown?: any;
 };
 
-declare const najax: Function | undefined;
 declare const jQuery: JQueryStatic | undefined;
-
-const UseFetch = Symbol('useFetch');
-const hasJQuery = typeof jQuery !== 'undefined';
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -337,20 +331,19 @@ const hasJQuery = typeof jQuery !== 'undefined';
   @uses BuildURLMixin
 */
 class RESTAdapter extends Adapter.extend(BuildURLMixin) {
+  declare _fastboot: FastBoot;
+  declare host: string | null;
+  declare namespace: string | null;
+
   /**
-     If jQuery or nAjax are installed, this property
-    allows fetch to still be used instead when `true`.
+    This property allows ajax to still be used instead when `false`.
 
     @property useFetch
     @type {Boolean}
+    @default true
     @public
   */
-  declare useFetch: boolean;
-
-  declare _fastboot: FastBoot;
-  declare _najaxRequest: Function;
-  declare host: string | null;
-  declare namespace: string | null;
+  useFetch = true;
 
   defaultSerializer = '-rest';
 
@@ -1159,8 +1152,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   _ajax(options: FetchRequestInit | JQueryRequestInit): void {
     if (this.useFetch) {
       this._fetchRequest(options as FetchRequestInit);
-    } else if (DEPRECATE_NAJAX && this.fastboot && this.fastboot.isFastBoot) {
-      this._najaxRequest(options);
     } else {
       this._ajaxRequest(options as JQueryRequestInit);
     }
@@ -1557,93 +1548,6 @@ function ajaxOptions(options: JQueryRequestInit, adapter: RESTAdapter): JQueryRe
   };
 
   return options;
-}
-
-if (DEPRECATE_NAJAX) {
-  /**
-    @method _najaxRequest
-    @private
-    @param {Object} options jQuery ajax options to be used for the najax request
-  */
-  RESTAdapter.prototype._najaxRequest = function (options: JQueryAjaxSettings): void {
-    if (typeof najax !== 'undefined') {
-      najax(options);
-    } else {
-      throw new Error(
-        'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
-      );
-    }
-  };
-
-  Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
-    get() {
-      if (typeof this[UseFetch] === 'boolean') {
-        return this[UseFetch];
-      }
-
-      // Mixin validates all properties. Might not have it in the container yet
-      let ENV = getOwner(this) ? getOwner(this).resolveRegistration('config:environment') : {};
-      // TODO: https://github.com/emberjs/data/issues/6093
-      let jQueryIntegrationDisabled = ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
-
-      let shouldUseFetch;
-      if (jQueryIntegrationDisabled) {
-        shouldUseFetch = true;
-      } else if (typeof najax !== 'undefined') {
-        if (has('fetch')) {
-          deprecate(
-            'You have ember-fetch and jquery installed. To use ember-fetch instead of najax, set `useFetch = true` in your adapter.  In 4.0, ember-data will default to ember-fetch instead of najax when both ember-fetch and jquery are installed in FastBoot.',
-            false,
-            {
-              id: 'ember-data:najax-fallback',
-              until: '4.0',
-              for: '@ember-data/adapter',
-              since: {
-                available: '3.22',
-                enabled: '3.22',
-              },
-            }
-          );
-        } else {
-          deprecate(
-            'In 4.0, ember-data will default to ember-fetch instead of najax in FastBoot.  It is recommended that you install ember-fetch or similar fetch polyfill in FastBoot and set `useFetch = true` in your adapter.',
-            false,
-            {
-              id: 'ember-data:najax-fallback',
-              until: '4.0',
-              for: '@ember-data/adapter',
-              since: {
-                available: '3.22',
-                enabled: '3.22',
-              },
-            }
-          );
-        }
-
-        shouldUseFetch = false;
-      } else if (hasJQuery) {
-        shouldUseFetch = false;
-      } else {
-        shouldUseFetch = true;
-      }
-
-      this[UseFetch] = shouldUseFetch;
-
-      return shouldUseFetch;
-    },
-
-    set(value) {
-      this[UseFetch] = value;
-      return value;
-    },
-  });
-} else {
-  Object.defineProperty(RESTAdapter.prototype, 'useFetch', {
-    value() {
-      return true;
-    },
-    configurable: true,
-  });
 }
 
 export default RESTAdapter;

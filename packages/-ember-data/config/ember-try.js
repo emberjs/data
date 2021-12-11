@@ -21,13 +21,10 @@ module.exports = function () {
         },
         {
           name: 'with-ember-fetch-and-jquery',
-          env: {
-            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
-          },
           npm: {
             devDependencies: {
               'ember-fetch': '*',
-              '@ember/jquery': '^1.1.0',
+              '@ember/jquery': '^2.0.0',
             },
           },
         },
@@ -45,21 +42,10 @@ module.exports = function () {
         },
         {
           name: 'with-jquery',
-          env: {
-            EMBER_OPTIONAL_FEATURES: JSON.stringify({ 'jquery-integration': true }),
-          },
           npm: {
             devDependencies: {
               'ember-fetch': null,
-              '@ember/jquery': '^1.1.0',
-            },
-          },
-        },
-        {
-          name: 'ember-lts-3.20',
-          npm: {
-            devDependencies: {
-              'ember-source': '~3.20.0',
+              '@ember/jquery': '^2.0.0',
             },
           },
         },
@@ -68,6 +54,14 @@ module.exports = function () {
           npm: {
             devDependencies: {
               'ember-source': '~3.24.0',
+            },
+          },
+        },
+        {
+          name: 'ember-lts-3.28',
+          npm: {
+            devDependencies: {
+              'ember-source': '~3.28.0',
             },
           },
         },
