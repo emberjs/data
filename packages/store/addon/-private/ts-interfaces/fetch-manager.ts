@@ -1,7 +1,11 @@
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+
 import type { RecordIdentifier } from './identifier';
 
 export interface Operation {
   op: string;
+  options: Dict<unknown> | undefined;
+  recordIdentifier: RecordIdentifier;
 }
 
 export interface FindRecordQuery extends Operation {
