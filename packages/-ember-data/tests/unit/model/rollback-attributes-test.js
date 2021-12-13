@@ -6,6 +6,7 @@ import { isPresent } from '@ember/utils';
 import { module, test } from 'qunit';
 import { Promise as EmberPromise, reject } from 'rsvp';
 
+import { gte } from 'ember-compatibility-helpers';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
@@ -465,17 +466,19 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         assert.ok(true, 'errors.name did change');
       });
 
-      dog.get('errors').addArrayObserver(
-        {},
-        {
-          willChange() {
-            assert.ok(true, 'errors will change');
-          },
-          didChange() {
-            assert.ok(true, 'errors did change');
-          },
-        }
-      );
+      if (!gte('4.0.0')) {
+        dog.get('errors').addArrayObserver(
+          {},
+          {
+            willChange() {
+              assert.ok(true, 'errors will change');
+            },
+            didChange() {
+              assert.ok(true, 'errors did change');
+            },
+          }
+        );
+      }
 
       try {
         assert.ok(true, 'saving');
@@ -495,7 +498,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
         }
       }
 
-      assert.expectDeprecation({ id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } });
+      if (!gte('4.0.0')) {
+        assert.expectDeprecation({ id: 'array-observers', count: 1, when: { ember: '>=3.26.0' } });
+      }
     });
   });
 
