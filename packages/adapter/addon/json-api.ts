@@ -152,8 +152,6 @@ import RESTAdapter from './rest';
   @extends RESTAdapter
 */
 class JSONAPIAdapter extends RESTAdapter {
-  defaultSerializer = '-json-api';
-
   _defaultContentType = 'application/vnd.api+json';
 
   /**

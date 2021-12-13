@@ -206,30 +206,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
   declare _coalesceFindRequests: boolean;
 
   /**
-    If you would like your adapter to use a custom serializer you can
-    set the `defaultSerializer` property to be the name of the custom
-    serializer.
-
-    Note the `defaultSerializer` serializer has a lower priority than
-    a model specific serializer (i.e. `PostSerializer`) or the
-    `application` serializer.
-
-    ```app/adapters/django.js
-    import Adapter from '@ember-data/adapter';
-
-    export default Adapter.extend({
-      defaultSerializer: 'django'
-    });
-    ```
-
-    @deprecated
-    @property defaultSerializer
-    @public
-    @type {String}
-  */
-  defaultSerializer = '-default';
-
-  /**
     The `findRecord()` method is invoked when the store is asked for a record that
     has not previously been loaded. In response to `findRecord()` being called, you
     should query your persistence layer for a record with the given ID. The `findRecord`

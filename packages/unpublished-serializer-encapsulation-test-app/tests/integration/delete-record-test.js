@@ -78,8 +78,6 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {
@@ -157,8 +155,6 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {
@@ -223,8 +219,6 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {

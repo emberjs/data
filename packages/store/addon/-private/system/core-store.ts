@@ -30,7 +30,6 @@ import {
 } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_DEFAULT_ADAPTER,
-  DEPRECATE_DEFAULT_SERIALIZER,
   DEPRECATE_LEGACY_TEST_REGISTRATIONS,
 } from '@ember-data/private-build-infra/deprecations';
 import type {
@@ -3601,10 +3600,6 @@ abstract class CoreStore extends Service {
     for an `App.ApplicationSerializer` (the default serializer for
     your entire application).
 
-    if no `App.ApplicationSerializer` is found, it will attempt
-    to get the `defaultSerializer` from the `PersonAdapter`
-    (`adapterFor('person')`).
-
     If a serializer cannot be found on the adapter, it will fall back
     to an instance of `JSONSerializer`.
 
@@ -3672,31 +3667,6 @@ abstract class CoreStore extends Service {
     }
 
     let serializerName;
-    if (DEPRECATE_DEFAULT_SERIALIZER) {
-      // no model specific serializer or application serializer, check for the `defaultSerializer`
-      // property defined on the adapter
-      let adapter = this.adapterFor(modelName);
-      serializerName = get(adapter, 'defaultSerializer');
-
-      deprecate(
-        `store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
-        !serializerName,
-        {
-          id: 'ember-data:default-serializer',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-serializers',
-          for: '@ember-data/store',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-
-      serializer = serializerName
-        ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
-        : undefined;
-    }
 
     if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
       // in production this is handled by the re-export
@@ -3727,49 +3697,10 @@ abstract class CoreStore extends Service {
       }
     }
 
-    if (DEPRECATE_DEFAULT_SERIALIZER) {
-      // final fallback, no model specific serializer, no application serializer, no
-      // `serializer` property on store: use the convenience JSONSerializer
-      serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
-      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-        const JSONSerializer = require('@ember-data/serializer/json').default;
-        owner.register('serializer:-default', JSONSerializer);
-        serializer = owner.lookup('serializer:-default');
-
-        serializer && deprecateTestRegistration('serializer', '-default');
-      }
-
-      deprecate(
-        `store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`,
-        !serializer,
-        {
-          id: 'ember-data:default-serializer',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-serializers',
-          for: '@ember-data/store',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-
-      assert(
-        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
-        serializer !== undefined
-      );
-
-      set(serializer, 'store', this);
-      _serializerCache[normalizedModelName] = serializer;
-      _serializerCache['-default'] = serializer;
-
-      return serializer;
-    } else {
-      assert(
-        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
-        serializer !== undefined
-      );
-    }
+    assert(
+      `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
+      serializer !== undefined
+    );
   }
 
   destroy() {

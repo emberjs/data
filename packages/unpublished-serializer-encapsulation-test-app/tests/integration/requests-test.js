@@ -46,8 +46,6 @@ module('integration/requests - running requests with minimum serializer', functi
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({ data: [] });
       }
@@ -92,8 +90,6 @@ module('integration/requests - running requests with minimum serializer', functi
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({
           data: {
@@ -140,8 +136,6 @@ module('integration/requests - running requests with minimum serializer', functi
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({ data: [] });
       }
@@ -186,8 +180,6 @@ module('integration/requests - running requests with minimum serializer', functi
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({
           data: {
