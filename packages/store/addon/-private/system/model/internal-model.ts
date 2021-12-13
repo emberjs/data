@@ -800,6 +800,13 @@ export default class InternalModel {
       cache[key].destroy();
       delete cache[key];
     });
+    if (this.references) {
+      cache = this.references;
+      Object.keys(cache).forEach((key) => {
+        cache[key].destroy();
+        delete cache[key];
+      });
+    }
 
     internalModelFactoryFor(this.store).remove(this);
     this._isDestroyed = true;
