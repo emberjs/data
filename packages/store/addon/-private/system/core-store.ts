@@ -90,6 +90,7 @@ type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecord
 type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
 type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
 type RecordData = import('../ts-interfaces/record-data').RecordData;
+type FindOptions = import('../ts-interfaces/store').FindOptions;
 type DSModel = import('../ts-interfaces/ds-model').DSModel;
 type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
