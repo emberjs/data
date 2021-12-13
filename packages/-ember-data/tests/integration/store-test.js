@@ -9,6 +9,7 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
+import { REQUEST_SERVICE } from '@ember-data/canary-features';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
@@ -499,6 +500,58 @@ module('integration/store - findRecord', function (hooks) {
 
     assert.strictEqual(car1, car2, 'we receive the same car back');
   });
+
+  if (REQUEST_SERVICE) {
+    test('store#findRecord does not cache the inflight requests when includes differ', async function (assert) {
+      assert.expect(2);
+
+      let calls = 0;
+      let resolveHandler = [];
+      let result = {
+        data: {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini',
+          },
+        },
+      };
+
+      const testAdapter = DS.JSONAPIAdapter.extend({
+        shouldReloadRecord(store, type, id, snapshot) {
+          assert.ok(false, 'shouldReloadRecord should not be called when { reload: true }');
+        },
+        async findRecord() {
+          calls++;
+
+          return new Promise((resolve) => {
+            resolveHandler.push(resolve);
+          });
+        },
+      });
+
+      this.owner.register('adapter:application', testAdapter);
+      this.owner.register('serializer:application', JSONAPISerializer.extend());
+      let firstPromise, secondPromise;
+
+      run(() => {
+        firstPromise = store.findRecord('car', '1', { include: 'driver' });
+      });
+
+      run(() => {
+        secondPromise = store.findRecord('car', '1', { include: 'engine,tires' });
+      });
+
+      assert.strictEqual(calls, 2, 'We made two calls to findRecord');
+
+      resolveHandler.forEach((resolve) => resolve(result));
+      let car1 = await firstPromise;
+      let car2 = await secondPromise;
+
+      assert.strictEqual(car1, car2, 'we receive the same car back');
+    });
+  }
 
   test('store#findRecord { backgroundReload: false } returns cached record and does not reload in the background', async function (assert) {
     assert.expect(2);
