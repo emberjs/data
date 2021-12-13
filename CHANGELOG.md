@@ -1,5 +1,34 @@
 # Ember Data Changelog
 
+## v4.1.0-beta.0  (2021-12-12)
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7767](https://github.com/emberjs/data/pull/7767) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`
+  * [#7703](https://github.com/emberjs/data/pull/7703) fix tests ([@snewcomer](https://github.com/snewcomer))
+* Other
+  * [#7729](https://github.com/emberjs/data/pull/7729) Cache dependencies in GitHub Actions CI workflow ([@ddzz](https://github.com/ddzz))
+  * [#7737](https://github.com/emberjs/data/pull/7737) Remove IE11 asset size checks ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`, `private-build-infra`, `record-data`, `store`
+  * [#7741](https://github.com/emberjs/data/pull/7741) Remove IE11 hacks ([@snewcomer](https://github.com/snewcomer))
+* `adapter`, `store`, `unpublished-test-infra`
+  * [#7740](https://github.com/emberjs/data/pull/7740) Remove symbol util in place of built in Symbol ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`, `adapter`, `debug`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7739](https://github.com/emberjs/data/pull/7739) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+
+#### :evergreen_tree: New Deprecation
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7767](https://github.com/emberjs/data/pull/7767) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+
+#### :house: Internal
+* [#7760](https://github.com/emberjs/data/pull/7760) chore: cancel older CI jobs ([@runspired](https://github.com/runspired))
+
+#### Committers: 3
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Darius D. ([@ddzz](https://github.com/ddzz))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
 ## v4.0.0-beta.4  (2021-11-10)
 
 #### :shower: Deprecation Removal
