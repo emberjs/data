@@ -1,5 +1,47 @@
 # Ember Data Changelog
 
+## v4.1.0-beta.0 (2021-12-12)
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `debug`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7792](https://github.com/emberjs/data/pull/7792) Cherry-pick 4.0 #7776 ([@snewcomer](https://github.com/snewcomer))
+
+#### :house: Internal
+* `-ember-data`, `adapter`, `debug`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7792](https://github.com/emberjs/data/pull/7792) Cherry-pick 4.0 #7776 ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+## v4.0.0-beta.4  (2021-11-10)
+
+ #### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `record-data`, `serializer`, `store`
+  * [#7748](https://github.com/emberjs/data/pull/7748) Fix deprecated assign usage from @ember/assign (#7722) ([@igorT](https://github.com/igorT))
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
+## v4.0.0-beta.3  (2021-11-03)
+
+#### :shower: Deprecation Removal
+* `-ember-data`
+  * [#7736](https://github.com/emberjs/data/pull/7736) [cleanup]: Remove implicit store injection slated for Ember v4.0.0 (#… ([@igorT](https://github.com/igorT))
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
+## v4.0.0-beta.2  (2021-09-05)
+
+#### :bug: Bug Fix
+  * [#7697](https://github.com/emberjs/data/pull/7697) [BUGFIX] Update @ember/string to the latest version to fix compatibility with ember-source 4.x ([@kategengler](https://github.com/kategengler))
+#### Committers: 1
+- Katie Gengler ([@kategengler](https://github.com/kategengler))
+
+## v4.0.0-beta.1 (2021-09-02)
+
+#### :bug: Bug Fix
+  * [#7695](https://github.com/emberjs/data/pull/7695) [Bugfix] ensure `shouldCompileModules` is once again respected - Embroider compat(#7680) ([@stefanpenner](https://github.com/stefanpenner))
+  *  [#7690](https://github.com/emberjs/data/pull/7689) Do not error when 'content' is used as a property on a record #7689 [@mansona](https://github.com/mansona))
+
 ## v4.0.0-beta.0 (2021-08-20)
 
 #### :rocket: Enhancement
