@@ -1,8 +1,13 @@
+import { dependentKeyCompat } from '@ember/object/compat';
+import { cached, tracked } from '@glimmer/tracking';
+
 import RSVP, { resolve } from 'rsvp';
 
 import type { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
+import type CoreStore from '../core-store';
+import { NotificationType, unsubscribe } from '../record-notification-manager';
 import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
 
 /**
@@ -18,11 +23,34 @@ import Reference, { internalModelForReference, REFERENCE_CACHE } from './referen
    @extends Reference
 */
 export default class RecordReference extends Reference {
+  #token: Object;
+
+  @tracked _ref = 0;
+
+  constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
+    super(store, identifier);
+    this.#token = store._notificationManager.subscribe(
+      identifier,
+      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+        if ((bucket === 'identity' || bucket === 'property' || bucket === 'attributes') && notifiedKey === 'id') {
+          this._ref++;
+        }
+      }
+    );
+  }
+
+  destroy() {
+    unsubscribe(this.#token);
+  }
+
   public get type(): string {
     return this.identifier().type;
   }
 
+  @cached
+  @dependentKeyCompat
   private get _id(): string | null {
+    this._ref; // consume the tracked prop
     let identifier = this.identifier();
     if (identifier) {
       return identifier.id;
@@ -92,7 +120,7 @@ export default class RecordReference extends Reference {
      @public
      @return {String} 'identity'
   */
-  remoteType(): 'link' | 'id' | 'identity' {
+  remoteType(): 'identity' {
     return 'identity';
   }
 

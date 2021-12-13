@@ -1,10 +1,18 @@
+import { dependentKeyCompat } from '@ember/object/compat';
 import { DEBUG } from '@glimmer/env';
+import { cached, tracked } from '@glimmer/tracking';
 
 import { resolve } from 'rsvp';
 
+import type { ManyRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
+import { CollectionResourceDocument, ExistingResourceObject } from '../../ts-interfaces/ember-data-json-api';
+import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import CoreStore from '../core-store';
+import { NotificationType, unsubscribe } from '../record-notification-manager';
 import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
+import RecordReference from './record';
 import Reference, { internalModelForReference } from './reference';
 
 /**
@@ -20,15 +28,81 @@ import Reference, { internalModelForReference } from './reference';
  @extends Reference
  */
 export default class HasManyReference extends Reference {
-  constructor(store, parentIMOrIdentifier, hasManyRelationship, key) {
-    super(store, parentIMOrIdentifier);
+  declare key: string;
+  declare hasManyRelationship: ManyRelationship;
+  declare type: string;
+  declare parent: RecordReference;
+  declare parentIdentifier: StableRecordIdentifier;
+
+  #token: Object;
+  #relatedTokenMap: Map<StableRecordIdentifier, Object>;
+
+  @tracked _ref = 0;
+
+  constructor(
+    store: CoreStore,
+    parentIdentifier: StableRecordIdentifier,
+    hasManyRelationship: ManyRelationship,
+    key: string
+  ) {
+    super(store, parentIdentifier);
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.definition.type;
 
-    this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
+    this.parent = internalModelFactoryFor(store).peek(parentIdentifier)!.recordReference;
 
+    this.#token = store._notificationManager.subscribe(
+      parentIdentifier,
+      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+        if ((bucket === 'relationships' || bucket === 'property') && notifiedKey === key) {
+          this._ref++;
+        }
+      }
+    );
+    this.#relatedTokenMap = new Map();
     // TODO inverse
+  }
+
+  destroy() {
+    unsubscribe(this.#token);
+    this.#relatedTokenMap.forEach((token) => {
+      unsubscribe(token);
+    });
+    this.#relatedTokenMap.clear();
+  }
+
+  @cached
+  @dependentKeyCompat
+  get _relatedIdentifiers(): StableRecordIdentifier[] {
+    this._ref; // consume the tracked prop
+
+    let resource = this._resource();
+
+    this.#relatedTokenMap.forEach((token) => {
+      unsubscribe(token);
+    });
+    this.#relatedTokenMap.clear();
+
+    if (resource && resource.data) {
+      return resource.data.map((resourceIdentifier) => {
+        const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+        const token = this.store._notificationManager.subscribe(
+          identifier,
+          (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+            if ((bucket === 'identity' || bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id') {
+              this._ref++;
+            }
+          }
+        );
+
+        this.#relatedTokenMap.set(identifier, token);
+
+        return identifier;
+      });
+    }
+
+    return [];
   }
 
   _resource() {
@@ -77,7 +151,7 @@ export default class HasManyReference extends Reference {
    @public
    @return {String} The name of the remote type. This should either be `link` or `ids`
    */
-  remoteType() {
+  remoteType(): 'link' | 'ids' {
     let value = this._resource();
     if (value && value.links && value.links.related) {
       return 'link';
@@ -121,15 +195,8 @@ export default class HasManyReference extends Reference {
     @public
    @return {Array} The ids in this has-many relationship
    */
-  ids() {
-    let resource = this._resource();
-
-    let ids = [];
-    if (resource.data) {
-      ids = resource.data.map((data) => data.id);
-    }
-
-    return ids;
+  ids(): Array<string | null> {
+    return this._relatedIdentifiers.map((identifier) => identifier.id);
   }
 
   /**
@@ -177,33 +244,31 @@ export default class HasManyReference extends Reference {
    @param {Array|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {ManyArray}
    */
-  push(objectOrPromise) {
+  push(objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument): any {
     return resolve(objectOrPromise).then((payload) => {
-      let array = payload;
+      let array: ExistingResourceObject[];
 
-      if (typeof payload === 'object' && payload.data) {
+      if (!Array.isArray(payload) && typeof payload === 'object' && Array.isArray(payload.data)) {
         array = payload.data;
+      } else {
+        array = payload as ExistingResourceObject[];
       }
 
-      let internalModel = internalModelForReference(this);
+      const internalModel = internalModelForReference(this)!;
+      const { store } = this;
 
       let identifiers = array.map((obj) => {
-        let record = this.store.push(obj);
+        let record = store.push({ data: obj });
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.definition;
-          assertPolymorphicType(
-            internalModel.identifier,
-            relationshipMeta,
-            record._internalModel.identifier,
-            this.store
-          );
+          assertPolymorphicType(internalModel.identifier, relationshipMeta, recordIdentifierFor(record), store);
         }
         return recordIdentifierFor(record);
       });
 
       const { graph, identifier } = this.hasManyRelationship;
-      this.store._backburner.join(() => {
+      store._backburner.join(() => {
         graph.push({
           op: 'replaceRelatedRecords',
           record: identifier,
@@ -275,7 +340,7 @@ export default class HasManyReference extends Reference {
    @return {ManyArray}
    */
   value() {
-    let internalModel = internalModelForReference(this);
+    let internalModel = internalModelForReference(this)!;
     if (this._isLoaded()) {
       return internalModel.getManyArray(this.key);
     }
@@ -348,7 +413,7 @@ export default class HasManyReference extends Reference {
    this has-many relationship.
    */
   load(options) {
-    let internalModel = internalModelForReference(this);
+    let internalModel = internalModelForReference(this)!;
     return internalModel.getHasMany(this.key, options);
   }
 
@@ -403,7 +468,7 @@ export default class HasManyReference extends Reference {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
   reload(options) {
-    let internalModel = internalModelForReference(this);
+    let internalModel = internalModelForReference(this)!;
     return internalModel.reloadHasMany(this.key, options);
   }
 }
