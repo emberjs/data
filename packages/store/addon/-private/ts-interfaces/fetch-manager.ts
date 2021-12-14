@@ -1,6 +1,6 @@
-import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 
-import type { RecordIdentifier } from './identifier';
+type RecordIdentifier = import('./identifier').RecordIdentifier;
 
 export interface Operation {
   op: string;

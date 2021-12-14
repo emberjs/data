@@ -1,4 +1,4 @@
-import type { Dict } from './utils';
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
 
 export interface FindOptions {
   reload?: boolean;
