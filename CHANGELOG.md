@@ -1,5 +1,13 @@
 # Ember Data Changelog
 
+## Release 3.28.6 (LTS) (Dec 14, 2021)
+
+#### :bug: Bug Fix
+* [#7702](https://github.com/emberjs/data/pull/7702) [bug]: findRecord should not cache if includes differ
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
 ## Release 3.28.5 (LTS) (Nov 23, 2021)
 * No changes from `3.28.4`
 
