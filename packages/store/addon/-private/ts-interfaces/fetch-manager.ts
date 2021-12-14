@@ -1,6 +1,11 @@
+type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
+
 type RecordIdentifier = import('./identifier').RecordIdentifier;
+
 export interface Operation {
   op: string;
+  options: Dict<unknown> | undefined;
+  recordIdentifier: RecordIdentifier;
 }
 
 export interface FindRecordQuery extends Operation {

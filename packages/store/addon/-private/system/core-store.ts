@@ -90,6 +90,7 @@ type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecord
 type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
 type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
 type RecordData = import('../ts-interfaces/record-data').RecordData;
+type FindOptions = import('../ts-interfaces/store').FindOptions;
 type DSModel = import('../ts-interfaces/ds-model').DSModel;
 type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
 type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
@@ -1162,7 +1163,7 @@ abstract class CoreStore extends Service {
     return Promise.resolve(internalModel);
   }
 
-  _findByInternalModel(internalModel, options: { preload?: any } = {}) {
+  _findByInternalModel(internalModel: InternalModel, options: FindOptions = {}) {
     if (options.preload) {
       this._backburner.join(() => {
         internalModel.preloadData(options.preload);
@@ -1177,7 +1178,7 @@ abstract class CoreStore extends Service {
     );
   }
 
-  _findEmptyInternalModel(internalModel, options) {
+  _findEmptyInternalModel(internalModel: InternalModel, options: FindOptions) {
     if (internalModel.currentState.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
@@ -1189,9 +1190,9 @@ abstract class CoreStore extends Service {
       }
     } else {
       if (internalModel.currentState.isLoading) {
-        let pending = this._fetchManager.getPendingFetch(internalModel.identifier);
-        if (pending) {
-          return pending.then(() => Promise.resolve(internalModel));
+        let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
+        if (pendingRequest) {
+          return pendingRequest.then(() => Promise.resolve(internalModel));
         }
         return this._scheduleFetch(internalModel, options);
       }
@@ -1888,7 +1889,7 @@ abstract class CoreStore extends Service {
     if (internalModel) {
       // short circuit if we are already loading
       if (REQUEST_SERVICE) {
-        let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier);
+        let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
         if (pendingRequest) {
           return pendingRequest.then(() => internalModel.getRecord());
         }
@@ -1918,6 +1919,10 @@ abstract class CoreStore extends Service {
        */
       if (localDataIsEmpty) {
         return resolve(null);
+      }
+
+      if (!internalModel) {
+        assert(`No InternalModel found for ${resource.lid}`, internalModel);
       }
 
       return this._findByInternalModel(internalModel, options);
