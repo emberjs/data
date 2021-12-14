@@ -1,5 +1,10 @@
 # Ember Data Changelog
 
+## v4.0.1 (2021-12-14)
+
+#### :bug: Bug Fix
+  * [#7702](https://github.com/emberjs/data/pull/7797) [Bugfix] [bug]: findRecord should not cache if includes differ 
+
 ## 4.0 (2021-12-11)
 
 #### :shower: Deprecation Removal
