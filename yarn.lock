@@ -241,6 +241,11 @@
   resolved "https://registry.npmjs.org/@babel/helper-plugin-utils/-/helper-plugin-utils-7.14.5.tgz#5ac822ce97eec46741ab70a517971e443a70c5a9"
   integrity sha512-/37qQCE3K0vvZKwoK4XU/irIJQdIfCJuhU5eKnNxpFDsOkgFaUAwbv+RYw6eYgsC0E4hS7r5KqGULUogqui0fQ==
 
+"@babel/helper-plugin-utils@^7.16.5":
+  version "7.16.5"
+  resolved "https://registry.npmjs.org/@babel/helper-plugin-utils/-/helper-plugin-utils-7.16.5.tgz#afe37a45f39fce44a3d50a7958129ea5b1a5c074"
+  integrity sha512-59KHWHXxVA9K4HNF4sbHCf+eJeFe0Te/ZFGqBT4OjXhrwvA04sGfaEGsVTdsjoszq0YTP49RC9UKe5g8uN2RwQ==
+
 "@babel/helper-remap-async-to-generator@^7.13.0":
   version "7.13.0"
   resolved "https://registry.npmjs.org/@babel/helper-remap-async-to-generator/-/helper-remap-async-to-generator-7.13.0.tgz#376a760d9f7b4b2077a9dd05aa9c3927cadb2209"
@@ -778,6 +783,13 @@
   integrity sha512-/KY2hbLxrG5GTQ9zzZSc3xWiOy379pIETEhbtzwZcw9rvuaVV4Fqy7BYGYOWZnaoXIQYbbJ0ziXLa/sKcGCYEQ==
   dependencies:
     "@babel/helper-plugin-utils" "^7.12.13"
+
+"@babel/plugin-transform-object-assign@^7.8.3":
+  version "7.16.5"
+  resolved "https://registry.npmjs.org/@babel/plugin-transform-object-assign/-/plugin-transform-object-assign-7.16.5.tgz#8d35b2fd1a4a545aed1f8289680d6d38e57d9f6e"
+  integrity sha512-KVuJ7sWf6bcXawKVH6ZDQFYcOulObt1IOvl/gvNrkNXzmFf1IdgKOy4thmVomReleXqffMbptmXXMl3zPI7zHw==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.16.5"
 
 "@babel/plugin-transform-object-super@^7.12.13":
   version "7.12.13"
@@ -10374,6 +10386,11 @@ jest-worker@^26.6.2:
     "@types/node" "*"
     merge-stream "^2.0.0"
     supports-color "^7.0.0"
+
+jquery@^3.5.1:
+  version "3.6.0"
+  resolved "https://registry.npmjs.org/jquery/-/jquery-3.6.0.tgz#c72a09f15c1bdce142f49dbf1170bdf8adac2470"
+  integrity sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==
 
 js-string-escape@^1.0.1:
   version "1.0.1"
