@@ -602,14 +602,16 @@ module('integration/records/relationship-changes - Relationship changes', functi
           });
 
           let person = store.peekRecord('person', 'wat');
-          let siblings = person.get('siblings');
+          let siblingsPromise = person.siblings;
+
+          await siblingsPromise;
 
           // flush initial state since
           // nothing is consuming us.
           // else the test will fail because we will
           // (correctly) not notify the array observer
           // as there is still a pending notification
-          siblings.length;
+          siblingsPromise.length;
 
           let observer = {
             arrayWillChange(array, start, removing, adding) {
@@ -627,7 +629,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
             },
           };
 
-          siblings.addArrayObserver(observer);
+          siblingsPromise.addArrayObserver(observer);
 
           store.push({
             data: {
@@ -646,7 +648,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
           assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
           assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
 
-          siblings.removeArrayObserver(observer);
+          siblingsPromise.removeArrayObserver(observer);
         },
         { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
       );

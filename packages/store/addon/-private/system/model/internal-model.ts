@@ -815,6 +815,7 @@ export default class InternalModel {
   setupData(data) {
     let changedKeys = this._recordData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
+      // TODO @runspired should this be going through the notification manager?
       this._record._notifyProperties(changedKeys);
     }
     this.send('pushedData');
@@ -914,11 +915,18 @@ export default class InternalModel {
 
   notifyHasManyChange(key: string) {
     if (this.hasRecord) {
+      let manyArray = this._manyArrayCache[key];
+      let hasPromise = !!this._relationshipPromisesCache[key];
+
+      if (manyArray && hasPromise) {
+        // do nothing, we will notify the ManyArray directly
+        // once the fetch has completed.
+        return;
+      }
+
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships', key);
       } else {
-        let manyArray = this._manyArrayCache[key];
-
         if (manyArray) {
           manyArray.notify();
 
