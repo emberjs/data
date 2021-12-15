@@ -596,7 +596,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
   }
 
   /**
-    By default the store will try to coalesce all `fetchRecord` calls within the same runloop
+    By default the store will try to coalesce all `findRecord` calls within the same runloop
     into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
     You can opt out of this behaviour by either not implementing the findMany hook or by setting
     coalesceFindRequests to false.
