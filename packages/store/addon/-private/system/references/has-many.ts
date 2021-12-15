@@ -18,7 +18,7 @@ type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
 type NotificationType = import('../record-notification-manager').NotificationType;
 type RecordReference = import('./record').default;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableExistingRecordIdentifier;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 
 /**
   @module @ember-data/store

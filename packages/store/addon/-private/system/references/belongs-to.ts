@@ -15,7 +15,7 @@ import Reference from './reference';
 type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
 type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableExistingRecordIdentifier;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type NotificationType = import('../record-notification-manager').NotificationType;
 type RecordReference = import('./record').default;
 
