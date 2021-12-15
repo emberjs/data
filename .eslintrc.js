@@ -204,6 +204,8 @@ module.exports = {
         'packages/store/addon/-private/system/snapshot-record-array.ts',
         'packages/store/addon/-private/system/schema-definition-service.ts',
         'packages/store/addon/-private/system/request-cache.ts',
+        'packages/store/addon/-private/system/references/belongs-to.ts',
+        'packages/store/addon/-private/system/references/has-many.ts',
         'packages/store/addon/-private/system/references/reference.ts',
         'packages/store/addon/-private/system/references/record.ts',
         'packages/store/addon/-private/system/record-notification-manager.ts',

@@ -73,19 +73,15 @@ export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRe
 
 function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
-  const identifiersLength = identifiers.length;
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
   relationship.state.hasReceivedData = true;
 
-  const newValues = Object.create(null);
-  for (let i = 0; i < identifiersLength; i++) {
-    newValues[identifiers[i].lid] = true;
-  }
-
   // cache existing state
   const { currentState, members, definition } = relationship;
-  const newState = new Array(identifiers.length);
+  const newValues = new Set(identifiers);
+  const identifiersLength = identifiers.length;
+  const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
@@ -103,6 +99,9 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   for (let i = 0; i < iterationLength; i++) {
     if (i < identifiersLength) {
       const identifier = identifiers[i];
+      if (newMembership.has(identifier)) {
+        break; // skip processing if we encounter a duplicate identifier in the array
+      }
       if (type !== identifier.type) {
         assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
         graph.registerPolymorphicType(type, identifier.type);
@@ -123,7 +122,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
         changed = true;
       }
 
-      if (!newValues[identifier.lid]) {
+      if (!newValues.has(identifier)) {
         changed = true;
         removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
       }
@@ -137,7 +136,6 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
 
 function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
-  const identifiersLength = identifiers.length;
   const relationship = graph.get(op.record, op.field);
 
   assert(
@@ -149,14 +147,11 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   }
   relationship.state.hasReceivedData = true;
 
-  const newValues = Object.create(null);
-  for (let i = 0; i < identifiersLength; i++) {
-    newValues[identifiers[i].lid] = true;
-  }
-
   // cache existing state
   const { canonicalState, canonicalMembers, definition } = relationship;
-  const newState = new Array(identifiers.length);
+  const newValues = new Set(identifiers);
+  const identifiersLength = identifiers.length;
+  const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
@@ -174,6 +169,9 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   for (let i = 0; i < iterationLength; i++) {
     if (i < identifiersLength) {
       const identifier = identifiers[i];
+      if (newMembership.has(identifier)) {
+        break;
+      }
       if (type !== identifier.type) {
         assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
         graph.registerPolymorphicType(type, identifier.type);
@@ -194,7 +192,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
         changed = true;
       }
 
-      if (!newValues[identifier.lid]) {
+      if (!newValues.has(identifier)) {
         changed = true;
         removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
       }

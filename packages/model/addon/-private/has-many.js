@@ -24,17 +24,17 @@ import { computedMacroWithOptionalParams } from './util';
 
   ```app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
-  
+
   export default class PostModel extends Model {
-    @hasMany('comment') comments; 
+    @hasMany('comment') comments;
   }
   ```
 
   ```app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
-  
+
   export default class CommentModel extends Model {
-    @belongsTo('post') post; 
+    @belongsTo('post') post;
   }
   ```
 
@@ -54,7 +54,7 @@ import { computedMacroWithOptionalParams } from './util';
   import Model, { hasMany } from '@ember-data/model';
 
   export default class TagModel extends Model {
-    @hasMany('post') posts; 
+    @hasMany('post') posts;
   }
   ```
 
