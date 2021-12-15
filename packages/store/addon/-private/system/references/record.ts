@@ -5,13 +5,14 @@ import RSVP, { resolve } from 'rsvp';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 
-import type CoreStore from '../core-store';
-import { NotificationType, unsubscribe } from '../record-notification-manager';
+import { unsubscribe } from '../record-notification-manager';
 import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
 
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
+type NotificationType = import('../record-notification-manager').NotificationType;
 
 /**
   @module @ember-data/store

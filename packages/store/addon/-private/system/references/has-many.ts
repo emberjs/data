@@ -5,20 +5,20 @@ import { cached, tracked } from '@glimmer/tracking';
 import { resolve } from 'rsvp';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-import type { ManyRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
-import {
-  CollectionResourceDocument,
-  ExistingResourceObject,
-  SingleResourceDocument,
-} from '../../ts-interfaces/ember-data-json-api';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import CoreStore from '../core-store';
-import { NotificationType, unsubscribe } from '../record-notification-manager';
+import { unsubscribe } from '../record-notification-manager';
 import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
-import RecordReference from './record';
 import Reference, { internalModelForReference } from './reference';
+
+type CollectionResourceDocument = import('../../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
+type ExistingResourceObject = import('../../ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
+type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
+type NotificationType = import('../record-notification-manager').NotificationType;
+type RecordReference = import('./record').default;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableExistingRecordIdentifier;
 
 /**
   @module @ember-data/store

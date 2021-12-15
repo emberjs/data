@@ -6,16 +6,18 @@ import { resolve } from 'rsvp';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
-import type { BelongsToRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
-import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
-import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import CoreStore from '../core-store';
-import { NotificationType, unsubscribe } from '../record-notification-manager';
+import { unsubscribe } from '../record-notification-manager';
 import { internalModelFactoryFor, peekRecordIdentifier, recordIdentifierFor } from '../store/internal-model-factory';
-import RecordReference from './record';
 import Reference from './reference';
+
+type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
+type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
+type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableExistingRecordIdentifier;
+type NotificationType = import('../record-notification-manager').NotificationType;
+type RecordReference = import('./record').default;
 
 /**
   @module @ember-data/store
