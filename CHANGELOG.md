@@ -1,5 +1,17 @@
 # Ember Data Changelog
 
+## v4.0.2 (2021-12-15)
+
+#### :bug: Bug Fix
+* `-ember-data`, `model`, `record-data`, `store`
+  * [#7804](https://github.com/emberjs/data/pull/7804) Backport Train for Release ([@runspired](https://github.com/runspired))
+* Other
+  * [#7794](https://github.com/emberjs/data/pull/7794) [bug]: findRecord should not cache if includes differ (#7702) ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
 ## v4.0.1 (2021-12-14)
 
 #### :bug: Bug Fix
