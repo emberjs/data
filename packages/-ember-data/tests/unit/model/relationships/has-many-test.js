@@ -1,4 +1,4 @@
-import { get, observer } from '@ember/object';
+import EmberObject, { get, observer } from '@ember/object';
 import { run } from '@ember/runloop';
 import settled from '@ember/test-helpers/settled';
 
@@ -8,6 +8,7 @@ import { hash, Promise as EmberPromise } from 'rsvp';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 
@@ -2391,6 +2392,237 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
       assert.true(peopleProxy.isDestroying, 'peopleProxy is destroying after the run post unloadRecord');
       assert.true(peopleProxy.isDestroyed, 'peopleProxy is destroyed after the run post unloadRecord');
     });
+  });
+
+  test('findHasMany - can push the same record in twice and fetch the link', async function (assert) {
+    assert.expect(5);
+    const { owner } = this;
+
+    owner.register(
+      'adapter:post',
+      class extends EmberObject {
+        shouldBackgroundReloadRecord() {
+          return false;
+        }
+        async findHasMany() {
+          assert.ok(true, 'findHasMany called');
+          return {
+            data: [
+              { id: '1', type: 'comment', attributes: { name: 'FIRST' } },
+              { id: '2', type: 'comment', attributes: { name: 'Rails is unagi' } },
+              { id: '3', type: 'comment', attributes: { name: 'What is omakase?' } },
+            ],
+          };
+        }
+      }
+    );
+
+    owner.register(
+      'model:post',
+      class extends Model {
+        @attr name;
+        @hasMany('comment', { async: true, inverse: null }) comments;
+      }
+    );
+    owner.register(
+      'model:comment',
+      class extends Model {
+        @attr name;
+      }
+    );
+
+    const store = owner.lookup('service:store');
+
+    // preload post:1 with a related link
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
+            },
+          },
+        },
+      },
+    });
+
+    // update post:1 with same related link
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is still omakase',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
+            },
+          },
+        },
+      },
+    });
+
+    let post = store.peekRecord('post', '1');
+
+    const promise = post.comments;
+    const promise2 = post.comments;
+    assert.strictEqual(promise, promise2, 'we return the same PromiseManyArray each time');
+    const comments = await promise;
+
+    assert.true(promise.isFulfilled, 'comments promise is fulfilled');
+    assert.strictEqual(comments.length, 3, 'The correct records are in the array');
+    const promise3 = post.comments;
+    assert.strictEqual(promise, promise3, 'we return the same PromiseManyArray each time');
+  });
+
+  test('fetch records with chained async has-many, ensure the leafs are retrieved', async function (assert) {
+    assert.expect(8);
+    const { owner } = this;
+
+    owner.register(
+      'adapter:application',
+      class extends EmberObject {
+        coalesceFindRequests = true;
+        shouldBackgroundReloadRecord() {
+          return false;
+        }
+        async findRecord() {
+          assert.ok(true, 'findRecord called');
+          return {
+            data: {
+              type: 'post-author',
+              id: '1',
+              relationships: {
+                posts: {
+                  data: [
+                    { type: 'authored-post', id: '1' },
+                    { type: 'authored-post', id: '2' },
+                  ],
+                },
+              },
+            },
+          };
+        }
+
+        async findMany() {
+          assert.ok(true, 'findMany called');
+          return {
+            data: [
+              {
+                type: 'authored-post',
+                id: '1',
+                attributes: {
+                  name: 'A post',
+                },
+                relationships: {
+                  author: {
+                    data: { type: 'post-author', id: '1' },
+                  },
+                  comments: {
+                    links: {
+                      related: './comments',
+                    },
+                  },
+                },
+              },
+              {
+                type: 'authored-post',
+                id: '2',
+                attributes: {
+                  name: 'A second post',
+                },
+                relationships: {
+                  author: {
+                    data: { type: 'post-author', id: '1' },
+                  },
+                  comments: {
+                    links: {
+                      related: './comments',
+                    },
+                  },
+                },
+              },
+            ],
+          };
+        }
+
+        async findHasMany() {
+          assert.ok('findHasMany called');
+          return {
+            data: [
+              {
+                type: 'post-comment',
+                id: '1',
+                attributes: {
+                  body: 'Some weird words',
+                },
+              },
+              {
+                type: 'post-comment',
+                id: '2',
+                attributes: {
+                  body: 'Some mean words',
+                },
+              },
+              {
+                type: 'post-comment',
+                id: '3',
+                attributes: {
+                  body: 'Some kind words',
+                },
+              },
+            ],
+          };
+        }
+      }
+    );
+
+    owner.register(
+      'model:post-author',
+      class extends Model {
+        @attr name;
+        @hasMany('authored-post', { async: true, inverse: 'author' }) posts;
+      }
+    );
+    owner.register(
+      'model:authored-post',
+      class extends Model {
+        @attr name;
+        @belongsTo('post-author', { async: false, inverse: 'posts' }) author;
+        @hasMany('post-comment', { async: true, inverse: 'post' }) comments;
+      }
+    );
+    owner.register(
+      'model:post-comment',
+      class extends Model {
+        @attr body;
+        @belongsTo('authored-post', { async: true, inverse: 'comments' }) post;
+      }
+    );
+
+    const store = owner.lookup('service:store');
+
+    const user = await store.findRecord('post-author', '1');
+    const posts = await user.posts;
+    assert.strictEqual(posts.length, 2, 'we loaded two posts');
+    const firstPost = posts.objectAt(0);
+    const firstPostCommentsPromise = firstPost.comments;
+    const originalPromise = firstPostCommentsPromise.promise;
+    firstPost.comments; // trigger an extra access
+    const firstPostComments = await firstPostCommentsPromise;
+    firstPost.comments; // trigger an extra access
+    assert.true(firstPostCommentsPromise.isFulfilled, 'comments relationship is fulfilled');
+    assert.true(firstPostCommentsPromise.promise === originalPromise, 'we did not re-trigger the property');
+    assert.strictEqual(firstPostComments.length, 3, 'we loaded three comments');
+    firstPost.comments; // trigger an extra access
+    assert.true(firstPostCommentsPromise.isFulfilled, 'comments relationship is fulfilled');
   });
 
   test('DS.ManyArray is lazy', async function (assert) {

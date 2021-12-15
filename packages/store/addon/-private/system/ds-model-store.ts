@@ -37,9 +37,10 @@ class Store extends CoreStore {
     let createOptions: any = {
       store: this,
       _internalModel: internalModel,
+      // TODO deprecate allowing unknown args setting
+      _createProps: createRecordArgs,
       container: null,
     };
-    Object.assign(createOptions, createRecordArgs);
 
     // ensure that `getOwner(this)` works inside a model instance
     setOwner(createOptions, getOwner(this));

@@ -1624,7 +1624,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     assert.equal(account.get('user'), null, 'Account does not have the user anymore');
   });
 
-  test('createRecord updates inverse record array which has observers', function (assert) {
+  test('createRecord updates inverse record array which has observers', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -1642,21 +1642,26 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       };
     };
 
-    return store.findAll('user').then((users) => {
-      assert.equal(users.get('length'), 1, 'Exactly 1 user');
+    const users = await store.findAll('user');
+    assert.strictEqual(users.get('length'), 1, 'Exactly 1 user');
 
-      let user = users.get('firstObject');
-      assert.equal(user.get('messages.length'), 0, 'Record array is initially empty');
+    let user = users.get('firstObject');
+    assert.strictEqual(user.get('messages.length'), 0, 'Record array is initially empty');
 
-      // set up an observer
-      user.addObserver('messages.@each.title', () => {});
-      user.get('messages.firstObject');
+    // set up an observer
+    user.addObserver('messages.@each.title', () => {});
+    user.get('messages.firstObject');
 
-      let message = store.createRecord('message', { user, title: 'EmberFest was great' });
-      assert.equal(user.get('messages.length'), 1, 'The message is added to the record array');
+    const messages = await user.messages;
 
-      let messageFromArray = user.get('messages.firstObject');
-      assert.ok(message === messageFromArray, 'Only one message record instance should be created');
-    });
+    assert.strictEqual(messages.length, 0, 'we have no messages');
+    assert.strictEqual(user.messages.length, 0, 'we have no messages');
+
+    let message = store.createRecord('message', { user, title: 'EmberFest was great' });
+    assert.strictEqual(messages.length, 1, 'The message is added to the record array');
+    assert.strictEqual(user.messages.length, 1, 'The message is added to the record array');
+
+    let messageFromArray = user.messages.firstObject;
+    assert.true(message === messageFromArray, 'Only one message record instance should be created');
   });
 });
