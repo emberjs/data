@@ -1,3 +1,4 @@
+import ArrayMixin from '@ember/array';
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
@@ -41,6 +42,14 @@ export default class PromiseManyArray {
     this._update(promise, content);
     this.isDestroyed = false;
     this.isDestroying = false;
+
+    const meta = Ember.meta(this);
+    meta.hasMixin = (mixin: Object) => {
+      if (mixin === ArrayMixin) {
+        return true;
+      }
+      return false;
+    };
   }
 
   //---- Methods/Properties on ArrayProxy that we will keep as our API
