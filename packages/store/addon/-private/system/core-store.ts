@@ -1729,7 +1729,7 @@ abstract class CoreStore extends Service {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       let stableIdentifier = identifierCacheFor(this).peekRecordIdentifier(identifier);
       if (stableIdentifier) {
-        return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord();
+        return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord() || null;
       }
       return null;
     }
