@@ -16,7 +16,7 @@ import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/dep
 
   A PromiseManyArray is an array-like proxy that also proxies certain method calls
   to the underlying ManyArray in addition to being "promisified".
-   
+
   Right now we proxy:
 
     * `reload()`
