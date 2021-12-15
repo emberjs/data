@@ -38,6 +38,25 @@ module('Store.createRecord() coverage', function (hooks) {
     store = owner.lookup('service:store');
   });
 
+  test("createRecord doesn't crash when setter is involved", async function (assert) {
+    class User extends Model {
+      @attr() email;
+
+      get name() {
+        return this.email ? this.email.substring(0, this.email.indexOf('@')) : '';
+      }
+
+      set name(value) {
+        this.email = `${value.toLowerCase()}@ember.js`;
+      }
+    }
+    this.owner.register(`model:user`, User);
+    const store = this.owner.lookup('service:store');
+
+    const user = store.createRecord('user', { name: 'Robert' });
+    assert.strictEqual(user.email, 'robert@ember.js');
+  });
+
   test('unloading a newly created a record with a sync belongsTo relationship', async function (assert) {
     let chris = store.push({
       data: {
