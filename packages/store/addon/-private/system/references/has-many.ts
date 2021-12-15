@@ -7,7 +7,11 @@ import { resolve } from 'rsvp';
 import type { ManyRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
-import { CollectionResourceDocument, ExistingResourceObject } from '../../ts-interfaces/ember-data-json-api';
+import {
+  CollectionResourceDocument,
+  ExistingResourceObject,
+  SingleResourceDocument,
+} from '../../ts-interfaces/ember-data-json-api';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import CoreStore from '../core-store';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
@@ -244,43 +248,49 @@ export default class HasManyReference extends Reference {
    @param {Array|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {ManyArray}
    */
-  push(objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument): any {
-    return resolve(objectOrPromise).then((payload) => {
-      let array: ExistingResourceObject[];
+  async push(
+    objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
+  ): Promise<any> {
+    const payload = await resolve(objectOrPromise);
+    let array: Array<ExistingResourceObject | SingleResourceDocument>;
 
-      if (!Array.isArray(payload) && typeof payload === 'object' && Array.isArray(payload.data)) {
-        array = payload.data;
+    if (!Array.isArray(payload) && typeof payload === 'object' && Array.isArray(payload.data)) {
+      array = payload.data;
+    } else {
+      array = payload as ExistingResourceObject[];
+    }
+
+    const internalModel = internalModelForReference(this)!;
+    const { store } = this;
+
+    let identifiers = array.map((obj) => {
+      let record;
+      if ('data' in obj) {
+        // TODO deprecate pushing non-valid JSON:API here
+        record = store.push(obj);
       } else {
-        array = payload as ExistingResourceObject[];
+        record = store.push({ data: obj });
       }
 
-      const internalModel = internalModelForReference(this)!;
-      const { store } = this;
-
-      let identifiers = array.map((obj) => {
-        let record = store.push({ data: obj });
-
-        if (DEBUG) {
-          let relationshipMeta = this.hasManyRelationship.definition;
-          assertPolymorphicType(internalModel.identifier, relationshipMeta, recordIdentifierFor(record), store);
-        }
-        return recordIdentifierFor(record);
-      });
-
-      const { graph, identifier } = this.hasManyRelationship;
-      store._backburner.join(() => {
-        graph.push({
-          op: 'replaceRelatedRecords',
-          record: identifier,
-          field: this.key,
-          value: identifiers,
-        });
-      });
-
-      return internalModel.getHasMany(this.key);
-      // TODO IGOR it seems wrong that we were returning the many array here
-      //return this.hasManyRelationship.manyArray;
+      if (DEBUG) {
+        let relationshipMeta = this.hasManyRelationship.definition;
+        assertPolymorphicType(internalModel.identifier, relationshipMeta, recordIdentifierFor(record), store);
+      }
+      return recordIdentifierFor(record);
     });
+
+    const { graph, identifier } = this.hasManyRelationship;
+    store._backburner.join(() => {
+      graph.push({
+        op: 'replaceRelatedRecords',
+        record: identifier,
+        field: this.key,
+        value: identifiers,
+      });
+    });
+
+    // TODO IGOR it seems wrong that we were returning the many array here
+    return internalModel.getHasMany(this.key);
   }
 
   _isLoaded() {

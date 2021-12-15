@@ -429,56 +429,77 @@ module('integration/references/has-many', function (hooks) {
     });
   });
 
-  test('push(promise)', function (assert) {
-    var done = assert.async();
+  test('push(promise)', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const deferred = defer();
 
-    let store = this.owner.lookup('service:store');
-
-    var push;
-    var deferred = defer();
-
-    run(function () {
-      var family = store.push({
-        data: {
-          type: 'family',
-          id: 1,
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 },
-              ],
-            },
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            data: [
+              { type: 'person', id: 1 },
+              { type: 'person', id: 2 },
+            ],
           },
         },
-      });
-      var personsReference = family.hasMany('persons');
-      push = personsReference.push(deferred.promise);
+      },
     });
+    const personsReference = family.hasMany('persons');
+    let pushResult = personsReference.push(deferred.promise);
 
-    assert.ok(push.then, 'HasManyReference.push returns a promise');
+    assert.ok(pushResult.then, 'HasManyReference.push returns a promise');
 
-    run(function () {
-      var payload = {
-        data: [
-          { data: { type: 'person', id: 1, attributes: { name: 'Vito' } } },
-          { data: { type: 'person', id: 2, attributes: { name: 'Michael' } } },
-        ],
-      };
+    const payload = {
+      data: [
+        { data: { type: 'person', id: 1, attributes: { name: 'Vito' } } },
+        { data: { type: 'person', id: 2, attributes: { name: 'Michael' } } },
+      ],
+    };
 
-      deferred.resolve(payload);
+    deferred.resolve(payload);
+
+    const records = await pushResult;
+    assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
+    assert.strictEqual(get(records, 'length'), 2);
+    assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
+    assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
+  });
+
+  test('push valid json:api', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            data: [
+              { type: 'person', id: 1 },
+              { type: 'person', id: 2 },
+            ],
+          },
+        },
+      },
     });
+    const personsReference = family.hasMany('persons');
+    const payload = {
+      data: [
+        { type: 'person', id: 1, attributes: { name: 'Vito' } },
+        { type: 'person', id: 2, attributes: { name: 'Michael' } },
+      ],
+    };
+    const pushResult = personsReference.push(payload);
+    assert.ok(pushResult.then, 'HasManyReference.push returns a promise');
 
-    run(function () {
-      push.then(function (records) {
-        assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
-        assert.strictEqual(get(records, 'length'), 2);
-        assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
-        assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
-
-        done();
-      });
-    });
+    const records = await pushResult;
+    assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
+    assert.strictEqual(get(records, 'length'), 2);
+    assert.strictEqual(records.objectAt(0).get('name'), 'Vito');
+    assert.strictEqual(records.objectAt(1).get('name'), 'Michael');
   });
 
   test('value() returns null when reference is not yet loaded', function (assert) {
