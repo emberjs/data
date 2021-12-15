@@ -4,6 +4,7 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import { resolve } from 'rsvp';
 
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
 import type { BelongsToRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
@@ -36,7 +37,8 @@ export default class BelongsToReference extends Reference {
   declare parent: RecordReference;
   declare parentIdentifier: StableRecordIdentifier;
 
-  #token: Object;
+  // unsubscribe tokens given to us by the notification manager
+  #token!: Object;
   #relatedToken: Object | null = null;
 
   @tracked _ref = 0;
@@ -55,22 +57,26 @@ export default class BelongsToReference extends Reference {
     this.parent = parent!.recordReference;
     this.parentIdentifier = parentIdentifier;
 
-    this.#token = store._notificationManager.subscribe(
-      parentIdentifier,
-      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-        if ((bucket === 'relationships' || bucket === 'property') && notifiedKey === key) {
-          this._ref++;
+    if (CUSTOM_MODEL_CLASS) {
+      this.#token = store._notificationManager.subscribe(
+        parentIdentifier,
+        (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+          if ((bucket === 'relationships' || bucket === 'property') && notifiedKey === key) {
+            this._ref++;
+          }
         }
-      }
-    );
+      );
+    }
 
     // TODO inverse
   }
 
   destroy() {
-    unsubscribe(this.#token);
-    if (this.#relatedToken) {
-      unsubscribe(this.#relatedToken);
+    if (CUSTOM_MODEL_CLASS) {
+      unsubscribe(this.#token);
+      if (this.#relatedToken) {
+        unsubscribe(this.#relatedToken);
+      }
     }
   }
 
@@ -141,7 +147,17 @@ export default class BelongsToReference extends Reference {
    @return {String} The id of the record in this belongsTo relationship.
    */
   id(): string | null {
-    return this._relatedIdentifier?.id || null;
+    if (CUSTOM_MODEL_CLASS) {
+      return this._relatedIdentifier?.id || null;
+    }
+    let resource = this._resource();
+    if (resource && resource.data) {
+      const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
+
+      return identifier.id;
+    }
+
+    return null;
   }
 
   _resource() {
