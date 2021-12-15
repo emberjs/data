@@ -908,25 +908,6 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    let post = await store.findRecord('post', 1);
-    let comments = await post.comments;
-    assert.true(comments.get('isLoaded'), 'comments are loaded');
-    assert.strictEqual(comments.get('length'), 2, 'comments have 2 length');
-
-    adapter.findHasMany = function (store, snapshot, link, relationship) {
-      assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
-      assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
-
-      return resolve({
-        data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
-          { id: 3, type: 'comment', attributes: { body: 'Thirds' } },
-        ],
-      });
-    };
-
     await comments.reload();
 
     assert.strictEqual(comments.length, 3, 'reloaded comments have 3 length');
