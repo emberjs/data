@@ -431,6 +431,8 @@ createdState.uncommitted.rollback = function (internalModel) {
 };
 
 createdState.uncommitted.pushedData = function (internalModel) {
+  // TODO @runspired consider where to do this once we kill off state machine
+  internalModel.store._notificationManager.notify(internalModel.identifier, 'identity');
   internalModel.transitionTo('loaded.updated.uncommitted');
   internalModel.triggerLater('didLoad');
 };

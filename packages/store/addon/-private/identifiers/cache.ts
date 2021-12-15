@@ -533,6 +533,7 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
     if (lid !== undefined) {
       let newLid = coerceId(lid);
       if (newLid !== identifier.lid) {
+        debugger;
         throw new Error(
           `The 'lid' for a RecordIdentifier cannot be updated once it has been created. Attempted to set lid for '${wrapper}' to '${lid}'.`
         );
