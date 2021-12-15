@@ -152,7 +152,5 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
     } else {
       relationship.state.isStale = false;
     }
-  } else {
-    relationship.state.isStale = false;
   }
 }
