@@ -361,27 +361,18 @@ module('integration/references/has-many', function (hooks) {
     });
   });
 
-  testInDebug('push(array) asserts polymorphic type', function (assert) {
+  testInDebug('push(array) asserts polymorphic type', async function (assert) {
     let store = this.owner.lookup('service:store');
-
-    var family;
-    run(function () {
-      family = store.push({
-        data: {
-          type: 'family',
-          id: 1,
-        },
-      });
+    let family = store.push({
+      data: {
+        type: 'family',
+        id: 1,
+      },
     });
+    let personsReference = family.hasMany('persons');
 
-    var personsReference = family.hasMany('persons');
-
-    assert.expectAssertion(() => {
-      run(() => {
-        var data = [{ data: { type: 'family', id: 1 } }];
-
-        personsReference.push(data);
-      });
+    assert.expectAssertion(async () => {
+      await personsReference.push([{ data: { type: 'family', id: '1' } }]);
     }, "The 'family' type does not implement 'person' and thus cannot be assigned to the 'persons' relationship in 'family'. Make it a descendant of 'person' or use a mixin of the same name.");
   });
 

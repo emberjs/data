@@ -94,7 +94,7 @@ export default class HasManyReference extends Reference {
         const token = this.store._notificationManager.subscribe(
           identifier,
           (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-            if ((bucket === 'identity' || bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id') {
+            if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
               this._ref++;
             }
           }
@@ -274,7 +274,8 @@ export default class HasManyReference extends Reference {
 
       if (DEBUG) {
         let relationshipMeta = this.hasManyRelationship.definition;
-        assertPolymorphicType(internalModel.identifier, relationshipMeta, recordIdentifierFor(record), store);
+        let identifier = this.hasManyRelationship.identifier;
+        assertPolymorphicType(identifier, relationshipMeta, recordIdentifierFor(record), store);
       }
       return recordIdentifierFor(record);
     });

@@ -88,7 +88,7 @@ export default class BelongsToReference extends Reference {
       this.#relatedToken = this.store._notificationManager.subscribe(
         identifier,
         (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-          if ((bucket === 'identity' || bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id') {
+          if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
             this._ref++;
           }
         }
