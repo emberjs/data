@@ -10,6 +10,8 @@ module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: true,
   externalDependenciesForPrivateModule() {
     return [
+      'ember-cached-decorator-polyfill',
+
       '@ember-data/canary-features',
       '@ember-data/store/-debug',
 
@@ -23,6 +25,7 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/object/evented',
       '@ember/object/internals',
       '@ember/object/mixin',
+      '@ember/object/compat',
       '@ember/object/promise-proxy-mixin',
       '@ember/object/proxy',
       '@ember/polyfills',
