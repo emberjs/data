@@ -4114,4 +4114,50 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     });
   });
+
+  test('Pushing a relationship with duplicate identifiers results in a single entry for the record in the relationship', async function (assert) {
+    class PhoneUser extends Model {
+      @hasMany('phone-number', { async: false, inverse: null })
+      phoneNumbers;
+      @attr name;
+    }
+    class PhoneNumber extends Model {
+      @attr number;
+    }
+    const { owner } = this;
+
+    owner.register('model:phone-user', PhoneUser);
+    owner.register('model:phone-number', PhoneNumber);
+
+    const store = owner.lookup('service:store');
+
+    store.push({
+      data: {
+        id: 'call-me-anytime',
+        type: 'phone-number',
+        attributes: {
+          number: '1-800-DATA',
+        },
+      },
+    });
+
+    const person = store.push({
+      data: {
+        id: '1',
+        type: 'phone-user',
+        attributes: {},
+        relationships: {
+          phoneNumbers: {
+            data: [
+              { type: 'phone-number', id: 'call-me-anytime' },
+              { type: 'phone-number', id: 'call-me-anytime' },
+              { type: 'phone-number', id: 'call-me-anytime' },
+            ],
+          },
+        },
+      },
+    });
+
+    assert.strictEqual(person.get('phoneNumbers.length'), 1);
+  });
 });
