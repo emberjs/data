@@ -19,6 +19,7 @@
   "dependencies": {
     "@ember-data/canary-features": "3.28.6",
     "@ember-data/private-build-infra": "3.28.6",
+    "ember-cached-decorator-polyfill": "^0.1.4",
     "@ember/string": "^3.0.0",
     "@glimmer/tracking": "^1.0.4",
     "ember-cli-babel": "^7.26.6",

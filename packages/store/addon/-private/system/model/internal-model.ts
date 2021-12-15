@@ -34,6 +34,7 @@ type ManyRelationship = import('@ember-data/record-data/-private').ManyRelations
 type UpgradedMeta = import('@ember-data/record-data/-private/graph/-edge-definition').UpgradedMeta;
 
 type CoreStore = import('../core-store').default;
+type DSModel = import('../../ts-interfaces/ds-model').DSModel;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
 type ConfidentDict<T> = import('../../ts-interfaces/utils').ConfidentDict<T>;
 type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
@@ -130,7 +131,7 @@ export default class InternalModel {
   declare _deferredTriggers: any;
   declare __recordArrays: any;
   declare references: any;
-  declare _recordReference: any;
+  declare _recordReference: RecordReference;
   declare _manyArrayCache: ConfidentDict<ManyArray>;
 
   declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
@@ -202,7 +203,7 @@ export default class InternalModel {
     }
   }
 
-  get recordReference() {
+  get recordReference(): RecordReference {
     if (this._recordReference === null) {
       this._recordReference = new RecordReference(this.store, this.identifier);
     }
@@ -294,7 +295,7 @@ export default class InternalModel {
     }
   }
 
-  getRecord(properties?) {
+  getRecord(properties?): Object {
     if (!this._record && !this._isDematerializing) {
       let { store } = this;
 
@@ -616,7 +617,7 @@ export default class InternalModel {
             "' with id " +
             parentInternalModel.id +
             ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`belongsTo({ async: true })`)',
-          toReturn === null || !toReturn.get('isEmpty')
+          toReturn === null || !(toReturn as DSModel).isEmpty
         );
         return toReturn;
       }
@@ -675,7 +676,7 @@ export default class InternalModel {
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  getHasMany(key: string, options) {
+  getHasMany(key: string, options?) {
     if (HAS_RECORD_DATA_PACKAGE) {
       const graphFor = require('@ember-data/record-data/-private').graphFor;
       const relationship = graphFor(this.store).get(this.identifier, key);
@@ -793,11 +794,22 @@ export default class InternalModel {
       !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying')
     );
     this.isDestroying = true;
+    if (this._recordReference) {
+      this._recordReference.destroy();
+    }
+    this._recordReference = null;
     let cache = this._manyArrayCache;
     Object.keys(cache).forEach((key) => {
       cache[key].destroy();
       delete cache[key];
     });
+    if (this.references) {
+      cache = this.references;
+      Object.keys(cache).forEach((key) => {
+        cache[key].destroy();
+        delete cache[key];
+      });
+    }
 
     internalModelFactoryFor(this.store).remove(this);
     this._isDestroyed = true;
@@ -806,6 +818,7 @@ export default class InternalModel {
   setupData(data) {
     let changedKeys = this._recordData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
+      // TODO @runspired should this be going through the notification manager?
       this._record._notifyProperties(changedKeys);
     }
     this.send('pushedData');
@@ -905,11 +918,18 @@ export default class InternalModel {
 
   notifyHasManyChange(key: string) {
     if (this.hasRecord) {
+      let manyArray = this._manyArrayCache[key];
+      let hasPromise = !!this._relationshipPromisesCache[key];
+
+      if (manyArray && hasPromise) {
+        // do nothing, we will notify the ManyArray directly
+        // once the fetch has completed.
+        return;
+      }
+
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships', key);
       } else {
-        let manyArray = this._manyArrayCache[key];
-
         if (manyArray) {
           manyArray.notify();
 
@@ -959,10 +979,10 @@ export default class InternalModel {
         this.store._notificationManager.notify(this.identifier, 'state');
       } else {
         if (!key || key === 'isNew') {
-          this.getRecord().notifyPropertyChange('isNew');
+          (this.getRecord() as DSModel).notifyPropertyChange('isNew');
         }
         if (!key || key === 'isDeleted') {
-          this.getRecord().notifyPropertyChange('isDeleted');
+          (this.getRecord() as DSModel).notifyPropertyChange('isDeleted');
         }
       }
     }
@@ -1266,12 +1286,12 @@ export default class InternalModel {
       if (this._recordData.getErrors) {
         return this._recordData.getErrors(this.identifier).length > 0;
       } else {
-        let errors = get(this.getRecord(), 'errors');
-        return errors.get('length') > 0;
+        let errors = (this.getRecord() as DSModel).errors;
+        return errors.length > 0;
       }
     } else {
-      let errors = get(this.getRecord(), 'errors');
-      return errors.get('length') > 0;
+      let errors = (this.getRecord() as DSModel).errors;
+      return errors.length > 0;
     }
   }
 
@@ -1286,7 +1306,7 @@ export default class InternalModel {
         if (!this._recordData.getErrors) {
           for (attribute in parsedErrors) {
             if (hasOwnProperty.call(parsedErrors, attribute)) {
-              this.getRecord().errors._add(attribute, parsedErrors[attribute]);
+              (this.getRecord() as DSModel).errors._add(attribute, parsedErrors[attribute]);
             }
           }
         }
@@ -1306,7 +1326,7 @@ export default class InternalModel {
 
       for (attribute in parsedErrors) {
         if (hasOwnProperty.call(parsedErrors, attribute)) {
-          this.getRecord().errors._add(attribute, parsedErrors[attribute]);
+          (this.getRecord() as DSModel).errors._add(attribute, parsedErrors[attribute]);
         }
       }
 

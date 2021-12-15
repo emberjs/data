@@ -168,11 +168,13 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
 
     class TestAdapter extends Adapter {
       createRecord(store, ModelClass, snapshot) {
-        const lid = recordIdentifierFor(snapshot.record.ingredients.firstObject).lid;
+        const cakeLid = recordIdentifierFor(snapshot.record).lid;
+        const ingredientLid = recordIdentifierFor(snapshot.record.ingredients.firstObject).lid;
         return resolve({
           data: {
             type: 'cake',
             id: '1',
+            lid: cakeLid,
             attributes: {
               name: 'Cheesecake',
             },
@@ -182,7 +184,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
                   {
                     type: 'ingredient',
                     id: '2',
-                    lid,
+                    lid: ingredientLid,
                   },
                 ],
               },
@@ -192,7 +194,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
             {
               type: 'ingredient',
               id: '2',
-              lid,
+              lid: ingredientLid,
               attributes: {
                 name: 'Cheese',
               },
@@ -201,6 +203,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
                   data: {
                     type: 'cake',
                     id: '1',
+                    lid: cakeLid,
                   },
                 },
               },
@@ -215,10 +218,17 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const cheese = store.createRecord('ingredient', { name: 'Cheese' });
     const cake = store.createRecord('cake', { name: 'Cheesecake', ingredients: [cheese] });
 
+    // Consume ids before save() to check for update errors
+    assert.strictEqual(cake.id, null, 'cake id is initially null');
+    assert.strictEqual(cheese.id, null, 'cheese id is initially null');
+
     await cake.save();
 
     assert.deepEqual(cake.hasMany('ingredients').ids(), ['2']);
-    assert.equal(cake.ingredients.objectAt(0).name, 'Cheese');
+    assert.strictEqual(cake.ingredients.objectAt(0).name, 'Cheese');
+
+    assert.strictEqual(cake.id, '1', 'cake has the correct id');
+    assert.strictEqual(cheese.id, '2', 'cheese has the correct id');
   });
 
   test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function (assert) {
