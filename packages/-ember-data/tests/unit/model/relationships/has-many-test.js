@@ -2629,18 +2629,14 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     const posts = await user.posts;
     assert.strictEqual(posts.length, 2, 'we loaded two posts');
     const firstPost = posts.objectAt(0);
-    console.log('access 1');
     const firstPostCommentsPromise = firstPost.comments;
     const originalPromise = firstPostCommentsPromise.promise;
-    console.log('access 2');
     firstPost.comments; // trigger an extra access
     const firstPostComments = await firstPostCommentsPromise;
-    console.log('access 3');
     firstPost.comments; // trigger an extra access
     assert.true(firstPostCommentsPromise.isFulfilled, 'comments relationship is fulfilled');
     assert.true(firstPostCommentsPromise.promise === originalPromise, 'we did not re-trigger the property');
     assert.strictEqual(firstPostComments.length, 3, 'we loaded three comments');
-    console.log('access 4');
     firstPost.comments; // trigger an extra access
     assert.true(firstPostCommentsPromise.isFulfilled, 'comments relationship is fulfilled');
   });
