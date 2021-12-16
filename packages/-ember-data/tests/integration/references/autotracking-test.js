@@ -124,31 +124,5 @@ if (CUSTOM_MODEL_CLASS) {
       );
       assert.deepEqual(testContext.friendIds, ['2', '6'], 'the ids are correct when the new record is saved');
     });
-
-    test('RecordReference.id() is autotracked', async function (assert) {
-      const dan = store.createRecord('user', { name: 'Dan' });
-      const identifier = recordIdentifierFor(dan);
-      const reference = store.getReference(identifier);
-
-      class TestContext {
-        user = reference;
-
-        get id() {
-          return this.user.id();
-        }
-      }
-
-      const testContext = new TestContext();
-      this.set('context', testContext);
-
-      await render(hbs`id: {{if this.context.id this.context.id 'null'}}`);
-
-      assert.strictEqual(getRootElement().textContent, 'id: null', 'the id is null');
-      assert.strictEqual(testContext.id, null, 'the id is correct initially');
-      await dan.save();
-      await settled();
-      assert.strictEqual(getRootElement().textContent, 'id: 6', 'the id updates when the record id updates');
-      assert.strictEqual(testContext.id, '6', 'the id is correct when the record is saved');
-    });
   });
 }
