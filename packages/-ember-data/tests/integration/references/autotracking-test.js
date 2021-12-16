@@ -9,7 +9,6 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { recordIdentifierFor } from '@ember-data/store';
 
 if (CUSTOM_MODEL_CLASS) {
   module('integration/references/autotracking', function (hooks) {
