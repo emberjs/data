@@ -3,7 +3,7 @@
 */
 import { assert } from '@ember/debug';
 
-import { CUSTOM_MODEL_CLASS, REQUEST_SERVICE } from '@ember-data/canary-features';
+import { REQUEST_SERVICE } from '@ember-data/canary-features';
 /*
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
@@ -432,11 +432,7 @@ createdState.uncommitted.rollback = function (internalModel) {
 
 createdState.uncommitted.pushedData = function (internalModel) {
   // TODO @runspired consider where to do this once we kill off state machine
-  if (CUSTOM_MODEL_CLASS) {
-    internalModel.store._notificationManager.notify(internalModel.identifier, 'identity');
-  } else {
-    internalModel.notifyPropertyChange('id');
-  }
+  internalModel.store._notificationManager.notify(internalModel.identifier, 'identity');
   internalModel.transitionTo('loaded.updated.uncommitted');
   internalModel.triggerLater('didLoad');
 };

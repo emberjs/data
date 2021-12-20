@@ -1,15 +1,13 @@
-import { getOwner, setOwner } from '@ember/application';
 import { A, default as EmberArray } from '@ember/array';
 import { assert, inspect } from '@ember/debug';
 import EmberError from '@ember/error';
-import { get, set } from '@ember/object';
+import { get } from '@ember/object';
 import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import RSVP, { Promise } from 'rsvp';
 
 import {
-  CUSTOM_MODEL_CLASS,
   RECORD_DATA_ERRORS,
   RECORD_DATA_STATE,
   REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
@@ -31,7 +29,6 @@ import type { JsonApiResource, JsonApiValidationError } from '../../ts-interface
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
 import type { ConfidentDict } from '../../ts-interfaces/utils';
-import coerceId from '../coerce-id';
 import type CoreStore from '../core-store';
 import type Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
@@ -39,7 +36,7 @@ import { recordArraysForIdentifier } from '../record-array-manager';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
-import { internalModelFactoryFor, setRecordIdentifier } from '../store/internal-model-factory';
+import { internalModelFactoryFor } from '../store/internal-model-factory';
 import RootState from './states';
 
 // move to TS hacks module that we can delete when this is no longer a necessary recast
@@ -72,11 +69,6 @@ if (HAS_MODEL_PACKAGE) {
   };
 }
 
-// TODO this should be integrated with the code removal so we can use it together with the if condition
-// and not alongside it
-function isNotCustomModelClass(store: CoreStore | Store): store is Store {
-  return !CUSTOM_MODEL_CLASS;
-}
 interface BelongsToMetaWrapper {
   key: string;
   store: CoreStore;
@@ -296,73 +288,7 @@ export default class InternalModel {
     if (!this._record && !this._isDematerializing) {
       let { store } = this;
 
-      if (CUSTOM_MODEL_CLASS) {
-        this._record = store._instantiateRecord(this, this.modelName, this._recordData, this.identifier, properties);
-      } else {
-        if (isNotCustomModelClass(store)) {
-          // lookupFactory should really return an object that creates
-          // instances with the injections applied
-          let createOptions: any = {
-            store,
-            _internalModel: this,
-          };
-
-          if (!REQUEST_SERVICE) {
-            createOptions.isError = this.isError;
-            createOptions.adapterError = this.error;
-          }
-
-          if (properties !== undefined) {
-            assert(
-              `You passed '${properties}' as properties for record creation instead of an object.`,
-              typeof properties === 'object' && properties !== null
-            );
-
-            if ('id' in properties) {
-              const id = coerceId(properties.id);
-
-              if (id !== null) {
-                this.setId(id);
-              }
-            }
-
-            // convert relationship Records to RecordDatas before passing to RecordData
-            let defs = store._relationshipsDefinitionFor(this.modelName);
-
-            if (defs !== null) {
-              let keys = Object.keys(properties);
-              let relationshipValue;
-
-              for (let i = 0; i < keys.length; i++) {
-                let prop = keys[i];
-                let def = defs[prop];
-
-                if (def !== undefined) {
-                  if (def.kind === 'hasMany') {
-                    if (DEBUG) {
-                      assertRecordsPassedToHasMany(properties[prop]);
-                    }
-                    relationshipValue = extractRecordDatasFromRecords(properties[prop]);
-                  } else {
-                    relationshipValue = extractRecordDataFromRecord(properties[prop]);
-                  }
-
-                  properties[prop] = relationshipValue;
-                }
-              }
-            }
-          }
-
-          let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
-          Object.assign(createOptions, additionalCreateOptions);
-
-          // ensure that `getOwner(this)` works inside a model instance
-          setOwner(createOptions, getOwner(store));
-
-          this._record = store._modelFactoryFor(this.modelName).create(createOptions);
-          setRecordIdentifier(this._record, this.identifier);
-        }
-      }
+      this._record = store._instantiateRecord(this, this.modelName, this._recordData, this.identifier, properties);
       this._triggerDeferredTriggers();
     }
 
@@ -381,11 +307,7 @@ export default class InternalModel {
       this.store.recordArrayManager.recordDidChange(this.identifier);
     }
     if (this._record) {
-      if (CUSTOM_MODEL_CLASS) {
-        this.store.teardownRecord(this._record);
-      } else {
-        this._record.destroy();
-      }
+      this.store.teardownRecord(this._record);
     }
 
     // move to an empty never-loaded state
@@ -575,6 +497,8 @@ export default class InternalModel {
     let identifier =
       resource && resource.data ? identifierCacheFor(this.store).getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
+    if (!relationshipMeta) return;
+
     let store = this.store;
     let parentInternalModel = this;
     let async = relationshipMeta.options.async;
@@ -924,64 +848,30 @@ export default class InternalModel {
         return;
       }
 
-      if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'relationships', key);
-      } else {
-        if (manyArray) {
-          manyArray.notify();
-
-          //We need to notifyPropertyChange in the adding case because we need to make sure
-          //we fetch the newly added record in case it is unloaded
-          //TODO(Igor): Consider whether we could do this only if the record state is unloaded
-          if (manyArray.isAsync) {
-            this._record.notifyPropertyChange(key);
-          }
-        }
-      }
+      this.store._notificationManager.notify(this.identifier, 'relationships', key);
     }
   }
 
   notifyBelongsToChange(key: string) {
     if (this.hasRecord) {
-      if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'relationships', key);
-      } else {
-        this._record.notifyPropertyChange(key, this._record);
-      }
+      this.store._notificationManager.notify(this.identifier, 'relationships', key);
     }
   }
 
   notifyPropertyChange(key) {
     if (this.hasRecord) {
-      if (CUSTOM_MODEL_CLASS) {
-        // TODO this should likely *mostly* be the `attributes` bucket
-        // but it seems for local mutations we rely on computed updating
-        // iteself when set. As we design our own thing we may need to change
-        // that.
-        this.store._notificationManager.notify(this.identifier, 'property', key);
-      } else {
-        if (key === 'currentState') {
-          set(this._record, 'currentState', this.currentState);
-        } else {
-          this._record.notifyPropertyChange(key);
-        }
-      }
+      // TODO this should likely *mostly* be the `attributes` bucket
+      // but it seems for local mutations we rely on computed updating
+      // iteself when set. As we design our own thing we may need to change
+      // that.
+      this.store._notificationManager.notify(this.identifier, 'property', key);
     }
   }
 
   notifyStateChange(key?) {
     assert('Cannot notify state change if Record Data State flag is not on', !!RECORD_DATA_STATE);
     if (this.hasRecord) {
-      if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'state');
-      } else {
-        if (!key || key === 'isNew') {
-          (this.getRecord() as DSModel).notifyPropertyChange('isNew');
-        }
-        if (!key || key === 'isDeleted') {
-          (this.getRecord() as DSModel).notifyPropertyChange('isDeleted');
-        }
-      }
+      this.store._notificationManager.notify(this.identifier, 'state');
     }
     if (!key || key === 'isDeletionCommitted') {
       this.store.recordArrayManager.recordDidChange(this.identifier);
@@ -1057,17 +947,13 @@ export default class InternalModel {
     }
 
     this.currentState = state;
-    if (CUSTOM_MODEL_CLASS) {
-      if (this.hasRecord && typeof this._record.notifyPropertyChange === 'function') {
-        // TODO refactor Model to have all flags pull from the notification manager
-        // and for currentState.stateName to be constructed from flag state.
-        // Probably just port this work from ember-m3
-        // After that we can eliminate this.
-        this.notifyStateChange('currentState');
-        // this._record.notifyPropertyChange('currentState');
-      }
-    } else {
-      this.notifyPropertyChange('currentState');
+    if (this.hasRecord && typeof this._record.notifyPropertyChange === 'function') {
+      // TODO refactor Model to have all flags pull from the notification manager
+      // and for currentState.stateName to be constructed from flag state.
+      // Probably just port this work from ember-m3
+      // After that we can eliminate this.
+      this.notifyStateChange('currentState');
+      // this._record.notifyPropertyChange('currentState');
     }
 
     for (i = 0, l = setups.length; i < l; i++) {
@@ -1218,11 +1104,7 @@ export default class InternalModel {
     }
 
     if (didChange && this.hasRecord) {
-      if (CUSTOM_MODEL_CLASS) {
-        this.store._notificationManager.notify(this.identifier, 'identity');
-      } else {
-        this.notifyPropertyChange('id');
-      }
+      this.store._notificationManager.notify(this.identifier, 'identity');
     }
     this._isUpdatingId = false;
   }
@@ -1263,19 +1145,14 @@ export default class InternalModel {
   adapterDidCommit(data) {
     this.didCleanError();
 
-    let changedKeys = this._recordData.didCommit(data);
-
+    this._recordData.didCommit(data);
     this.send('didCommit');
     this.store.recordArrayManager.recordDidChange(this.identifier);
 
     if (!data) {
       return;
     }
-    if (CUSTOM_MODEL_CLASS) {
-      this.store._notificationManager.notify(this.identifier, 'attributes');
-    } else {
-      this._record._notifyProperties(changedKeys);
-    }
+    this.store._notificationManager.notify(this.identifier, 'attributes');
   }
 
   hasErrors() {
@@ -1334,9 +1211,7 @@ export default class InternalModel {
   }
 
   notifyErrorsChange() {
-    if (CUSTOM_MODEL_CLASS) {
-      this.store._notificationManager.notify(this.identifier, 'errors');
-    }
+    this.store._notificationManager.notify(this.identifier, 'errors');
   }
 
   adapterDidError(error) {

@@ -4,7 +4,6 @@
 import { assert } from '@ember/debug';
 import { get } from '@ember/object';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
 import type { DSModel, DSModelSchema, ModelSchema } from '../ts-interfaces/ds-model';
@@ -65,10 +64,9 @@ export default class Snapshot implements Snapshot {
     let internalModel = (this._internalModel = _store._internalModelForResource(identifier));
     this.modelName = identifier.type;
 
-    if (CUSTOM_MODEL_CLASS) {
-      // TODO add public docs once this FF is on
-      this.identifier = identifier;
-    }
+    // TODO add public docs once this FF is on
+    this.identifier = identifier;
+
     /*
       If the internalModel does not yet have a record, then we are
       likely a snapshot being provided to a find request, so we
@@ -151,26 +149,15 @@ export default class Snapshot implements Snapshot {
     }
     let record = this.record;
     let attributes = (this.__attributes = Object.create(null));
-    let attrs: string[];
-
-    if (CUSTOM_MODEL_CLASS) {
-      attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, this.identifier));
-    } else {
-      attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName));
-    }
-    if (CUSTOM_MODEL_CLASS) {
-      attrs.forEach((keyName) => {
-        if (schemaIsDSModel(this.type)) {
-          // if the schema is for a DSModel then the instance is too
-          attributes[keyName] = get(record as DSModel, keyName);
-        } else {
-          attributes[keyName] = recordDataFor(this._internalModel).getAttr(keyName);
-        }
-      });
-    } else {
-      // When CUSTOM_MODEL_CLASS is false `record` must be DSModel
-      (record as DSModel).eachAttribute((keyName) => (attributes[keyName] = get(record as DSModel, keyName)));
-    }
+    let attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, this.identifier));
+    attrs.forEach((keyName) => {
+      if (schemaIsDSModel(this.type)) {
+        // if the schema is for a DSModel then the instance is too
+        attributes[keyName] = get(record as DSModel, keyName);
+      } else {
+        attributes[keyName] = recordDataFor(this._internalModel).getAttr(keyName);
+      }
+    });
 
     return attributes;
   }
@@ -187,9 +174,6 @@ export default class Snapshot implements Snapshot {
   }
 
   get isNew(): boolean {
-    if (!CUSTOM_MODEL_CLASS) {
-      throw new Error('isNew is only available when custom model class ff is on');
-    }
     return this._internalModel.isNew();
   }
 
@@ -333,7 +317,7 @@ export default class Snapshot implements Snapshot {
     }
 
     const graphFor = require('@ember-data/record-data/-private').graphFor;
-    const { identifier } = CUSTOM_MODEL_CLASS ? this : this._internalModel;
+    const { identifier } = this;
     const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName);
 
     assert(
@@ -432,7 +416,7 @@ export default class Snapshot implements Snapshot {
     }
 
     const graphFor = require('@ember-data/record-data/-private').graphFor;
-    const { identifier } = CUSTOM_MODEL_CLASS ? this : this._internalModel;
+    const { identifier } = this;
     const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName);
     assert(
       `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
@@ -488,15 +472,10 @@ export default class Snapshot implements Snapshot {
     @public
   */
   eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
-    if (CUSTOM_MODEL_CLASS) {
-      let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.identifier);
-      Object.keys(attrDefs).forEach((key) => {
-        callback.call(binding, key, attrDefs[key] as AttributeSchema);
-      });
-    } else {
-      // in the non CUSTOM_MODEL_CLASS world we only have DSModel instances
-      (this.record as DSModel).eachAttribute(callback, binding);
-    }
+    let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.identifier);
+    Object.keys(attrDefs).forEach((key) => {
+      callback.call(binding, key, attrDefs[key] as AttributeSchema);
+    });
   }
 
   /**
@@ -517,15 +496,10 @@ export default class Snapshot implements Snapshot {
     @public
   */
   eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
-    if (CUSTOM_MODEL_CLASS) {
-      let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.identifier);
-      Object.keys(relationshipDefs).forEach((key) => {
-        callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
-      });
-    } else {
-      // in the non CUSTOM_MODEL_CLASS world we only have DSModel instances
-      (this.record as DSModel).eachRelationship(callback, binding);
-    }
+    let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.identifier);
+    Object.keys(relationshipDefs).forEach((key) => {
+      callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
+    });
   }
 
   /**

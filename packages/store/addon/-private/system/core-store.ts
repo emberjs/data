@@ -4,7 +4,7 @@
 import { getOwner } from '@ember/application';
 import { A } from '@ember/array';
 import { assert, deprecate, inspect, warn } from '@ember/debug';
-import { computed, defineProperty, get, set } from '@ember/object';
+import { computed, defineProperty, set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import type { Backburner } from '@ember/runloop/-private/backburner';
 import Service from '@ember/service';
@@ -16,12 +16,7 @@ import Ember from 'ember';
 import require from 'require';
 import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
 
-import {
-  CUSTOM_MODEL_CLASS,
-  RECORD_DATA_ERRORS,
-  RECORD_DATA_STATE,
-  REQUEST_SERVICE,
-} from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS, RECORD_DATA_STATE, REQUEST_SERVICE } from '@ember-data/canary-features';
 import {
   HAS_ADAPTER_PACKAGE,
   HAS_EMBER_DATA_PACKAGE,
@@ -313,10 +308,8 @@ abstract class CoreStore extends Service {
     if (REQUEST_SERVICE) {
       this._fetchManager = new FetchManager(this);
     }
-    if (CUSTOM_MODEL_CLASS) {
-      this._notificationManager = new NotificationManager(this);
-      this.__recordDataFor = this.__recordDataFor.bind(this);
-    }
+    this._notificationManager = new NotificationManager(this);
+    this.__recordDataFor = this.__recordDataFor.bind(this);
 
     if (DEBUG) {
       if (HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE) {
@@ -448,55 +441,51 @@ abstract class CoreStore extends Service {
     identifier: StableRecordIdentifier,
     properties?: { [key: string]: any }
   ) {
-    if (CUSTOM_MODEL_CLASS) {
-      // assert here
-      if (properties !== undefined) {
-        assert(
-          `You passed '${properties}' as properties for record creation instead of an object.`,
-          typeof properties === 'object' && properties !== null
-        );
+    // assert here
+    if (properties !== undefined) {
+      assert(
+        `You passed '${properties}' as properties for record creation instead of an object.`,
+        typeof properties === 'object' && properties !== null
+      );
 
-        if ('id' in properties) {
-          internalModel.setId(properties.id);
-        }
+      if ('id' in properties) {
+        internalModel.setId(properties.id);
+      }
 
-        // convert relationship Records to RecordDatas before passing to RecordData
-        let defs = this._relationshipsDefinitionFor(modelName);
+      // convert relationship Records to RecordDatas before passing to RecordData
+      let defs = this._relationshipsDefinitionFor(modelName);
 
-        if (defs !== null) {
-          let keys = Object.keys(properties);
-          let relationshipValue;
+      if (defs !== null) {
+        let keys = Object.keys(properties);
+        let relationshipValue;
 
-          for (let i = 0; i < keys.length; i++) {
-            let prop = keys[i];
-            let def = defs[prop];
+        for (let i = 0; i < keys.length; i++) {
+          let prop = keys[i];
+          let def = defs[prop];
 
-            if (def !== undefined) {
-              if (def.kind === 'hasMany') {
-                if (DEBUG) {
-                  assertRecordsPassedToHasMany(properties[prop]);
-                }
-                relationshipValue = extractRecordDatasFromRecords(properties[prop]);
-              } else {
-                relationshipValue = extractRecordDataFromRecord(properties[prop]);
+          if (def !== undefined) {
+            if (def.kind === 'hasMany') {
+              if (DEBUG) {
+                assertRecordsPassedToHasMany(properties[prop]);
               }
-
-              properties[prop] = relationshipValue;
+              relationshipValue = extractRecordDatasFromRecords(properties[prop]);
+            } else {
+              relationshipValue = extractRecordDataFromRecord(properties[prop]);
             }
+
+            properties[prop] = relationshipValue;
           }
         }
       }
-
-      // TODO guard against initRecordOptions no being there
-      let createOptions = recordData._initRecordCreateOptions(properties);
-      //TODO Igor pass a wrapper instead of RD
-      let record = this.instantiateRecord(identifier, createOptions, this.__recordDataFor, this._notificationManager);
-      setRecordIdentifier(record, identifier);
-      //recordToInternalModelMap.set(record, internalModel);
-      return record;
     }
 
-    assert('should not be here, custom model class ff error', false);
+    // TODO guard against initRecordOptions no being there
+    let createOptions = recordData._initRecordCreateOptions(properties);
+    //TODO Igor pass a wrapper instead of RD
+    let record = this.instantiateRecord(identifier, createOptions, this.__recordDataFor, this._notificationManager);
+    setRecordIdentifier(record, identifier);
+    //recordToInternalModelMap.set(record, internalModel);
+    return record;
   }
 
   abstract instantiateRecord(
@@ -534,10 +523,7 @@ abstract class CoreStore extends Service {
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
-    if (CUSTOM_MODEL_CLASS) {
-      return this._schemaDefinitionService;
-    }
-    assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
+    return this._schemaDefinitionService;
   }
 
   // TODO Double check this return value is correct
@@ -715,16 +701,12 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'deleteRecord');
     }
     this._backburner.join(() => {
-      if (CUSTOM_MODEL_CLASS) {
-        let identifier = peekRecordIdentifier(record);
-        if (identifier) {
-          let internalModel = internalModelFactoryFor(this).peek(identifier);
-          if (internalModel) {
-            internalModel.deleteRecord();
-          }
+      let identifier = peekRecordIdentifier(record);
+      if (identifier) {
+        let internalModel = internalModelFactoryFor(this).peek(identifier);
+        if (internalModel) {
+          internalModel.deleteRecord();
         }
-      } else {
-        record.deleteRecord();
       }
     });
   }
@@ -749,16 +731,12 @@ abstract class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
-    if (CUSTOM_MODEL_CLASS) {
-      let identifier = peekRecordIdentifier(record);
-      if (identifier) {
-        let internalModel = internalModelFactoryFor(this).peek(identifier);
-        if (internalModel) {
-          internalModel.unloadRecord();
-        }
+    let identifier = peekRecordIdentifier(record);
+    if (identifier) {
+      let internalModel = internalModelFactoryFor(this).peek(identifier);
+      if (internalModel) {
+        internalModel.unloadRecord();
       }
-    } else {
-      record.unloadRecord();
     }
   }
 
@@ -3166,30 +3144,17 @@ abstract class CoreStore extends Service {
 
       if (ENV.DS_WARN_ON_UNKNOWN_KEYS) {
         let unknownAttributes, unknownRelationships;
-        if (CUSTOM_MODEL_CLASS) {
-          let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
-          let attributes = this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
-          // Check unknown attributes
-          unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
-            return !attributes[key];
-          });
+        let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+        let attributes = this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+        // Check unknown attributes
+        unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
+          return !attributes[key];
+        });
 
-          // Check unknown relationships
-          unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
-            return !relationships[key];
-          });
-        } else {
-          let modelClass = this.modelFor(modelName);
-          // Check unknown attributes
-          unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
-            return !get(modelClass, 'fields').has(key);
-          });
-
-          // Check unknown relationships
-          unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
-            return !get(modelClass, 'fields').has(key);
-          });
-        }
+        // Check unknown relationships
+        unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
+          return !relationships[key];
+        });
         let unknownAttributesMessage = `The payload for '${modelName}' contains these unknown attributes: ${unknownAttributes}. Make sure they've been defined in your model.`;
         warn(unknownAttributesMessage, unknownAttributes.length === 0, {
           id: 'ds.store.unknown-keys-in-payload',
@@ -3319,38 +3284,26 @@ abstract class CoreStore extends Service {
   }
 
   serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
-    if (CUSTOM_MODEL_CLASS) {
-      let identifier = recordIdentifierFor(record);
-      let internalModel = internalModelFactoryFor(this).peek(identifier);
-      // TODO we used to check if the record was destroyed here
-      return internalModel!.createSnapshot(options).serialize(options);
-    }
-
-    assert('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    let identifier = recordIdentifierFor(record);
+    let internalModel = internalModelFactoryFor(this).peek(identifier);
+    // TODO we used to check if the record was destroyed here
+    return internalModel!.createSnapshot(options).serialize(options);
   }
 
   saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
-    if (CUSTOM_MODEL_CLASS) {
-      let identifier = recordIdentifierFor(record);
-      let internalModel = internalModelFactoryFor(this).peek(identifier);
-      // TODO we used to check if the record was destroyed here
-      // Casting can be removed once REQUEST_SERVICE ff is turned on
-      // because a `Record` is provided there will always be a matching internalModel
-      return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
-    }
-
-    assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
+    let identifier = recordIdentifierFor(record);
+    let internalModel = internalModelFactoryFor(this).peek(identifier);
+    // TODO we used to check if the record was destroyed here
+    // Casting can be removed once REQUEST_SERVICE ff is turned on
+    // because a `Record` is provided there will always be a matching internalModel
+    return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
-    if (CUSTOM_MODEL_CLASS) {
-      let stableIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(identifier);
-      let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
-      // TODO we used to check if the record was destroyed here
-      return internalModel!.referenceFor(null, key);
-    }
-
-    assert('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    let stableIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(identifier);
+    let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
+    // TODO we used to check if the record was destroyed here
+    return internalModel!.referenceFor(null, key);
   }
 
   /**

@@ -5,7 +5,6 @@ import Store from 'serializer-encapsulation-test-app/services/store';
 
 import { setupTest } from 'ember-qunit';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 
 class Person extends Model {
@@ -147,60 +146,58 @@ module('integration/serializer - serialize methods forward to Serializer#seriali
     });
   });
 
-  if (CUSTOM_MODEL_CLASS) {
-    test('Store#serializeRecord calls Serializer#serialize', async function (assert) {
-      let serializeCalled = 0;
+  test('Store#serializeRecord calls Serializer#serialize', async function (assert) {
+    let serializeCalled = 0;
 
-      class TestMinimumSerializer extends EmberObject {
-        serialize(snapshot, options) {
-          serializeCalled++;
+    class TestMinimumSerializer extends EmberObject {
+      serialize(snapshot, options) {
+        serializeCalled++;
 
-          assert.strictEqual(snapshot.id, '1', 'id is correct');
-          assert.strictEqual(snapshot.modelName, 'person', 'modelName is correct');
-          assert.deepEqual(snapshot.attributes(), { firstName: 'John', lastName: 'Smith' }, 'attributes are correct');
+        assert.strictEqual(snapshot.id, '1', 'id is correct');
+        assert.strictEqual(snapshot.modelName, 'person', 'modelName is correct');
+        assert.deepEqual(snapshot.attributes(), { firstName: 'John', lastName: 'Smith' }, 'attributes are correct');
 
-          const serializedResource = {
-            id: snapshot.id,
-            type: snapshot.modelName,
-            attributes: {
-              firstName: 'Chris',
-              lastName: 'Thoburn',
-            },
-          };
+        const serializedResource = {
+          id: snapshot.id,
+          type: snapshot.modelName,
+          attributes: {
+            firstName: 'Chris',
+            lastName: 'Thoburn',
+          },
+        };
 
-          return serializedResource;
-        }
+        return serializedResource;
       }
-      this.owner.register('serializer:application', TestMinimumSerializer);
+    }
+    this.owner.register('serializer:application', TestMinimumSerializer);
 
-      const store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-      let person = store.createRecord('person', {
-        id: '1',
+    let person = store.createRecord('person', {
+      id: '1',
+      firstName: 'John',
+      lastName: 'Smith',
+    });
+
+    assert.deepEqual(person.toJSON(), {
+      id: '1',
+      type: 'person',
+      attributes: {
         firstName: 'John',
         lastName: 'Smith',
-      });
-
-      assert.deepEqual(person.toJSON(), {
-        id: '1',
-        type: 'person',
-        attributes: {
-          firstName: 'John',
-          lastName: 'Smith',
-        },
-      });
-
-      let serializedPerson = store.serializeRecord(person);
-
-      assert.strictEqual(serializeCalled, 1, 'serialize called once');
-      assert.deepEqual(serializedPerson, {
-        id: '1',
-        type: 'person',
-        attributes: {
-          firstName: 'Chris',
-          lastName: 'Thoburn',
-        },
-      });
+      },
     });
-  }
+
+    let serializedPerson = store.serializeRecord(person);
+
+    assert.strictEqual(serializeCalled, 1, 'serialize called once');
+    assert.deepEqual(serializedPerson, {
+      id: '1',
+      type: 'person',
+      attributes: {
+        firstName: 'Chris',
+        lastName: 'Thoburn',
+      },
+    });
+  });
 });
