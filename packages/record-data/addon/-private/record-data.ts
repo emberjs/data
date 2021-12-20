@@ -5,7 +5,7 @@ import { assert } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { recordDataFor, recordIdentifierFor, removeRecordDataFor } from '@ember-data/store/-private';
 import type { CollectionResourceRelationship } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
@@ -318,9 +318,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   notifyStateChange() {
-    if (RECORD_DATA_STATE) {
-      this.storeWrapper.notifyStateChange(this.modelName, this.id, this.clientId);
-    }
+    this.storeWrapper.notifyStateChange(this.modelName, this.id, this.clientId);
   }
 
   // get ResourceIdentifiers for "current state"

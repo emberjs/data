@@ -7,11 +7,7 @@ import { DEBUG } from '@glimmer/env';
 
 import RSVP, { Promise } from 'rsvp';
 
-import {
-  RECORD_DATA_ERRORS,
-  RECORD_DATA_STATE,
-  REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT,
-} from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS, REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type {
   BelongsToRelationship,
@@ -224,60 +220,40 @@ export default class InternalModel {
       return true;
     }
 
-    if (RECORD_DATA_STATE) {
-      if (this.currentState.isLoading) {
-        return false;
-      }
+    if (this.currentState.isLoading) {
+      return false;
     }
 
-    let isRecordFullyDeleted;
-    if (RECORD_DATA_STATE) {
-      isRecordFullyDeleted = this._isRecordFullyDeleted();
-    } else {
-      isRecordFullyDeleted = this.currentState.stateName === 'root.deleted.saved';
-    }
+    let isRecordFullyDeleted = this._isRecordFullyDeleted();
     return this._isDematerializing || this.hasScheduledDestroy() || this.isDestroyed || isRecordFullyDeleted;
   }
 
   _isRecordFullyDeleted(): boolean {
-    if (RECORD_DATA_STATE) {
-      if (this._recordData.isDeletionCommitted && this._recordData.isDeletionCommitted()) {
-        return true;
-      } else if (
-        this._recordData.isNew &&
-        this._recordData.isDeleted &&
-        this._recordData.isNew() &&
-        this._recordData.isDeleted()
-      ) {
-        return true;
-      } else {
-        return this.currentState.stateName === 'root.deleted.saved';
-      }
+    if (this._recordData.isDeletionCommitted && this._recordData.isDeletionCommitted()) {
+      return true;
+    } else if (
+      this._recordData.isNew &&
+      this._recordData.isDeleted &&
+      this._recordData.isNew() &&
+      this._recordData.isDeleted()
+    ) {
+      return true;
     } else {
-      // assert here
-      return false;
+      return this.currentState.stateName === 'root.deleted.saved';
     }
   }
 
   isDeleted() {
-    if (RECORD_DATA_STATE) {
-      if (this._recordData.isDeleted) {
-        return this._recordData.isDeleted();
-      } else {
-        return this.currentState.isDeleted;
-      }
+    if (this._recordData.isDeleted) {
+      return this._recordData.isDeleted();
     } else {
       return this.currentState.isDeleted;
     }
   }
 
   isNew() {
-    if (RECORD_DATA_STATE) {
-      if (this._recordData.isNew) {
-        return this._recordData.isNew();
-      } else {
-        return this.currentState.isNew;
-      }
+    if (this._recordData.isNew) {
+      return this._recordData.isNew();
     } else {
       return this.currentState.isNew;
     }
@@ -339,10 +315,8 @@ export default class InternalModel {
     run(() => {
       const backburner = this.store._backburner;
       backburner.run(() => {
-        if (RECORD_DATA_STATE) {
-          if (this._recordData.setIsDeleted) {
-            this._recordData.setIsDeleted(true);
-          }
+        if (this._recordData.setIsDeleted) {
+          this._recordData.setIsDeleted(true);
         }
 
         if (this.isNew()) {
@@ -830,7 +804,6 @@ export default class InternalModel {
   }
 
   notifyStateChange(key?) {
-    assert('Cannot notify state change if Record Data State flag is not on', !!RECORD_DATA_STATE);
     if (this.hasRecord) {
       this.store._notificationManager.notify(this.identifier, 'state');
     }
