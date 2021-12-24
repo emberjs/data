@@ -56,7 +56,7 @@ export default class HasManyReference extends Reference {
     this.hasManyRelationship = hasManyRelationship;
     this.type = hasManyRelationship.definition.type;
 
-    this.parent = internalModelFactoryFor(store).peek(parentIdentifier)!.recordReference;
+    this.parent = internalModelFactoryFor(store).peek(parentIdentifier)?.recordReference;
 
     if (CUSTOM_MODEL_CLASS) {
       this.#token = store._notificationManager.subscribe(

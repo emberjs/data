@@ -54,7 +54,7 @@ export default class BelongsToReference extends Reference {
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.definition.type;
     const parent = internalModelFactoryFor(store).peek(parentIdentifier);
-    this.parent = parent!.recordReference;
+    this.parent = parent?.recordReference;
     this.parentIdentifier = parentIdentifier;
 
     if (CUSTOM_MODEL_CLASS) {
@@ -378,7 +378,7 @@ export default class BelongsToReference extends Reference {
    */
   load(options) {
     let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-    return parentInternalModel!.getBelongsTo(this.key, options);
+    return parentInternalModel?.getBelongsTo(this.key, options);
   }
 
   /**
@@ -433,7 +433,7 @@ export default class BelongsToReference extends Reference {
    */
   reload(options) {
     let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-    return parentInternalModel!.reloadBelongsTo(this.key, options).then((internalModel) => {
+    return parentInternalModel?.reloadBelongsTo(this.key, options).then((internalModel) => {
       return this.value();
     });
   }

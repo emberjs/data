@@ -41,7 +41,7 @@ export default class ShimModelClass implements ModelSchema {
     let relationships = this.__store._relationshipsDefinitionFor(this.modelName);
     let fields = new Map<string, 'attribute' | 'belongsTo' | 'hasMany'>();
     Object.keys(attrs).forEach((key) => fields.set(key, 'attribute'));
-    Object.keys(relationships).forEach((key) => fields.set(key, relationships[key]!.kind));
+    Object.keys(relationships).forEach((key) => fields.set(key, relationships[key]?.kind));
     return fields;
   }
 
@@ -78,7 +78,7 @@ export default class ShimModelClass implements ModelSchema {
   ) {
     let relationshipDefs = this.__store._relationshipsDefinitionFor(this.modelName);
     Object.keys(relationshipDefs).forEach((key) => {
-      if (relationshipDefs[key]!.type) {
+      if (relationshipDefs[key]?.type) {
         callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
       }
     });

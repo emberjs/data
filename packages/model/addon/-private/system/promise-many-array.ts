@@ -131,7 +131,7 @@ export default class PromiseManyArray {
    * @returns Promise
    */
   then(s, f) {
-    return this.promise!.then(s, f);
+    return this.promise?.then(s, f);
   }
 
   /**
@@ -142,7 +142,7 @@ export default class PromiseManyArray {
    * @returns Promise
    */
   catch(cb) {
-    return this.promise!.catch(cb);
+    return this.promise?.catch(cb);
   }
 
   /**
@@ -154,7 +154,7 @@ export default class PromiseManyArray {
    * @returns Promise
    */
   finally(cb) {
-    return this.promise!.finally(cb);
+    return this.promise?.finally(cb);
   }
 
   //---- Methods on EmberObject that we should keep

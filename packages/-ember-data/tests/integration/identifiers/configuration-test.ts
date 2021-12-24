@@ -180,7 +180,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     assert.ok(updateMethodCalls === 0, 'Precond: We have not updated the identifier yet');
     updateCallback = (updatedIdentifier, resource) => {
       assert.strictEqual(identifier, updatedIdentifier, 'We updated the expected identifier');
-      assert.strictEqual(resource.attributes!.firstName, 'James', 'We received the expected resource to update with');
+      assert.strictEqual(resource.attributes?.firstName, 'James', 'We received the expected resource to update with');
     };
 
     await record.save();
@@ -243,7 +243,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     assert.ok(updateMethodCalls === 0, 'Precond: We have not updated the identifier yet');
     updateCallback = (updatedIdentifier, resource) => {
       assert.strictEqual(identifier, updatedIdentifier, 'We updated the expected identifier');
-      assert.strictEqual(resource.attributes!.firstName, 'James', 'We received the expected resource to update with');
+      assert.strictEqual(resource.attributes?.firstName, 'James', 'We received the expected resource to update with');
     };
 
     await record.save();
@@ -316,7 +316,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     assert.ok(updateMethodCalls === 0, 'Precond: We have not updated the identifier yet');
     updateCallback = (updatedIdentifier, resource) => {
       assert.strictEqual(identifier, updatedIdentifier, 'We updated the expected identifier');
-      assert.strictEqual(resource.attributes!.firstName, 'Chris', 'We received the expected resource to update with');
+      assert.strictEqual(resource.attributes?.firstName, 'Chris', 'We received the expected resource to update with');
     };
 
     set(record, 'age', 23);

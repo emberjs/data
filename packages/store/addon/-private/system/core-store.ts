@@ -3323,7 +3323,7 @@ abstract class CoreStore extends Service {
       let identifier = recordIdentifierFor(record);
       let internalModel = internalModelFactoryFor(this).peek(identifier);
       // TODO we used to check if the record was destroyed here
-      return internalModel!.createSnapshot(options).serialize(options);
+      return internalModel?.createSnapshot(options).serialize(options);
     }
 
     assert('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
@@ -3336,7 +3336,7 @@ abstract class CoreStore extends Service {
       // TODO we used to check if the record was destroyed here
       // Casting can be removed once REQUEST_SERVICE ff is turned on
       // because a `Record` is provided there will always be a matching internalModel
-      return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
+      return (internalModel?.save(options) as RSVP.Promise<void>).then(() => record);
     }
 
     assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
@@ -3347,7 +3347,7 @@ abstract class CoreStore extends Service {
       let stableIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(identifier);
       let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
       // TODO we used to check if the record was destroyed here
-      return internalModel!.referenceFor(null, key);
+      return internalModel?.referenceFor(null, key);
     }
 
     assert('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);

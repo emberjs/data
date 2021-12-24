@@ -368,9 +368,9 @@ if (CUSTOM_MODEL_CLASS) {
       store = this.owner.lookup('service:store');
       let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
       store.deleteRecord(person);
-      assert.true(rd!.isDeleted!(), 'record has been marked as deleted');
+      assert.true(rd?.isDeleted!(), 'record has been marked as deleted');
       await store.saveRecord(person);
-      assert.true(rd!.isDeletionCommitted!(), 'deletion has been commited');
+      assert.true(rd?.isDeletionCommitted!(), 'deletion has been commited');
     });
 
     test('record serialize', function (assert) {
