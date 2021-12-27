@@ -41,7 +41,7 @@
     "@glimmer/component": "^1.0.0",
     "@glimmer/tracking": "^1.0.0",
     "broccoli-merge-trees": "^4.2.0",
-    "ember-cli": "~3.26.1",
+    "ember-cli": "~4.0.1",
     "ember-cli-dependency-checker": "^3.2.0",
     "ember-cli-htmlbars": "^6.0.1",
     "ember-cli-inject-live-reload": "^2.0.2",
