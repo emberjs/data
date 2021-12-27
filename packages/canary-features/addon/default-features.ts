@@ -171,4 +171,5 @@
 */
 export default {
   SAMPLE_FEATURE_FLAG: null,
+  CUSTOM_MODEL_CLASS: true,
 };

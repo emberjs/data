@@ -26,3 +26,4 @@ function featureValue(value: boolean | null): boolean | null {
 
 export const FEATURES: FeatureList = Object.assign({}, DEFAULT_FEATURES, ENV.FEATURES);
 export const SAMPLE_FEATURE_FLAG = featureValue(FEATURES.SAMPLE_FEATURE_FLAG);
+export const CUSTOM_MODEL_CLASS = featureValue(FEATURES.CUSTOM_MODEL_CLASS);
