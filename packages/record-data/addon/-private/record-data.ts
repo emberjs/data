@@ -5,7 +5,6 @@ import { assert } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { recordDataFor, recordIdentifierFor, removeRecordDataFor } from '@ember-data/store/-private';
 import type { CollectionResourceRelationship } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
@@ -126,22 +125,15 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   _clearErrors() {
-    if (RECORD_DATA_ERRORS) {
-      if (this._errors) {
-        this._errors = undefined;
-        this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
-      }
+    if (this._errors) {
+      this._errors = undefined;
+      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
     }
   }
 
   getErrors(): JsonApiValidationError[] {
-    assert('Can not call getErrors unless the RECORD_DATA_ERRORS feature flag is on', !!RECORD_DATA_ERRORS);
-    if (RECORD_DATA_ERRORS) {
-      let errors: JsonApiValidationError[] = this._errors || [];
-      return errors;
-    } else {
-      return [];
-    }
+    let errors: JsonApiValidationError[] = this._errors || [];
+    return errors;
   }
 
   // this is a hack bc we don't have access to the state machine
@@ -368,12 +360,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
       }
     }
     this._inFlightAttributes = null;
-    if (RECORD_DATA_ERRORS) {
-      if (errors) {
-        this._errors = errors;
-      }
-      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+    if (errors) {
+      this._errors = errors;
     }
+    this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
   }
 
   getBelongsTo(key: string): DefaultSingleResourceRelationship {

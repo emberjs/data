@@ -171,7 +171,4 @@
 */
 export default {
   SAMPLE_FEATURE_FLAG: null,
-  RECORD_DATA_ERRORS: true,
-  RECORD_DATA_STATE: true,
-  REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT: true,
 };

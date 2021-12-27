@@ -12,7 +12,6 @@ import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EVENTED_API_USAGE,
@@ -536,21 +535,19 @@ class Model extends EmberObject {
         this._internalModel.send('becameValid');
       }
     );
-    if (RECORD_DATA_ERRORS) {
-      // TODO we should unify how errors gets populated
-      // with the code managing the update. Probably a
-      // lazy flush similar to retrieveLatest in ManyArray
-      let recordData = recordDataFor(this);
-      let jsonApiErrors;
-      if (recordData.getErrors) {
-        jsonApiErrors = recordData.getErrors();
-        if (jsonApiErrors) {
-          let errorsHash = errorsArrayToHash(jsonApiErrors);
-          let errorKeys = Object.keys(errorsHash);
+    // TODO we should unify how errors gets populated
+    // with the code managing the update. Probably a
+    // lazy flush similar to retrieveLatest in ManyArray
+    let recordData = recordDataFor(this);
+    let jsonApiErrors;
+    if (recordData.getErrors) {
+      jsonApiErrors = recordData.getErrors();
+      if (jsonApiErrors) {
+        let errorsHash = errorsArrayToHash(jsonApiErrors);
+        let errorKeys = Object.keys(errorsHash);
 
-          for (let i = 0; i < errorKeys.length; i++) {
-            errors._add(errorKeys[i], errorsHash[errorKeys[i]]);
-          }
+        for (let i = 0; i < errorKeys.length; i++) {
+          errors._add(errorKeys[i], errorsHash[errorKeys[i]]);
         }
       }
     }

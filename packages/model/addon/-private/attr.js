@@ -2,7 +2,6 @@ import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import { recordDataFor } from '@ember-data/store/-private';
 
 import { computedMacroWithOptionalParams } from './util';
@@ -151,15 +150,13 @@ function attr(type, options) {
           );
         }
       }
-      if (RECORD_DATA_ERRORS) {
-        if (!this.isValid) {
-          let oldValue = this._internalModel._recordData.getAttr(key);
-          if (oldValue !== value) {
-            const { errors } = this;
-            if (errors.get(key)) {
-              errors.remove(key);
-              this.___recordState.cleanErrorRequests();
-            }
+      if (!this.isValid) {
+        let oldValue = this._internalModel._recordData.getAttr(key);
+        if (oldValue !== value) {
+          const { errors } = this;
+          if (errors.get(key)) {
+            errors.remove(key);
+            this.___recordState.cleanErrorRequests();
           }
         }
       }

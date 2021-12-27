@@ -6,7 +6,6 @@ import { Promise } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
@@ -113,10 +112,6 @@ let CustomStore = Store.extend({
 });
 
 module('integration/record-data - Custom RecordData Errors', function (hooks) {
-  if (!RECORD_DATA_ERRORS) {
-    return;
-  }
-
   setupTest(hooks);
 
   let store;

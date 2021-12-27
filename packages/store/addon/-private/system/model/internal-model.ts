@@ -7,7 +7,6 @@ import { DEBUG } from '@glimmer/env';
 
 import RSVP, { Promise } from 'rsvp';
 
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type {
   BelongsToRelationship,
@@ -1060,13 +1059,8 @@ export default class InternalModel {
   }
 
   hasErrors() {
-    if (RECORD_DATA_ERRORS) {
-      if (this._recordData.getErrors) {
-        return this._recordData.getErrors(this.identifier).length > 0;
-      } else {
-        let errors = (this.getRecord() as DSModel).errors;
-        return errors.length > 0;
-      }
+    if (this._recordData.getErrors) {
+      return this._recordData.getErrors(this.identifier).length > 0;
     } else {
       let errors = (this.getRecord() as DSModel).errors;
       return errors.length > 0;
@@ -1075,42 +1069,28 @@ export default class InternalModel {
 
   // FOR USE DURING COMMIT PROCESS
   adapterDidInvalidate(parsedErrors, error) {
-    if (RECORD_DATA_ERRORS) {
-      // TODO @runspired this should be handled by RecordState
-      // and errors should be dirtied but lazily fetch if at
-      // all possible. We should only notify errors here.
-      let attribute;
-      if (error && parsedErrors) {
-        if (!this._recordData.getErrors) {
-          for (attribute in parsedErrors) {
-            if (hasOwnProperty.call(parsedErrors, attribute)) {
-              (this.getRecord() as DSModel).errors._add(attribute, parsedErrors[attribute]);
-            }
+    // TODO @runspired this should be handled by RecordState
+    // and errors should be dirtied but lazily fetch if at
+    // all possible. We should only notify errors here.
+    let attribute;
+    if (error && parsedErrors) {
+      if (!this._recordData.getErrors) {
+        for (attribute in parsedErrors) {
+          if (hasOwnProperty.call(parsedErrors, attribute)) {
+            (this.getRecord() as DSModel).errors._add(attribute, parsedErrors[attribute]);
           }
         }
-
-        let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
-        this.send('becameInvalid');
-        if (jsonApiErrors.length === 0) {
-          jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
-        }
-        this._recordData.commitWasRejected(this.identifier, jsonApiErrors);
-      } else {
-        this.send('becameError');
-        this._recordData.commitWasRejected(this.identifier);
-      }
-    } else {
-      let attribute;
-
-      for (attribute in parsedErrors) {
-        if (hasOwnProperty.call(parsedErrors, attribute)) {
-          (this.getRecord() as DSModel).errors._add(attribute, parsedErrors[attribute]);
-        }
       }
 
+      let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
       this.send('becameInvalid');
-
-      this._recordData.commitWasRejected();
+      if (jsonApiErrors.length === 0) {
+        jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
+      }
+      this._recordData.commitWasRejected(this.identifier, jsonApiErrors);
+    } else {
+      this.send('becameError');
+      this._recordData.commitWasRejected(this.identifier);
     }
   }
 

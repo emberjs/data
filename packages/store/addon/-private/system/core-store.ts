@@ -16,7 +16,6 @@ import Ember from 'ember';
 import require from 'require';
 import { all, default as RSVP, Promise, resolve } from 'rsvp';
 
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import {
   HAS_ADAPTER_PACKAGE,
   HAS_EMBER_DATA_PACKAGE,
@@ -2673,11 +2672,7 @@ abstract class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasInvalid');
     }
-    if (RECORD_DATA_ERRORS) {
-      internalModel.adapterDidInvalidate(parsedErrors, error);
-    } else {
-      internalModel.adapterDidInvalidate(parsedErrors);
-    }
+    internalModel.adapterDidInvalidate(parsedErrors, error);
   }
 
   /**
