@@ -7,7 +7,7 @@ import { DEBUG } from '@glimmer/env';
 
 import RSVP, { Promise } from 'rsvp';
 
-import { RECORD_DATA_ERRORS, REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
+import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type {
   BelongsToRelationship,
@@ -27,7 +27,6 @@ import type { ConfidentDict } from '../../ts-interfaces/utils';
 import type CoreStore from '../core-store';
 import type Store from '../ds-model-store';
 import { errorsHashToArray } from '../errors-utils';
-import { recordArraysForIdentifier } from '../record-array-manager';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
@@ -278,9 +277,6 @@ export default class InternalModel {
     this._doNotDestroy = false;
     // this has to occur before the internal model is removed
     // for legacy compat.
-    if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
-      this.store.recordArrayManager.recordDidChange(this.identifier);
-    }
     if (this._record) {
       this.store.teardownRecord(this._record);
     }
@@ -306,9 +302,7 @@ export default class InternalModel {
     this.error = null;
     this._previousState = this.currentState;
     this.currentState = RootState.empty;
-    if (REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
-      this.store.recordArrayManager.recordDidChange(this.identifier);
-    }
+    this.store.recordArrayManager.recordDidChange(this.identifier);
   }
 
   deleteRecord() {
@@ -1170,16 +1164,6 @@ export default class InternalModel {
 
     return reference;
   }
-}
-
-// in production code, this is only accesssed in `record-array-manager`
-// if REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT is also false
-if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
-  Object.defineProperty(InternalModel.prototype, '_recordArrays', {
-    get() {
-      return recordArraysForIdentifier(this.identifier);
-    },
-  });
 }
 
 function handleCompletedRelationshipRequest(internalModel, key, relationship, value, error) {
