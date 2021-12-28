@@ -217,7 +217,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
     };
 
     const postOptions = fetchOptions(postData);
-    assert.equal(
+    assert.strictEqual(
       postOptions.url,
       'https://emberjs.com?fields%5Bpost%5D=&fields%5Bcomments%5D=&fields%5Bauthor%5D=',
       "'options.url' is serialized"
