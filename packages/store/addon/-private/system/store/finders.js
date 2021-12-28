@@ -1,11 +1,8 @@
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
-import { REQUEST_SERVICE } from '@ember-data/canary-features';
-
-import coerceId from '../coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import { normalizeResponseHelper } from './serializer-response';
 
@@ -21,60 +18,7 @@ function payloadIsNotBlank(adapterPayload) {
   }
 }
 
-export function _find(adapter, store, modelClass, id, internalModel, options) {
-  if (REQUEST_SERVICE) {
-    assert(`Requests made when REQUEST_SERVICE=true should not use the legacy finders`);
-  }
-  let snapshot = internalModel.createSnapshot(options);
-  let { modelName } = internalModel;
-  let promise = Promise.resolve().then(() => {
-    return adapter.findRecord(store, modelClass, id, snapshot);
-  });
-  let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
-  const { identifier } = internalModel;
-
-  promise = guardDestroyedStore(promise, store, label);
-
-  return promise.then(
-    (adapterPayload) => {
-      assert(
-        `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
-      );
-      let serializer = store.serializerFor(modelName);
-      let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, id, 'findRecord');
-      assert(
-        `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
-        !Array.isArray(payload.data)
-      );
-      assert(
-        `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
-        'data' in payload && payload.data !== null && typeof payload.data === 'object'
-      );
-      warn(
-        `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
-        coerceId(payload.data.id) === coerceId(id),
-        {
-          id: 'ds.store.findRecord.id-mismatch',
-        }
-      );
-
-      // ensure that regardless of id returned we assign to the correct record
-      payload.data.lid = identifier.lid;
-
-      return store._push(payload);
-    },
-    (error) => {
-      internalModel.send('notFound');
-      if (internalModel.currentState.isEmpty) {
-        internalModel.unloadRecord();
-      }
-
-      throw error;
-    },
-    `DS: Extract payload of '${modelName}'`
-  );
-}
+export function _find() {}
 
 export function _findMany(adapter, store, modelName, ids, internalModels, optionsMap) {
   let snapshots = internalModels.map((internalModel) => internalModel.createSnapshot(optionsMap.get(internalModel)));

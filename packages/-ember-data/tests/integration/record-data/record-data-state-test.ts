@@ -6,7 +6,6 @@ import { Promise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
-import { RECORD_DATA_STATE } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
@@ -111,9 +110,6 @@ let CustomStore = Store.extend({
 });
 
 module('integration/record-data - Record Data State', function (hooks) {
-  if (!RECORD_DATA_STATE) {
-    return;
-  }
   setupTest(hooks);
 
   let store;

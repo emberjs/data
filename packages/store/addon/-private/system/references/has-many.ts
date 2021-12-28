@@ -4,7 +4,6 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import { resolve } from 'rsvp';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import type { ManyRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
@@ -58,28 +57,24 @@ export default class HasManyReference extends Reference {
 
     this.parent = internalModelFactoryFor(store).peek(parentIdentifier)!.recordReference;
 
-    if (CUSTOM_MODEL_CLASS) {
-      this.#token = store._notificationManager.subscribe(
-        parentIdentifier,
-        (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-          if ((bucket === 'relationships' || bucket === 'property') && notifiedKey === key) {
-            this._ref++;
-          }
+    this.#token = store._notificationManager.subscribe(
+      parentIdentifier,
+      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+        if ((bucket === 'relationships' || bucket === 'property') && notifiedKey === key) {
+          this._ref++;
         }
-      );
-      this.#relatedTokenMap = new Map();
-    }
+      }
+    );
+    this.#relatedTokenMap = new Map();
     // TODO inverse
   }
 
   destroy() {
-    if (CUSTOM_MODEL_CLASS) {
-      unsubscribe(this.#token);
-      this.#relatedTokenMap.forEach((token) => {
-        unsubscribe(token);
-      });
-      this.#relatedTokenMap.clear();
-    }
+    unsubscribe(this.#token);
+    this.#relatedTokenMap.forEach((token) => {
+      unsubscribe(token);
+    });
+    this.#relatedTokenMap.clear();
   }
 
   @cached
@@ -206,21 +201,7 @@ export default class HasManyReference extends Reference {
    @return {Array} The ids in this has-many relationship
    */
   ids(): Array<string | null> {
-    if (CUSTOM_MODEL_CLASS) {
-      return this._relatedIdentifiers.map((identifier) => identifier.id);
-    }
-
-    let resource = this._resource();
-
-    if (resource && resource.data) {
-      return resource.data.map((resourceIdentifier) => {
-        const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
-
-        return identifier.id;
-      });
-    }
-
-    return [];
+    return this._relatedIdentifiers.map((identifier) => identifier.id);
   }
 
   /**

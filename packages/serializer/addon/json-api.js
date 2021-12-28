@@ -8,7 +8,6 @@ import { DEBUG } from '@glimmer/env';
 
 import { pluralize, singularize } from 'ember-inflector';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import JSONSerializer from '@ember-data/serializer/json';
 import { normalizeModelName } from '@ember-data/store';
 
@@ -675,12 +674,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     if (this._canSerialize(key)) {
       let belongsTo = snapshot.belongsTo(key);
-      let belongsToIsNotNew;
-      if (CUSTOM_MODEL_CLASS) {
-        belongsToIsNotNew = belongsTo && !belongsTo.isNew;
-      } else {
-        belongsToIsNotNew = belongsTo && belongsTo.record && !belongsTo.record.get('isNew');
-      }
+      let belongsToIsNotNew = belongsTo && !belongsTo.isNew;
 
       if (belongsTo === null || belongsToIsNotNew) {
         json.relationships = json.relationships || {};

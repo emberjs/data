@@ -11,7 +11,6 @@ import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -856,17 +855,7 @@ module('unit/model - Model', function (hooks) {
       });
 
       assert.false(person.isNew, 'push should put move the record into the loaded state');
-      if (CUSTOM_MODEL_CLASS) {
-        assert.strictEqual(person.currentState.stateName, 'root.loaded.saved', 'model is in loaded state');
-      } else {
-        // TODO either this is a bug or being able to push a record with the same ID as a client created one is a bug
-        //   probably the bug is the former
-        assert.strictEqual(
-          person.currentState.stateName,
-          'root.loaded.updated.uncommitted',
-          'model is in loaded state'
-        );
-      }
+      assert.strictEqual(person.currentState.stateName, 'root.loaded.saved', 'model is in loaded state');
     });
 
     test('internalModel is ready by `init`', async function (assert) {

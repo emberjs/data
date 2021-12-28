@@ -116,6 +116,9 @@ class Adapter {
   static create() {
     return new this();
   }
+  static updateRecord() {
+    return Promise.resolve();
+  }
   async deleteRecord() {
     return { data: null };
   }

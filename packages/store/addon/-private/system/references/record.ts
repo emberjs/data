@@ -3,8 +3,6 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import RSVP, { resolve } from 'rsvp';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
-
 import type { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
@@ -32,22 +30,18 @@ export default class RecordReference extends Reference {
 
   constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
     super(store, identifier);
-    if (CUSTOM_MODEL_CLASS) {
-      this.#token = store._notificationManager.subscribe(
-        identifier,
-        (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
-          if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
-            this._ref++;
-          }
+    this.#token = store._notificationManager.subscribe(
+      identifier,
+      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+        if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
+          this._ref++;
         }
-      );
-    }
+      }
+    );
   }
 
   destroy() {
-    if (CUSTOM_MODEL_CLASS) {
-      unsubscribe(this.#token);
-    }
+    unsubscribe(this.#token);
   }
 
   public get type(): string {
@@ -85,15 +79,7 @@ export default class RecordReference extends Reference {
      @return {String} The id of the record.
   */
   id() {
-    if (CUSTOM_MODEL_CLASS) {
-      return this._id;
-    }
-    let identifier = this.identifier();
-    if (identifier) {
-      return identifier.id;
-    }
-
-    return null;
+    return this._id;
   }
 
   /**

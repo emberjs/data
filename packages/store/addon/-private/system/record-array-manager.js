@@ -7,8 +7,6 @@ import { assert } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 
-import { REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT } from '@ember-data/canary-features';
-
 import isStableIdentifier from '../identifiers/is-stable-identifier';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import { internalModelFactoryFor } from './store/internal-model-factory';
@@ -27,11 +25,10 @@ export function recordArraysForIdentifier(identifierOrInternalModel) {
 }
 
 const pendingForIdentifier = new Set([]);
-const IMDematerializing = new WeakMap();
 
 const getIdentifier = function getIdentifier(identifierOrInternalModel) {
   let i = identifierOrInternalModel;
-  if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !isStableIdentifier(identifierOrInternalModel)) {
+  if (!isStableIdentifier(identifierOrInternalModel)) {
     // identifier may actually be an internalModel
     // but during materialization we will get an identifier that
     // has already been removed from the identifiers cache yet
@@ -42,18 +39,7 @@ const getIdentifier = function getIdentifier(identifierOrInternalModel) {
   return i;
 };
 
-// REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT only
 const peekIMCache = function peekIMCache(cache, identifier) {
-  if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
-    let im = IMDematerializing.get(identifier);
-    if (im === undefined) {
-      // if not im._isDematerializing
-      im = cache.peek(identifier);
-    }
-
-    return im;
-  }
-
   return cache.peek(identifier);
 };
 
@@ -351,14 +337,6 @@ class RecordArrayManager {
     let modelName = identifier.type;
     identifier = getIdentifier(identifier);
 
-    if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
-      const cache = internalModelFactoryFor(this.store);
-      const im = peekIMCache(cache, identifier);
-      if (im && im._isDematerializing) {
-        IMDematerializing.set(identifier, im);
-      }
-    }
-
     if (pendingForIdentifier.has(identifier)) {
       return;
     }
@@ -428,15 +406,10 @@ const updateLiveRecordArray = function updateLiveRecordArray(store, recordArray,
 };
 
 const pushIdentifiers = function pushIdentifiers(recordArray, identifiers, cache) {
-  if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._pushIdentifiers) {
-    // deprecate('not allowed to use this intimate api any more');
-    recordArray._pushInternalModels(identifiers.map((i) => peekIMCache(cache, i)));
-  } else {
-    recordArray._pushIdentifiers(identifiers);
-  }
+  recordArray._pushIdentifiers(identifiers);
 };
 const removeIdentifiers = function removeIdentifiers(recordArray, identifiers, cache) {
-  if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT && !recordArray._removeIdentifiers) {
+  if (!recordArray._removeIdentifiers) {
     // deprecate('not allowed to use this intimate api any more');
     recordArray._removeInternalModels(identifiers.map((i) => peekIMCache(cache, i)));
   } else {

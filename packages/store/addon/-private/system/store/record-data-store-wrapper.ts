@@ -1,4 +1,3 @@
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import type { RelationshipDefinition } from '@ember-data/model/-private/system/relationships/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
@@ -118,16 +117,13 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     if (!definition) {
       return null;
     }
-    if (CUSTOM_MODEL_CLASS) {
-      if (metaIsRelationshipDefinition(definition)) {
-        return definition._inverseKey(this._store, modelClass);
-      } else if (definition.options && definition.options.inverse !== undefined) {
-        return definition.options.inverse;
-      } else {
-        return null;
-      }
+
+    if (metaIsRelationshipDefinition(definition)) {
+      return definition._inverseKey(this._store, modelClass);
+    } else if (definition.options && definition.options.inverse !== undefined) {
+      return definition.options.inverse;
     } else {
-      return (definition as RelationshipDefinition)._inverseKey(this._store, modelClass);
+      return null;
     }
   }
 
@@ -137,21 +133,18 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     if (!definition) {
       return false;
     }
-    if (CUSTOM_MODEL_CLASS) {
-      if (definition.options && definition.options.inverse === null) {
-        return false;
-      }
-      if ((definition as unknown as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {
-        // TODO do we need to amend the RFC for this prop?
-        // else we should add it to the TS interface and document.
-        return !!(definition as unknown as { inverseIsAsync: boolean }).inverseIsAsync;
-      } else if (metaIsRelationshipDefinition(definition)) {
-        return definition._inverseIsAsync(this._store, modelClass);
-      } else {
-        return false;
-      }
+
+    if (definition.options && definition.options.inverse === null) {
+      return false;
+    }
+    if ((definition as unknown as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {
+      // TODO do we need to amend the RFC for this prop?
+      // else we should add it to the TS interface and document.
+      return !!(definition as unknown as { inverseIsAsync: boolean }).inverseIsAsync;
+    } else if (metaIsRelationshipDefinition(definition)) {
+      return definition._inverseIsAsync(this._store, modelClass);
     } else {
-      return (definition as RelationshipDefinition)._inverseIsAsync(this._store, modelClass);
+      return false;
     }
   }
 

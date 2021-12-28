@@ -12,7 +12,6 @@ import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
-import { CUSTOM_MODEL_CLASS, RECORD_DATA_ERRORS, REQUEST_SERVICE } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import {
   DEPRECATE_EVENTED_API_USAGE,
@@ -32,15 +31,6 @@ import RecordState, { peekTag, tagged } from './record-state';
 import { relationshipFromMeta } from './system/relationships/relationship-meta';
 
 const { changeProperties } = Ember;
-
-/*
- In the non-CUSTOM_MODEL_CLASS world things decorated with flagToggledDecorator
- have logic that requires a cache and caching key (which tagged provides), but
- in the CUSTOM_MODEL_CLASS branch it only requires dependentKeyCompat which
- ensures computeds/observers on the field will fire when anything it accesses
- that is tracked changes
-*/
-const flagToggledDecorator = CUSTOM_MODEL_CLASS ? dependentKeyCompat : tagged;
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
@@ -131,9 +121,7 @@ class Model extends EmberObject {
       }
     }
 
-    if (CUSTOM_MODEL_CLASS) {
-      this.___recordState = new RecordState(this);
-    }
+    this.___recordState = new RecordState(this);
     this.setProperties(createProps);
   }
 
@@ -389,21 +377,13 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
-  @flagToggledDecorator
+  @dependentKeyCompat
   get isError() {
-    if (REQUEST_SERVICE) {
-      return this.currentState.isError;
-    }
-    let tag = peekTag(this, 'isError');
-    tag.value = tag.value || false;
-    return tag.value;
+    return this.currentState.isError;
   }
   set isError(v) {
-    if (REQUEST_SERVICE && DEBUG) {
-      throw new Error(`isError is not directly settable when REQUEST_SERVICE is enabled`);
-    } else {
-      let tag = peekTag(this, 'isError');
-      tag.value = v;
+    if (DEBUG) {
+      throw new Error(`isError is not directly settable`);
     }
   }
 
@@ -472,19 +452,10 @@ class Model extends EmberObject {
   */
   @tagged
   get currentState() {
-    if (CUSTOM_MODEL_CLASS) {
-      return this.___recordState;
-    }
-    if (this.isDestroyed || this.isDestroying) {
-      return this._internalModel._previousState;
-    }
-
-    return this._internalModel && this._internalModel.currentState;
+    return this.___recordState;
   }
-  set currentState(v) {
-    if (!CUSTOM_MODEL_CLASS) {
-      this.notifyPropertyChange('currentState');
-    }
+  set currentState(_v) {
+    throw new Error('cannot set currentState');
   }
 
   /**
@@ -564,21 +535,19 @@ class Model extends EmberObject {
         this._internalModel.send('becameValid');
       }
     );
-    if (RECORD_DATA_ERRORS) {
-      // TODO we should unify how errors gets populated
-      // with the code managing the update. Probably a
-      // lazy flush similar to retrieveLatest in ManyArray
-      let recordData = recordDataFor(this);
-      let jsonApiErrors;
-      if (recordData.getErrors) {
-        jsonApiErrors = recordData.getErrors();
-        if (jsonApiErrors) {
-          let errorsHash = errorsArrayToHash(jsonApiErrors);
-          let errorKeys = Object.keys(errorsHash);
+    // TODO we should unify how errors gets populated
+    // with the code managing the update. Probably a
+    // lazy flush similar to retrieveLatest in ManyArray
+    let recordData = recordDataFor(this);
+    let jsonApiErrors;
+    if (recordData.getErrors) {
+      jsonApiErrors = recordData.getErrors();
+      if (jsonApiErrors) {
+        let errorsHash = errorsArrayToHash(jsonApiErrors);
+        let errorKeys = Object.keys(errorsHash);
 
-          for (let i = 0; i < errorKeys.length; i++) {
-            errors._add(errorKeys[i], errorsHash[errorKeys[i]]);
-          }
+        for (let i = 0; i < errorKeys.length; i++) {
+          errors._add(errorKeys[i], errorsHash[errorKeys[i]]);
         }
       }
     }
@@ -593,22 +562,12 @@ class Model extends EmberObject {
     @public
     @type {AdapterError}
   */
-  @flagToggledDecorator
+  @dependentKeyCompat
   get adapterError() {
-    if (REQUEST_SERVICE) {
-      return this.currentState.adapterError;
-    }
-    let tag = peekTag(this, 'adapterError');
-    tag.value = tag.value || null;
-    return tag.value;
+    return this.currentState.adapterError;
   }
   set adapterError(v) {
-    if (REQUEST_SERVICE && DEBUG) {
-      throw new Error(`adapterError is not directly settable when REQUEST_SERVICE is enabled`);
-    } else {
-      let tag = peekTag(this, 'adapterError');
-      tag.value = v;
-    }
+    throw new Error(`adapterError is not directly settable`);
   }
 
   /**
@@ -766,11 +725,7 @@ class Model extends EmberObject {
     @public
   */
   deleteRecord() {
-    if (CUSTOM_MODEL_CLASS) {
-      this.store.deleteRecord(this);
-    } else {
-      this._internalModel.deleteRecord();
-    }
+    this.store.deleteRecord(this);
   }
 
   /**
@@ -839,11 +794,7 @@ class Model extends EmberObject {
     if (this.isDestroyed) {
       return;
     }
-    if (CUSTOM_MODEL_CLASS) {
-      this.store.unloadRecord(this);
-    } else {
-      this._internalModel.unloadRecord();
-    }
+    this.store.unloadRecord(this);
   }
 
   /**
@@ -933,9 +884,7 @@ class Model extends EmberObject {
   */
   rollbackAttributes() {
     this._internalModel.rollbackAttributes();
-    if (CUSTOM_MODEL_CLASS) {
-      this.currentState.cleanErrorRequests();
-    }
+    this.currentState.cleanErrorRequests();
   }
 
   /**
