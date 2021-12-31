@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+## v4.1.0 (2021-12-30)
+No changes
+
 ## v4.0.2 (2021-12-15)
 
 #### :bug: Bug Fix
