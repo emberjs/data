@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## 4.2.0-beta.0 (2021-12-31)
+
+#### :bug: Bug Fix
+* `-ember-data`, `model`, `record-data`, `store`
+  * [#7803](https://github.com/emberjs/data/pull/7803) Backport Train for Beta ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## v4.1.0-beta.0 (2021-12-12)
 
 #### :shower: Deprecation Removal
