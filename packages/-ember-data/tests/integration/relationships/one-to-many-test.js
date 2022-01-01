@@ -82,7 +82,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function () {
       message.get('user').then(function (fetchedUser) {
-        assert.equal(fetchedUser, user, 'User relationship was set up correctly');
+        assert.strictEqual(fetchedUser, user, 'User relationship was set up correctly');
       });
     });
   });
@@ -179,7 +179,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
         },
       });
     });
-    assert.equal(account.get('user'), user, 'User relationship was set up correctly');
+    assert.strictEqual(account.get('user'), user, 'User relationship was set up correctly');
   });
 
   test('Relationship is available from the hasMany side even if only loaded from the belongsTo side - async', function (assert) {
@@ -216,7 +216,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function () {
       user.get('messages').then(function (fetchedMessages) {
-        assert.equal(fetchedMessages.objectAt(0), message, 'Messages relationship was set up correctly');
+        assert.strictEqual(fetchedMessages.objectAt(0), message, 'Messages relationship was set up correctly');
       });
     });
   });
@@ -254,7 +254,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       });
     });
     run(function () {
-      assert.equal(user.get('accounts').objectAt(0), account, 'Accounts relationship was set up correctly');
+      assert.strictEqual(user.get('accounts').objectAt(0), account, 'Accounts relationship was set up correctly');
     });
   });
 
@@ -322,7 +322,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function () {
       user.get('messages').then(function (fetchedMessages) {
-        assert.equal(get(fetchedMessages, 'length'), 1, 'Messages relationship was set up correctly');
+        assert.strictEqual(get(fetchedMessages, 'length'), 1, 'Messages relationship was set up correctly');
       });
     });
   });
@@ -379,7 +379,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
 
     run(function () {
-      assert.equal(user.get('accounts').objectAt(0), null, 'Account was sucesfully removed');
+      assert.strictEqual(user.get('accounts').objectAt(0), undefined, 'Account was sucesfully removed');
     });
   });
 
@@ -442,7 +442,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function () {
       user.get('messages').then(function (fetchedMessages) {
-        assert.equal(get(fetchedMessages, 'length'), 2, 'Messages relationship was set up correctly');
+        assert.strictEqual(get(fetchedMessages, 'length'), 2, 'Messages relationship was set up correctly');
       });
     });
   });
@@ -492,7 +492,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
 
     run(function () {
-      assert.equal(user.get('accounts').objectAt(0), account, 'Account was sucesfully removed');
+      assert.strictEqual(user.get('accounts').objectAt(0), account, 'Account was sucesfully removed');
     });
   });
 
@@ -570,11 +570,11 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function () {
       message.get('user').then(function (fetchedUser) {
-        assert.equal(fetchedUser, null, 'User was removed correctly');
+        assert.strictEqual(fetchedUser, null, 'User was removed correctly');
       });
 
       message2.get('user').then(function (fetchedUser) {
-        assert.equal(fetchedUser, user, 'User was set on the second message');
+        assert.strictEqual(fetchedUser, user, 'User was set on the second message');
       });
     });
   });
@@ -707,7 +707,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
 
     run(function () {
       message.get('user').then(function (fetchedUser) {
-        assert.equal(fetchedUser, user, 'User was not removed');
+        assert.strictEqual(fetchedUser, user, 'User was not removed');
       });
     });
   });
@@ -774,7 +774,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
 
     run(function () {
-      assert.equal(account.get('user'), user, 'User was not removed');
+      assert.strictEqual(account.get('user'), user, 'User was not removed');
     });
   });
 
@@ -830,7 +830,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       user.get('messages').then(function (fetchedMessages) {
         fetchedMessages.pushObject(message2);
         message2.get('user').then(function (fetchedUser) {
-          assert.equal(fetchedUser, user, 'user got set correctly');
+          assert.strictEqual(fetchedUser, user, 'user got set correctly');
         });
       });
     });
@@ -890,7 +890,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       user.get('accounts').pushObject(account2);
     });
 
-    assert.equal(account2.get('user'), user, 'user got set correctly');
+    assert.strictEqual(account2.get('user'), user, 'user got set correctly');
   });
 
   test('Removing from the hasMany side reflects the change on the belongsTo side - async', function (assert) {
@@ -932,7 +932,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       user.get('messages').then(function (fetchedMessages) {
         fetchedMessages.removeObject(message);
         message.get('user').then(function (fetchedUser) {
-          assert.equal(fetchedUser, null, 'user got removed correctly');
+          assert.strictEqual(fetchedUser, null, 'user got removed correctly');
         });
       });
     });
@@ -984,7 +984,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       user.get('accounts').removeObject(account);
     });
 
-    assert.equal(account.get('user'), null, 'user got removed correctly');
+    assert.strictEqual(account.get('user'), null, 'user got removed correctly');
   });
 
   test('Pushing to the hasMany side keeps the oneToMany invariant on the belongsTo side - async', function (assert) {
@@ -1038,11 +1038,11 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
         fetchedMessages.pushObject(message);
 
         message.get('user').then(function (fetchedUser) {
-          assert.equal(fetchedUser, user2, 'user got set correctly');
+          assert.strictEqual(fetchedUser, user2, 'user got set correctly');
         });
 
         user.get('messages').then(function (newFetchedMessages) {
-          assert.equal(get(newFetchedMessages, 'length'), 0, 'message got removed from the old messages hasMany');
+          assert.strictEqual(get(newFetchedMessages, 'length'), 0, 'message got removed from the old messages hasMany');
         });
       });
     });
@@ -1092,9 +1092,9 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       });
       user2.get('accounts').pushObject(account);
     });
-    assert.equal(account.get('user'), user2, 'user got set correctly');
-    assert.equal(user.get('accounts.length'), 0, 'the account got removed correctly');
-    assert.equal(user2.get('accounts.length'), 1, 'the account got pushed correctly');
+    assert.strictEqual(account.get('user'), user2, 'user got set correctly');
+    assert.strictEqual(user.get('accounts.length'), 0, 'the account got removed correctly');
+    assert.strictEqual(user2.get('accounts.length'), 1, 'the account got pushed correctly');
   });
 
   test('Setting the belongsTo side keeps the oneToMany invariant on the hasMany- async', function (assert) {
@@ -1154,12 +1154,12 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
 
     run(function () {
       user.get('messages').then(function (fetchedMessages) {
-        assert.equal(get(fetchedMessages, 'length'), 0, 'message got removed from the first user correctly');
+        assert.strictEqual(get(fetchedMessages, 'length'), 0, 'message got removed from the first user correctly');
       });
     });
     run(function () {
       user2.get('messages').then(function (fetchedMessages) {
-        assert.equal(get(fetchedMessages, 'length'), 1, 'message got added to the second user correctly');
+        assert.strictEqual(get(fetchedMessages, 'length'), 1, 'message got added to the second user correctly');
       });
     });
   });
@@ -1216,9 +1216,9 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       });
       account.set('user', user2);
     });
-    assert.equal(account.get('user'), user2, 'user got set correctly');
-    assert.equal(user.get('accounts.length'), 0, 'the account got removed correctly');
-    assert.equal(user2.get('accounts.length'), 1, 'the account got pushed correctly');
+    assert.strictEqual(account.get('user'), user2, 'user got set correctly');
+    assert.strictEqual(user.get('accounts.length'), 0, 'the account got removed correctly');
+    assert.strictEqual(user2.get('accounts.length'), 1, 'the account got pushed correctly');
   });
 
   test('Setting the belongsTo side to null removes the record from the hasMany side - async', function (assert) {
@@ -1268,13 +1268,13 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function () {
       user.get('messages').then(function (fetchedMessages) {
-        assert.equal(get(fetchedMessages, 'length'), 0, 'message got removed from the  user correctly');
+        assert.strictEqual(get(fetchedMessages, 'length'), 0, 'message got removed from the  user correctly');
       });
     });
 
     run(function () {
       message.get('user').then(function (fetchedUser) {
-        assert.equal(fetchedUser, null, 'user got set to null correctly');
+        assert.strictEqual(fetchedUser, null, 'user got set to null correctly');
       });
     });
   });
@@ -1323,9 +1323,9 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       account.set('user', null);
     });
 
-    assert.equal(account.get('user'), null, 'user got set to null correctly');
+    assert.strictEqual(account.get('user'), null, 'user got set to null correctly');
 
-    assert.equal(user.get('accounts.length'), 0, 'the account got removed correctly');
+    assert.strictEqual(user.get('accounts.length'), 0, 'the account got removed correctly');
   });
 
   /*
@@ -1372,10 +1372,10 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function () {
       message.get('user').then(function (fetchedUser) {
-        assert.equal(fetchedUser, user, 'Message still has the user');
+        assert.strictEqual(fetchedUser, user, 'Message still has the user');
       });
       user.get('messages').then(function (fetchedMessages) {
-        assert.equal(fetchedMessages.objectAt(0), message, 'User has the message');
+        assert.strictEqual(fetchedMessages.objectAt(0), message, 'User has the message');
       });
     });
   });
@@ -1417,8 +1417,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     run(function () {
       account.deleteRecord();
       account.rollbackAttributes();
-      assert.equal(user.get('accounts.length'), 1, 'Accounts are rolled back');
-      assert.equal(account.get('user'), user, 'Account still has the user');
+      assert.strictEqual(user.get('accounts.length'), 1, 'Accounts are rolled back');
+      assert.strictEqual(account.get('user'), user, 'Account still has the user');
     });
   });
 
@@ -1462,10 +1462,10 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     run(function () {
       message.get('user').then(function (fetchedUser) {
-        assert.equal(fetchedUser, user, 'Message has the user again');
+        assert.strictEqual(fetchedUser, user, 'Message has the user again');
       });
       user.get('messages').then(function (fetchedMessages) {
-        assert.equal(fetchedMessages.get('length'), 1, 'User still has the messages');
+        assert.strictEqual(fetchedMessages.get('length'), 1, 'User still has the messages');
       });
     });
   });
@@ -1507,8 +1507,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     run(function () {
       user.deleteRecord();
       user.rollbackAttributes();
-      assert.equal(user.get('accounts.length'), 1, 'User still has the accounts');
-      assert.equal(account.get('user'), user, 'Account has the user again');
+      assert.strictEqual(user.get('accounts.length'), 1, 'User still has the accounts');
+      assert.strictEqual(account.get('user'), user, 'Account has the user again');
     });
   });
 
@@ -1537,11 +1537,11 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     run(message, 'rollbackAttributes');
     run(function () {
       message.get('user').then(function (fetchedUser) {
-        assert.equal(fetchedUser, null, 'Message does not have the user anymore');
+        assert.strictEqual(fetchedUser, null, 'Message does not have the user anymore');
       });
       user.get('messages').then(function (fetchedMessages) {
-        assert.equal(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
-        assert.equal(fetchedMessages.get('firstObject'), null, "User message can't be accessed");
+        assert.strictEqual(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
+        assert.strictEqual(fetchedMessages.get('firstObject'), undefined, "User message can't be accessed");
       });
     });
   });
@@ -1565,8 +1565,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       });
     });
     run(account, 'rollbackAttributes');
-    assert.equal(user.get('accounts.length'), 0, 'Accounts are rolled back');
-    assert.equal(account.get('user'), null, 'Account does not have the user anymore');
+    assert.strictEqual(user.get('accounts.length'), 0, 'Accounts are rolled back');
+    assert.strictEqual(account.get('user'), null, 'Account does not have the user anymore');
   });
 
   test('Rollbacking attributes of a created record works correctly when the belongsTo side has been created - async', function (assert) {
@@ -1590,11 +1590,11 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
         messages.pushObject(message);
         user.rollbackAttributes();
         message.get('user').then(function (fetchedUser) {
-          assert.equal(fetchedUser, null, 'Message does not have the user anymore');
+          assert.strictEqual(fetchedUser, null, 'Message does not have the user anymore');
         });
         user.get('messages').then(function (fetchedMessages) {
-          assert.equal(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
-          assert.equal(fetchedMessages.get('firstObject'), null, "User message can't be accessed");
+          assert.strictEqual(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
+          assert.strictEqual(fetchedMessages.get('firstObject'), undefined, "User message can't be accessed");
         });
       });
     });
@@ -1620,11 +1620,11 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       user.get('accounts').pushObject(account);
     });
     run(user, 'rollbackAttributes');
-    assert.equal(user.get('accounts.length'), 0, 'User does not have the account anymore');
-    assert.equal(account.get('user'), null, 'Account does not have the user anymore');
+    assert.strictEqual(user.get('accounts.length'), 0, 'User does not have the account anymore');
+    assert.strictEqual(account.get('user'), null, 'Account does not have the user anymore');
   });
 
-  test('createRecord updates inverse record array which has observers', function (assert) {
+  test('createRecord updates inverse record array which has observers', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -1642,21 +1642,26 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
       };
     };
 
-    return store.findAll('user').then((users) => {
-      assert.equal(users.get('length'), 1, 'Exactly 1 user');
+    const users = await store.findAll('user');
+    assert.strictEqual(users.get('length'), 1, 'Exactly 1 user');
 
-      let user = users.get('firstObject');
-      assert.equal(user.get('messages.length'), 0, 'Record array is initially empty');
+    let user = users.get('firstObject');
+    assert.strictEqual(user.get('messages.length'), 0, 'Record array is initially empty');
 
-      // set up an observer
-      user.addObserver('messages.@each.title', () => {});
-      user.get('messages.firstObject');
+    // set up an observer
+    user.addObserver('messages.@each.title', () => {});
+    user.get('messages.firstObject');
 
-      let message = store.createRecord('message', { user, title: 'EmberFest was great' });
-      assert.equal(user.get('messages.length'), 1, 'The message is added to the record array');
+    const messages = await user.messages;
 
-      let messageFromArray = user.get('messages.firstObject');
-      assert.ok(message === messageFromArray, 'Only one message record instance should be created');
-    });
+    assert.strictEqual(messages.length, 0, 'we have no messages');
+    assert.strictEqual(user.messages.length, 0, 'we have no messages');
+
+    let message = store.createRecord('message', { user, title: 'EmberFest was great' });
+    assert.strictEqual(messages.length, 1, 'The message is added to the record array');
+    assert.strictEqual(user.messages.length, 1, 'The message is added to the record array');
+
+    let messageFromArray = user.messages.firstObject;
+    assert.true(message === messageFromArray, 'Only one message record instance should be created');
   });
 });

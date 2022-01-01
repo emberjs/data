@@ -905,11 +905,18 @@ export default class InternalModel {
 
   notifyHasManyChange(key: string) {
     if (this.hasRecord) {
+      let manyArray = this._manyArrayCache[key];
+      let hasPromise = !!this._relationshipPromisesCache[key];
+
+      if (manyArray && hasPromise) {
+        // do nothing, we will notify the ManyArray directly
+        // once the fetch has completed.
+        return;
+      }
+
       if (CUSTOM_MODEL_CLASS) {
         this.store._notificationManager.notify(this.identifier, 'relationships', key);
       } else {
-        let manyArray = this._manyArrayCache[key];
-
         if (manyArray) {
           manyArray.notify();
 
