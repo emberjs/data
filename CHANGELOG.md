@@ -1,5 +1,10 @@
 # Ember Data Changelog
 
+## Release 3.28.7 (LTS) (Jan 1, 2022)
+
+#### :bug: Bug Fix
+* [#7810](https://github.com/emberjs/data/pull/7810) [bug]: Port add test + fix for chained async has many
+
 ## Release 3.28.6 (LTS) (Dec 14, 2021)
 
 #### :bug: Bug Fix
