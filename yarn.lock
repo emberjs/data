@@ -1096,6 +1096,32 @@
     resolve "^1.8.1"
     semver "^7.3.2"
 
+"@embroider/macros@^0.50.0":
+  version "0.50.0"
+  resolved "https://registry.npmjs.org/@embroider/macros/-/macros-0.50.0.tgz#7a3676f2fe983316b9470c5422c099d7cfeebfb2"
+  integrity sha512-9yek4uRrWPd/pvQg1amAr8GJSTv1tcGhsbvLXjUnAaJfHZQ4OlycfpXUsSGujqPI3DkOOL6TvPl0jQaEooE6cQ==
+  dependencies:
+    "@embroider/shared-internals" "0.50.0"
+    assert-never "^1.2.1"
+    ember-cli-babel "^7.26.6"
+    find-up "^5.0.0"
+    lodash "^4.17.21"
+    resolve "^1.20.0"
+    semver "^7.3.2"
+
+"@embroider/shared-internals@0.50.0":
+  version "0.50.0"
+  resolved "https://registry.npmjs.org/@embroider/shared-internals/-/shared-internals-0.50.0.tgz#e8f7474af6b8896a91da4ec700810587fa61f7c2"
+  integrity sha512-pu4YQGyoTsz+KWGTKwMyCMzhoJkUI9PuWiivRilKsywiFt8Ke4ns+nFNnHtPqPKChR72xY2qFjWOP5yAqZq3kw==
+  dependencies:
+    babel-import-util "^1.1.0"
+    ember-rfc176-data "^0.3.17"
+    fs-extra "^9.1.0"
+    lodash "^4.17.21"
+    resolve-package-path "^4.0.1"
+    semver "^7.3.5"
+    typescript-memoize "^1.0.1"
+
 "@embroider/shared-internals@^0.40.0":
   version "0.40.0"
   resolved "https://registry.npmjs.org/@embroider/shared-internals/-/shared-internals-0.40.0.tgz#2f768c60f4f35ba5f9228f046f70324851e8bfe2"
@@ -3320,7 +3346,7 @@ asn1@~0.2.3:
   dependencies:
     safer-buffer "~2.1.0"
 
-assert-never@^1.1.0:
+assert-never@^1.1.0, assert-never@^1.2.1:
   version "1.2.1"
   resolved "https://registry.npmjs.org/assert-never/-/assert-never-1.2.1.tgz#11f0e363bf146205fb08193b5c7b90f4d1cf44fe"
   integrity sha512-TaTivMB6pYI1kXwrFlEhLeGfOqoDNdTxjCdwRfFFkEA30Eu+k48W34nlok2EYWJfFFzqaEmichdNM7th6M5HNw==
@@ -3521,6 +3547,11 @@ babel-import-util@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/babel-import-util/-/babel-import-util-0.2.0.tgz#b468bb679919601a3570f9e317536c54f2862e23"
   integrity sha512-CtWYYHU/MgK88rxMrLfkD356dApswtR/kWZ/c6JifG1m10e7tBBrs/366dFzWMAoqYmG5/JSh+94tUSpIwh+ag==
+
+babel-import-util@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/babel-import-util/-/babel-import-util-1.1.0.tgz#4156b16ef090c4f0d3cdb869ff799202f24aeb93"
+  integrity sha512-sfzgAiJsUT1es9yrHAuJZuJfBkkOE7Og6rovAIwK/gNJX6MjDfWTprbPngdJZTd5ye4F3FvpvpQmvKXObRzVYA==
 
 babel-loader@^8.0.6:
   version "8.2.3"
@@ -4090,14 +4121,6 @@ broccoli-debug@^0.6.1, broccoli-debug@^0.6.4, broccoli-debug@^0.6.5:
     heimdalljs-logger "^0.1.7"
     symlink-or-copy "^1.1.8"
     tree-sync "^1.2.2"
-
-broccoli-file-creator@^1.1.1:
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/broccoli-file-creator/-/broccoli-file-creator-1.2.0.tgz#27f1b25b1b00e7bb7bf3d5d7abed5f4d5388df4d"
-  integrity sha512-l9zthHg6bAtnOfRr/ieZ1srRQEsufMZID7xGYRW3aBDv3u/3Eux+Iawl10tAGYE5pL9YB4n5X4vxkp6iNOoZ9g==
-  dependencies:
-    broccoli-plugin "^1.1.0"
-    mkdirp "^0.5.1"
 
 broccoli-file-creator@^2.1.1:
   version "2.1.1"
@@ -6692,13 +6715,14 @@ ember-export-application-global@^2.0.1:
   resolved "https://registry.npmjs.org/ember-export-application-global/-/ember-export-application-global-2.0.1.tgz#b120a70e322ab208defc9e2daebe8d0dfc2dcd46"
   integrity sha512-B7wiurPgsxsSGzJuPFkpBWnaeuCu2PGpG2BjyrfA1VcL7//o+5RSnZqiCEY326y7qmxb2GoCgo0ft03KBU0rRw==
 
-ember-get-config@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.npmjs.org/ember-get-config/-/ember-get-config-0.3.0.tgz#a73a1a87b48d9dde4c66a0e52ed5260b8a48cfbd"
-  integrity sha512-0e2pKzwW5lBZ4oJnvu9qHOht4sP1MWz/m3hyz8kpSoMdrlZVf62LDKZ6qfKgy8drcv5YhCMYE6QV7MhnqlrzEQ==
+ember-get-config@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/ember-get-config/-/ember-get-config-1.0.0.tgz#0993a13e925cb283c73eef5871fb09144e878d59"
+  integrity sha512-QqgOO8899+Ys8eusVKUrSKLTSMzcA5XkmYbMvxxbqQqJsf/3vvDWl13rtq6Rte7gL4T6ViOkAqLOaDH4nTMBGQ==
   dependencies:
-    broccoli-file-creator "^1.1.1"
-    ember-cli-babel "^7.0.0"
+    "@embroider/macros" "^0.50.0"
+    ember-cli-babel "^7.26.6"
+    ember-cli-htmlbars "^5.7.1"
 
 ember-inflector@^4.0.1:
   version "4.0.2"
@@ -7088,8 +7112,7 @@ eslint-module-utils@^2.7.1:
     pkg-dir "^2.0.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.2.0-alpha.4"
 
 eslint-plugin-ember@^10.3.0, eslint-plugin-ember@^10.4.1:
   version "10.5.8"
@@ -12847,6 +12870,13 @@ resolve-package-path@^3.1.0:
     path-root "^0.1.1"
     resolve "^1.17.0"
 
+resolve-package-path@^4.0.1:
+  version "4.0.3"
+  resolved "https://registry.npmjs.org/resolve-package-path/-/resolve-package-path-4.0.3.tgz#31dab6897236ea6613c72b83658d88898a9040aa"
+  integrity sha512-SRpNAPW4kewOaNUt8VPqhJ0UMxawMwzJD8V7m1cJfdSTK9ieZwS6K7Dabsm4bmLFM96Z5Y/UznrpG5kt1im8yA==
+  dependencies:
+    path-root "^0.1.1"
+
 resolve-path@^1.4.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/resolve-path/-/resolve-path-1.4.0.tgz#c4bda9f5efb2fce65247873ab36bb4d834fe16f7"
@@ -14467,7 +14497,7 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript-memoize@^1.0.0-alpha.3:
+typescript-memoize@^1.0.0-alpha.3, typescript-memoize@^1.0.1:
   version "1.1.0"
   resolved "https://registry.npmjs.org/typescript-memoize/-/typescript-memoize-1.1.0.tgz#4a8f512d06fc995167c703a3592219901db8bc79"
   integrity sha512-LQPKVXK8QrBBkL/zclE6YgSWn0I8ew5m0Lf+XL00IwMhlotqRLlzHV+BRrljVQIc+NohUAuQP7mg4HQwrx5Xbg==
