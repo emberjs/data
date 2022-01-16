@@ -126,7 +126,7 @@
     "pretender": "^3.4.3",
     "prettier": "^2.2.1",
     "qunit": "^2.15.0",
-    "qunit-dom": "^1.6.0",
+    "qunit-dom": "^2.0.0",
     "rimraf": "^3.0.2",
     "rsvp": "^4.8.5",
     "semver": "^7.1.3",

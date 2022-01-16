@@ -29,7 +29,7 @@
     "ember-cli-typescript": "^4.1.0",
     "ember-get-config": "^1.0.0",
     "qunit": "^2.15.0",
-    "qunit-dom": "^1.6.0",
+    "qunit-dom": "^2.0.0",
     "rsvp": "^4.8.5",
     "semver": "^7.3.5",
     "testem": "^3.0.3",
