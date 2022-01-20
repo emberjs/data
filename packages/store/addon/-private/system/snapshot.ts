@@ -4,7 +4,15 @@
 import { assert } from '@ember/debug';
 import { get } from '@ember/object';
 
+import { importSync } from '@embroider/macros';
+
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import type BelongsToRelationship from '@ember-data/record-data/addon/-private/relationships/state/belongs-to';
+import type ManyRelationship from '@ember-data/record-data/addon/-private/relationships/state/has-many';
+import type {
+  ExistingResourceIdentifierObject,
+  NewResourceIdentifierObject,
+} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 
 import type { DSModel, DSModelSchema, ModelSchema } from '../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
@@ -322,9 +330,11 @@ export default class Snapshot implements Snapshot {
       assert(`snapshot.belongsTo only supported when using the package @ember-data/record-data`);
     }
 
-    const graphFor = require('@ember-data/record-data/-private').graphFor;
+    const graphFor = (
+      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+    ).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName);
+    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as BelongsToRelationship;
 
     assert(
       `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
@@ -421,9 +431,11 @@ export default class Snapshot implements Snapshot {
       assert(`snapshot.hasMany only supported when using the package @ember-data/record-data`);
     }
 
-    const graphFor = require('@ember-data/record-data/-private').graphFor;
+    const graphFor = (
+      importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+    ).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName);
+    const relationship = graphFor(this._store._storeWrapper).get(identifier, keyName) as ManyRelationship;
     assert(
       `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${identifier.id}, lid: ${identifier.lid} but no such relationship was found.`,
       relationship
@@ -441,7 +453,9 @@ export default class Snapshot implements Snapshot {
         let internalModel = store._internalModelForResource(member);
         if (!internalModel.isDeleted()) {
           if (returnModeIsIds) {
-            (results as RecordId[]).push(member.id || null);
+            (results as RecordId[]).push(
+              (member as ExistingResourceIdentifierObject | NewResourceIdentifierObject).id || null
+            );
           } else {
             (results as Snapshot[]).push(internalModel.createSnapshot());
           }

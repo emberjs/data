@@ -3,7 +3,7 @@ import 'ember-inflector';
 import EmberError from '@ember/error';
 import { VERSION } from '@ember/version';
 
-import require, { has } from 'require';
+import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
@@ -46,8 +46,6 @@ import {
 } from './-private';
 import setupContainer from './setup-container';
 
-const HAS_DEBUG_PACKAGE = has('@ember-data/debug') || false;
-
 if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
   throw new EmberError(
     'Ember Data requires at least Ember 1.13.0, but you have ' +
@@ -88,8 +86,8 @@ DS.errorsArrayToHash = errorsArrayToHash;
 
 DS.Serializer = Serializer;
 
-if (HAS_DEBUG_PACKAGE) {
-  DS.DebugAdapter = require('@ember-data/debug').default;
+if (macroCondition(dependencySatisfies('@ember-data/debug', '*'))) {
+  DS.DebugAdapter = importSync('@ember-data/debug').default;
 }
 
 DS.RecordArray = RecordArray;

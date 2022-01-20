@@ -35,6 +35,9 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/test',
       '@ember/utils',
 
+      '@embroider/macros/es-compat',
+      '@embroider/macros/runtime',
+
       'ember-inflector',
       'ember',
       'rsvp',

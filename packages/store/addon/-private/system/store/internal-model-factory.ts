@@ -160,7 +160,7 @@ export default class InternalModelFactory {
       TODO @runspired consider adding this to make polymorphism even nicer
       if (HAS_RECORD_DATA_PACKAGE) {
         if (identifier.type !== matchedIdentifier.type) {
-          const graphFor = require('@ember-data/record-data/-private').graphFor;
+          const graphFor = importSync('@ember-data/record-data/-private').graphFor;
           graphFor(this).registerPolymorphicType(identifier.type, matchedIdentifier.type);
         }
       }

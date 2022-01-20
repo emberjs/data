@@ -1,7 +1,7 @@
 import { getOwner } from '@ember/application';
 import { get } from '@ember/object';
 
-import require from 'require';
+import { importSync } from '@embroider/macros';
 
 import type Model from '@ember-data/model';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
@@ -18,7 +18,7 @@ if (HAS_MODEL_PACKAGE) {
   let _found;
   _modelForMixin = function () {
     if (!_found) {
-      _found = require('@ember-data/model/-private')._modelForMixin;
+      _found = (importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private'))._modelForMixin;
     }
     return _found(...arguments);
   };
