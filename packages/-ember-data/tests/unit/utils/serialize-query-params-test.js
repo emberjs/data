@@ -8,11 +8,11 @@ module('Unit | serializeQueryParams', function () {
     assert.expect(1);
 
     const qp = {
-        filter: 'foo',
+        filter: '%foo',
     }
     const result = serializeQueryParams(qp);
 
-    assert.deepEqual(result, 'filter=foo');
+    assert.deepEqual(result, 'filter=%25foo');
   });
 
   test('it works with nested', function (assert) {
