@@ -185,7 +185,7 @@ const RESTSerializer = JSONSerializer.extend({
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
       if (included) {
-        documentHash.included.push(...included);
+        documentHash.included = documentHash.included.concat(included);
       }
     });
 
@@ -316,7 +316,7 @@ const RESTSerializer = JSONSerializer.extend({
         let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
         documentHash.data = data;
         if (included) {
-          documentHash.included.push(...included);
+          documentHash.included = documentHash.included.concat(included);
         }
         continue;
       }
@@ -324,7 +324,7 @@ const RESTSerializer = JSONSerializer.extend({
       let { data, included } = this._normalizeArray(store, typeName, value, prop);
 
       if (included) {
-        documentHash.included.push(...included);
+        documentHash.included = documentHash.included.concat(included);
       }
 
       if (isSingle) {
@@ -352,7 +352,7 @@ const RESTSerializer = JSONSerializer.extend({
           documentHash.data = data;
         } else {
           if (data) {
-            documentHash.included.push(...data);
+            documentHash.included = documentHash.included.concat(data);
           }
         }
       }
@@ -418,7 +418,7 @@ const RESTSerializer = JSONSerializer.extend({
         let { data, included } = typeSerializer.normalize(type, hash, prop);
         documentHash.data.push(data);
         if (included) {
-          documentHash.included.push(...included);
+          documentHash.included = documentHash.included.concat(included);
         }
       });
     }
