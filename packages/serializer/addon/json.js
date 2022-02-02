@@ -540,7 +540,7 @@ const JSONSerializer = Serializer.extend({
         let item = payload[i];
         let { data, included } = this.normalize(primaryModelClass, item);
         if (included) {
-          documentHash.included.push(...included);
+          documentHash.included = documentHash.included.concat(included);
         }
         ret[i] = data;
       }

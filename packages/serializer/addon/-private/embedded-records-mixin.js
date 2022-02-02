@@ -580,7 +580,7 @@ export default Mixin.create({
       hash.included = hash.included || [];
       hash.included.push(data);
       if (included) {
-        hash.included.push(...included);
+        hash.included = hash.included.concat(included);
       }
 
       hasMany[i] = { id: data.id, type: data.type };
@@ -604,7 +604,7 @@ export default Mixin.create({
     hash.included = hash.included || [];
     hash.included.push(data);
     if (included) {
-      hash.included.push(...included);
+      hash.included = hash.included.concat(included);
     }
 
     let belongsTo = { id: data.id, type: data.type };

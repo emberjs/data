@@ -422,6 +422,37 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     assert.strictEqual(superVillainNormalizeCount, 1, 'superVillain is normalized once');
   });
 
+  test('normalizeResponse can handle large included arrays', function (assert) {
+    this.owner.register('serializer:super-villain', DS.RESTSerializer);
+    this.owner.register('serializer:evil-minion', DS.RESTSerializer);
+
+    let evilMinions = [];
+    // The actual stack size seems to vary based on browser and potenetially hardware and
+    // other factors. This number should be large enough to always be an issue.
+    let stackOverflowSize = 130000;
+    for (let i = 0; i < stackOverflowSize; i++) {
+      evilMinions.push({ id: i.toString(), superVillain: 1 });
+    }
+
+    let jsonHash = {
+      superVillains: [{ id: '1', firstName: 'Yehuda', lastName: 'Katz', homePlanet: '1' }],
+      evilMinions,
+    };
+
+    let superVillain;
+    try {
+      let store = this.owner.lookup('service:store');
+      let serializer = store.serializerFor('application');
+      superVillain = serializer.normalizeResponse(store, SuperVillain, jsonHash, null, 'findAll');
+    } catch (err) {
+      assert.ok(false, `normalizeResponse could not handle included length of ${stackOverflowSize}`);
+      // Rethrow to provide stack trace to test output
+      throw err;
+    }
+
+    assert.strictEqual(superVillain.included.length, stackOverflowSize);
+  });
+
   test('normalize should allow for different levels of normalization', function (assert) {
     this.owner.register(
       'serializer:evil-minion',
