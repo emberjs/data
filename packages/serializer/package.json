@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "4.2.0-alpha.6",
+  "version": "4.2.0-alpha.7",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
@@ -18,15 +18,15 @@
     "test:node": "mocha"
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "4.2.0-alpha.6",
-    "@ember-data/store": "4.2.0-alpha.6",
+    "@ember-data/private-build-infra": "4.2.0-alpha.7",
+    "@ember-data/store": "4.2.0-alpha.7",
     "ember-auto-import": "^2.2.4",
     "ember-cli-babel": "^7.26.6",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-typescript": "^4.1.0"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "4.2.0-alpha.6",
+    "@ember-data/unpublished-test-infra": "4.2.0-alpha.7",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.0",
     "@ember/test-helpers": "^2.6.0",

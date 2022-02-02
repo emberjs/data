@@ -1,6 +1,6 @@
 {
   "name": "fastboot-test-app",
-  "version": "4.2.0-alpha.6",
+  "version": "4.2.0-alpha.7",
   "private": true,
   "description": "Small description for fastboot-test-app goes here",
   "repository": {
@@ -24,11 +24,11 @@
   },
   "dependencies": {
     "ember-auto-import": "^2.2.4",
-    "ember-data": "4.2.0-alpha.6",
+    "ember-data": "4.2.0-alpha.7",
     "ember-inflector": "^4.0.1"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "4.2.0-alpha.6",
+    "@ember-data/unpublished-test-infra": "4.2.0-alpha.7",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.6.0",
     "@glimmer/component": "^1.0.0",
