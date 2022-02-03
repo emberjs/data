@@ -2,7 +2,6 @@ import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { isPresent } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
@@ -39,9 +38,10 @@ class Store extends CoreStore {
     let createOptions: any = {
       store: this,
       _internalModel: internalModel,
+      // TODO deprecate allowing unknown args setting
+      _createProps: createRecordArgs,
       container: null,
     };
-    assign(createOptions, createRecordArgs);
 
     // ensure that `getOwner(this)` works inside a model instance
     setOwner(createOptions, getOwner(this));

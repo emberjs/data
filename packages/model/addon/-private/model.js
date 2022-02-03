@@ -119,8 +119,10 @@ function computeOnce(target, key, desc) {
   @uses EmberData.DeprecatedEvented
 */
 class Model extends EmberObject {
-  init(...args) {
-    super.init(...args);
+  init(options = {}) {
+    const createProps = options._createProps;
+    delete options._createProps;
+    super.init(options);
 
     if (DEBUG) {
       if (!this._internalModel) {
@@ -133,6 +135,7 @@ class Model extends EmberObject {
     if (CUSTOM_MODEL_CLASS) {
       this.___recordState = new RecordState(this);
     }
+    this.setProperties(createProps);
   }
 
   /**
@@ -2076,6 +2079,7 @@ class Model extends EmberObject {
 // the values initialized during create to `setUnknownProperty`
 Model.prototype._internalModel = null;
 Model.prototype.store = null;
+Model.prototype._createProps = null;
 
 if (HAS_DEBUG_PACKAGE) {
   /**
