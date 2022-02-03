@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "3.28.7",
+  "version": "3.28.8",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
@@ -18,9 +18,9 @@
     "test:node": "mocha"
   },
   "dependencies": {
-    "@ember-data/canary-features": "3.28.7",
-    "@ember-data/private-build-infra": "3.28.7",
-    "@ember-data/store": "3.28.7",
+    "@ember-data/canary-features": "3.28.8",
+    "@ember-data/private-build-infra": "3.28.8",
+    "@ember-data/store": "3.28.8",
     "@ember/edition-utils": "^1.2.0",
     "@ember/string": "^3.0.0",
     "ember-cached-decorator-polyfill": "^0.1.4",
@@ -32,7 +32,7 @@
     "inflection": "~1.13.1"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "3.28.7",
+    "@ember-data/unpublished-test-infra": "3.28.8",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.2.5",
     "broccoli-asset-rev": "^3.0.0",
