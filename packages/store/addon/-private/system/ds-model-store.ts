@@ -2,7 +2,6 @@ import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { isPresent } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
