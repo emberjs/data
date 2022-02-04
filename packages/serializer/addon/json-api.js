@@ -399,6 +399,8 @@ const JSONAPISerializer = JSONSerializer.extend({
       type: this._extractType(modelClass, resourceHash),
       attributes: this.extractAttributes(modelClass, resourceHash),
       relationships: this.extractRelationships(modelClass, resourceHash),
+      links: resourceHash.links,
+      meta: resourceHash.meta,
     };
 
     this.applyTransforms(modelClass, data.attributes);
