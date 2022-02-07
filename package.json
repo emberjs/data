@@ -107,7 +107,7 @@
     "eslint-plugin-ember": "^10.4.1",
     "eslint-plugin-ember-data": "link:./packages/unpublished-eslint-rules",
     "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-mocha": "^9.0.0",
+    "eslint-plugin-mocha": "^10.0.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-qunit": "^7.0.0",
