@@ -15,7 +15,6 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
@@ -1382,83 +1381,6 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     });
   });
-
-  deprecatedTest(
-    'PromiseArray proxies evented methods to its ManyArray',
-    {
-      id: 'ember-data:evented-api-usage',
-      count: 3,
-      until: '4.0',
-    },
-    function (assert) {
-      assert.expect(6);
-
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
-
-      store.modelFor('post').reopen({
-        comments: hasMany('comment', { async: true }),
-      });
-
-      adapter.findHasMany = function (store, snapshot, link, relationship) {
-        return resolve({
-          data: [
-            { id: 1, type: 'comment', attributes: { body: 'First' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
-          ],
-        });
-      };
-      let post, comments;
-
-      run(function () {
-        store.push({
-          data: {
-            type: 'post',
-            id: '1',
-            relationships: {
-              comments: {
-                links: {
-                  related: 'someLink',
-                },
-              },
-            },
-          },
-        });
-        post = store.peekRecord('post', 1);
-        comments = post.get('comments');
-      });
-
-      comments.on('on-event', function () {
-        assert.ok(true);
-      });
-
-      run(function () {
-        comments.trigger('on-event');
-      });
-
-      assert.strictEqual(comments.has('on-event'), true);
-      const cb = function () {
-        assert.ok(false, 'We should not trigger this event');
-      };
-
-      comments.on('off-event', cb);
-      comments.off('off-event', cb);
-
-      assert.strictEqual(comments.has('off-event'), false);
-
-      comments.one('one-event', function () {
-        assert.ok(true);
-      });
-
-      assert.strictEqual(comments.has('one-event'), true);
-
-      run(function () {
-        comments.trigger('one-event');
-      });
-
-      assert.strictEqual(comments.has('one-event'), false);
-    }
-  );
 
   test('An updated `links` value should invalidate a relationship cache', async function (assert) {
     assert.expect(8);

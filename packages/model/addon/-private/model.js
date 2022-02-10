@@ -2,7 +2,7 @@
   @module @ember-data/model
  */
 
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import EmberError from '@ember/error';
 import EmberObject, { get } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
@@ -13,18 +13,7 @@ import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
-import {
-  DEPRECATE_EVENTED_API_USAGE,
-  DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
-} from '@ember-data/private-build-infra/deprecations';
-import {
-  coerceId,
-  DeprecatedEvented,
-  errorsArrayToHash,
-  InternalModel,
-  PromiseObject,
-  recordDataFor,
-} from '@ember-data/store/-private';
+import { coerceId, errorsArrayToHash, InternalModel, PromiseObject, recordDataFor } from '@ember-data/store/-private';
 
 import Errors from './errors';
 import RecordState, { peekTag, tagged } from './record-state';
@@ -105,7 +94,6 @@ function computeOnce(target, key, desc) {
   @class Model
   @public
   @extends Ember.EmberObject
-  @uses DeprecatedEvented
 */
 class Model extends EmberObject {
   init(options = {}) {
@@ -587,92 +575,6 @@ class Model extends EmberObject {
   */
   serialize(options) {
     return this._internalModel.createSnapshot().serialize(options);
-  }
-
-  /**
-    Fired when the record is ready to be interacted with,
-    that is either loaded from the server or created locally.
-
-    @deprecated
-    @public
-    @event ready
-  */
-
-  /**
-    Fired when the record is loaded from the server.
-
-    @deprecated
-    @public
-    @event didLoad
-  */
-
-  /**
-    Fired when the record is updated.
-
-    @deprecated
-    @public
-    @event didUpdate
-  */
-
-  /**
-    Fired when a new record is commited to the server.
-
-    @deprecated
-    @public
-    @event didCreate
-  */
-
-  /**
-    Fired when the record is deleted.
-
-    @deprecated
-    @public
-    @event didDelete
-  */
-
-  /**
-    Fired when the record becomes invalid.
-
-    @deprecated
-    @public
-    @event becameInvalid
-  */
-
-  /**
-    Fired when the record enters the error state.
-
-    @deprecated
-    @public
-    @event becameError
-  */
-
-  /**
-    Fired when the record is rolled back.
-
-    @deprecated
-    @public
-    @event rolledBack
-  */
-
-  /**
-    @deprecated
-    @method send
-    @private
-    @param {String} name
-    @param {Object} context
-  */
-  send(name, context) {
-    return this._internalModel.send(name, context);
-  }
-
-  /**
-    @deprecated
-    @method transitionTo
-    @private
-    @param {String} name
-  */
-  transitionTo(name) {
-    return this._internalModel.transitionTo(name);
   }
 
   /*
@@ -2093,38 +1995,6 @@ if (HAS_DEBUG_PACKAGE) {
   };
 }
 
-if (DEPRECATE_EVENTED_API_USAGE) {
-  /**
-  Override the default event firing from Ember.Evented to
-  also call methods with the given name.
-
-  @method trigger
-  @private
-  @param {String} name
-*/
-  Model.reopen(DeprecatedEvented, {
-    trigger(name) {
-      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-        let fn = this[name];
-        if (typeof fn === 'function') {
-          let length = arguments.length;
-          let args = new Array(length - 1);
-
-          for (let i = 1; i < length; i++) {
-            args[i - 1] = arguments[i];
-          }
-          fn.apply(this, args);
-        }
-      }
-
-      const _hasEvent = DEBUG ? this._has(name) : this.has(name);
-      if (_hasEvent) {
-        this._super(...arguments);
-      }
-    },
-  });
-}
-
 if (DEBUG) {
   let lookupDescriptor = function lookupDescriptor(obj, keyName) {
     let current = obj;
@@ -2148,41 +2018,9 @@ if (DEBUG) {
     return isBasicDesc(instanceDesc) && lookupDescriptor(obj.constructor, keyName) === null;
   };
 
-  let lookupDeprecations;
-  let _deprecatedLifecycleMethods;
-
-  if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-    const INSTANCE_DEPRECATIONS = new WeakMap();
-    _deprecatedLifecycleMethods = [
-      'becameError',
-      'becameInvalid',
-      'didCreate',
-      'didDelete',
-      'didLoad',
-      'didUpdate',
-      'ready',
-      'rolledBack',
-    ];
-
-    lookupDeprecations = function lookupInstanceDeprecations(instance) {
-      let deprecations = INSTANCE_DEPRECATIONS.get(instance);
-
-      if (!deprecations) {
-        deprecations = new Set();
-        INSTANCE_DEPRECATIONS.set(instance, deprecations);
-      }
-
-      return deprecations;
-    };
-  }
-
   Model.reopen({
     init() {
       this._super(...arguments);
-
-      if (DEPRECATE_EVENTED_API_USAGE) {
-        this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
-      }
 
       if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
         throw new Error(
@@ -2206,31 +2044,6 @@ if (DEBUG) {
         throw new EmberError(
           `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: attr('<type>')\` from ${this.constructor.toString()}`
         );
-      }
-
-      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-        let lifecycleDeprecations = lookupDeprecations(this.constructor);
-
-        _deprecatedLifecycleMethods.forEach((methodName) => {
-          if (typeof this[methodName] === 'function' && !lifecycleDeprecations.has(methodName)) {
-            deprecate(
-              `You defined a \`${methodName}\` method for ${this.constructor.toString()} but lifecycle events for models have been deprecated.`,
-              false,
-              {
-                id: 'ember-data:record-lifecycle-event-methods',
-                until: '4.0',
-                url: 'https://deprecations.emberjs.com/ember-data/v3.x#toc_record-lifecycle-event-methods',
-                for: '@ember-data/model',
-                since: {
-                  available: '3.12',
-                  enabled: '3.12',
-                },
-              }
-            );
-
-            lifecycleDeprecations.add(methodName);
-          }
-        });
       }
     },
   });

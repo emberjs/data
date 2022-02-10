@@ -219,43 +219,6 @@ module('integration/references/belongs-to', function (hooks) {
     });
   });
 
-  testInDebug('push(record)', async function (assert) {
-    let store = this.owner.lookup('service:store');
-
-    let person = store.push({
-      data: {
-        type: 'person',
-        id: 1,
-        relationships: {
-          family: {
-            data: { type: 'family', id: 1 },
-          },
-        },
-      },
-    });
-    let family = store.push({
-      data: {
-        type: 'family',
-        id: 1,
-        attributes: {
-          name: 'Coreleone',
-        },
-      },
-    });
-
-    let familyReference = person.belongsTo('family');
-    let Family = store.modelFor('family');
-
-    let record;
-    await assert.expectDeprecation(async function () {
-      record = await familyReference.push(family);
-    }, /Pushing a record into a BelongsToReference is deprecated/);
-
-    assert.ok(Family.detectInstance(record), 'push resolves with the referenced record');
-    assert.strictEqual(get(record, 'name'), 'Coreleone', 'name is set');
-    assert.strictEqual(record, family);
-  });
-
   test('push(promise)', function (assert) {
     var done = assert.async();
 
@@ -305,7 +268,7 @@ module('integration/references/belongs-to', function (hooks) {
     });
   });
 
-  testInDebug('push(record) asserts for invalid modelClass', async function (assert) {
+  testInDebug('push(object) asserts for invalid modelClass', async function (assert) {
     let store = this.owner.lookup('service:store');
 
     let person = store.push({
@@ -319,23 +282,21 @@ module('integration/references/belongs-to', function (hooks) {
         },
       },
     });
-    let anotherPerson = store.push({
+    let anotherPerson = {
       data: {
         type: 'person',
         id: 2,
       },
-    });
+    };
 
     let familyReference = person.belongsTo('family');
 
-    await assert.expectDeprecation(async function () {
-      await assert.expectAssertion(async function () {
-        await familyReference.push(anotherPerson);
-      }, "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name.");
-    }, /Pushing a record into a BelongsToReference is deprecated/);
+    await assert.expectAssertion(async function () {
+      await familyReference.push(anotherPerson);
+    }, "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name.");
   });
 
-  testInDebug('push(record) works with polymorphic modelClass', async function (assert) {
+  testInDebug('push(object) works with polymorphic modelClass', async function (assert) {
     let store = this.owner.lookup('service:store');
     let Family = store.modelFor('family');
 
@@ -344,23 +305,21 @@ module('integration/references/belongs-to', function (hooks) {
     let person = store.push({
       data: {
         type: 'person',
-        id: 1,
+        id: '1',
       },
     });
-    let mafiaFamily = store.push({
+    let mafiaFamily = {
       data: {
         type: 'mafia-family',
-        id: 1,
+        id: '1',
       },
-    });
+    };
 
     let familyReference = person.belongsTo('family');
-    let family;
-    await assert.expectDeprecation(async function () {
-      family = await familyReference.push(mafiaFamily);
-    }, /Pushing a record into a BelongsToReference is deprecated/);
+    let family = await familyReference.push(mafiaFamily);
+    const record = store.peekRecord('mafia-family', '1');
 
-    assert.strictEqual(family, mafiaFamily);
+    assert.strictEqual(family, record);
   });
 
   test('value() is null when reference is not yet loaded', function (assert) {

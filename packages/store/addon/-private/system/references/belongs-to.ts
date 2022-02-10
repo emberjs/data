@@ -1,10 +1,8 @@
-import { deprecate } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
 import { resolve } from 'rsvp';
 
-import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
 import type { BelongsToRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
@@ -12,7 +10,7 @@ import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api'
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import CoreStore from '../core-store';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
-import { internalModelFactoryFor, peekRecordIdentifier, recordIdentifierFor } from '../store/internal-model-factory';
+import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
 import RecordReference from './record';
 import Reference from './reference';
 
@@ -195,46 +193,29 @@ export default class BelongsToReference extends Reference {
    @param {Object|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
-  async push(objectOrPromise: Object | SingleResourceDocument): Promise<Object> {
-    // TODO deprecate thenable support
-    return resolve(objectOrPromise).then((data) => {
-      let record: Object;
+  async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<Object> {
+    const jsonApiDoc = await resolve(data);
+    let record = this.store.push(jsonApiDoc);
 
-      if (DEPRECATE_BELONGS_TO_REFERENCE_PUSH && peekRecordIdentifier(data)) {
-        deprecate('Pushing a record into a BelongsToReference is deprecated', false, {
-          id: 'ember-data:belongs-to-reference-push-record',
-          until: '4.0',
-          for: '@ember-data/store',
-          since: {
-            available: '3.16',
-            enabled: '3.16',
-          },
-        });
-        record = data as Object;
-      } else {
-        record = this.store.push(data as SingleResourceDocument);
-      }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    assertPolymorphicType(
+      this.belongsToRelationship.identifier,
+      this.belongsToRelationship.definition,
+      recordIdentifierFor(record),
+      this.store
+    );
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      assertPolymorphicType(
-        this.belongsToRelationship.identifier,
-        this.belongsToRelationship.definition,
-        recordIdentifierFor(record),
-        this.store
-      );
-
-      const { graph, identifier } = this.belongsToRelationship;
-      this.store._backburner.join(() => {
-        graph.push({
-          op: 'replaceRelatedRecord',
-          record: identifier,
-          field: this.key,
-          value: recordIdentifierFor(record),
-        });
+    const { graph, identifier } = this.belongsToRelationship;
+    this.store._backburner.join(() => {
+      graph.push({
+        op: 'replaceRelatedRecord',
+        record: identifier,
+        field: this.key,
+        value: recordIdentifierFor(record),
       });
-
-      return record;
     });
+
+    return record;
   }
 
   /**

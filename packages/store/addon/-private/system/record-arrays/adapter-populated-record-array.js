@@ -1,9 +1,5 @@
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import { once } from '@ember/runloop';
-import { DEBUG } from '@glimmer/env';
-
-import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 import RecordArray from './record-array';
 
@@ -51,18 +47,13 @@ import RecordArray from './record-array';
   @public
   @extends RecordArray
 */
-let AdapterPopulatedRecordArray = RecordArray.extend({
+export default RecordArray.extend({
   init() {
     this.set('content', this.get('content') || A());
 
     this._super(...arguments);
     this.query = this.query || null;
     this.links = this.links || null;
-
-    if (DEBUG) {
-      this._getDeprecatedEventedInfo = () =>
-        `AdapterPopulatedRecordArray containing ${this.modelName} for query: ${this.query}`;
-    }
   },
 
   replace() {
@@ -90,14 +81,6 @@ let AdapterPopulatedRecordArray = RecordArray.extend({
     });
 
     this.manager._associateWithRecordArray(identifiersOrInternalModels, this);
-
-    if (DEPRECATE_EVENTED_API_USAGE) {
-      let _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
-      if (_hasDidLoad) {
-        // TODO: should triggering didLoad event be the last action of the runLoop?
-        once(this, 'trigger', 'didLoad');
-      }
-    }
   },
 
   /**
@@ -110,5 +93,3 @@ let AdapterPopulatedRecordArray = RecordArray.extend({
     this._setObjects(identifiers, payload);
   },
 });
-
-export default AdapterPopulatedRecordArray;

@@ -3,8 +3,8 @@
  */
 import { getOwner } from '@ember/application';
 import { A } from '@ember/array';
-import { assert, deprecate, inspect, warn } from '@ember/debug';
-import { computed, defineProperty, set } from '@ember/object';
+import { assert, inspect, warn } from '@ember/debug';
+import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import type { Backburner } from '@ember/runloop/-private/backburner';
 import Service from '@ember/service';
@@ -16,16 +16,7 @@ import Ember from 'ember';
 import require from 'require';
 import { all, default as RSVP, Promise, resolve } from 'rsvp';
 
-import {
-  HAS_ADAPTER_PACKAGE,
-  HAS_EMBER_DATA_PACKAGE,
-  HAS_RECORD_DATA_PACKAGE,
-  HAS_SERIALIZER_PACKAGE,
-} from '@ember-data/private-build-infra';
-import {
-  DEPRECATE_DEFAULT_ADAPTER,
-  DEPRECATE_LEGACY_TEST_REGISTRATIONS,
-} from '@ember-data/private-build-infra/deprecations';
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type {
   BelongsToRelationship,
   ManyRelationship,
@@ -80,7 +71,7 @@ import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
 import type RequestCache from './request-cache';
 import type { default as Snapshot } from './snapshot';
-import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
+import { _findAll, _findBelongsTo, _findHasMany, _query, _queryRecord } from './store/finders';
 import {
   internalModelFactoryFor,
   peekRecordIdentifier,
@@ -116,26 +107,6 @@ function freeze<T>(obj: T): T {
   return obj;
 }
 
-function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
-function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
-function deprecateTestRegistration(
-  factoryType: 'serializer' | 'adapter',
-  factoryName: '-json-api' | '-rest' | '-default'
-): void {
-  deprecate(
-    `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
-    false,
-    {
-      id: 'ember-data:-legacy-test-registrations',
-      until: '3.17',
-      for: '@ember-data/store',
-      since: {
-        available: '3.15',
-        enabled: '3.15',
-      },
-    }
-  );
-}
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `Model` that wrap
@@ -209,9 +180,6 @@ function deprecateTestRegistration(
   @public
   @extends Ember.Service
 */
-interface CoreStore {
-  adapter: string;
-}
 
 abstract class CoreStore extends Service {
   /**
@@ -247,7 +215,6 @@ abstract class CoreStore extends Service {
 
   // DEBUG-only properties
   declare _trackedAsyncRequests: AsyncTrackingToken[];
-  shouldAssertMethodCallsOnDestroyedStore: boolean = true;
   shouldTrackAsyncRequests: boolean = false;
   generateStackTracesForTrackedRequests: boolean = false;
   declare _trackAsyncRequestStart: (str: string) => void;
@@ -306,55 +273,6 @@ abstract class CoreStore extends Service {
     this.__recordDataFor = this.__recordDataFor.bind(this);
 
     if (DEBUG) {
-      if (HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE) {
-        // support for legacy moduleFor style unit tests
-        // that did not include transforms in "needs"
-        // or which were not set to integration:true
-        // that were relying on ember-test-helpers
-        // doing an auto-registration of the transform
-        // or us doing one
-        const Mapping = {
-          date: 'DateTransform',
-          boolean: 'BooleanTransform',
-          number: 'NumberTransform',
-          string: 'StringTransform',
-        };
-        type MapKeys = keyof typeof Mapping;
-        const keys = Object.keys(Mapping) as MapKeys[];
-        let shouldWarn = false;
-
-        let owner = getOwner(this);
-        keys.forEach((attributeType) => {
-          const transformFactory = owner.factoryFor(`transform:${attributeType}`);
-
-          if (!transformFactory) {
-            // we don't deprecate this because the moduleFor style tests with the closed
-            // resolver will be deprecated on their own. When that deprecation completes
-            // we can drop this.
-            const Transform = require(`@ember-data/serializer/-private`)[Mapping[attributeType]];
-            owner.register(`transform:${attributeType}`, Transform);
-            shouldWarn = true;
-          }
-        });
-
-        if (shouldWarn) {
-          deprecate(
-            `You are relying on the automatic registration of the transforms "date", "number", "boolean", and "string". Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['transform:date', 'transform:boolean', 'transform:number', 'transform:string']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
-            false,
-            {
-              id: 'ember-data:-legacy-test-registrations',
-              until: '3.17',
-              for: '@ember-data/store',
-              since: {
-                available: '3.15',
-                enabled: '3.15',
-              },
-            }
-          );
-        }
-      }
-
-      this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
       if (this.shouldTrackAsyncRequests === undefined) {
         this.shouldTrackAsyncRequests = false;
       }
@@ -1278,29 +1196,6 @@ abstract class CoreStore extends Service {
     return promiseArray(all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
   }
 
-  /**
-    This method is called by `findRecord` if it discovers that a particular
-    type/id pair hasn't been loaded yet to kick off a request to the
-    adapter.
-
-    @method _fetchRecord
-    @private
-    @param {InternalModel} internalModel model
-    @return {Promise} promise
-   */
-  _fetchRecord(internalModel: InternalModel, options): Promise<InternalModel> {
-    let modelName = internalModel.modelName;
-    let adapter = this.adapterFor(modelName);
-
-    assert(`You tried to find a record but you have no adapter (for ${modelName})`, adapter);
-    assert(
-      `You tried to find a record but your adapter (for ${modelName}) does not implement 'findRecord'`,
-      typeof adapter.findRecord === 'function'
-    );
-
-    return _find(adapter, this, internalModel.modelClass, internalModel.id, internalModel, options);
-  }
-
   _scheduleFetchMany(internalModels, options) {
     let fetches = new Array(internalModels.length);
 
@@ -1311,7 +1206,7 @@ abstract class CoreStore extends Service {
     return Promise.all(fetches);
   }
 
-  _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
+  _scheduleFetch(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
     // TODO  remove this once we don't rely on state machine
     internalModel.send('loadingData');
@@ -1344,165 +1239,6 @@ abstract class CoreStore extends Service {
         throw error;
       }
     );
-  }
-
-  _scheduleFetch(internalModel: InternalModel, options): RSVP.Promise<InternalModel> {
-    return this._scheduleFetchThroughFetchManager(internalModel, options);
-  }
-
-  flushAllPendingFetches() {
-    return;
-    //assert here
-  }
-
-  _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
-    let store = this;
-    let adapter = store.adapterFor(modelName);
-    let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    let totalItems = pendingFetchItems.length;
-    let internalModels = new Array(totalItems);
-    let seeking = Object.create(null);
-
-    let optionsMap = new WeakMap();
-
-    for (let i = 0; i < totalItems; i++) {
-      let pendingItem = pendingFetchItems[i];
-      let internalModel = pendingItem.internalModel;
-      internalModels[i] = internalModel;
-      optionsMap.set(internalModel, pendingItem.options);
-      // We can remove this "not null" cast once we have enough typing
-      // to know we are only dealing with ExistingResourceIdentifierObjects
-      seeking[internalModel.id!] = pendingItem;
-    }
-
-    function _fetchRecord(recordResolverPair) {
-      let recordFetch = store._fetchRecord(recordResolverPair.internalModel, recordResolverPair.options);
-
-      recordResolverPair.resolver.resolve(recordFetch);
-    }
-
-    function handleFoundRecords(foundInternalModels: InternalModel[], expectedInternalModels: InternalModel[]) {
-      // resolve found records
-      let found = Object.create(null);
-      for (let i = 0, l = foundInternalModels.length; i < l; i++) {
-        let internalModel = foundInternalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        let pair = seeking[internalModel.id!];
-        found[internalModel.id!] = internalModel;
-
-        if (pair) {
-          let resolver = pair.resolver;
-          resolver.resolve(internalModel);
-        }
-      }
-
-      // reject missing records
-      let missingInternalModels: InternalModel[] = [];
-
-      for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
-        let internalModel = expectedInternalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        if (!found[internalModel.id!]) {
-          missingInternalModels.push(internalModel);
-        }
-      }
-
-      if (missingInternalModels.length) {
-        warn(
-          'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-            missingInternalModels.map((r) => r.id).join('", "') +
-            '" ]',
-          false,
-          {
-            id: 'ds.store.missing-records-from-adapter',
-          }
-        );
-        rejectInternalModels(missingInternalModels);
-      }
-    }
-
-    function rejectInternalModels(internalModels: InternalModel[], error?: Error) {
-      for (let i = 0, l = internalModels.length; i < l; i++) {
-        let internalModel = internalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        let pair = seeking[internalModel.id!];
-
-        if (pair) {
-          pair.resolver.reject(
-            error ||
-              new Error(
-                `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
-              )
-          );
-        }
-      }
-    }
-
-    if (shouldCoalesce) {
-      // TODO: Improve records => snapshots => records => snapshots
-      //
-      // We want to provide records to all store methods and snapshots to all
-      // adapter methods. To make sure we're doing that we're providing an array
-      // of snapshots to adapter.groupRecordsForFindMany(), which in turn will
-      // return grouped snapshots instead of grouped records.
-      //
-      // But since the _findMany() finder is a store method we need to get the
-      // records from the grouped snapshots even though the _findMany() finder
-      // will once again convert the records to snapshots for adapter.findMany()
-      let snapshots = new Array(totalItems);
-      for (let i = 0; i < totalItems; i++) {
-        let internalModel = internalModels[i];
-        snapshots[i] = internalModel.createSnapshot(optionsMap.get(internalModel));
-      }
-
-      let groups;
-      if (adapter.groupRecordsForFindMany) {
-        groups = adapter.groupRecordsForFindMany(this, snapshots);
-      } else {
-        groups = [snapshots];
-      }
-
-      for (let i = 0, l = groups.length; i < l; i++) {
-        let group = groups[i];
-        let totalInGroup = groups[i].length;
-        let ids = new Array(totalInGroup);
-        let groupedInternalModels = new Array(totalInGroup);
-
-        for (let j = 0; j < totalInGroup; j++) {
-          let internalModel = group[j]._internalModel;
-
-          groupedInternalModels[j] = internalModel;
-          ids[j] = internalModel.id;
-        }
-
-        if (totalInGroup > 1) {
-          (function (groupedInternalModels) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
-              .then(function (foundInternalModels) {
-                handleFoundRecords(foundInternalModels, groupedInternalModels);
-              })
-              .catch(function (error) {
-                rejectInternalModels(groupedInternalModels, error);
-              });
-          })(groupedInternalModels);
-        } else if (ids.length === 1) {
-          let pair = seeking[groupedInternalModels[0].id];
-          _fetchRecord(pair);
-        } else {
-          assert("You cannot return an empty array from adapter's method groupRecordsForFindMany");
-        }
-      }
-    } else {
-      for (let i = 0; i < totalItems; i++) {
-        _fetchRecord(pendingFetchItems[i]);
-      }
-    }
   }
 
   /**
@@ -3335,25 +3071,15 @@ abstract class CoreStore extends Service {
 
     let owner = getOwner(this);
 
+    // name specific adapter
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
-
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
-      if (normalizedModelName === '-json-api') {
-        const Adapter = require('@ember-data/adapter/json-api').default;
-        owner.register(`adapter:-json-api`, Adapter);
-        adapter = owner.lookup(`adapter:-json-api`);
-        deprecateTestRegistration('adapter', '-json-api');
-      }
-    }
-
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
       return adapter;
     }
 
-    // no adapter found for the specific model, fallback and check for application adapter
+    // no adapter found for the specific name, fallback and check for application adapter
     adapter = _adapterCache.application || owner.lookup('adapter:application');
     if (adapter !== undefined) {
       set(adapter, 'store', this);
@@ -3362,30 +3088,9 @@ abstract class CoreStore extends Service {
       return adapter;
     }
 
-    // no model specific adapter or application adapter, check for an `adapter`
-    // property defined on the store
-    let adapterName = this.adapter || '-json-api';
-    adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
-
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
-      if (adapterName === '-json-api') {
-        const Adapter = require('@ember-data/adapter/json-api').default;
-        owner.register(`adapter:-json-api`, Adapter);
-        adapter = owner.lookup(`adapter:-json-api`);
-        deprecateTestRegistration('adapter', '-json-api');
-      }
-    }
-
-    if (adapter !== undefined) {
-      set(adapter, 'store', this);
-      _adapterCache[normalizedModelName] = adapter;
-      _adapterCache[adapterName] = adapter;
-      return adapter;
-    }
-
     // final fallback, no model specific adapter, no application adapter, no
     // `adapter` property on store: use json-api adapter
+    // TODO we should likely deprecate this?
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
     assert(
       `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
@@ -3437,30 +3142,8 @@ abstract class CoreStore extends Service {
 
     let owner = getOwner(this);
 
+    // by name
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
-
-    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
-      // in production this is handled by the re-export
-      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-        if (normalizedModelName === '-json-api') {
-          const Serializer = require('@ember-data/serializer/json-api').default;
-          owner.register(`serializer:-json-api`, Serializer);
-          serializer = owner.lookup(`serializer:-json-api`);
-          deprecateTestRegistration('serializer', '-json-api');
-        } else if (normalizedModelName === '-rest') {
-          const Serializer = require('@ember-data/serializer/rest').default;
-          owner.register(`serializer:-rest`, Serializer);
-          serializer = owner.lookup(`serializer:-rest`);
-          deprecateTestRegistration('serializer', '-rest');
-        } else if (normalizedModelName === '-default') {
-          const Serializer = require('@ember-data/serializer/json').default;
-          owner.register(`serializer:-default`, Serializer);
-          serializer = owner.lookup(`serializer:-default`);
-          serializer && deprecateTestRegistration('serializer', '-default');
-        }
-      }
-    }
-
     if (serializer !== undefined) {
       set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
@@ -3474,37 +3157,6 @@ abstract class CoreStore extends Service {
       _serializerCache[normalizedModelName] = serializer;
       _serializerCache.application = serializer;
       return serializer;
-    }
-
-    let serializerName;
-
-    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
-      // in production this is handled by the re-export
-      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-        if (serializerName === '-json-api') {
-          const Serializer = require('@ember-data/serializer/json-api').default;
-          owner.register(`serializer:-json-api`, Serializer);
-          serializer = owner.lookup(`serializer:-json-api`);
-          deprecateTestRegistration('serializer', '-json-api');
-        } else if (serializerName === '-rest') {
-          const Serializer = require('@ember-data/serializer/rest').default;
-          owner.register(`serializer:-rest`, Serializer);
-          serializer = owner.lookup(`serializer:-rest`);
-          deprecateTestRegistration('serializer', '-rest');
-        } else if (serializerName === '-default') {
-          const Serializer = require('@ember-data/serializer/json').default;
-          owner.register(`serializer:-default`, Serializer);
-          serializer = owner.lookup(`serializer:-default`);
-          serializer && deprecateTestRegistration('serializer', '-default');
-        }
-      }
-
-      if (serializer !== undefined) {
-        set(serializer, 'store', this);
-        _serializerCache[normalizedModelName] = serializer;
-        _serializerCache[serializerName] = serializer;
-        return serializer;
-      }
     }
 
     assert(
@@ -3604,39 +3256,6 @@ abstract class CoreStore extends Service {
   }
 }
 
-if (DEPRECATE_DEFAULT_ADAPTER) {
-  defineProperty(
-    CoreStore.prototype,
-    'defaultAdapter',
-    computed('adapter', function () {
-      deprecate(
-        `store.adapterFor(modelName) resolved the ("${
-          this.adapter || '-json-api'
-        }") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
-        false,
-        {
-          id: 'ember-data:default-adapter',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-adapter',
-          for: '@ember-data/store',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-      let adapter = this.adapter || '-json-api';
-
-      assert(
-        'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
-        typeof adapter === 'string'
-      );
-
-      return this.adapterFor(adapter);
-    })
-  );
-}
-
 export default CoreStore;
 
 let assertDestroyingStore: Function;
@@ -3644,48 +3263,16 @@ let assertDestroyedStoreOnly: Function;
 
 if (DEBUG) {
   assertDestroyingStore = function assertDestroyedStore(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed),
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed)
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !(store.isDestroying || store.isDestroyed)
+    );
   };
   assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed,
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !store.isDestroyed
+    );
   };
 }
 

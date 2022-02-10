@@ -8,53 +8,13 @@ import { all, Promise as EmberPromise, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/store/adapter-interop - Store working with a Adapter', function (hooks) {
   setupTest(hooks);
-
-  deprecatedTest(
-    'Adapter can be set as a name',
-    {
-      id: 'ember-data:default-adapter',
-      until: '4.0',
-    },
-    function (assert) {
-      this.owner.register('service:store', Store.extend({ adapter: 'application' }));
-
-      let store = this.owner.lookup('service:store');
-
-      assert.ok(store.get('defaultAdapter') instanceof RESTAdapter);
-    }
-  );
-
-  deprecatedTest(
-    'Adapter can not be set as an instance',
-    {
-      id: 'ember-data:default-adapter',
-      until: '4.0',
-    },
-    function (assert) {
-      assert.expect(1);
-
-      const BadStore = Store.extend({
-        adapter: Adapter.create(),
-      });
-
-      const { owner } = this;
-
-      owner.unregister('service:store');
-      owner.register('service:store', BadStore);
-      const store = owner.lookup('service:store');
-      assert.expectAssertion(() => store.get('defaultAdapter'));
-    }
-  );
 
   test('Calling Store#find invokes its adapter#find', function (assert) {
     assert.expect(5);

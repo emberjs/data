@@ -878,30 +878,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
   });
 
-  testInDebug(
-    'queryRecord - returning an array picks the first one but saves all records to the store',
-    function (assert) {
-      ajaxResponse({
-        post: [
-          { id: 1, name: 'Rails is omakase' },
-          { id: 2, name: 'Ember is js' },
-        ],
-      });
-
-      assert.expectDeprecation(async () => {
-        let post = await store.queryRecord('post', { slug: 'rails-is-omakaze' });
-        let post2 = store.peekRecord('post', 2);
-
-        assert.deepEqual(post.getProperties('id', 'name'), {
-          id: '1',
-          name: 'Rails is omakase',
-        });
-        assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'Ember is js' });
-      }, /The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record./);
-    }
-  );
-
-  testInDebug('queryRecord - returning an array is deprecated', async function (assert) {
+  testInDebug('queryRecord - returning an array is asserted', async function (assert) {
     ajaxResponse({
       post: [
         { id: 1, name: 'Rails is omakase' },
@@ -909,9 +886,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    assert.expectDeprecation(
+    assert.expectAssertion(
       () => store.queryRecord('post', { slug: 'rails-is-omakaze' }),
-      'The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.'
+      'Assertion Failed: The adapter returned an array for the primary data of a `queryRecord` response. `queryRecord` should return a single record.'
     );
   });
 
