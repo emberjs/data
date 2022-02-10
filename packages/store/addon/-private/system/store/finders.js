@@ -145,7 +145,6 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
         `Please update the response from the server or change your serializer to either ensure that the response for only includes ${quotedType} records that specify ${expectedModel} as their ${quotedInverse}, or omit the ${quotedInverse} relationship from the response.`,
       ].join('\n');
 
-      // this should eventually throw instead of deprecating.
       assert(message);
     }
 
