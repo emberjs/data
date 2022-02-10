@@ -23,7 +23,7 @@
     "@glimmer/tracking": "^1.0.4",
     "ember-auto-import": "^2.2.4",
     "ember-cached-decorator-polyfill": "^0.1.4",
-    "ember-cli-babel": "^7.26.6",
+    "ember-cli-babel": "^7.26.11",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-typescript": "^5.0.0"
   },

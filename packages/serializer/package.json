@@ -21,7 +21,7 @@
     "@ember-data/private-build-infra": "4.2.0-alpha.8",
     "@ember-data/store": "4.2.0-alpha.8",
     "ember-auto-import": "^2.2.4",
-    "ember-cli-babel": "^7.26.6",
+    "ember-cli-babel": "^7.26.11",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-typescript": "^5.0.0"
   },

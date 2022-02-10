@@ -18,11 +18,11 @@
   },
   "scripts": {},
   "dependencies": {
-    "ember-cli-babel": "^7.26.6",
+    "ember-cli-babel": "^7.26.11",
     "ember-cli-typescript": "^5.0.0"
   },
   "devDependencies": {
-    "babel-plugin-debug-macros": "^0.3.3",
+    "babel-plugin-debug-macros": "^0.3.4",
     "babel-plugin-filter-imports": "^4.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-file-creator": "^2.1.1",
