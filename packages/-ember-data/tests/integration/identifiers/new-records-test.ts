@@ -35,7 +35,7 @@ module('Integration | Identifiers - creating new records', function (hooks) {
       assert.strictEqual(identifier.id, '1', 'We have an identifier with an id');
       assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
     } catch (e) {
-      assert.ok(false, `Did not expect error: ${e.message}`);
+      assert.ok(false, `Did not expect error: ${(e as Error).message}`);
     }
   });
 });
