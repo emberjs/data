@@ -71,7 +71,7 @@ import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
 import type RequestCache from './request-cache';
 import type { default as Snapshot } from './snapshot';
-import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
+import { _findAll, _findBelongsTo, _findHasMany, _query, _queryRecord } from './store/finders';
 import {
   internalModelFactoryFor,
   peekRecordIdentifier,
@@ -1196,29 +1196,6 @@ abstract class CoreStore extends Service {
     return promiseArray(all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
   }
 
-  /**
-    This method is called by `findRecord` if it discovers that a particular
-    type/id pair hasn't been loaded yet to kick off a request to the
-    adapter.
-
-    @method _fetchRecord
-    @private
-    @param {InternalModel} internalModel model
-    @return {Promise} promise
-   */
-  _fetchRecord(internalModel: InternalModel, options): Promise<InternalModel> {
-    let modelName = internalModel.modelName;
-    let adapter = this.adapterFor(modelName);
-
-    assert(`You tried to find a record but you have no adapter (for ${modelName})`, adapter);
-    assert(
-      `You tried to find a record but your adapter (for ${modelName}) does not implement 'findRecord'`,
-      typeof adapter.findRecord === 'function'
-    );
-
-    return _find(adapter, this, internalModel.modelClass, internalModel.id, internalModel, options);
-  }
-
   _scheduleFetchMany(internalModels, options) {
     let fetches = new Array(internalModels.length);
 
@@ -1229,7 +1206,7 @@ abstract class CoreStore extends Service {
     return Promise.all(fetches);
   }
 
-  _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
+  _scheduleFetch(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
     // TODO  remove this once we don't rely on state machine
     internalModel.send('loadingData');
@@ -1262,165 +1239,6 @@ abstract class CoreStore extends Service {
         throw error;
       }
     );
-  }
-
-  _scheduleFetch(internalModel: InternalModel, options): RSVP.Promise<InternalModel> {
-    return this._scheduleFetchThroughFetchManager(internalModel, options);
-  }
-
-  flushAllPendingFetches() {
-    return;
-    //assert here
-  }
-
-  _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
-    let store = this;
-    let adapter = store.adapterFor(modelName);
-    let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    let totalItems = pendingFetchItems.length;
-    let internalModels = new Array(totalItems);
-    let seeking = Object.create(null);
-
-    let optionsMap = new WeakMap();
-
-    for (let i = 0; i < totalItems; i++) {
-      let pendingItem = pendingFetchItems[i];
-      let internalModel = pendingItem.internalModel;
-      internalModels[i] = internalModel;
-      optionsMap.set(internalModel, pendingItem.options);
-      // We can remove this "not null" cast once we have enough typing
-      // to know we are only dealing with ExistingResourceIdentifierObjects
-      seeking[internalModel.id!] = pendingItem;
-    }
-
-    function _fetchRecord(recordResolverPair) {
-      let recordFetch = store._fetchRecord(recordResolverPair.internalModel, recordResolverPair.options);
-
-      recordResolverPair.resolver.resolve(recordFetch);
-    }
-
-    function handleFoundRecords(foundInternalModels: InternalModel[], expectedInternalModels: InternalModel[]) {
-      // resolve found records
-      let found = Object.create(null);
-      for (let i = 0, l = foundInternalModels.length; i < l; i++) {
-        let internalModel = foundInternalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        let pair = seeking[internalModel.id!];
-        found[internalModel.id!] = internalModel;
-
-        if (pair) {
-          let resolver = pair.resolver;
-          resolver.resolve(internalModel);
-        }
-      }
-
-      // reject missing records
-      let missingInternalModels: InternalModel[] = [];
-
-      for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
-        let internalModel = expectedInternalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        if (!found[internalModel.id!]) {
-          missingInternalModels.push(internalModel);
-        }
-      }
-
-      if (missingInternalModels.length) {
-        warn(
-          'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-            missingInternalModels.map((r) => r.id).join('", "') +
-            '" ]',
-          false,
-          {
-            id: 'ds.store.missing-records-from-adapter',
-          }
-        );
-        rejectInternalModels(missingInternalModels);
-      }
-    }
-
-    function rejectInternalModels(internalModels: InternalModel[], error?: Error) {
-      for (let i = 0, l = internalModels.length; i < l; i++) {
-        let internalModel = internalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        let pair = seeking[internalModel.id!];
-
-        if (pair) {
-          pair.resolver.reject(
-            error ||
-              new Error(
-                `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
-              )
-          );
-        }
-      }
-    }
-
-    if (shouldCoalesce) {
-      // TODO: Improve records => snapshots => records => snapshots
-      //
-      // We want to provide records to all store methods and snapshots to all
-      // adapter methods. To make sure we're doing that we're providing an array
-      // of snapshots to adapter.groupRecordsForFindMany(), which in turn will
-      // return grouped snapshots instead of grouped records.
-      //
-      // But since the _findMany() finder is a store method we need to get the
-      // records from the grouped snapshots even though the _findMany() finder
-      // will once again convert the records to snapshots for adapter.findMany()
-      let snapshots = new Array(totalItems);
-      for (let i = 0; i < totalItems; i++) {
-        let internalModel = internalModels[i];
-        snapshots[i] = internalModel.createSnapshot(optionsMap.get(internalModel));
-      }
-
-      let groups;
-      if (adapter.groupRecordsForFindMany) {
-        groups = adapter.groupRecordsForFindMany(this, snapshots);
-      } else {
-        groups = [snapshots];
-      }
-
-      for (let i = 0, l = groups.length; i < l; i++) {
-        let group = groups[i];
-        let totalInGroup = groups[i].length;
-        let ids = new Array(totalInGroup);
-        let groupedInternalModels = new Array(totalInGroup);
-
-        for (let j = 0; j < totalInGroup; j++) {
-          let internalModel = group[j]._internalModel;
-
-          groupedInternalModels[j] = internalModel;
-          ids[j] = internalModel.id;
-        }
-
-        if (totalInGroup > 1) {
-          (function (groupedInternalModels) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
-              .then(function (foundInternalModels) {
-                handleFoundRecords(foundInternalModels, groupedInternalModels);
-              })
-              .catch(function (error) {
-                rejectInternalModels(groupedInternalModels, error);
-              });
-          })(groupedInternalModels);
-        } else if (ids.length === 1) {
-          let pair = seeking[groupedInternalModels[0].id];
-          _fetchRecord(pair);
-        } else {
-          assert("You cannot return an empty array from adapter's method groupRecordsForFindMany");
-        }
-      }
-    } else {
-      for (let i = 0; i < totalItems; i++) {
-        _fetchRecord(pendingFetchItems[i]);
-      }
-    }
   }
 
   /**

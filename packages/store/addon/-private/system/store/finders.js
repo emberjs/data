@@ -18,35 +18,6 @@ function payloadIsNotBlank(adapterPayload) {
   }
 }
 
-export function _find() {}
-
-export function _findMany(adapter, store, modelName, ids, internalModels, optionsMap) {
-  let snapshots = internalModels.map((internalModel) => internalModel.createSnapshot(optionsMap.get(internalModel)));
-  let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
-  let promise = adapter.findMany(store, modelClass, ids, snapshots);
-  let label = `DS: Handle Adapter#findMany of '${modelName}'`;
-
-  if (promise === undefined) {
-    throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
-  }
-
-  promise = guardDestroyedStore(promise, store, label);
-
-  return promise.then(
-    (adapterPayload) => {
-      assert(
-        `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
-      );
-      let serializer = store.serializerFor(modelName);
-      let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findMany');
-      return store._push(payload);
-    },
-    null,
-    `DS: Extract payload of ${modelName}`
-  );
-}
-
 function iterateData(data, fn) {
   if (Array.isArray(data)) {
     return data.map(fn);
