@@ -81,19 +81,6 @@ function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 
   return uuidv4();
 }
 
-const IdentifierCaches = new WeakMap<CoreStore, IdentifierCache>();
-
-export function identifierCacheFor(store: CoreStore): IdentifierCache {
-  let cache = IdentifierCaches.get(store);
-
-  if (cache === undefined) {
-    cache = new IdentifierCache();
-    IdentifierCaches.set(store, cache);
-  }
-
-  return cache;
-}
-
 function defaultEmptyCallback(...args: any[]): any {}
 
 let DEBUG_MAP;

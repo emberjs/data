@@ -8,7 +8,6 @@ export { recordIdentifierFor } from './system/store/internal-model-factory';
 
 export { default as Snapshot } from './system/snapshot';
 export {
-  identifierCacheFor,
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,
   setIdentifierForgetMethod,

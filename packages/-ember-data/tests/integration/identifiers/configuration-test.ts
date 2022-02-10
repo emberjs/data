@@ -18,7 +18,6 @@ import Store, {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import { identifierCacheFor } from '@ember-data/store/-private';
 import type {
   IdentifierBucket,
   ResourceData,
@@ -387,11 +386,11 @@ module('Integration | Identifiers - configuration', function (hooks) {
     assert.strictEqual(generateLidCalls, 2, 'We generated two lids');
     generateLidCalls = 0;
 
-    const originalUserByUsernameIdentifier = identifierCacheFor(store).getOrCreateRecordIdentifier({
+    const originalUserByUsernameIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '@runspired',
     });
-    const originalUserByIdIdentifier = identifierCacheFor(store).getOrCreateRecordIdentifier({
+    const originalUserByIdIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
     });

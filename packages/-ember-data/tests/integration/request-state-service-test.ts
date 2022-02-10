@@ -8,7 +8,6 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
-import { identifierCacheFor } from '@ember-data/store/-private';
 import type { RequestStateEnum } from '@ember-data/store/-private/ts-interfaces/fetch-manager';
 
 class Person extends Model {
@@ -81,7 +80,7 @@ module('integration/request-state-service - Request State Service', function (ho
     let requestService = store.getRequestStateService();
 
     // Relying on sequential lids until identifiers land
-    let identifier = identifierCacheFor(store).getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
     normalizedHash.data.lid = identifier.lid;
     let request = requestService.getPendingRequestsForRecord(identifier)[0];
 
@@ -175,7 +174,7 @@ module('integration/request-state-service - Request State Service', function (ho
 
     let requestService = store.getRequestStateService();
     // Relying on sequential lids until identifiers land
-    let identifier = identifierCacheFor(store).getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
     let count = 0;
     let requestOp = {
       op: 'findRecord',

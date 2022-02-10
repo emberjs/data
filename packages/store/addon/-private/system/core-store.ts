@@ -24,8 +24,7 @@ import type {
 } from '@ember-data/record-data/-private';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 
-import type { IdentifierCache } from '../identifiers/cache';
-import { identifierCacheFor } from '../identifiers/cache';
+import { IdentifierCache } from '../identifiers/cache';
 import type { DSModel } from '../ts-interfaces/ds-model';
 import type {
   CollectionResourceDocument,
@@ -191,6 +190,7 @@ abstract class CoreStore extends Service {
   public recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
 
   declare _notificationManager: NotificationManager;
+  declare identifierCache: IdentifierCache;
   private _adapterCache = Object.create(null);
   private _serializerCache = Object.create(null);
   public _storeWrapper = new RecordDataStoreWrapper(this);
@@ -202,13 +202,8 @@ abstract class CoreStore extends Service {
     These queues are currently controlled by a flush scheduled into
     ember-data's custom backburner instance.
     */
-  // used for coalescing record save requests
-  private _pendingSave: PendingSaveItem[] = [];
   // used for coalescing internal model updates
   private _updatedInternalModels: InternalModel[] = [];
-
-  // used to keep track of all the find requests that need to be coalesced
-  private _pendingFetch = new Map<string, PendingFetchItem[]>();
 
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
@@ -272,6 +267,18 @@ abstract class CoreStore extends Service {
     this._notificationManager = new NotificationManager(this);
     this.__recordDataFor = this.__recordDataFor.bind(this);
 
+    /**
+     * Provides access to the IdentifierCache instance
+     * for this store.
+     *
+     * The IdentifierCache can be used to generate or
+     * retrieve a stable unique identifier for any resource.
+     *
+     * @property {IdentifierCache} identifierCache
+     * @public
+     */
+    this.identifierCache = new IdentifierCache();
+
     if (DEBUG) {
       if (this.shouldTrackAsyncRequests === undefined) {
         this.shouldTrackAsyncRequests = false;
@@ -327,20 +334,6 @@ abstract class CoreStore extends Service {
 
   getRequestStateService(): RequestCache {
     return this._fetchManager.requestCache;
-  }
-
-  /**
-   * Provides access to the IdentifierCache instance
-   * for this store.
-   *
-   * The IdentifierCache can be used to generate or
-   * retrieve a stable unique identifier for any resource.
-   *
-   * @property {IdentifierCache} identifierCache
-   * @public
-   */
-  get identifierCache(): IdentifierCache {
-    return identifierCacheFor(this);
   }
 
   _instantiateRecord(
@@ -1298,7 +1291,7 @@ abstract class CoreStore extends Service {
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resourceIdentifier);
+    let identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
     if (identifier) {
       if (RECORD_REFERENCES.has(identifier)) {
         return RECORD_REFERENCES.get(identifier);
@@ -1362,7 +1355,7 @@ abstract class CoreStore extends Service {
   peekRecord(identifier: ResourceIdentifierObject): RecordInstance | null;
   peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
-      let stableIdentifier = identifierCacheFor(this).peekRecordIdentifier(identifier);
+      let stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
       if (stableIdentifier) {
         return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord() || null;
       }
@@ -1452,7 +1445,7 @@ abstract class CoreStore extends Service {
     const trueId = ensureStringId(id);
     const resource = { type, id: trueId };
 
-    const identifier = identifierCacheFor(this).peekRecordIdentifier(resource);
+    const identifier = this.identifierCache.peekRecordIdentifier(resource);
     const internalModel = identifier && internalModelFactoryFor(this).peek(identifier);
 
     return !!internalModel && internalModel.currentState.isLoaded;
@@ -2382,7 +2375,7 @@ abstract class CoreStore extends Service {
       );
     }
 
-    const cache = identifierCacheFor(this);
+    const cache = this.identifierCache;
     const identifier = internalModel.identifier;
 
     if (op !== 'deleteRecord' && data) {
@@ -2470,7 +2463,7 @@ abstract class CoreStore extends Service {
     // exclude store.push (root.empty) case
     let identifier = internalModel.identifier;
     if (isUpdate || isLoading) {
-      let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
+      let updatedIdentifier = this.identifierCache.updateRecordIdentifier(identifier, data);
 
       if (updatedIdentifier !== identifier) {
         // we encountered a merge of identifiers in which
@@ -2889,7 +2882,7 @@ abstract class CoreStore extends Service {
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
-    let stableIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(identifier);
+    let stableIdentifier = this.identifierCache.getOrCreateRecordIdentifier(identifier);
     let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
     // TODO we used to check if the record was destroyed here
     return internalModel!.referenceFor(null, key);
@@ -2938,7 +2931,7 @@ abstract class CoreStore extends Service {
         _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataConstruct;
       }
 
-      let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+      let identifier = this.identifierCache.getOrCreateRecordIdentifier({
         type: modelName,
         id,
         lid: clientId,
@@ -2953,7 +2946,7 @@ abstract class CoreStore extends Service {
    * @internal
    */
   __recordDataFor(resource: RecordIdentifier) {
-    const identifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     return this.recordDataFor(identifier, false);
   }
 
@@ -3196,7 +3189,7 @@ abstract class CoreStore extends Service {
     super.willDestroy();
     this.recordArrayManager.destroy();
 
-    identifierCacheFor(this).destroy();
+    this.identifierCache.destroy();
 
     // destroy the graph before unloadAll
     // since then we avoid churning relationships
@@ -3287,7 +3280,7 @@ if (DEBUG) {
  * @return {boolean}
  */
 function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelationship): boolean {
-  const cache = identifierCacheFor(store);
+  const cache = store.identifierCache;
 
   if (Array.isArray(resource.data)) {
     // treat as collection

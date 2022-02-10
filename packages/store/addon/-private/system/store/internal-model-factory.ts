@@ -3,7 +3,6 @@ import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
 import type { IdentifierCache } from '../../identifiers/cache';
-import { identifierCacheFor } from '../../identifiers/cache';
 import type {
   ExistingResourceObject,
   NewResourceIdentifierObject,
@@ -93,7 +92,7 @@ export default class InternalModelFactory {
 
   constructor(store: CoreStore) {
     this.store = store;
-    this.identifierCache = identifierCacheFor(store);
+    this.identifierCache = store.identifierCache;
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
       let intendedIdentifier = identifier;
       if (identifier.id !== matchedIdentifier.id) {

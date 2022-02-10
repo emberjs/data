@@ -14,7 +14,6 @@ import Store, {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import { identifierCacheFor } from '@ember-data/store/-private';
 import type {
   IdentifierBucket,
   ResourceData,
@@ -184,7 +183,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -206,7 +205,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -237,7 +236,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -415,7 +414,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -439,7 +438,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -466,7 +465,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -500,7 +499,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -553,7 +552,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -587,7 +586,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,
@@ -620,7 +619,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       // ensure we truly are in a good state internally
       const internalModels = store._internalModelsFor('user')._models;
       assert.strictEqual(internalModels.length, 1, 'Once settled there is only a single internal-model');
-      const lidCache = identifierCacheFor(store)._cache.lids;
+      const lidCache = store.identifierCache._cache.lids;
       const lids = Object.keys(lidCache);
       assert.strictEqual(
         lids.length,

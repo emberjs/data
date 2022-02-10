@@ -3,7 +3,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Store from '@ember-data/store';
-import { identifierCacheFor } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('Integration | Identifiers - cache', function (hooks) {
@@ -13,7 +12,7 @@ module('Integration | Identifiers - cache', function (hooks) {
   hooks.beforeEach(function () {
     this.owner.register(`service:store`, Store);
     store = this.owner.lookup('service:store');
-    cache = identifierCacheFor(store);
+    cache = store.identifierCache;
   });
 
   module('getOrCreateRecordIdentifier()', function () {
@@ -46,7 +45,7 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'Moomin',
         },
       };
-      const cache = identifierCacheFor(store);
+      const cache = store.identifierCache;
       const identifier = cache.getOrCreateRecordIdentifier(houseHash);
 
       assert.strictEqual(
@@ -64,7 +63,7 @@ module('Integration | Identifiers - cache', function (hooks) {
           name: 'Moomin',
         },
       };
-      const cache = identifierCacheFor(store);
+      const cache = store.identifierCache;
       const identifier = cache.getOrCreateRecordIdentifier(houseHash);
 
       assert.strictEqual(
