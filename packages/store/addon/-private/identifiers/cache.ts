@@ -5,7 +5,6 @@ import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
-import type CoreStore from '../system/core-store';
 import normalizeModelName from '../system/normalize-model-name';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 import type {

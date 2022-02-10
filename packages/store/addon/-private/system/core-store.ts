@@ -69,7 +69,6 @@ import NotificationManager from './record-notification-manager';
 import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
 import type RequestCache from './request-cache';
-import type { default as Snapshot } from './snapshot';
 import { _findAll, _findBelongsTo, _findHasMany, _query, _queryRecord } from './store/finders';
 import {
   internalModelFactoryFor,
@@ -85,16 +84,6 @@ let _RecordData: RecordDataConstruct | undefined;
 const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
 type PromiseArray<T> = Promise<T[]>;
-type PendingFetchItem = {
-  internalModel: InternalModel;
-  resolver: RSVP.Deferred<InternalModel>;
-  options: any;
-  trace?: Error;
-};
-type PendingSaveItem = {
-  snapshot: Snapshot;
-  resolver: RSVP.Deferred<void>;
-};
 
 const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
 
