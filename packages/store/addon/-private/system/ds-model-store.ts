@@ -1,5 +1,5 @@
 import { getOwner, setOwner } from '@ember/application';
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 import EmberError from '@ember/error';
 import { isPresent } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
@@ -137,48 +137,16 @@ let assertDestroyedStoreOnly: Function;
 
 if (DEBUG) {
   assertDestroyingStore = function assertDestroyedStore(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed),
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed)
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !(store.isDestroying || store.isDestroyed)
+    );
   };
   assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed,
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !store.isDestroyed
+    );
   };
 }
 

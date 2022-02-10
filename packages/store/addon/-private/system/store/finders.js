@@ -1,4 +1,4 @@
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
@@ -146,15 +146,7 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
       ].join('\n');
 
       // this should eventually throw instead of deprecating.
-      deprecate(message + '\n', false, {
-        id: 'mismatched-inverse-relationship-data-from-payload',
-        until: '3.8',
-        for: '@ember-data/store',
-        since: {
-          available: '3.8',
-          enabled: '3.8',
-        },
-      });
+      assert(message);
     }
 
     if (kind !== 'hasMany' || typeof relationshipData !== 'undefined') {

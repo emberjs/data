@@ -2,7 +2,7 @@
  * @module @ember-data/serializer/rest
  */
 import { makeArray } from '@ember/array';
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import { camelize } from '@ember/string';
 import { isNone, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
@@ -284,22 +284,10 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      if (DEBUG) {
-        let isQueryRecordAnArray = requestType === 'queryRecord' && isPrimary && Array.isArray(value);
-        let message =
-          'The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.';
-
-        deprecate(message, !isQueryRecordAnArray, {
-          id: 'ds.serializer.rest.queryRecord-array-response',
-          until: '3.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v2.x/#toc_store-queryrecord-array-response-with-restserializer',
-          for: '@ember-data/serializer',
-          since: {
-            available: '3.0',
-            enabled: '3.0',
-          },
-        });
-      }
+      assert(
+        'The adapter returned an array for the primary data of a `queryRecord` response. `queryRecord` should return a single record.',
+        !(requestType === 'queryRecord' && isPrimary && Array.isArray(value))
+      );
 
       /*
         Support primary data as an object instead of an array.

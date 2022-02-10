@@ -3,8 +3,8 @@
  */
 import { getOwner } from '@ember/application';
 import { A } from '@ember/array';
-import { assert, deprecate, inspect, warn } from '@ember/debug';
-import { computed, defineProperty, set } from '@ember/object';
+import { assert, inspect, warn } from '@ember/debug';
+import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import type { Backburner } from '@ember/runloop/-private/backburner';
 import Service from '@ember/service';
@@ -16,16 +16,7 @@ import Ember from 'ember';
 import require from 'require';
 import { all, default as RSVP, Promise, resolve } from 'rsvp';
 
-import {
-  HAS_ADAPTER_PACKAGE,
-  HAS_EMBER_DATA_PACKAGE,
-  HAS_RECORD_DATA_PACKAGE,
-  HAS_SERIALIZER_PACKAGE,
-} from '@ember-data/private-build-infra';
-import {
-  DEPRECATE_DEFAULT_ADAPTER,
-  DEPRECATE_LEGACY_TEST_REGISTRATIONS,
-} from '@ember-data/private-build-infra/deprecations';
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type {
   BelongsToRelationship,
   ManyRelationship,
@@ -116,26 +107,6 @@ function freeze<T>(obj: T): T {
   return obj;
 }
 
-function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
-function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
-function deprecateTestRegistration(
-  factoryType: 'serializer' | 'adapter',
-  factoryName: '-json-api' | '-rest' | '-default'
-): void {
-  deprecate(
-    `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
-    false,
-    {
-      id: 'ember-data:-legacy-test-registrations',
-      until: '3.17',
-      for: '@ember-data/store',
-      since: {
-        available: '3.15',
-        enabled: '3.15',
-      },
-    }
-  );
-}
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `Model` that wrap
@@ -209,9 +180,6 @@ function deprecateTestRegistration(
   @public
   @extends Ember.Service
 */
-interface CoreStore {
-  adapter: string;
-}
 
 abstract class CoreStore extends Service {
   /**
@@ -247,7 +215,6 @@ abstract class CoreStore extends Service {
 
   // DEBUG-only properties
   declare _trackedAsyncRequests: AsyncTrackingToken[];
-  shouldAssertMethodCallsOnDestroyedStore: boolean = true;
   shouldTrackAsyncRequests: boolean = false;
   generateStackTracesForTrackedRequests: boolean = false;
   declare _trackAsyncRequestStart: (str: string) => void;
@@ -306,55 +273,6 @@ abstract class CoreStore extends Service {
     this.__recordDataFor = this.__recordDataFor.bind(this);
 
     if (DEBUG) {
-      if (HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE) {
-        // support for legacy moduleFor style unit tests
-        // that did not include transforms in "needs"
-        // or which were not set to integration:true
-        // that were relying on ember-test-helpers
-        // doing an auto-registration of the transform
-        // or us doing one
-        const Mapping = {
-          date: 'DateTransform',
-          boolean: 'BooleanTransform',
-          number: 'NumberTransform',
-          string: 'StringTransform',
-        };
-        type MapKeys = keyof typeof Mapping;
-        const keys = Object.keys(Mapping) as MapKeys[];
-        let shouldWarn = false;
-
-        let owner = getOwner(this);
-        keys.forEach((attributeType) => {
-          const transformFactory = owner.factoryFor(`transform:${attributeType}`);
-
-          if (!transformFactory) {
-            // we don't deprecate this because the moduleFor style tests with the closed
-            // resolver will be deprecated on their own. When that deprecation completes
-            // we can drop this.
-            const Transform = require(`@ember-data/serializer/-private`)[Mapping[attributeType]];
-            owner.register(`transform:${attributeType}`, Transform);
-            shouldWarn = true;
-          }
-        });
-
-        if (shouldWarn) {
-          deprecate(
-            `You are relying on the automatic registration of the transforms "date", "number", "boolean", and "string". Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['transform:date', 'transform:boolean', 'transform:number', 'transform:string']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
-            false,
-            {
-              id: 'ember-data:-legacy-test-registrations',
-              until: '3.17',
-              for: '@ember-data/store',
-              since: {
-                available: '3.15',
-                enabled: '3.15',
-              },
-            }
-          );
-        }
-      }
-
-      this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
       if (this.shouldTrackAsyncRequests === undefined) {
         this.shouldTrackAsyncRequests = false;
       }
@@ -3335,25 +3253,15 @@ abstract class CoreStore extends Service {
 
     let owner = getOwner(this);
 
+    // name specific adapter
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
-
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
-      if (normalizedModelName === '-json-api') {
-        const Adapter = require('@ember-data/adapter/json-api').default;
-        owner.register(`adapter:-json-api`, Adapter);
-        adapter = owner.lookup(`adapter:-json-api`);
-        deprecateTestRegistration('adapter', '-json-api');
-      }
-    }
-
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
       return adapter;
     }
 
-    // no adapter found for the specific model, fallback and check for application adapter
+    // no adapter found for the specific name, fallback and check for application adapter
     adapter = _adapterCache.application || owner.lookup('adapter:application');
     if (adapter !== undefined) {
       set(adapter, 'store', this);
@@ -3362,30 +3270,9 @@ abstract class CoreStore extends Service {
       return adapter;
     }
 
-    // no model specific adapter or application adapter, check for an `adapter`
-    // property defined on the store
-    let adapterName = this.adapter || '-json-api';
-    adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
-
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
-      if (adapterName === '-json-api') {
-        const Adapter = require('@ember-data/adapter/json-api').default;
-        owner.register(`adapter:-json-api`, Adapter);
-        adapter = owner.lookup(`adapter:-json-api`);
-        deprecateTestRegistration('adapter', '-json-api');
-      }
-    }
-
-    if (adapter !== undefined) {
-      set(adapter, 'store', this);
-      _adapterCache[normalizedModelName] = adapter;
-      _adapterCache[adapterName] = adapter;
-      return adapter;
-    }
-
     // final fallback, no model specific adapter, no application adapter, no
     // `adapter` property on store: use json-api adapter
+    // TODO we should likely deprecate this?
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
     assert(
       `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
@@ -3437,30 +3324,8 @@ abstract class CoreStore extends Service {
 
     let owner = getOwner(this);
 
+    // by name
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
-
-    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
-      // in production this is handled by the re-export
-      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-        if (normalizedModelName === '-json-api') {
-          const Serializer = require('@ember-data/serializer/json-api').default;
-          owner.register(`serializer:-json-api`, Serializer);
-          serializer = owner.lookup(`serializer:-json-api`);
-          deprecateTestRegistration('serializer', '-json-api');
-        } else if (normalizedModelName === '-rest') {
-          const Serializer = require('@ember-data/serializer/rest').default;
-          owner.register(`serializer:-rest`, Serializer);
-          serializer = owner.lookup(`serializer:-rest`);
-          deprecateTestRegistration('serializer', '-rest');
-        } else if (normalizedModelName === '-default') {
-          const Serializer = require('@ember-data/serializer/json').default;
-          owner.register(`serializer:-default`, Serializer);
-          serializer = owner.lookup(`serializer:-default`);
-          serializer && deprecateTestRegistration('serializer', '-default');
-        }
-      }
-    }
-
     if (serializer !== undefined) {
       set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
@@ -3474,37 +3339,6 @@ abstract class CoreStore extends Service {
       _serializerCache[normalizedModelName] = serializer;
       _serializerCache.application = serializer;
       return serializer;
-    }
-
-    let serializerName;
-
-    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
-      // in production this is handled by the re-export
-      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-        if (serializerName === '-json-api') {
-          const Serializer = require('@ember-data/serializer/json-api').default;
-          owner.register(`serializer:-json-api`, Serializer);
-          serializer = owner.lookup(`serializer:-json-api`);
-          deprecateTestRegistration('serializer', '-json-api');
-        } else if (serializerName === '-rest') {
-          const Serializer = require('@ember-data/serializer/rest').default;
-          owner.register(`serializer:-rest`, Serializer);
-          serializer = owner.lookup(`serializer:-rest`);
-          deprecateTestRegistration('serializer', '-rest');
-        } else if (serializerName === '-default') {
-          const Serializer = require('@ember-data/serializer/json').default;
-          owner.register(`serializer:-default`, Serializer);
-          serializer = owner.lookup(`serializer:-default`);
-          serializer && deprecateTestRegistration('serializer', '-default');
-        }
-      }
-
-      if (serializer !== undefined) {
-        set(serializer, 'store', this);
-        _serializerCache[normalizedModelName] = serializer;
-        _serializerCache[serializerName] = serializer;
-        return serializer;
-      }
     }
 
     assert(
@@ -3604,39 +3438,6 @@ abstract class CoreStore extends Service {
   }
 }
 
-if (DEPRECATE_DEFAULT_ADAPTER) {
-  defineProperty(
-    CoreStore.prototype,
-    'defaultAdapter',
-    computed('adapter', function () {
-      deprecate(
-        `store.adapterFor(modelName) resolved the ("${
-          this.adapter || '-json-api'
-        }") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
-        false,
-        {
-          id: 'ember-data:default-adapter',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-adapter',
-          for: '@ember-data/store',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-      let adapter = this.adapter || '-json-api';
-
-      assert(
-        'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
-        typeof adapter === 'string'
-      );
-
-      return this.adapterFor(adapter);
-    })
-  );
-}
-
 export default CoreStore;
 
 let assertDestroyingStore: Function;
@@ -3644,48 +3445,16 @@ let assertDestroyedStoreOnly: Function;
 
 if (DEBUG) {
   assertDestroyingStore = function assertDestroyedStore(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed),
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed)
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !(store.isDestroying || store.isDestroyed)
+    );
   };
   assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed,
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !store.isDestroyed
+    );
   };
 }
 
