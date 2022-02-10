@@ -9,7 +9,6 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 import { recordIdentifierFor } from '@ember-data/store';
 
 const { AdapterPopulatedRecordArray, RecordArrayManager } = DS;
@@ -150,13 +149,6 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     assert.strictEqual(didAddRecord, 0, 'no records should have been added yet');
 
-    let didLoad = 0;
-    if (DEPRECATE_EVENTED_API_USAGE) {
-      recordArray.on('didLoad', function () {
-        didLoad++;
-      });
-    }
-
     let links = { foo: 1 };
     let meta = { bar: 2 };
 
@@ -170,25 +162,14 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.strictEqual(didAddRecord, 2, 'two records should have been added');
 
     assert.deepEqual(recordArray.toArray(), [record1, record2], 'should now contain the loaded records by identifier');
-
-    if (DEPRECATE_EVENTED_API_USAGE) {
-      assert.strictEqual(didLoad, 0, 'didLoad event should not have fired');
-    }
     assert.strictEqual(recordArray.get('links').foo, 1, 'has links');
     assert.strictEqual(recordArray.get('meta').bar, 2, 'has meta');
 
     await settled();
-
-    if (DEPRECATE_EVENTED_API_USAGE) {
-      assert.strictEqual(didLoad, 1, 'didLoad event should have fired once');
-    }
-    assert.expectDeprecation({
-      id: 'ember-data:evented-api-usage',
-    });
   });
 
   test('change events when receiving a new query payload', async function (assert) {
-    assert.expect(38);
+    assert.expect(37);
 
     let arrayDidChange = 0;
     let contentDidChange = 0;
@@ -355,9 +336,5 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       recordArray.map((x) => x.name),
       ['Scumbag Penner']
     );
-    assert.expectDeprecation({
-      id: 'ember-data:evented-api-usage',
-      count: 1,
-    });
   });
 });

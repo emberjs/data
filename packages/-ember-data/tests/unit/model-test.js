@@ -1,6 +1,5 @@
 import { computed, get, observer, set } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
-import { settled } from '@ember/test-helpers';
 import { DEBUG } from '@glimmer/env';
 
 import { module, test } from 'qunit';
@@ -15,7 +14,6 @@ import Model, { attr, attr as DSattr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordDataFor } from '@ember-data/store/-private';
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/model - Model', function (hooks) {
@@ -623,115 +621,6 @@ module('unit/model - Model', function (hooks) {
 
       convertsFromServer('string-to-Date', 'date', dateString, date);
       convertsWhenSet('Date-to-string', 'date', date, dateString);
-    });
-  });
-
-  module('Evented', function () {
-    deprecatedTest(
-      'an event listener can be added to a record',
-      {
-        id: 'ember-data:evented-api-usage',
-        count: 1,
-        until: '4.0',
-      },
-      async function (assert) {
-        let count = 0;
-        let F = function () {
-          count++;
-        };
-
-        let record = store.createRecord('person');
-
-        record.on('event!', F);
-
-        record.trigger('event!');
-
-        await settled();
-
-        assert.strictEqual(count, 1, 'the event was triggered');
-
-        record.trigger('event!');
-
-        await settled();
-
-        assert.strictEqual(count, 2, 'the event was triggered');
-      }
-    );
-
-    deprecatedTest(
-      'when an event is triggered on a record the method with the same name is invoked with arguments',
-      {
-        id: 'ember-data:evented-api-usage',
-        count: 0,
-        until: '4.0',
-      },
-      async function (assert) {
-        let count = 0;
-        let F = function () {
-          count++;
-        };
-        let record = store.createRecord('person');
-
-        record.eventNamedMethod = F;
-
-        record.trigger('eventNamedMethod');
-
-        await settled();
-
-        assert.strictEqual(count, 1, 'the corresponding method was called');
-      }
-    );
-
-    deprecatedTest(
-      'when a method is invoked from an event with the same name the arguments are passed through',
-      {
-        id: 'ember-data:evented-api-usage',
-        count: 0,
-        until: '4.0',
-      },
-      async function (assert) {
-        let eventMethodArgs = null;
-        let F = function () {
-          eventMethodArgs = arguments;
-        };
-        let record = store.createRecord('person');
-
-        record.eventThatTriggersMethod = F;
-        record.trigger('eventThatTriggersMethod', 1, 2);
-
-        await settled();
-
-        assert.strictEqual(eventMethodArgs[0], 1);
-        assert.strictEqual(eventMethodArgs[1], 2);
-      }
-    );
-
-    testInDebug('defining record lifecycle event methods on a model class is deprecated', async function (assert) {
-      class EngineerModel extends Model {
-        becameError() {}
-        becameInvalid() {}
-        didCreate() {}
-        didDelete() {}
-        didLoad() {}
-        didUpdate() {}
-        ready() {}
-        rolledBack() {}
-      }
-
-      this.owner.register('model:engineer', EngineerModel);
-
-      let store = this.owner.lookup('service:store');
-
-      store.createRecord('engineer');
-
-      assert.expectDeprecation(/You defined a `becameError` method for model:engineer but lifecycle events/);
-      assert.expectDeprecation(/You defined a `becameInvalid` method for model:engineer but lifecycle events/);
-      assert.expectDeprecation(/You defined a `didCreate` method for model:engineer but lifecycle events/);
-      assert.expectDeprecation(/You defined a `didDelete` method for model:engineer but lifecycle events/);
-      assert.expectDeprecation(/You defined a `didLoad` method for model:engineer but lifecycle events/);
-      assert.expectDeprecation(/You defined a `didUpdate` method for model:engineer but lifecycle events/);
-      assert.expectDeprecation(/You defined a `ready` method for model:engineer but lifecycle events/);
-      assert.expectDeprecation(/You defined a `rolledBack` method for model:engineer but lifecycle events/);
     });
   });
 

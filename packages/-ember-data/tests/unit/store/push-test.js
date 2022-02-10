@@ -3,12 +3,11 @@ import { run } from '@ember/runloop';
 import Ember from 'ember';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise, resolve } from 'rsvp';
+import { resolve } from 'rsvp';
 
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, Person, PhoneNumber, Post;
@@ -149,45 +148,6 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       });
     });
   });
-
-  deprecatedTest(
-    `Calling push triggers 'didLoad' even if the record hasn't been requested from the adapter`,
-    {
-      id: 'ember-data:record-lifecycle-event-methods',
-      until: '4.0',
-    },
-    async function (assert) {
-      assert.expect(1);
-
-      let didLoad = new EmberPromise((resolve, reject) => {
-        Person.reopen({
-          didLoad() {
-            try {
-              assert.ok(true, 'The didLoad callback was called');
-              resolve();
-            } catch (e) {
-              reject(e);
-            }
-          },
-        });
-      });
-
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: 'wat',
-            attributes: {
-              firstName: 'Yehuda',
-              lastName: 'Katz',
-            },
-          },
-        });
-      });
-
-      await didLoad;
-    }
-  );
 
   test('Calling push with partial records updates just those attributes', function (assert) {
     assert.expect(2);
