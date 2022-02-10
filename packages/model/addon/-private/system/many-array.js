@@ -8,7 +8,7 @@ import EmberObject, { get } from '@ember/object';
 
 import { all } from 'rsvp';
 
-import { DeprecatedEvented, PromiseArray, recordDataFor } from '@ember-data/store/-private';
+import { PromiseArray, recordDataFor } from '@ember-data/store/-private';
 
 import diffArray from './diff-array';
 
@@ -55,9 +55,9 @@ import diffArray from './diff-array';
   @class ManyArray
   @public
   @extends Ember.EmberObject
-  @uses Ember.MutableArray, DeprecatedEvented
+  @uses Ember.MutableArray
 */
-export default EmberObject.extend(MutableArray, DeprecatedEvented, {
+export default EmberObject.extend(MutableArray, {
   isAsync: false,
   isLoaded: false,
 

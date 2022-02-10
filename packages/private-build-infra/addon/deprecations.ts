@@ -7,7 +7,6 @@ function deprecationState(deprecationName: keyof typeof CURRENT_DEPRECATIONS): b
 
 // deprecations
 export const DEPRECATE_CATCH_ALL = deprecationState('DEPRECATE_CATCH_ALL');
-export const DEPRECATE_EVENTED_API_USAGE = deprecationState('DEPRECATE_EVENTED_API_USAGE');
 export const DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS = deprecationState('DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS');
 export const DEPRECATE_MODEL_TOJSON = deprecationState('DEPRECATE_MODEL_TOJSON');
 export const DEPRECATE_LEGACY_TEST_HELPER_SUPPORT = deprecationState('DEPRECATE_LEGACY_TEST_HELPER_SUPPORT');

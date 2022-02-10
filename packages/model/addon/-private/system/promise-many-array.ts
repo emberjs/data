@@ -6,8 +6,6 @@ import Ember from 'ember';
 
 import { resolve } from 'rsvp';
 
-import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
-
 /**
  @module @ember-data/model
  */
@@ -330,12 +328,3 @@ InheritedProxyMethods.forEach((method) => {
     return this.content[method](...args);
   };
 });
-
-if (DEPRECATE_EVENTED_API_USAGE) {
-  ['on', 'has', 'trigger', 'off', 'one'].forEach((method) => {
-    PromiseManyArray.prototype[method] = function proxiedMethod(...args) {
-      assert(`Cannot call ${method} before content is assigned.`, this.content);
-      return this.content[method](...args);
-    };
-  });
-}

@@ -13,18 +13,8 @@ import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
-import {
-  DEPRECATE_EVENTED_API_USAGE,
-  DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS,
-} from '@ember-data/private-build-infra/deprecations';
-import {
-  coerceId,
-  DeprecatedEvented,
-  errorsArrayToHash,
-  InternalModel,
-  PromiseObject,
-  recordDataFor,
-} from '@ember-data/store/-private';
+import { DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS } from '@ember-data/private-build-infra/deprecations';
+import { coerceId, errorsArrayToHash, InternalModel, PromiseObject, recordDataFor } from '@ember-data/store/-private';
 
 import Errors from './errors';
 import RecordState, { peekTag, tagged } from './record-state';
@@ -105,7 +95,6 @@ function computeOnce(target, key, desc) {
   @class Model
   @public
   @extends Ember.EmberObject
-  @uses DeprecatedEvented
 */
 class Model extends EmberObject {
   init(options = {}) {
@@ -2093,38 +2082,6 @@ if (HAS_DEBUG_PACKAGE) {
   };
 }
 
-if (DEPRECATE_EVENTED_API_USAGE) {
-  /**
-  Override the default event firing from Ember.Evented to
-  also call methods with the given name.
-
-  @method trigger
-  @private
-  @param {String} name
-*/
-  Model.reopen(DeprecatedEvented, {
-    trigger(name) {
-      if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-        let fn = this[name];
-        if (typeof fn === 'function') {
-          let length = arguments.length;
-          let args = new Array(length - 1);
-
-          for (let i = 1; i < length; i++) {
-            args[i - 1] = arguments[i];
-          }
-          fn.apply(this, args);
-        }
-      }
-
-      const _hasEvent = DEBUG ? this._has(name) : this.has(name);
-      if (_hasEvent) {
-        this._super(...arguments);
-      }
-    },
-  });
-}
-
 if (DEBUG) {
   let lookupDescriptor = function lookupDescriptor(obj, keyName) {
     let current = obj;
@@ -2179,10 +2136,6 @@ if (DEBUG) {
   Model.reopen({
     init() {
       this._super(...arguments);
-
-      if (DEPRECATE_EVENTED_API_USAGE) {
-        this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
-      }
 
       if (!isDefaultEmptyDescriptor(this, '_internalModel') || !(this._internalModel instanceof InternalModel)) {
         throw new Error(

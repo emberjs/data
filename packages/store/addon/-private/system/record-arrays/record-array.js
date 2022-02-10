@@ -3,11 +3,9 @@
 */
 import ArrayProxy from '@ember/array/proxy';
 import { computed, get, set } from '@ember/object';
-import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
-import DeprecatedEvented from '../deprecated-evented';
 import { PromiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
@@ -28,16 +26,11 @@ function recordForIdentifier(store, identifier) {
   @class RecordArray
   @public
   @extends Ember.ArrayProxy
-  @uses Ember.Evented
 */
 
-let RecordArray = ArrayProxy.extend(DeprecatedEvented, {
+let RecordArray = ArrayProxy.extend({
   init(args) {
     this._super(args);
-
-    if (DEBUG) {
-      this._getDeprecatedEventedInfo = () => `RecordArray containing ${this.modelName}`;
-    }
 
     /**
       The array of client ids backing the record array. When a
