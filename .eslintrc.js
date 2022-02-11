@@ -33,6 +33,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
     babelOptions: {
+      // eslint-disable-next-line node/no-unpublished-require
       plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
     },
     requireConfigFile: false,
