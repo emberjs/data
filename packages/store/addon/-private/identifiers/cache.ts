@@ -6,7 +6,6 @@ import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
 import normalizeModelName from '../system/normalize-model-name';
-import type { DebugWeakCache } from '../system/weak-cache';
 import WeakCache from '../system/weak-cache';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 import type {
@@ -87,7 +86,6 @@ function defaultEmptyCallback(...args: any[]): any {}
 let DEBUG_MAP;
 if (DEBUG) {
   DEBUG_MAP = new WeakCache<StableRecordIdentifier, StableRecordIdentifier>('identifier-proxy-target');
-  (WeakCache as typeof DebugWeakCache)._debugTargetProp = DEBUG_MAP._symbol;
 }
 
 /**

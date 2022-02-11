@@ -44,7 +44,7 @@ class WeakCache<K extends object, V> extends WeakMap<K, V> {
     super();
     if (DEBUG) {
       this._fieldName = _fieldName;
-      this._symbol = Symbol(_fieldName);
+      this._symbol = Symbol.for(_fieldName);
     }
   }
 
@@ -84,7 +84,7 @@ class WeakCache<K extends object, V> extends WeakMap<K, V> {
 
       if (DEBUG) {
         if (obj[DEBUG_IDENTIFIER_BUCKET] && this._fieldName !== 'identifier-proxy-target') {
-          const target: K = obj[DebugWeakCache._debugTargetProp as unknown as string] as K;
+          const target: K = obj[Symbol.for('identifier-proxy-target') as unknown as string] as K;
           target[this._symbol as unknown as string] = v;
         } else {
           obj[this._symbol as unknown as string] = v;
@@ -103,13 +103,13 @@ class DebugWeakCache<K extends object, V> extends WeakCache<K, V> {
     }
     if (DEBUG) {
       if (obj[DEBUG_IDENTIFIER_BUCKET] && this._fieldName !== 'identifier-proxy-target') {
-        const target: K = obj[DebugWeakCache._debugTargetProp as unknown as string] as K;
+        const target: K = obj[Symbol.for('identifier-proxy-target') as unknown as string] as K;
         target[this._symbol as unknown as string] = value;
         // TODO the Proxy check here is entirely for ember-m3
         // as it's attribute access tests fail since the symbol
         // is an unexpected key received by it's proxies.
         // we should address this upstream.
-      } else if (!(obj instanceof Proxy)) {
+      } else if (obj.constructor?.toString?.() !== 'MegamorphicModel') {
         try {
           obj[this._symbol as unknown as string] = value;
         } catch {
@@ -120,7 +120,6 @@ class DebugWeakCache<K extends object, V> extends WeakCache<K, V> {
     }
     return super.set(obj, value);
   }
-  static _debugTargetProp: Symbol;
 }
 export type { DebugWeakCache };
 export default DEBUG ? DebugWeakCache : WeakCache;
