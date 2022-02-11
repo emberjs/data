@@ -464,9 +464,9 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
     assert.strictEqual(relationshipState.members.size, 1, 'members size should be 1');
-    assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
-    assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
-    assert.ok(boatPerson === person, 'Our boat has the right person');
+    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
+    assert.strictEqual(peopleBoats.objectAt(0), boat, 'Our person has the right boat');
+    assert.strictEqual(boatPerson, person, 'Our boat has the right person');
 
     run(() => {
       store.unloadAll('boat');
@@ -477,7 +477,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(knownBoats.models.length, 0, 'no boat records are loaded');
     assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
     assert.strictEqual(relationshipState.members.size, 1, 'members size should still be 1');
-    assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
+    assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
     run(() =>
       store.push({
@@ -488,8 +488,9 @@ module('integration/unload - Unloading Records', function (hooks) {
     let reloadedBoat = store.peekRecord('boat', '1');
     let reloadedBoatInternalModel = reloadedBoat._internalModel;
 
-    assert.ok(
-      reloadedBoatInternalModel === initialBoatInternalModel,
+    assert.strictEqual(
+      reloadedBoatInternalModel,
+      initialBoatInternalModel,
       'after an unloadAll, subsequent fetch results in the same InternalModel'
     );
   });
@@ -498,8 +499,8 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.expect(17);
 
     adapter.findRecord = (store, type, id) => {
-      assert.ok(type.modelName === 'boat', 'We refetch the boat');
-      assert.ok(id === '1', 'We refetch the right boat');
+      assert.strictEqual(type.modelName, 'boat', 'We refetch the boat');
+      assert.strictEqual(id, '1', 'We refetch the right boat');
       return resolve({
         data: makeBoatOneForPersonOne(),
       });
@@ -541,9 +542,9 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should be 1');
     assert.strictEqual(relationshipState.members.size, 1, 'members size should be 1');
-    assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
-    assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
-    assert.ok(boatPerson === person, 'Our boat has the right person');
+    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
+    assert.strictEqual(peopleBoats.objectAt(0), boat, 'Our person has the right boat');
+    assert.strictEqual(boatPerson, person, 'Our boat has the right person');
 
     run(() => {
       store.unloadAll('boat');
@@ -554,15 +555,16 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(knownBoats.models.length, 0, 'no boat records are loaded');
     assert.strictEqual(relationshipState.canonicalState.length, 1, 'canonical member size should still be 1');
     assert.strictEqual(relationshipState.members.size, 1, 'members size should still be 1');
-    assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
+    assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
     run(() => person.get('boats'));
 
     let reloadedBoat = store.peekRecord('boat', '1');
     let reloadedBoatInternalModel = reloadedBoat._internalModel;
 
-    assert.ok(
-      reloadedBoatInternalModel === initialBoatInternalModel,
+    assert.strictEqual(
+      reloadedBoatInternalModel,
+      initialBoatInternalModel,
       'after an unloadAll, subsequent fetch results in the same InternalModel'
     );
   });
@@ -612,9 +614,9 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
-    assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
-    assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
-    assert.ok(boatPerson === person, 'Our boat has the right person');
+    assert.strictEqual(get(peopleBoats, 'length'), 1, 'Our person has a boat');
+    assert.strictEqual(peopleBoats.objectAt(0), boat, 'Our person has the right boat');
+    assert.strictEqual(boatPerson, person, 'Our boat has the right person');
 
     run(() => boat.unloadRecord());
 
@@ -629,11 +631,11 @@ module('integration/unload - Unloading Records', function (hooks) {
       ['1'],
       'one boat record is known'
     );
-    assert.ok(knownBoats.models[0] === initialBoatInternalModel, 'We still have our boat');
+    assert.strictEqual(knownBoats.models[0], initialBoatInternalModel, 'We still have our boat');
     assert.true(initialBoatInternalModel.currentState.isEmpty, 'Model is in the empty state');
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should still be 1');
     assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should still be 1');
-    assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
+    assert.strictEqual(get(peopleBoats, 'length'), 0, 'Our person thinks they have no boats');
 
     run(() =>
       store.push({
@@ -646,8 +648,9 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
-    assert.ok(
-      reloadedBoatInternalModel === initialBoatInternalModel,
+    assert.strictEqual(
+      reloadedBoatInternalModel,
+      initialBoatInternalModel,
       'after an unloadRecord, subsequent fetch results in the same InternalModel'
     );
 
@@ -667,8 +670,9 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     assert.deepEqual(idsFromArr(relationshipState.canonicalState), ['1'], 'canonical member size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.currentState), ['1'], 'members size should be 1');
-    assert.ok(
-      yaBoatInternalModel === initialBoatInternalModel,
+    assert.strictEqual(
+      yaBoatInternalModel,
+      initialBoatInternalModel,
       'after an unloadRecord, subsequent same-loop push results in the same InternalModel'
     );
   });
@@ -894,7 +898,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       assert.true(record.isDestroying, 'the record is destroying');
       assert.strictEqual(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
       return store.findRecord('person', '1').then((newRecord) => {
-        assert.ok(internalModel === newRecord._internalModel, 'the old internalModel is reused');
+        assert.strictEqual(internalModel, newRecord._internalModel, 'the old internalModel is reused');
         assert.strictEqual(
           newRecord._internalModel.currentState.stateName,
           'root.loaded.saved',
@@ -972,7 +976,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
       return store.findRecord('person', '1').then((record) => {
         assert.strictEqual(record.get('cars.length'), 0, 'Expected relationship to be cleared by the new push');
-        assert.ok(internalModel === record._internalModel, 'the old internalModel is reused');
+        assert.strictEqual(internalModel, record._internalModel, 'the old internalModel is reused');
         assert.strictEqual(
           record._internalModel.currentState.stateName,
           'root.loaded.saved',
@@ -1036,7 +1040,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
       let wait = store.findRecord('person', '1').then((newRecord) => {
         assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
-        assert.ok(newRecord.get('bike') === bike, 'the newRecord should retain knowledge of the bike');
+        assert.strictEqual(newRecord.get('bike'), bike, 'the newRecord should retain knowledge of the bike');
       });
 
       assert.false(record.isDestroyed, 'the record is NOT YET destroyed');
@@ -1782,7 +1786,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     const refetchedBoats = await person.boats;
 
-    assert.true(refetchedBoats === boats, 'we have the same ManyArray');
+    assert.strictEqual(refetchedBoats, boats, 'we have the same ManyArray');
     assert.deepEqual(refetchedBoats.mapBy('id'), ['2', '3'], 'boats refetched');
     assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'unload async is not treated as delete');
     assert.strictEqual(boat3.belongsTo('person').id(), '1', 'unload async is not treated as delete');
@@ -1876,7 +1880,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     const refetchedFriends = await person1.friends;
 
-    assert.true(person1Friends === refetchedFriends, 'we have the same ManyArray');
+    assert.strictEqual(person1Friends, refetchedFriends, 'we have the same ManyArray');
     assert.deepEqual(refetchedFriends.mapBy('id'), ['3', '4'], 'friends refetched');
     assert.deepEqual(person1.hasMany('friends').ids(), ['3', '4'], 'unload async is not treated as delete');
 
@@ -2283,7 +2287,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     const refetchedShows = await person.favoriteShows;
 
-    assert.true(shows === refetchedShows, 'we have the same ManyArray');
+    assert.strictEqual(shows, refetchedShows, 'we have the same ManyArray');
     assert.deepEqual(refetchedShows.mapBy('id'), ['2', '3'], 'shows refetched');
     assert.deepEqual(person.hasMany('favoriteShows').ids(), ['2', '3'], 'unload async is not treated as delete');
 

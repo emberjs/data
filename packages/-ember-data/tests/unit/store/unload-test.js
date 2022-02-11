@@ -113,12 +113,12 @@ module('unit/store/unload - Store unloading records', function (hooks) {
   test('unload followed by create of the same type + id', function (assert) {
     let record = store.createRecord('record', { id: 1 });
 
-    assert.ok(store.recordForId('record', 1) === record, 'record should exactly equal');
+    assert.strictEqual(store.recordForId('record', 1), record, 'record should exactly equal');
 
     return run(() => {
       record.unloadRecord();
       let createdRecord = store.createRecord('record', { id: 1 });
-      assert.ok(record !== createdRecord, 'newly created record is fresh (and was created)');
+      assert.notStrictEqual(record, createdRecord, 'newly created record is fresh (and was created)');
     });
   });
 });

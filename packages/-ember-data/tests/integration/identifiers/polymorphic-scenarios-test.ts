@@ -151,7 +151,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       assert.strictEqual(relation.constructor.modelName, 'ferrari', 'We found the right type');
 
       const foundFerrari = await store.findRecord('car', '1');
-      assert.ok(relation === foundFerrari, 'We found the ferrari by finding car 1');
+      assert.strictEqual(relation, foundFerrari, 'We found the ferrari by finding car 1');
 
       const allCars = await topRecord.allCars;
       assert.deepEqual(
@@ -166,7 +166,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       );
       const bmw = allCars.objectAt(1);
       const foundBmw = await store.findRecord('car', '2');
-      assert.ok(foundBmw === bmw, 'We found the bmw by finding car 2');
+      assert.strictEqual(foundBmw, bmw, 'We found the bmw by finding car 2');
 
       assert.deepEqual(requests, expectedRequests, 'We triggered the expected requests');
     });

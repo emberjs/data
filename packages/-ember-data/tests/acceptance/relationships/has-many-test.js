@@ -322,7 +322,7 @@ module('async has-many rendering tests', function (hooks) {
       assert.true(relationshipState.state.hasDematerializedInverse, 'The relationship has a dematerialized inverse');
       assert.true(relationshipState.state.hasReceivedData, 'The relationship knows which record it needs');
       assert.false(!!RelationshipPromiseCache['children'], 'The relationship has no fetch promise');
-      assert.true(relationshipState.state.hasFailedLoadAttempt === true, 'The relationship has attempted a load');
+      assert.true(relationshipState.state.hasFailedLoadAttempt, 'The relationship has attempted a load');
       assert.true(!!RelationshipProxyCache['children'], 'The relationship has a promise proxy');
       assert.false(!!relationshipState.link, 'The relationship does not have a link');
 
@@ -442,7 +442,7 @@ module('async has-many rendering tests', function (hooks) {
       assert.false(relationshipState.state.hasReceivedData, 'The relationship knows which record it needs');
       assert.false(!!RelationshipPromiseCache['children'], 'The relationship has no fetch promise');
       assert.true(!!RelationshipProxyCache['children'], 'The relationship has a promise proxy');
-      assert.true(relationshipState.state.hasFailedLoadAttempt === true, 'The relationship has attempted a load');
+      assert.true(relationshipState.state.hasFailedLoadAttempt, 'The relationship has attempted a load');
       assert.true(!!(relationshipState.links && relationshipState.links.related), 'The relationship has a link');
 
       Ember.onerror = originalOnError;

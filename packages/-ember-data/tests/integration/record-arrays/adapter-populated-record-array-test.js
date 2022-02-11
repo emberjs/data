@@ -225,7 +225,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     let superCreateAdapterPopulatedRecordArray = store.recordArrayManager.createAdapterPopulatedRecordArray;
 
     store.recordArrayManager.createStore = function (modelName, query, internalModels, _payload) {
-      assert.strictEqual(arguments.length === 4);
+      assert.strictEqual(arguments.length, 4);
 
       assert.strictEqual(modelName, 'person');
       assert.strictEqual(query, actualQuery);
@@ -248,7 +248,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     };
 
     store.recordArrayManager.createStore = function (modelName, query) {
-      assert.strictEqual(arguments.length === 2);
+      assert.strictEqual(arguments.length, 2);
 
       assert.strictEqual(modelName, 'person');
       assert.strictEqual(query, actualQuery);

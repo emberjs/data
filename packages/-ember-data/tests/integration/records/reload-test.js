@@ -314,7 +314,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       let owner = shen.get('owner');
       let ownerViaRef = await ownerRef.reload();
 
-      assert.ok(owner === ownerViaRef, 'We received the same reference via reload');
+      assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
 
     test('When a sync belongsTo relationship has not been loaded, it can still be reloaded via the reference', async function (assert) {
@@ -362,7 +362,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       let ownerViaRef = await ownerRef.reload();
       let owner = shen.get('owner');
 
-      assert.ok(owner === ownerViaRef, 'We received the same reference via reload');
+      assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
 
     test('When a sync hasMany relationship has been loaded, it can still be reloaded via the reference', async function (assert) {
@@ -419,7 +419,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       let owners = shen.get('owners');
       let ownersViaRef = await ownersRef.reload();
 
-      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
+      assert.strictEqual(owners.objectAt(0), ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
 
     test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function (assert) {
@@ -467,7 +467,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       let ownersViaRef = await ownersRef.reload();
       let owners = shen.get('owners');
 
-      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
+      assert.strictEqual(owners.objectAt(0), ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
   });
 
@@ -529,7 +529,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       let owner = shen.get('owner');
       let ownerViaRef = await ownerRef.reload();
 
-      assert.ok(owner === ownerViaRef, 'We received the same reference via reload');
+      assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
 
     test('When a sync belongsTo relationship has not been loaded, it can still be reloaded via the reference', async function (assert) {
@@ -580,7 +580,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       let ownerViaRef = await ownerRef.reload();
       let owner = shen.get('owner');
 
-      assert.ok(owner === ownerViaRef, 'We received the same reference via reload');
+      assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
 
     test('When a sync hasMany relationship has been loaded, it can still be reloaded via the reference', async function (assert) {
@@ -642,7 +642,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       let owners = shen.get('owners');
       let ownersViaRef = await ownersRef.reload();
 
-      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
+      assert.strictEqual(owners.objectAt(0), ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
 
     test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function (assert) {
@@ -695,7 +695,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       let ownersViaRef = await ownersRef.reload();
       let owners = shen.get('owners');
 
-      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
+      assert.strictEqual(owners.objectAt(0), ownersViaRef.objectAt(0), 'We received the same reference via reload');
     });
   });
 });

@@ -40,7 +40,7 @@ module('integration/application - Injecting a Custom Store', function (hooks) {
 
   test('If a Store property exists on an Application, it should be instantiated.', async function (assert) {
     let store = this.owner.lookup('service:store');
-    assert.ok(store.isCustom === true, 'the custom store was instantiated');
+    assert.true(store.isCustom, 'the custom store was instantiated');
   });
 
   test('If a store is instantiated, it should be made available to each controller.', async function (assert) {
@@ -139,7 +139,7 @@ module('integration/application - Using the store as a service', function (hooks
     let secondService = this.owner.lookup('service:second-store');
 
     assert.ok(secondService instanceof Store, 'the store can be used as a service');
-    assert.ok(store !== secondService, 'the store can be used as a service');
+    assert.notStrictEqual(store, secondService, 'the store can be used as a service');
   });
 });
 

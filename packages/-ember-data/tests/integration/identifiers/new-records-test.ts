@@ -23,7 +23,7 @@ module('Integration | Identifiers - creating new records', function (hooks) {
 
   test(`We can peek before create`, async function (assert) {
     let record = store.peekRecord('user', '1');
-    assert.ok(record === null, 'peekRecord returns null');
+    assert.strictEqual(record, null, 'peekRecord returns null');
 
     try {
       record = store.createRecord('user', { name: 'Chris', id: '1' });

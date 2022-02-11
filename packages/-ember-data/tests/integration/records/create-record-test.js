@@ -79,7 +79,7 @@ module('Store.createRecord() coverage', function (hooks) {
     });
 
     // check that we are properly configured
-    assert.ok(pet.get('owner') === chris, 'Precondition: Our owner is Chris');
+    assert.strictEqual(pet.get('owner'), chris, 'Precondition: Our owner is Chris');
 
     let pets = chris
       .get('pets')
@@ -88,7 +88,7 @@ module('Store.createRecord() coverage', function (hooks) {
     assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
 
     pet.unloadRecord();
-    assert.ok(pet.get('owner') === null, 'Shen no longer has an owner');
+    assert.strictEqual(pet.get('owner'), null, 'Shen no longer has an owner');
     // check that the relationship has been dissolved
     pets = chris
       .get('pets')
@@ -119,7 +119,7 @@ module('Store.createRecord() coverage', function (hooks) {
     });
 
     // check that we are properly configured
-    assert.ok(pet.get('owner') === chris, 'Precondition: Our owner is Chris');
+    assert.strictEqual(pet.get('owner'), chris, 'Precondition: Our owner is Chris');
 
     let pets = chris
       .get('pets')
@@ -129,7 +129,7 @@ module('Store.createRecord() coverage', function (hooks) {
 
     chris.unloadRecord();
 
-    assert.ok(pet.get('owner') === null, 'Shen no longer has an owner');
+    assert.strictEqual(pet.get('owner'), null, 'Shen no longer has an owner');
 
     // check that the relationship has been dissolved
     pets = chris
@@ -203,8 +203,8 @@ module('Store.createRecord() coverage', function (hooks) {
     let bestDog = await chris.get('bestDog');
 
     // check that we are properly configured
-    assert.ok(bestHuman === chris, 'Precondition: Shen has bestHuman as Chris');
-    assert.ok(bestDog === shen, 'Precondition: Chris has Shen as his bestDog');
+    assert.strictEqual(bestHuman, chris, 'Precondition: Shen has bestHuman as Chris');
+    assert.strictEqual(bestDog, shen, 'Precondition: Chris has Shen as his bestDog');
 
     await shen.save();
 
@@ -212,7 +212,7 @@ module('Store.createRecord() coverage', function (hooks) {
     bestDog = await chris.get('bestDog');
 
     // check that the relationship has remained established
-    assert.ok(bestHuman === chris, 'Shen bestHuman is still Chris');
-    assert.ok(bestDog === shen, 'Chris still has Shen as bestDog');
+    assert.strictEqual(bestHuman, chris, 'Shen bestHuman is still Chris');
+    assert.strictEqual(bestDog, shen, 'Chris still has Shen as bestDog');
   });
 });

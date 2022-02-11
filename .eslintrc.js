@@ -69,15 +69,11 @@ module.exports = {
     'prefer-const': 'off',
 
     // eslint-plugin-qunit
-    'qunit/assert-args': 'off',
-    'qunit/literal-compare-order': 'off',
-    'qunit/no-identical-names': 'off',
-    'qunit/no-ok-equality': 'off',
     'qunit/no-assert-logical-expression': 'off',
-    'qunit/require-expect': 'off',
-    'qunit/resolve-async': 'off',
-    'qunit/no-early-return': 'off',
     'qunit/no-conditional-assertions': 'off',
+    'qunit/no-early-return': 'off',
+    'qunit/no-identical-names': 'off',
+    'qunit/require-expect': 'off',
   },
   globals: {
     Map: false,

@@ -1117,7 +1117,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let reloadedManyArray = await manyArray.reload();
 
     assert.true(reloadedManyArray.get('isLoaded'), 'the third reload worked, comments are loaded again');
-    assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
+    assert.strictEqual(reloadedManyArray, manyArray, 'the many array stays the same');
     assert.strictEqual(loadingCount, 4, 'We only fired 4 requests');
   });
 
@@ -1449,7 +1449,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       },
     });
     const newComments = await post.get('comments');
-    assert.true(comments === newComments, 'hasMany array was kept the same');
+    assert.strictEqual(comments, newComments, 'hasMany array was kept the same');
     assert.strictEqual(newComments.get('length'), 3, 'comments updated successfully');
     assert.strictEqual(newComments.objectAt(0).get('body'), 'Third', 'third comment loaded successfully');
   });
