@@ -1,4 +1,4 @@
-import settled from '@ember/test-helpers/settled';
+import { settled } from '@ember/test-helpers';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type { Relationship as ImplicitRelationship } from '@ember-data/record-data/-private';

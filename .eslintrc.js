@@ -27,11 +27,16 @@ const ImportSortGroups = [
 ];
 
 module.exports = {
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   root: true,
   parserOptions: {
-    ecmaVersion: 2017,
+    ecmaVersion: 2018,
     sourceType: 'module',
+    babelOptions: {
+      // eslint-disable-next-line node/no-unpublished-require
+      plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
+    },
+    requireConfigFile: false,
   },
   plugins: ['prettier', 'qunit', 'mocha', 'simple-import-sort', 'import'],
   extends: ['eslint:recommended', 'prettier', 'plugin:qunit/recommended'],
@@ -129,6 +134,7 @@ module.exports = {
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'no-unused-vars': 'off',
         'prefer-rest-params': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'off',
         'prefer-const': 'off',
         'ember-data/prefer-static-type-import': 'error',
         // rules we should likely activate but which currently have too many violations

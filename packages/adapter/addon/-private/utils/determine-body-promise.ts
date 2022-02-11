@@ -6,7 +6,7 @@ import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 import type { RequestData } from '../../rest';
 import continueOnReject from './continue-on-reject';
 
-type Payload = Dict<unknown> | unknown[] | string | undefined;
+type Payload = Error | Dict<unknown> | unknown[] | string | undefined;
 
 interface CustomSyntaxError extends SyntaxError {
   payload: Payload;
@@ -19,7 +19,7 @@ interface CustomSyntaxError extends SyntaxError {
  */
 function _determineContent(response: Response, requestData: JQueryAjaxSettings, payload: Payload): Payload {
   let ret: Payload = payload;
-  let error;
+  let error: Error | null = null;
 
   if (!response.ok) {
     return payload;
@@ -48,7 +48,7 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
     ret = JSON.parse(payload as string);
   } catch (e) {
     if (!(e instanceof SyntaxError)) {
-      return e;
+      return e as Error;
     }
     (e as CustomSyntaxError).payload = payload;
     error = e;

@@ -1,6 +1,6 @@
 import EmberObject, { get, observer } from '@ember/object';
 import { run } from '@ember/runloop';
-import settled from '@ember/test-helpers/settled';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import { hash, Promise as EmberPromise } from 'rsvp';

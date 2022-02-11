@@ -712,7 +712,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         await store.findRecord('user', '@runspired');
         assert.ok(false, 'Expected an error to be thrown');
       } catch (e) {
-        assert.strictEqual(e.message, `No record found for the username @runspired`, 'We throw an error');
+        assert.strictEqual((e as Error).message, `No record found for the username @runspired`, 'We throw an error');
       }
     });
   });

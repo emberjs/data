@@ -278,14 +278,14 @@ abstract class CoreStore extends Service {
 
       this._trackedAsyncRequests = [];
       this._trackAsyncRequestStart = (label) => {
-        let trace =
+        let trace: string | Error =
           'set `store.generateStackTracesForTrackedRequests = true;` to get a detailed trace for where this request originated';
 
         if (this.generateStackTracesForTrackedRequests) {
           try {
             throw new Error(`EmberData TrackedRequest: ${label}`);
           } catch (e) {
-            trace = e;
+            trace = e as Error;
           }
         }
 

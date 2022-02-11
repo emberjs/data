@@ -19,7 +19,7 @@
       "packages/unpublished-fastboot-test-app/app/app.ts",
       "packages/unpublished-fastboot-test-app/app/adapters/application.ts",
       "packages/store/types/require/index.d.ts",
-      "packages/store/types/qunit/index.d.ts",
+      "packages/store/types/ember-data-qunit-asserts/index.d.ts",
       "packages/store/types/fastboot/index.d.ts",
       "packages/store/types/ember/index.d.ts",
       "packages/store/types/@glimmer/tracking.d.ts",

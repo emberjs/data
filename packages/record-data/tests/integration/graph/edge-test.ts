@@ -1,4 +1,4 @@
-import settled from '@ember/test-helpers/settled';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
