@@ -1,4 +1,3 @@
-import { identifierCacheFor } from '../identifiers/cache';
 import type { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type CoreStore from './core-store';
 
@@ -39,7 +38,7 @@ export default class NotificationManager {
   constructor(private store: CoreStore) {}
 
   subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
-    let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
+    let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);
     let map = Cache.get(stableIdentifier);
     if (map === undefined) {
       map = new Map();
@@ -54,7 +53,7 @@ export default class NotificationManager {
   notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): boolean;
   notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
   notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {
-    let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
+    let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);
     let callbackMap = Cache.get(stableIdentifier);
     if (!callbackMap || !callbackMap.size) {
       return false;

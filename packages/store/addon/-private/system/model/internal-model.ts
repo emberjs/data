@@ -15,7 +15,6 @@ import type {
 } from '@ember-data/record-data/-private';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
 
-import { identifierCacheFor } from '../../identifiers/cache';
 import { DSModel } from '../../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordData } from '../../ts-interfaces/record-data';
@@ -174,7 +173,7 @@ export default class InternalModel {
   set id(value: string | null) {
     if (value !== this._id) {
       let newIdentifier = { type: this.identifier.type, lid: this.identifier.lid, id: value };
-      identifierCacheFor(this.store).updateRecordIdentifier(this.identifier, newIdentifier);
+      this.store.identifierCache.updateRecordIdentifier(this.identifier, newIdentifier);
       this.notifyPropertyChange('id');
     }
   }
@@ -437,7 +436,7 @@ export default class InternalModel {
   getBelongsTo(key, options) {
     let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     let identifier =
-      resource && resource.data ? identifierCacheFor(this.store).getOrCreateRecordIdentifier(resource.data) : null;
+      resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     if (!relationshipMeta) return;
 

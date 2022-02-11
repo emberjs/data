@@ -149,7 +149,7 @@ interface MixtBuildURLMixin extends BuildURLMixin {
 
     By default, it pluralizes the type's name (for example, 'post'
     becomes 'posts' and 'person' becomes 'people'). To override the
-    pluralization see [pathForType](BuildUrlMixin/methods/pathForType?anchor=pathForType).
+    pluralization see [pathForType](./pathForType?anchor=pathForType).
 
     If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.

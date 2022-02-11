@@ -3,7 +3,6 @@ import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
 import type { IdentifierCache } from '../../identifiers/cache';
-import { identifierCacheFor } from '../../identifiers/cache';
 import type {
   ExistingResourceObject,
   NewResourceIdentifierObject,
@@ -31,15 +30,28 @@ export function peekRecordIdentifier(record: any): StableRecordIdentifier | unde
 }
 
 /**
- * Retrieves the unique referentially-stable RecordIdentifier assigned to the given
- * record instance.
- *
- * @method recordIdentifierFor
- * @public
- * @static
- * @for @ember-data/store
- * @param {Object} record a record instance previously obstained from the store.
- * @returns
+  Retrieves the unique referentially-stable [RecordIdentifier](/ember-data/release/classes/StableRecordIdentifier)
+  assigned to the given record instance.
+
+  ```js
+  import { recordIdentifierFor } from "@ember-data/store";
+
+  // ... gain access to a record, for instance with peekRecord or findRecord
+  const record = store.peekRecord("user", "1");
+
+  // get the identifier for the record (see docs for StableRecordIdentifier)
+  const identifier = recordIdentifierFor(record);
+
+  // access the identifier's properties.
+  const { id, type, lid } = identifier;
+  ```
+
+  @method recordIdentifierFor
+  @public
+  @static
+  @for @ember-data/store
+  @param {Object} record a record instance previously obstained from the store.
+  @returns {StableRecordIdentifier}
  */
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   let identifier = RecordCache.get(record);
@@ -93,7 +105,7 @@ export default class InternalModelFactory {
 
   constructor(store: CoreStore) {
     this.store = store;
-    this.identifierCache = identifierCacheFor(store);
+    this.identifierCache = store.identifierCache;
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
       let intendedIdentifier = identifier;
       if (identifier.id !== matchedIdentifier.id) {

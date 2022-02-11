@@ -5,7 +5,6 @@ import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
-import type CoreStore from '../system/core-store';
 import normalizeModelName from '../system/normalize-model-name';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 import type {
@@ -79,19 +78,6 @@ function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 
     }
   }
   return uuidv4();
-}
-
-const IdentifierCaches = new WeakMap<CoreStore, IdentifierCache>();
-
-export function identifierCacheFor(store: CoreStore): IdentifierCache {
-  let cache = IdentifierCaches.get(store);
-
-  if (cache === undefined) {
-    cache = new IdentifierCache();
-    IdentifierCaches.set(store, cache);
-  }
-
-  return cache;
 }
 
 function defaultEmptyCallback(...args: any[]): any {}

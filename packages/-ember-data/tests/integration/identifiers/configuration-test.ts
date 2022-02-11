@@ -18,7 +18,6 @@ import Store, {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import { identifierCacheFor } from '@ember-data/store/-private';
 import type {
   IdentifierBucket,
   ResourceData,
@@ -28,14 +27,12 @@ import type {
 
 module('Integration | Identifiers - configuration', function (hooks) {
   setupTest(hooks);
-  let store: Store;
 
   hooks.beforeEach(function () {
     const { owner } = this;
 
     owner.register('adapter:application', JSONAPIAdapter.extend());
     owner.register('serializer:application', JSONAPISerializer.extend());
-
     class User extends Model {
       @attr()
       declare firstName: string;
@@ -47,8 +44,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     owner.register('model:user', User);
     owner.register('service:store', Store);
-
-    store = owner.lookup('service:store');
 
     let localIdInc = 9000;
     const generationMethod = (resource: ResourceData | { type: string }) => {
@@ -78,6 +73,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
   });
 
   test(`The configured generation method is used for pushed records`, async function (assert) {
+    const store = this.owner.lookup('service:store');
     const record = store.push({
       data: {
         type: 'user',
@@ -113,6 +109,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierGenerationMethod(generationMethod);
 
+    const store = this.owner.lookup('service:store');
     const newRecord = store.createRecord('user', {
       firstName: 'James',
       username: '@cthoburn',
@@ -169,6 +166,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
+    const store = this.owner.lookup('service:store');
     const record = store.createRecord('user', { firstName: 'Chris', username: '@runspired', age: 31 });
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
@@ -232,6 +230,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
+    const store = this.owner.lookup('service:store');
     const record = store.createRecord('user', { id: '1', firstName: 'Chris', username: '@runspired', age: 31 });
     const identifier = recordIdentifierFor(record);
     assert.strictEqual(
@@ -295,6 +294,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     setIdentifierUpdateMethod(updateMethod);
 
+    const store = this.owner.lookup('service:store');
     const record: any = store.push({
       data: {
         id: '1',
@@ -333,6 +333,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       resetMethodCalled = true;
     });
 
+    const store = this.owner.lookup('service:store');
     run(() => store.destroy());
     assert.ok(resetMethodCalled, 'We called the reset method when the application was torn down');
   });
@@ -381,17 +382,18 @@ module('Integration | Identifiers - configuration', function (hooks) {
       testMethod(identifier);
     });
 
+    const store = this.owner.lookup('service:store');
     const userByUsernamePromise = store.findRecord('user', '@runspired');
     const userByIdPromise = store.findRecord('user', '1');
 
     assert.strictEqual(generateLidCalls, 2, 'We generated two lids');
     generateLidCalls = 0;
 
-    const originalUserByUsernameIdentifier = identifierCacheFor(store).getOrCreateRecordIdentifier({
+    const originalUserByUsernameIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '@runspired',
     });
-    const originalUserByIdIdentifier = identifierCacheFor(store).getOrCreateRecordIdentifier({
+    const originalUserByIdIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
     });
@@ -429,14 +431,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
   });
 
   test(`The forget method is called when a record deletion is fully persisted and the record unloaded`, async function (assert) {
-    const adapter = store.adapterFor('application');
-
-    adapter.deleteRecord = () => {
-      return resolve({
-        data: null,
-      });
-    };
-
     let forgetMethodCalls = 0;
     let expectedIdentifier;
 
@@ -444,7 +438,14 @@ module('Integration | Identifiers - configuration', function (hooks) {
       forgetMethodCalls++;
       assert.ok(expectedIdentifier === identifier, `We forgot the expected identifier ${expectedIdentifier}`);
     });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
+    adapter.deleteRecord = () => {
+      return resolve({
+        data: null,
+      });
+    };
     const user: any = store.push({
       data: {
         type: 'user',
@@ -510,6 +511,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     });
 
     // no retainers
+    const store = this.owner.lookup('service:store');
     const freeWillie: any = store.push({
       data: {
         type: 'user',
