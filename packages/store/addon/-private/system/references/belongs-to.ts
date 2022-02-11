@@ -197,7 +197,6 @@ export default class BelongsToReference extends Reference {
     const jsonApiDoc = await resolve(data);
     let record = this.store.push(jsonApiDoc);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     assertPolymorphicType(
       this.belongsToRelationship.identifier,
       this.belongsToRelationship.definition,
