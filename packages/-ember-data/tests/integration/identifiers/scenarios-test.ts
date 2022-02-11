@@ -34,7 +34,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
   setupTest(hooks);
 
   module('Secondary Cache based on an attribute', function (hooks) {
-    let store;
     let calls;
     let isQuery = false;
     let secondaryCache: {
@@ -91,7 +90,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       owner.register('model:user', User);
       owner.register('service:store', Store);
 
-      store = owner.lookup('service:store');
       calls = {
         findRecord: 0,
         queryRecord: 0,
@@ -170,6 +168,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord id then queryRecord with username`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
@@ -192,6 +191,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       );
     });
     test(`queryRecord with username then findRecord with id`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = await store.findRecord('user', '1');
@@ -214,6 +214,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       );
     });
     test(`queryRecord with username and findRecord with id in parallel`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordByUsernamePromise1 = store.queryRecord('user', { username: '@runspired' });
       const recordByIdPromise = store.findRecord('user', '1');
       const recordByUsernamePromise2 = store.queryRecord('user', { username: '@runspired' });
@@ -247,7 +248,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
   });
 
   module('Secondary Cache using an attribute as an alternate id', function (hooks) {
-    let store;
     let calls;
     let isQuery = false;
     let secondaryCache: ConfidentDict<string>;
@@ -301,7 +301,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       owner.register('model:user', User);
       owner.register('service:store', Store);
 
-      store = owner.lookup('service:store');
       calls = {
         findRecord: 0,
         queryRecord: 0,
@@ -400,6 +399,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord by id then by username as id`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.findRecord('user', '@runspired');
@@ -424,6 +424,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord by username as id then by id`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = await store.findRecord('user', '1');
@@ -448,6 +449,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord username and findRecord id in parallel`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordByUsernamePromise = store.findRecord('user', '@runspired');
       const recordByIdPromise = store.findRecord('user', '1');
 
@@ -485,6 +487,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord by username and again`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordByUsername2 = await store.findRecord('user', '@runspired');
@@ -538,6 +541,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         the "id" position.
     */
     test(`findRecord by username and reload`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordByUsername2 = await store.findRecord('user', '@runspired', { reload: true });
@@ -562,6 +566,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`push id then findRecord username`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordById = store.push({
         data: {
           type: 'user',
@@ -596,6 +601,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord username then push id`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = store.push({
@@ -629,6 +635,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`secondary-key mutation`, async function (assert) {
+      const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
       let hasSaved = false;
 

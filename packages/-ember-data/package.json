@@ -82,7 +82,7 @@
     "json-typescript": "^1.1.0",
     "loader.js": "^4.7.0",
     "pretender": "^3.4.3",
-    "qunit": "^2.15.0",
+    "qunit": "^2.17.0",
     "qunit-dom": "^2.0.0",
     "typescript": "~4.3.2",
     "webpack": "^5.37.1"

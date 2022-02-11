@@ -7301,7 +7301,8 @@ eslint-module-utils@^2.7.2:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "4.2.0-alpha.7"
+  version "0.0.0"
+  uid ""
 
 eslint-plugin-ember@^10.3.0, eslint-plugin-ember@^10.4.1:
   version "10.5.8"
@@ -12548,7 +12549,7 @@ qunit-dom@^2.0.0:
     ember-cli-babel "^7.23.0"
     ember-cli-version-checker "^5.1.1"
 
-qunit@^2.15.0:
+qunit@^2.17.0:
   version "2.17.2"
   resolved "https://registry.npmjs.org/qunit/-/qunit-2.17.2.tgz#5cb278e131d931f25c109a0fdb0518be7754c25a"
   integrity sha512-17isVvuOmALzsPjiV7wFg/6O5vJYXBrQZPwocfQSSh0I/rXvfX7bKMFJ4GMVW3U4P8r2mBeUy8EAngti4QD2Vw==
@@ -14265,7 +14266,7 @@ testdouble@^3.2.6:
     stringify-object-es5 "^2.5.0"
     theredoc "^1.0.0"
 
-testem@^3.0.3, testem@^3.2.0:
+testem@^3.2.0, testem@^3.6.0:
   version "3.6.0"
   resolved "https://registry.npmjs.org/testem/-/testem-3.6.0.tgz#bf5c86944bafd035c18f41f520195cce5eef33a8"
   integrity sha512-sXwx2IlOadOhrKf0hsV1Yt/yuYhdfrtJ4dpp7T6pFN62GjMyKifjAv2SFm+4zYHee1JwxheO7JUL0+3iN0rlHw==
