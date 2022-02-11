@@ -64,7 +64,13 @@ export default class Snapshot implements Snapshot {
     let internalModel = (this._internalModel = _store._internalModelForResource(identifier));
     this.modelName = identifier.type;
 
-    // TODO add public docs once this FF is on
+    /**
+      The unique RecordIdentifier associated with this Snapshot.
+
+      @property identifier
+      @public
+      @type {StableRecordIdentifier}
+    */
     this.identifier = identifier;
 
     /*

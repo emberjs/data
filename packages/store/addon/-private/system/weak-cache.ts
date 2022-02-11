@@ -2,10 +2,6 @@ import { DEBUG } from '@glimmer/env';
 
 import { DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
 
-/**
-  @module @ember-data/store
-*/
-
 /*
   DEBUG only fields. Keeping this in a separate interface
   which Typescript then merges with the class definition allow us to
