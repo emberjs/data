@@ -105,7 +105,11 @@ class DebugWeakCache<K extends object, V> extends WeakCache<K, V> {
       if (obj[DEBUG_IDENTIFIER_BUCKET] && this._fieldName !== 'identifier-proxy-target') {
         const target: K = obj[DebugWeakCache._debugTargetProp as unknown as string] as K;
         target[this._symbol as unknown as string] = value;
-      } else {
+        // TODO the Proxy check here is entirely for ember-m3
+        // as it's attribute access tests fail since the symbol
+        // is an unexpected key received by it's proxies.
+        // we should address this upstream.
+      } else if (!(obj instanceof Proxy)) {
         try {
           obj[this._symbol as unknown as string] = value;
         } catch {
