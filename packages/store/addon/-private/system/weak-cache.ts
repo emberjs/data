@@ -78,7 +78,12 @@ class WeakCache<K extends object, V> extends WeakMap<K, V> {
       super.set(obj, v);
 
       if (DEBUG) {
-        obj[this._symbol as unknown as string] = v;
+        if (obj[DEBUG_IDENTIFIER_BUCKET] && this._fieldName !== 'identifier-proxy-target') {
+          const target: K = obj[DebugWeakCache._debugTargetProp as unknown as string] as K;
+          target[this._symbol as unknown as string] = v;
+        } else {
+          obj[this._symbol as unknown as string] = v;
+        }
       }
     }
 
