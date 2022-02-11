@@ -28,6 +28,16 @@ import updateRelationshipOperation from './operations/update-relationship';
 type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
 const Graphs = new WeakCache<RecordDataStoreWrapper, Graph>(DEBUG ? 'graph' : '');
+Graphs._generator = (wrapper: RecordDataStoreWrapper) => {
+  const graph = new Graph(wrapper);
+
+  // in DEBUG we attach the graph to the main store for improved debuggability
+  if (DEBUG) {
+    Graphs.set(wrapper._store as unknown as RecordDataStoreWrapper, graph);
+  }
+
+  return graph;
+};
 
 function isStore(maybeStore: unknown): maybeStore is Store {
   return (maybeStore as Store)._storeWrapper !== undefined;
@@ -42,18 +52,7 @@ export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefi
 }
 
 export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
-  const wrapper = getWrapper(store);
-  let graph = Graphs.get(wrapper);
-  if (graph === undefined) {
-    graph = new Graph(wrapper);
-    Graphs.set(wrapper, graph);
-
-    // in DEBUG we attach the graph to the main store for improved debuggability
-    if (DEBUG) {
-      Graphs.set(wrapper._store as unknown as RecordDataStoreWrapper, graph);
-    }
-  }
-  return graph;
+  return Graphs.lookup(getWrapper(store));
 }
 
 /*

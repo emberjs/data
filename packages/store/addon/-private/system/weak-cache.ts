@@ -1,6 +1,5 @@
 import { DEBUG } from '@glimmer/env';
 
-import { DEBUG_MAP } from '../identifiers/cache';
 import { DEBUG_IDENTIFIER_BUCKET } from '../ts-interfaces/identifier';
 
 /**
@@ -93,8 +92,8 @@ class DebugWeakCache<K extends object, V> extends WeakCache<K, V> {
       throw new Error(`${Object.prototype.toString.call(obj)} was already assigned a value for ${this._fieldName}`);
     }
     if (DEBUG) {
-      if (obj[DEBUG_IDENTIFIER_BUCKET] && DEBUG_MAP !== this) {
-        const target = (DEBUG_MAP as WeakCache<K, K>).get(obj) as K;
+      if (obj[DEBUG_IDENTIFIER_BUCKET] && this._fieldName !== 'identifier-proxy-target') {
+        const target: K = obj[DebugWeakCache._debugTargetProp as unknown as string] as K;
         target[this._symbol as unknown as string] = value;
       } else {
         obj[this._symbol as unknown as string] = value;
@@ -102,6 +101,7 @@ class DebugWeakCache<K extends object, V> extends WeakCache<K, V> {
     }
     return super.set(obj, value);
   }
+  static _debugTargetProp: Symbol;
 }
-
+export type { DebugWeakCache };
 export default DEBUG ? DebugWeakCache : WeakCache;

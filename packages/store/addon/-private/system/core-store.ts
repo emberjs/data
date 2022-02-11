@@ -253,6 +253,10 @@ abstract class CoreStore extends Service {
   constructor() {
     super(...arguments);
 
+    RECORD_REFERENCES._generator = (identifier) => {
+      return new RecordReference(this, identifier);
+    };
+
     this._fetchManager = new FetchManager(this);
     this._notificationManager = new NotificationManager(this);
     this.__recordDataFor = this.__recordDataFor.bind(this);
@@ -1283,13 +1287,7 @@ abstract class CoreStore extends Service {
 
     let identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
     if (identifier) {
-      if (RECORD_REFERENCES.has(identifier)) {
-        return RECORD_REFERENCES.get(identifier);
-      }
-
-      let reference = new RecordReference(this, identifier);
-      RECORD_REFERENCES.set(identifier, reference);
-      return reference;
+      return RECORD_REFERENCES.lookup(identifier);
     }
   }
 

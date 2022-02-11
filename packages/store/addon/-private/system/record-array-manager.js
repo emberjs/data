@@ -14,16 +14,9 @@ import { internalModelFactoryFor } from './store/internal-model-factory';
 import WeakCache from './weak-cache';
 
 const RecordArraysCache = new WeakCache(DEBUG ? 'record-arrays' : '');
-
+RecordArraysCache._generator = () => new Set();
 export function recordArraysForIdentifier(identifierOrInternalModel) {
-  if (RecordArraysCache.has(identifierOrInternalModel)) {
-    // return existing Set if exists
-    return RecordArraysCache.get(identifierOrInternalModel);
-  }
-
-  // returns workable Set instance
-  RecordArraysCache.set(identifierOrInternalModel, new Set());
-  return RecordArraysCache.get(identifierOrInternalModel);
+  return RecordArraysCache.lookup(identifierOrInternalModel);
 }
 
 const pendingForIdentifier = new Set([]);
