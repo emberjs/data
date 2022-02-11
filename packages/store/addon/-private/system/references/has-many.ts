@@ -35,10 +35,10 @@ export default class HasManyReference extends Reference {
   declare hasManyRelationship: ManyRelationship;
   declare type: string;
   declare parent: RecordReference;
-  declare parentIdentifier: StableRecordIdentifier;
 
   // unsubscribe tokens given to us by the notification manager
   #token!: Object;
+  #identifier: StableRecordIdentifier;
   #relatedTokenMap!: Map<StableRecordIdentifier, Object>;
 
   @tracked _ref = 0;
@@ -55,7 +55,7 @@ export default class HasManyReference extends Reference {
     this.type = hasManyRelationship.definition.type;
 
     this.parent = internalModelFactoryFor(store).peek(parentIdentifier)!.recordReference;
-
+    this.#identifier = parentIdentifier;
     this.#token = store._notificationManager.subscribe(
       parentIdentifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
@@ -260,7 +260,7 @@ export default class HasManyReference extends Reference {
       array = payload as ExistingResourceObject[];
     }
 
-    const internalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier)!;
+    const internalModel = internalModelFactoryFor(this.store).peek(this.#identifier)!;
     const { store } = this;
 
     let identifiers = array.map((obj) => {
@@ -351,7 +351,7 @@ export default class HasManyReference extends Reference {
    @return {ManyArray}
    */
   value() {
-    const internalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier)!;
+    const internalModel = internalModelFactoryFor(this.store).peek(this.#identifier)!;
     if (this._isLoaded()) {
       return internalModel.getManyArray(this.key);
     }
@@ -424,7 +424,7 @@ export default class HasManyReference extends Reference {
    this has-many relationship.
    */
   load(options) {
-    const internalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier)!;
+    const internalModel = internalModelFactoryFor(this.store).peek(this.#identifier)!;
     return internalModel.getHasMany(this.key, options);
   }
 
@@ -479,7 +479,7 @@ export default class HasManyReference extends Reference {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
   reload(options) {
-    const internalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier)!;
+    const internalModel = internalModelFactoryFor(this.store).peek(this.#identifier)!;
     return internalModel.reloadHasMany(this.key, options);
   }
 }
