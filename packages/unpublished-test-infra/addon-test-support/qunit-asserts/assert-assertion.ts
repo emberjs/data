@@ -2,6 +2,8 @@ import { DEBUG } from '@glimmer/env';
 
 import QUnit from 'qunit';
 
+import type Assert from 'ember-data-qunit-asserts';
+
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';
 
@@ -46,12 +48,9 @@ export function configureAssertionHandler() {
     throw new Error(`Attempting to re-register the assert-assertion handler`);
   }
   HAS_REGISTERED = true;
+  const assert: Assert = QUnit.assert;
 
-  QUnit.assert.expectAssertion = async function (
-    cb: () => unknown,
-    matcher: string | RegExp,
-    label?: string
-  ): Promise<void> {
+  assert.expectAssertion = async function (cb: () => unknown, matcher: string | RegExp, label?: string): Promise<void> {
     let outcome;
 
     try {
@@ -61,7 +60,7 @@ export function configureAssertionHandler() {
       }
       outcome = verifyAssertion('', matcher, label);
     } catch (e) {
-      outcome = verifyAssertion(e.message, matcher, label);
+      outcome = verifyAssertion((e as Error).message, matcher, label);
     }
 
     if (!DEBUG) {
@@ -76,7 +75,7 @@ export function configureAssertionHandler() {
     this.pushResult(outcome);
   };
 
-  QUnit.assert.expectNoAssertion = async function (cb: () => unknown, label?: string) {
+  assert.expectNoAssertion = async function (cb: () => unknown, label?: string) {
     let outcome;
     try {
       let result = cb();
@@ -85,7 +84,7 @@ export function configureAssertionHandler() {
       }
       outcome = verifyNoAssertion('', label);
     } catch (e) {
-      outcome = verifyNoAssertion(e.message, label);
+      outcome = verifyNoAssertion((e as Error).message, label);
     }
 
     if (!DEBUG) {

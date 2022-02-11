@@ -29,7 +29,7 @@ import AdapterError, {
 } from './error';
 import Adapter, { BuildURLMixin } from './index';
 
-type Payload = Dict<unknown> | unknown[] | string | undefined;
+type Payload = Error | Dict<unknown> | unknown[] | string | undefined;
 
 type QueryState = {
   include?: unknown;
@@ -1221,7 +1221,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
         } catch (fbError) {
           throw new Error(
             'You are using Ember Data with no host defined in your adapter. This will attempt to use the host of the FastBoot request, which is not configured for the current host of this request. Please set the hostWhitelist property for in your environment.js. FastBoot Error: ' +
-              fbError.message
+              (fbError as Error).message
           );
         }
       }
@@ -1304,8 +1304,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
   /**
     Used by `findAll` and `findRecord` to build the query's `data` hash
-    supplied to the ajax method. 
-   
+    supplied to the ajax method.
+
     @method buildQuery
     @since 2.5.0
     @public

@@ -40,4 +40,4 @@ declare global {
   }
 }
 
-export = QUnit;
+export default Assert;
