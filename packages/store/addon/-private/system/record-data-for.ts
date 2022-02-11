@@ -1,7 +1,9 @@
 import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordData } from '../ts-interfaces/record-data';
+import WeakCache from './weak-cache';
 
 /*
  * Returns the RecordData instance associated with a given
@@ -25,14 +27,14 @@ type Reference = { internalModel: InternalModel };
 
 type Instance = StableRecordIdentifier | InternalModel | RecordData | DSModelOrSnapshot | Reference;
 
-const RecordDataForIdentifierCache = new WeakMap<StableRecordIdentifier, RecordData>();
+const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier, RecordData>(DEBUG ? 'recordData' : '');
 
-export function setRecordDataFor(identifier: StableRecordIdentifier, recordData: RecordData) {
+export function setRecordDataFor(identifier: StableRecordIdentifier, recordData: RecordData): void {
   assert(`Illegal set of identifier`, !RecordDataForIdentifierCache.has(identifier));
   RecordDataForIdentifierCache.set(identifier, recordData);
 }
 
-export function removeRecordDataFor(identifier) {
+export function removeRecordDataFor(identifier: StableRecordIdentifier): void {
   RecordDataForIdentifierCache.delete(identifier);
 }
 

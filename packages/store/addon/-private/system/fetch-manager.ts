@@ -20,6 +20,7 @@ import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
+import WeakCache from './weak-cache';
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -455,7 +456,7 @@ export default class FetchManager {
     let identifiers = new Array(totalItems);
     let seeking: { [id: string]: PendingFetchItem } = Object.create(null);
 
-    let optionsMap = new WeakMap<RecordIdentifier, Dict<unknown>>();
+    let optionsMap = new WeakCache<RecordIdentifier, Dict<unknown>>(DEBUG ? 'fetch-options' : '');
 
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];

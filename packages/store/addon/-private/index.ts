@@ -35,3 +35,5 @@ export { default as SnapshotRecordArray } from './system/snapshot-record-array';
 // New
 export { default as recordDataFor, removeRecordDataFor } from './system/record-data-for';
 export { default as RecordDataStoreWrapper } from './system/store/record-data-store-wrapper';
+
+export { default as WeakCache } from './system/weak-cache';

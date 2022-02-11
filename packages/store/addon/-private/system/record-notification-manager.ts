@@ -1,10 +1,15 @@
+import { DEBUG } from '@glimmer/env';
+
 import type { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type CoreStore from './core-store';
+import WeakCache from './weak-cache';
 
 type UnsubscribeToken = Object;
 
-const Cache = new WeakMap<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>();
-const Tokens = new WeakMap<UnsubscribeToken, StableRecordIdentifier>();
+const Cache = new WeakCache<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>(
+  DEBUG ? 'subscribers' : ''
+);
+const Tokens = new WeakCache<UnsubscribeToken, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
 
 export type NotificationType =
   | 'attributes'

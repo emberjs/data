@@ -15,15 +15,22 @@ import type CoreStore from '../core-store';
 import IdentityMap from '../identity-map';
 import type InternalModelMap from '../internal-model-map';
 import InternalModel from '../model/internal-model';
+import WeakCache from '../weak-cache';
 
 /**
   @module @ember-data/store
 */
 
-const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
+const FactoryCache = new WeakCache<CoreStore, InternalModelFactory>(DEBUG ? 'internal-model-factory' : '');
+FactoryCache._generator = (store: CoreStore) => {
+  return new InternalModelFactory(store);
+};
 type NewResourceInfo = { type: string; id: string | null };
 
-const RecordCache = new WeakMap<RecordInstance, StableRecordIdentifier>();
+const RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
+if (DEBUG) {
+  RecordCache._expectMsg = (key: RecordInstance) => `${key} is not a record instantiated by @ember-data/store`;
+}
 
 export function peekRecordIdentifier(record: any): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
@@ -54,13 +61,7 @@ export function peekRecordIdentifier(record: any): StableRecordIdentifier | unde
   @returns {StableRecordIdentifier}
  */
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
-  let identifier = RecordCache.get(record);
-
-  if (DEBUG && identifier === undefined) {
-    throw new Error(`${record} is not a record instantiated by @ember-data/store`);
-  }
-
-  return identifier as StableRecordIdentifier;
+  return RecordCache.getWithError(record);
 }
 
 export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
@@ -80,14 +81,7 @@ export function setRecordIdentifier(record: RecordInstance, identifier: StableRe
 }
 
 export function internalModelFactoryFor(store: CoreStore): InternalModelFactory {
-  let factory = FactoryCache.get(store);
-
-  if (factory === undefined) {
-    factory = new InternalModelFactory(store);
-    FactoryCache.set(store, factory);
-  }
-
-  return factory;
+  return FactoryCache.lookup(store);
 }
 
 /**

@@ -8,8 +8,8 @@ import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type CoreStore from '../core-store';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
-import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
-
+import { internalModelFactoryFor } from '../store/internal-model-factory';
+import Reference from './reference';
 /**
   @module @ember-data/store
 */
@@ -25,11 +25,13 @@ import Reference, { internalModelForReference, REFERENCE_CACHE } from './referen
 export default class RecordReference extends Reference {
   // unsubscribe token given to us by the notification manager
   #token!: Object;
+  #identifier;
 
   @tracked _ref = 0;
 
   constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
     super(store, identifier);
+    this.#identifier = identifier;
     this.#token = store._notificationManager.subscribe(
       identifier,
       (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
@@ -101,7 +103,7 @@ export default class RecordReference extends Reference {
      @return {String} The identifier of the record.
   */
   identifier(): StableRecordIdentifier {
-    return REFERENCE_CACHE.get(this) as StableRecordIdentifier;
+    return this.#identifier;
   }
 
   /**
@@ -189,7 +191,7 @@ export default class RecordReference extends Reference {
   */
   value(): RecordInstance | null {
     if (this.id() !== null) {
-      let internalModel = internalModelForReference(this);
+      let internalModel = internalModelFactoryFor(this.store).peek(this.#identifier);
       if (internalModel && internalModel.currentState.isLoaded) {
         return internalModel.getRecord();
       }

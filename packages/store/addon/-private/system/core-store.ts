@@ -77,6 +77,7 @@ import {
   setRecordIdentifier,
 } from './store/internal-model-factory';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
+import WeakCache from './weak-cache';
 
 type RecordDataConstruct = typeof RecordDataClass;
 let _RecordData: RecordDataConstruct | undefined;
@@ -85,7 +86,7 @@ const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
 type PromiseArray<T> = Promise<T[]>;
 
-const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
+const RECORD_REFERENCES = new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : '');
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {

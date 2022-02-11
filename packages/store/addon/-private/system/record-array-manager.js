@@ -6,12 +6,14 @@ import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import { get, set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
+import { DEBUG } from '@glimmer/env';
 
 import isStableIdentifier from '../identifiers/is-stable-identifier';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import { internalModelFactoryFor } from './store/internal-model-factory';
+import WeakCache from './weak-cache';
 
-const RecordArraysCache = new WeakMap();
+const RecordArraysCache = new WeakCache(DEBUG ? 'record-arrays' : '');
 
 export function recordArraysForIdentifier(identifierOrInternalModel) {
   if (RecordArraysCache.has(identifierOrInternalModel)) {

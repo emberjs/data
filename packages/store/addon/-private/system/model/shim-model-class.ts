@@ -1,9 +1,12 @@
+import { DEBUG } from '@glimmer/env';
+
 import { ModelSchema } from '../../ts-interfaces/ds-model';
 import type { AttributeSchema, RelationshipSchema } from '../../ts-interfaces/record-data-schemas';
 import type { Dict } from '../../ts-interfaces/utils';
 import type CoreStore from '../core-store';
+import WeakCache from '../weak-cache';
 
-const AvailableShims = new WeakMap<CoreStore, Dict<ShimModelClass>>();
+const AvailableShims = new WeakCache<CoreStore, Dict<ShimModelClass>>(DEBUG ? 'schema-shims' : '');
 
 export function getShimClass(store: CoreStore, modelName: string): ShimModelClass {
   let shims = AvailableShims.get(store);
