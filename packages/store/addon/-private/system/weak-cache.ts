@@ -106,7 +106,12 @@ class DebugWeakCache<K extends object, V> extends WeakCache<K, V> {
         const target: K = obj[DebugWeakCache._debugTargetProp as unknown as string] as K;
         target[this._symbol as unknown as string] = value;
       } else {
-        obj[this._symbol as unknown as string] = value;
+        try {
+          obj[this._symbol as unknown as string] = value;
+        } catch {
+          // some keys are proxies that can't accept symbol values
+          // for instance records from ember-m3
+        }
       }
     }
     return super.set(obj, value);
