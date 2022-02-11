@@ -6,6 +6,7 @@ import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
 import normalizeModelName from '../system/normalize-model-name';
+import WeakCache from '../system/weak-cache';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '../ts-interfaces/ember-data-json-api';
 import type {
   ForgetMethod,
@@ -84,7 +85,7 @@ function defaultEmptyCallback(...args: any[]): any {}
 
 let DEBUG_MAP;
 if (DEBUG) {
-  DEBUG_MAP = new WeakMap<StableRecordIdentifier, StableRecordIdentifier>();
+  DEBUG_MAP = new WeakCache<StableRecordIdentifier, StableRecordIdentifier>('identifier-proxy-target');
 }
 
 /**
@@ -497,9 +498,9 @@ function makeStableRecordIdentifier(
     };
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
     wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
-    wrapper = freeze(wrapper);
     markStableIdentifier(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);
+    wrapper = freeze(wrapper);
     return wrapper;
   }
 

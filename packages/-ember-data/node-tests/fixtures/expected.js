@@ -350,6 +350,7 @@ module.exports = {
     '(public) @ember-data/store Snapshot#eachRelationship',
     '(public) @ember-data/store Snapshot#hasMany',
     '(public) @ember-data/store Snapshot#id',
+    '(public) @ember-data/store Snapshot#identifier',
     '(public) @ember-data/store Snapshot#include',
     '(public) @ember-data/store Snapshot#modelName',
     '(public) @ember-data/store Snapshot#record',

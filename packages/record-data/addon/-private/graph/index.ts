@@ -2,6 +2,7 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
+import { WeakCache } from '@ember-data/store/-private';
 import type Store from '@ember-data/store/-private/system/core-store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
@@ -26,7 +27,17 @@ import updateRelationshipOperation from './operations/update-relationship';
 
 type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
-const Graphs = new WeakMap<RecordDataStoreWrapper, Graph>();
+const Graphs = new WeakCache<RecordDataStoreWrapper, Graph>(DEBUG ? 'graph' : '');
+Graphs._generator = (wrapper: RecordDataStoreWrapper) => {
+  const graph = new Graph(wrapper);
+
+  // in DEBUG we attach the graph to the main store for improved debuggability
+  if (DEBUG) {
+    Graphs.set(wrapper._store as unknown as RecordDataStoreWrapper, graph);
+  }
+
+  return graph;
+};
 
 function isStore(maybeStore: unknown): maybeStore is Store {
   return (maybeStore as Store)._storeWrapper !== undefined;
@@ -41,13 +52,7 @@ export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefi
 }
 
 export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
-  const wrapper = getWrapper(store);
-  let graph = Graphs.get(wrapper);
-  if (graph === undefined) {
-    graph = new Graph(wrapper);
-    Graphs.set(wrapper, graph);
-  }
-  return graph;
+  return Graphs.lookup(getWrapper(store));
 }
 
 /*
@@ -159,7 +164,7 @@ export class Graph {
    TODO move this comment somewhere else
    implicit relationships are relationships which have not been declared but the inverse side exists on
    another record somewhere
-   
+
    For example if there was:
 
    ```app/models/comment.js
@@ -362,6 +367,10 @@ export class Graph {
 
   destroy() {
     Graphs.delete(this.store);
+
+    if (DEBUG) {
+      Graphs.delete(this.store._store as unknown as RecordDataStoreWrapper);
+    }
   }
 }
 

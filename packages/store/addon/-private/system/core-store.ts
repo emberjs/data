@@ -77,6 +77,7 @@ import {
   setRecordIdentifier,
 } from './store/internal-model-factory';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
+import WeakCache from './weak-cache';
 
 type RecordDataConstruct = typeof RecordDataClass;
 let _RecordData: RecordDataConstruct | undefined;
@@ -85,7 +86,7 @@ const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
 type PromiseArray<T> = Promise<T[]>;
 
-const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
+const RECORD_REFERENCES = new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : '');
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
@@ -251,6 +252,10 @@ abstract class CoreStore extends Service {
   */
   constructor() {
     super(...arguments);
+
+    RECORD_REFERENCES._generator = (identifier) => {
+      return new RecordReference(this, identifier);
+    };
 
     this._fetchManager = new FetchManager(this);
     this._notificationManager = new NotificationManager(this);
@@ -1282,13 +1287,7 @@ abstract class CoreStore extends Service {
 
     let identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
     if (identifier) {
-      if (RECORD_REFERENCES.has(identifier)) {
-        return RECORD_REFERENCES.get(identifier);
-      }
-
-      let reference = new RecordReference(this, identifier);
-      RECORD_REFERENCES.set(identifier, reference);
-      return reference;
+      return RECORD_REFERENCES.lookup(identifier);
     }
   }
 

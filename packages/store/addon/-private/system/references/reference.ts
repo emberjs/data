@@ -5,9 +5,6 @@ import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
 import type { Dict } from '../../ts-interfaces/utils';
 import type CoreStore from '../core-store';
-import type InternalModel from '../model/internal-model';
-import { internalModelFactoryFor } from '../store/internal-model-factory';
-
 /**
   @module @ember-data/store
 */
@@ -25,12 +22,6 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-export const REFERENCE_CACHE = new WeakMap<Reference, StableRecordIdentifier>();
-
-export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
-  return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
-}
-
 /**
   This is the baseClass for the different References
   like RecordReference/HasManyReference/BelongsToReference
@@ -42,12 +33,14 @@ interface Reference {
   links(): PaginationLinks | null;
 }
 abstract class Reference {
+  #identifier: StableRecordIdentifier;
+
   constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
-    REFERENCE_CACHE.set(this, identifier);
+    this.#identifier = identifier;
   }
 
   get recordData() {
-    return this.store.recordDataFor(REFERENCE_CACHE.get(this) as StableRecordIdentifier, false);
+    return this.store.recordDataFor(this.#identifier, false);
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
