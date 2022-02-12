@@ -155,7 +155,7 @@ export default class Snapshot implements Snapshot {
     }
     let record = this.record;
     let attributes = (this.__attributes = Object.create(null));
-    let attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, this.identifier));
+    let attrs = Object.keys(this._store._attributesDefinitionFor(this.identifier));
     attrs.forEach((keyName) => {
       if (schemaIsDSModel(this.type)) {
         // if the schema is for a DSModel then the instance is too
@@ -478,7 +478,7 @@ export default class Snapshot implements Snapshot {
     @public
   */
   eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
-    let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.identifier);
+    let attrDefs = this._store._attributesDefinitionFor(this.identifier);
     Object.keys(attrDefs).forEach((key) => {
       callback.call(binding, key, attrDefs[key] as AttributeSchema);
     });
@@ -502,7 +502,7 @@ export default class Snapshot implements Snapshot {
     @public
   */
   eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
-    let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.identifier);
+    let relationshipDefs = this._store._relationshipsDefinitionFor(this.identifier);
     Object.keys(relationshipDefs).forEach((key) => {
       callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
     });
