@@ -12,6 +12,7 @@ import { DEBUG } from '@glimmer/env';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
+import { DS_MODEL_SAVE_PROMISE } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import { coerceId, errorsArrayToHash, InternalModel, PromiseObject, recordDataFor } from '@ember-data/store/-private';
 
@@ -846,9 +847,13 @@ class Model extends EmberObject {
     successfully or rejected if the adapter returns with an error.
   */
   save(options) {
-    return PromiseObject.create({
-      promise: this._internalModel.save(options).then(() => this),
-    });
+    if (DS_MODEL_SAVE_PROMISE) {
+      return this._internalModel.save(options);
+    } else {
+      return PromiseObject.create({
+        promise: this._internalModel.save(options).then(() => this),
+      });
+    }
   }
 
   /**

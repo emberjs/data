@@ -171,6 +171,7 @@
 */
 export default {
   SAMPLE_FEATURE_FLAG: null,
+  DS_MODEL_SAVE_PROMISE: null,
   RECORD_DATA_ERRORS: true,
   RECORD_DATA_STATE: true,
   REQUEST_SERVICE: true,
