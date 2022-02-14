@@ -151,7 +151,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store');
     let schema: SchemaDefinitionService = {
-      attributesDefinitionFor(modelName: string): AttributesSchema {
+      attributesDefinitionFor({ type: string }): AttributesSchema {
         return {
           name: {
             type: 'string',
@@ -161,7 +161,7 @@ module('unit/model - Custom Class Model', function (hooks) {
           },
         };
       },
-      relationshipsDefinitionFor(modelName: string): RelationshipsSchema {
+      relationshipsDefinitionFor({ type: string }): RelationshipsSchema {
         return {};
       },
       doesTypeExist() {
@@ -233,7 +233,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store');
     let schema: SchemaDefinitionService = {
-      attributesDefinitionFor(identifier: string | RecordIdentifier): AttributesSchema {
+      attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         if (typeof identifier === 'string') {
           assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
         } else {
@@ -254,7 +254,7 @@ module('unit/model - Custom Class Model', function (hooks) {
           },
         };
       },
-      relationshipsDefinitionFor(identifier: string | RecordIdentifier): RelationshipsSchema {
+      relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
         if (typeof identifier === 'string') {
           assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
         } else {
@@ -385,7 +385,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store');
     let schema: SchemaDefinitionService = {
-      attributesDefinitionFor(identifier: string | RecordIdentifier): AttributesSchema {
+      attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
           return {
@@ -409,7 +409,7 @@ module('unit/model - Custom Class Model', function (hooks) {
           return {};
         }
       },
-      relationshipsDefinitionFor(identifier: string | RecordIdentifier): RelationshipsSchema {
+      relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
           return {
@@ -469,7 +469,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store');
     let schema: SchemaDefinitionService = {
-      attributesDefinitionFor(modelName: string): AttributesSchema {
+      attributesDefinitionFor({ type: modelName }: { type: string }): AttributesSchema {
         if (modelName === 'person') {
           return {
             name: {
@@ -492,7 +492,7 @@ module('unit/model - Custom Class Model', function (hooks) {
           return {};
         }
       },
-      relationshipsDefinitionFor(modelName: string): RelationshipsSchema {
+      relationshipsDefinitionFor({ type: modelName }: { type: string }): RelationshipsSchema {
         if (modelName === 'person') {
           return {
             house: {
@@ -541,7 +541,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store');
     let schema: SchemaDefinitionService = {
-      attributesDefinitionFor(modelName: string): AttributesSchema {
+      attributesDefinitionFor({ type: modelName }: { type: string }): AttributesSchema {
         if (modelName === 'person') {
           return {
             name: {
@@ -564,7 +564,7 @@ module('unit/model - Custom Class Model', function (hooks) {
           return {};
         }
       },
-      relationshipsDefinitionFor(modelName: string): RelationshipsSchema {
+      relationshipsDefinitionFor({ type: modelName }: { type: string }): RelationshipsSchema {
         if (modelName === 'person') {
           return {
             house: {

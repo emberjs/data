@@ -349,7 +349,7 @@ abstract class CoreStore extends Service {
       }
 
       // convert relationship Records to RecordDatas before passing to RecordData
-      let defs = this._relationshipsDefinitionFor(modelName);
+      let defs = this._relationshipsDefinitionFor({ type: modelName });
 
       if (defs !== null) {
         let keys = Object.keys(properties);
@@ -398,20 +398,12 @@ abstract class CoreStore extends Service {
   }
 
   // FeatureFlagged in the DSModelStore claas
-  _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): AttributesSchema {
-    if (identifier) {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-    } else {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
-    }
+  _attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+    return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
   }
 
-  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
-    if (identifier) {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-    } else {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
-    }
+  _relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }) {
+    return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
   }
 
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {
@@ -424,7 +416,7 @@ abstract class CoreStore extends Service {
 
   // TODO Double check this return value is correct
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    return this._relationshipsDefinitionFor(modelName)[key];
+    return this._relationshipsDefinitionFor({ type: modelName })[key];
   }
 
   /**

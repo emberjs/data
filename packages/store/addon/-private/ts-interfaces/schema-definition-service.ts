@@ -7,6 +7,6 @@ import type { AttributesSchema, RelationshipsSchema } from './record-data-schema
 
 export interface SchemaDefinitionService {
   doesTypeExist(modelName: string): boolean;
-  attributesDefinitionFor(identifier: RecordIdentifier | string): AttributesSchema;
-  relationshipsDefinitionFor(identifier: RecordIdentifier | string): RelationshipsSchema;
+  attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema;
+  relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema;
 }
