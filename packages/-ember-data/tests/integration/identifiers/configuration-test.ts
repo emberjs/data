@@ -508,7 +508,9 @@ module('Integration | Identifiers - configuration', function (hooks) {
     setIdentifierForgetMethod((identifier) => {
       forgetMethodCalls++;
       let expectedIdentifier = expectedIdentifiers.shift();
-      assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
+      if (expectedIdentifier) {
+        assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
+      }
     });
 
     // no retainers
