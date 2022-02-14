@@ -88,3 +88,5 @@ export function promiseArray(promise, label) {
     promise: Promise.resolve(promise, label),
   });
 }
+
+export let DeprecatedPromiseObject = {};// new Proxy()
