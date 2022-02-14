@@ -7,7 +7,7 @@ import { DEBUG } from '@glimmer/env';
 import type DSModelClass from '@ember-data/model';
 
 import type { DSModel } from '../ts-interfaces/ds-model';
-import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
 import type { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
@@ -105,23 +105,15 @@ class Store extends CoreStore {
   }
 
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    return this._relationshipsDefinitionFor(modelName)[key];
+    return this._relationshipsDefinitionFor({ type: modelName })[key];
   }
 
-  _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
-    if (identifier) {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-    } else {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
-    }
+  _attributesDefinitionFor(identifier: RecordIdentifier | { type: string }) {
+    return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
   }
 
-  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): RelationshipsSchema {
-    if (identifier) {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-    } else {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
-    }
+  _relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+    return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {

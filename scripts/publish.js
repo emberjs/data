@@ -1,5 +1,4 @@
 'use strict';
-/* eslint-disable node/no-unsupported-features/es-syntax */
 
 /*
 Usage

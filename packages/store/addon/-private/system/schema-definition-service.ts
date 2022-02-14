@@ -32,7 +32,7 @@ export class DSModelSchemaDefinitionService {
   constructor(public store: Store) {}
 
   // Following the existing RD implementation
-  attributesDefinitionFor(identifier: RecordIdentifier | string): AttributesSchema {
+  attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
     let modelName, attributes;
     if (typeof identifier === 'string') {
       modelName = identifier;
@@ -55,7 +55,7 @@ export class DSModelSchemaDefinitionService {
   }
 
   // Following the existing RD implementation
-  relationshipsDefinitionFor(identifier: RecordIdentifier | string): RelationshipsSchema {
+  relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
     let modelName, relationships;
     if (typeof identifier === 'string') {
       modelName = identifier;
