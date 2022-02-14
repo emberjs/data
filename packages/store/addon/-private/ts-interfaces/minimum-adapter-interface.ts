@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 // the above eslint rule checks return types. This is an interface
 // and we intend Promise whether it is Native or polyfilled is of
 // no consequence.
