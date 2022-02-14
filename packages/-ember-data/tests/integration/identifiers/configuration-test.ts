@@ -510,6 +510,8 @@ module('Integration | Identifiers - configuration', function (hooks) {
       let expectedIdentifier = expectedIdentifiers.shift();
       if (expectedIdentifier) {
         assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
+      } else {
+        assert.ok(false, 'Missing expected identifier');
       }
     });
 
