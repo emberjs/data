@@ -14,7 +14,7 @@ import Ember from 'ember';
 
 import { DS_MODEL_SAVE_PROMISE } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
-import { coerceId, errorsArrayToHash, InternalModel, PromiseObject, recordDataFor } from '@ember-data/store/-private';
+import { coerceId, errorsArrayToHash, InternalModel, PromiseObject, WrappedRSVPPromise, recordDataFor } from '@ember-data/store/-private';
 
 import Errors from './errors';
 import RecordState, { peekTag, tagged } from './record-state';
@@ -848,7 +848,7 @@ class Model extends EmberObject {
   */
   save(options) {
     if (DS_MODEL_SAVE_PROMISE) {
-      return this._internalModel.save(options);
+      return new WrappedRSVPPromise(this._internalModel.save(options));
     } else {
       return PromiseObject.create({
         promise: this._internalModel.save(options).then(() => this),
