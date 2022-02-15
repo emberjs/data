@@ -52,7 +52,7 @@ module.exports = {
     'no-console': 'error', // no longer recommended in eslint v6, this restores it
     'no-eq-null': 'error',
     'no-eval': 'error',
-    'no-restricted-globals': ['error', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
+    'no-restricted-globals': ['error', { name: 'Promise', message: 'Must use RSVP.Promise' }],
     'no-unused-vars': ['error', { args: 'none' }],
     'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
     'sort-imports': 'off',
