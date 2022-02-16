@@ -1,4 +1,3 @@
-/* eslint no-restricted-globals: "off" */
 declare global {
   interface DeprecationConfig {
     id: string;

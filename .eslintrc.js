@@ -52,7 +52,6 @@ module.exports = {
     'no-console': 'error', // no longer recommended in eslint v6, this restores it
     'no-eq-null': 'error',
     'no-eval': 'error',
-    'no-restricted-globals': ['error', { name: 'Promise', message: 'Must use RSVP.Promise' }],
     'no-unused-vars': ['error', { args: 'none' }],
     'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
     'sort-imports': 'off',
@@ -109,7 +108,6 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 'error',
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'ember-data/prefer-static-type-import': 'error',
-        'no-restricted-globals': ['off'],
         'no-unused-vars': 'off',
         'prefer-const': 'off',
         'prefer-rest-params': 'off',
@@ -133,7 +131,6 @@ module.exports = {
         '@typescript-eslint/no-unsafe-argument': 'off',
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
         'ember-data/prefer-static-type-import': 'error',
-        'no-restricted-globals': ['off'],
         'no-unused-vars': 'off',
         'prefer-const': 'off',
         'prefer-rest-params': 'off',
@@ -377,7 +374,6 @@ module.exports = {
         'import/newline-after-import': 'error',
         'import/no-duplicates': 'error',
         'import/order': ['error', { 'newlines-between': 'always' }],
-        'no-restricted-globals': 'off',
         'simple-import-sort/sort': 'off',
       },
     },
@@ -387,9 +383,6 @@ module.exports = {
       files: ['packages/*/node-tests/**', 'packages/unpublished-test-infra/src/node-test-helpers/**/*'],
       env: {
         mocha: true,
-      },
-      rules: {
-        'no-restricted-globals': 'off',
       },
     },
 
@@ -404,9 +397,6 @@ module.exports = {
       parserOptions: {
         sourceType: 'script',
         ecmaVersion: 2015,
-      },
-      rules: {
-        'no-restricted-globals': 'off',
       },
     },
 
