@@ -42,10 +42,15 @@ module.exports = {
   extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:qunit/recommended'],
   rules: {
     eqeqeq: 'error',
+
+    // Imports
     'import/first': 'error',
     'import/newline-after-import': 'error',
-    'import/order': 'off',
+    'import/no-duplicates': 'error',
+    'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
+
     'mocha/no-exclusive-tests': 'error',
+
     'new-cap': ['error', { capIsNew: false }],
     'no-caller': 'error',
     'no-cond-assign': ['error', 'except-parens'],
@@ -53,12 +58,6 @@ module.exports = {
     'no-eq-null': 'error',
     'no-eval': 'error',
     'no-unused-vars': ['error', { args: 'none' }],
-    'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
-    'sort-imports': 'off',
-
-    // this rule doesn't work properly with --fix
-    // https://github.com/benmosher/eslint-plugin-import/issues/1504
-    'import/no-duplicates': 'warn',
 
     // Too many false positives
     // See https://github.com/eslint/eslint/issues/11899 and similar
@@ -366,11 +365,7 @@ module.exports = {
       plugins: ['node', 'import'],
       extends: 'plugin:node/recommended',
       rules: {
-        'import/first': 'error',
-        'import/newline-after-import': 'error',
-        'import/no-duplicates': 'error',
         'import/order': ['error', { 'newlines-between': 'always' }],
-        'simple-import-sort/sort': 'off',
       },
     },
 
