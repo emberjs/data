@@ -3,10 +3,10 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
+
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import { normalizeResponseHelper } from './serializer-response';
-
-import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
 /**
   @module @ember-data/store
@@ -218,19 +218,15 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
     (adapterPayload) => {
       if (!_objectIsAlive(internalModel)) {
         if (DEPRECATE_RSVP_PROMISE) {
-          deprecate(
-            `A Promise did not resolve by the time your model was destroyed.`,
-            false,
-            {
-              id: 'ember-data:rsvp-promise-hanging',
-              until: '5.0',
-              for: '@ember-data/store',
-              since: {
-                available: '4.1',
-                enabled: '4.1',
-              },
-            }
-          );
+          deprecate(`A Promise did not resolve by the time your model was destroyed.`, false, {
+            id: 'ember-data:rsvp-promise-hanging',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.1',
+              enabled: '4.1',
+            },
+          });
         } else {
           throw new Error('A Promise did not resolve by the time your model was destroyed.');
         }
