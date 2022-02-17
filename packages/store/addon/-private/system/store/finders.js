@@ -1,8 +1,12 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
+
+import { Promise } from 'rsvp';
 
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import { normalizeResponseHelper } from './serializer-response';
+
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
 /**
   @module @ember-data/store
@@ -210,10 +214,28 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
   let label = `DS: Handle Adapter#findHasMany of '${internalModel.modelName}' : '${relationship.type}'`;
 
   promise = guardDestroyedStore(promise, store, label);
-  promise = _guard(promise, _bind(_objectIsAlive, internalModel));
-
-  return promise.then(
+  promise = promise.then(
     (adapterPayload) => {
+      if (!_objectIsAlive(internalModel)) {
+        if (DEPRECATE_RSVP_PROMISE) {
+          deprecate(
+            `A Promise did not resolve by the time your model was destroyed.`,
+            false,
+            {
+              id: 'ember-data:rsvp-promise-hanging',
+              until: '5.0',
+              for: '@ember-data/store',
+              since: {
+                available: '4.1',
+                enabled: '4.1',
+              },
+            }
+          );
+        } else {
+          throw new Error('A Promise did not resolve by the time your model was destroyed.');
+        }
+      }
+
       assert(
         `You made a 'findHasMany' request for a ${internalModel.modelName}'s '${relationship.key}' relationship, using link '${link}' , but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
@@ -234,6 +256,10 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
     null,
     `DS: Extract payload of '${internalModel.modelName}' : hasMany '${relationship.type}'`
   );
+
+  if (DEPRECATE_RSVP_PROMISE) {
+    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
+  }
 }
 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship, options) {
