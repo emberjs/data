@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 import { tracked } from '@glimmer/tracking';
 import { resolve } from 'rsvp';
 
-export class WrappedRSVPPromise {
+export class StatefulPromise {
   declare promise: Promise<any> | null;
   declare isDestroyed: boolean;
   declare isDestroying: boolean;
@@ -72,22 +72,19 @@ export class WrappedRSVPPromise {
 
 function tapPromise(klass, promise) {
   klass.isPending = true;
-  klass.isSettled = false;
-  klass.isFulfilled = false;
+  klass.isResolved = false;
   klass.isRejected = false;
   return resolve(promise).then(
     (content) => {
       klass.isPending = false;
-      klass.isFulfilled = true;
-      klass.isSettled = true;
+      klass.isResolved = true;
       klass.content = content;
       return content;
     },
     (error) => {
       klass.isPending = false;
-      klass.isFulfilled = false;
+      klass.isResolved = false;
       klass.isRejected = true;
-      klass.isSettled = true;
       throw error;
     }
   );
