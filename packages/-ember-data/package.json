@@ -76,7 +76,7 @@
     "ember-resolver": "^8.0.3",
     "ember-source": "~4.0.0",
     "ember-source-channel-url": "^3.0.0",
-    "ember-try": "^1.4.0",
+    "ember-try": "^2.0.0",
     "json-typescript": "^1.1.2",
     "loader.js": "^4.7.0",
     "pretender": "^3.4.3",
