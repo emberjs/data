@@ -266,6 +266,7 @@ export class Graph {
         assert(`Can only perform the operation updateRelationship on remote state`, isRemote);
         if (DEBUG) {
           // in debug, assert payload validity eagerly
+          // TODO add deprecations/assertion here for duplicates
           assertValidRelationshipPayload(this, op);
         }
         updateRelationshipOperation(this, op);
