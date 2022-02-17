@@ -3,6 +3,10 @@ import { tracked } from '@glimmer/tracking';
 import { resolve } from 'rsvp';
 
 export class WrappedRSVPPromise {
+  declare promise: Promise<any> | null;
+  declare isDestroyed: boolean;
+  declare isDestroying: boolean;
+
   /**
    * Whether the loading promise is still pending
    *
@@ -26,7 +30,7 @@ export class WrappedRSVPPromise {
   @tracked isResolved: boolean = false;
 
   constructor(promise) {
-    this.promise = promise;
+    this.promise = tapPromise(this, promise);
   }
 
   /**
@@ -64,7 +68,27 @@ export class WrappedRSVPPromise {
   finally(cb) {
     return this.promise!.finally(cb);
   }
-  then() {
-    return this.promise.then()
-  }
+}
+
+function tapPromise(klass, promise) {
+  klass.isPending = true;
+  klass.isSettled = false;
+  klass.isFulfilled = false;
+  klass.isRejected = false;
+  return resolve(promise).then(
+    (content) => {
+      klass.isPending = false;
+      klass.isFulfilled = true;
+      klass.isSettled = true;
+      klass.content = content;
+      return content;
+    },
+    (error) => {
+      klass.isPending = false;
+      klass.isFulfilled = false;
+      klass.isRejected = true;
+      klass.isSettled = true;
+      throw error;
+    }
+  );
 }
