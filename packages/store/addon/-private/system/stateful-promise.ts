@@ -1,5 +1,6 @@
 import { assert } from '@ember/debug';
 import { tracked } from '@glimmer/tracking';
+
 import { resolve } from 'rsvp';
 
 export class StatefulPromise {
@@ -15,18 +16,18 @@ export class StatefulPromise {
    */
   @tracked isPending: boolean = false;
   /**
-  * Whether the loading promise rejected
-  *
-  * @property {boolean} isRejected
-  * @public
-  */
+   * Whether the loading promise rejected
+   *
+   * @property {boolean} isRejected
+   * @public
+   */
   @tracked isRejected: boolean = false;
   /**
-  * Whether the loading promise succeeded
-  *
-  * @property {boolean} isResolved
-  * @public
-  */
+   * Whether the loading promise succeeded
+   *
+   * @property {boolean} isResolved
+   * @public
+   */
   @tracked isResolved: boolean = false;
 
   constructor(promise) {

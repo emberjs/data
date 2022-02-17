@@ -1,4 +1,5 @@
 import ArrayProxy from '@ember/array/proxy';
+import { deprecate } from '@ember/debug';
 import { reads } from '@ember/object/computed';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ObjectProxy from '@ember/object/proxy';
@@ -89,4 +90,32 @@ export function promiseArray(promise, label) {
   });
 }
 
-export let DeprecatedPromiseObject = {};// new Proxy()
+const ALLOWABLE_METHODS = ['then', 'catch', 'finally'];
+
+export function deprecatedPromiseObject(promise) {
+  const handler = {
+    get(target, prop) {
+      // TODO: are there ones we want to error on?
+
+      if (!ALLOWABLE_METHODS.includes(prop)) {
+        deprecate(
+          `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
+          false,
+          {
+            id: 'ember-data:model-save-promise',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.1',
+              enabled: '4.1',
+            },
+          }
+        );
+      }
+
+      return Reflect.get(...arguments).bind(target);
+    },
+  };
+
+  return new Proxy(promise, handler);
+}

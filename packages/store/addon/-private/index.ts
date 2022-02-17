@@ -23,7 +23,7 @@ export { errorsHashToArray, errorsArrayToHash } from './system/errors-utils';
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
 
-export { PromiseArray, PromiseObject, DeprecatedPromiseObject, StatefulPromise } from './system/promise-proxies';
+export { PromiseArray, PromiseObject, deprecatedPromiseObject, StatefulPromise } from './system/promise-proxies';
 
 export { RecordArray, AdapterPopulatedRecordArray } from './system/record-arrays';
 
