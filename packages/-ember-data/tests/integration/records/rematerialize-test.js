@@ -239,7 +239,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.strictEqual(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
     assert.strictEqual(rematerializedBoaty.get('id'), '1', 'Rematerialized boat has the right id');
     assert.strictEqual(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
-    assert.ok(rematerializedBoaty !== boaty, 'the boat is rematerialized, not recycled');
+    assert.notStrictEqual(rematerializedBoaty, boaty, 'the boat is rematerialized, not recycled');
 
     assert.true(store.hasRecordForId('boat', '1'), 'The boat is loaded');
     assert.true(store._internalModelsFor('boat').has('@ember-data:lid-boat-1'), 'The boat internalModel is retained');

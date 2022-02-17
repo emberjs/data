@@ -47,7 +47,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const identifier = recordIdentifierFor(record);
     const serialized = record.serialize();
 
-    assert.ok(identifier.lid !== null, 'We have an lid');
+    assert.notStrictEqual(identifier.lid, null, 'We have an lid');
     assert.strictEqual(serialized.lid, identifier.lid, 'We have the right lid');
   });
 
@@ -55,7 +55,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const record = store.createRecord('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
 
-    assert.ok(identifier.lid !== null, 'We have an lid');
+    assert.notStrictEqual(identifier.lid, null, 'We have an lid');
 
     const pushedRecord = store.push({
       data: {
@@ -68,7 +68,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
       },
     });
 
-    assert.ok(pushedRecord === record, 'We have the same record instance');
+    assert.strictEqual(pushedRecord, record, 'We have the same record instance');
     assert.strictEqual(record.name, 'Chris', 'We use the dirty name');
     assert.false(record.isNew, 'We are no longer in the new state');
 
@@ -108,7 +108,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const record = store.createRecord('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
 
-    assert.ok(identifier.lid !== null, 'We have an lid');
+    assert.notStrictEqual(identifier.lid, null, 'We have an lid');
 
     const savePromise = record.save();
 
@@ -126,7 +126,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
       },
     });
 
-    assert.ok(pushedRecord === record, 'We have the same record instance');
+    assert.strictEqual(pushedRecord, record, 'We have the same record instance');
     assert.strictEqual(record.name, 'Chris', 'We use the in-flight name');
     assert.strictEqual(record.age, 31, 'We received the pushed data');
     // once the payload is received the derived state shifts to "no longer new" in the RECORD_DATA_STATE world

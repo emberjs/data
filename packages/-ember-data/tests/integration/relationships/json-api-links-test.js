@@ -160,7 +160,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
         assert.ok(false, 'adapter findMany called instead of using findRecord');
       },
       findRecord(_, __, id) {
-        assert.ok(id !== '1', `adapter findRecord called for all IDs except "1", called for "${id}"`);
+        assert.notStrictEqual(id, '1', `adapter findRecord called for all IDs except "1", called for "${id}"`);
         return resolve({
           data: {
             type: 'pet',
@@ -229,7 +229,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     });
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
-        assert.ok(link === './user/1/pets', 'We fetched via the correct link');
+        assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
         return resolve({
           data: [
             {
@@ -314,7 +314,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     });
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
-        assert.ok(link === './user/1/pets', 'We fetched via the correct link');
+        assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
         return resolve({
           data: [
             {
@@ -401,7 +401,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     });
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
-        assert.ok(link === './user/1/pets', 'We fetched via the correct link');
+        assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
         return resolve({
           data: [
             {
@@ -490,7 +490,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     });
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
-        assert.ok(link === './user/1/pets', 'We fetched via the correct link');
+        assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
         return resolve({
           data: [
             {
@@ -561,7 +561,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     });
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
-        assert.ok(link === './user/1/pets', 'We fetched via the correct link');
+        assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
         return resolve({
           data: [
             {
@@ -704,7 +704,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findHasMany = (_, __, link) => {
-        assert.ok(link === payloads.user.data.relationships.pets.links.related, 'We fetched the appropriate link');
+        assert.strictEqual(
+          link,
+          payloads.user.data.relationships.pets.links.related,
+          'We fetched the appropriate link'
+        );
         return resolve(deepCopy(payloads.pets));
       };
 
@@ -735,12 +739,17 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       };
       adapter.findHasMany = (_, __, link) => {
         if (petRelDataWasEmpty) {
-          assert.ok(
-            link === payloads.user.data.relationships.pets.links.related,
+          assert.strictEqual(
+            link,
+            payloads.user.data.relationships.pets.links.related,
             'We fetched this link even though we really should not have'
           );
         } else {
-          assert.ok(link === payloads.user.data.relationships.pets.links.related, 'We fetched the appropriate link');
+          assert.strictEqual(
+            link,
+            payloads.user.data.relationships.pets.links.related,
+            'We fetched the appropriate link'
+          );
         }
         return resolve(deepCopy(payloads.pets));
       };
@@ -782,7 +791,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           assert.ok(false, 'We should not fetch a relationship we believe is empty');
           didFetchInitially = true;
         } else {
-          assert.ok(link === payloads.user.data.relationships.home.links.related, 'We fetched the appropriate link');
+          assert.strictEqual(
+            link,
+            payloads.user.data.relationships.home.links.related,
+            'We fetched the appropriate link'
+          );
         }
         return resolve(deepCopy(payloads.home));
       };
@@ -988,7 +1001,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findHasMany = (_, __, link) => {
-        assert.ok(link === payloads.user.data.relationships.pets.links.related, 'We fetched the appropriate link');
+        assert.strictEqual(
+          link,
+          payloads.user.data.relationships.pets.links.related,
+          'We fetched the appropriate link'
+        );
         return resolve(deepCopy(payloads.pets));
       };
 
@@ -1016,7 +1033,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findHasMany = (_, __, link) => {
-        assert.ok(link === payloads.user.data.relationships.pets.links.related, 'We fetched the appropriate link');
+        assert.strictEqual(
+          link,
+          payloads.user.data.relationships.pets.links.related,
+          'We fetched the appropriate link'
+        );
         return resolve(deepCopy(payloads.pets));
       };
 
@@ -1045,7 +1066,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findBelongsTo = (_, __, link) => {
-        assert.ok(link === payloads.user.data.relationships.home.links.related, 'We fetched the appropriate link');
+        assert.strictEqual(
+          link,
+          payloads.user.data.relationships.home.links.related,
+          'We fetched the appropriate link'
+        );
         return resolve(deepCopy(payloads.home));
       };
 
@@ -1073,7 +1098,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         assert.ok(false, 'We should not call findMany');
       };
       adapter.findBelongsTo = (_, __, link) => {
-        assert.ok(link === payloads.user.data.relationships.home.links.related, 'We fetched the appropriate link');
+        assert.strictEqual(
+          link,
+          payloads.user.data.relationships.home.links.related,
+          'We fetched the appropriate link'
+        );
         return resolve(deepCopy(payloads.home));
       };
 
@@ -1924,7 +1953,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       if (!requestedUser) {
         assert.ok(false, failureDescription);
       } else {
-        assert.ok(link === requestedUser.data.relationships.pets.links.related, 'We fetched the appropriate link');
+        assert.strictEqual(
+          link,
+          requestedUser.data.relationships.pets.links.related,
+          'We fetched the appropriate link'
+        );
       }
 
       return resolve({

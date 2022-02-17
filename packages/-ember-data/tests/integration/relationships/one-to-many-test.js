@@ -142,7 +142,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
     const messages = await user.messages;
     const messageUser = await messages.objectAt(0).user;
-    assert.true(messageUser === user, 'User relationship was set up correctly');
+    assert.strictEqual(messageUser, user, 'User relationship was set up correctly');
   });
 
   test('Relationship is available from the belongsTo side even if only loaded from the hasMany side - sync', function (assert) {
@@ -648,8 +648,8 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     });
 
     run(function () {
-      assert.ok(account1.get('user') === null, 'User was removed correctly');
-      assert.ok(account2.get('user') === user, 'User was added correctly');
+      assert.strictEqual(account1.get('user'), null, 'User was removed correctly');
+      assert.strictEqual(account2.get('user'), user, 'User was added correctly');
     });
   });
 
@@ -1662,6 +1662,6 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     assert.strictEqual(user.messages.length, 1, 'The message is added to the record array');
 
     let messageFromArray = user.messages.firstObject;
-    assert.true(message === messageFromArray, 'Only one message record instance should be created');
+    assert.strictEqual(message, messageFromArray, 'Only one message record instance should be created');
   });
 });

@@ -51,8 +51,8 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
     let store = this.owner.lookup('service:store');
 
     assert.strictEqual(
-      null,
       store.peekRecord('person', 1),
+      null,
       'peekRecord returns null if the corresponding record is not in the store'
     );
   });

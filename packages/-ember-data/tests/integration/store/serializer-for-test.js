@@ -86,7 +86,7 @@ module('integration/store - serializerFor', function (hooks) {
 
     assert.ok(serializerAgain instanceof AppSerializer, 'We found the correct serializer');
     assert.notOk(didInstantiate, 'We did not instantiate the serializer again');
-    assert.ok(serializer === serializerAgain, 'Repeated calls to serializerFor return the same instance');
+    assert.strictEqual(serializer, serializerAgain, 'Repeated calls to serializerFor return the same instance');
   });
 
   test('multiple stores do not share serializers', async function (assert) {
@@ -112,7 +112,7 @@ module('integration/store - serializerFor', function (hooks) {
     let otherSerializer = otherStore.serializerFor('application');
     assert.ok(otherSerializer instanceof AppSerializer, 'We found the correct serializer again');
     assert.ok(didInstantiate, 'We instantiated the other serializer');
-    assert.ok(otherSerializer !== serializer, 'We have a different serializer instance');
+    assert.notStrictEqual(otherSerializer, serializer, 'We have a different serializer instance');
 
     otherStore.destroy();
   });
@@ -146,7 +146,7 @@ module('integration/store - serializerFor', function (hooks) {
     let appSerializer = store.serializerFor('application');
     assert.ok(appSerializer instanceof AppSerializer, 'We found the correct serializer');
     assert.ok(didInstantiateAppSerializer, 'We instantiated the application serializer');
-    assert.ok(appSerializer !== serializer, 'We have separate serializers');
+    assert.notStrictEqual(appSerializer, serializer, 'We have separate serializers');
   });
 
   test('we fallback to the application serializer when a per-type serializer is not found', async function (assert) {
@@ -170,7 +170,7 @@ module('integration/store - serializerFor', function (hooks) {
     let appSerializer = store.serializerFor('application');
     assert.ok(appSerializer instanceof AppSerializer, 'We found the correct serializer');
     assert.notOk(didInstantiateAppSerializer, 'We did not instantiate the serializer again');
-    assert.ok(appSerializer === serializer, 'We fell back to the application serializer instance');
+    assert.strictEqual(appSerializer, serializer, 'We fell back to the application serializer instance');
   });
 
   test('serializers are destroyed', async function (assert) {

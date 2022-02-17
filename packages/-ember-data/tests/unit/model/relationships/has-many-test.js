@@ -1711,7 +1711,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     const shen = store.peekRecord('dog', '1');
     const rambo = store.peekRecord('dog', '2');
 
-    assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
+    assert.strictEqual(dog, shen, 'precond - the belongsTo points to the correct dog');
     assert.strictEqual(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
 
     run(() => {
@@ -1793,20 +1793,20 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
       const rambo = store.peekRecord('dog', '2');
 
       return person.get('dog').then((dog) => {
-        assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
+        assert.strictEqual(dog, shen, 'precond - the belongsTo points to the correct dog');
         assert.strictEqual(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
 
         person.set('dog', rambo);
 
         dog = person.get('dog.content');
 
-        assert.ok(dog === rambo, 'precond2 - relationship was updated');
+        assert.strictEqual(dog, rambo, 'precond2 - relationship was updated');
 
         return shen.destroyRecord({}).then(() => {
           shen.unloadRecord();
 
           dog = person.get('dog.content');
-          assert.ok(dog === rambo, 'The currentState of the belongsTo was preserved after the delete');
+          assert.strictEqual(dog, rambo, 'The currentState of the belongsTo was preserved after the delete');
         });
       });
     });
@@ -1873,7 +1873,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     const shen = store.peekRecord('dog', '1');
     const rambo = store.peekRecord('dog', '2');
 
-    assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
+    assert.strictEqual(dog, shen, 'precond - the belongsTo points to the correct dog');
     assert.strictEqual(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
 
     run(() => {
@@ -2635,7 +2635,7 @@ module('unit/model/relationships - DS.hasMany', function (hooks) {
     const firstPostComments = await firstPostCommentsPromise;
     firstPost.comments; // trigger an extra access
     assert.true(firstPostCommentsPromise.isFulfilled, 'comments relationship is fulfilled');
-    assert.true(firstPostCommentsPromise.promise === originalPromise, 'we did not re-trigger the property');
+    assert.strictEqual(firstPostCommentsPromise.promise, originalPromise, 'we did not re-trigger the property');
     assert.strictEqual(firstPostComments.length, 3, 'we loaded three comments');
     firstPost.comments; // trigger an extra access
     assert.true(firstPostCommentsPromise.isFulfilled, 'comments relationship is fulfilled');

@@ -142,7 +142,7 @@ module('unit/record-array - RecordArray', function (hooks) {
     let recordArray = store.peekAll('Person');
     let otherRecordArray = store.peekAll('person');
 
-    assert.ok(recordArray === otherRecordArray, 'Person and person are the same record-array');
+    assert.strictEqual(recordArray, otherRecordArray, 'Person and person are the same record-array');
 
     store.push({
       data: {
@@ -262,7 +262,7 @@ module('unit/record-array - RecordArray', function (hooks) {
 
     recordArray.addObject(scumbag);
 
-    assert.ok(scumbag.get('tag') === tag, "precond - the scumbag's tag has been set");
+    assert.strictEqual(scumbag.get('tag'), tag, "precond - the scumbag's tag has been set");
     assert.strictEqual(get(recordArray, 'length'), 1, 'precond - record array has one item');
     assert.strictEqual(get(recordArray.objectAt(0), 'name'), 'Scumbag Dale', 'item at index 0 is record with id 1');
 

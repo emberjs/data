@@ -50,7 +50,7 @@ module('integration - Client Id Generation', function (hooks) {
     let idCount = 1;
 
     adapter.generateIdForRecord = function (passedStore, record) {
-      assert.ok(store === passedStore, 'store is the first parameter');
+      assert.strictEqual(store, passedStore, 'store is the first parameter');
 
       return 'id-' + idCount++;
     };
@@ -96,7 +96,7 @@ module('integration - Client Id Generation', function (hooks) {
     let ids = [undefined, ''];
 
     adapter.generateIdForRecord = function (passedStore, record) {
-      assert.ok(store === passedStore, 'store is the first parameter');
+      assert.strictEqual(store, passedStore, 'store is the first parameter');
 
       return ids[idCount++];
     };

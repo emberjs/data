@@ -65,7 +65,7 @@ module('Editing a Record', function (hooks) {
         });
 
         // check that we are properly configured
-        assert.ok(pet.get('owner') === null, 'Precondition: Our owner is null');
+        assert.strictEqual(pet.get('owner'), null, 'Precondition: Our owner is null');
 
         let pets = chris
           .get('pets')
@@ -75,7 +75,7 @@ module('Editing a Record', function (hooks) {
 
         pet.set('owner', chris);
 
-        assert.ok(pet.get('owner') === chris, 'Shen has Chris as an owner');
+        assert.strictEqual(pet.get('owner'), chris, 'Shen has Chris as an owner');
 
         // check that the relationship has been established
         pets = chris
@@ -105,7 +105,7 @@ module('Editing a Record', function (hooks) {
         });
 
         // check that we are properly configured
-        assert.ok(pet.get('owner') === null, 'Precondition: Our owner is null');
+        assert.strictEqual(pet.get('owner'), null, 'Precondition: Our owner is null');
 
         let pets = chris
           .get('pets')
@@ -115,7 +115,7 @@ module('Editing a Record', function (hooks) {
 
         pet.set('owner', chris);
 
-        assert.ok(pet.get('owner') === chris, 'Shen has Chris as an owner');
+        assert.strictEqual(pet.get('owner'), chris, 'Shen has Chris as an owner');
 
         // check that the relationship has been established
         pets = chris
@@ -137,7 +137,7 @@ module('Editing a Record', function (hooks) {
         });
 
         // check that we are properly configured
-        assert.ok(pet.get('owner') === null, 'Precondition: Our owner is null');
+        assert.strictEqual(pet.get('owner'), null, 'Precondition: Our owner is null');
 
         let pets = chris
           .get('pets')
@@ -147,7 +147,7 @@ module('Editing a Record', function (hooks) {
 
         pet.set('owner', chris);
 
-        assert.ok(pet.get('owner') === chris, 'Shen has Chris as an owner');
+        assert.strictEqual(pet.get('owner'), chris, 'Shen has Chris as an owner');
 
         // check that the relationship has been established
         pets = chris
@@ -177,7 +177,7 @@ module('Editing a Record', function (hooks) {
         });
 
         // check that we are properly configured
-        assert.ok(pet.get('owner') === null, 'Precondition: Our owner is null');
+        assert.strictEqual(pet.get('owner'), null, 'Precondition: Our owner is null');
 
         let pets = chris
           .get('pets')
@@ -187,7 +187,7 @@ module('Editing a Record', function (hooks) {
 
         pet.set('owner', chris);
 
-        assert.ok(pet.get('owner') === chris, 'Shen has Chris as an owner');
+        assert.strictEqual(pet.get('owner'), chris, 'Shen has Chris as an owner');
 
         // check that the relationship has been established
         pets = chris
@@ -259,14 +259,14 @@ module('Editing a Record', function (hooks) {
           },
         });
 
-        assert.ok(shen.get('owner') === chris, 'Precondition: Chris is the current owner');
-        assert.ok(rocky.get('owner') === chris, 'Precondition: Chris is the current owner');
+        assert.strictEqual(shen.get('owner'), chris, 'Precondition: Chris is the current owner');
+        assert.strictEqual(rocky.get('owner'), chris, 'Precondition: Chris is the current owner');
 
         let pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, ['Shen', 'Rocky'], 'Precondition: Chris has Shen and Rocky as pets');
 
         shen.set('owner', john);
-        assert.ok(shen.get('owner') === john, 'After Update: John is the new owner of Shen');
+        assert.strictEqual(shen.get('owner'), john, 'After Update: John is the new owner of Shen');
 
         pets = chris.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, ['Rocky'], 'After Update: Chris has Rocky as a pet');
@@ -276,8 +276,8 @@ module('Editing a Record', function (hooks) {
 
         chris.unloadRecord();
 
-        assert.ok(rocky.get('owner') === null, 'After Unload: Rocky has no owner');
-        assert.ok(shen.get('owner') === john, 'After Unload: John should still be the owner of Shen');
+        assert.strictEqual(rocky.get('owner'), null, 'After Unload: Rocky has no owner');
+        assert.strictEqual(shen.get('owner'), john, 'After Unload: John should still be the owner of Shen');
 
         pets = john.pets.toArray().map((pet) => pet.name);
         assert.deepEqual(pets, ['Shen'], 'After Unload: John still has Shen as a pet');
@@ -316,8 +316,8 @@ module('Editing a Record', function (hooks) {
         let chrisBestFriend = await chris.get('bestFriend');
         let jamesBestFriend = await james.get('bestFriend');
 
-        assert.ok(chrisBestFriend === null, 'Precondition: Chris has no best friend');
-        assert.ok(jamesBestFriend === null, 'Precondition: James has no best friend');
+        assert.strictEqual(chrisBestFriend, null, 'Precondition: Chris has no best friend');
+        assert.strictEqual(jamesBestFriend, null, 'Precondition: James has no best friend');
 
         chris.set('bestFriend', james);
 
@@ -325,8 +325,8 @@ module('Editing a Record', function (hooks) {
         chrisBestFriend = await chris.get('bestFriend');
         jamesBestFriend = await james.get('bestFriend');
 
-        assert.ok(chrisBestFriend === james, 'Chris has James as a best friend');
-        assert.ok(jamesBestFriend === chris, 'James has Chris as a best friend');
+        assert.strictEqual(chrisBestFriend, james, 'Chris has James as a best friend');
+        assert.strictEqual(jamesBestFriend, chris, 'James has Chris as a best friend');
       });
 
       test('We can add a new record to a record', async function (assert) {
@@ -352,8 +352,8 @@ module('Editing a Record', function (hooks) {
         let chrisBestFriend = await chris.get('bestFriend');
         let jamesBestFriend = await james.get('bestFriend');
 
-        assert.ok(chrisBestFriend === null, 'Precondition: Chris has no best friend');
-        assert.ok(jamesBestFriend === null, 'Precondition: James has no best friend');
+        assert.strictEqual(chrisBestFriend, null, 'Precondition: Chris has no best friend');
+        assert.strictEqual(jamesBestFriend, null, 'Precondition: James has no best friend');
 
         chris.set('bestFriend', james);
 
@@ -361,8 +361,8 @@ module('Editing a Record', function (hooks) {
         chrisBestFriend = await chris.get('bestFriend');
         jamesBestFriend = await james.get('bestFriend');
 
-        assert.ok(chrisBestFriend === james, 'Chris has James as a best friend');
-        assert.ok(jamesBestFriend === chris, 'James has Chris as a best friend');
+        assert.strictEqual(chrisBestFriend, james, 'Chris has James as a best friend');
+        assert.strictEqual(jamesBestFriend, chris, 'James has Chris as a best friend');
       });
 
       test('We can add a new record to a new record', async function (assert) {
@@ -380,8 +380,8 @@ module('Editing a Record', function (hooks) {
         let chrisBestFriend = await chris.get('bestFriend');
         let jamesBestFriend = await james.get('bestFriend');
 
-        assert.ok(chrisBestFriend === null, 'Precondition: Chris has no best friend');
-        assert.ok(jamesBestFriend === null, 'Precondition: James has no best friend');
+        assert.strictEqual(chrisBestFriend, null, 'Precondition: Chris has no best friend');
+        assert.strictEqual(jamesBestFriend, null, 'Precondition: James has no best friend');
 
         chris.set('bestFriend', james);
 
@@ -389,8 +389,8 @@ module('Editing a Record', function (hooks) {
         chrisBestFriend = await chris.get('bestFriend');
         jamesBestFriend = await james.get('bestFriend');
 
-        assert.ok(chrisBestFriend === james, 'Chris has James as a best friend');
-        assert.ok(jamesBestFriend === chris, 'James has Chris as a best friend');
+        assert.strictEqual(chrisBestFriend, james, 'Chris has James as a best friend');
+        assert.strictEqual(jamesBestFriend, chris, 'James has Chris as a best friend');
       });
 
       test('We can add to a new record', async function (assert) {
@@ -416,8 +416,8 @@ module('Editing a Record', function (hooks) {
         let chrisBestFriend = await chris.get('bestFriend');
         let jamesBestFriend = await james.get('bestFriend');
 
-        assert.ok(chrisBestFriend === null, 'Precondition: Chris has no best friend');
-        assert.ok(jamesBestFriend === null, 'Precondition: James has no best friend');
+        assert.strictEqual(chrisBestFriend, null, 'Precondition: Chris has no best friend');
+        assert.strictEqual(jamesBestFriend, null, 'Precondition: James has no best friend');
 
         chris.set('bestFriend', james);
 
@@ -425,8 +425,8 @@ module('Editing a Record', function (hooks) {
         chrisBestFriend = await chris.get('bestFriend');
         jamesBestFriend = await james.get('bestFriend');
 
-        assert.ok(chrisBestFriend === james, 'Chris has James as a best friend');
-        assert.ok(jamesBestFriend === chris, 'James has Chris as a best friend');
+        assert.strictEqual(chrisBestFriend, james, 'Chris has James as a best friend');
+        assert.strictEqual(jamesBestFriend, chris, 'James has Chris as a best friend');
       });
     });
   });

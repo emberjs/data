@@ -91,10 +91,11 @@ module('unit/model - Model', function (hooks) {
 
       let currentState = record._internalModel.currentState;
 
-      assert.ok(currentState.stateName === 'root.deleted.saved', 'record is in a persisted deleted state');
+      assert.strictEqual(currentState.stateName, 'root.deleted.saved', 'record is in a persisted deleted state');
       assert.true(get(record, 'isDeleted'));
-      assert.ok(
-        store.peekRecord('person', '1') !== null,
+      assert.notStrictEqual(
+        store.peekRecord('person', '1'),
+        null,
         'the deleted person is not removed from store (no unload called)'
       );
 
@@ -110,9 +111,9 @@ module('unit/model - Model', function (hooks) {
 
       currentState = record._internalModel.currentState;
 
-      assert.ok(currentState.stateName === 'root.deleted.saved', 'record is still in a persisted deleted state');
-      assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
-      assert.ok(get(record, 'isArchived') === true, 'The record reflects the update to canonical state');
+      assert.strictEqual(currentState.stateName, 'root.deleted.saved', 'record is still in a persisted deleted state');
+      assert.true(get(record, 'isDeleted'), 'The record is still deleted');
+      assert.true(get(record, 'isArchived'), 'The record reflects the update to canonical state');
     });
 
     test('Does not support dirtying in root.deleted.saved', async function (assert) {
@@ -135,10 +136,11 @@ module('unit/model - Model', function (hooks) {
 
       let currentState = record._internalModel.currentState;
 
-      assert.ok(currentState.stateName === 'root.deleted.saved', 'record is in a persisted deleted state');
+      assert.strictEqual(currentState.stateName, 'root.deleted.saved', 'record is in a persisted deleted state');
       assert.true(get(record, 'isDeleted'));
-      assert.ok(
-        store.peekRecord('person', '1') !== null,
+      assert.notStrictEqual(
+        store.peekRecord('person', '1'),
+        null,
         'the deleted person is not removed from store (no unload called)'
       );
 
@@ -162,9 +164,9 @@ module('unit/model - Model', function (hooks) {
 
       currentState = record._internalModel.currentState;
 
-      assert.ok(currentState.stateName === 'root.deleted.saved', 'record is still in a persisted deleted state');
-      assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
-      assert.ok(get(record, 'isArchived') === false, 'The record reflects canonical state');
+      assert.strictEqual(currentState.stateName, 'root.deleted.saved', 'record is still in a persisted deleted state');
+      assert.true(get(record, 'isDeleted'), 'The record is still deleted');
+      assert.false(get(record, 'isArchived'), 'The record reflects canonical state');
     });
 
     test('currentState is accessible when the record is created', async function (assert) {
@@ -311,7 +313,7 @@ module('unit/model - Model', function (hooks) {
 
       let record = store.peekRecord('person', 'john');
 
-      assert.ok(person === record, 'The cache has an entry for john');
+      assert.strictEqual(person, record, 'The cache has an entry for john');
     });
 
     test('setting the id after createRecord should correctly update the id', async function (assert) {
@@ -325,7 +327,7 @@ module('unit/model - Model', function (hooks) {
 
       let record = store.peekRecord('person', 'john');
 
-      assert.ok(person === record, 'The cache has an entry for john');
+      assert.strictEqual(person, record, 'The cache has an entry for john');
     });
 
     testInDebug('mutating the id after createRecord but before save works', async function (assert) {
@@ -786,7 +788,7 @@ module('unit/model - Model', function (hooks) {
 
         init() {
           this._super(...arguments);
-          assert.ok(this.get('name') === 'bam!', 'We all good here');
+          assert.strictEqual(this.get('name'), 'bam!', 'We all good here');
         },
       });
       this.owner.register('model:odd-person', Person);

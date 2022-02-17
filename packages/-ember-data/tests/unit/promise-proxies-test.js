@@ -24,7 +24,7 @@ module('PromiseManyArray', function () {
 
     let reloaded = array.reload();
 
-    assert.ok(reloaded === array);
+    assert.strictEqual(reloaded, array);
   });
 
   test('.reload should be stable', async function (assert) {
