@@ -17,7 +17,7 @@
     "build": "yarn workspace ember-data build",
     "build:production": "yarn workspace ember-data build:production",
     "lint:features": "node ./scripts/lint-features.js",
-    "lint:js": "eslint --report-unused-disable-directives --cache --ext=js,ts .",
+    "lint:js": "eslint --cache --ext=js,ts .",
     "lint:js:changed": "node ./scripts/lint-changed-js.js",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
     "start": "yarn workspace ember-data start",
@@ -42,9 +42,9 @@
     "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.17.0",
     "@babel/plugin-proposal-decorators": "^7.17.2",
     "@babel/plugin-transform-typescript": "^7.16.8",
-    "@babel/eslint-parser": "^7.17.0",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.6.0",
@@ -105,6 +105,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-ember": "^10.5.8",
     "eslint-plugin-ember-data": "link:./packages/unpublished-eslint-rules",
+    "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-mocha": "^9.0.0",
     "eslint-plugin-node": "^11.1.0",
