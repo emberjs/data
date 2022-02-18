@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint no-console:"off" */
 function hasProp(obj, prop) {
   return Object.hasOwnProperty.call(obj, prop);
 }
