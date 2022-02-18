@@ -856,7 +856,9 @@ class Model extends EmberObject {
   */
   save(options) {
     if (DS_MODEL_SAVE_PROMISE) {
-      return new StatefulPromise(this._internalModel.save(options));
+      return new StatefulPromise(this._internalModel.save(options)).then(() => {
+        return this;
+      });
     } else {
       return deprecatedPromiseObject(
         PromiseObject.create({
