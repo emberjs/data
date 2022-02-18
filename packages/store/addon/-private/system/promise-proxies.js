@@ -113,9 +113,11 @@ export function deprecatedPromiseObject(promise) {
         );
       }
 
+      /* global Reflect */
       return Reflect.get(...arguments).bind(target);
     },
   };
 
+  /* global Proxy */
   return new Proxy(promise, handler);
 }
