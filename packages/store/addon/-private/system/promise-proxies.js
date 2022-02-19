@@ -1,5 +1,5 @@
 import ArrayProxy from '@ember/array/proxy';
-// import { deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 import { reads } from '@ember/object/computed';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ObjectProxy from '@ember/object/proxy';
@@ -90,7 +90,7 @@ export function promiseArray(promise, label) {
   });
 }
 
-const ALLOWABLE_METHODS = ['then', 'catch', 'finally'];
+const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
 
 export function deprecatedPromiseObject(promise) {
   const handler = {
@@ -98,19 +98,19 @@ export function deprecatedPromiseObject(promise) {
       // TODO: are there ones we want to error on?
 
       if (!ALLOWABLE_METHODS.includes(prop)) {
-        //   deprecate(
-        //     `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
-        //     false,
-        //     {
-        //       id: 'ember-data:model-save-promise',
-        //       until: '5.0',
-        //       for: '@ember-data/store',
-        //       since: {
-        //         available: '4.1',
-        //         enabled: '4.1',
-        //       },
-        //     }
-        //   );
+          deprecate(
+            `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
+            false,
+            {
+              id: 'ember-data:model-save-promise',
+              until: '5.0',
+              for: '@ember-data/store',
+              since: {
+                available: '4.1',
+                enabled: '4.1',
+              },
+            }
+          );
       }
 
       /* global Reflect */
