@@ -24,7 +24,7 @@ QUnit.module('Docs coverage', function (hooks) {
   if (!process.env.REUSE_DOCS) {
     buildDocs();
   }
-  const docs = require('../../dist/docs/data.json');
+  const docs = require('../../dist/docs/data.json'); // eslint-disable-line node/no-missing-require
   const expected = require('../fixtures/expected');
 
   function classIsPublic(className) {
