@@ -271,8 +271,24 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
   promise = guardDestroyedStore(promise, store, label);
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
-  return promise.then(
+  promise = promise.then(
     (adapterPayload) => {
+      if (!_objectIsAlive(internalModel)) {
+        if (DEPRECATE_RSVP_PROMISE) {
+          deprecate(`A Promise did not resolve by the time your model was destroyed.`, false, {
+            id: 'ember-data:rsvp-promise-hanging',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.2',
+              enabled: '4.2',
+            },
+          });
+        } else {
+          throw new Error('A Promise did not resolve by the time your model was destroyed.');
+        }
+      }
+
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
@@ -293,6 +309,12 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
     null,
     `DS: Extract payload of ${internalModel.modelName} : ${relationship.type}`
   );
+
+  if (DEPRECATE_RSVP_PROMISE) {
+    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
+  }
+
+  return promise;
 }
 
 export function _findAll(adapter, store, modelName, options) {
