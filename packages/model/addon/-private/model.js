@@ -15,7 +15,6 @@ import Ember from 'ember';
 import { DS_MODEL_SAVE_PROMISE } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
 import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
-
 import {
   coerceId,
   deprecatedPromiseObject,
