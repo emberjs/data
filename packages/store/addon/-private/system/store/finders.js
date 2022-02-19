@@ -227,8 +227,6 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
               enabled: '4.2',
             },
           });
-        } else {
-          throw new Error('A Promise did not resolve by the time your model was destroyed.');
         }
       }
 
@@ -284,8 +282,6 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
               enabled: '4.2',
             },
           });
-        } else {
-          throw new Error('A Promise did not resolve by the time your model was destroyed.');
         }
       }
 

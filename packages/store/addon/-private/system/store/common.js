@@ -32,7 +32,23 @@ export function guardDestroyedStore(promise, store, label) {
   if (DEBUG) {
     token = store._trackAsyncRequestStart(label);
   }
-  let wrapperPromise = resolve(promise, label).then((v) => promise);
+  let wrapperPromise = resolve(promise, label).then((_v) => {
+    if (!_objectIsAlive(store)) {
+      if (DEPRECATE_RSVP_PROMISE) {
+        deprecate(`A Promise did not resolve by the time the store was destroyed.`, false, {
+          id: 'ember-data:rsvp-promise-hanging',
+          until: '5.0',
+          for: '@ember-data/store',
+          since: {
+            available: '4.2',
+            enabled: '4.2',
+          },
+        });
+      }
+    }
+
+    return promise;
+  });
 
   return _guard(wrapperPromise, () => {
     if (DEBUG) {
