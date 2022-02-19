@@ -218,15 +218,19 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
     (adapterPayload) => {
       if (!_objectIsAlive(internalModel)) {
         if (DEPRECATE_RSVP_PROMISE) {
-          deprecate(`A Promise did not resolve by the time your model was destroyed.`, false, {
-            id: 'ember-data:rsvp-promise-hanging',
-            until: '5.0',
-            for: '@ember-data/store',
-            since: {
-              available: '4.2',
-              enabled: '4.2',
-            },
-          });
+          deprecate(
+            `A Promise did not resolve by the time your model was destroyed. This will error in a future release.`,
+            false,
+            {
+              id: 'ember-data:rsvp-promise-hanging',
+              until: '5.0',
+              for: '@ember-data/store',
+              since: {
+                available: '4.2',
+                enabled: '4.2',
+              },
+            }
+          );
         }
       }
 
@@ -273,15 +277,19 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
     (adapterPayload) => {
       if (!_objectIsAlive(internalModel)) {
         if (DEPRECATE_RSVP_PROMISE) {
-          deprecate(`A Promise did not resolve by the time your model was destroyed.`, false, {
-            id: 'ember-data:rsvp-promise-hanging',
-            until: '5.0',
-            for: '@ember-data/store',
-            since: {
-              available: '4.2',
-              enabled: '4.2',
-            },
-          });
+          deprecate(
+            `A Promise did not resolve by the time your model was destroyed. This will error in a future release.`,
+            false,
+            {
+              id: 'ember-data:rsvp-promise-hanging',
+              until: '5.0',
+              for: '@ember-data/store',
+              since: {
+                available: '4.2',
+                enabled: '4.2',
+              },
+            }
+          );
         }
       }
 

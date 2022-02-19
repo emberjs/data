@@ -1,7 +1,10 @@
+import { deprecate } from '@ember/debug';
 import { get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
 import { resolve } from 'rsvp';
+
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
 /**
   @module @ember-data/store
@@ -35,15 +38,19 @@ export function guardDestroyedStore(promise, store, label) {
   let wrapperPromise = resolve(promise, label).then((_v) => {
     if (!_objectIsAlive(store)) {
       if (DEPRECATE_RSVP_PROMISE) {
-        deprecate(`A Promise did not resolve by the time the store was destroyed.`, false, {
-          id: 'ember-data:rsvp-promise-hanging',
-          until: '5.0',
-          for: '@ember-data/store',
-          since: {
-            available: '4.2',
-            enabled: '4.2',
-          },
-        });
+        deprecate(
+          `A Promise did not resolve by the time the store was destroyed. This will error in a future release.`,
+          false,
+          {
+            id: 'ember-data:rsvp-promise-hanging',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.2',
+              enabled: '4.2',
+            },
+          }
+        );
       }
     }
 

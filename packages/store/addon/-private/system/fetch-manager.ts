@@ -2,11 +2,13 @@
  * @module @ember-data/store
  */
 import { A } from '@ember/array';
-import { assert, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { default as RSVP, Promise } from 'rsvp';
+
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
 import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
@@ -139,6 +141,24 @@ export default class FetchManager {
 
     promise = promise.then(
       (adapterPayload) => {
+        if (!_objectIsAlive(internalModel)) {
+          if (DEPRECATE_RSVP_PROMISE) {
+            deprecate(
+              `A Promise did not resolve by the time your model was destroyed. This will error in a future release.`,
+              false,
+              {
+                id: 'ember-data:rsvp-promise-hanging',
+                until: '5.0',
+                for: '@ember-data/store',
+                since: {
+                  available: '4.2',
+                  enabled: '4.2',
+                },
+              }
+            );
+          }
+        }
+
         if (adapterPayload) {
           return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         }
