@@ -98,19 +98,19 @@ export function deprecatedPromiseObject(promise) {
       // TODO: are there ones we want to error on?
 
       if (!ALLOWABLE_METHODS.includes(prop)) {
-          deprecate(
-            `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
-            false,
-            {
-              id: 'ember-data:model-save-promise',
-              until: '5.0',
-              for: '@ember-data/store',
-              since: {
-                available: '4.1',
-                enabled: '4.1',
-              },
-            }
-          );
+        deprecate(
+          `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
+          false,
+          {
+            id: 'ember-data:model-save-promise',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.1',
+              enabled: '4.1',
+            },
+          }
+        );
       }
 
       /* global Reflect */
