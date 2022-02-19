@@ -48,7 +48,9 @@ module('integration/records/save - Save Record', function (hooks) {
       assert.strictEqual(saved.get('id'), '123');
     }
     assert.strictEqual(model, post, 'resolves with the model');
-    assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 2, when: { ember: '>=3.26.0' } });
+    if (!DS_MODEL_SAVE_PROMISE) {
+      assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 2 });
+    }
   });
 
   test('Will reject save on error', function (assert) {
