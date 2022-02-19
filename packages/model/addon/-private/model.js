@@ -14,6 +14,8 @@ import Ember from 'ember';
 
 import { DS_MODEL_SAVE_PROMISE } from '@ember-data/canary-features';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
+import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
+
 import {
   coerceId,
   deprecatedPromiseObject,
@@ -860,11 +862,14 @@ class Model extends EmberObject {
         return this;
       });
     } else {
-      return deprecatedPromiseObject(
-        PromiseObject.create({
-          promise: this._internalModel.save(options).then(() => this),
-        })
-      );
+      const promise = PromiseObject.create({
+        promise: this._internalModel.save(options).then(() => this),
+      });
+      if (DEPRECATE_SAVE_PROMISE_ACCESS) {
+        return deprecatedPromiseObject(promise);
+      } else {
+        return promise;
+      }
     }
   }
 

@@ -39,4 +39,5 @@
 export default {
   DEPRECATE_CATCH_ALL: '99.0',
   DEPRECATE_3_12: '3.12',
+  DEPRECATE_SAVE_PROMISE_ACCESS: '4.2',
 };
