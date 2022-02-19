@@ -254,7 +254,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
   );
 
   if (DEPRECATE_RSVP_PROMISE) {
-    _guard(promise, _bind(_objectIsAlive, internalModel));
+    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
   }
 
   return promise;
