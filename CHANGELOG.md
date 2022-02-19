@@ -1,4 +1,57 @@
 # Ember Data Changelog
+## v4.1.0 (2021-12-30)
+
+#### :house: Internal
+* [#7831](https://github.com/emberjs/data/pull/7831) Regen yarn lockfile ([@snewcomer](https://github.com/snewcomer))
+* [#7830](https://github.com/emberjs/data/pull/7830) CHANGELOG 4.1.0 ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.0.2 (2021-12-15)
+
+#### :bug: Bug Fix
+* `-ember-data`, `model`, `record-data`, `store`
+  * [#7804](https://github.com/emberjs/data/pull/7804) Backport Train for Release ([@runspired](https://github.com/runspired))
+* Other
+  * [#7794](https://github.com/emberjs/data/pull/7794) [bug]: findRecord should not cache if includes differ (#7702) ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.0.0 (2021-12-11)
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7767](https://github.com/emberjs/data/pull/7767) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`
+  * [#7703](https://github.com/emberjs/data/pull/7703) fix tests ([@snewcomer](https://github.com/snewcomer))
+* Other
+  * [#7729](https://github.com/emberjs/data/pull/7729) Cache dependencies in GitHub Actions CI workflow ([@ddzz](https://github.com/ddzz))
+  * [#7737](https://github.com/emberjs/data/pull/7737) Remove IE11 asset size checks ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`, `private-build-infra`, `record-data`, `store`
+  * [#7741](https://github.com/emberjs/data/pull/7741) Remove IE11 hacks ([@snewcomer](https://github.com/snewcomer))
+* `adapter`, `store`, `unpublished-test-infra`
+  * [#7740](https://github.com/emberjs/data/pull/7740) Remove symbol util in place of built in Symbol ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`, `adapter`, `debug`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7739](https://github.com/emberjs/data/pull/7739) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+
+#### :evergreen_tree: New Deprecation
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7767](https://github.com/emberjs/data/pull/7767) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+
+#### :house: Internal
+* [#7760](https://github.com/emberjs/data/pull/7760) chore: cancel older CI jobs ([@runspired](https://github.com/runspired))
+
+#### Committers: 4
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Darius D. ([@ddzz](https://github.com/ddzz))
+- Igor Terzic ([@igorT](https://github.com/igorT))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
 
 ## v4.0.0-beta.0 (2021-08-20)
 
@@ -53,6 +106,43 @@
 - Pete ([@pete-the-pete](https://github.com/pete-the-pete))
 - Tyler ([@runnerboy22](https://github.com/runnerboy22))
 
+## v3.28.7 (2022-01-01)
+
+#### :house: Internal
+* [#7833](https://github.com/emberjs/data/pull/7833) CHANGELOG 3.28.7 ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v3.28.4 (2021-11-23)
+
+#### :bug: Bug Fix
+* `-ember-data`, `private-build-infra`
+  * [#7762](https://github.com/emberjs/data/pull/7762) chore(deps): bump broccoli-rollup from 4.1.1 to 5.0.0 (#7559) ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v3.28.3 (2021-09-05)
+
+#### :bug: Bug Fix
+* `-ember-data`, `adapter`, `debug`, `model`, `serializer`, `store`
+  * [#7698](https://github.com/emberjs/data/pull/7698) [BACKPORT Release] @ember/string to the latest version. The prior (#7697) ([@igorT](https://github.com/igorT))
+
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
+
+## v3.28.2 (2021-09-02)
+
+#### :bug: Bug Fix
+* `private-build-infra`
+  * [#7694](https://github.com/emberjs/data/pull/7694) [Bugfix] ensure `shouldCompileModules` is once again respected (#7680) ([@igorT](https://github.com/igorT))
+
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
 
 ## Release 3.28.0 (Aug 20, 2021)
 
