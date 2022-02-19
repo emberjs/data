@@ -90,13 +90,12 @@ export function promiseArray(promise, label) {
   });
 }
 
+// constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
 
 export function deprecatedPromiseObject(promise) {
   const handler = {
     get(target, prop) {
-      // TODO: are there ones we want to error on?
-
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
           `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
@@ -106,8 +105,8 @@ export function deprecatedPromiseObject(promise) {
             until: '5.0',
             for: '@ember-data/store',
             since: {
-              available: '4.1',
-              enabled: '4.1',
+              available: '4.2',
+              enabled: '4.2',
             },
           }
         );
