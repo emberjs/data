@@ -27,7 +27,6 @@ const ImportSortGroups = [
 
 module.exports = {
   parser: '@babel/eslint-parser',
-  reportUnusedDisableDirectives: true,
   root: true,
   parserOptions: {
     ecmaVersion: 2018,
@@ -39,16 +38,9 @@ module.exports = {
     requireConfigFile: false,
   },
   plugins: ['prettier', 'qunit', 'mocha', 'simple-import-sort', 'import'],
-  extends: [
-    'eslint:recommended',
-    'plugin:eslint-comments/recommended',
-    'plugin:prettier/recommended',
-    'plugin:qunit/recommended',
-  ],
+  extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:qunit/recommended'],
   rules: {
     eqeqeq: 'error',
-
-    'eslint-comments/no-unused-disable': 'error',
 
     // Imports
     'import/first': 'error',
