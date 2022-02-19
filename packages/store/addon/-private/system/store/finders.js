@@ -223,8 +223,8 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
             until: '5.0',
             for: '@ember-data/store',
             since: {
-              available: '4.1',
-              enabled: '4.1',
+              available: '4.2',
+              enabled: '4.2',
             },
           });
         } else {
@@ -254,7 +254,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
   );
 
   if (DEPRECATE_RSVP_PROMISE) {
-    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
+    _guard(promise, _bind(_objectIsAlive, internalModel));
   }
 }
 
