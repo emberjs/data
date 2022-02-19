@@ -7,6 +7,7 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
+import { DS_MODEL_SAVE_PROMISE } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
@@ -23,31 +24,30 @@ module('integration/records/save - Save Record', function (hooks) {
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('Will resolve save on success', function (assert) {
-    assert.expect(4);
-
+  test('Will resolve save on success', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     let post = store.createRecord('post', { title: 'toto' });
 
-    var deferred = defer();
+    const deferred = defer();
     adapter.createRecord = function (store, type, snapshot) {
       return deferred.promise;
     };
 
-    run(function () {
-      var saved = post.save();
+    let saved = post.save();
 
+    if (!DS_MODEL_SAVE_PROMISE) {
       // `save` returns a PromiseObject which allows to call get on it
       assert.strictEqual(saved.get('id'), undefined);
+    }
 
-      deferred.resolve({ data: { id: 123, type: 'post' } });
-      saved.then(function (model) {
-        assert.ok(true, 'save operation was resolved');
-        assert.strictEqual(saved.get('id'), '123');
-        assert.strictEqual(model, post, 'resolves with the model');
-      });
-    });
+    deferred.resolve({ data: { id: 123, type: 'post' } });
+    let model = await saved;
+    assert.ok(true, 'save operation was resolved');
+    if (!DS_MODEL_SAVE_PROMISE) {
+      assert.strictEqual(saved.get('id'), '123');
+    }
+    assert.strictEqual(model, post, 'resolves with the model');
   });
 
   test('Will reject save on error', function (assert) {
