@@ -11393,10 +11393,10 @@ node-uuid@~1.4.0:
   resolved "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.8.tgz#b040eb0923968afabf8d32fb1f17f1167fdab907"
   integrity sha1-sEDrCSOWivq/jTL7HxfxFn/auQc=
 
-node-watch@0.7.2:
-  version "0.7.2"
-  resolved "https://registry.npmjs.org/node-watch/-/node-watch-0.7.2.tgz#545f057da8500487eb8287adcb4cb5a7338d7e21"
-  integrity sha512-g53VjSARRv1JdST0LZRIg8RiuLr1TaBbVPsVvxh0/0Ymvi0xYUjDuoqQQAWtHJQUXhiShowPT/aXKNeHBcyQsw==
+node-watch@0.7.3:
+  version "0.7.3"
+  resolved "https://registry.npmjs.org/node-watch/-/node-watch-0.7.3.tgz#6d4db88e39c8d09d3ea61d6568d80e5975abc7ab"
+  integrity sha512-3l4E8uMPY1HdMMryPRUAl+oIHtXtyiTlIiESNSVSNxcPfzAFzeTbXFQkZfAwBbo0B1qMSG8nUABx+Gd+YrbKrQ==
 
 nopt@^3.0.6:
   version "3.0.6"
@@ -12579,12 +12579,12 @@ qunit-dom@^2.0.0:
     ember-cli-version-checker "^5.1.1"
 
 qunit@^2.17.0:
-  version "2.17.2"
-  resolved "https://registry.npmjs.org/qunit/-/qunit-2.17.2.tgz#5cb278e131d931f25c109a0fdb0518be7754c25a"
-  integrity sha512-17isVvuOmALzsPjiV7wFg/6O5vJYXBrQZPwocfQSSh0I/rXvfX7bKMFJ4GMVW3U4P8r2mBeUy8EAngti4QD2Vw==
+  version "2.18.0"
+  resolved "https://registry.npmjs.org/qunit/-/qunit-2.18.0.tgz#5a3efc8ee609e9d8f207a1ad317a9b02bb14bc6b"
+  integrity sha512-Xw/zUm5t1JY8SNErki/qtw4fCuaaOZL+bPloZU+0kto+fO8j1JV9MQWqXO4kATfhEyJohlsKZpfg1HF7GOkpXw==
   dependencies:
     commander "7.2.0"
-    node-watch "0.7.2"
+    node-watch "0.7.3"
     tiny-glob "0.2.9"
 
 ramda@^0.27.1:
