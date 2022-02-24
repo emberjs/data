@@ -114,6 +114,33 @@ interface PrivateState {
   links: Links | PaginationLinks | null;
   meta: Dict<unknown> | null;
 }
+type ForEachCB = (record: RecordInstance, index: number, context: IdentifierArray) => void;
+function safeForEach(
+  instance: IdentifierArray,
+  arr: StableRecordIdentifier[],
+  store: Store,
+  callback: ForEachCB,
+  target: unknown
+) {
+  if (target === undefined) {
+    target = null;
+  }
+  // clone to prevent mutation
+  arr = arr.slice();
+  assert('`forEach` expects a function as first argument.', typeof callback === 'function');
+
+  // because we retrieveLatest above we need not worry if array is mutated during iteration
+  // by unloadRecord/rollbackAttributes
+  // push/add/removeObject may still be problematic
+  // but this is a more traditionally expected forEach bug.
+  const length = arr.length; // we need to access length to ensure we are consumed
+
+  for (let index = 0; index < length; index++) {
+    callback.call(target, store._instanceCache.getRecord(arr[index]), index, instance);
+  }
+
+  return instance;
+}
 
 /**
   A record array is an array that contains records of a certain type (or modelName).
@@ -241,15 +268,25 @@ class IdentifierArray {
           let fn = boundFns.get(prop);
 
           if (fn === undefined) {
-            fn = function () {
-              subscribe(_TAG);
-              // array functions must run through Reflect to work properly
-              // binding via other means will not work.
-              transaction = true;
-              let result = Reflect.apply(target[prop] as ProxiedMethod, receiver, arguments) as unknown;
-              transaction = false;
-              return result;
-            };
+            if (prop === 'forEach') {
+              fn = function () {
+                subscribe(_TAG);
+                transaction = true;
+                let result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
+                transaction = false;
+                return result;
+              };
+            } else {
+              fn = function () {
+                subscribe(_TAG);
+                // array functions must run through Reflect to work properly
+                // binding via other means will not work.
+                transaction = true;
+                let result = Reflect.apply(target[prop] as ProxiedMethod, receiver, arguments) as unknown;
+                transaction = false;
+                return result;
+              };
+            }
 
             boundFns.set(prop, fn);
           }

@@ -12,6 +12,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT, PromiseManyArray } from '@ember-data/model/-private';
 import { DEPRECATE_ARRAY_LIKE } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
@@ -22,6 +23,146 @@ module('unit/model/relationships - hasMany', function (hooks) {
   hooks.beforeEach(function () {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
+  });
+
+  test('unloadRecord while iterating a hasMany is safe', function (assert) {
+    class User extends Model {
+      @attr name;
+      @hasMany('user', { inverse: null, async: false }) friends;
+    }
+    const { owner } = this;
+    owner.register('model:user', User);
+    const store = owner.lookup('service:store');
+    const chris = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: { name: 'Chris' },
+        relationships: {
+          friends: {
+            data: [
+              { type: 'user', id: '2' },
+              { type: 'user', id: '3' },
+              { type: 'user', id: '4' },
+              { type: 'user', id: '5' },
+            ],
+          },
+        },
+      },
+      included: [
+        { type: 'user', id: '2', attributes: { name: 'William' } },
+        { type: 'user', id: '3', attributes: { name: 'Michael' } },
+        { type: 'user', id: '4', attributes: { name: 'Thomas' } },
+        { type: 'user', id: '5', attributes: { name: 'John' } },
+      ],
+    });
+    const james = store.createRecord('user', { name: 'James' });
+    const jamesIdentifier = recordIdentifierFor(james);
+    chris.friends.splice(1, 0, james);
+
+    const expectedOrder = [
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
+      jamesIdentifier,
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '5' }),
+    ];
+    let expectedIndex = 0;
+
+    assert.strictEqual(chris.friends.length, 5, 'we have 5 friends');
+    chris.friends.forEach((friend, index) => {
+      if (expectedIndex < 2) {
+        assert.strictEqual(chris.friends.length, 5, `we have the right length BEFORE iteration ${expectedIndex + 1}`);
+      } else if (expectedIndex < 4) {
+        assert.strictEqual(chris.friends.length, 4, `we have the right length BEFORE iteration ${expectedIndex + 1}`);
+      } else {
+        assert.strictEqual(chris.friends.length, 3, `we have the right length BEFORE iteration ${expectedIndex + 1}`);
+      }
+      assert.strictEqual(index, expectedIndex, `We reached item ${expectedIndex + 1} of 5`);
+      const identifier = friend && recordIdentifierFor(friend);
+      assert.strictEqual(identifier, expectedOrder[expectedIndex], `We received the expected identifier`);
+      if (expectedIndex === 1 || expectedIndex === 3) {
+        friend.unloadRecord();
+      }
+      if (expectedIndex < 1) {
+        assert.strictEqual(chris.friends.length, 5, `we have the right length AFTER iteration ${expectedIndex + 1}`);
+      } else if (expectedIndex < 3) {
+        assert.strictEqual(chris.friends.length, 4, `we have the right length AFTER iteration ${expectedIndex + 1}`);
+      } else {
+        assert.strictEqual(chris.friends.length, 3, `we have the right length AFTER iteration ${expectedIndex + 1}`);
+      }
+      expectedIndex++;
+    });
+    assert.strictEqual(expectedIndex, 5, 'we iterated the expected number of times');
+    assert.strictEqual(chris.friends.length, 3, 'we have 3 friends');
+  });
+
+  test('rollbackAttributes while iterating a hasMany is safe', function (assert) {
+    class User extends Model {
+      @attr name;
+      @hasMany('user', { inverse: null, async: false }) friends;
+    }
+    const { owner } = this;
+    owner.register('model:user', User);
+    const store = owner.lookup('service:store');
+    const chris = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: { name: 'Chris' },
+        relationships: {
+          friends: {
+            data: [
+              { type: 'user', id: '2' },
+              { type: 'user', id: '3' },
+              { type: 'user', id: '4' },
+              { type: 'user', id: '5' },
+            ],
+          },
+        },
+      },
+      included: [
+        { type: 'user', id: '2', attributes: { name: 'William' } },
+        { type: 'user', id: '3', attributes: { name: 'Michael' } },
+        { type: 'user', id: '4', attributes: { name: 'Thomas' } },
+        { type: 'user', id: '5', attributes: { name: 'John' } },
+      ],
+    });
+    const james = store.createRecord('user', { name: 'James' });
+    const jamesIdentifier = recordIdentifierFor(james);
+    chris.friends.splice(1, 0, james);
+
+    const expectedOrder = [
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
+      jamesIdentifier,
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
+      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '5' }),
+    ];
+    let expectedIndex = 0;
+
+    assert.strictEqual(chris.friends.length, 5, 'we have 5 friends');
+    chris.friends.forEach((friend, index) => {
+      if (expectedIndex < 2) {
+        assert.strictEqual(chris.friends.length, 5, `we have the right length BEFORE iteration ${expectedIndex + 1}`);
+      } else {
+        assert.strictEqual(chris.friends.length, 4, `we have the right length BEFORE iteration ${expectedIndex + 1}`);
+      }
+      assert.strictEqual(index, expectedIndex, `We reached item ${expectedIndex + 1} of 5`);
+      const identifier = friend && recordIdentifierFor(friend);
+      assert.strictEqual(identifier, expectedOrder[expectedIndex], `We received the expected identifier`);
+      if (expectedIndex === 1 || expectedIndex === 3) {
+        friend.rollbackAttributes();
+      }
+      if (expectedIndex < 1) {
+        assert.strictEqual(chris.friends.length, 5, `we have the right length AFTER iteration ${expectedIndex + 1}`);
+      } else {
+        assert.strictEqual(chris.friends.length, 4, `we have the right length AFTER iteration ${expectedIndex + 1}`);
+      }
+      expectedIndex++;
+    });
+    assert.strictEqual(expectedIndex, 5, 'we iterated the expected number of times');
+    assert.strictEqual(chris.friends.length, 4, 'we have 4 friends');
   });
 
   test('hasMany handles pre-loaded relationships', function (assert) {
