@@ -333,7 +333,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.strictEqual(calledPush, 0, 'Did not call pushData');
   });
 
-  test('Record Data attribute settting', async function (assert) {
+  test('Record Data attribute setting', async function (assert) {
     let expectedCount = 15;
     assert.expect(expectedCount);
     const personHash = {
