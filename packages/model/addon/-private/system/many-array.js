@@ -225,6 +225,35 @@ export default EmberObject.extend(MutableArray, {
     return internalModel.getRecord();
   },
 
+  forEach(callback, target) {
+    if (target === undefined) {
+      target = null;
+    }
+
+    assert('`forEach` expects a function as first argument.', typeof callback === 'function');
+
+    // we must cache off the array before iteration
+    // else `rollbackAttributes` and `unloadRecord` are unsafe
+    // to do while iterating
+    // TODO consider deprecating the ability to mutate while within a forEach
+    // e.g. force consuming app to call toArray first.
+    if (this._isDirty) {
+      this.retrieveLatest();
+    }
+    // because we retrieveLatest above we need not worry if array is mutated during iteration
+    // by unloadRecord/rollbackAttributes
+    // push/add/removeObject may still be problematic
+    // but this is a more traditionally expected forEach bug.
+    const arr = this.currentState;
+    const length = arr.length;
+
+    for (let index = 0; index < length; index++) {
+      callback.call(target, arr[index].getRecord(), index, this);
+    }
+
+    return this;
+  },
+
   replace(idx, amt, objects) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
     this.store._backburner.join(() => {
