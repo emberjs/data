@@ -1,4 +1,5 @@
 # Ember Data Changelog
+
 ## v4.1.0 (2021-12-30)
 
 #### :house: Internal
@@ -51,60 +52,6 @@
 - Darius D. ([@ddzz](https://github.com/ddzz))
 - Igor Terzic ([@igorT](https://github.com/igorT))
 - Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
-
-
-## v4.0.0-beta.0 (2021-08-20)
-
-#### :rocket: Enhancement
-* `-ember-data`, `store`
-  * [#7104](https://github.com/emberjs/data/pull/7104) [FEAT] RFC-521 Accept Identifiers for store methods ([@pete-the-pete](https://github.com/pete-the-pete))
-
-#### :shower: Deprecation Removal
-* `-ember-data`, `store`
-  * [#7581](https://github.com/emberjs/data/pull/7581) Follow up: store identifier #7104 ([@snewcomer](https://github.com/snewcomer))
-* `store`
-  * [#7578](https://github.com/emberjs/data/pull/7578) [Chore]: shouldAssertMethodCallsOnDestroyedStore: true ([@snewcomer](https://github.com/snewcomer))
-
-#### :memo: Documentation
-* `model`
-  * [#7615](https://github.com/emberjs/data/pull/7615) [DOC] Fix transform example not using native class syntax ([@brkn](https://github.com/brkn))
-* `adapter`
-  * [#7592](https://github.com/emberjs/data/pull/7592) Add a comment explaining setting an errors status as a string ([@nlfurniss](https://github.com/nlfurniss))
-* `model`, `store`
-  * [#7568](https://github.com/emberjs/data/pull/7568) Fixes `DeprecatedEvented` link ([@skaterdav85](https://github.com/skaterdav85))
-* `adapter`, `model`, `serializer`, `store`
-  * [#7564](https://github.com/emberjs/data/pull/7564) [DOC] Fixes broken EmberObject links and updates this._super in native class examples ([@skaterdav85](https://github.com/skaterdav85))
-* `serializer`
-  * [#7563](https://github.com/emberjs/data/pull/7563) [DOC] Updates this._super in native classes to native class super ([@skaterdav85](https://github.com/skaterdav85))
-
-#### :goal_net: Test
-* `unpublished-test-infra`
-  * [#7653](https://github.com/emberjs/data/pull/7653) Nightly test: beta and canary fail b/c semver comparison ([@snewcomer](https://github.com/snewcomer))
-
-#### :house: Internal
-* `-ember-data`, `store`
-  * [#7662](https://github.com/emberjs/data/pull/7662) [deps]: bump ember-compatibility-helpers ([@snewcomer](https://github.com/snewcomer))
-* `-ember-data`, `adapter`, `model`, `record-data`, `store`, `unpublished-eslint-rules`, `unpublished-fastboot-test-app`, `unpublished-test-infra`
-  * [#7608](https://github.com/emberjs/data/pull/7608) [Chore]: prefer static type-only-import typescript eslint rule ([@snewcomer](https://github.com/snewcomer))
-  * [#7599](https://github.com/emberjs/data/pull/7599) @ember-data/model: Simplify @cached transpilation ([@dcyriller](https://github.com/dcyriller))
-* `-ember-data`, `adapter`, `store`, `unpublished-test-infra`
-  * [#7589](https://github.com/emberjs/data/pull/7589) chore: fix or silence-expected deprecations ([@runspired](https://github.com/runspired))
-
-
-#### :evergreen_tree: New Deprecation
-* `-ember-data`, `store`
-  * [#7652](https://github.com/emberjs/data/pull/7652) Fir for CUSTOM_MODEL_CLASS and deprecate passing non ember data records to unloadRecord and deleteRecord ([@igorT](https://github.com/igorT))
-
-#### Committers: 2
-- Berkan Ünal ([@brkn](https://github.com/brkn))
-- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
-- Igor Terzic ([@igorT](https://github.com/igorT))
-- Cyrille David ([@dcyriller](https://github.com/dcyriller))
-- Chris Thoburn ([@runspired](https://github.com/runspired))
-- David Tang ([@skaterdav85](https://github.com/skaterdav85))
-- Nathaniel Furniss ([@nlfurniss](https://github.com/nlfurniss))
-- Pete ([@pete-the-pete](https://github.com/pete-the-pete))
-- Tyler ([@runnerboy22](https://github.com/runnerboy22))
 
 ## v3.28.7 (2022-01-01)
 
