@@ -154,7 +154,6 @@ module('integration/store - destroy', function (hooks) {
 
     this.owner.register('adapter:application', TestAdapter);
 
-    store.shouldTrackAsyncRequests = true;
     store.push = function () {
       assert('The test should have destroyed the store by now', store.isDestroyed);
 
@@ -291,7 +290,6 @@ module('integration/store - findRecord', function (hooks) {
     this.owner.register('adapter:application', RESTAdapter.extend());
     this.owner.register('serializer:application', RESTSerializer.extend());
     store = this.owner.lookup('service:store');
-    store.shouldTrackAsyncRequests = true;
   });
 
   test('store#findRecord fetches record from server when cached record is not present', async function (assert) {
