@@ -2198,6 +2198,29 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }
   });
 
+  testInDebug('An async hasMany does not fetch with a model created with no options', function (assert) {
+    const Post = Model.extend({
+      title: attr('string'),
+      comments: hasMany('comment', { async: true }),
+      toString: () => 'Post',
+    });
+    this.owner.register('model:post', Post);
+
+    let store = this.owner.lookup('service:store');
+
+    let comment = store.createRecord('comment');
+    let post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+      },
+    });
+
+
+    post.get('comments').pushObject(comment);
+    assert.ok(post.get('comments').length, 1, 'expected length for comments');
+  });
+
   test('After removing and unloading a record, a hasMany relationship should still be valid', function (assert) {
     let store = this.owner.lookup('service:store');
 
