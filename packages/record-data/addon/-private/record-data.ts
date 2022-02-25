@@ -144,7 +144,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   // should always be false to the end user
   // e.g. create record without second arg and add to async relationship many and it will fetch it b/c isEmpty is true
   isEmpty() {
-    return !this.isNew() && this.__attributes === null && this.__inFlightAttributes === null && this.__data === null;
+    return this.__attributes === null && this.__inFlightAttributes === null && this.__data === null;
   }
 
   deleteRecord() {
