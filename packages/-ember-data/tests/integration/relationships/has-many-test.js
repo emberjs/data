@@ -2199,14 +2199,21 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   testInDebug('An async hasMany does not fetch with a model created with no options', function (assert) {
+    let store = this.owner.lookup('service:store');
+    let adapter = store.adapterFor('application');
+    adapter.findRecord = function () {
+      assert.ok(false, 'no request should be made');
+    };
+    adapter.findMany = function () {
+      assert.ok(false, 'no request should be made');
+    };
+
     const Post = Model.extend({
       title: attr('string'),
       comments: hasMany('comment', { async: true }),
       toString: () => 'Post',
     });
     this.owner.register('model:post', Post);
-
-    let store = this.owner.lookup('service:store');
 
     let comment = store.createRecord('comment');
     let post = store.push({
