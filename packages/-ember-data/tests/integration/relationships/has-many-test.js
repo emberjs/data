@@ -2223,7 +2223,6 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       },
     });
 
-
     post.get('comments').pushObject(comment);
     assert.ok(post.get('comments').length, 1, 'expected length for comments');
   });
