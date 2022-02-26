@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/store",
-  "version": "4.2.0-alpha.10",
+  "version": "4.3.0-beta.0",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
@@ -17,8 +17,8 @@
     "start": "ember serve"
   },
   "dependencies": {
-    "@ember-data/canary-features": "4.2.0-alpha.10",
-    "@ember-data/private-build-infra": "4.2.0-alpha.10",
+    "@ember-data/canary-features": "4.3.0-beta.0",
+    "@ember-data/private-build-infra": "4.3.0-beta.0",
     "@ember/string": "^3.0.0",
     "@glimmer/tracking": "^1.0.4",
     "ember-auto-import": "^2.2.4",
@@ -28,7 +28,7 @@
     "ember-cli-typescript": "^5.0.0"
   },
   "devDependencies": {
-    "@ember-data/unpublished-test-infra": "4.2.0-alpha.10",
+    "@ember-data/unpublished-test-infra": "4.3.0-beta.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.6.0",
     "@types/ember": "^4.0.0",
