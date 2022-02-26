@@ -1,5 +1,131 @@
 # Ember Data Changelog
 
+## 4.3.0-beta.0 (2022-02-26)
+
+#### :memo: Documentation
+* [#7898](https://github.com/emberjs/data/pull/7898) Changelog 4.1.0 ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.2.0-alpha.10 (2022-02-23)
+
+#### :rocket: Enhancement
+* `adapter`, `model`, `serializer`
+  * [#7887](https://github.com/emberjs/data/pull/7887) [RFC 637] Customizable test setups ([@bertdeblock](https://github.com/bertdeblock))
+
+#### :bug: Bug Fix
+* `-ember-data`, `record-data`
+  * [#7882](https://github.com/emberjs/data/pull/7882) fix: dont early exit loop when filtering duplicates from relationship updates ([@runspired](https://github.com/runspired))
+
+#### :shower: Deprecation Removal
+* [#7881](https://github.com/emberjs/data/pull/7881) Simplify import linting ([@bmish](https://github.com/bmish))
+
+#### :house: Internal
+* `-ember-data`, `unpublished-test-infra`
+  * [#7885](https://github.com/emberjs/data/pull/7885) chore: add eslint-plugin-eslint-comments ([@bmish](https://github.com/bmish))
+* `-ember-data`, `record-data`
+  * [#7866](https://github.com/emberjs/data/pull/7866) Autofix most qunit linting ([@bmish](https://github.com/bmish))
+* `store`
+  * [#7878](https://github.com/emberjs/data/pull/7878) Remove lint rule to prevent global Promise ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 4
+- Bert De Block ([@bertdeblock](https://github.com/bertdeblock))
+- Bryan Mishkin ([@bmish](https://github.com/bmish))
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.2.0-alpha.9 (2022-02-16)
+
+#### :rocket: Enhancement
+* `-ember-data`, `record-data`, `store`
+  * [#7864](https://github.com/emberjs/data/pull/7864) feat: better debuggability ([@runspired](https://github.com/runspired))
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `debug`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7862](https://github.com/emberjs/data/pull/7862) chore: remove no-longer-needed misdirection for IdentifierCache lookup ([@runspired](https://github.com/runspired))
+* `-ember-data`, `model`, `private-build-infra`, `serializer`, `store`, `unpublished-test-infra`
+  * [#7861](https://github.com/emberjs/data/pull/7861) chore: remove things deprecated for 4.0 ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+* `-ember-data`, `store`
+  * [#7867](https://github.com/emberjs/data/pull/7867) RFC 794: Simplifying Schema Definition Service type signatures ([@snewcomer](https://github.com/snewcomer))
+  * [#7865](https://github.com/emberjs/data/pull/7865) Cleanup eslint config ([@bmish](https://github.com/bmish))
+* `-ember-data`, `adapter`, `canary-features`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7863](https://github.com/emberjs/data/pull/7863) Update eslint and typescript to latest ([@runspired](https://github.com/runspired))
+
+#### Committers: 3
+- Bryan Mishkin ([@bmish](https://github.com/bmish))
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.2.0-alpha.7 (2022-02-02)
+
+#### :bug: Bug Fix
+* `-ember-data`, `serializer`
+  * [#7848](https://github.com/emberjs/data/pull/7848) Don't use array.push(...spread) with unknown input ([@DingoEatingFuzz](https://github.com/DingoEatingFuzz))
+* `-ember-data`, `adapter`
+  * [#7834](https://github.com/emberjs/data/pull/7834) Fix bug with encoding space characters when serializing query params ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 2
+- Michael Lange ([@DingoEatingFuzz](https://github.com/DingoEatingFuzz))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.2.0-alpha.2 (2021-12-29)
+
+#### :house: Internal
+* `-ember-data`, `canary-features`, `model`, `record-data`, `serializer`, `store`, `unpublished-model-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#7816](https://github.com/emberjs/data/pull/7816) Remove !CUSTOM_MODEL_CLASS branches ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.2.0-alpha.1 (2021-12-22)
+
+#### :bug: Bug Fix
+* `-ember-data`, `model`, `store`
+  * [#7802](https://github.com/emberjs/data/pull/7802) fix: A(PromiseManyArray) should have no-effect ([@runspired](https://github.com/runspired))
+  * [#7771](https://github.com/emberjs/data/pull/7771) Fix: assign unknown properties in init after initialization is finished to ensure proper setup timing ([@andreyfel](https://github.com/andreyfel))
+* `-ember-data`, `model`, `record-data`, `store`
+  * [#7691](https://github.com/emberjs/data/pull/7691) add test + fix for chained async has many ([@sly7-7](https://github.com/sly7-7))
+* `-ember-data`, `record-data`
+  * [#7801](https://github.com/emberjs/data/pull/7801) add test and fix push of duplicate identifiers to a relationship ([@runspired](https://github.com/runspired))
+* `-ember-data`, `record-data`, `store`
+  * [#7800](https://github.com/emberjs/data/pull/7800) update test and fix lid reflection ([@runspired](https://github.com/runspired))
+* `-ember-data`, `store`
+  * [#7796](https://github.com/emberjs/data/pull/7796) feat: autotracking for reference id access ([@runspired](https://github.com/runspired))
+  * [#7702](https://github.com/emberjs/data/pull/7702) [bug]: findRecord should not cache if includes differ ([@snewcomer](https://github.com/snewcomer))
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `store`, `unpublished-fastboot-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#7759](https://github.com/emberjs/data/pull/7759) Remove fallback for when no model serializer ([@snewcomer](https://github.com/snewcomer))
+
+#### :evergreen_tree: New Deprecation
+* `-ember-data`, `adapter`, `store`, `unpublished-fastboot-test-app`, `unpublished-serializer-encapsulation-test-app`
+  * [#7759](https://github.com/emberjs/data/pull/7759) Remove fallback for when no model serializer ([@snewcomer](https://github.com/snewcomer))
+
+#### :house: Internal
+* `canary-features`
+  * [#7815](https://github.com/emberjs/data/pull/7815) Remove FULL_LINKS_ON_RELATIONSHIPS feature flag ([@snewcomer](https://github.com/snewcomer))
+  * [#7814](https://github.com/emberjs/data/pull/7814) Remove IDENTIFIERS feature flag ([@snewcomer](https://github.com/snewcomer))
+  * [#7812](https://github.com/emberjs/data/pull/7812) Remove RECORD_ARRAY_MANAGER_IDENTIFIERS ([@snewcomer](https://github.com/snewcomer))
+* Other
+  * [#7813](https://github.com/emberjs/data/pull/7813) Regenerate lockfile ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`, `adapter`, `debug`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-relationship-performance-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7811](https://github.com/emberjs/data/pull/7811) Fix nightly runs ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 5
+- Andrey Fel ([@andreyfel](https://github.com/andreyfel))
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Jacob ([@jfdnc](https://github.com/jfdnc))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+- Sylvain Mina ([@sly7-7](https://github.com/sly7-7))
+
 ## v4.1.0 (2021-12-30)
 
 #### :house: Internal
