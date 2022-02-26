@@ -15,8 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - run: git fetch --depth=1
       - name: Check SHA
         run: |
           sha=$(git rev-parse --short=8 HEAD)
