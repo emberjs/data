@@ -22,7 +22,6 @@ import {
   InternalModel,
   PromiseObject,
   recordDataFor,
-  StatefulPromise,
 } from '@ember-data/store/-private';
 
 import Errors from './errors';
@@ -857,7 +856,7 @@ class Model extends EmberObject {
   */
   save(options) {
     if (DS_MODEL_SAVE_PROMISE) {
-      return new StatefulPromise(this._internalModel.save(options)).then(() => {
+      return this._internalModel.save(options).then(() => {
         return this;
       });
     } else {
