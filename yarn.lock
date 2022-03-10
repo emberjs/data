@@ -2525,19 +2525,10 @@
   dependencies:
     "@types/ember__object" "*"
 
-"@types/ember__debug@*":
-  version "3.16.5"
-  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-3.16.5.tgz#ce04532c100fdc1c97c9f308d69a88d6e956db97"
-  integrity sha512-Sj0idBMOd33PubBbxtXty+tzyVIAbxK4cf8q0AKZ0z5wOL0wsFOLCvMgRMxSME3DB2uvJd4u9tGr15XFM+Z03A==
-  dependencies:
-    "@types/ember__debug" "*"
-    "@types/ember__engine" "*"
-    "@types/ember__object" "*"
-
-"@types/ember__debug@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-4.0.0.tgz#02d3d710988988e5cff094ddcd45e5364727b161"
-  integrity sha512-yY+U7veF8jYFJdm+IU+7Y/DoxVsyV/73UvFUdR0jCasMVL9vuGkVx0rXlqe6XAM2cWI1LwV7zKQzgqDC8kQD2g==
+"@types/ember__debug@*", "@types/ember__debug@^4.0.0":
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/@types/ember__debug/-/ember__debug-4.0.1.tgz#1e4a8a1045484295dddc7bd4356d0b3014b0d509"
+  integrity sha512-qrKk6Ujh6oev7TSB0eB7AEmQWKCt5t84k/K3hDvJXUiLU3YueN0kyt7aPoIAkVjC111A9FqDugl9n60+N5yeEw==
   dependencies:
     "@types/ember-resolver" "*"
     "@types/ember__debug" "*"
