@@ -7,8 +7,8 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
-import { DS_MODEL_SAVE_PROMISE } from '@ember-data/canary-features';
 import Model, { attr } from '@ember-data/model';
+import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/records/save - Save Record', function (hooks) {
@@ -36,7 +36,7 @@ module('integration/records/save - Save Record', function (hooks) {
 
     let saved = post.save();
 
-    if (!DS_MODEL_SAVE_PROMISE) {
+    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       // `save` returns a PromiseObject which allows to call get on it
       assert.strictEqual(saved.get('id'), undefined);
     }
@@ -44,11 +44,11 @@ module('integration/records/save - Save Record', function (hooks) {
     deferred.resolve({ data: { id: 123, type: 'post' } });
     let model = await saved;
     assert.ok(true, 'save operation was resolved');
-    if (!DS_MODEL_SAVE_PROMISE) {
+    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       assert.strictEqual(saved.get('id'), '123');
     }
     assert.strictEqual(model, post, 'resolves with the model');
-    if (!DS_MODEL_SAVE_PROMISE) {
+    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
       assert.expectDeprecation({ id: 'ember-data:model-save-promise', count: 2 });
     }
   });
