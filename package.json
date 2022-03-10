@@ -111,7 +111,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-qunit": "^7.2.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "execa": "^5.0.0",
+    "execa": "^6.1.0",
     "fromentries": "^1.2.0",
     "git-repo-info": "^2.1.1",
     "glob": "^7.1.6",
