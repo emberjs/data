@@ -13,7 +13,15 @@ import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { HAS_DEBUG_PACKAGE } from '@ember-data/private-build-infra';
-import { coerceId, errorsArrayToHash, InternalModel, PromiseObject, recordDataFor } from '@ember-data/store/-private';
+import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@ember-data/private-build-infra/deprecations';
+import {
+  coerceId,
+  deprecatedPromiseObject,
+  errorsArrayToHash,
+  InternalModel,
+  PromiseObject,
+  recordDataFor,
+} from '@ember-data/store/-private';
 
 import Errors from './errors';
 import RecordState, { peekTag, tagged } from './record-state';
@@ -846,9 +854,12 @@ class Model extends EmberObject {
     successfully or rejected if the adapter returns with an error.
   */
   save(options) {
-    return PromiseObject.create({
-      promise: this._internalModel.save(options).then(() => this),
-    });
+    const promise = this._internalModel.save(options).then(() => this);
+    if (DEPRECATE_SAVE_PROMISE_ACCESS) {
+      return deprecatedPromiseObject(PromiseObject.create({ promise }));
+    }
+
+    return promise;
   }
 
   /**

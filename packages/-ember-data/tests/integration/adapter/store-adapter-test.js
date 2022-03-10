@@ -207,7 +207,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       });
   });
 
-  test('calling store.didSaveRecord can provide an optional hash', function (assert) {
+  test('calling store.didSaveRecord can provide an optional hash', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
     let Person = store.modelFor('person');
@@ -256,36 +256,19 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = run(() => {
-      return hash({
-        tom: store.findRecord('person', 1),
-        yehuda: store.findRecord('person', 2),
-      });
-    });
+    const tom = await store.findRecord('person', 1);
+    const yehuda = await store.findRecord('person', 2);
 
-    return promise
-      .then((records) => {
-        let tom = records.tom;
-        let yehuda = records.yehuda;
+    set(tom, 'name', 'Tom Dale');
+    set(yehuda, 'name', 'Yehuda Katz');
 
-        set(tom, 'name', 'Tom Dale');
-        set(yehuda, 'name', 'Yehuda Katz');
+    await tom.save();
+    await yehuda.save();
+    assert.false(get(tom, 'hasDirtyAttributes'), 'the record should not be dirty');
+    assert.strictEqual(get(tom, 'updatedAt'), 'now', 'the hash was updated');
 
-        return hash({
-          tom: tom.save(),
-          yehuda: yehuda.save(),
-        });
-      })
-      .then((records) => {
-        let tom = records.tom;
-        let yehuda = records.yehuda;
-
-        assert.false(get(tom, 'hasDirtyAttributes'), 'the record should not be dirty');
-        assert.strictEqual(get(tom, 'updatedAt'), 'now', 'the hash was updated');
-
-        assert.false(get(yehuda, 'hasDirtyAttributes'), 'the record should not be dirty');
-        assert.strictEqual(get(yehuda, 'updatedAt'), 'now!', 'the hash was updated');
-      });
+    assert.false(get(yehuda, 'hasDirtyAttributes'), 'the record should not be dirty');
+    assert.strictEqual(get(yehuda, 'updatedAt'), 'now!', 'the hash was updated');
   });
 
   test('by default, deleteRecord calls deleteRecord once per record', function (assert) {

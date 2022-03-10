@@ -8,3 +8,4 @@ function deprecationState(deprecationName: keyof typeof CURRENT_DEPRECATIONS): b
 // deprecations
 export const DEPRECATE_CATCH_ALL = deprecationState('DEPRECATE_CATCH_ALL');
 export const DEPRECATE_3_12 = deprecationState('DEPRECATE_3_12');
+export const DEPRECATE_SAVE_PROMISE_ACCESS = deprecationState('DEPRECATE_SAVE_PROMISE_ACCESS');
