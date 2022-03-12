@@ -8,6 +8,7 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -195,11 +196,6 @@ module('unit/store async-waiter and leak detection', function (hooks) {
 
     assert.false(waiter(), 'We return false to keep waiting while requests are pending');
 
-    // needed for LTS 2.16
-    Ember.Test.adapter.exception = (e) => {
-      throw e;
-    };
-
     assert.throws(() => {
       run(() => store.destroy());
     }, /Async Request leaks detected/);
@@ -210,6 +206,10 @@ module('unit/store async-waiter and leak detection', function (hooks) {
     run(() => next());
     assert.strictEqual(store._trackedAsyncRequests.length, 0, 'Our pending request is cleaned up');
     assert.true(waiter(), 'We return true because the waiter is cleared');
+
+    if (DEPRECATE_RSVP_PROMISE) {
+      assert.expectDeprecation({ id: 'ember-data:rsvp-promise-hanging', count: 1 });
+    }
   });
 
   test('when the store is torn down too early, but the waiter behavior is turned off, we emit a warning', async function (assert) {
@@ -257,6 +257,10 @@ module('unit/store async-waiter and leak detection', function (hooks) {
     run(() => next());
     assert.strictEqual(store._trackedAsyncRequests.length, 0, 'Our pending request is cleaned up');
     assert.true(waiter(), 'We return true because the waiter is cleared');
+
+    if (DEPRECATE_RSVP_PROMISE) {
+      assert.expectDeprecation({ id: 'ember-data:rsvp-promise-hanging', count: 1 });
+    }
   });
 
   test('when configured, pending requests have useful stack traces', async function (assert) {

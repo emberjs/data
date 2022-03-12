@@ -9,6 +9,7 @@ import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
@@ -132,7 +133,7 @@ module('integration/store - destroy', function (hooks) {
   });
 
   testInDebug('find calls do not resolve when the store is destroyed', async function (assert) {
-    assert.expect(2);
+    assert.expect(3);
 
     let store = this.owner.lookup('service:store');
     let next;
@@ -152,11 +153,6 @@ module('integration/store - destroy', function (hooks) {
     });
 
     this.owner.register('adapter:application', TestAdapter);
-
-    // needed for LTS 2.16
-    Ember.Test.adapter.exception = (e) => {
-      throw e;
-    };
 
     store.shouldTrackAsyncRequests = true;
     store.push = function () {
@@ -180,6 +176,11 @@ module('integration/store - destroy', function (hooks) {
     // to flush, potentially pushing data into the store
     await settled();
     assert.ok(true, 'we made it to the end');
+
+    if (DEPRECATE_RSVP_PROMISE) {
+      assert.expectDeprecation({ id: 'ember-data:rsvp-promise-hanging', count: 1 });
+    }
+
     requestPromise.then(() => {
       assert.ok(false, 'we should never make it here');
     });
