@@ -226,8 +226,8 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
               until: '5.0',
               for: '@ember-data/store',
               since: {
-                available: '4.2',
-                enabled: '4.2',
+                available: '4.4',
+                enabled: '4.4',
               },
             }
           );
@@ -285,8 +285,8 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
               until: '5.0',
               for: '@ember-data/store',
               since: {
-                available: '4.2',
-                enabled: '4.2',
+                available: '4.4',
+                enabled: '4.4',
               },
             }
           );

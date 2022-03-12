@@ -151,8 +151,8 @@ export default class FetchManager {
                 until: '5.0',
                 for: '@ember-data/store',
                 since: {
-                  available: '4.2',
-                  enabled: '4.2',
+                  available: '4.4',
+                  enabled: '4.4',
                 },
               }
             );
