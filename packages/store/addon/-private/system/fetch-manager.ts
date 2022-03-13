@@ -144,7 +144,7 @@ export default class FetchManager {
         if (!_objectIsAlive(internalModel)) {
           if (DEPRECATE_RSVP_PROMISE) {
             deprecate(
-              `A Promise did not resolve by the time your model was destroyed. This will error in a future release.`,
+              `A Promise while saving ${modelName} did not resolve by the time your model was destroyed. This will error in a future release.`,
               false,
               {
                 id: 'ember-data:rsvp-promise-hanging',
