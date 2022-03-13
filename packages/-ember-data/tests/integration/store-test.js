@@ -1,6 +1,5 @@
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
-import Ember from 'ember';
 
 import { module, test } from 'qunit';
 import { Promise, resolve } from 'rsvp';

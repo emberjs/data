@@ -1,5 +1,4 @@
 import { run } from '@ember/runloop';
-import Ember from 'ember';
 
 import { module } from 'qunit';
 import { Promise } from 'rsvp';
