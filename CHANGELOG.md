@@ -1,5 +1,11 @@
 # Ember Data Changelog
 
+## Release 3.28.9 (LTS) (Jan 1, 2022)
+- Release
+
+## Release 3.28.8 (LTS) (Feb 2, 2022)
+* [#7856](https://github.com/emberjs/data/pull/7856) [bug]: Fix: assign unknown properties in init after initialization is finished to ensure proper setup timing
+
 ## Release 3.28.7 (LTS) (Jan 1, 2022)
 
 #### :bug: Bug Fix
