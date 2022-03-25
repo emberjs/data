@@ -41,7 +41,7 @@
     "@glimmer/component": "^1.0.0",
     "@glimmer/tracking": "^1.0.0",
     "broccoli-merge-trees": "^4.2.0",
-    "ember-cli": "~4.1.1",
+    "ember-cli": "~4.2.0",
     "ember-cli-dependency-checker": "^3.2.0",
     "ember-cli-htmlbars": "^6.0.1",
     "ember-cli-inject-live-reload": "^2.0.2",
@@ -53,7 +53,7 @@
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^5.1.5",
     "ember-resolver": "^8.0.3",
-    "ember-source": "~4.2.0",
+    "ember-source": "~4.3.0",
     "loader.js": "^4.7.0"
   },
   "engines": {

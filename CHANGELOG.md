@@ -1,6 +1,6 @@
 # Ember Data Changelog
 
-## 4.3.0-beta.0 (2022-02-26)
+## 4.3.0 (2022-03-24)
 
 #### :memo: Documentation
 * [#7898](https://github.com/emberjs/data/pull/7898) Changelog 4.1.0 ([@snewcomer](https://github.com/snewcomer))
