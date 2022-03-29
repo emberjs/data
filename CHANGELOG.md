@@ -1,15 +1,10 @@
 # Ember Data Changelog
 
-## 4.3.0 (2022-03-24)
+## v4.3.0 (2022-03-24)
 
-#### :memo: Documentation
-* [#7898](https://github.com/emberjs/data/pull/7898) Changelog 4.1.0 ([@snewcomer](https://github.com/snewcomer))
+Re-release
 
-#### Committers: 1
-- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
-
-
-## v4.2.0-alpha.10 (2022-02-23)
+## v4.2.0 (2022-02-23)
 
 #### :rocket: Enhancement
 * `adapter`, `model`, `serializer`
@@ -37,8 +32,6 @@
 - Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
 
 
-## v4.2.0-alpha.9 (2022-02-16)
-
 #### :rocket: Enhancement
 * `-ember-data`, `record-data`, `store`
   * [#7864](https://github.com/emberjs/data/pull/7864) feat: better debuggability ([@runspired](https://github.com/runspired))
@@ -62,8 +55,6 @@
 - Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
 
 
-## v4.2.0-alpha.7 (2022-02-02)
-
 #### :bug: Bug Fix
 * `-ember-data`, `serializer`
   * [#7848](https://github.com/emberjs/data/pull/7848) Don't use array.push(...spread) with unknown input ([@DingoEatingFuzz](https://github.com/DingoEatingFuzz))
@@ -75,8 +66,6 @@
 - Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
 
 
-## v4.2.0-alpha.2 (2021-12-29)
-
 #### :house: Internal
 * `-ember-data`, `canary-features`, `model`, `record-data`, `serializer`, `store`, `unpublished-model-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`
   * [#7816](https://github.com/emberjs/data/pull/7816) Remove !CUSTOM_MODEL_CLASS branches ([@snewcomer](https://github.com/snewcomer))
@@ -84,8 +73,6 @@
 #### Committers: 1
 - Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
 
-
-## v4.2.0-alpha.1 (2021-12-22)
 
 #### :bug: Bug Fix
 * `-ember-data`, `model`, `store`
