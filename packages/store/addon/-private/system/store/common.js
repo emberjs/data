@@ -42,12 +42,12 @@ export function guardDestroyedStore(promise, store, label) {
           `A Promise did not resolve by the time the store was destroyed. This will error in a future release.`,
           false,
           {
-            id: 'ember-data:rsvp-promise-hanging',
+            id: 'ember-data:rsvp-unresolved-async',
             until: '5.0',
             for: '@ember-data/store',
             since: {
-              available: '4.4',
-              enabled: '4.4',
+              available: '4.5',
+              enabled: '4.5',
             },
           }
         );

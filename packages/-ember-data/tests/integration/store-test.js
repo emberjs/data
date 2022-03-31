@@ -177,7 +177,7 @@ module('integration/store - destroy', function (hooks) {
     assert.ok(true, 'we made it to the end');
 
     if (DEPRECATE_RSVP_PROMISE) {
-      assert.expectDeprecation({ id: 'ember-data:rsvp-promise-hanging', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:rsvp-unresolved-async', count: 1 });
     }
 
     requestPromise.then(() => {

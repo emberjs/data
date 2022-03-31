@@ -222,12 +222,12 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
             `A Promise for fecthing ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
             false,
             {
-              id: 'ember-data:rsvp-promise-hanging',
+              id: 'ember-data:rsvp-unresolved-async',
               until: '5.0',
               for: '@ember-data/store',
               since: {
-                available: '4.4',
-                enabled: '4.4',
+                available: '4.5',
+                enabled: '4.5',
               },
             }
           );
@@ -281,12 +281,12 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
             `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
             false,
             {
-              id: 'ember-data:rsvp-promise-hanging',
+              id: 'ember-data:rsvp-unresolved-async',
               until: '5.0',
               for: '@ember-data/store',
               since: {
-                available: '4.4',
-                enabled: '4.4',
+                available: '4.5',
+                enabled: '4.5',
               },
             }
           );

@@ -207,7 +207,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
     assert.true(waiter(), 'We return true because the waiter is cleared');
 
     if (DEPRECATE_RSVP_PROMISE) {
-      assert.expectDeprecation({ id: 'ember-data:rsvp-promise-hanging', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:rsvp-unresolved-async', count: 1 });
     }
   });
 
@@ -258,7 +258,7 @@ module('unit/store async-waiter and leak detection', function (hooks) {
     assert.true(waiter(), 'We return true because the waiter is cleared');
 
     if (DEPRECATE_RSVP_PROMISE) {
-      assert.expectDeprecation({ id: 'ember-data:rsvp-promise-hanging', count: 1 });
+      assert.expectDeprecation({ id: 'ember-data:rsvp-unresolved-async', count: 1 });
     }
   });
 
