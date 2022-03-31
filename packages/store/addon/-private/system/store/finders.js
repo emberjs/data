@@ -1,7 +1,9 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
+
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import { normalizeResponseHelper } from './serializer-response';
@@ -212,10 +214,26 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
   let label = `DS: Handle Adapter#findHasMany of '${internalModel.modelName}' : '${relationship.type}'`;
 
   promise = guardDestroyedStore(promise, store, label);
-  promise = _guard(promise, _bind(_objectIsAlive, internalModel));
-
-  return promise.then(
+  promise = promise.then(
     (adapterPayload) => {
+      if (!_objectIsAlive(internalModel)) {
+        if (DEPRECATE_RSVP_PROMISE) {
+          deprecate(
+            `A Promise for fecthing ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
+            false,
+            {
+              id: 'ember-data:rsvp-unresolved-async',
+              until: '5.0',
+              for: '@ember-data/store',
+              since: {
+                available: '4.5',
+                enabled: '4.5',
+              },
+            }
+          );
+        }
+      }
+
       assert(
         `You made a 'findHasMany' request for a ${internalModel.modelName}'s '${relationship.key}' relationship, using link '${link}' , but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
@@ -236,6 +254,12 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
     null,
     `DS: Extract payload of '${internalModel.modelName}' : hasMany '${relationship.type}'`
   );
+
+  if (DEPRECATE_RSVP_PROMISE) {
+    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
+  }
+
+  return promise;
 }
 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship, options) {
@@ -249,8 +273,26 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
   promise = guardDestroyedStore(promise, store, label);
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
-  return promise.then(
+  promise = promise.then(
     (adapterPayload) => {
+      if (!_objectIsAlive(internalModel)) {
+        if (DEPRECATE_RSVP_PROMISE) {
+          deprecate(
+            `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
+            false,
+            {
+              id: 'ember-data:rsvp-unresolved-async',
+              until: '5.0',
+              for: '@ember-data/store',
+              since: {
+                available: '4.5',
+                enabled: '4.5',
+              },
+            }
+          );
+        }
+      }
+
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
@@ -271,6 +313,12 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
     null,
     `DS: Extract payload of ${internalModel.modelName} : ${relationship.type}`
   );
+
+  if (DEPRECATE_RSVP_PROMISE) {
+    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
+  }
+
+  return promise;
 }
 
 export function _findAll(adapter, store, modelName, options) {
