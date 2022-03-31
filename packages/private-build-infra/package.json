@@ -30,7 +30,7 @@
     "broccoli-merge-trees": "^4.2.0",
     "broccoli-rollup": "^5.0.0",
     "calculate-cache-key-for-tree": "^2.0.0",
-    "chalk": "^4.0.0",
+    "chalk": "^5.0.1",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
