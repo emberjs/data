@@ -46,7 +46,7 @@ interface PendingSaveItem {
   resolver: RSVP.Deferred<any>;
   snapshot: Snapshot;
   identifier: RecordIdentifier;
-  options: { [k: string]: unknown;[SaveOp]: 'createRecord' | 'saveRecord' | 'updateRecord' };
+  options: { [k: string]: unknown; [SaveOp]: 'createRecord' | 'saveRecord' | 'updateRecord' };
   queryRequest: Request;
 }
 
@@ -370,8 +370,8 @@ export default class FetchManager {
     if (missingSnapshots.length) {
       warn(
         'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-        missingSnapshots.map((r) => r.id).join('", "') +
-        '" ]',
+          missingSnapshots.map((r) => r.id).join('", "') +
+          '" ]',
         false,
         {
           id: 'ds.store.missing-records-from-adapter',
@@ -393,9 +393,9 @@ export default class FetchManager {
       if (pair) {
         pair.resolver.reject(
           error ||
-          new Error(
-            `Expected: '<${snapshot.modelName}:${snapshot.id}>' to be present in the adapter provided payload, but it was not found.`
-          )
+            new Error(
+              `Expected: '<${snapshot.modelName}:${snapshot.id}>' to be present in the adapter provided payload, but it was not found.`
+            )
         );
       }
     }
