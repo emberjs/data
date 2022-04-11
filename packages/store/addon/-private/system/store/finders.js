@@ -219,7 +219,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
       if (!_objectIsAlive(internalModel)) {
         if (DEPRECATE_RSVP_PROMISE) {
           deprecate(
-            `A Promise for fecthing ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
+            `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
             false,
             {
               id: 'ember-data:rsvp-unresolved-async',
