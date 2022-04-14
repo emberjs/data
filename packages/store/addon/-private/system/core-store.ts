@@ -13,7 +13,7 @@ import { isNone, isPresent, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
-import require from 'require';
+import { importSync } from '@embroider/macros';
 import { all, default as RSVP, Promise, resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
@@ -2908,7 +2908,9 @@ abstract class CoreStore extends Service {
       // it can be reproduced in partner tests by running
       // node ./scripts/packages-for-commit.js && yarn test-external:ember-observer
       if (_RecordData === undefined) {
-        _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataConstruct;
+        _RecordData = (
+          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+        ).RecordData as RecordDataConstruct;
       }
 
       let identifier = this.identifierCache.getOrCreateRecordIdentifier({
@@ -3155,7 +3157,9 @@ abstract class CoreStore extends Service {
     }
 
     if (HAS_RECORD_DATA_PACKAGE) {
-      const peekGraph = require('@ember-data/record-data/-private').peekGraph;
+      const peekGraph = (
+        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      ).peekGraph;
       let graph = peekGraph(this);
       if (graph) {
         graph.destroy();
@@ -3175,7 +3179,9 @@ abstract class CoreStore extends Service {
     // since then we avoid churning relationships
     // during unload
     if (HAS_RECORD_DATA_PACKAGE) {
-      const peekGraph = require('@ember-data/record-data/-private').peekGraph;
+      const peekGraph = (
+        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      ).peekGraph;
       let graph = peekGraph(this);
       if (graph) {
         graph.willDestroy();

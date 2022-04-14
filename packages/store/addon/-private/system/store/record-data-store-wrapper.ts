@@ -1,3 +1,5 @@
+import { importSync } from '@embroider/macros';
+
 import type { RelationshipDefinition } from '@ember-data/model/-private/system/relationships/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
@@ -26,7 +28,9 @@ let peekGraph;
 if (HAS_RECORD_DATA_PACKAGE) {
   let _peekGraph;
   peekGraph = (wrapper) => {
-    _peekGraph = _peekGraph || require('@ember-data/record-data/-private').peekGraph;
+    _peekGraph =
+      _peekGraph ||
+      (importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')).peekGraph;
     return _peekGraph(wrapper);
   };
 }

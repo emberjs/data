@@ -5,6 +5,7 @@ import { get } from '@ember/object';
 import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
+import { importSync } from '@embroider/macros';
 import RSVP, { Promise } from 'rsvp';
 
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
@@ -51,7 +52,7 @@ let _getModelPackage: () => boolean;
 if (HAS_MODEL_PACKAGE) {
   _getModelPackage = function () {
     if (!_found) {
-      let modelPackage = require('@ember-data/model/-private');
+      let modelPackage = importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private');
       ({ ManyArray, PromiseBelongsTo, PromiseManyArray: _PromiseManyArray } = modelPackage);
       if (ManyArray && PromiseBelongsTo && _PromiseManyArray) {
         _found = true;
@@ -490,7 +491,9 @@ export default class InternalModel {
     if (HAS_RECORD_DATA_PACKAGE) {
       let manyArray = this._manyArrayCache[key];
       if (!definition) {
-        const graphFor = require('@ember-data/record-data/-private').graphFor;
+        const graphFor = (
+          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+        ).graphFor;
         definition = graphFor(this.store).get(this.identifier, key).definition as UpgradedMeta;
       }
 
@@ -511,7 +514,7 @@ export default class InternalModel {
 
       return manyArray;
     }
-    assert(`hasMany only works with the @ember-data/record-data package`, HAS_RECORD_DATA_PACKAGE);
+    assert('hasMany only works with the @ember-data/record-data package');
   }
 
   fetchAsyncHasMany(
@@ -535,13 +538,15 @@ export default class InternalModel {
       this._relationshipPromisesCache[key] = loadingPromise;
       return loadingPromise;
     }
-    assert(`hasMany only works with the @ember-data/record-data package`);
+    assert('hasMany only works with the @ember-data/record-data package');
   }
 
   getHasMany(key: string, options?) {
     if (HAS_RECORD_DATA_PACKAGE) {
-      const graphFor = require('@ember-data/record-data/-private').graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, key);
+      const graphFor = (
+        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      ).graphFor;
+      const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
       let manyArray = this.getManyArray(key, definition);
 
@@ -604,8 +609,10 @@ export default class InternalModel {
       if (loadingPromise) {
         return loadingPromise;
       }
-      const graphFor = require('@ember-data/record-data/-private').graphFor;
-      const relationship = graphFor(this.store).get(this.identifier, key);
+      const graphFor = (
+        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      ).graphFor;
+      const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
 
       state.hasFailedLoadAttempt = false;
@@ -1117,7 +1124,9 @@ export default class InternalModel {
         // because of the intimate API access involved. This is something we will need to redesign.
         assert(`snapshot.belongsTo only supported for @ember-data/record-data`);
       }
-      const graphFor = require('@ember-data/record-data/-private').graphFor;
+      const graphFor = (
+        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      ).graphFor;
       const relationship = graphFor(this.store._storeWrapper).get(this.identifier, name);
 
       if (DEBUG && kind) {
