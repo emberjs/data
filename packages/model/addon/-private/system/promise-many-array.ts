@@ -61,6 +61,9 @@ export default class PromiseManyArray {
    */
   @dependentKeyCompat
   get length(): number {
+    // shouldn't be needed, but ends up being needed
+    // for computed chains even in 4.x
+    this['[]'];
     return this.content ? this.content.length : 0;
   }
 
