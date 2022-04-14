@@ -27,7 +27,7 @@ export function recordArraysForIdentifier(identifierOrInternalModel) {
   return RecordArraysCache.get(identifierOrInternalModel);
 }
 
-const pendingForIdentifier = new Set([]);
+const pendingForIdentifier = new Set();
 const IMDematerializing = new WeakMap();
 
 const getIdentifier = function getIdentifier(identifierOrInternalModel) {
