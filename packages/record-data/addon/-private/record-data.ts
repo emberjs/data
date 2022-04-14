@@ -111,7 +111,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
 
     if (data.id) {
-      this.id = coerceId(data.id);
+      if (!this.id) {
+        this.id = coerceId(data.id);
+      }
     }
 
     return changedKeys;

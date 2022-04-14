@@ -19,6 +19,7 @@ export interface DSModel extends RecordInstance, EmberObject {
   isDeleted: boolean;
   deleteRecord(): void;
   unloadRecord(): void;
+  errors: any;
 }
 
 // Implemented by both ShimModelClass and DSModel

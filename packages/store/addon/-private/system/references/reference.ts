@@ -100,7 +100,7 @@ abstract class Reference {
    @public
    @return {String} The name of the remote type. This should either be "link" or "ids"
    */
-  remoteType(): 'link' | 'id' | 'identity' {
+  remoteType(): 'link' | 'id' | 'ids' | 'identity' {
     let value = this._resource();
     if (isResourceIdentiferWithRelatedLinks(value)) {
       return 'link';

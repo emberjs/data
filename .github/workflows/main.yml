@@ -300,10 +300,10 @@ jobs:
       matrix:
         partner:
           [
-            ember-data-relationship-tracker,
+            # ember-data-relationship-tracker,
             ember-m3,
             ember-observer,
-            ember-resource-metadata,
+            # ember-resource-metadata,
             factory-guy,
             ilios-frontend,
             model-fragments,

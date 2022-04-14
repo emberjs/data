@@ -6,7 +6,7 @@ type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecord
 
 type UnsubscribeToken = Object;
 
-const Cache = new WeakMap<StableRecordIdentifier, NotificationCallback>();
+const Cache = new WeakMap<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>();
 const Tokens = new WeakMap<UnsubscribeToken, StableRecordIdentifier>();
 
 export type NotificationType =
@@ -31,7 +31,8 @@ export function unsubscribe(token: UnsubscribeToken) {
     throw new Error('Passed unknown unsubscribe token to unsubscribe');
   }
   Tokens.delete(token);
-  Cache.delete(identifier);
+  const map = Cache.get(identifier);
+  map?.delete(token);
 }
 /*
   Currently only support a single callback per identifier
@@ -41,8 +42,13 @@ export default class NotificationManager {
 
   subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
-    Cache.set(stableIdentifier, callback);
+    let map = Cache.get(stableIdentifier);
+    if (map === undefined) {
+      map = new Map();
+      Cache.set(stableIdentifier, map);
+    }
     let unsubToken = {};
+    map.set(unsubToken, callback);
     Tokens.set(unsubToken, stableIdentifier);
     return unsubToken;
   }
@@ -51,11 +57,13 @@ export default class NotificationManager {
   notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
   notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {
     let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
-    let callback = Cache.get(stableIdentifier);
-    if (!callback) {
+    let callbackMap = Cache.get(stableIdentifier);
+    if (!callbackMap || !callbackMap.size) {
       return false;
     }
-    callback(stableIdentifier, value, key);
+    callbackMap.forEach((cb) => {
+      cb(stableIdentifier, value, key);
+    });
     return true;
   }
 }
