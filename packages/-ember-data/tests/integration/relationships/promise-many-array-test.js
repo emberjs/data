@@ -9,7 +9,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr, hasMany } from '@ember-data/model';
 
-module('PromiseManyArray', (hooks) => {
+module('PromiseManyArray Interop', (hooks) => {
   setupRenderingTest(hooks);
 
   test('PromiseManyArray is not side-affected by EmberArray', async function (assert) {

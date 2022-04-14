@@ -848,7 +848,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
   });
 
-  test('A hasMany relationship can be reloaded if it was fetched via a link', function (assert) {
+  test('A hasMany relationship can be reloaded if it was fetched via a link', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
 
@@ -888,35 +888,28 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    run(function () {
-      run(store, 'findRecord', 'post', 1)
-        .then(function (post) {
-          return post.get('comments');
-        })
-        .then(function (comments) {
-          assert.true(comments.get('isLoaded'), 'comments are loaded');
-          assert.equal(comments.get('length'), 2, 'comments have 2 length');
+    let post = await store.findRecord('post', 1);
+    let comments = await post.comments;
+    assert.true(comments.get('isLoaded'), 'comments are loaded');
+    assert.strictEqual(comments.get('length'), 2, 'comments have 2 length');
 
-          adapter.findHasMany = function (store, snapshot, link, relationship) {
-            assert.equal(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-            assert.equal(relationship.key, 'comments', 'findHasMany relationship key was comments');
-            assert.equal(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
+    adapter.findHasMany = function (store, snapshot, link, relationship) {
+      assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
+      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
 
-            return resolve({
-              data: [
-                { id: 1, type: 'comment', attributes: { body: 'First' } },
-                { id: 2, type: 'comment', attributes: { body: 'Second' } },
-                { id: 3, type: 'comment', attributes: { body: 'Thirds' } },
-              ],
-            });
-          };
+      return resolve({
+        data: [
+          { id: 1, type: 'comment', attributes: { body: 'First' } },
+          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          { id: 3, type: 'comment', attributes: { body: 'Thirds' } },
+        ],
+      });
+    };
 
-          return comments.reload();
-        })
-        .then(function (newComments) {
-          assert.equal(newComments.get('length'), 3, 'reloaded comments have 3 length');
-        });
-    });
+    await comments.reload();
+
+    assert.strictEqual(comments.length, 3, 'reloaded comments have 3 length');
   });
 
   test('A sync hasMany relationship can be reloaded if it was fetched via ids', function (assert) {
@@ -4086,5 +4079,51 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           });
       });
     });
+  });
+
+  test('Pushing a relationship with duplicate identifiers results in a single entry for the record in the relationship', async function (assert) {
+    class PhoneUser extends Model {
+      @hasMany('phone-number', { async: false, inverse: null })
+      phoneNumbers;
+      @attr name;
+    }
+    class PhoneNumber extends Model {
+      @attr number;
+    }
+    const { owner } = this;
+
+    owner.register('model:phone-user', PhoneUser);
+    owner.register('model:phone-number', PhoneNumber);
+
+    const store = owner.lookup('service:store');
+
+    store.push({
+      data: {
+        id: 'call-me-anytime',
+        type: 'phone-number',
+        attributes: {
+          number: '1-800-DATA',
+        },
+      },
+    });
+
+    const person = store.push({
+      data: {
+        id: '1',
+        type: 'phone-user',
+        attributes: {},
+        relationships: {
+          phoneNumbers: {
+            data: [
+              { type: 'phone-number', id: 'call-me-anytime' },
+              { type: 'phone-number', id: 'call-me-anytime' },
+              { type: 'phone-number', id: 'call-me-anytime' },
+            ],
+          },
+        },
+      },
+    });
+
+    assert.strictEqual(person.get('phoneNumbers.length'), 1);
   });
 });

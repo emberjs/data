@@ -1,7 +1,16 @@
+import { dependentKeyCompat } from '@ember/object/compat';
+import { cached, tracked } from '@glimmer/tracking';
+
 import RSVP, { resolve } from 'rsvp';
 
+import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+
+import { unsubscribe } from '../record-notification-manager';
 import Reference, { internalModelForReference, REFERENCE_CACHE } from './reference';
 
+type NotificationType = import('../record-notification-manager').NotificationType;
+
+type CoreStore = import('../core-store').default;
 type SingleResourceDocument = import('../../ts-interfaces/ember-data-json-api').SingleResourceDocument;
 type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
 type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
@@ -19,11 +28,39 @@ type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRec
    @extends Reference
 */
 export default class RecordReference extends Reference {
+  // unsubscribe token given to us by the notification manager
+  #token!: Object;
+
+  @tracked _ref = 0;
+
+  constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
+    super(store, identifier);
+    if (CUSTOM_MODEL_CLASS) {
+      this.#token = store._notificationManager.subscribe(
+        identifier,
+        (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+          if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
+            this._ref++;
+          }
+        }
+      );
+    }
+  }
+
+  destroy() {
+    if (CUSTOM_MODEL_CLASS) {
+      unsubscribe(this.#token);
+    }
+  }
+
   public get type(): string {
     return this.identifier().type;
   }
 
+  @cached
+  @dependentKeyCompat
   private get _id(): string | null {
+    this._ref; // consume the tracked prop
     let identifier = this.identifier();
     if (identifier) {
       return identifier.id;
@@ -51,7 +88,15 @@ export default class RecordReference extends Reference {
      @return {String} The id of the record.
   */
   id() {
-    return this._id;
+    if (CUSTOM_MODEL_CLASS) {
+      return this._id;
+    }
+    let identifier = this.identifier();
+    if (identifier) {
+      return identifier.id;
+    }
+
+    return null;
   }
 
   /**
@@ -93,7 +138,7 @@ export default class RecordReference extends Reference {
      @public
      @return {String} 'identity'
   */
-  remoteType(): 'link' | 'id' | 'identity' {
+  remoteType(): 'identity' {
     return 'identity';
   }
 
@@ -160,7 +205,7 @@ export default class RecordReference extends Reference {
      @return {Model} the record for this RecordReference
   */
   value(): RecordInstance | null {
-    if (this._id !== null) {
+    if (this.id() !== null) {
       let internalModel = internalModelForReference(this);
       if (internalModel && internalModel.currentState.isLoaded) {
         return internalModel.getRecord();
@@ -187,8 +232,9 @@ export default class RecordReference extends Reference {
      @return {Promise<record>} the record for this RecordReference
   */
   load() {
-    if (this._id !== null) {
-      return this.store.findRecord(this.type, this._id);
+    const id = this.id();
+    if (id !== null) {
+      return this.store.findRecord(this.type, id);
     }
     throw new Error(`Unable to fetch record of type ${this.type} without an id`);
   }
@@ -211,8 +257,9 @@ export default class RecordReference extends Reference {
      @return {Promise<record>} the record for this RecordReference
   */
   reload() {
-    if (this._id !== null) {
-      return this.store.findRecord(this.type, this._id, { reload: true });
+    const id = this.id();
+    if (id !== null) {
+      return this.store.findRecord(this.type, id, { reload: true });
     }
     throw new Error(`Unable to fetch record of type ${this.type} without an id`);
   }
