@@ -839,11 +839,11 @@ const JSONSerializer = Serializer.extend({
         }
 
         if (get(modelClass, 'attributes').has(key)) {
-          normalizedKey = this.keyForAttribute(key);
+          normalizedKey = this.keyForAttribute(key, 'deserialize');
         }
 
         if (get(modelClass, 'relationshipsByName').has(key)) {
-          normalizedKey = this.keyForRelationship(key);
+          normalizedKey = this.keyForRelationship(key, modelClass, 'deserialize');
         }
 
         if (payloadKey !== normalizedKey) {
