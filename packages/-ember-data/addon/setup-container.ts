@@ -1,6 +1,8 @@
+import type Application from '@ember/application';
+
 import Store from '@ember-data/store';
 
-function initializeStore(application) {
+function initializeStore(application: Application) {
   application.registerOptionsForType('serializer', { singleton: false });
   application.registerOptionsForType('adapter', { singleton: false });
 
@@ -9,6 +11,6 @@ function initializeStore(application) {
   }
 }
 
-export default function setupContainer(application) {
+export default function setupContainer(application: Application) {
   initializeStore(application);
 }
