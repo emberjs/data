@@ -1,6 +1,11 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { JsonApiDocument } from '../../ts-interfaces/ember-data-json-api';
+import { MinimumSerializerInterface, RequestType } from '../../ts-interfaces/minimum-serializer-interface';
+import CoreStore from '../core-store';
+import ShimModelClass from '../model/shim-model-class';
+
 /**
   This is a helper method that validates a JSON API top-level document
 
@@ -9,8 +14,8 @@ import { DEBUG } from '@glimmer/env';
 
   @internal
 */
-export function validateDocumentStructure(doc) {
-  let errors = [];
+export function validateDocumentStructure(doc: JsonApiDocument) {
+  let errors: string[] = [];
   if (!doc || typeof doc !== 'object') {
     errors.push('Top level of a JSON API document must be an object');
   } else {
@@ -56,16 +61,25 @@ export function validateDocumentStructure(doc) {
   return errors;
 }
 
-export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
-  let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
-  let validationErrors = [];
+export function normalizeResponseHelper(
+  serializer: MinimumSerializerInterface | null,
+  store: CoreStore,
+  modelClass: ShimModelClass,
+  payload: unknown,
+  id: string | null,
+  requestType: RequestType
+): JsonApiDocument {
+  let normalizedResponse = serializer
+    ? serializer.normalizeResponse(store, modelClass, payload, id, requestType)
+    : (payload as JsonApiDocument); // we validate this cast below
+
   if (DEBUG) {
-    validationErrors = validateDocumentStructure(normalizedResponse);
+    let validationErrors = validateDocumentStructure(normalizedResponse);
+    assert(
+      `Response must be normalized to a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`,
+      validationErrors.length === 0
+    );
   }
-  assert(
-    `normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`,
-    validationErrors.length === 0
-  );
 
   return normalizedResponse;
 }

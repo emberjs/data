@@ -6,7 +6,7 @@ import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
-import type Store from '@ember-data/store/-private/system/core-store';
+import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
 import type Snapshot from '@ember-data/store/-private/system/snapshot';
 

@@ -125,6 +125,9 @@ export interface ExistingResourceObject extends ExistingResourceIdentifierObject
 interface Document {
   meta?: Dict<JSONValue>;
   included?: ExistingResourceObject[];
+  jsonapi?: Dict<JSONValue>;
+  links?: Dict<string | JSONValue>;
+  errors?: JSONValue[];
 }
 
 export interface EmptyResourceDocument extends Document {

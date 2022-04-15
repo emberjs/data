@@ -1,13 +1,15 @@
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+
 const newline = /\r?\n/;
 
-export default function parseResponseHeaders(headersString) {
-  let headers = Object.create(null);
+export default function parseResponseHeaders(headersString: string): Dict<string> {
+  const headers = Object.create(null) as Dict<string>;
 
   if (!headersString) {
     return headers;
   }
 
-  let headerPairs = headersString.split(newline);
+  const headerPairs: string[] = headersString.split(newline);
 
   for (let i = 0; i < headerPairs.length; i++) {
     let header = headerPairs[i];

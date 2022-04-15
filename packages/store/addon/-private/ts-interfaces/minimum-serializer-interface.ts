@@ -6,8 +6,18 @@ import type { ModelSchema } from './ds-model';
 import type { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
 import type { Dict } from './utils';
 
-type OptionsHash = Dict<any>;
-
+export type OptionsHash = Dict<unknown>;
+export type RequestType =
+  | 'findRecord'
+  | 'queryRecord'
+  | 'findAll'
+  | 'findBelongsTo'
+  | 'findHasMany'
+  | 'findMany'
+  | 'query'
+  | 'createRecord'
+  | 'deleteRecord'
+  | 'updateRecord';
 /**
   @module @ember-data/serializer
  */
@@ -22,7 +32,7 @@ type OptionsHash = Dict<any>;
   @class MinimumSerializerInterface
   @public
 */
-interface Serializer {
+export interface MinimumSerializerInterface {
   /**
    * This method is responsible for normalizing the value resolved from the promise returned
    * by an Adapter request into the format expected by the `Store`.
@@ -56,7 +66,7 @@ interface Serializer {
   normalizeResponse(
     store: Store,
     schema: ModelSchema,
-    rawPayload: JSONObject,
+    rawPayload: unknown,
     id: string | null,
     requestType:
       | 'findRecord'
@@ -232,5 +242,3 @@ interface Serializer {
    */
   pushPayload?(store: Store, rawPayload: JSONObject): void;
 }
-
-export default Serializer;
