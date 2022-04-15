@@ -4,16 +4,13 @@ import Ember from 'ember';
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import Model from 'ember-data/model';
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
-import { RECORD_DATA_STATE } from '@ember-data/canary-features';
-import { attr } from '@ember-data/model';
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
-type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
+import Store from '@ember-data/store';
+import type { NewRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -113,9 +110,6 @@ let CustomStore = Store.extend({
 });
 
 module('integration/record-data - Record Data State', function (hooks) {
-  if (!RECORD_DATA_STATE) {
-    return;
-  }
   setupTest(hooks);
 
   let store;
@@ -288,11 +282,11 @@ module('integration/record-data - Record Data State', function (hooks) {
     assert.false(person.get('isDeleted'), 'calling deleteRecord does not automatically set isDeleted flag to true');
     assert.true(calledSetIsDeleted, 'called setIsDeleted');
 
-    assert.equal(people.get('length'), 1, 'live array starting length is 1');
+    assert.strictEqual(people.get('length'), 1, 'live array starting length is 1');
     isDeletionCommitted = true;
     Ember.run(() => {
       storeWrapper.notifyStateChange('person', '1', null, 'isDeletionCommitted');
     });
-    assert.equal(people.get('length'), 0, 'commiting a deletion updates the live array');
+    assert.strictEqual(people.get('length'), 0, 'commiting a deletion updates the live array');
   });
 });

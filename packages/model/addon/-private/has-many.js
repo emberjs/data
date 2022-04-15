@@ -24,17 +24,17 @@ import { computedMacroWithOptionalParams } from './util';
 
   ```app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
-  
+
   export default class PostModel extends Model {
-    @hasMany('comment') comments; 
+    @hasMany('comment') comments;
   }
   ```
 
   ```app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
-  
+
   export default class CommentModel extends Model {
-    @belongsTo('post') post; 
+    @belongsTo('post') post;
   }
   ```
 
@@ -54,7 +54,7 @@ import { computedMacroWithOptionalParams } from './util';
   import Model, { hasMany } from '@ember-data/model';
 
   export default class TagModel extends Model {
-    @hasMany('post') posts; 
+    @hasMany('post') posts;
   }
   ```
 
@@ -183,7 +183,7 @@ function hasMany(type, options) {
   return computed({
     get(key) {
       if (DEBUG) {
-        if (['_internalModel', 'content', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );
@@ -193,7 +193,7 @@ function hasMany(type, options) {
     },
     set(key, records) {
       if (DEBUG) {
-        if (['_internalModel', 'content', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );

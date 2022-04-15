@@ -37,8 +37,6 @@ module(
 
     test('can retrieve errors after findRecord', async function (assert) {
       class TestAdapter extends JSONAPIAdapter {
-        defaultSerializer = 'application';
-
         ajax(url, type) {
           return reject({
             errors: [
@@ -61,15 +59,13 @@ module(
         ({ errors } = adapterError);
       }
 
-      assert.equal(errors.length, 1, 'error recorded');
-      assert.equal(errors[0].status, '404', 'error status is correct');
-      assert.equal(errors[0].detail, 'file not found', 'error detail is correct');
+      assert.strictEqual(errors.length, 1, 'error recorded');
+      assert.strictEqual(errors[0].status, '404', 'error status is correct');
+      assert.strictEqual(errors[0].detail, 'file not found', 'error detail is correct');
     });
 
     test('can retrieve errors after save', async function (assert) {
       class TestAdapter extends JSONAPIAdapter {
-        defaultSerializer = 'application';
-
         ajax(url, type) {
           return reject({
             errors: [
@@ -99,9 +95,9 @@ module(
         ({ errors } = adapterError);
       }
 
-      assert.equal(errors.length, 2, 'both errors recorded');
-      assert.equal(errors[0].detail, 'firstName is required', 'first error is that firstName is required');
-      assert.equal(errors[1].detail, 'lastName is required', 'second error is that lastName is required');
+      assert.strictEqual(errors.length, 2, 'both errors recorded');
+      assert.strictEqual(errors[0].detail, 'firstName is required', 'first error is that firstName is required');
+      assert.strictEqual(errors[1].detail, 'lastName is required', 'second error is that lastName is required');
     });
   }
 );

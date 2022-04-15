@@ -272,7 +272,7 @@ module('async belongs-to rendering tests', function (hooks) {
         1,
         `Expected only one implicit relationship, found ${implicitKeys.join(', ')}`
       );
-      assert.equal(petOwnerImplicit.canonicalMembers.size, 1);
+      assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 1);
 
       const tweety = store.push({
         data: {
@@ -287,13 +287,13 @@ module('async belongs-to rendering tests', function (hooks) {
         },
       });
 
-      assert.equal(petOwnerImplicit.canonicalMembers.size, 2);
+      assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 2);
 
       let petOwner = await goofy.get('petOwner');
-      assert.equal(petOwner.get('name'), 'Pete', 'We have the expected owner for goofy');
+      assert.strictEqual(petOwner.get('name'), 'Pete', 'We have the expected owner for goofy');
 
       petOwner = await tweety.get('petOwner');
-      assert.equal(petOwner.get('name'), 'Pete', 'We have the expected owner for tweety');
+      assert.strictEqual(petOwner.get('name'), 'Pete', 'We have the expected owner for tweety');
 
       await goofy.destroyRecord();
       assert.ok(goofy.isDeleted, 'goofy is deleted after calling destroyRecord');
@@ -301,7 +301,7 @@ module('async belongs-to rendering tests', function (hooks) {
       await tweety.destroyRecord();
       assert.ok(tweety.isDeleted, 'tweety is deleted after calling destroyRecord');
 
-      assert.equal(petOwnerImplicit.canonicalMembers.size, 0);
+      assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 0);
 
       const jerry = store.push({
         data: {
@@ -317,9 +317,9 @@ module('async belongs-to rendering tests', function (hooks) {
       });
 
       petOwner = await jerry.get('petOwner');
-      assert.equal(petOwner.get('name'), 'Pete');
+      assert.strictEqual(petOwner.get('name'), 'Pete');
 
-      assert.equal(petOwnerImplicit.canonicalMembers.size, 1);
+      assert.strictEqual(petOwnerImplicit.canonicalMembers.size, 1);
 
       await settled();
     });
@@ -371,40 +371,40 @@ module('async belongs-to rendering tests', function (hooks) {
       `);
       await settled();
 
-      assert.equal(this.element.textContent.trim(), '');
-      assert.ok(shen.get('bestHuman') === null, 'precond - Shen has no best human');
-      assert.ok(pirate.get('bestHuman') === null, 'precond - pirate has no best human');
-      assert.ok(bestDog === null, 'precond - Chris has no best dog');
+      assert.strictEqual(this.element.textContent.trim(), '');
+      assert.strictEqual(shen.get('bestHuman'), null, 'precond - Shen has no best human');
+      assert.strictEqual(pirate.get('bestHuman'), null, 'precond - pirate has no best human');
+      assert.strictEqual(bestDog, null, 'precond - Chris has no best dog');
 
       // locally update
       chris.set('bestDog', shen);
       bestDog = await chris.get('bestDog');
       await settled();
 
-      assert.equal(this.element.textContent.trim(), 'Shen');
-      assert.ok(shen.get('bestHuman') === chris, "scene 1 - Chris is Shen's best human");
-      assert.ok(pirate.get('bestHuman') === null, 'scene 1 - pirate has no best human');
-      assert.ok(bestDog === shen, "scene 1 - Shen is Chris's best dog");
+      assert.strictEqual(this.element.textContent.trim(), 'Shen');
+      assert.strictEqual(shen.get('bestHuman'), chris, "scene 1 - Chris is Shen's best human");
+      assert.strictEqual(pirate.get('bestHuman'), null, 'scene 1 - pirate has no best human');
+      assert.strictEqual(bestDog, shen, "scene 1 - Shen is Chris's best dog");
 
       // locally update to a different value
       chris.set('bestDog', pirate);
       bestDog = await chris.get('bestDog');
       await settled();
 
-      assert.equal(this.element.textContent.trim(), 'Pirate');
-      assert.ok(shen.get('bestHuman') === null, "scene 2 - Chris is no longer Shen's best human");
-      assert.ok(pirate.get('bestHuman') === chris, 'scene 2 - pirate now has Chris as best human');
-      assert.ok(bestDog === pirate, "scene 2 - Pirate is now Chris's best dog");
+      assert.strictEqual(this.element.textContent.trim(), 'Pirate');
+      assert.strictEqual(shen.get('bestHuman'), null, "scene 2 - Chris is no longer Shen's best human");
+      assert.strictEqual(pirate.get('bestHuman'), chris, 'scene 2 - pirate now has Chris as best human');
+      assert.strictEqual(bestDog, pirate, "scene 2 - Pirate is now Chris's best dog");
 
       // locally clear the relationship
       chris.set('bestDog', null);
       bestDog = await chris.get('bestDog');
       await settled();
 
-      assert.equal(this.element.textContent.trim(), '');
-      assert.ok(shen.get('bestHuman') === null, "scene 3 - Chris remains no longer Shen's best human");
-      assert.ok(pirate.get('bestHuman') === null, 'scene 3 - pirate no longer has Chris as best human');
-      assert.ok(bestDog === null, 'scene 3 - Chris has no best dog');
+      assert.strictEqual(this.element.textContent.trim(), '');
+      assert.strictEqual(shen.get('bestHuman'), null, "scene 3 - Chris remains no longer Shen's best human");
+      assert.strictEqual(pirate.get('bestHuman'), null, 'scene 3 - pirate no longer has Chris as best human');
+      assert.strictEqual(bestDog, null, 'scene 3 - Chris has no best dog');
     });
   });
 
@@ -424,7 +424,7 @@ module('async belongs-to rendering tests', function (hooks) {
       <p>{{this.sedona.parent.name}}</p>
       `);
 
-      assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
+      assert.strictEqual(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
 
     test('We can delete an async belongs-to', async function (assert) {
@@ -449,8 +449,8 @@ module('async belongs-to rendering tests', function (hooks) {
 
       await settled();
 
-      assert.ok(newParent === null, 'We no longer have a parent');
-      assert.equal(
+      assert.strictEqual(newParent, null, 'We no longer have a parent');
+      assert.strictEqual(
         this.element.textContent.trim(),
         '',
         "We no longer render our parent's name because we no longer have a parent"
@@ -472,13 +472,13 @@ module('async belongs-to rendering tests', function (hooks) {
       <p>{{this.sedona.parent.name}}</p>
       `);
 
-      assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
+      assert.strictEqual(this.element.textContent.trim(), 'Kevin has two children and one parent');
 
       this.set('sedona', null);
-      assert.equal(this.element.textContent.trim(), '');
+      assert.strictEqual(this.element.textContent.trim(), '');
 
       this.set('sedona', sedona);
-      assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
+      assert.strictEqual(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
 
     test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function (assert) {
@@ -498,7 +498,7 @@ module('async belongs-to rendering tests', function (hooks) {
         if (!hasFired) {
           hasFired = true;
           assert.ok(true, 'Children promise did reject');
-          assert.equal(
+          assert.strictEqual(
             e.message,
             'hard error while finding <person>5:has-parent-no-children',
             'Rejection has the correct message'
@@ -513,7 +513,7 @@ module('async belongs-to rendering tests', function (hooks) {
       <p>{{this.sedona.parent.name}}</p>
       `);
 
-      assert.equal(this.element.textContent.trim(), '', 'we have no parent');
+      assert.strictEqual(this.element.textContent.trim(), '', 'we have no parent');
 
       const relationship = sedona.belongsTo('parent').belongsToRelationship;
       const { state, definition } = relationship;
@@ -525,14 +525,14 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.true(state.hasDematerializedInverse, 'The relationship inverse is dematerialized');
       assert.true(state.hasReceivedData, 'The relationship knows which record it needs');
       assert.false(!!RelationshipPromiseCache['parent'], 'The relationship has no fetch promise');
-      assert.true(state.hasFailedLoadAttempt === true, 'The relationship has attempted a load');
-      assert.true(state.shouldForceReload === false, 'The relationship will not force a reload');
+      assert.true(state.hasFailedLoadAttempt, 'The relationship has attempted a load');
+      assert.false(state.shouldForceReload, 'The relationship will not force a reload');
       assert.true(!!RelationshipProxyCache['parent'], 'The relationship has a promise proxy');
       assert.false(!!relationship.link, 'The relationship does not have a link');
 
       try {
         let result = await sedona.get('parent.content');
-        assert.ok(result === null, 're-access is safe');
+        assert.strictEqual(result, null, 're-access is safe');
       } catch (e) {
         assert.ok(false, `Accessing resulted in rejected promise error: ${e.message}`);
       }
@@ -561,20 +561,20 @@ module('async belongs-to rendering tests', function (hooks) {
         await sedona.get('parent');
         assert.ok(false, `should have rejected`);
       } catch (e) {
-        assert.equal(e.message, error, `should have rejected with '${error}'`);
+        assert.strictEqual(e.message, error, `should have rejected with '${error}'`);
       }
 
       await render(hbs`
       <p>{{this.sedona.parent.name}}</p>
       `);
 
-      assert.equal(this.element.textContent.trim(), '', 'we have no parent');
+      assert.strictEqual(this.element.textContent.trim(), '', 'we have no parent');
 
       try {
         await sedona.get('parent');
         assert.ok(false, `should have rejected`);
       } catch (e) {
-        assert.equal(e.message, error, `should have rejected with '${error}'`);
+        assert.strictEqual(e.message, error, `should have rejected with '${error}'`);
       }
     });
   });
@@ -597,20 +597,20 @@ module('async belongs-to rendering tests', function (hooks) {
     };
 
     await render(hbs`
-    <p>{{sedona.parent.name}}</p>
+    <p>{{this.sedona.parent.name}}</p>
     `);
 
     const newParent = store.createRecord('person', { name: 'New Person' });
     sedona.set('parent', newParent);
     await settled();
-    assert.equal(
+    assert.strictEqual(
       this.element.textContent.trim(),
       'New Person',
       'after resetting to a new record, shows new content on page'
     );
     newParent.unloadRecord();
     await settled();
-    assert.equal(this.element.textContent.trim(), '', 'after unloading the record it shows no content on page');
+    assert.strictEqual(this.element.textContent.trim(), '', 'after unloading the record it shows no content on page');
     try {
       await sedona.belongsTo('parent').reload();
       assert.ok(false, 'we should have thrown an error');

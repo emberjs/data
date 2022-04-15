@@ -36,12 +36,12 @@ if (has('@ember-data/debug')) {
 
       let propertyInfo = record._debugInfo().propertyInfo;
 
-      assert.equal(propertyInfo.groups.length, 4);
-      assert.equal(propertyInfo.groups[0].name, 'Attributes');
+      assert.strictEqual(propertyInfo.groups.length, 4);
+      assert.strictEqual(propertyInfo.groups[0].name, 'Attributes');
       assert.deepEqual(propertyInfo.groups[0].properties, ['id', 'name', 'isDrugAddict']);
-      assert.equal(propertyInfo.groups[1].name, 'belongsTo');
+      assert.strictEqual(propertyInfo.groups[1].name, 'belongsTo');
       assert.deepEqual(propertyInfo.groups[1].properties, ['maritalStatus']);
-      assert.equal(propertyInfo.groups[2].name, 'hasMany');
+      assert.strictEqual(propertyInfo.groups[2].name, 'hasMany');
       assert.deepEqual(propertyInfo.groups[2].properties, ['posts']);
     });
 

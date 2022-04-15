@@ -1,7 +1,10 @@
 import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
-type RecordData = import('../ts-interfaces/record-data').RecordData;
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { RecordData } from '../ts-interfaces/record-data';
+import WeakCache from './weak-cache';
+
 /*
  * Returns the RecordData instance associated with a given
  * Model or InternalModel.
@@ -24,23 +27,23 @@ type Reference = { internalModel: InternalModel };
 
 type Instance = StableRecordIdentifier | InternalModel | RecordData | DSModelOrSnapshot | Reference;
 
-const IdentifierCache = new WeakMap<StableRecordIdentifier, RecordData>();
+const RecordDataForIdentifierCache = new WeakCache<StableRecordIdentifier, RecordData>(DEBUG ? 'recordData' : '');
 
-export function setRecordDataFor(identifier: StableRecordIdentifier, recordData: RecordData) {
-  assert(`Illegal set of identifier`, !IdentifierCache.has(identifier));
-  IdentifierCache.set(identifier, recordData);
+export function setRecordDataFor(identifier: StableRecordIdentifier, recordData: RecordData): void {
+  assert(`Illegal set of identifier`, !RecordDataForIdentifierCache.has(identifier));
+  RecordDataForIdentifierCache.set(identifier, recordData);
 }
 
-export function removeRecordDataFor(identifier) {
-  IdentifierCache.delete(identifier);
+export function removeRecordDataFor(identifier: StableRecordIdentifier): void {
+  RecordDataForIdentifierCache.delete(identifier);
 }
 
 export default function recordDataFor(instance: StableRecordIdentifier): RecordData | null;
 export default function recordDataFor(instance: Instance): RecordData;
 export default function recordDataFor(instance: object): null;
 export default function recordDataFor(instance: Instance | object): RecordData | null {
-  if (IdentifierCache.has(instance as StableRecordIdentifier)) {
-    return IdentifierCache.get(instance as StableRecordIdentifier) as RecordData;
+  if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier)) {
+    return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier) as RecordData;
   }
   let internalModel =
     (instance as DSModelOrSnapshot)._internalModel || (instance as Reference).internalModel || instance;

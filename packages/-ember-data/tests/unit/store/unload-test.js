@@ -65,7 +65,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
       record.set('title', 'toto2');
       record._internalModel.send('willCommit');
 
-      assert.equal(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
+      assert.strictEqual(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
 
       assert.expectAssertion(
         function () {
@@ -97,7 +97,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
       });
 
       return store.findRecord('record', 1).then((record) => {
-        assert.equal(get(record, 'id'), 1, 'found record with id 1');
+        assert.strictEqual(get(record, 'id'), '1', 'found record with id 1');
 
         run(() => store.unloadRecord(record));
 
@@ -113,12 +113,12 @@ module('unit/store/unload - Store unloading records', function (hooks) {
   test('unload followed by create of the same type + id', function (assert) {
     let record = store.createRecord('record', { id: 1 });
 
-    assert.ok(store.recordForId('record', 1) === record, 'record should exactly equal');
+    assert.strictEqual(store.recordForId('record', 1), record, 'record should exactly equal');
 
     return run(() => {
       record.unloadRecord();
       let createdRecord = store.createRecord('record', { id: 1 });
-      assert.ok(record !== createdRecord, 'newly created record is fresh (and was created)');
+      assert.notStrictEqual(record, createdRecord, 'newly created record is fresh (and was created)');
     });
   });
 });
@@ -232,7 +232,7 @@ module('Store - unload record with relationships', function (hooks) {
         return store.findRecord('product', 1);
       })
       .then((product) => {
-        assert.equal(
+        assert.strictEqual(
           product.get('description'),
           'cuisinart',
           "The record was unloaded and the adapter's `findRecord` was called"

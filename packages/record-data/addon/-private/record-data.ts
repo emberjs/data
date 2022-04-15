@@ -2,33 +2,29 @@
  * @module @ember-data/record-data
  */
 import { assert } from '@ember/debug';
-import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { isEqual } from '@ember/utils';
 
-import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
+import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
 import { recordDataFor, recordIdentifierFor, removeRecordDataFor } from '@ember-data/store/-private';
+import type { CollectionResourceRelationship } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { ChangedAttributesHash, RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+import type {
+  AttributesHash,
+  JsonApiResource,
+  JsonApiValidationError,
+} from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
 
 import coerceId from './coerce-id';
 import { isImplicit } from './graph/-utils';
 import { graphFor } from './graph/index';
-
-type CollectionResourceRelationship =
-  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceRelationship;
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type RelationshipRecordData = import('./ts-interfaces/relationship-record-data').RelationshipRecordData;
-type DefaultSingleResourceRelationship =
-  import('./ts-interfaces/relationship-record-data').DefaultSingleResourceRelationship;
-type JsonApiResource = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiResource;
-type JsonApiValidationError =
-  import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
-type AttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data-json-api').AttributesHash;
-type ChangedAttributesHash = import('@ember-data/store/-private/ts-interfaces/record-data').ChangedAttributesHash;
-type ManyRelationship = import('./relationships/state/has-many').default;
-type BelongsToRelationship = import('./relationships/state/belongs-to').default;
+import type BelongsToRelationship from './relationships/state/belongs-to';
+import type ManyRelationship from './relationships/state/has-many';
+import type {
+  DefaultSingleResourceRelationship,
+  RelationshipRecordData,
+} from './ts-interfaces/relationship-record-data';
 
 let nextBfsId = 1;
 
@@ -100,7 +96,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
       changedKeys = this._changedKeys(data.attributes);
     }
 
-    assign(this._data, data.attributes);
+    Object.assign(this._data, data.attributes);
     if (this.__attributes) {
       // only do if we have attribute changes
       this._updateChangedAttributes();
@@ -111,7 +107,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
 
     if (data.id) {
-      this.id = coerceId(data.id);
+      if (!this.id) {
+        this.id = coerceId(data.id);
+      }
     }
 
     return changedKeys;
@@ -127,22 +125,15 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   _clearErrors() {
-    if (RECORD_DATA_ERRORS) {
-      if (this._errors) {
-        this._errors = undefined;
-        this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
-      }
+    if (this._errors) {
+      this._errors = undefined;
+      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
     }
   }
 
   getErrors(): JsonApiValidationError[] {
-    assert('Can not call getErrors unless the RECORD_DATA_ERRORS feature flag is on', !!RECORD_DATA_ERRORS);
-    if (RECORD_DATA_ERRORS) {
-      let errors: JsonApiValidationError[] = this._errors || [];
-      return errors;
-    } else {
-      return [];
-    }
+    let errors: JsonApiValidationError[] = this._errors || [];
+    return errors;
   }
 
   // this is a hack bc we don't have access to the state machine
@@ -243,7 +234,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     let oldData = this._data;
     let currentData = this._attributes;
     let inFlightData = this._inFlightAttributes;
-    let newData = assign({}, inFlightData, currentData);
+    let newData = { ...inFlightData, ...currentData };
     let diffData = Object.create(null);
     let newDataKeys = Object.keys(newData);
 
@@ -307,7 +298,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     }
     let changedKeys = this._changedKeys(newCanonicalAttributes);
 
-    assign(this._data, this.__inFlightAttributes, newCanonicalAttributes);
+    Object.assign(this._data, this.__inFlightAttributes, newCanonicalAttributes);
 
     this._inFlightAttributes = null;
 
@@ -319,9 +310,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   notifyStateChange() {
-    if (RECORD_DATA_STATE) {
-      this.storeWrapper.notifyStateChange(this.modelName, this.id, this.clientId);
-    }
+    this.storeWrapper.notifyStateChange(this.modelName, this.id, this.clientId);
   }
 
   // get ResourceIdentifiers for "current state"
@@ -371,12 +360,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
       }
     }
     this._inFlightAttributes = null;
-    if (RECORD_DATA_ERRORS) {
-      if (errors) {
-        this._errors = errors;
-      }
-      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+    if (errors) {
+      this._errors = errors;
     }
+    this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
   }
 
   getBelongsTo(key: string): DefaultSingleResourceRelationship {
@@ -754,7 +741,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
         attrs = this._attributes;
       }
 
-      original = assign(Object.create(null), this._data, this.__inFlightAttributes);
+      original = Object.assign(Object.create(null), this._data, this.__inFlightAttributes);
 
       for (i = 0; i < length; i++) {
         key = keys[i];

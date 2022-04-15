@@ -2,52 +2,66 @@ import { assert, warn } from '@ember/debug';
 import { isNone } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
-import { identifierCacheFor } from '../../identifiers/cache';
+import type { IdentifierCache } from '../../identifiers/cache';
+import type {
+  ExistingResourceObject,
+  NewResourceIdentifierObject,
+  ResourceIdentifierObject,
+} from '../../ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
+import type CoreStore from '../core-store';
 import IdentityMap from '../identity-map';
+import type InternalModelMap from '../internal-model-map';
 import InternalModel from '../model/internal-model';
-
-type CoreStore = import('../core-store').default;
-type ResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
-type ExistingResourceObject = import('../../ts-interfaces/ember-data-json-api').ExistingResourceObject;
-type NewResourceIdentifierObject = import('../../ts-interfaces/ember-data-json-api').NewResourceIdentifierObject;
-type RecordInstance = import('../../ts-interfaces/record-instance').RecordInstance;
-type InternalModelMap = import('../internal-model-map').default;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
-type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
+import WeakCache from '../weak-cache';
 
 /**
   @module @ember-data/store
 */
 
-const FactoryCache = new WeakMap<CoreStore, InternalModelFactory>();
+const FactoryCache = new WeakCache<CoreStore, InternalModelFactory>(DEBUG ? 'internal-model-factory' : '');
+FactoryCache._generator = (store: CoreStore) => {
+  return new InternalModelFactory(store);
+};
 type NewResourceInfo = { type: string; id: string | null };
 
-const RecordCache = new WeakMap<RecordInstance, StableRecordIdentifier>();
+const RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
+if (DEBUG) {
+  RecordCache._expectMsg = (key: RecordInstance) => `${key} is not a record instantiated by @ember-data/store`;
+}
 
 export function peekRecordIdentifier(record: any): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
 }
 
 /**
- * Retrieves the unique referentially-stable RecordIdentifier assigned to the given
- * record instance.
- *
- * @method recordIdentifierFor
- * @public
- * @static
- * @for @ember-data/store
- * @param {Object} record a record instance previously obstained from the store.
- * @returns
+  Retrieves the unique referentially-stable [RecordIdentifier](/ember-data/release/classes/StableRecordIdentifier)
+  assigned to the given record instance.
+
+  ```js
+  import { recordIdentifierFor } from "@ember-data/store";
+
+  // ... gain access to a record, for instance with peekRecord or findRecord
+  const record = store.peekRecord("user", "1");
+
+  // get the identifier for the record (see docs for StableRecordIdentifier)
+  const identifier = recordIdentifierFor(record);
+
+  // access the identifier's properties.
+  const { id, type, lid } = identifier;
+  ```
+
+  @method recordIdentifierFor
+  @public
+  @static
+  @for @ember-data/store
+  @param {Object} record a record instance previously obstained from the store.
+  @returns {StableRecordIdentifier}
  */
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
-  let identifier = RecordCache.get(record);
-
-  if (DEBUG && identifier === undefined) {
-    throw new Error(`${record} is not a record instantiated by @ember-data/store`);
-  }
-
-  return identifier as StableRecordIdentifier;
+  return RecordCache.getWithError(record);
 }
 
 export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
@@ -67,14 +81,7 @@ export function setRecordIdentifier(record: RecordInstance, identifier: StableRe
 }
 
 export function internalModelFactoryFor(store: CoreStore): InternalModelFactory {
-  let factory = FactoryCache.get(store);
-
-  if (factory === undefined) {
-    factory = new InternalModelFactory(store);
-    FactoryCache.set(store, factory);
-  }
-
-  return factory;
+  return FactoryCache.lookup(store);
 }
 
 /**
@@ -92,7 +99,7 @@ export default class InternalModelFactory {
 
   constructor(store: CoreStore) {
     this.store = store;
-    this.identifierCache = identifierCacheFor(store);
+    this.identifierCache = store.identifierCache;
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {
       let intendedIdentifier = identifier;
       if (identifier.id !== matchedIdentifier.id) {
@@ -153,7 +160,7 @@ export default class InternalModelFactory {
       TODO @runspired consider adding this to make polymorphism even nicer
       if (HAS_RECORD_DATA_PACKAGE) {
         if (identifier.type !== matchedIdentifier.type) {
-          const graphFor = require('@ember-data/record-data/-private').graphFor;
+          const graphFor = importSync('@ember-data/record-data/-private').graphFor;
           graphFor(this).registerPolymorphicType(identifier.type, matchedIdentifier.type);
         }
       }

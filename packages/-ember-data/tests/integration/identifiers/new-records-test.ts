@@ -23,7 +23,7 @@ module('Integration | Identifiers - creating new records', function (hooks) {
 
   test(`We can peek before create`, async function (assert) {
     let record = store.peekRecord('user', '1');
-    assert.ok(record === null, 'peekRecord returns null');
+    assert.strictEqual(record, null, 'peekRecord returns null');
 
     try {
       record = store.createRecord('user', { name: 'Chris', id: '1' });
@@ -35,7 +35,7 @@ module('Integration | Identifiers - creating new records', function (hooks) {
       assert.strictEqual(identifier.id, '1', 'We have an identifier with an id');
       assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
     } catch (e) {
-      assert.ok(false, `Did not expect error: ${e.message}`);
+      assert.ok(false, `Did not expect error: ${(e as Error).message}`);
     }
   });
 });

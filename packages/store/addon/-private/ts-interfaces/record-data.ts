@@ -1,8 +1,6 @@
-type RecordIdentifier = import('./identifier').RecordIdentifier;
-type SingleResourceRelationship = import('./ember-data-json-api').SingleResourceRelationship;
-type CollectionResourceRelationship = import('./ember-data-json-api').CollectionResourceRelationship;
-type JsonApiResource = import('./record-data-json-api').JsonApiResource;
-type JsonApiValidationError = import('./record-data-json-api').JsonApiValidationError;
+import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
+import type { RecordIdentifier } from './identifier';
+import type { JsonApiResource, JsonApiValidationError } from './record-data-json-api';
 
 /**
   @module @ember-data/store

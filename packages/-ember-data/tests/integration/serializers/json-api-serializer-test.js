@@ -105,11 +105,15 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
       var user = store.peekRecord('user', 1);
 
-      assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
-      assert.equal(get(user, 'lastName'), 'Katz', 'lastName is correct');
-      assert.equal(get(user, 'company.name'), 'Tilde Inc.', 'company.name is correct');
-      assert.equal(get(user, 'handles.firstObject.username'), 'wycats', 'handles.firstObject.username is correct');
-      assert.equal(get(user, 'handles.lastObject.nickname'), '@wycats', 'handles.lastObject.nickname is correct');
+      assert.strictEqual(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
+      assert.strictEqual(get(user, 'lastName'), 'Katz', 'lastName is correct');
+      assert.strictEqual(get(user, 'company.name'), 'Tilde Inc.', 'company.name is correct');
+      assert.strictEqual(
+        get(user, 'handles.firstObject.username'),
+        'wycats',
+        'handles.firstObject.username is correct'
+      );
+      assert.strictEqual(get(user, 'handles.lastObject.nickname'), '@wycats', 'handles.lastObject.nickname is correct');
     });
   });
 
@@ -200,7 +204,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
 
     var user = store.peekRecord('user', 1);
-    assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
+    assert.strictEqual(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
   });
 
   testInDebug('Errors when pushing payload with unknown type included in relationship', function (assert) {
@@ -291,8 +295,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     var user = store.serializerFor('user').normalizeResponse(store, User, jsonHash, '1', 'findRecord');
 
-    assert.equal(user.data.attributes.firstName, 'Yehuda');
-    assert.equal(user.data.attributes.title, 'director');
+    assert.strictEqual(user.data.attributes.firstName, 'Yehuda');
+    assert.strictEqual(user.data.attributes.title, 'director');
     assert.deepEqual(user.data.relationships.company.data, { id: '2', type: 'company' });
   });
 
@@ -331,9 +335,9 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     var payload = store.serializerFor('user').serialize(user._createSnapshot());
 
-    assert.equal(payload.data.relationships['company_relationship_key'].data.id, '1');
-    assert.equal(payload.data.attributes['firstname_attribute_key'], 'Yehuda');
-    assert.equal(payload.data.attributes['title_attribute_key'], 'director');
+    assert.strictEqual(payload.data.relationships['company_relationship_key'].data.id, '1');
+    assert.strictEqual(payload.data.attributes['firstname_attribute_key'], 'Yehuda');
+    assert.strictEqual(payload.data.attributes['title_attribute_key'], 'director');
   });
 
   test('Serializer should respect the attrs hash when extracting attributes with not camelized keys', function (assert) {
@@ -361,7 +365,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     var project = store.serializerFor('project').normalizeResponse(store, User, jsonHash, '1', 'findRecord');
 
-    assert.equal(project.data.attributes['company-name'], 'Tilde Inc.');
+    assert.strictEqual(project.data.attributes['company-name'], 'Tilde Inc.');
   });
 
   test('Serializer should respect the attrs hash when serializing attributes with not camelized keys', function (assert) {
@@ -378,7 +382,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     let project = store.createRecord('project', { 'company-name': 'Tilde Inc.' });
     let payload = store.serializerFor('project').serialize(project._createSnapshot());
 
-    assert.equal(payload.data.attributes['company_name'], 'Tilde Inc.');
+    assert.strictEqual(payload.data.attributes['company_name'], 'Tilde Inc.');
   });
 
   test('options are passed to transform for serialization', function (assert) {

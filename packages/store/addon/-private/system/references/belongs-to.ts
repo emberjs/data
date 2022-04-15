@@ -1,11 +1,17 @@
-import { deprecate } from '@ember/debug';
+import { dependentKeyCompat } from '@ember/object/compat';
+import { cached, tracked } from '@glimmer/tracking';
 
 import { resolve } from 'rsvp';
 
-import { DEPRECATE_BELONGS_TO_REFERENCE_PUSH } from '@ember-data/private-build-infra/deprecations';
+import type { BelongsToRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
-import { internalModelFactoryFor, peekRecordIdentifier, recordIdentifierFor } from '../store/internal-model-factory';
+import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
+import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import CoreStore from '../core-store';
+import { NotificationType, unsubscribe } from '../record-notification-manager';
+import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
+import RecordReference from './record';
 import Reference from './reference';
 
 /**
@@ -22,15 +28,75 @@ import Reference from './reference';
  @extends Reference
  */
 export default class BelongsToReference extends Reference {
-  constructor(store, parentIMOrIdentifier, belongsToRelationship, key) {
-    super(store, parentIMOrIdentifier);
+  declare key: string;
+  declare belongsToRelationship: BelongsToRelationship;
+  declare type: string;
+  declare parent: RecordReference;
+  declare parentIdentifier: StableRecordIdentifier;
+
+  // unsubscribe tokens given to us by the notification manager
+  #token!: Object;
+  #relatedToken: Object | null = null;
+
+  @tracked _ref = 0;
+
+  constructor(
+    store: CoreStore,
+    parentIdentifier: StableRecordIdentifier,
+    belongsToRelationship: BelongsToRelationship,
+    key: string
+  ) {
+    super(store, parentIdentifier);
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
     this.type = belongsToRelationship.definition.type;
-    this.parent = internalModelFactoryFor(store).peek(parentIMOrIdentifier).recordReference;
-    this.parentIdentifier = parentIMOrIdentifier;
+    const parent = internalModelFactoryFor(store).peek(parentIdentifier);
+    this.parent = parent!.recordReference;
+    this.parentIdentifier = parentIdentifier;
+
+    this.#token = store._notificationManager.subscribe(
+      parentIdentifier,
+      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+        if ((bucket === 'relationships' || bucket === 'property') && notifiedKey === key) {
+          this._ref++;
+        }
+      }
+    );
 
     // TODO inverse
+  }
+
+  destroy() {
+    unsubscribe(this.#token);
+    if (this.#relatedToken) {
+      unsubscribe(this.#relatedToken);
+    }
+  }
+
+  @cached
+  @dependentKeyCompat
+  get _relatedIdentifier(): StableRecordIdentifier | null {
+    this._ref; // consume the tracked prop
+    if (this.#relatedToken) {
+      unsubscribe(this.#relatedToken);
+    }
+
+    let resource = this._resource();
+    if (resource && resource.data) {
+      const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
+      this.#relatedToken = this.store._notificationManager.subscribe(
+        identifier,
+        (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+          if (bucket === 'identity' || ((bucket === 'attributes' || bucket === 'property') && notifiedKey === 'id')) {
+            this._ref++;
+          }
+        }
+      );
+
+      return identifier;
+    }
+
+    return null;
   }
 
   /**
@@ -73,13 +139,8 @@ export default class BelongsToReference extends Reference {
     @public
    @return {String} The id of the record in this belongsTo relationship.
    */
-  id() {
-    let id = null;
-    let resource = this._resource();
-    if (resource && resource.data) {
-      id = resource.data.id;
-    }
-    return id;
+  id(): string | null {
+    return this._relatedIdentifier?.id || null;
   }
 
   _resource() {
@@ -132,45 +193,28 @@ export default class BelongsToReference extends Reference {
    @param {Object|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
-  push(objectOrPromise) {
-    // TODO deprecate thenable support
-    return resolve(objectOrPromise).then((data) => {
-      let record;
+  async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<Object> {
+    const jsonApiDoc = await resolve(data);
+    let record = this.store.push(jsonApiDoc);
 
-      if (DEPRECATE_BELONGS_TO_REFERENCE_PUSH && peekRecordIdentifier(data)) {
-        deprecate('Pushing a record into a BelongsToReference is deprecated', false, {
-          id: 'ember-data:belongs-to-reference-push-record',
-          until: '4.0',
-          for: '@ember-data/store',
-          since: {
-            available: '3.16',
-            enabled: '3.16',
-          },
-        });
-        record = data;
-      } else {
-        record = this.store.push(data);
-      }
+    assertPolymorphicType(
+      this.belongsToRelationship.identifier,
+      this.belongsToRelationship.definition,
+      recordIdentifierFor(record),
+      this.store
+    );
 
-      assertPolymorphicType(
-        this.belongsToRelationship.identifier,
-        this.belongsToRelationship.definition,
-        record._internalModel.identifier,
-        this.store
-      );
-
-      const { graph, identifier } = this.belongsToRelationship;
-      this.store._backburner.join(() => {
-        graph.push({
-          op: 'replaceRelatedRecord',
-          record: identifier,
-          field: this.key,
-          value: recordIdentifierFor(record),
-        });
+    const { graph, identifier } = this.belongsToRelationship;
+    this.store._backburner.join(() => {
+      graph.push({
+        op: 'replaceRelatedRecord',
+        record: identifier,
+        field: this.key,
+        value: recordIdentifierFor(record),
       });
-
-      return record;
     });
+
+    return record;
   }
 
   /**
@@ -223,7 +267,7 @@ export default class BelongsToReference extends Reference {
     @public
    @return {Model} the record in this relationship
    */
-  value() {
+  value(): Object | null {
     let resource = this._resource();
     if (resource && resource.data) {
       let inverseInternalModel = this.store._internalModelForResource(resource.data);
@@ -299,7 +343,7 @@ export default class BelongsToReference extends Reference {
    */
   load(options) {
     let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-    return parentInternalModel.getBelongsTo(this.key, options);
+    return parentInternalModel!.getBelongsTo(this.key, options);
   }
 
   /**
@@ -354,7 +398,7 @@ export default class BelongsToReference extends Reference {
    */
   reload(options) {
     let parentInternalModel = internalModelFactoryFor(this.store).peek(this.parentIdentifier);
-    return parentInternalModel.reloadBelongsTo(this.key, options).then((internalModel) => {
+    return parentInternalModel!.reloadBelongsTo(this.key, options).then((internalModel) => {
       return this.value();
     });
   }

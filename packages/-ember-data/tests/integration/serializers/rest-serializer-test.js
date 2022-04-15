@@ -85,8 +85,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     Inflector.inflector.uncountable('words');
     var expectedModelName = 'multi-words';
 
-    assert.equal(serializer.modelNameFromPayloadKey('multi_words'), expectedModelName);
-    assert.equal(serializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
+    assert.strictEqual(serializer.modelNameFromPayloadKey('multi_words'), expectedModelName);
+    assert.strictEqual(serializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
   });
 
   test('normalizeResponse should extract meta using extractMeta', function (assert) {
@@ -225,7 +225,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       ],
       included: [],
     });
-    assert.equal(homePlanetNormalizeCount, 1, 'homePlanet is normalized once');
+    assert.strictEqual(homePlanetNormalizeCount, 1, 'homePlanet is normalized once');
   });
 
   testInDebug('normalizeResponse warning with custom modelNameFromPayloadKey', function (assert) {
@@ -267,7 +267,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       });
     });
 
-    assert.equal(homePlanet.data.attributes.name, 'Umber');
+    assert.strictEqual(homePlanet.data.attributes.name, 'Umber');
     assert.deepEqual(homePlanet.data.relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
   });
 
@@ -306,8 +306,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       });
     });
 
-    assert.equal(homePlanets.data.length, 1);
-    assert.equal(homePlanets.data[0].attributes.name, 'Umber');
+    assert.strictEqual(homePlanets.data.length, 1);
+    assert.strictEqual(homePlanets.data[0].attributes.name, 'Umber');
     assert.deepEqual(homePlanets.data[0].relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
   });
 
@@ -372,7 +372,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       serializer.normalizeResponse(store, EvilMinion, jsonHash, '1', 'findRecord');
     });
 
-    assert.equal(superVillainNormalizeCount, 1, 'superVillain is normalized once');
+    assert.strictEqual(superVillainNormalizeCount, 1, 'superVillain is normalized once');
   });
 
   test('normalizeResponse returns null if payload contains null', function (assert) {
@@ -419,7 +419,38 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       serializer.normalizeResponse(store, EvilMinion, jsonHash, null, 'findAll');
     });
 
-    assert.equal(superVillainNormalizeCount, 1, 'superVillain is normalized once');
+    assert.strictEqual(superVillainNormalizeCount, 1, 'superVillain is normalized once');
+  });
+
+  test('normalizeResponse can handle large included arrays', function (assert) {
+    this.owner.register('serializer:super-villain', DS.RESTSerializer);
+    this.owner.register('serializer:evil-minion', DS.RESTSerializer);
+
+    let evilMinions = [];
+    // The actual stack size seems to vary based on browser and potenetially hardware and
+    // other factors. This number should be large enough to always be an issue.
+    let stackOverflowSize = 130000;
+    for (let i = 0; i < stackOverflowSize; i++) {
+      evilMinions.push({ id: i.toString(), superVillain: 1 });
+    }
+
+    let jsonHash = {
+      superVillains: [{ id: '1', firstName: 'Yehuda', lastName: 'Katz', homePlanet: '1' }],
+      evilMinions,
+    };
+
+    let superVillain;
+    try {
+      let store = this.owner.lookup('service:store');
+      let serializer = store.serializerFor('application');
+      superVillain = serializer.normalizeResponse(store, SuperVillain, jsonHash, null, 'findAll');
+    } catch (err) {
+      assert.ok(false, `normalizeResponse could not handle included length of ${stackOverflowSize}`);
+      // Rethrow to provide stack trace to test output
+      throw err;
+    }
+
+    assert.strictEqual(superVillain.included.length, stackOverflowSize);
   });
 
   test('normalize should allow for different levels of normalization', function (assert) {
@@ -447,7 +478,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       array = serializer.normalizeResponse(store, EvilMinion, jsonHash, null, 'findAll');
     });
 
-    assert.equal(array.data[0].relationships.superVillain.data.id, 1);
+    assert.strictEqual(array.data[0].relationships.superVillain.data.id, '1');
   });
 
   test('normalize should allow for different levels of normalization - attributes', function (assert) {
@@ -475,7 +506,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       array = serializer.normalizeResponse(store, EvilMinion, jsonHash, null, 'findAll');
     });
 
-    assert.equal(array.data[0].attributes.name, 'Tom Dale');
+    assert.strictEqual(array.data[0].attributes.name, 'Tom Dale');
   });
 
   test('serializeIntoHash', function (assert) {
@@ -635,7 +666,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
         };
       }
 
-      assert.equal(type.modelName, 'yellow-minion');
+      assert.strictEqual(type.modelName, 'yellow-minion');
 
       return {
         yellowMinion: {
@@ -654,7 +685,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
           return deathRay.get('evilMinion');
         })
         .then((evilMinion) => {
-          assert.equal(evilMinion.get('eyes'), 3);
+          assert.strictEqual(evilMinion.get('eyes'), 3);
         });
     });
   });
@@ -695,7 +726,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
           return deathRay.get('evilMinion');
         })
         .then((evilMinion) => {
-          assert.equal(evilMinion.get('eyes'), 3);
+          assert.strictEqual(evilMinion.get('eyes'), 3);
         });
     });
   });
@@ -744,7 +775,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
         })
         .then((evilMinions) => {
           assert.ok(evilMinions.get('firstObject') instanceof YellowMinion);
-          assert.equal(evilMinions.get('firstObject.eyes'), 3);
+          assert.strictEqual(evilMinions.get('firstObject.eyes'), 3);
         });
     });
   });
@@ -876,7 +907,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
         })
         .then((basket) => {
           assert.ok(basket instanceof Basket);
-          assert.equal(basket.get('size'), 4);
+          assert.strictEqual(basket.get('size'), 4);
         });
     });
   });
@@ -907,7 +938,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     var documentHash = store.serializerFor('super-villain').normalizeSingleResponse(store, SuperVillain, jsonHash);
 
-    assert.equal(documentHash.data.relationships.evilMinions.links.related, 'me/minions');
+    assert.strictEqual(documentHash.data.relationships.evilMinions.links.related, 'me/minions');
   });
 
   // https://github.com/emberjs/data/issues/3805
@@ -929,8 +960,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let store = this.owner.lookup('service:store');
     let document = store.serializerFor('doomsday-device').normalizeSingleResponse(store, DoomsdayDevice, payload);
 
-    assert.equal(document.data.relationships.evilMinion.data.id, 2);
-    assert.equal(document.included.length, 1);
+    assert.strictEqual(document.data.relationships.evilMinion.data.id, '2');
+    assert.strictEqual(document.included.length, 1);
     assert.deepEqual(document.included[0], {
       attributes: {},
       id: '2',
@@ -965,9 +996,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     let store = this.owner.lookup('service:store');
     let document = store.serializerFor('home-planet').normalizeSingleResponse(store, HomePlanet, payload);
 
-    assert.equal(document.data.relationships.superVillains.data.length, 1);
-    assert.equal(document.data.relationships.superVillains.data[0].id, 2);
-    assert.equal(document.included.length, 1);
+    assert.strictEqual(document.data.relationships.superVillains.data.length, 1);
+    assert.strictEqual(document.data.relationships.superVillains.data[0].id, '2');
+    assert.strictEqual(document.included.length, 1);
     assert.deepEqual(document.included[0], {
       attributes: {},
       id: '2',

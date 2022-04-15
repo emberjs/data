@@ -3,20 +3,15 @@ import EmberObject from '@ember/object';
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import Model from 'ember-data/model';
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
-import { attr } from '@ember-data/model';
+import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-
-type RecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').RecordIdentifier;
-type NewRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').NewRecordIdentifier;
-type RecordData = import('@ember-data/store/-private/ts-interfaces/record-data').RecordData;
-type JsonApiValidationError =
-  import('@ember-data/store/-private/ts-interfaces/record-data-json-api').JsonApiValidationError;
+import Store from '@ember-data/store';
+import type { NewRecordIdentifier, RecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { RecordData } from '@ember-data/store/-private/ts-interfaces/record-data';
+import type { JsonApiValidationError } from '@ember-data/store/-private/ts-interfaces/record-data-json-api';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -117,10 +112,6 @@ let CustomStore = Store.extend({
 });
 
 module('integration/record-data - Custom RecordData Errors', function (hooks) {
-  if (!RECORD_DATA_ERRORS) {
-    return;
-  }
-
   setupTest(hooks);
 
   let store;
@@ -148,8 +139,8 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
 
     class LifecycleRecordData extends TestRecordData {
       commitWasRejected(recordIdentifier, errors) {
-        assert.equal(errors[0].detail, 'is a generally unsavoury character', 'received the error');
-        assert.equal(errors[0].source.pointer, '/data/attributes/name', 'pointer is correct');
+        assert.strictEqual(errors[0].detail, 'is a generally unsavoury character', 'received the error');
+        assert.strictEqual(errors[0].source.pointer, '/data/attributes/name', 'pointer is correct');
       }
     }
 
@@ -207,7 +198,7 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
 
     class LifecycleRecordData extends TestRecordData {
       commitWasRejected(recordIdentifier, errors) {
-        assert.equal(errors, undefined, 'Did not pass adapter errors');
+        assert.strictEqual(errors, undefined, 'Did not pass adapter errors');
       }
     }
 
@@ -285,12 +276,12 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
     });
     let person = store.peekRecord('person', '1');
     let nameError = person.get('errors').errorsFor('name').get('firstObject');
-    assert.equal(nameError.attribute, 'name', 'error shows up on name');
+    assert.strictEqual(nameError.attribute, 'name', 'error shows up on name');
     assert.false(person.get('isValid'), 'person is not valid');
     errorsToReturn = [];
     storeWrapper.notifyErrorsChange('person', '1');
     assert.true(person.get('isValid'), 'person is valid');
-    assert.equal(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
+    assert.strictEqual(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
     errorsToReturn = [
       {
         title: 'Invalid Attribute',
@@ -302,9 +293,9 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
     ];
     storeWrapper.notifyErrorsChange('person', '1');
     assert.false(person.get('isValid'), 'person is valid');
-    assert.equal(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
+    assert.strictEqual(person.get('errors').errorsFor('name').length, 0, 'no errors on name');
     let lastNameError = person.get('errors').errorsFor('lastName').get('firstObject');
-    assert.equal(lastNameError.attribute, 'lastName', 'error shows up on lastName');
+    assert.strictEqual(lastNameError.attribute, 'lastName', 'error shows up on lastName');
   });
 
   test('Record data which does not implement getErrors still works correctly with the default DS.Model', async function (assert) {
@@ -321,8 +312,8 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
 
     class LifecycleRecordData extends TestRecordData {
       commitWasRejected(recordIdentifier, errors) {
-        assert.equal(errors[0].detail, 'is a generally unsavoury character', 'received the error');
-        assert.equal(errors[0].source.pointer, '/data/attributes/name', 'pointer is correct');
+        assert.strictEqual(errors[0].detail, 'is a generally unsavoury character', 'received the error');
+        assert.strictEqual(errors[0].source.pointer, '/data/attributes/name', 'pointer is correct');
       }
     }
 
@@ -368,6 +359,6 @@ module('integration/record-data - Custom RecordData Errors', function (hooks) {
 
     assert.false(person.get('isValid'), 'rejecting the save invalidates the person');
     let nameError = person.get('errors').errorsFor('name').get('firstObject');
-    assert.equal(nameError.attribute, 'name', 'error shows up on name');
+    assert.strictEqual(nameError.attribute, 'name', 'error shows up on name');
   });
 });

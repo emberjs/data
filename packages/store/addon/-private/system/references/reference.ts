@@ -1,19 +1,10 @@
-import { deprecate } from '@ember/debug';
+import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
-import { DEPRECATE_REFERENCE_INTERNAL_MODEL } from '@ember-data/private-build-infra/deprecations';
-
-import { internalModelFactoryFor } from '../store/internal-model-factory';
-
-type Dict<T> = import('../../ts-interfaces/utils').Dict<T>;
-type JsonApiRelationship = import('../../ts-interfaces/record-data-json-api').JsonApiRelationship;
-type PaginationLinks = import('../../ts-interfaces/ember-data-json-api').PaginationLinks;
-type LinkObject = import('../../ts-interfaces/ember-data-json-api').LinkObject;
-type CoreStore = import('../core-store').default;
-type JSONObject = import('json-typescript').Object;
-type JSONValue = import('json-typescript').Value;
-type InternalModel = import('../model/internal-model').default;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
-
+import type { LinkObject, PaginationLinks } from '../../ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
+import type { Dict } from '../../ts-interfaces/utils';
+import type CoreStore from '../core-store';
 /**
   @module @ember-data/store
 */
@@ -31,12 +22,6 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
-export const REFERENCE_CACHE = new WeakMap<Reference, StableRecordIdentifier>();
-
-export function internalModelForReference(reference: Reference): InternalModel | null | undefined {
-  return internalModelFactoryFor(reference.store).peek(REFERENCE_CACHE.get(reference) as StableRecordIdentifier);
-}
-
 /**
   This is the baseClass for the different References
   like RecordReference/HasManyReference/BelongsToReference
@@ -48,12 +33,14 @@ interface Reference {
   links(): PaginationLinks | null;
 }
 abstract class Reference {
+  #identifier: StableRecordIdentifier;
+
   constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
-    REFERENCE_CACHE.set(this, identifier);
+    this.#identifier = identifier;
   }
 
   get recordData() {
-    return this.store.recordDataFor(REFERENCE_CACHE.get(this) as StableRecordIdentifier, false);
+    return this.store.recordDataFor(this.#identifier, false);
   }
 
   public _resource(): ResourceIdentifier | JsonApiRelationship | void {}
@@ -100,7 +87,7 @@ abstract class Reference {
    @public
    @return {String} The name of the remote type. This should either be "link" or "ids"
    */
-  remoteType(): 'link' | 'id' | 'identity' {
+  remoteType(): 'link' | 'id' | 'ids' | 'identity' {
     let value = this._resource();
     if (isResourceIdentiferWithRelatedLinks(value)) {
       return 'link';
@@ -187,9 +174,9 @@ abstract class Reference {
               related: {
                 href: '/articles/1/author'
               },
-              meta: {
-                lastUpdated: 1458014400000
-              }
+            },
+            meta: {
+              lastUpdated: 1458014400000
             }
           }
         }
@@ -213,24 +200,6 @@ abstract class Reference {
     }
     return meta;
   }
-}
-
-if (DEPRECATE_REFERENCE_INTERNAL_MODEL) {
-  Object.defineProperty(Reference.prototype, 'internalModel', {
-    get() {
-      deprecate('Accessing the internalModel property of Reference is deprecated', false, {
-        id: 'ember-data:reference-internal-model',
-        until: '3.21',
-        for: '@ember-data/store',
-        since: {
-          available: '3.19',
-          enabled: '3.19',
-        },
-      });
-
-      return REFERENCE_CACHE.get(this);
-    },
-  });
 }
 
 export default Reference;

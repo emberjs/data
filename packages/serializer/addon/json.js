@@ -4,7 +4,6 @@
 import { getOwner } from '@ember/application';
 import { assert, warn } from '@ember/debug';
 import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { isNone, typeOf } from '@ember/utils';
 
 import Serializer from '@ember-data/serializer';
@@ -541,7 +540,7 @@ const JSONSerializer = Serializer.extend({
         let item = payload[i];
         let { data, included } = this.normalize(primaryModelClass, item);
         if (included) {
-          documentHash.included.push(...included);
+          documentHash.included = documentHash.included.concat(included);
         }
         ret[i] = data;
       }
@@ -840,11 +839,11 @@ const JSONSerializer = Serializer.extend({
         }
 
         if (get(modelClass, 'attributes').has(key)) {
-          normalizedKey = this.keyForAttribute(key);
+          normalizedKey = this.keyForAttribute(key, 'deserialize');
         }
 
         if (get(modelClass, 'relationshipsByName').has(key)) {
-          normalizedKey = this.keyForRelationship(key);
+          normalizedKey = this.keyForRelationship(key, modelClass, 'deserialize');
         }
 
         if (payloadKey !== normalizedKey) {
@@ -1155,7 +1154,7 @@ const JSONSerializer = Serializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    assign(hash, this.serialize(snapshot, options));
+    Object.assign(hash, this.serialize(snapshot, options));
   },
 
   /**

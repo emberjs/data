@@ -1,6 +1,5 @@
+import type { ConfidentDict } from '../ts-interfaces/utils';
 import InternalModelMap from './internal-model-map';
-
-type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 /**
   @module @ember-data/store

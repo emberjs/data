@@ -1,18 +1,16 @@
 import { getOwner } from '@ember/application';
 import { get } from '@ember/object';
 
-import require from 'require';
+import { importSync } from '@embroider/macros';
 
+import type Model from '@ember-data/model';
 import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
+import type { RecordIdentifier } from '../ts-interfaces/identifier';
+import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
+import type Store from './ds-model-store';
 import normalizeModelName from './normalize-model-name';
 
-type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
-type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type Store = import('./ds-model-store').default;
-
-type Model = import('@ember-data/model').default;
 type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
 
 let _modelForMixin: ModelForMixin;
@@ -20,7 +18,7 @@ if (HAS_MODEL_PACKAGE) {
   let _found;
   _modelForMixin = function () {
     if (!_found) {
-      _found = require('@ember-data/model/-private')._modelForMixin;
+      _found = (importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private'))._modelForMixin;
     }
     return _found(...arguments);
   };
@@ -34,7 +32,7 @@ export class DSModelSchemaDefinitionService {
   constructor(public store: Store) {}
 
   // Following the existing RD implementation
-  attributesDefinitionFor(identifier: RecordIdentifier | string): AttributesSchema {
+  attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
     let modelName, attributes;
     if (typeof identifier === 'string') {
       modelName = identifier;
@@ -57,7 +55,7 @@ export class DSModelSchemaDefinitionService {
   }
 
   // Following the existing RD implementation
-  relationshipsDefinitionFor(identifier: RecordIdentifier | string): RelationshipsSchema {
+  relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
     let modelName, relationships;
     if (typeof identifier === 'string') {
       modelName = identifier;

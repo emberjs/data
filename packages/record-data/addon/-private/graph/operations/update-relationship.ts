@@ -1,12 +1,11 @@
 import { assert, warn } from '@ember/debug';
 
-import _normalizeLink from '../../normalize-link';
-import { isBelongsTo, isHasMany } from '../-utils';
+import type { ExistingResourceIdentifierObject } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 
-type ExistingResourceIdentifierObject =
-  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').ExistingResourceIdentifierObject;
-type UpdateRelationshipOperation = import('../-operations').UpdateRelationshipOperation;
-type Graph = import('../index').Graph;
+import _normalizeLink from '../../normalize-link';
+import type { UpdateRelationshipOperation } from '../-operations';
+import { isBelongsTo, isHasMany } from '../-utils';
+import type { Graph } from '../index';
 
 /*
     Updates the "canonical" or "remote" state of a relationship, replacing any existing
@@ -153,7 +152,5 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
     } else {
       relationship.state.isStale = false;
     }
-  } else {
-    relationship.state.isStale = false;
   }
 }

@@ -3,12 +3,11 @@ import { run } from '@ember/runloop';
 import Ember from 'ember';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise, resolve } from 'rsvp';
+import { resolve } from 'rsvp';
 
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, Person, PhoneNumber, Post;
@@ -57,14 +56,14 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       });
     });
 
-    assert.equal(person.get('firstName'), 'original first name');
-    assert.equal(person.get('currentState.stateName'), 'root.loaded.saved');
+    assert.strictEqual(person.get('firstName'), 'original first name');
+    assert.strictEqual(person.get('currentState.stateName'), 'root.loaded.saved');
 
     run(() => person.set('firstName', 'updated first name'));
 
-    assert.equal(person.get('firstName'), 'updated first name');
+    assert.strictEqual(person.get('firstName'), 'updated first name');
     assert.strictEqual(person.get('lastName'), undefined);
-    assert.equal(person.get('currentState.stateName'), 'root.loaded.updated.uncommitted');
+    assert.strictEqual(person.get('currentState.stateName'), 'root.loaded.updated.uncommitted');
     assert.deepEqual(person.changedAttributes().firstName, ['original first name', 'updated first name']);
 
     run(() => {
@@ -79,8 +78,8 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       });
     });
 
-    assert.equal(person.get('firstName'), 'updated first name');
-    assert.equal(person.get('currentState.stateName'), 'root.loaded.saved');
+    assert.strictEqual(person.get('firstName'), 'updated first name');
+    assert.strictEqual(person.get('currentState.stateName'), 'root.loaded.saved');
     assert.notOk(person.changedAttributes().firstName);
   });
 
@@ -104,7 +103,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       });
 
       return store.findRecord('person', 'wat').then((foundPerson) => {
-        assert.equal(
+        assert.strictEqual(
           foundPerson,
           person,
           'record returned via load() is the same as the record returned from findRecord()'
@@ -150,45 +149,6 @@ module('unit/store/push - DS.Store#push', function (hooks) {
     });
   });
 
-  deprecatedTest(
-    `Calling push triggers 'didLoad' even if the record hasn't been requested from the adapter`,
-    {
-      id: 'ember-data:record-lifecycle-event-methods',
-      until: '4.0',
-    },
-    async function (assert) {
-      assert.expect(1);
-
-      let didLoad = new EmberPromise((resolve, reject) => {
-        Person.reopen({
-          didLoad() {
-            try {
-              assert.ok(true, 'The didLoad callback was called');
-              resolve();
-            } catch (e) {
-              reject(e);
-            }
-          },
-        });
-      });
-
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: 'wat',
-            attributes: {
-              firstName: 'Yehuda',
-              lastName: 'Katz',
-            },
-          },
-        });
-      });
-
-      await didLoad;
-    }
-  );
-
   test('Calling push with partial records updates just those attributes', function (assert) {
     assert.expect(2);
 
@@ -221,7 +181,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       });
 
       return store.findRecord('person', 'wat').then((foundPerson) => {
-        assert.equal(
+        assert.strictEqual(
           foundPerson,
           person,
           'record returned via load() is the same as the record returned from findRecord()'
@@ -259,8 +219,8 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       );
     });
 
-    assert.equal(person.get('firstName'), 'Jacquie', 'you can push raw JSON into the store');
-    assert.equal(person.get('lastName'), 'Jackson', 'existing fields are untouched');
+    assert.strictEqual(person.get('firstName'), 'Jacquie', 'you can push raw JSON into the store');
+    assert.strictEqual(person.get('lastName'), 'Jackson', 'existing fields are untouched');
   });
 
   test('Calling push with a normalized hash containing IDs of related records returns a record', function (assert) {
@@ -359,7 +319,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
 
     let post = store.peekRecord('post', 1);
 
-    assert.equal(post.get('postTitle'), 'Ember rocks', 'you can push raw JSON into the store');
+    assert.strictEqual(post.get('postTitle'), 'Ember rocks', 'you can push raw JSON into the store');
 
     run(() => {
       store.pushPayload('post', {
@@ -372,7 +332,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       });
     });
 
-    assert.equal(post.get('postTitle'), 'Ember rocks (updated)', 'You can update data in the store');
+    assert.strictEqual(post.get('postTitle'), 'Ember rocks (updated)', 'You can update data in the store');
   });
 
   test('Calling pushPayload allows pushing singular payload properties', function (assert) {
@@ -387,7 +347,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
 
     let post = store.peekRecord('post', 1);
 
-    assert.equal(post.get('postTitle'), 'Ember rocks', 'you can push raw JSON into the store');
+    assert.strictEqual(post.get('postTitle'), 'Ember rocks', 'you can push raw JSON into the store');
 
     run(() => {
       store.pushPayload('post', {
@@ -398,7 +358,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       });
     });
 
-    assert.equal(post.get('postTitle'), 'Ember rocks (updated)', 'You can update data in the store');
+    assert.strictEqual(post.get('postTitle'), 'Ember rocks (updated)', 'You can update data in the store');
   });
 
   test(`Calling pushPayload should use the type's serializer for normalizing`, function (assert) {
@@ -443,11 +403,11 @@ module('unit/store/push - DS.Store#push', function (hooks) {
 
     let post = store.peekRecord('post', 1);
 
-    assert.equal(post.get('postTitle'), 'Ember rocks', 'you can push raw JSON into the store');
+    assert.strictEqual(post.get('postTitle'), 'Ember rocks', 'you can push raw JSON into the store');
 
     let person = store.peekRecord('person', 2);
 
-    assert.equal(person.get('firstName'), 'Yehuda', 'you can push raw JSON into the store');
+    assert.strictEqual(person.get('firstName'), 'Yehuda', 'you can push raw JSON into the store');
   });
 
   test(`Calling pushPayload without a type uses application serializer's pushPayload method`, function (assert) {
@@ -512,11 +472,11 @@ module('unit/store/push - DS.Store#push', function (hooks) {
 
     var post = store.peekRecord('post', 1);
 
-    assert.equal(post.get('postTitle'), 'Ember rocks', 'you can push raw JSON into the store');
+    assert.strictEqual(post.get('postTitle'), 'Ember rocks', 'you can push raw JSON into the store');
 
     var person = store.peekRecord('person', 2);
 
-    assert.equal(person.get('firstName'), 'Yehuda', 'you can push raw JSON into the store');
+    assert.strictEqual(person.get('firstName'), 'Yehuda', 'you can push raw JSON into the store');
   });
 
   test('Calling pushPayload allows partial updates with raw JSON', function (assert) {
@@ -536,8 +496,8 @@ module('unit/store/push - DS.Store#push', function (hooks) {
 
     let person = store.peekRecord('person', 1);
 
-    assert.equal(person.get('firstName'), 'Robert', 'you can push raw JSON into the store');
-    assert.equal(person.get('lastName'), 'Jackson', 'you can push raw JSON into the store');
+    assert.strictEqual(person.get('firstName'), 'Robert', 'you can push raw JSON into the store');
+    assert.strictEqual(person.get('lastName'), 'Jackson', 'you can push raw JSON into the store');
 
     run(() => {
       store.pushPayload('person', {
@@ -550,8 +510,8 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       });
     });
 
-    assert.equal(person.get('firstName'), 'Jacquie', 'you can push raw JSON into the store');
-    assert.equal(person.get('lastName'), 'Jackson', 'existing fields are untouched');
+    assert.strictEqual(person.get('firstName'), 'Jacquie', 'you can push raw JSON into the store');
+    assert.strictEqual(person.get('lastName'), 'Jackson', 'existing fields are untouched');
   });
 
   testInDebug(
@@ -618,8 +578,8 @@ module('unit/store/push - DS.Store#push', function (hooks) {
       let robert = store.peekRecord('person', '1');
 
       var friends = robert.friends;
-      assert.equal(friends.firstObject.id, '2', 'first object is unchanged');
-      assert.equal(friends.lastObject.id, '3', 'last object is unchanged');
+      assert.strictEqual(friends.firstObject.id, '2', 'first object is unchanged');
+      assert.strictEqual(friends.lastObject.id, '3', 'last object is unchanged');
     }
   );
 
@@ -722,8 +682,8 @@ module('unit/store/push - DS.Store#push', function (hooks) {
 
       let person = store.peekRecord('person', 1);
 
-      assert.equal(person.get('phoneNumbers.length'), 1);
-      assert.equal(person.get('phoneNumbers.firstObject.number'), '1-800-DATA');
+      assert.strictEqual(person.get('phoneNumbers.length'), 1);
+      assert.strictEqual(person.get('phoneNumbers.firstObject.number'), '1-800-DATA');
 
       // GET /persons/1
       assert.expectNoWarning(() => {
@@ -742,8 +702,8 @@ module('unit/store/push - DS.Store#push', function (hooks) {
         });
       });
 
-      assert.equal(person.get('phoneNumbers.length'), 1);
-      assert.equal(person.get('phoneNumbers.firstObject.number'), '1-800-DATA');
+      assert.strictEqual(person.get('phoneNumbers.length'), 1);
+      assert.strictEqual(person.get('phoneNumbers.firstObject.number'), '1-800-DATA');
     }
   );
 
@@ -784,7 +744,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
 
     let person = store.peekRecord('person', 1);
 
-    assert.equal(person.get('firstName'), 'Tan', 'you can use links containing an object');
+    assert.strictEqual(person.get('firstName'), 'Tan', 'you can use links containing an object');
   });
 
   test('Calling push with a link containing the value null', function (assert) {
@@ -809,7 +769,7 @@ module('unit/store/push - DS.Store#push', function (hooks) {
 
     let person = store.peekRecord('person', 1);
 
-    assert.equal(person.get('firstName'), 'Tan', 'you can use links that contain null as a value');
+    assert.strictEqual(person.get('firstName'), 'Tan', 'you can use links that contain null as a value');
   });
 
   testInDebug('calling push with hasMany relationship the value must be an array', function (assert) {
@@ -1046,10 +1006,10 @@ module('unit/store/push - DS.Store#push with JSON-API', function (hooks) {
     });
 
     let tom = store.peekRecord('person', 1);
-    assert.equal(tom.get('name'), 'Tom Dale', 'Tom should be in the store');
+    assert.strictEqual(tom.get('name'), 'Tom Dale', 'Tom should be in the store');
 
     let tomster = store.peekRecord('person', 2);
-    assert.equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
+    assert.strictEqual(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
   });
 
   test('Should support pushing included models into the store', function (assert) {
@@ -1098,9 +1058,9 @@ module('unit/store/push - DS.Store#push with JSON-API', function (hooks) {
     });
 
     let tomster = store.peekRecord('person', 1);
-    assert.equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
+    assert.strictEqual(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
 
     let car = store.peekRecord('car', 1);
-    assert.equal(car.get('model'), 'Neon', "Tomster's car should be in the store");
+    assert.strictEqual(car.get('model'), 'Neon', "Tomster's car should be in the store");
   });
 });

@@ -1,13 +1,12 @@
 import { assert } from '@ember/debug';
 
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+
+import type ManyRelationship from '../../relationships/state/has-many';
+import type { RemoveFromRelatedRecordsOperation } from '../-operations';
 import { isHasMany } from '../-utils';
+import type { Graph } from '../index';
 import { removeFromInverse } from './replace-related-records';
-
-type RemoveFromRelatedRecordsOperation = import('../-operations').RemoveFromRelatedRecordsOperation;
-
-type ManyRelationship = import('../../relationships/state/has-many').default;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type Graph = import('../index').Graph;
 
 export default function removeFromRelatedRecords(
   graph: Graph,

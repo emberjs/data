@@ -61,8 +61,8 @@ module('unit/model - init properties', function (hooks) {
     let author;
 
     function testState(types, record) {
-      assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-      assert.ok(get(record, 'randomProp') === 'An unknown prop', 'Unknown properties are available as expected');
+      assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
+      assert.strictEqual(get(record, 'randomProp'), 'An unknown prop', 'Unknown properties are available as expected');
       assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
       assert.ok(
         get(record, 'comments.firstObject') instanceof types.Comment,
@@ -107,7 +107,7 @@ module('unit/model - init properties', function (hooks) {
     assert.expect(3);
 
     function testState(types, record) {
-      assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
+      assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
       assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
       assert.ok(
         get(record, 'comments.firstObject') instanceof types.Comment,
@@ -158,7 +158,7 @@ module('unit/model - init properties', function (hooks) {
     assert.expect(3);
 
     function testState(types, record) {
-      assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
+      assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
       assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
       assert.ok(
         get(record, 'comments.firstObject') instanceof types.Comment,
@@ -211,7 +211,7 @@ module('unit/model - init properties', function (hooks) {
     assert.expect(3);
 
     function testState(types, record) {
-      assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
+      assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
       assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
       assert.ok(
         get(record, 'comments.firstObject') instanceof types.Comment,
@@ -268,8 +268,8 @@ module('unit/model - init properties', function (hooks) {
     const Post = Model.extend({
       title: attr(),
       setUnknownProperty: function (key, value) {
-        assert.equal(key, 'randomProp', 'Passed the correct key to setUknownProperty');
-        assert.equal(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
+        assert.strictEqual(key, 'randomProp', 'Passed the correct key to setUknownProperty');
+        assert.strictEqual(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
       },
     });
 

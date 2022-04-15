@@ -1,20 +1,21 @@
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import { importSync } from '@embroider/macros';
+
+import type { RelationshipDefinition } from '@ember-data/model/-private/system/relationships/relationship-meta';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 
-import { identifierCacheFor } from '../../identifiers/cache';
+import type { IdentifierCache } from '../../identifiers/cache';
+import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { RecordData } from '../../ts-interfaces/record-data';
+import type {
+  AttributesSchema,
+  RelationshipSchema,
+  RelationshipsSchema,
+} from '../../ts-interfaces/record-data-schemas';
+import type { RecordDataStoreWrapper as StoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
 import constructResource from '../../utils/construct-resource';
+import type CoreStore from '../core-store';
 import { internalModelFactoryFor } from './internal-model-factory';
 
-type StoreWrapper = import('../../ts-interfaces/record-data-store-wrapper').RecordDataStoreWrapper;
-type StableRecordIdentifier = import('../../ts-interfaces/identifier').StableRecordIdentifier;
-type CoreStore = import('../core-store').default;
-type IdentifierCache = import('../../identifiers/cache').IdentifierCache;
-type RecordData = import('../../ts-interfaces/record-data').RecordData;
-type AttributesSchema = import('../../ts-interfaces/record-data-schemas').AttributesSchema;
-type RelationshipsSchema = import('../../ts-interfaces/record-data-schemas').RelationshipsSchema;
-type RelationshipSchema = import('../../ts-interfaces/record-data-schemas').RelationshipSchema;
-type RelationshipDefinition =
-  import('@ember-data/model/-private/system/relationships/relationship-meta').RelationshipDefinition;
 /**
   @module @ember-data/store
 */
@@ -27,7 +28,9 @@ let peekGraph;
 if (HAS_RECORD_DATA_PACKAGE) {
   let _peekGraph;
   peekGraph = (wrapper) => {
-    _peekGraph = _peekGraph || require('@ember-data/record-data/-private').peekGraph;
+    _peekGraph =
+      _peekGraph ||
+      (importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')).peekGraph;
     return _peekGraph(wrapper);
   };
 }
@@ -44,7 +47,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   }
 
   get identifierCache(): IdentifierCache {
-    return identifierCacheFor(this._store);
+    return this._store.identifierCache;
   }
 
   _scheduleNotification(identifier: StableRecordIdentifier, key: string, kind: 'belongsTo' | 'hasMany') {
@@ -70,7 +73,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyErrorsChange(type: string, id: string | null, lid: string): void;
   notifyErrorsChange(type: string, id: string | null, lid: string | null): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
@@ -104,11 +107,11 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   }
 
   attributesDefinitionFor(type: string): AttributesSchema {
-    return this._store._attributesDefinitionFor(type);
+    return this._store._attributesDefinitionFor({ type });
   }
 
   relationshipsDefinitionFor(type: string): RelationshipsSchema {
-    return this._store._relationshipsDefinitionFor(type);
+    return this._store._relationshipsDefinitionFor({ type });
   }
 
   inverseForRelationship(type: string, key: string): string | null {
@@ -117,16 +120,13 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     if (!definition) {
       return null;
     }
-    if (CUSTOM_MODEL_CLASS) {
-      if (metaIsRelationshipDefinition(definition)) {
-        return definition._inverseKey(this._store, modelClass);
-      } else if (definition.options && definition.options.inverse !== undefined) {
-        return definition.options.inverse;
-      } else {
-        return null;
-      }
+
+    if (metaIsRelationshipDefinition(definition)) {
+      return definition._inverseKey(this._store, modelClass);
+    } else if (definition.options && definition.options.inverse !== undefined) {
+      return definition.options.inverse;
     } else {
-      return (definition as RelationshipDefinition)._inverseKey(this._store, modelClass);
+      return null;
     }
   }
 
@@ -136,21 +136,18 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
     if (!definition) {
       return false;
     }
-    if (CUSTOM_MODEL_CLASS) {
-      if (definition.options && definition.options.inverse === null) {
-        return false;
-      }
-      if ((definition as unknown as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {
-        // TODO do we need to amend the RFC for this prop?
-        // else we should add it to the TS interface and document.
-        return !!(definition as unknown as { inverseIsAsync: boolean }).inverseIsAsync;
-      } else if (metaIsRelationshipDefinition(definition)) {
-        return definition._inverseIsAsync(this._store, modelClass);
-      } else {
-        return false;
-      }
+
+    if (definition.options && definition.options.inverse === null) {
+      return false;
+    }
+    if ((definition as unknown as { inverseIsAsync?: boolean }).inverseIsAsync !== undefined) {
+      // TODO do we need to amend the RFC for this prop?
+      // else we should add it to the TS interface and document.
+      return !!(definition as unknown as { inverseIsAsync: boolean }).inverseIsAsync;
+    } else if (metaIsRelationshipDefinition(definition)) {
+      return definition._inverseIsAsync(this._store, modelClass);
     } else {
-      return (definition as RelationshipDefinition)._inverseIsAsync(this._store, modelClass);
+      return false;
     }
   }
 
@@ -158,7 +155,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyPropertyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
   notifyPropertyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
@@ -170,7 +167,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyHasManyChange(type: string, id: string, lid: string | null | undefined, key: string): void;
   notifyHasManyChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     this._scheduleNotification(identifier, key, 'hasMany');
   }
 
@@ -178,7 +175,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyBelongsToChange(type: string, id: string, lid: string | null | undefined, key: string): void;
   notifyBelongsToChange(type: string, id: string | null, lid: string | null | undefined, key: string): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
 
     this._scheduleNotification(identifier, key, 'belongsTo');
   }
@@ -187,7 +184,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   notifyStateChange(type: string, id: string | null, lid: string, key?: string): void;
   notifyStateChange(type: string, id: string | null, lid: string | null, key?: string): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     let internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (internalModel) {
@@ -206,7 +203,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
       identifier = { type };
     } else {
       const resource = constructResource(type, id, lid);
-      identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+      identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     }
 
     return this._store.recordDataFor(identifier, isCreate);
@@ -220,7 +217,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   isRecordInUse(type: string, id: string, lid?: string | null): boolean;
   isRecordInUse(type: string, id: string | null, lid?: string | null): boolean {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     const internalModel = internalModelFactoryFor(this._store).peek(identifier);
 
     if (!internalModel) {
@@ -235,7 +232,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
   disconnectRecord(type: string, id: string, lid?: string | null): void;
   disconnectRecord(type: string, id: string | null, lid?: string | null): void {
     const resource = constructResource(type, id, lid);
-    const identifier = identifierCacheFor(this._store).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     if (HAS_RECORD_DATA_PACKAGE) {
       let graph = peekGraph(this);
       if (graph) {

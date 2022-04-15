@@ -1,15 +1,15 @@
+import type {
+  FindRecordQuery,
+  Operation,
+  Request,
+  RequestState,
+  SaveRecordMutation,
+} from '../ts-interfaces/fetch-manager';
 import { RequestStateEnum } from '../ts-interfaces/fetch-manager';
-import { addSymbol, symbol } from '../utils/symbol';
+import type { RecordIdentifier } from '../ts-interfaces/identifier';
 
-type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
-type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
-type Request = import('../ts-interfaces/fetch-manager').Request;
-type RequestState = import('../ts-interfaces/fetch-manager').RequestState;
-type Operation = import('../ts-interfaces/fetch-manager').Operation;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-
-const Touching: unique symbol = symbol('touching');
-export const RequestPromise: unique symbol = symbol('promise');
+const Touching: unique symbol = Symbol('touching');
+export const RequestPromise: unique symbol = Symbol('promise');
 
 interface InternalRequest extends RequestState {
   [Touching]: RecordIdentifier[];
@@ -40,8 +40,8 @@ export default class RequestCache {
         request: queryRequest,
         type,
       } as InternalRequest;
-      addSymbol(request, Touching, [query.recordIdentifier]);
-      addSymbol(request, RequestPromise, promise);
+      request[Touching] = [query.recordIdentifier];
+      request[RequestPromise] = promise;
       this._pending[lid].push(request);
       this._triggerSubscriptions(request);
       promise.then(
@@ -53,7 +53,7 @@ export default class RequestCache {
             type,
             response: { data: result },
           } as InternalRequest;
-          addSymbol(finalizedRequest, Touching, request[Touching]);
+          finalizedRequest[Touching] = request[Touching];
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
         },
@@ -65,7 +65,7 @@ export default class RequestCache {
             type,
             response: { data: error && error.error },
           } as InternalRequest;
-          addSymbol(finalizedRequest, Touching, request[Touching]);
+          finalizedRequest[Touching] = request[Touching];
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
         }

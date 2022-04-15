@@ -3,117 +3,90 @@
  */
 import { getOwner } from '@ember/application';
 import { A } from '@ember/array';
-import { assert, deprecate, inspect, warn } from '@ember/debug';
-import { computed, defineProperty, get, set } from '@ember/object';
-import { assign } from '@ember/polyfills';
+import { assert, inspect, warn } from '@ember/debug';
+import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
+import type { Backburner } from '@ember/runloop/-private/backburner';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 import { isNone, isPresent, typeOf } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
 
-import require from 'require';
-import { all, default as RSVP, defer, Promise, resolve } from 'rsvp';
+import { importSync } from '@embroider/macros';
+import { all, default as RSVP, Promise, resolve } from 'rsvp';
 
-import {
-  CUSTOM_MODEL_CLASS,
-  RECORD_DATA_ERRORS,
-  RECORD_DATA_STATE,
-  REQUEST_SERVICE,
-} from '@ember-data/canary-features';
-import {
-  HAS_ADAPTER_PACKAGE,
-  HAS_EMBER_DATA_PACKAGE,
-  HAS_RECORD_DATA_PACKAGE,
-  HAS_SERIALIZER_PACKAGE,
-} from '@ember-data/private-build-infra';
-import {
-  DEPRECATE_DEFAULT_ADAPTER,
-  DEPRECATE_DEFAULT_SERIALIZER,
-  DEPRECATE_LEGACY_TEST_REGISTRATIONS,
-} from '@ember-data/private-build-infra/deprecations';
+import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
+import type {
+  BelongsToRelationship,
+  ManyRelationship,
+  RecordData as RecordDataClass,
+} from '@ember-data/record-data/-private';
+import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 
-import { identifierCacheFor } from '../identifiers/cache';
+import { IdentifierCache } from '../identifiers/cache';
+import type { DSModel } from '../ts-interfaces/ds-model';
+import type {
+  CollectionResourceDocument,
+  EmptyResourceDocument,
+  ExistingResourceObject,
+  JsonApiDocument,
+  ResourceIdentifierObject,
+  SingleResourceDocument,
+} from '../ts-interfaces/ember-data-json-api';
+import type {
+  RecordIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '../ts-interfaces/identifier';
+import type { PromiseProxy } from '../ts-interfaces/promise-proxies';
+import type { RecordData } from '../ts-interfaces/record-data';
+import type { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
+import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
+import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
+import type { RecordInstance } from '../ts-interfaces/record-instance';
+import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
+import type { FindOptions } from '../ts-interfaces/store';
+import type { Dict } from '../ts-interfaces/utils';
 import constructResource from '../utils/construct-resource';
 import promiseRecord from '../utils/promise-record';
-import { addSymbol } from '../utils/symbol';
 import edBackburner from './backburner';
 import coerceId, { ensureStringId } from './coerce-id';
-import { errorsArrayToHash } from './errors-utils';
 import FetchManager, { SaveOp } from './fetch-manager';
+import type InternalModel from './model/internal-model';
 import {
   assertRecordsPassedToHasMany,
   extractRecordDataFromRecord,
   extractRecordDatasFromRecords,
 } from './model/internal-model';
+import type ShimModelClass from './model/shim-model-class';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
 import { promiseArray, promiseObject } from './promise-proxies';
 import RecordArrayManager from './record-array-manager';
 import { setRecordDataFor } from './record-data-for';
 import NotificationManager from './record-notification-manager';
+import type { BelongsToReference, HasManyReference } from './references';
 import { RecordReference } from './references';
-import { RequestPromise } from './request-cache';
-import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
-import { _find, _findAll, _findBelongsTo, _findHasMany, _findMany, _query, _queryRecord } from './store/finders';
-import { internalModelFactoryFor, recordIdentifierFor, setRecordIdentifier } from './store/internal-model-factory';
+import type RequestCache from './request-cache';
+import { _findAll, _findBelongsTo, _findHasMany, _query, _queryRecord } from './store/finders';
+import {
+  internalModelFactoryFor,
+  peekRecordIdentifier,
+  recordIdentifierFor,
+  setRecordIdentifier,
+} from './store/internal-model-factory';
 import RecordDataStoreWrapper from './store/record-data-store-wrapper';
-import { normalizeResponseHelper } from './store/serializer-response';
+import WeakCache from './weak-cache';
 
-type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
-type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
-
-type RelationshipState = import('@ember-data/record-data/-private/graph/-state').RelationshipState;
-type ShimModelClass = import('./model/shim-model-class').default;
-type Snapshot = import('./snapshot').default;
-type Backburner = import('@ember/runloop/-private/backburner').Backburner;
-type RecordReference = import('./references').RecordReference;
-type HasManyReference = import('./references').HasManyReference;
-type BelongsToReference = import('./references').BelongsToReference;
-type IdentifierCache = import('../identifiers/cache').IdentifierCache;
-type InternalModel = import('./model/internal-model').default;
-
-type JsonApiRelationship = import('../ts-interfaces/record-data-json-api').JsonApiRelationship;
-type ResourceIdentifierObject = import('../ts-interfaces/ember-data-json-api').ResourceIdentifierObject;
-type EmptyResourceDocument = import('../ts-interfaces/ember-data-json-api').EmptyResourceDocument;
-type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
-type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
-type JsonApiDocument = import('../ts-interfaces/ember-data-json-api').JsonApiDocument;
-type ExistingResourceObject = import('../ts-interfaces/ember-data-json-api').ExistingResourceObject;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
-type StableExistingRecordIdentifier = import('../ts-interfaces/identifier').StableExistingRecordIdentifier;
-type RecordInstance = import('../ts-interfaces/record-instance').RecordInstance;
-type RecordData = import('../ts-interfaces/record-data').RecordData;
-type DSModel = import('../ts-interfaces/ds-model').DSModel;
-type PromiseProxy<T> = import('../ts-interfaces/promise-proxies').PromiseProxy<T>;
-type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
-type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
-type AttributesSchema = import('../ts-interfaces/record-data-schemas').AttributesSchema;
-type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
-type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
-type RecordDataClass = typeof import('@ember-data/record-data/-private').RecordData;
-type RequestCache = import('./request-cache').default;
-type FindOptions = import('../ts-interfaces/store').FindOptions;
-
-let _RecordData: RecordDataClass | undefined;
+type RecordDataConstruct = typeof RecordDataClass;
+let _RecordData: RecordDataConstruct | undefined;
 
 const { ENV } = Ember;
 type AsyncTrackingToken = Readonly<{ label: string; trace: Error | string }>;
 type PromiseArray<T> = Promise<T[]>;
-type PendingFetchItem = {
-  internalModel: InternalModel;
-  resolver: RSVP.Deferred<InternalModel>;
-  options: any;
-  trace?: Error;
-};
-type PendingSaveItem = {
-  snapshot: Snapshot;
-  resolver: RSVP.Deferred<void>;
-};
 
-const RECORD_REFERENCES = new WeakMap<StableRecordIdentifier, RecordReference>();
+const RECORD_REFERENCES = new WeakCache<StableRecordIdentifier, RecordReference>(DEBUG ? 'reference' : '');
 
 function freeze<T>(obj: T): T {
   if (typeof Object.freeze === 'function') {
@@ -123,26 +96,6 @@ function freeze<T>(obj: T): T {
   return obj;
 }
 
-function deprecateTestRegistration(factoryType: 'adapter', factoryName: '-json-api'): void;
-function deprecateTestRegistration(factoryType: 'serializer', factoryName: '-json-api' | '-rest' | '-default'): void;
-function deprecateTestRegistration(
-  factoryType: 'serializer' | 'adapter',
-  factoryName: '-json-api' | '-rest' | '-default'
-): void {
-  deprecate(
-    `You looked up the ${factoryType} "${factoryName}" but it was not found. Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['${factoryType}:${factoryName}']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
-    false,
-    {
-      id: 'ember-data:-legacy-test-registrations',
-      until: '3.17',
-      for: '@ember-data/store',
-      since: {
-        available: '3.15',
-        enabled: '3.15',
-      },
-    }
-  );
-}
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `Model` that wrap
@@ -216,9 +169,6 @@ function deprecateTestRegistration(
   @public
   @extends Ember.Service
 */
-interface CoreStore {
-  adapter: string;
-}
 
 abstract class CoreStore extends Service {
   /**
@@ -230,6 +180,7 @@ abstract class CoreStore extends Service {
   public recordArrayManager: RecordArrayManager = new RecordArrayManager({ store: this });
 
   declare _notificationManager: NotificationManager;
+  declare identifierCache: IdentifierCache;
   private _adapterCache = Object.create(null);
   private _serializerCache = Object.create(null);
   public _storeWrapper = new RecordDataStoreWrapper(this);
@@ -241,20 +192,14 @@ abstract class CoreStore extends Service {
     These queues are currently controlled by a flush scheduled into
     ember-data's custom backburner instance.
     */
-  // used for coalescing record save requests
-  private _pendingSave: PendingSaveItem[] = [];
   // used for coalescing internal model updates
   private _updatedInternalModels: InternalModel[] = [];
-
-  // used to keep track of all the find requests that need to be coalesced
-  private _pendingFetch = new Map<string, PendingFetchItem[]>();
 
   declare _fetchManager: FetchManager;
   declare _schemaDefinitionService: SchemaDefinitionService;
 
   // DEBUG-only properties
   declare _trackedAsyncRequests: AsyncTrackingToken[];
-  shouldAssertMethodCallsOnDestroyedStore: boolean = true;
   shouldTrackAsyncRequests: boolean = false;
   generateStackTracesForTrackedRequests: boolean = false;
   declare _trackAsyncRequestStart: (str: string) => void;
@@ -308,64 +253,27 @@ abstract class CoreStore extends Service {
   constructor() {
     super(...arguments);
 
-    if (REQUEST_SERVICE) {
-      this._fetchManager = new FetchManager(this);
-    }
-    if (CUSTOM_MODEL_CLASS) {
-      this._notificationManager = new NotificationManager(this);
-      this.__recordDataFor = this.__recordDataFor.bind(this);
-    }
+    RECORD_REFERENCES._generator = (identifier) => {
+      return new RecordReference(this, identifier);
+    };
+
+    this._fetchManager = new FetchManager(this);
+    this._notificationManager = new NotificationManager(this);
+    this.__recordDataFor = this.__recordDataFor.bind(this);
+
+    /**
+     * Provides access to the IdentifierCache instance
+     * for this store.
+     *
+     * The IdentifierCache can be used to generate or
+     * retrieve a stable unique identifier for any resource.
+     *
+     * @property {IdentifierCache} identifierCache
+     * @public
+     */
+    this.identifierCache = new IdentifierCache();
 
     if (DEBUG) {
-      if (HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE) {
-        // support for legacy moduleFor style unit tests
-        // that did not include transforms in "needs"
-        // or which were not set to integration:true
-        // that were relying on ember-test-helpers
-        // doing an auto-registration of the transform
-        // or us doing one
-        const Mapping = {
-          date: 'DateTransform',
-          boolean: 'BooleanTransform',
-          number: 'NumberTransform',
-          string: 'StringTransform',
-        };
-        type MapKeys = keyof typeof Mapping;
-        const keys = Object.keys(Mapping) as MapKeys[];
-        let shouldWarn = false;
-
-        let owner = getOwner(this);
-        keys.forEach((attributeType) => {
-          const transformFactory = owner.factoryFor(`transform:${attributeType}`);
-
-          if (!transformFactory) {
-            // we don't deprecate this because the moduleFor style tests with the closed
-            // resolver will be deprecated on their own. When that deprecation completes
-            // we can drop this.
-            const Transform = require(`@ember-data/serializer/-private`)[Mapping[attributeType]];
-            owner.register(`transform:${attributeType}`, Transform);
-            shouldWarn = true;
-          }
-        });
-
-        if (shouldWarn) {
-          deprecate(
-            `You are relying on the automatic registration of the transforms "date", "number", "boolean", and "string". Likely this means you are using a legacy ember-qunit moduleFor helper. Add "needs: ['transform:date', 'transform:boolean', 'transform:number', 'transform:string']", "integration: true", or refactor to modern syntax to resolve this deprecation.`,
-            false,
-            {
-              id: 'ember-data:-legacy-test-registrations',
-              until: '3.17',
-              for: '@ember-data/store',
-              since: {
-                available: '3.15',
-                enabled: '3.15',
-              },
-            }
-          );
-        }
-      }
-
-      this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
       if (this.shouldTrackAsyncRequests === undefined) {
         this.shouldTrackAsyncRequests = false;
       }
@@ -375,14 +283,14 @@ abstract class CoreStore extends Service {
 
       this._trackedAsyncRequests = [];
       this._trackAsyncRequestStart = (label) => {
-        let trace =
+        let trace: string | Error =
           'set `store.generateStackTracesForTrackedRequests = true;` to get a detailed trace for where this request originated';
 
         if (this.generateStackTracesForTrackedRequests) {
           try {
             throw new Error(`EmberData TrackedRequest: ${label}`);
           } catch (e) {
-            trace = e;
+            trace = e as Error;
           }
         }
 
@@ -419,24 +327,7 @@ abstract class CoreStore extends Service {
   }
 
   getRequestStateService(): RequestCache {
-    if (REQUEST_SERVICE) {
-      return this._fetchManager.requestCache;
-    }
-    assert('RequestService is not available unless the feature flag is on and running on a canary build', false);
-  }
-
-  /**
-   * Provides access to the IdentifierCache instance
-   * for this store.
-   *
-   * The IdentifierCache can be used to generate or
-   * retrieve a stable unique identifier for any resource.
-   *
-   * @property {IdentifierCache} identifierCache
-   * @public
-   */
-  get identifierCache(): IdentifierCache {
-    return identifierCacheFor(this);
+    return this._fetchManager.requestCache;
   }
 
   _instantiateRecord(
@@ -446,55 +337,51 @@ abstract class CoreStore extends Service {
     identifier: StableRecordIdentifier,
     properties?: { [key: string]: any }
   ) {
-    if (CUSTOM_MODEL_CLASS) {
-      // assert here
-      if (properties !== undefined) {
-        assert(
-          `You passed '${properties}' as properties for record creation instead of an object.`,
-          typeof properties === 'object' && properties !== null
-        );
+    // assert here
+    if (properties !== undefined) {
+      assert(
+        `You passed '${properties}' as properties for record creation instead of an object.`,
+        typeof properties === 'object' && properties !== null
+      );
 
-        if ('id' in properties) {
-          internalModel.setId(properties.id);
-        }
+      if ('id' in properties) {
+        internalModel.setId(properties.id);
+      }
 
-        // convert relationship Records to RecordDatas before passing to RecordData
-        let defs = this._relationshipsDefinitionFor(modelName);
+      // convert relationship Records to RecordDatas before passing to RecordData
+      let defs = this._relationshipsDefinitionFor({ type: modelName });
 
-        if (defs !== null) {
-          let keys = Object.keys(properties);
-          let relationshipValue;
+      if (defs !== null) {
+        let keys = Object.keys(properties);
+        let relationshipValue;
 
-          for (let i = 0; i < keys.length; i++) {
-            let prop = keys[i];
-            let def = defs[prop];
+        for (let i = 0; i < keys.length; i++) {
+          let prop = keys[i];
+          let def = defs[prop];
 
-            if (def !== undefined) {
-              if (def.kind === 'hasMany') {
-                if (DEBUG) {
-                  assertRecordsPassedToHasMany(properties[prop]);
-                }
-                relationshipValue = extractRecordDatasFromRecords(properties[prop]);
-              } else {
-                relationshipValue = extractRecordDataFromRecord(properties[prop]);
+          if (def !== undefined) {
+            if (def.kind === 'hasMany') {
+              if (DEBUG) {
+                assertRecordsPassedToHasMany(properties[prop]);
               }
-
-              properties[prop] = relationshipValue;
+              relationshipValue = extractRecordDatasFromRecords(properties[prop]);
+            } else {
+              relationshipValue = extractRecordDataFromRecord(properties[prop]);
             }
+
+            properties[prop] = relationshipValue;
           }
         }
       }
-
-      // TODO guard against initRecordOptions no being there
-      let createOptions = recordData._initRecordCreateOptions(properties);
-      //TODO Igor pass a wrapper instead of RD
-      let record = this.instantiateRecord(identifier, createOptions, this.__recordDataFor, this._notificationManager);
-      setRecordIdentifier(record, identifier);
-      //recordToInternalModelMap.set(record, internalModel);
-      return record;
     }
 
-    assert('should not be here, custom model class ff error', false);
+    // TODO guard against initRecordOptions no being there
+    let createOptions = recordData._initRecordCreateOptions(properties);
+    //TODO Igor pass a wrapper instead of RD
+    let record = this.instantiateRecord(identifier, createOptions, this.__recordDataFor, this._notificationManager);
+    setRecordIdentifier(record, identifier);
+    //recordToInternalModelMap.set(record, internalModel);
+    return record;
   }
 
   abstract instantiateRecord(
@@ -503,44 +390,23 @@ abstract class CoreStore extends Service {
     recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
   ): RecordInstance;
-
   abstract teardownRecord(record: RecordInstance): void;
+  abstract getSchemaDefinitionService(): SchemaDefinitionService;
 
-  _internalDeleteRecord(internalModel: InternalModel) {
-    internalModel.deleteRecord();
+  _attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+    return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
   }
 
-  // FeatureFlagged in the DSModelStore claas
-  _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): AttributesSchema {
-    if (identifier) {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-    } else {
-      return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
-    }
-  }
-
-  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
-    if (identifier) {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-    } else {
-      return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
-    }
+  _relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+    return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
   }
 
   registerSchemaDefinitionService(schema: SchemaDefinitionService) {
     this._schemaDefinitionService = schema;
   }
 
-  getSchemaDefinitionService(): SchemaDefinitionService {
-    if (CUSTOM_MODEL_CLASS) {
-      return this._schemaDefinitionService;
-    }
-    assert('need to enable CUSTOM_MODEL_CLASS feature flag in order to access SchemaDefinitionService');
-  }
-
-  // TODO Double check this return value is correct
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    return this._relationshipsDefinitionFor(modelName)[key];
+    return this._relationshipsDefinitionFor({ type: modelName })[key];
   }
 
   /**
@@ -641,7 +507,7 @@ abstract class CoreStore extends Service {
     return emberBackburner.join(() => {
       return this._backburner.join(() => {
         let normalizedModelName = normalizeModelName(modelName);
-        let properties = assign({}, inputProperties);
+        let properties = { ...inputProperties };
 
         // If the passed properties do not include a primary key,
         // give the adapter an opportunity to generate one. Typically,
@@ -713,14 +579,12 @@ abstract class CoreStore extends Service {
       assertDestroyingStore(this, 'deleteRecord');
     }
     this._backburner.join(() => {
-      if (CUSTOM_MODEL_CLASS) {
-        let identifier = recordIdentifierFor(record);
+      let identifier = peekRecordIdentifier(record);
+      if (identifier) {
         let internalModel = internalModelFactoryFor(this).peek(identifier);
         if (internalModel) {
           internalModel.deleteRecord();
         }
-      } else {
-        record.deleteRecord();
       }
     });
   }
@@ -745,14 +609,12 @@ abstract class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
-    if (CUSTOM_MODEL_CLASS) {
-      let identifier = recordIdentifierFor(record);
+    let identifier = peekRecordIdentifier(record);
+    if (identifier) {
       let internalModel = internalModelFactoryFor(this).peek(identifier);
       if (internalModel) {
         internalModel.unloadRecord();
       }
-    } else {
-      record.unloadRecord();
     }
   }
 
@@ -843,8 +705,7 @@ abstract class CoreStore extends Service {
     has already been assigned an id, you can find the record again using just the lid.
 
     ```app/routes/post.js
-    let identifier = recordIdentifierFor(person);
-    store.findRecord({ lid: identifier.lid });
+    store.findRecord({ lid });
     ```
 
     If the record is not yet available, the store will ask the adapter's `findRecord`
@@ -1199,7 +1060,10 @@ abstract class CoreStore extends Service {
     options = options || {};
 
     if (!internalModel.currentState.isLoaded) {
-      return this._findByInternalModel(internalModel, options);
+      return promiseRecord(
+        this._findByInternalModel(internalModel, options),
+        `DS: Store#findRecord ${internalModel.identifier}`
+      );
     }
 
     let fetchedInternalModel = this._findRecord(internalModel, options);
@@ -1242,35 +1106,27 @@ abstract class CoreStore extends Service {
     return Promise.resolve(internalModel);
   }
 
-  _findByInternalModel(internalModel, options: { preload?: any } = {}) {
+  _findByInternalModel(internalModel: InternalModel, options: FindOptions = {}): Promise<InternalModel> {
     if (options.preload) {
       this._backburner.join(() => {
         internalModel.preloadData(options.preload);
       });
     }
 
-    let fetchedInternalModel = this._findEmptyInternalModel(internalModel, options);
-
-    return promiseRecord(
-      fetchedInternalModel,
-      `DS: Store#findRecord ${internalModel.modelName} with id: ${internalModel.id}`
-    );
+    return this._findEmptyInternalModel(internalModel, options);
   }
 
-  _findEmptyInternalModel(internalModel, options) {
+  _findEmptyInternalModel(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
     if (internalModel.currentState.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
 
-    //TODO double check about reloading
-    if (!REQUEST_SERVICE) {
-      if (internalModel.currentState.isLoading) {
-        return internalModel._promiseProxy;
+    if (internalModel.currentState.isLoading) {
+      let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
+      if (pendingRequest) {
+        return pendingRequest.then(() => Promise.resolve(internalModel));
       }
-    } else {
-      if (internalModel.currentState.isLoading) {
-        return this._scheduleFetch(internalModel, options);
-      }
+      return this._scheduleFetch(internalModel, options);
     }
 
     return Promise.resolve(internalModel);
@@ -1307,29 +1163,6 @@ abstract class CoreStore extends Service {
     return promiseArray(all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
   }
 
-  /**
-    This method is called by `findRecord` if it discovers that a particular
-    type/id pair hasn't been loaded yet to kick off a request to the
-    adapter.
-
-    @method _fetchRecord
-    @private
-    @param {InternalModel} internalModel model
-    @return {Promise} promise
-   */
-  _fetchRecord(internalModel: InternalModel, options): Promise<InternalModel> {
-    let modelName = internalModel.modelName;
-    let adapter = this.adapterFor(modelName);
-
-    assert(`You tried to find a record but you have no adapter (for ${modelName})`, adapter);
-    assert(
-      `You tried to find a record but your adapter (for ${modelName}) does not implement 'findRecord'`,
-      typeof adapter.findRecord === 'function'
-    );
-
-    return _find(adapter, this, internalModel.modelClass, internalModel.id, internalModel, options);
-  }
-
   _scheduleFetchMany(internalModels, options) {
     let fetches = new Array(internalModels.length);
 
@@ -1340,7 +1173,7 @@ abstract class CoreStore extends Service {
     return Promise.all(fetches);
   }
 
-  _scheduleFetchThroughFetchManager(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
+  _scheduleFetch(internalModel: InternalModel, options = {}): RSVP.Promise<InternalModel> {
     let generateStackTrace = this.generateStackTracesForTrackedRequests;
     // TODO  remove this once we don't rely on state machine
     internalModel.send('loadingData');
@@ -1373,231 +1206,6 @@ abstract class CoreStore extends Service {
         throw error;
       }
     );
-  }
-
-  _scheduleFetch(internalModel: InternalModel, options): RSVP.Promise<InternalModel> {
-    if (REQUEST_SERVICE) {
-      return this._scheduleFetchThroughFetchManager(internalModel, options);
-    } else {
-      if (internalModel._promiseProxy) {
-        return internalModel._promiseProxy;
-      }
-
-      assertIdentifierHasId(internalModel.identifier);
-
-      let { id, modelName } = internalModel;
-      let resolver = defer<InternalModel>(`Fetching ${modelName}' with id: ${id}`);
-      let pendingFetchItem: PendingFetchItem = {
-        internalModel,
-        resolver,
-        options,
-      };
-
-      if (DEBUG) {
-        if (this.generateStackTracesForTrackedRequests === true) {
-          let trace;
-
-          try {
-            throw new Error(`Trace Origin for scheduled fetch for ${modelName}:${id}.`);
-          } catch (e) {
-            trace = e;
-          }
-
-          // enable folks to discover the origin of this findRecord call when
-          // debugging. Ideally we would have a tracked queue for requests with
-          // labels or local IDs that could be used to merge this trace with
-          // the trace made available when we detect an async leak
-          pendingFetchItem.trace = trace;
-        }
-      }
-
-      let promise = resolver.promise;
-
-      internalModel.send('loadingData', promise);
-      if (this._pendingFetch.size === 0) {
-        emberBackburner.schedule('actions', this, this.flushAllPendingFetches);
-      }
-
-      let fetches = this._pendingFetch;
-      let pending = fetches.get(modelName);
-
-      if (pending === undefined) {
-        pending = [];
-        fetches.set(modelName, pending);
-      }
-
-      pending.push(pendingFetchItem);
-
-      return promise;
-    }
-  }
-
-  flushAllPendingFetches() {
-    if (REQUEST_SERVICE) {
-      return;
-      //assert here
-    } else {
-      if (this.isDestroyed || this.isDestroying) {
-        return;
-      }
-
-      this._pendingFetch.forEach(this._flushPendingFetchForType, this);
-      this._pendingFetch.clear();
-    }
-  }
-
-  _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
-    let store = this;
-    let adapter = store.adapterFor(modelName);
-    let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    let totalItems = pendingFetchItems.length;
-    let internalModels = new Array(totalItems);
-    let seeking = Object.create(null);
-
-    let optionsMap = new WeakMap();
-
-    for (let i = 0; i < totalItems; i++) {
-      let pendingItem = pendingFetchItems[i];
-      let internalModel = pendingItem.internalModel;
-      internalModels[i] = internalModel;
-      optionsMap.set(internalModel, pendingItem.options);
-      // We can remove this "not null" cast once we have enough typing
-      // to know we are only dealing with ExistingResourceIdentifierObjects
-      seeking[internalModel.id!] = pendingItem;
-    }
-
-    function _fetchRecord(recordResolverPair) {
-      let recordFetch = store._fetchRecord(recordResolverPair.internalModel, recordResolverPair.options);
-
-      recordResolverPair.resolver.resolve(recordFetch);
-    }
-
-    function handleFoundRecords(foundInternalModels: InternalModel[], expectedInternalModels: InternalModel[]) {
-      // resolve found records
-      let found = Object.create(null);
-      for (let i = 0, l = foundInternalModels.length; i < l; i++) {
-        let internalModel = foundInternalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        let pair = seeking[internalModel.id!];
-        found[internalModel.id!] = internalModel;
-
-        if (pair) {
-          let resolver = pair.resolver;
-          resolver.resolve(internalModel);
-        }
-      }
-
-      // reject missing records
-      let missingInternalModels: InternalModel[] = [];
-
-      for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
-        let internalModel = expectedInternalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        if (!found[internalModel.id!]) {
-          missingInternalModels.push(internalModel);
-        }
-      }
-
-      if (missingInternalModels.length) {
-        warn(
-          'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-            missingInternalModels.map((r) => r.id).join('", "') +
-            '" ]',
-          false,
-          {
-            id: 'ds.store.missing-records-from-adapter',
-          }
-        );
-        rejectInternalModels(missingInternalModels);
-      }
-    }
-
-    function rejectInternalModels(internalModels: InternalModel[], error?: Error) {
-      for (let i = 0, l = internalModels.length; i < l; i++) {
-        let internalModel = internalModels[i];
-
-        // We can remove this "not null" cast once we have enough typing
-        // to know we are only dealing with ExistingResourceIdentifierObjects
-        let pair = seeking[internalModel.id!];
-
-        if (pair) {
-          pair.resolver.reject(
-            error ||
-              new Error(
-                `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
-              )
-          );
-        }
-      }
-    }
-
-    if (shouldCoalesce) {
-      // TODO: Improve records => snapshots => records => snapshots
-      //
-      // We want to provide records to all store methods and snapshots to all
-      // adapter methods. To make sure we're doing that we're providing an array
-      // of snapshots to adapter.groupRecordsForFindMany(), which in turn will
-      // return grouped snapshots instead of grouped records.
-      //
-      // But since the _findMany() finder is a store method we need to get the
-      // records from the grouped snapshots even though the _findMany() finder
-      // will once again convert the records to snapshots for adapter.findMany()
-      let snapshots = new Array(totalItems);
-      for (let i = 0; i < totalItems; i++) {
-        let internalModel = internalModels[i];
-        snapshots[i] = internalModel.createSnapshot(optionsMap.get(internalModel));
-      }
-
-      let groups;
-      if (adapter.groupRecordsForFindMany) {
-        groups = adapter.groupRecordsForFindMany(this, snapshots);
-      } else {
-        groups = [snapshots];
-      }
-
-      // we use var here because babel transpiles let
-      // in a manner that causes a mega-bad perf scenario here
-      // when targets no longer include IE11 we can drop this.
-      /* eslint-disable no-var */
-      for (var i = 0, l = groups.length; i < l; i++) {
-        var group = groups[i];
-        var totalInGroup = groups[i].length;
-        var ids = new Array(totalInGroup);
-        var groupedInternalModels = new Array(totalInGroup);
-
-        for (var j = 0; j < totalInGroup; j++) {
-          var internalModel = group[j]._internalModel;
-
-          groupedInternalModels[j] = internalModel;
-          ids[j] = internalModel.id;
-        }
-
-        if (totalInGroup > 1) {
-          (function (groupedInternalModels) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
-              .then(function (foundInternalModels) {
-                handleFoundRecords(foundInternalModels, groupedInternalModels);
-              })
-              .catch(function (error) {
-                rejectInternalModels(groupedInternalModels, error);
-              });
-          })(groupedInternalModels);
-        } else if (ids.length === 1) {
-          var pair = seeking[groupedInternalModels[0].id];
-          _fetchRecord(pair);
-        } else {
-          assert("You cannot return an empty array from adapter's method groupRecordsForFindMany");
-        }
-      }
-    } else {
-      for (let i = 0; i < totalItems; i++) {
-        _fetchRecord(pendingFetchItems[i]);
-      }
-    }
   }
 
   /**
@@ -1657,15 +1265,9 @@ abstract class CoreStore extends Service {
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    let identifier: StableRecordIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resourceIdentifier);
+    let identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
     if (identifier) {
-      if (RECORD_REFERENCES.has(identifier)) {
-        return RECORD_REFERENCES.get(identifier);
-      }
-
-      let reference = new RecordReference(this, identifier);
-      RECORD_REFERENCES.set(identifier, reference);
-      return reference;
+      return RECORD_REFERENCES.lookup(identifier);
     }
   }
 
@@ -1721,9 +1323,9 @@ abstract class CoreStore extends Service {
   peekRecord(identifier: ResourceIdentifierObject): RecordInstance | null;
   peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
-      let stableIdentifier = identifierCacheFor(this).peekRecordIdentifier(identifier);
+      let stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
       if (stableIdentifier) {
-        return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord();
+        return internalModelFactoryFor(this).peek(stableIdentifier)?.getRecord() || null;
       }
       return null;
     }
@@ -1763,9 +1365,7 @@ abstract class CoreStore extends Service {
     @return {Promise} promise
   */
   _reloadRecord(internalModel, options): RSVP.Promise<InternalModel> {
-    if (REQUEST_SERVICE) {
-      options.isReloading = true;
-    }
+    options.isReloading = true;
     let { id, modelName } = internalModel;
     let adapter = this.adapterFor(modelName);
 
@@ -1813,7 +1413,7 @@ abstract class CoreStore extends Service {
     const trueId = ensureStringId(id);
     const resource = { type, id: trueId };
 
-    const identifier = identifierCacheFor(this).peekRecordIdentifier(resource);
+    const identifier = this.identifierCache.peekRecordIdentifier(resource);
     const internalModel = identifier && internalModelFactoryFor(this).peek(identifier);
 
     return !!internalModel && internalModel.currentState.isLoaded;
@@ -1965,7 +1565,7 @@ abstract class CoreStore extends Service {
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(internalModel, link, relationship, options) {
+  findBelongsTo(internalModel, link, relationship, options): Promise<InternalModel> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
     }
@@ -1983,19 +1583,25 @@ abstract class CoreStore extends Service {
     return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
   }
 
-  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options) {
+  _fetchBelongsToLinkFromResource(
+    resource,
+    parentInternalModel: InternalModel,
+    relationshipMeta,
+    options
+  ): Promise<InternalModel | null> {
     if (!resource || !resource.links || !resource.links.related) {
       // should we warn here, not sure cause its an internal method
       return resolve(null);
     }
-    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
-      (internalModel) => {
-        return internalModel ? internalModel.getRecord() : null;
-      }
-    );
+    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options);
   }
 
-  _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
+  _findBelongsToByJsonApiResource(
+    resource,
+    parentInternalModel: InternalModel,
+    relationshipMeta,
+    options
+  ): Promise<InternalModel | null> {
     if (!resource) {
       return resolve(null);
     }
@@ -2012,21 +1618,9 @@ abstract class CoreStore extends Service {
 
     if (internalModel) {
       // short circuit if we are already loading
-      if (REQUEST_SERVICE) {
-        // Temporary fix for requests already loading until we move this inside the fetch manager
-        let pendingRequests = this.getRequestStateService()
-          .getPendingRequestsForRecord(internalModel.identifier)
-          .filter((req) => req.type === 'query');
-
-        if (pendingRequests.length > 0) {
-          return pendingRequests[0][RequestPromise].then(() => internalModel.getRecord());
-        }
-      } else {
-        if (internalModel.currentState.isLoading) {
-          return internalModel._promiseProxy.then(() => {
-            return internalModel.getRecord();
-          });
-        }
+      let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
+      if (pendingRequest) {
+        return pendingRequest.then(() => internalModel);
       }
     }
 
@@ -2049,20 +1643,22 @@ abstract class CoreStore extends Service {
         return resolve(null);
       }
 
+      if (!internalModel) {
+        assert(`No InternalModel found for ${resource.lid}`, internalModel);
+      }
+
       return this._findByInternalModel(internalModel, options);
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
 
     if (internalModel && resourceIsLocal) {
-      return resolve(internalModel.getRecord());
+      return resolve(internalModel);
     }
 
     // fetch by data
     if (internalModel && !localDataIsEmpty) {
-      return this._scheduleFetch(internalModel, options).then(() => {
-        return internalModel.getRecord();
-      });
+      return this._scheduleFetch(internalModel, options);
     }
 
     // we were explicitly told we have no data and no links.
@@ -2655,33 +2251,32 @@ abstract class CoreStore extends Service {
     @param {Object} options
   */
   scheduleSave(internalModel: InternalModel, resolver: RSVP.Deferred<void>, options): void | RSVP.Promise<void> {
-    if (REQUEST_SERVICE) {
-      if (internalModel._isRecordFullyDeleted()) {
-        resolver.resolve();
-        return resolver.promise;
-      }
+    if (internalModel._isRecordFullyDeleted()) {
+      resolver.resolve();
+      return resolver.promise;
+    }
 
-      internalModel.adapterWillCommit();
+    internalModel.adapterWillCommit();
 
-      if (!options) {
-        options = {};
-      }
-      let recordData = internalModel._recordData;
-      let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
+    if (!options) {
+      options = {};
+    }
+    let recordData = internalModel._recordData;
+    let operation: 'createRecord' | 'deleteRecord' | 'updateRecord' = 'updateRecord';
 
-      // TODO handle missing isNew
-      if (recordData.isNew && recordData.isNew()) {
-        operation = 'createRecord';
-      } else if (recordData.isDeleted && recordData.isDeleted()) {
-        operation = 'deleteRecord';
-      }
+    // TODO handle missing isNew
+    if (recordData.isNew && recordData.isNew()) {
+      operation = 'createRecord';
+    } else if (recordData.isDeleted && recordData.isDeleted()) {
+      operation = 'deleteRecord';
+    }
 
-      addSymbol(options, SaveOp, operation);
+    options[SaveOp] = operation;
 
-      let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
-      let promise = fetchManagerPromise.then(
-        (payload) => {
-          /*
+    let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
+    let promise = fetchManagerPromise.then(
+      (payload) => {
+        /*
         Note to future spelunkers hoping to optimize.
         We rely on this `run` to create a run loop if needed
         that `store._push` and `store.didSaveRecord` will both share.
@@ -2690,40 +2285,25 @@ abstract class CoreStore extends Service {
         have an outer run loop available still from the first
         call to `store._push`;
        */
-          this._backburner.join(() => {
-            let data = payload && payload.data;
-            this.didSaveRecord(internalModel, { data }, operation);
-            if (payload && payload.included) {
-              this._push({ data: null, included: payload.included });
-            }
-          });
-        },
-        (e) => {
-          if (typeof e === 'string') {
-            throw e;
+        this._backburner.join(() => {
+          let data = payload && payload.data;
+          this.didSaveRecord(internalModel, { data }, operation);
+          if (payload && payload.included) {
+            this._push({ data: null, included: payload.included });
           }
-          const { error, parsedErrors } = e;
-          this.recordWasInvalid(internalModel, parsedErrors, error);
-          throw error;
+        });
+      },
+      (e) => {
+        if (typeof e === 'string') {
+          throw e;
         }
-      );
-
-      return promise;
-    } else {
-      if (internalModel._isRecordFullyDeleted()) {
-        resolver.resolve();
-        return;
+        const { error, parsedErrors } = e;
+        this.recordWasInvalid(internalModel, parsedErrors, error);
+        throw error;
       }
+    );
 
-      let snapshot = internalModel.createSnapshot(options);
-      internalModel.adapterWillCommit();
-      this._pendingSave.push({
-        snapshot: snapshot,
-        resolver: resolver,
-      });
-
-      emberBackburner.scheduleOnce('actions', this, this.flushPendingSave);
-    }
+    return promise;
   }
 
   /**
@@ -2734,47 +2314,8 @@ abstract class CoreStore extends Service {
     @private
   */
   flushPendingSave() {
-    if (REQUEST_SERVICE) {
-      // assert here
-      return;
-    }
-    let pending = this._pendingSave.slice();
-    this._pendingSave = [];
-
-    for (let i = 0, j = pending.length; i < j; i++) {
-      let pendingItem = pending[i];
-      let snapshot = pendingItem.snapshot;
-      let resolver = pendingItem.resolver;
-      // TODO We have to cast due to our reliance on this private property
-      // this will be refactored away once we change our pending API to be identifier based
-      let internalModel = (snapshot as unknown as PrivateSnapshot)._internalModel;
-      let adapter = this.adapterFor(internalModel.modelName);
-      let operation;
-
-      if (RECORD_DATA_STATE) {
-        // TODO move this out of internalModel
-        if (internalModel.isNew()) {
-          operation = 'createRecord';
-        } else if (internalModel.isDeleted()) {
-          operation = 'deleteRecord';
-        } else {
-          operation = 'updateRecord';
-        }
-      } else {
-        if (internalModel.currentState.stateName === 'root.deleted.saved') {
-          resolver.resolve();
-          continue;
-        } else if (internalModel.isNew()) {
-          operation = 'createRecord';
-        } else if (internalModel.isDeleted()) {
-          operation = 'deleteRecord';
-        } else {
-          operation = 'updateRecord';
-        }
-      }
-
-      resolver.resolve(_commit(adapter, this, operation, snapshot));
-    }
+    // assert here
+    return;
   }
 
   /**
@@ -2806,7 +2347,7 @@ abstract class CoreStore extends Service {
       );
     }
 
-    const cache = identifierCacheFor(this);
+    const cache = this.identifierCache;
     const identifier = internalModel.identifier;
 
     if (op !== 'deleteRecord' && data) {
@@ -2832,11 +2373,7 @@ abstract class CoreStore extends Service {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasInvalid');
     }
-    if (RECORD_DATA_ERRORS) {
-      internalModel.adapterDidInvalidate(parsedErrors, error);
-    } else {
-      internalModel.adapterDidInvalidate(parsedErrors);
-    }
+    internalModel.adapterDidInvalidate(parsedErrors, error);
   }
 
   /**
@@ -2898,7 +2435,7 @@ abstract class CoreStore extends Service {
     // exclude store.push (root.empty) case
     let identifier = internalModel.identifier;
     if (isUpdate || isLoading) {
-      let updatedIdentifier = identifierCacheFor(this).updateRecordIdentifier(identifier, data);
+      let updatedIdentifier = this.identifierCache.updateRecordIdentifier(identifier, data);
 
       if (updatedIdentifier !== identifier) {
         // we encountered a merge of identifiers in which
@@ -3161,30 +2698,17 @@ abstract class CoreStore extends Service {
 
       if (ENV.DS_WARN_ON_UNKNOWN_KEYS) {
         let unknownAttributes, unknownRelationships;
-        if (CUSTOM_MODEL_CLASS) {
-          let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
-          let attributes = this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
-          // Check unknown attributes
-          unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
-            return !attributes[key];
-          });
+        let relationships = this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
+        let attributes = this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
+        // Check unknown attributes
+        unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
+          return !attributes[key];
+        });
 
-          // Check unknown relationships
-          unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
-            return !relationships[key];
-          });
-        } else {
-          let modelClass = this.modelFor(modelName);
-          // Check unknown attributes
-          unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
-            return !get(modelClass, 'fields').has(key);
-          });
-
-          // Check unknown relationships
-          unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
-            return !get(modelClass, 'fields').has(key);
-          });
-        }
+        // Check unknown relationships
+        unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
+          return !relationships[key];
+        });
         let unknownAttributesMessage = `The payload for '${modelName}' contains these unknown attributes: ${unknownAttributes}. Make sure they've been defined in your model.`;
         warn(unknownAttributesMessage, unknownAttributes.length === 0, {
           id: 'ds.store.unknown-keys-in-payload',
@@ -3314,38 +2838,26 @@ abstract class CoreStore extends Service {
   }
 
   serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
-    if (CUSTOM_MODEL_CLASS) {
-      let identifier = recordIdentifierFor(record);
-      let internalModel = internalModelFactoryFor(this).peek(identifier);
-      // TODO we used to check if the record was destroyed here
-      return internalModel!.createSnapshot(options).serialize(options);
-    }
-
-    assert('serializeRecord is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    let identifier = recordIdentifierFor(record);
+    let internalModel = internalModelFactoryFor(this).peek(identifier);
+    // TODO we used to check if the record was destroyed here
+    return internalModel!.createSnapshot(options).serialize(options);
   }
 
   saveRecord(record: RecordInstance, options?: Dict<unknown>): RSVP.Promise<RecordInstance> {
-    if (CUSTOM_MODEL_CLASS) {
-      let identifier = recordIdentifierFor(record);
-      let internalModel = internalModelFactoryFor(this).peek(identifier);
-      // TODO we used to check if the record was destroyed here
-      // Casting can be removed once REQUEST_SERVICE ff is turned on
-      // because a `Record` is provided there will always be a matching internalModel
-      return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
-    }
-
-    assert('saveRecord is only available when CUSTOM_MODEL_CLASS ff is on');
+    let identifier = recordIdentifierFor(record);
+    let internalModel = internalModelFactoryFor(this).peek(identifier);
+    // TODO we used to check if the record was destroyed here
+    // Casting can be removed once REQUEST_SERVICE ff is turned on
+    // because a `Record` is provided there will always be a matching internalModel
+    return (internalModel!.save(options) as RSVP.Promise<void>).then(() => record);
   }
 
   relationshipReferenceFor(identifier: RecordIdentifier, key: string): BelongsToReference | HasManyReference {
-    if (CUSTOM_MODEL_CLASS) {
-      let stableIdentifier = identifierCacheFor(this).getOrCreateRecordIdentifier(identifier);
-      let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
-      // TODO we used to check if the record was destroyed here
-      return internalModel!.referenceFor(null, key);
-    }
-
-    assert('relationshipReferenceFor is only available when CUSTOM_MODEL_CLASS ff is on', false);
+    let stableIdentifier = this.identifierCache.getOrCreateRecordIdentifier(identifier);
+    let internalModel = internalModelFactoryFor(this).peek(stableIdentifier);
+    // TODO we used to check if the record was destroyed here
+    return internalModel!.referenceFor(null, key);
   }
 
   /**
@@ -3386,12 +2898,14 @@ abstract class CoreStore extends Service {
       // a cycle we can't easily fix (or clearly pin point) at present.
       //
       // it can be reproduced in partner tests by running
-      // node ./bin/packages-for-commit.js && yarn test-external:ember-observer
+      // node ./scripts/packages-for-commit.js && yarn test-external:ember-observer
       if (_RecordData === undefined) {
-        _RecordData = require('@ember-data/record-data/-private').RecordData as RecordDataClass;
+        _RecordData = (
+          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+        ).RecordData as RecordDataConstruct;
       }
 
-      let identifier = identifierCacheFor(this).getOrCreateRecordIdentifier({
+      let identifier = this.identifierCache.getOrCreateRecordIdentifier({
         type: modelName,
         id,
         lid: clientId,
@@ -3406,7 +2920,7 @@ abstract class CoreStore extends Service {
    * @internal
    */
   __recordDataFor(resource: RecordIdentifier) {
-    const identifier = identifierCacheFor(this).getOrCreateRecordIdentifier(resource);
+    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
     return this.recordDataFor(identifier, false);
   }
 
@@ -3524,25 +3038,15 @@ abstract class CoreStore extends Service {
 
     let owner = getOwner(this);
 
+    // name specific adapter
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
-
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
-      if (normalizedModelName === '-json-api') {
-        const Adapter = require('@ember-data/adapter/json-api').default;
-        owner.register(`adapter:-json-api`, Adapter);
-        adapter = owner.lookup(`adapter:-json-api`);
-        deprecateTestRegistration('adapter', '-json-api');
-      }
-    }
-
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
       return adapter;
     }
 
-    // no adapter found for the specific model, fallback and check for application adapter
+    // no adapter found for the specific name, fallback and check for application adapter
     adapter = _adapterCache.application || owner.lookup('adapter:application');
     if (adapter !== undefined) {
       set(adapter, 'store', this);
@@ -3551,30 +3055,9 @@ abstract class CoreStore extends Service {
       return adapter;
     }
 
-    // no model specific adapter or application adapter, check for an `adapter`
-    // property defined on the store
-    let adapterName = this.adapter || '-json-api';
-    adapter = adapterName ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`) : undefined;
-
-    // in production this is handled by the re-export
-    if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_ADAPTER_PACKAGE && adapter === undefined) {
-      if (adapterName === '-json-api') {
-        const Adapter = require('@ember-data/adapter/json-api').default;
-        owner.register(`adapter:-json-api`, Adapter);
-        adapter = owner.lookup(`adapter:-json-api`);
-        deprecateTestRegistration('adapter', '-json-api');
-      }
-    }
-
-    if (adapter !== undefined) {
-      set(adapter, 'store', this);
-      _adapterCache[normalizedModelName] = adapter;
-      _adapterCache[adapterName] = adapter;
-      return adapter;
-    }
-
     // final fallback, no model specific adapter, no application adapter, no
     // `adapter` property on store: use json-api adapter
+    // TODO we should likely deprecate this?
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
     assert(
       `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
@@ -3598,10 +3081,6 @@ abstract class CoreStore extends Service {
     If no `App.PersonSerializer` is found, this method will look
     for an `App.ApplicationSerializer` (the default serializer for
     your entire application).
-
-    if no `App.ApplicationSerializer` is found, it will attempt
-    to get the `defaultSerializer` from the `PersonAdapter`
-    (`adapterFor('person')`).
 
     If a serializer cannot be found on the adapter, it will fall back
     to an instance of `JSONSerializer`.
@@ -3630,30 +3109,8 @@ abstract class CoreStore extends Service {
 
     let owner = getOwner(this);
 
+    // by name
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
-
-    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
-      // in production this is handled by the re-export
-      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-        if (normalizedModelName === '-json-api') {
-          const Serializer = require('@ember-data/serializer/json-api').default;
-          owner.register(`serializer:-json-api`, Serializer);
-          serializer = owner.lookup(`serializer:-json-api`);
-          deprecateTestRegistration('serializer', '-json-api');
-        } else if (normalizedModelName === '-rest') {
-          const Serializer = require('@ember-data/serializer/rest').default;
-          owner.register(`serializer:-rest`, Serializer);
-          serializer = owner.lookup(`serializer:-rest`);
-          deprecateTestRegistration('serializer', '-rest');
-        } else if (normalizedModelName === '-default') {
-          const Serializer = require('@ember-data/serializer/json').default;
-          owner.register(`serializer:-default`, Serializer);
-          serializer = owner.lookup(`serializer:-default`);
-          serializer && deprecateTestRegistration('serializer', '-default');
-        }
-      }
-    }
-
     if (serializer !== undefined) {
       set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
@@ -3669,105 +3126,10 @@ abstract class CoreStore extends Service {
       return serializer;
     }
 
-    let serializerName;
-    if (DEPRECATE_DEFAULT_SERIALIZER) {
-      // no model specific serializer or application serializer, check for the `defaultSerializer`
-      // property defined on the adapter
-      let adapter = this.adapterFor(modelName);
-      serializerName = get(adapter, 'defaultSerializer');
-
-      deprecate(
-        `store.serializerFor("${modelName}") resolved the "${serializerName}" serializer via the deprecated \`adapter.defaultSerializer\` property.\n\n\tPreviously, if no application or type-specific serializer was specified, the store would attempt to lookup a serializer via the \`defaultSerializer\` property on the type's adapter. This behavior is deprecated in favor of explicitly defining a type-specific serializer or application serializer`,
-        !serializerName,
-        {
-          id: 'ember-data:default-serializer',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-serializers',
-          for: '@ember-data/store',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-
-      serializer = serializerName
-        ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
-        : undefined;
-    }
-
-    if (DEPRECATE_LEGACY_TEST_REGISTRATIONS) {
-      // in production this is handled by the re-export
-      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-        if (serializerName === '-json-api') {
-          const Serializer = require('@ember-data/serializer/json-api').default;
-          owner.register(`serializer:-json-api`, Serializer);
-          serializer = owner.lookup(`serializer:-json-api`);
-          deprecateTestRegistration('serializer', '-json-api');
-        } else if (serializerName === '-rest') {
-          const Serializer = require('@ember-data/serializer/rest').default;
-          owner.register(`serializer:-rest`, Serializer);
-          serializer = owner.lookup(`serializer:-rest`);
-          deprecateTestRegistration('serializer', '-rest');
-        } else if (serializerName === '-default') {
-          const Serializer = require('@ember-data/serializer/json').default;
-          owner.register(`serializer:-default`, Serializer);
-          serializer = owner.lookup(`serializer:-default`);
-          serializer && deprecateTestRegistration('serializer', '-default');
-        }
-      }
-
-      if (serializer !== undefined) {
-        set(serializer, 'store', this);
-        _serializerCache[normalizedModelName] = serializer;
-        _serializerCache[serializerName] = serializer;
-        return serializer;
-      }
-    }
-
-    if (DEPRECATE_DEFAULT_SERIALIZER) {
-      // final fallback, no model specific serializer, no application serializer, no
-      // `serializer` property on store: use the convenience JSONSerializer
-      serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
-      if (DEBUG && HAS_EMBER_DATA_PACKAGE && HAS_SERIALIZER_PACKAGE && serializer === undefined) {
-        const JSONSerializer = require('@ember-data/serializer/json').default;
-        owner.register('serializer:-default', JSONSerializer);
-        serializer = owner.lookup('serializer:-default');
-
-        serializer && deprecateTestRegistration('serializer', '-default');
-      }
-
-      deprecate(
-        `store.serializerFor("${modelName}") resolved the "-default" serializer via the deprecated "-default" lookup fallback.\n\n\tPreviously, when no type-specific serializer, application serializer, or adapter.defaultSerializer had been defined by the app, the "-default" serializer would be used which defaulted to the \`JSONSerializer\`. This behavior is deprecated in favor of explicitly defining an application or type-specific serializer`,
-        !serializer,
-        {
-          id: 'ember-data:default-serializer',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-serializers',
-          for: '@ember-data/store',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-
-      assert(
-        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
-        serializer !== undefined
-      );
-
-      set(serializer, 'store', this);
-      _serializerCache[normalizedModelName] = serializer;
-      _serializerCache['-default'] = serializer;
-
-      return serializer;
-    } else {
-      assert(
-        `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
-        serializer !== undefined
-      );
-    }
+    assert(
+      `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
+      serializer !== undefined
+    );
   }
 
   destroy() {
@@ -3787,7 +3149,9 @@ abstract class CoreStore extends Service {
     }
 
     if (HAS_RECORD_DATA_PACKAGE) {
-      const peekGraph = require('@ember-data/record-data/-private').peekGraph;
+      const peekGraph = (
+        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      ).peekGraph;
       let graph = peekGraph(this);
       if (graph) {
         graph.destroy();
@@ -3801,13 +3165,15 @@ abstract class CoreStore extends Service {
     super.willDestroy();
     this.recordArrayManager.destroy();
 
-    identifierCacheFor(this).destroy();
+    this.identifierCache.destroy();
 
     // destroy the graph before unloadAll
     // since then we avoid churning relationships
     // during unload
     if (HAS_RECORD_DATA_PACKAGE) {
-      const peekGraph = require('@ember-data/record-data/-private').peekGraph;
+      const peekGraph = (
+        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      ).peekGraph;
       let graph = peekGraph(this);
       if (graph) {
         graph.willDestroy();
@@ -3861,155 +3227,23 @@ abstract class CoreStore extends Service {
   }
 }
 
-if (DEPRECATE_DEFAULT_ADAPTER) {
-  defineProperty(
-    CoreStore.prototype,
-    'defaultAdapter',
-    computed('adapter', function () {
-      deprecate(
-        `store.adapterFor(modelName) resolved the ("${
-          this.adapter || '-json-api'
-        }") adapter via the deprecated \`store.defaultAdapter\` property.\n\n\tPreviously, applications could define the store's \`adapter\` property which would be used by \`defaultAdapter\` and \`adapterFor\` as a fallback for when an adapter was not found by an exact name match. This behavior is deprecated in favor of explicitly defining an application or type-specific adapter.`,
-        false,
-        {
-          id: 'ember-data:default-adapter',
-          until: '4.0',
-          url: 'https://deprecations.emberjs.com/ember-data/v3.x/#toc_ember-data-default-adapter',
-          for: '@ember-data/store',
-          since: {
-            available: '3.15',
-            enabled: '3.15',
-          },
-        }
-      );
-      let adapter = this.adapter || '-json-api';
-
-      assert(
-        'You tried to set `adapter` property to an instance of `Adapter`, where it should be a name',
-        typeof adapter === 'string'
-      );
-
-      return this.adapterFor(adapter);
-    })
-  );
-}
-
 export default CoreStore;
-
-function _commit(adapter, store, operation, snapshot) {
-  let internalModel = snapshot._internalModel;
-  let modelName = snapshot.modelName;
-  let modelClass = store.modelFor(modelName);
-  assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
-  assert(
-    `You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`,
-    typeof adapter[operation] === 'function'
-  );
-
-  let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-  let serializer = store.serializerFor(modelName);
-  let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
-
-  promise = guardDestroyedStore(promise, store, label);
-  promise = _guard(promise, _bind(_objectIsAlive, internalModel));
-
-  return promise.then(
-    (adapterPayload) => {
-      /*
-      Note to future spelunkers hoping to optimize.
-      We rely on this `run` to create a run loop if needed
-      that `store._push` and `store.didSaveRecord` will both share.
-
-      We use `join` because it is often the case that we
-      have an outer run loop available still from the first
-      call to `store._push`;
-     */
-      store._backburner.join(() => {
-        let payload, data, sideloaded;
-        if (adapterPayload) {
-          payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
-          if (payload.included) {
-            sideloaded = payload.included;
-          }
-          data = payload.data;
-        }
-        store.didSaveRecord(internalModel, { data }, operation);
-        // seems risky, but if the tests pass might be fine?
-        if (sideloaded) {
-          store._push({ data: null, included: sideloaded });
-        }
-      });
-
-      return internalModel;
-    },
-    function (error) {
-      if (error && error.isAdapterError === true && error.code === 'InvalidError') {
-        let parsedErrors;
-
-        if (typeof serializer.extractErrors === 'function') {
-          parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
-        } else {
-          parsedErrors = errorsArrayToHash(error.errors);
-        }
-
-        store.recordWasInvalid(internalModel, parsedErrors, error);
-      } else {
-        store.recordWasError(internalModel, error);
-      }
-
-      throw error;
-    },
-    label
-  );
-}
 
 let assertDestroyingStore: Function;
 let assertDestroyedStoreOnly: Function;
 
 if (DEBUG) {
   assertDestroyingStore = function assertDestroyedStore(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed),
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed)
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !(store.isDestroying || store.isDestroyed)
+    );
   };
   assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed,
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !store.isDestroyed
+    );
   };
 }
 
@@ -4024,7 +3258,7 @@ if (DEBUG) {
  * @return {boolean}
  */
 function areAllInverseRecordsLoaded(store: CoreStore, resource: JsonApiRelationship): boolean {
-  const cache = identifierCacheFor(store);
+  const cache = store.identifierCache;
 
   if (Array.isArray(resource.data)) {
     // treat as collection

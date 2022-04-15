@@ -2,13 +2,13 @@
 // because the ember-data/store uses DefaultRecordData while @ember-data/store does not
 import { module, test } from 'qunit';
 
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
+import Store from '@ember-data/store';
 
 module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
   setupTest(hooks);
@@ -57,15 +57,15 @@ module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
 
     let homePlanet = await andromedaStore.findRecord('home-planet', '1');
 
-    assert.equal(homePlanet.name, 'Earth');
+    assert.strictEqual(homePlanet.name, 'Earth');
 
     homePlanet = await cartwheelStore.findRecord('home-planet', '1');
 
-    assert.equal(homePlanet.name, 'Mars');
+    assert.strictEqual(homePlanet.name, 'Mars');
 
     homePlanet = await cigarStore.findRecord('home-planet', '1');
 
-    assert.equal(homePlanet.name, 'Saturn');
+    assert.strictEqual(homePlanet.name, 'Saturn');
   });
 
   test('embedded records should be created in multiple stores', function (assert) {
@@ -169,12 +169,12 @@ module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
     const andromedaSerializer = andromedaStore.serializerFor('home-planet');
     const cigarSerializer = cigarStore.serializerFor('home-planet');
 
-    assert.equal(
+    assert.strictEqual(
       andromedaSerializer.store,
       andromedaStore,
       "andromedaSerializer's store prop should be andromedaStore"
     );
-    assert.equal(cigarSerializer.store, cigarStore, "cigarSerializer's store prop should be cigarStore");
+    assert.strictEqual(cigarSerializer.store, cigarStore, "cigarSerializer's store prop should be cigarStore");
     assert.notEqual(andromedaSerializer, cigarSerializer, 'andromedaStore and cigarStore should be unique instances');
   });
 
@@ -187,8 +187,8 @@ module('integration/multiple_stores - Multiple Stores Tests', function (hooks) {
     const andromedaAdapter = andromedaStore.adapterFor('home-planet');
     const cigarAdapter = cigarStore.adapterFor('home-planet');
 
-    assert.equal(andromedaAdapter.store, andromedaStore);
-    assert.equal(cigarAdapter.store, cigarStore);
+    assert.strictEqual(andromedaAdapter.store, andromedaStore);
+    assert.strictEqual(cigarAdapter.store, cigarStore);
     assert.notEqual(andromedaAdapter, cigarAdapter);
   });
 });

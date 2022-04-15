@@ -1,0 +1,122 @@
+import { A } from '@ember/array';
+import EmberObject, { computed } from '@ember/object';
+import { filterBy } from '@ember/object/computed';
+import { settled } from '@ember/test-helpers';
+
+import { module, test } from 'qunit';
+
+import { setupRenderingTest } from 'ember-qunit';
+
+import Model, { attr, hasMany } from '@ember-data/model';
+
+module('PromiseManyArray', (hooks) => {
+  setupRenderingTest(hooks);
+
+  test('PromiseManyArray is not side-affected by EmberArray', async function (assert) {
+    const { owner } = this;
+    class Person extends Model {
+      @attr('string') name;
+    }
+    class Group extends Model {
+      @hasMany('person', { async: true, inverse: null }) members;
+    }
+    owner.register('model:person', Person);
+    owner.register('model:group', Group);
+    const store = owner.lookup('service:store');
+    const members = ['Bob', 'John', 'Michael', 'Larry', 'Lucy'].map((name) => store.createRecord('person', { name }));
+    const group = store.createRecord('group', { members });
+
+    const replaceFn = group.members.replace;
+    assert.strictEqual(group.members.length, 5, 'initial length is correct');
+
+    group.members.replace(0, 1);
+    assert.strictEqual(group.members.length, 4, 'updated length is correct');
+
+    A(group.members);
+
+    assert.strictEqual(replaceFn, group.members.replace, 'we have the same function for replace');
+    group.members.replace(0, 1);
+    assert.strictEqual(group.members.length, 3, 'updated length is correct');
+  });
+
+  test('PromiseManyArray can be subscribed to by computed chains', async function (assert) {
+    const { owner } = this;
+    class Person extends Model {
+      @attr('string') name;
+    }
+    class Group extends Model {
+      @hasMany('person', { async: true, inverse: null }) members;
+
+      @computed('members.@each.id')
+      get memberIds() {
+        return this.members.map((m) => m.id);
+      }
+
+      @filterBy('members', 'name', 'John')
+      johns;
+    }
+    owner.register('model:person', Person);
+    owner.register('model:group', Group);
+    owner.register(
+      'serializer:application',
+      class extends EmberObject {
+        normalizeResponse(_, __, data) {
+          return data;
+        }
+      }
+    );
+
+    let _id = 0;
+    const names = ['Bob', 'John', 'Michael', 'John', 'Larry', 'Lucy'];
+    owner.register(
+      'adapter:application',
+      class extends EmberObject {
+        findRecord() {
+          const name = names[_id++];
+          const data = {
+            type: 'person',
+            id: `${_id}`,
+            attributes: {
+              name,
+            },
+          };
+          return { data };
+        }
+      }
+    );
+    const store = owner.lookup('service:store');
+
+    const group = store.push({
+      data: {
+        type: 'group',
+        id: '1',
+        relationships: {
+          members: {
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+              { type: 'person', id: '3' },
+              { type: 'person', id: '4' },
+              { type: 'person', id: '5' },
+              { type: 'person', id: '6' },
+            ],
+          },
+        },
+      },
+    });
+
+    // access the group data
+    let memberIds = group.memberIds;
+    let johnRecords = group.johns;
+    assert.strictEqual(memberIds.length, 0, 'member ids is 0 initially');
+    assert.strictEqual(johnRecords.length, 0, 'john ids is 0 initially');
+
+    await settled();
+
+    memberIds = group.memberIds;
+    johnRecords = group.johns;
+    assert.strictEqual(memberIds.length, 6, 'memberIds length is correct');
+    assert.strictEqual(johnRecords.length, 2, 'johnRecords length is correct');
+    assert.strictEqual(group.members.length, 6, 'members length is correct');
+  });
+});

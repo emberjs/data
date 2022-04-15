@@ -1,15 +1,12 @@
 import { assert } from '@ember/debug';
 
 import { assertPolymorphicType } from '@ember-data/store/-debug';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
+import type { ManyRelationship } from '../..';
+import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew } from '../-utils';
-
-type ManyRelationship = import('../..').ManyRelationship;
-
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-
-type ReplaceRelatedRecordsOperation = import('../-operations').ReplaceRelatedRecordsOperation;
-type Graph = import('../index').Graph;
+import type { Graph } from '../index';
 
 /*
     case many:1
@@ -76,19 +73,15 @@ export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRe
 
 function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
-  const identifiersLength = identifiers.length;
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
   relationship.state.hasReceivedData = true;
 
-  const newValues = Object.create(null);
-  for (let i = 0; i < identifiersLength; i++) {
-    newValues[identifiers[i].lid] = true;
-  }
-
   // cache existing state
   const { currentState, members, definition } = relationship;
-  const newState = new Array(identifiers.length);
+  const newValues = new Set(identifiers);
+  const identifiersLength = identifiers.length;
+  const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
@@ -103,33 +96,43 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const iterationLength = currentLength > identifiersLength ? currentLength : identifiersLength;
   const equalLength = currentLength === identifiersLength;
 
-  for (let i = 0; i < iterationLength; i++) {
+  for (let i = 0, j = 0; i < iterationLength; i++) {
+    let adv = false;
     if (i < identifiersLength) {
       const identifier = identifiers[i];
-      if (type !== identifier.type) {
-        assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-        graph.registerPolymorphicType(type, identifier.type);
-      }
-      newState[i] = identifier;
-      newMembership.add(identifier);
+      // skip processing if we encounter a duplicate identifier in the array
+      if (!newMembership.has(identifier)) {
+        if (type !== identifier.type) {
+          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          graph.registerPolymorphicType(type, identifier.type);
+        }
+        newState[j] = identifier;
+        adv = true;
+        newMembership.add(identifier);
 
-      if (!members.has(identifier)) {
-        changed = true;
-        addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        if (!members.has(identifier)) {
+          changed = true;
+          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        }
       }
     }
     if (i < currentLength) {
       const identifier = currentState[i];
 
       // detect reordering
-      if (equalLength && newState[i] !== identifier) {
-        changed = true;
-      }
+      if (!newMembership.has(identifier)) {
+        if (equalLength && newState[i] !== identifier) {
+          changed = true;
+        }
 
-      if (!newValues[identifier.lid]) {
-        changed = true;
-        removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        if (!newValues.has(identifier)) {
+          changed = true;
+          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        }
       }
+    }
+    if (adv) {
+      j++;
     }
   }
 
@@ -140,7 +143,6 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
 
 function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
-  const identifiersLength = identifiers.length;
   const relationship = graph.get(op.record, op.field);
 
   assert(
@@ -152,14 +154,11 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   }
   relationship.state.hasReceivedData = true;
 
-  const newValues = Object.create(null);
-  for (let i = 0; i < identifiersLength; i++) {
-    newValues[identifiers[i].lid] = true;
-  }
-
   // cache existing state
   const { canonicalState, canonicalMembers, definition } = relationship;
-  const newState = new Array(identifiers.length);
+  const newValues = new Set(identifiers);
+  const identifiersLength = identifiers.length;
+  const newState = new Array(newValues.size);
   const newMembership = new Set<StableRecordIdentifier>();
 
   // wipe existing state
@@ -174,33 +173,42 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   const iterationLength = canonicalLength > identifiersLength ? canonicalLength : identifiersLength;
   const equalLength = canonicalLength === identifiersLength;
 
-  for (let i = 0; i < iterationLength; i++) {
+  for (let i = 0, j = 0; i < iterationLength; i++) {
+    let adv = false;
     if (i < identifiersLength) {
       const identifier = identifiers[i];
-      if (type !== identifier.type) {
-        assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
-        graph.registerPolymorphicType(type, identifier.type);
-      }
-      newState[i] = identifier;
-      newMembership.add(identifier);
+      if (!newMembership.has(identifier)) {
+        if (type !== identifier.type) {
+          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          graph.registerPolymorphicType(type, identifier.type);
+        }
+        newState[j] = identifier;
+        newMembership.add(identifier);
+        adv = true;
 
-      if (!canonicalMembers.has(identifier)) {
-        changed = true;
-        addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        if (!canonicalMembers.has(identifier)) {
+          changed = true;
+          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        }
       }
     }
     if (i < canonicalLength) {
       const identifier = canonicalState[i];
 
-      // detect reordering
-      if (equalLength && newState[i] !== identifier) {
-        changed = true;
-      }
+      if (!newMembership.has(identifier)) {
+        // detect reordering
+        if (equalLength && newState[j] !== identifier) {
+          changed = true;
+        }
 
-      if (!newValues[identifier.lid]) {
-        changed = true;
-        removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        if (!newValues.has(identifier)) {
+          changed = true;
+          removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+        }
       }
+    }
+    if (adv) {
+      j++;
     }
   }
 

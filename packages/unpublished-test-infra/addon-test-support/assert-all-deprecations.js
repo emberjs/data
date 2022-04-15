@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint no-console:"off" */
 import { DEBUG } from '@glimmer/env';
 
 import QUnit from 'qunit';

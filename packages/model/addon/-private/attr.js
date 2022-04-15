@@ -2,7 +2,6 @@ import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 
-import { RECORD_DATA_ERRORS } from '@ember-data/canary-features';
 import { recordDataFor } from '@ember-data/store/-private';
 
 import { computedMacroWithOptionalParams } from './util';
@@ -89,19 +88,19 @@ function getDefaultValue(record, options, key) {
   ```app/transforms/text.js
   import Transform from '@ember-data/serializer/transform';
 
-  export default Transform.extend({
+  export default class TextTransform extends Transform {
     serialize(value, options) {
       if (options.uppercase) {
         return value.toUpperCase();
       }
 
       return value;
-    },
+    }
 
     deserialize(value) {
       return value;
     }
-  })
+  }
   ```
 
   @method attr
@@ -130,7 +129,7 @@ function attr(type, options) {
   return computed({
     get(key) {
       if (DEBUG) {
-        if (['_internalModel', 'content', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
           );
@@ -145,21 +144,19 @@ function attr(type, options) {
     },
     set(key, value) {
       if (DEBUG) {
-        if (['_internalModel', 'content', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
           );
         }
       }
-      if (RECORD_DATA_ERRORS) {
-        if (!this.isValid) {
-          let oldValue = this._internalModel._recordData.getAttr(key);
-          if (oldValue !== value) {
-            const { errors } = this;
-            if (errors.get(key)) {
-              errors.remove(key);
-              this.___recordState.cleanErrorRequests();
-            }
+      if (!this.isValid) {
+        let oldValue = this._internalModel._recordData.getAttr(key);
+        if (oldValue !== value) {
+          const { errors } = this;
+          if (errors.get(key)) {
+            errors.remove(key);
+            this.___recordState.cleanErrorRequests();
           }
         }
       }

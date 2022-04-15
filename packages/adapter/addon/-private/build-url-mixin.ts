@@ -3,9 +3,9 @@ import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type Snapshot = import('@ember-data/store/-private/system/snapshot').default;
-type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
+import type Snapshot from '@ember-data/store/-private/system/snapshot';
+import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 /**
   @module @ember-data/adapter
@@ -149,7 +149,7 @@ interface MixtBuildURLMixin extends BuildURLMixin {
 
     By default, it pluralizes the type's name (for example, 'post'
     becomes 'posts' and 'person' becomes 'people'). To override the
-    pluralization see [pathForType](BuildUrlMixin/methods/pathForType?anchor=pathForType).
+    pluralization see [pathForType](./pathForType?anchor=pathForType).
 
     If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.

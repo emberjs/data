@@ -2,7 +2,6 @@
 
 const FilterImports = require.resolve('babel-plugin-filter-imports');
 const StripClassCallCheck = require.resolve('babel6-plugin-strip-class-callcheck');
-const TransformBlockScoping = require.resolve('@babel/plugin-transform-block-scoping');
 
 function isProduction(environment) {
   return /production/.test(environment);
@@ -22,7 +21,7 @@ module.exports = function (environment, app, compatVersion) {
     plugins.push([FilterImports, { imports: filteredImports }]);
   }
 
-  plugins.push([TransformBlockScoping, { throwIfClosureRequired: true }], ...DebugMacros);
+  plugins.push(...DebugMacros);
 
   return { plugins, postTransformPlugins };
 };

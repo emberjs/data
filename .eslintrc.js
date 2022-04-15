@@ -1,7 +1,6 @@
 // See https://github.com/lydell/eslint-plugin-simple-import-sort#custom-grouping
 const ImportSortGroups = [
   // Side effect imports.
-  // eslint-disable-next-line no-useless-escape
   [`^\u0000`],
   // Glimmer & Ember Dependencies
   [`^(@ember/|@glimmer|ember$)`],
@@ -27,34 +26,37 @@ const ImportSortGroups = [
 ];
 
 module.exports = {
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   root: true,
   parserOptions: {
-    ecmaVersion: 2017,
+    ecmaVersion: 2018,
     sourceType: 'module',
+    babelOptions: {
+      // eslint-disable-next-line node/no-unpublished-require
+      plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
+    },
+    requireConfigFile: false,
   },
   plugins: ['prettier', 'qunit', 'mocha', 'simple-import-sort', 'import'],
-  extends: ['eslint:recommended', 'prettier', 'plugin:qunit/recommended'],
+  extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:qunit/recommended'],
   rules: {
-    'no-restricted-globals': ['error', { name: 'Promise', message: 'Global Promise does not work in IE11' }],
-    'mocha/no-exclusive-tests': 'error',
-    'prettier/prettier': 'error',
-    'no-unused-vars': ['error', { args: 'none' }],
-    'no-cond-assign': ['error', 'except-parens'],
     eqeqeq: 'error',
-    'no-eval': 'error',
-    'new-cap': ['error', { capIsNew: false }],
-    'no-caller': 'error',
-    'no-eq-null': 'error',
-    'no-console': 'error', // no longer recommended in eslint v6, this restores it
-    'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
-    'sort-imports': 'off',
-    'import/order': 'off',
+
+    // Imports
     'import/first': 'error',
     'import/newline-after-import': 'error',
-    // this rule doesn't work properly with --fix
-    // https://github.com/benmosher/eslint-plugin-import/issues/1504
-    'import/no-duplicates': 'warn',
+    'import/no-duplicates': 'error',
+    'simple-import-sort/imports': ['error', { groups: ImportSortGroups }],
+
+    'mocha/no-exclusive-tests': 'error',
+
+    'new-cap': ['error', { capIsNew: false }],
+    'no-caller': 'error',
+    'no-cond-assign': ['error', 'except-parens'],
+    'no-console': 'error', // no longer recommended in eslint v6, this restores it
+    'no-eq-null': 'error',
+    'no-eval': 'error',
+    'no-unused-vars': ['error', { args: 'none' }],
 
     // Too many false positives
     // See https://github.com/eslint/eslint/issues/11899 and similar
@@ -64,15 +66,11 @@ module.exports = {
     'prefer-const': 'off',
 
     // eslint-plugin-qunit
-    'qunit/assert-args': 'off',
-    'qunit/literal-compare-order': 'off',
-    'qunit/no-identical-names': 'off',
-    'qunit/no-ok-equality': 'off',
     'qunit/no-assert-logical-expression': 'off',
-    'qunit/require-expect': 'off',
-    'qunit/resolve-async': 'off',
-    'qunit/no-early-return': 'off',
     'qunit/no-conditional-assertions': 'off',
+    'qunit/no-early-return': 'off',
+    'qunit/no-identical-names': 'off',
+    'qunit/require-expect': 'off',
   },
   globals: {
     Map: false,
@@ -101,13 +99,12 @@ module.exports = {
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
       ],
       rules: {
-        'no-restricted-globals': ['off'],
-        '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
-        'no-unused-vars': 'off',
-        'prefer-rest-params': 'off',
-        'prefer-const': 'off',
-        'ember-data/prefer-type-only-import': 'error',
         '@typescript-eslint/no-explicit-any': 'error',
+        '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+        'ember-data/prefer-static-type-import': 'error',
+        'no-unused-vars': 'off',
+        'prefer-const': 'off',
+        'prefer-rest-params': 'off',
       },
     },
     // Typescript files in non-strict mode
@@ -125,28 +122,28 @@ module.exports = {
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
       ],
       rules: {
-        'no-restricted-globals': ['off'],
+        '@typescript-eslint/no-unsafe-argument': 'off',
         '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+        'ember-data/prefer-static-type-import': 'error',
         'no-unused-vars': 'off',
-        'prefer-rest-params': 'off',
         'prefer-const': 'off',
-        'ember-data/prefer-type-only-import': 'error',
+        'prefer-rest-params': 'off',
         // rules we should likely activate but which currently have too many violations
         // files converted to strict must pass these rules before they can be removed from
         // the files list here and the files list in tsconfig.json
         // see https://github.com/emberjs/data/issues/6233#issuecomment-849279594
         '@typescript-eslint/no-explicit-any': 'off', // TODO activate this and use // eslint-disable-line @typescript-eslint/no-explicit-any
-        '@typescript-eslint/require-await': 'off',
-        '@typescript-eslint/no-unsafe-member-access': 'off',
-        '@typescript-eslint/no-unsafe-call': 'off',
-        '@typescript-eslint/no-unsafe-return': 'off',
-        '@typescript-eslint/restrict-template-expressions': 'off',
-        '@typescript-eslint/no-unsafe-assignment': 'off',
-        '@typescript-eslint/restrict-plus-operands': 'off',
-        '@typescript-eslint/unbound-method': 'off',
         '@typescript-eslint/no-floating-promises': 'off',
-        '@typescript-eslint/no-unnecessary-type-assertion': 'off',
         '@typescript-eslint/no-misused-promises': 'off',
+        '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
+        '@typescript-eslint/require-await': 'off',
+        '@typescript-eslint/restrict-plus-operands': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
+        '@typescript-eslint/unbound-method': 'off',
       },
       files: [
         'packages/unpublished-test-infra/addon-test-support/qunit-asserts/utils/is-thenable.ts',
@@ -179,7 +176,6 @@ module.exports = {
         'packages/store/tests/dummy/app/config/environment.d.ts',
         'packages/store/tests/dummy/app/app.ts',
         'packages/store/addon/index.ts',
-        'packages/store/addon/-private/utils/symbol.ts',
         'packages/store/addon/-private/utils/promise-record.ts',
         'packages/store/addon/-private/utils/is-non-empty-string.ts',
         'packages/store/addon/-private/utils/construct-resource.ts',
@@ -204,6 +200,8 @@ module.exports = {
         'packages/store/addon/-private/system/snapshot-record-array.ts',
         'packages/store/addon/-private/system/schema-definition-service.ts',
         'packages/store/addon/-private/system/request-cache.ts',
+        'packages/store/addon/-private/system/references/belongs-to.ts',
+        'packages/store/addon/-private/system/references/has-many.ts',
         'packages/store/addon/-private/system/references/reference.ts',
         'packages/store/addon/-private/system/references/record.ts',
         'packages/store/addon/-private/system/record-notification-manager.ts',
@@ -330,7 +328,7 @@ module.exports = {
         '.mocharc.js',
         '.eslintrc.js',
         '.prettierrc.js',
-        'bin/**',
+        'scripts/**',
         'packages/-ember-data/lib/*.js',
         'packages/private-build-infra/src/**/*.js',
         'packages/unpublished-test-infra/src/**/*.js',
@@ -365,11 +363,6 @@ module.exports = {
       plugins: ['node', 'import'],
       extends: 'plugin:node/recommended',
       rules: {
-        'simple-import-sort/sort': 'off',
-        'no-restricted-globals': 'off',
-        'import/first': 'error',
-        'import/newline-after-import': 'error',
-        'import/no-duplicates': 'error',
         'import/order': ['error', { 'newlines-between': 'always' }],
       },
     },
@@ -379,9 +372,6 @@ module.exports = {
       files: ['packages/*/node-tests/**', 'packages/unpublished-test-infra/src/node-test-helpers/**/*'],
       env: {
         mocha: true,
-      },
-      rules: {
-        'no-restricted-globals': 'off',
       },
     },
 
@@ -397,21 +387,18 @@ module.exports = {
         sourceType: 'script',
         ecmaVersion: 2015,
       },
-      rules: {
-        'no-restricted-globals': 'off',
-      },
     },
 
-    // bin files
+    // scripts files
     {
-      files: ['bin/**'],
-      // eslint-disable-next-line node/no-unpublished-require
-      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
+      files: ['scripts/**'],
+      extends: ['plugin:node/recommended'],
+      rules: {
         'no-console': 'off',
         'no-process-exit': 'off',
         'node/no-unpublished-require': 'off',
         'node/no-unsupported-features/node-builtins': 'off',
-      }),
+      },
     },
   ],
 };

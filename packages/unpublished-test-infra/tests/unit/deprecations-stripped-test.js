@@ -1,7 +1,7 @@
 import config from 'dummy/config/environment';
 import { module, test } from 'qunit';
 
-import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
+import { DEPRECATE_3_12 } from '@ember-data/private-build-infra/deprecations';
 
 const { compatWith } = config;
 
@@ -9,7 +9,7 @@ module('test compatWith', function () {
   test('deprecation strips', function (assert) {
     let deprecation_stripped = true;
 
-    if (DEPRECATE_EVENTED_API_USAGE) {
+    if (DEPRECATE_3_12) {
       deprecation_stripped = false;
     }
 

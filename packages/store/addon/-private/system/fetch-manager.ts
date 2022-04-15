@@ -2,30 +2,27 @@
  * @module @ember-data/store
  */
 import { A } from '@ember/array';
-import { assert, warn } from '@ember/debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { default as RSVP, Promise } from 'rsvp';
 
-import { symbol } from '../utils/symbol';
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
+
+import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
+import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
+import type { ExistingRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { Dict } from '../ts-interfaces/utils';
 import coerceId from './coerce-id';
+import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
-import RequestCache from './request-cache';
+import RequestCache, { RequestPromise } from './request-cache';
+import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
-
-type CoreStore = import('./core-store').default;
-type FindRecordQuery = import('../ts-interfaces/fetch-manager').FindRecordQuery;
-type SaveRecordMutation = import('../ts-interfaces/fetch-manager').SaveRecordMutation;
-type Request = import('../ts-interfaces/fetch-manager').Request;
-type CollectionResourceDocument = import('../ts-interfaces/ember-data-json-api').CollectionResourceDocument;
-type SingleResourceDocument = import('../ts-interfaces/ember-data-json-api').SingleResourceDocument;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type ExistingRecordIdentifier = import('../ts-interfaces/identifier').ExistingRecordIdentifier;
-type Dict<T> = import('../ts-interfaces/utils').Dict<T>;
-type PrivateSnapshot = import('./snapshot').PrivateSnapshot;
+import WeakCache from './weak-cache';
 
 function payloadIsNotBlank(adapterPayload): boolean {
   if (Array.isArray(adapterPayload)) {
@@ -35,7 +32,7 @@ function payloadIsNotBlank(adapterPayload): boolean {
   }
 }
 
-export const SaveOp: unique symbol = symbol('SaveOp');
+export const SaveOp: unique symbol = Symbol('SaveOp');
 
 interface PendingFetchItem {
   identifier: ExistingRecordIdentifier;
@@ -144,6 +141,24 @@ export default class FetchManager {
 
     promise = promise.then(
       (adapterPayload) => {
+        if (!_objectIsAlive(internalModel)) {
+          if (DEPRECATE_RSVP_PROMISE) {
+            deprecate(
+              `A Promise while saving ${modelName} did not resolve by the time your model was destroyed. This will error in a future release.`,
+              false,
+              {
+                id: 'ember-data:rsvp-unresolved-async',
+                until: '5.0',
+                for: '@ember-data/store',
+                since: {
+                  available: '4.5',
+                  enabled: '4.5',
+                },
+              }
+            );
+          }
+        }
+
         if (adapterPayload) {
           return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         }
@@ -461,7 +476,7 @@ export default class FetchManager {
     let identifiers = new Array(totalItems);
     let seeking: { [id: string]: PendingFetchItem } = Object.create(null);
 
-    let optionsMap = new WeakMap<RecordIdentifier, Dict<unknown>>();
+    let optionsMap = new WeakCache<RecordIdentifier, Dict<unknown>>(DEBUG ? 'fetch-options' : '');
 
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];
@@ -507,6 +522,16 @@ export default class FetchManager {
     }
   }
 
+  getPendingFetch(identifier: StableRecordIdentifier, options) {
+    let pendingRequests = this.requestCache.getPendingRequestsForRecord(identifier).filter((req) => {
+      return req.type === 'query' && isSameRequest(options, req.request.data[0].options);
+    });
+
+    if (pendingRequests.length > 0) {
+      return pendingRequests[0][RequestPromise];
+    }
+  }
+
   flushAllPendingFetches() {
     if (this.isDestroyed) {
       return;
@@ -527,4 +552,9 @@ function assertIsString(id: string | null): asserts id is string {
       throw new Error(`Cannot fetch record without an id`);
     }
   }
+}
+
+// this function helps resolve whether we have a pending request that we should use instead
+function isSameRequest(options: Dict<unknown> = {}, reqOptions: Dict<unknown> = {}) {
+  return options.include === reqOptions.include;
 }

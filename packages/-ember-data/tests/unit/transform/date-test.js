@@ -15,17 +15,17 @@ module('unit/transform - DateTransform', function (hooks) {
     assert.strictEqual(transform.serialize(undefined), null);
     assert.strictEqual(transform.serialize(new Date('invalid')), null);
 
-    assert.equal(transform.serialize(date), dateString);
+    assert.strictEqual(transform.serialize(date), dateString);
   });
 
   test('#deserialize', async function (assert) {
     const transform = this.owner.lookup('transform:date');
 
     // from String
-    assert.equal(transform.deserialize(dateString).toISOString(), dateString);
+    assert.strictEqual(transform.deserialize(dateString).toISOString(), dateString);
 
     // from Number
-    assert.equal(transform.deserialize(dateInMillis).valueOf(), dateInMillis);
+    assert.strictEqual(transform.deserialize(dateInMillis).valueOf(), dateInMillis);
 
     // from other
     assert.strictEqual(transform.deserialize({}), null);

@@ -20,8 +20,8 @@ module('unit/store/model_for - DS.Store#modelFor', function (hooks) {
 
     registry.normalize = (key) => dasherize(camelize(key));
 
-    assert.equal(registry.normalize('some.post'), 'some-post', 'precond - container camelizes');
-    assert.equal(store.modelFor('blog.post').modelName, 'blog.post', 'modelName is normalized to dasherized');
+    assert.strictEqual(registry.normalize('some.post'), 'some-post', 'precond - container camelizes');
+    assert.strictEqual(store.modelFor('blog.post').modelName, 'blog.post', 'modelName is normalized to dasherized');
   });
 
   test('when fetching factory from string and dashing normalizer, sets a normalized key as modelName', function (assert) {
@@ -30,8 +30,8 @@ module('unit/store/model_for - DS.Store#modelFor', function (hooks) {
 
     registry.normalize = (key) => dasherize(camelize(key));
 
-    assert.equal(registry.normalize('some.post'), 'some-post', 'precond - container dasherizes');
-    assert.equal(store.modelFor('blog.post').modelName, 'blog.post', 'modelName is normalized to dasherized');
+    assert.strictEqual(registry.normalize('some.post'), 'some-post', 'precond - container dasherizes');
+    assert.strictEqual(store.modelFor('blog.post').modelName, 'blog.post', 'modelName is normalized to dasherized');
   });
 
   test(`when fetching something that doesn't exist, throws error`, function (assert) {

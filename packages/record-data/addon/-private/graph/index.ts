@@ -1,10 +1,23 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
+import { WeakCache } from '@ember-data/store/-private';
+import type Store from '@ember-data/store/-private/system/core-store';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
 import ImplicitRelationship from '../relationships/state/implicit';
+import type { EdgeCache } from './-edge-definition';
 import { isLHS, upgradeDefinition } from './-edge-definition';
+import type {
+  DeleteRecordOperation,
+  LocalRelationshipOperation,
+  RemoteRelationshipOperation,
+  UnknownOperation,
+} from './-operations';
 import { assertValidRelationshipPayload, isBelongsTo, isHasMany, isImplicit } from './-utils';
 import addToRelatedRecords from './operations/add-to-related-records';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
@@ -12,19 +25,19 @@ import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords, { syncRemoteToLocal } from './operations/replace-related-records';
 import updateRelationshipOperation from './operations/update-relationship';
 
-type DeleteRecordOperation = import('./-operations').DeleteRecordOperation;
-type RemoteRelationshipOperation = import('./-operations').RemoteRelationshipOperation;
-type UnknownOperation = import('./-operations').UnknownOperation;
-type LocalRelationshipOperation = import('./-operations').LocalRelationshipOperation;
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type EdgeCache = import('./-edge-definition').EdgeCache;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
-type Store = import('@ember-data/store/-private/system/core-store').default;
-type RecordDataStoreWrapper = import('@ember-data/store/-private').RecordDataStoreWrapper;
-
 type RelationshipEdge = ImplicitRelationship | ManyRelationship | BelongsToRelationship;
 
-const Graphs = new WeakMap<RecordDataStoreWrapper, Graph>();
+const Graphs = new WeakCache<RecordDataStoreWrapper, Graph>(DEBUG ? 'graph' : '');
+Graphs._generator = (wrapper: RecordDataStoreWrapper) => {
+  const graph = new Graph(wrapper);
+
+  // in DEBUG we attach the graph to the main store for improved debuggability
+  if (DEBUG) {
+    Graphs.set(wrapper._store as unknown as RecordDataStoreWrapper, graph);
+  }
+
+  return graph;
+};
 
 function isStore(maybeStore: unknown): maybeStore is Store {
   return (maybeStore as Store)._storeWrapper !== undefined;
@@ -39,13 +52,7 @@ export function peekGraph(store: RecordDataStoreWrapper | Store): Graph | undefi
 }
 
 export function graphFor(store: RecordDataStoreWrapper | Store): Graph {
-  const wrapper = getWrapper(store);
-  let graph = Graphs.get(wrapper);
-  if (graph === undefined) {
-    graph = new Graph(wrapper);
-    Graphs.set(wrapper, graph);
-  }
-  return graph;
+  return Graphs.lookup(getWrapper(store));
 }
 
 /*
@@ -157,7 +164,7 @@ export class Graph {
    TODO move this comment somewhere else
    implicit relationships are relationships which have not been declared but the inverse side exists on
    another record somewhere
-   
+
    For example if there was:
 
    ```app/models/comment.js
@@ -259,6 +266,7 @@ export class Graph {
         assert(`Can only perform the operation updateRelationship on remote state`, isRemote);
         if (DEBUG) {
           // in debug, assert payload validity eagerly
+          // TODO add deprecations/assertion here for duplicates
           assertValidRelationshipPayload(this, op);
         }
         updateRelationshipOperation(this, op);
@@ -360,6 +368,10 @@ export class Graph {
 
   destroy() {
     Graphs.delete(this.store);
+
+    if (DEBUG) {
+      Graphs.delete(this.store._store as unknown as RecordDataStoreWrapper);
+    }
   }
 }
 

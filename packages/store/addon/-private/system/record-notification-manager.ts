@@ -1,13 +1,16 @@
-import { identifierCacheFor } from '../identifiers/cache';
+import { DEBUG } from '@glimmer/env';
 
-type CoreStore = import('./core-store').default;
-type RecordIdentifier = import('../ts-interfaces/identifier').RecordIdentifier;
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
+import type { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type CoreStore from './core-store';
+import WeakCache from './weak-cache';
 
 type UnsubscribeToken = Object;
 
-const Cache = new WeakMap<StableRecordIdentifier, NotificationCallback>();
-const Tokens = new WeakMap<UnsubscribeToken, StableRecordIdentifier>();
+const Cache = new WeakCache<StableRecordIdentifier, Map<UnsubscribeToken, NotificationCallback>>(
+  DEBUG ? 'subscribers' : ''
+);
+Cache._generator = () => new Map();
+const Tokens = new WeakCache<UnsubscribeToken, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
 
 export type NotificationType =
   | 'attributes'
@@ -31,7 +34,8 @@ export function unsubscribe(token: UnsubscribeToken) {
     throw new Error('Passed unknown unsubscribe token to unsubscribe');
   }
   Tokens.delete(token);
-  Cache.delete(identifier);
+  const map = Cache.get(identifier);
+  map?.delete(token);
 }
 /*
   Currently only support a single callback per identifier
@@ -40,9 +44,10 @@ export default class NotificationManager {
   constructor(private store: CoreStore) {}
 
   subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
-    let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
-    Cache.set(stableIdentifier, callback);
+    let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);
+    let map = Cache.lookup(stableIdentifier);
     let unsubToken = {};
+    map.set(unsubToken, callback);
     Tokens.set(unsubToken, stableIdentifier);
     return unsubToken;
   }
@@ -50,12 +55,14 @@ export default class NotificationManager {
   notify(identifier: RecordIdentifier, value: 'attributes' | 'relationships' | 'property', key?: string): boolean;
   notify(identifier: RecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'unload' | 'state'): boolean;
   notify(identifier: RecordIdentifier, value: NotificationType, key?: string): boolean {
-    let stableIdentifier = identifierCacheFor(this.store).getOrCreateRecordIdentifier(identifier);
-    let callback = Cache.get(stableIdentifier);
-    if (!callback) {
+    let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);
+    let callbackMap = Cache.get(stableIdentifier);
+    if (!callbackMap || !callbackMap.size) {
       return false;
     }
-    callback(stableIdentifier, value, key);
+    callbackMap.forEach((cb) => {
+      cb(stableIdentifier, value, key);
+    });
     return true;
   }
 }

@@ -1,12 +1,10 @@
-import { assert, deprecate, warn } from '@ember/debug';
-import { assign } from '@ember/polyfills';
+import { assert, deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import { Promise } from 'rsvp';
 
-import { REQUEST_SERVICE } from '@ember-data/canary-features';
+import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
-import coerceId from '../coerce-id';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 import { normalizeResponseHelper } from './serializer-response';
 
@@ -20,88 +18,6 @@ function payloadIsNotBlank(adapterPayload) {
   } else {
     return Object.keys(adapterPayload || {}).length;
   }
-}
-
-export function _find(adapter, store, modelClass, id, internalModel, options) {
-  if (REQUEST_SERVICE) {
-    assert(`Requests made when REQUEST_SERVICE=true should not use the legacy finders`);
-  }
-  let snapshot = internalModel.createSnapshot(options);
-  let { modelName } = internalModel;
-  let promise = Promise.resolve().then(() => {
-    return adapter.findRecord(store, modelClass, id, snapshot);
-  });
-  let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
-  const { identifier } = internalModel;
-
-  promise = guardDestroyedStore(promise, store, label);
-
-  return promise.then(
-    (adapterPayload) => {
-      assert(
-        `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
-      );
-      let serializer = store.serializerFor(modelName);
-      let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, id, 'findRecord');
-      assert(
-        `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
-        !Array.isArray(payload.data)
-      );
-      assert(
-        `The 'findRecord' request for ${modelName}:${id} resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
-        'data' in payload && payload.data !== null && typeof payload.data === 'object'
-      );
-      warn(
-        `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead.`,
-        coerceId(payload.data.id) === coerceId(id),
-        {
-          id: 'ds.store.findRecord.id-mismatch',
-        }
-      );
-
-      // ensure that regardless of id returned we assign to the correct record
-      payload.data.lid = identifier.lid;
-
-      return store._push(payload);
-    },
-    (error) => {
-      internalModel.send('notFound');
-      if (internalModel.currentState.isEmpty) {
-        internalModel.unloadRecord();
-      }
-
-      throw error;
-    },
-    `DS: Extract payload of '${modelName}'`
-  );
-}
-
-export function _findMany(adapter, store, modelName, ids, internalModels, optionsMap) {
-  let snapshots = internalModels.map((internalModel) => internalModel.createSnapshot(optionsMap.get(internalModel)));
-  let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
-  let promise = adapter.findMany(store, modelClass, ids, snapshots);
-  let label = `DS: Handle Adapter#findMany of '${modelName}'`;
-
-  if (promise === undefined) {
-    throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
-  }
-
-  promise = guardDestroyedStore(promise, store, label);
-
-  return promise.then(
-    (adapterPayload) => {
-      assert(
-        `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
-      );
-      let serializer = store.serializerFor(modelName);
-      let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findMany');
-      return store._push(payload);
-    },
-    null,
-    `DS: Extract payload of ${modelName}`
-  );
 }
 
 function iterateData(data, fn) {
@@ -202,16 +118,7 @@ function ensureRelationshipIsSetToParent(payload, parentInternalModel, store, pa
         `Please update the response from the server or change your serializer to either ensure that the response for only includes ${quotedType} records that specify ${expectedModel} as their ${quotedInverse}, or omit the ${quotedInverse} relationship from the response.`,
       ].join('\n');
 
-      // this should eventually throw instead of deprecating.
-      deprecate(message + '\n', false, {
-        id: 'mismatched-inverse-relationship-data-from-payload',
-        until: '3.8',
-        for: '@ember-data/store',
-        since: {
-          available: '3.8',
-          enabled: '3.8',
-        },
-      });
+      assert(message);
     }
 
     if (kind !== 'hasMany' || typeof relationshipData !== 'undefined') {
@@ -274,18 +181,12 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, modelName
   if (relationshipKind === 'hasMany') {
     payload = relationshipData || [];
     if (relationshipData) {
-      // IE11 does not support array.find
       // these arrays could be massive so this is better than filter
       // Note: this is potentially problematic if type/id are not in the
       // same state of normalization.
-      let found = false;
-      for (let i = 0; i < relationshipData.length; i++) {
-        let v = relationshipData[i];
-        if (v.type === parentRelationshipData.type && v.id === parentRelationshipData.id) {
-          found = true;
-          break;
-        }
-      }
+      let found = relationshipData.find((v) => {
+        return v.type === parentRelationshipData.type && v.id === parentRelationshipData.id;
+      });
       if (!found) {
         payload.push(parentRelationshipData);
       }
@@ -294,7 +195,7 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, modelName
     }
   } else {
     payload = relationshipData || {};
-    assign(payload, parentRelationshipData);
+    Object.assign(payload, parentRelationshipData);
   }
 
   return payload;
@@ -313,10 +214,26 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
   let label = `DS: Handle Adapter#findHasMany of '${internalModel.modelName}' : '${relationship.type}'`;
 
   promise = guardDestroyedStore(promise, store, label);
-  promise = _guard(promise, _bind(_objectIsAlive, internalModel));
-
-  return promise.then(
+  promise = promise.then(
     (adapterPayload) => {
+      if (!_objectIsAlive(internalModel)) {
+        if (DEPRECATE_RSVP_PROMISE) {
+          deprecate(
+            `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
+            false,
+            {
+              id: 'ember-data:rsvp-unresolved-async',
+              until: '5.0',
+              for: '@ember-data/store',
+              since: {
+                available: '4.5',
+                enabled: '4.5',
+              },
+            }
+          );
+        }
+      }
+
       assert(
         `You made a 'findHasMany' request for a ${internalModel.modelName}'s '${relationship.key}' relationship, using link '${link}' , but the adapter's response did not have any data`,
         payloadIsNotBlank(adapterPayload)
@@ -337,6 +254,12 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
     null,
     `DS: Extract payload of '${internalModel.modelName}' : hasMany '${relationship.type}'`
   );
+
+  if (DEPRECATE_RSVP_PROMISE) {
+    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
+  }
+
+  return promise;
 }
 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship, options) {
@@ -350,8 +273,26 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
   promise = guardDestroyedStore(promise, store, label);
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
-  return promise.then(
+  promise = promise.then(
     (adapterPayload) => {
+      if (!_objectIsAlive(internalModel)) {
+        if (DEPRECATE_RSVP_PROMISE) {
+          deprecate(
+            `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
+            false,
+            {
+              id: 'ember-data:rsvp-unresolved-async',
+              until: '5.0',
+              for: '@ember-data/store',
+              since: {
+                available: '4.5',
+                enabled: '4.5',
+              },
+            }
+          );
+        }
+      }
+
       let serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
@@ -372,6 +313,12 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
     null,
     `DS: Extract payload of ${internalModel.modelName} : ${relationship.type}`
   );
+
+  if (DEPRECATE_RSVP_PROMISE) {
+    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
+  }
+
+  return promise;
 }
 
 export function _findAll(adapter, store, modelName, options) {

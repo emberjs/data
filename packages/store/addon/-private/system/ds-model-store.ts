@@ -1,26 +1,21 @@
 import { getOwner, setOwner } from '@ember/application';
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 import EmberError from '@ember/error';
-import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { isPresent } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
 
-import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
+import type DSModelClass from '@ember-data/model';
 
+import type { DSModel } from '../ts-interfaces/ds-model';
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
+import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import CoreStore from './core-store';
+import type ShimModelClass from './model/shim-model-class';
 import { getShimClass } from './model/shim-model-class';
 import normalizeModelName from './normalize-model-name';
+import type NotificationManager from './record-notification-manager';
 import { DSModelSchemaDefinitionService, getModelFactory } from './schema-definition-service';
-
-type RelationshipsSchema = import('../ts-interfaces/record-data-schemas').RelationshipsSchema;
-type SchemaDefinitionService = import('../ts-interfaces/schema-definition-service').SchemaDefinitionService;
-type RecordDataRecordWrapper = import('../ts-interfaces/record-data-record-wrapper').RecordDataRecordWrapper;
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
-type NotificationManager = import('./record-notification-manager').default;
-type DSModel = import('../ts-interfaces/ds-model').DSModel;
-type ShimModelClass = import('./model/shim-model-class').default;
-type DSModelClass = import('@ember-data/model').default;
 
 class Store extends CoreStore {
   public _modelFactoryCache = Object.create(null);
@@ -39,9 +34,10 @@ class Store extends CoreStore {
     let createOptions: any = {
       store: this,
       _internalModel: internalModel,
+      // TODO deprecate allowing unknown args setting
+      _createProps: createRecordArgs,
       container: null,
     };
-    assign(createOptions, createRecordArgs);
 
     // ensure that `getOwner(this)` works inside a model instance
     setOwner(createOptions, getOwner(this));
@@ -70,7 +66,7 @@ class Store extends CoreStore {
     // for factorFor factory/class split
     let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
     if (!klass || !klass.isModel) {
-      if (!CUSTOM_MODEL_CLASS || !this.getSchemaDefinitionService().doesTypeExist(modelName)) {
+      if (!this.getSchemaDefinitionService().doesTypeExist(modelName)) {
         throw new EmberError(`No model was found for '${modelName}' and no schema handles the type`);
       }
       return getShimClass(this, modelName);
@@ -104,83 +100,18 @@ class Store extends CoreStore {
       typeof modelName === 'string'
     );
 
-    if (CUSTOM_MODEL_CLASS) {
-      return this.getSchemaDefinitionService().doesTypeExist(modelName);
-    } else {
-      assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
-      assert(
-        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-        typeof modelName === 'string'
-      );
-      let normalizedModelName = normalizeModelName(modelName);
-      let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
-
-      return factory !== null;
-    }
+    return this.getSchemaDefinitionService().doesTypeExist(modelName);
   }
 
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
-    if (CUSTOM_MODEL_CLASS) {
-      return this._relationshipsDefinitionFor(modelName)[key];
-    } else {
-      let modelClass = this.modelFor(modelName);
-      let relationshipsByName = get(modelClass, 'relationshipsByName');
-      return relationshipsByName.get(key);
-    }
-  }
-
-  _attributesDefinitionFor(modelName: string, identifier?: StableRecordIdentifier) {
-    if (CUSTOM_MODEL_CLASS) {
-      if (identifier) {
-        return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-      } else {
-        return this.getSchemaDefinitionService().attributesDefinitionFor(modelName);
-      }
-    } else {
-      let attributes = this._attributesDefCache[modelName];
-
-      if (attributes === undefined) {
-        let modelClass = this.modelFor(modelName);
-        let attributeMap = get(modelClass, 'attributes');
-
-        attributes = Object.create(null);
-        attributeMap.forEach((meta, name) => (attributes[name] = meta));
-        this._attributesDefCache[modelName] = attributes;
-      }
-
-      return attributes;
-    }
-  }
-
-  _relationshipsDefinitionFor(modelName: string, identifier?: StableRecordIdentifier): RelationshipsSchema {
-    if (CUSTOM_MODEL_CLASS) {
-      if (identifier) {
-        return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-      } else {
-        return this.getSchemaDefinitionService().relationshipsDefinitionFor(modelName);
-      }
-    } else {
-      let relationships = this._relationshipsDefCache[modelName];
-
-      if (relationships === undefined) {
-        let modelClass = this.modelFor(modelName);
-        relationships = get(modelClass, 'relationshipsObject') || null;
-        this._relationshipsDefCache[modelName] = relationships;
-      }
-
-      return relationships;
-    }
+    return this._relationshipsDefinitionFor({ type: modelName })[key];
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {
-    if (CUSTOM_MODEL_CLASS) {
-      if (!this._schemaDefinitionService) {
-        this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
-      }
-      return this._schemaDefinitionService;
-    } else {
-      throw 'schema service is only available when custom model class feature flag is on';
+    if (!this._schemaDefinitionService) {
+      this._schemaDefinitionService = new DSModelSchemaDefinitionService(this);
     }
+    return this._schemaDefinitionService;
   }
 }
 
@@ -189,48 +120,16 @@ let assertDestroyedStoreOnly: Function;
 
 if (DEBUG) {
   assertDestroyingStore = function assertDestroyedStore(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed),
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed)
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !(store.isDestroying || store.isDestroyed)
+    );
   };
   assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
-    if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed,
-        {
-          id: 'ember-data:method-calls-on-destroyed-store',
-          until: '3.8',
-          for: '@ember-data/store',
-          since: {
-            available: '3.8',
-            enabled: '3.8',
-          },
-        }
-      );
-    } else {
-      assert(
-        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !store.isDestroyed
-      );
-    }
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !store.isDestroyed
+    );
   };
 }
 

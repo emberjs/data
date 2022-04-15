@@ -4,13 +4,12 @@ import { settled } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import Model from 'ember-data/model';
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { attr, belongsTo, hasMany } from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -169,7 +168,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
 
     let all = store.peekAll('person');
-    assert.equal(get(all, 'length'), 2);
+    assert.strictEqual(get(all, 'length'), 2);
 
     store.push({
       data: [
@@ -185,7 +184,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     await settled();
 
-    assert.equal(get(all, 'length'), 3);
+    assert.strictEqual(get(all, 'length'), 3);
   });
 
   test('Record Data push, create and save lifecycle', async function (assert) {
@@ -273,30 +272,30 @@ module('integration/record-data - Custom RecordData Implementations', function (
     store.push({
       data: [personHash],
     });
-    assert.equal(calledPush, 1, 'Called pushData');
+    assert.strictEqual(calledPush, 1, 'Called pushData');
 
     let person = store.peekRecord('person', '1');
     person.save();
-    assert.equal(calledWillCommit, 1, 'Called willCommit');
+    assert.strictEqual(calledWillCommit, 1, 'Called willCommit');
 
     await settled();
-    assert.equal(calledDidCommit, 1, 'Called didCommit');
+    assert.strictEqual(calledDidCommit, 1, 'Called didCommit');
 
     person.save();
-    assert.equal(calledWillCommit, 2, 'Called willCommit');
+    assert.strictEqual(calledWillCommit, 2, 'Called willCommit');
 
     await settled();
-    assert.equal(calledDidCommit, 1, 'Did not call didCommit again');
-    assert.equal(calledWasRejected, 1, 'Called commitWasRejected');
+    assert.strictEqual(calledDidCommit, 1, 'Did not call didCommit again');
+    assert.strictEqual(calledWasRejected, 1, 'Called commitWasRejected');
 
     person.rollbackAttributes();
-    assert.equal(calledRollbackAttributes, 1, 'Called rollbackAttributes');
+    assert.strictEqual(calledRollbackAttributes, 1, 'Called rollbackAttributes');
 
     person.unloadRecord();
-    assert.equal(calledUnloadRecord, 1, 'Called unloadRecord');
+    assert.strictEqual(calledUnloadRecord, 1, 'Called unloadRecord');
 
     await settled();
-    assert.equal(calledClientDidCreate, 0, 'Did not called clientDidCreate');
+    assert.strictEqual(calledClientDidCreate, 0, 'Did not called clientDidCreate');
 
     calledPush = 0;
     calledClientDidCreate = 0;
@@ -307,26 +306,26 @@ module('integration/record-data - Custom RecordData Implementations', function (
     calledDidCommit = 0;
 
     let clientPerson = store.createRecord('person', { id: 2 });
-    assert.equal(calledClientDidCreate, 1, 'Called clientDidCreate');
+    assert.strictEqual(calledClientDidCreate, 1, 'Called clientDidCreate');
 
     clientPerson.save();
-    assert.equal(calledWillCommit, 1, 'Called willCommit');
+    assert.strictEqual(calledWillCommit, 1, 'Called willCommit');
 
     await settled();
-    assert.equal(calledDidCommit, 1, 'Called didCommit');
+    assert.strictEqual(calledDidCommit, 1, 'Called didCommit');
 
     clientPerson.save();
-    assert.equal(calledWillCommit, 2, 'Called willCommit');
+    assert.strictEqual(calledWillCommit, 2, 'Called willCommit');
 
     await settled();
-    assert.equal(calledWasRejected, 1, 'Called commitWasRejected');
-    assert.equal(calledDidCommit, 1, 'Did not call didCommit again');
+    assert.strictEqual(calledWasRejected, 1, 'Called commitWasRejected');
+    assert.strictEqual(calledDidCommit, 1, 'Did not call didCommit again');
 
     clientPerson.unloadRecord();
-    assert.equal(calledUnloadRecord, 1, 'Called unloadRecord');
+    assert.strictEqual(calledUnloadRecord, 1, 'Called unloadRecord');
 
     await settled();
-    assert.equal(calledPush, 0, 'Did not call pushData');
+    assert.strictEqual(calledPush, 0, 'Did not call pushData');
   });
 
   test('Record Data attribute settting', async function (assert) {
@@ -353,18 +352,18 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       setDirtyAttribute(key: string, value: any) {
-        assert.equal(key, 'name', 'key passed to setDirtyAttribute');
-        assert.equal(value, 'new value', 'value passed to setDirtyAttribute');
+        assert.strictEqual(key, 'name', 'key passed to setDirtyAttribute');
+        assert.strictEqual(value, 'new value', 'value passed to setDirtyAttribute');
       }
 
       getAttr(key: string): string {
         calledGet++;
-        assert.equal(key, 'name', 'key passed to getAttr');
+        assert.strictEqual(key, 'name', 'key passed to getAttr');
         return 'new attribute';
       }
 
       hasAttr(key: string): boolean {
-        assert.equal(key, 'name', 'key passed to hasAttr');
+        assert.strictEqual(key, 'name', 'key passed to hasAttr');
         return true;
       }
 
@@ -388,15 +387,15 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
 
     let person = store.peekRecord('person', '1');
-    assert.equal(person.get('name'), 'new attribute');
-    assert.equal(calledGet, 1, 'called getAttr for initial get');
+    assert.strictEqual(person.get('name'), 'new attribute');
+    assert.strictEqual(calledGet, 1, 'called getAttr for initial get');
     person.set('name', 'new value');
-    assert.equal(calledGet, 2, 'called getAttr during set');
-    assert.equal(person.get('name'), 'new value');
-    assert.equal(calledGet, 2, 'did not call getAttr after set');
+    assert.strictEqual(calledGet, 2, 'called getAttr during set');
+    assert.strictEqual(person.get('name'), 'new value');
+    assert.strictEqual(calledGet, 2, 'did not call getAttr after set');
     person.notifyPropertyChange('name');
-    assert.equal(person.get('name'), 'new attribute');
-    assert.equal(calledGet, 3, 'called getAttr after notifyPropertyChange');
+    assert.strictEqual(person.get('name'), 'new attribute');
+    assert.strictEqual(calledGet, 3, 'called getAttr after notifyPropertyChange');
     assert.deepEqual(
       person.changedAttributes(),
       { name: ['old', 'new'] },
@@ -417,14 +416,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       getBelongsTo(key: string) {
-        assert.equal(key, 'landlord', 'Passed correct key to getBelongsTo');
+        assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
         return belongsToReturnValue;
       }
 
       // Use correct interface once imports have been fix
       setDirtyBelongsTo(key: string, recordData: any) {
-        assert.equal(key, 'landlord', 'Passed correct key to setBelongsTo');
-        assert.equal(recordData.id, '2', 'Passed correct RD to setBelongsTo');
+        assert.strictEqual(key, 'landlord', 'Passed correct key to setBelongsTo');
+        assert.strictEqual(recordData.id, '2', 'Passed correct RD to setBelongsTo');
       }
     }
 
@@ -452,10 +451,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
 
     let house = store.peekRecord('house', '1');
     let runspired = store.peekRecord('person', '2');
-    assert.equal(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
+    assert.strictEqual(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
 
     house.set('landlord', runspired);
-    assert.equal(house.get('landlord.name'), 'David', 'belongsTo does not change if RD did not notify');
+    assert.strictEqual(house.get('landlord.name'), 'David', 'belongsTo does not change if RD did not notify');
   });
 
   test('Record Data custom belongsTo', async function (assert) {
@@ -471,7 +470,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       getBelongsTo(key: string) {
-        assert.equal(key, 'landlord', 'Passed correct key to getBelongsTo');
+        assert.strictEqual(key, 'landlord', 'Passed correct key to getBelongsTo');
         return belongsToReturnValue;
       }
 
@@ -504,13 +503,13 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
 
     let house = store.peekRecord('house', '1');
-    assert.equal(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
+    assert.strictEqual(house.get('landlord.name'), 'David', 'belongsTo get correctly looked up');
 
     let runspired = store.peekRecord('person', '2');
     house.set('landlord', runspired);
 
     // This is intentionally !== runspired to test the custom RD implementation
-    assert.equal(house.get('landlord.name'), 'Igor', 'RecordData sets the custom belongsTo value');
+    assert.strictEqual(house.get('landlord.name'), 'Igor', 'RecordData sets the custom belongsTo value');
   });
 
   test('Record Data controls hasMany notifications', async function (assert) {
@@ -539,8 +538,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
         if (calledAddToHasMany === 1) {
           return;
         }
-        assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.equal(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
         calledAddToHasMany++;
       }
 
@@ -549,14 +548,14 @@ module('integration/record-data - Custom RecordData Implementations', function (
         if (calledRemoveFromHasMany === 1) {
           return;
         }
-        assert.equal(key, 'tenants', 'Passed correct key to removeFromHasMany');
-        assert.equal(recordDatas[0].id, '1', 'Passed correct RD to removeFromHasMany');
+        assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
+        assert.strictEqual(recordDatas[0].id, '1', 'Passed correct RD to removeFromHasMany');
         calledRemoveFromHasMany++;
       }
 
       setDirtyHasMany(key: string, recordDatas: any[]) {
-        assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.equal(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+        assert.strictEqual(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
       }
     }
 
@@ -624,8 +623,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
         if (calledAddToHasMany === 1) {
           return;
         }
-        assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.equal(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to addToHasMany');
         calledAddToHasMany++;
 
         hasManyReturnValue = {
@@ -642,16 +641,16 @@ module('integration/record-data - Custom RecordData Implementations', function (
         if (calledRemoveFromHasMany === 1) {
           return;
         }
-        assert.equal(key, 'tenants', 'Passed correct key to removeFromHasMany');
-        assert.equal(recordDatas[0].id, '2', 'Passed correct RD to removeFromHasMany');
+        assert.strictEqual(key, 'tenants', 'Passed correct key to removeFromHasMany');
+        assert.strictEqual(recordDatas[0].id, '2', 'Passed correct RD to removeFromHasMany');
         calledRemoveFromHasMany++;
         hasManyReturnValue = { data: [{ id: '1', type: 'person' }] };
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
 
       setDirtyHasMany(key: string, recordDatas: any[]) {
-        assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
-        assert.equal(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
+        assert.strictEqual(key, 'tenants', 'Passed correct key to addToHasMany');
+        assert.strictEqual(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
         hasManyReturnValue = {
           data: [
             { id: '1', type: 'person' },

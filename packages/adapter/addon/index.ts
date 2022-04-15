@@ -140,12 +140,12 @@ import { DEBUG } from '@glimmer/env';
 
 import { Promise as RSVPPromise } from 'rsvp';
 
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type MinimumAdapterInterface = import('@ember-data/store/-private/ts-interfaces/minimum-adapter-interface').default;
-type ShimModelClass = import('@ember-data/store/-private/system/model/shim-model-class').default;
-type Store = import('@ember-data/store/-private/system/core-store').default;
-type Snapshot = import('ember-data/-private').Snapshot;
-type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-record-array').default;
+import type { Snapshot } from '@ember-data/store/-private';
+import type Store from '@ember-data/store/-private/system/core-store';
+import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
+import type MinimumAdapterInterface from '@ember-data/store/-private/ts-interfaces/minimum-adapter-interface';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 /**
   An adapter is an object that receives requests from a store and
@@ -204,30 +204,6 @@ type SnapshotRecordArray = import('@ember-data/store/-private/system/snapshot-re
 */
 export default class Adapter extends EmberObject implements MinimumAdapterInterface {
   declare _coalesceFindRequests: boolean;
-
-  /**
-    If you would like your adapter to use a custom serializer you can
-    set the `defaultSerializer` property to be the name of the custom
-    serializer.
-
-    Note the `defaultSerializer` serializer has a lower priority than
-    a model specific serializer (i.e. `PostSerializer`) or the
-    `application` serializer.
-
-    ```app/adapters/django.js
-    import Adapter from '@ember-data/adapter';
-
-    export default Adapter.extend({
-      defaultSerializer: 'django'
-    });
-    ```
-
-    @deprecated
-    @property defaultSerializer
-    @public
-    @type {String}
-  */
-  defaultSerializer = '-default';
 
   /**
     The `findRecord()` method is invoked when the store is asked for a record that
@@ -620,7 +596,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
   }
 
   /**
-    By default the store will try to coalesce all `fetchRecord` calls within the same runloop
+    By default the store will try to coalesce all `findRecord` calls within the same runloop
     into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
     You can opt out of this behaviour by either not implementing the findMany hook or by setting
     coalesceFindRequests to false.

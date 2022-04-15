@@ -3,7 +3,6 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { setupTest } from 'ember-qunit';
 
-import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, Person;
@@ -40,20 +39,6 @@ module('unit/store/serializer_for - DS.Store#serializerFor', function (hooks) {
       'serializer returned from serializerFor is an instance of ApplicationSerializer'
     );
   });
-
-  deprecatedTest(
-    'Calling serializerFor with a type that has not been registered and in an application that does not have an ApplicationSerializer looks up the default Ember Data serializer',
-    {
-      id: 'ember-data:default-serializer',
-      until: '4.0',
-    },
-    function (assert) {
-      assert.ok(
-        store.serializerFor('person') instanceof DS.JSONSerializer,
-        'serializer returned from serializerFor is an instance of DS.JSONSerializer'
-      );
-    }
-  );
 
   testInDebug('Calling serializerFor with a model class should assert', function (assert) {
     assert.expectAssertion(() => {

@@ -28,7 +28,7 @@ module('integration/requests - running requests with minimum serializer', functi
     class TestMinimumSerializer extends EmberObject {
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
-        assert.equal(requestType, 'findAll', 'expected method name is correct');
+        assert.strictEqual(requestType, 'findAll', 'expected method name is correct');
         assert.deepEqual(rawPayload, { data: [] });
         return {
           data: [
@@ -46,8 +46,6 @@ module('integration/requests - running requests with minimum serializer', functi
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({ data: [] });
       }
@@ -58,7 +56,7 @@ module('integration/requests - running requests with minimum serializer', functi
 
     let response = await store.findAll('person');
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(response.mapBy('id'), ['urn:person:1'], 'response is expected response');
   });
 
@@ -68,7 +66,7 @@ module('integration/requests - running requests with minimum serializer', functi
     class TestMinimumSerializer extends EmberObject {
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
-        assert.equal(requestType, 'findRecord', 'expected method name is correct');
+        assert.strictEqual(requestType, 'findRecord', 'expected method name is correct');
         assert.deepEqual(rawPayload, {
           data: {
             type: 'person',
@@ -92,8 +90,6 @@ module('integration/requests - running requests with minimum serializer', functi
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({
           data: {
@@ -112,7 +108,7 @@ module('integration/requests - running requests with minimum serializer', functi
 
     let response = await store.findRecord('person', 'urn:person:1');
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(response.name, 'John', 'response is expected response');
   });
 
@@ -122,7 +118,7 @@ module('integration/requests - running requests with minimum serializer', functi
     class TestMinimumSerializer extends EmberObject {
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
-        assert.equal(requestType, 'query', 'expected method name is correct');
+        assert.strictEqual(requestType, 'query', 'expected method name is correct');
         assert.deepEqual(rawPayload, { data: [] });
         return {
           data: [
@@ -140,8 +136,6 @@ module('integration/requests - running requests with minimum serializer', functi
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({ data: [] });
       }
@@ -152,7 +146,7 @@ module('integration/requests - running requests with minimum serializer', functi
 
     let response = await store.query('person', { name: 'Chris' });
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(response.mapBy('id'), ['urn:person:1'], 'response is expected response');
   });
 
@@ -162,7 +156,7 @@ module('integration/requests - running requests with minimum serializer', functi
     class TestMinimumSerializer extends EmberObject {
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
-        assert.equal(requestType, 'queryRecord', 'expected method name is correct');
+        assert.strictEqual(requestType, 'queryRecord', 'expected method name is correct');
         assert.deepEqual(rawPayload, {
           data: {
             type: 'person',
@@ -186,8 +180,6 @@ module('integration/requests - running requests with minimum serializer', functi
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       ajax(url, type) {
         return resolve({
           data: {
@@ -206,7 +198,7 @@ module('integration/requests - running requests with minimum serializer', functi
 
     let response = await store.queryRecord('person', { name: 'Chris' });
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse is called once');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(response.name, 'John', 'response is expected response');
   });
 });

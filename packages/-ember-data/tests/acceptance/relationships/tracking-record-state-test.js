@@ -34,7 +34,7 @@ module('tracking state flags on a record', function (hooks) {
         enumerable: true,
         configurable: true,
         get() {
-          tag.reg; // subscribe
+          tag.rev; // subscribe
           if (_isDirty && !_isUpdating) {
             _isUpdating = true;
             resolve(desc.get.call(this)).then((v) => {

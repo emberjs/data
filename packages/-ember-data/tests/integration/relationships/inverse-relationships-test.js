@@ -36,10 +36,10 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const comment = store.createRecord('comment');
     const post = store.createRecord('post');
 
-    assert.equal(comment.get('post'), null, 'no post has been set on the comment');
+    assert.strictEqual(comment.get('post'), null, 'no post has been set on the comment');
 
     post.get('comments').pushObject(comment);
-    assert.equal(comment.get('post'), post, 'post was set on the comment');
+    assert.strictEqual(comment.get('post'), post, 'post was set on the comment');
   });
 
   test('Inverse relationships can be explicitly nullable', function (assert) {
@@ -62,9 +62,9 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const user = store.createRecord('user');
     const post = store.createRecord('post');
 
-    assert.equal(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
-    assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-    assert.equal(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
+    assert.strictEqual(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
+    assert.strictEqual(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
+    assert.strictEqual(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
   });
 
   test('Null inverses are excluded from potential relationship resolutions', function (assert) {
@@ -87,9 +87,9 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const user = store.createRecord('user');
     const post = store.createRecord('post');
 
-    assert.equal(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
-    assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-    assert.equal(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
+    assert.strictEqual(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
+    assert.strictEqual(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
+    assert.strictEqual(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
   });
 
   test('When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly', async function (assert) {
@@ -118,17 +118,17 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const comment = store.createRecord('comment');
     const post = store.createRecord('post');
 
-    assert.equal(comment.get('onePost'), null, 'onePost has not been set on the comment');
-    assert.equal(comment.get('twoPost'), null, 'twoPost has not been set on the comment');
-    assert.equal(comment.get('redPost'), null, 'redPost has not been set on the comment');
-    assert.equal(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
+    assert.strictEqual(comment.get('onePost'), null, 'onePost has not been set on the comment');
+    assert.strictEqual(comment.get('twoPost'), null, 'twoPost has not been set on the comment');
+    assert.strictEqual(comment.get('redPost'), null, 'redPost has not been set on the comment');
+    assert.strictEqual(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
 
     post.get('comments').pushObject(comment);
 
-    assert.equal(comment.get('onePost'), null, 'onePost has not been set on the comment');
-    assert.equal(comment.get('twoPost'), null, 'twoPost has not been set on the comment');
-    assert.equal(comment.get('redPost'), post, 'redPost has been set on the comment');
-    assert.equal(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
+    assert.strictEqual(comment.get('onePost'), null, 'onePost has not been set on the comment');
+    assert.strictEqual(comment.get('twoPost'), null, 'twoPost has not been set on the comment');
+    assert.strictEqual(comment.get('redPost'), post, 'redPost has been set on the comment');
+    assert.strictEqual(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
   });
 
   test("When a record's belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function (assert) {
@@ -156,17 +156,17 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     comment = store.createRecord('comment');
     post = store.createRecord('post');
 
-    assert.equal(post.get('meComments.length'), 0, 'meComments has no posts');
-    assert.equal(post.get('youComments.length'), 0, 'youComments has no posts');
-    assert.equal(post.get('everyoneWeKnowComments.length'), 0, 'everyoneWeKnowComments has no posts');
+    assert.strictEqual(post.get('meComments.length'), 0, 'meComments has no posts');
+    assert.strictEqual(post.get('youComments.length'), 0, 'youComments has no posts');
+    assert.strictEqual(post.get('everyoneWeKnowComments.length'), 0, 'everyoneWeKnowComments has no posts');
 
     comment.set('post', post);
 
-    assert.equal(comment.get('post'), post, 'The post that was set can be retrieved');
+    assert.strictEqual(comment.get('post'), post, 'The post that was set can be retrieved');
 
-    assert.equal(post.get('meComments.length'), 0, 'meComments has no posts');
-    assert.equal(post.get('youComments.length'), 1, 'youComments had the post added');
-    assert.equal(post.get('everyoneWeKnowComments.length'), 0, 'everyoneWeKnowComments has no posts');
+    assert.strictEqual(post.get('meComments.length'), 0, 'meComments has no posts');
+    assert.strictEqual(post.get('youComments.length'), 1, 'youComments had the post added');
+    assert.strictEqual(post.get('everyoneWeKnowComments.length'), 0, 'everyoneWeKnowComments has no posts');
   });
 
   test('When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used', async function (assert) {
@@ -190,15 +190,15 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     comment.set('post', post);
     post2.set('bestComment', null);
 
-    assert.equal(comment.get('post'), post);
-    assert.equal(post.get('bestComment'), comment);
+    assert.strictEqual(comment.get('post'), post);
+    assert.strictEqual(post.get('bestComment'), comment);
     assert.strictEqual(post2.get('bestComment'), null);
 
     comment.set('post', post2);
 
-    assert.equal(comment.get('post'), post2);
+    assert.strictEqual(comment.get('post'), post2);
     assert.strictEqual(post.get('bestComment'), null);
-    assert.equal(post2.get('bestComment'), comment);
+    assert.strictEqual(post2.get('bestComment'), comment);
   });
 
   test('When setting a belongsTo, the OneToOne invariant is transitive', async function (assert) {
@@ -221,15 +221,15 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     comment.set('post', post);
 
-    assert.ok(comment.get('post') === post, 'comment post is set correctly');
-    assert.ok(post.get('bestComment') === comment, 'post1 comment is set correctly');
-    assert.ok(post2.get('bestComment') === null, 'post2 comment is not set');
+    assert.strictEqual(comment.get('post'), post, 'comment post is set correctly');
+    assert.strictEqual(post.get('bestComment'), comment, 'post1 comment is set correctly');
+    assert.strictEqual(post2.get('bestComment'), null, 'post2 comment is not set');
 
     post2.set('bestComment', comment);
 
-    assert.true(comment.get('post') === post2, 'comment post is set correctly');
-    assert.true(post.get('bestComment') === null, 'post1 comment is no longer set');
-    assert.true(post2.get('bestComment') === comment, 'post2 comment is set correctly');
+    assert.strictEqual(comment.get('post'), post2, 'comment post is set correctly');
+    assert.strictEqual(post.get('bestComment'), null, 'post1 comment is no longer set');
+    assert.strictEqual(post2.get('bestComment'), comment, 'post2 comment is set correctly');
   });
 
   test('When setting a belongsTo, the OneToOne invariant is commutative', async function (assert) {
@@ -252,15 +252,15 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     comment.set('post', post);
 
-    assert.equal(comment.get('post'), post);
-    assert.equal(post.get('bestComment'), comment);
+    assert.strictEqual(comment.get('post'), post);
+    assert.strictEqual(post.get('bestComment'), comment);
     assert.strictEqual(comment2.get('post'), null);
 
     post.set('bestComment', comment2);
 
     assert.strictEqual(comment.get('post'), null);
-    assert.equal(post.get('bestComment'), comment2);
-    assert.equal(comment2.get('post'), post);
+    assert.strictEqual(post.get('bestComment'), comment2);
+    assert.strictEqual(comment2.get('post'), post);
   });
 
   test('OneToNone relationship works', async function (assert) {
@@ -284,13 +284,13 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const post2 = store.createRecord('post');
 
     comment.set('post', post1);
-    assert.equal(comment.get('post'), post1, 'the post is set to the first one');
+    assert.strictEqual(comment.get('post'), post1, 'the post is set to the first one');
 
     comment.set('post', post2);
-    assert.equal(comment.get('post'), post2, 'the post is set to the second one');
+    assert.strictEqual(comment.get('post'), post2, 'the post is set to the second one');
 
     comment.set('post', post1);
-    assert.equal(comment.get('post'), post1, 'the post is re-set to the first one');
+    assert.strictEqual(comment.get('post'), post1, 'the post is re-set to the first one');
   });
 
   test('When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly', async function (assert) {
@@ -322,24 +322,24 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const post = store.createRecord('post');
     const user = store.createRecord('user');
 
-    assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
-    assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
-    assert.equal(post.get('redUser'), null, 'redUser has not been set on the user');
-    assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
+    assert.strictEqual(post.get('oneUser'), null, 'oneUser has not been set on the user');
+    assert.strictEqual(post.get('twoUser'), null, 'twoUser has not been set on the user');
+    assert.strictEqual(post.get('redUser'), null, 'redUser has not been set on the user');
+    assert.strictEqual(post.get('blueUser'), null, 'blueUser has not been set on the user');
 
     user.get('messages').pushObject(post);
 
-    assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
-    assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
-    assert.equal(post.get('redUser'), user, 'redUser has been set on the user');
-    assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
+    assert.strictEqual(post.get('oneUser'), null, 'oneUser has not been set on the user');
+    assert.strictEqual(post.get('twoUser'), null, 'twoUser has not been set on the user');
+    assert.strictEqual(post.get('redUser'), user, 'redUser has been set on the user');
+    assert.strictEqual(post.get('blueUser'), null, 'blueUser has not been set on the user');
 
     user.get('messages').popObject();
 
-    assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
-    assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
-    assert.equal(post.get('redUser'), null, 'redUser has bot been set on the user');
-    assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
+    assert.strictEqual(post.get('oneUser'), null, 'oneUser has not been set on the user');
+    assert.strictEqual(post.get('twoUser'), null, 'twoUser has not been set on the user');
+    assert.strictEqual(post.get('redUser'), null, 'redUser has bot been set on the user');
+    assert.strictEqual(post.get('blueUser'), null, 'blueUser has not been set on the user');
   });
 
   test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", async function (assert) {
@@ -368,21 +368,21 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const user = store.createRecord('user');
     const post = store.createRecord('post');
 
-    assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
-    assert.equal(user.get('youMessages.length'), 0, 'youMessages has no posts');
-    assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    assert.strictEqual(user.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.strictEqual(user.get('youMessages.length'), 0, 'youMessages has no posts');
+    assert.strictEqual(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
 
     post.set('user', user);
 
-    assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
-    assert.equal(user.get('youMessages.length'), 1, 'youMessages had the post added');
-    assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    assert.strictEqual(user.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.strictEqual(user.get('youMessages.length'), 1, 'youMessages had the post added');
+    assert.strictEqual(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
 
     post.set('user', null);
 
-    assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
-    assert.equal(user.get('youMessages.length'), 0, 'youMessages has no posts');
-    assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    assert.strictEqual(user.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.strictEqual(user.get('youMessages.length'), 0, 'youMessages has no posts');
+    assert.strictEqual(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
   });
 
   test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function (assert) {
@@ -411,21 +411,21 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     const comment = store.createRecord('comment');
     const post = store.createRecord('post');
 
-    assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
-    assert.equal(post.get('youMessages.length'), 0, 'youMessages has no posts');
-    assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    assert.strictEqual(post.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.strictEqual(post.get('youMessages.length'), 0, 'youMessages has no posts');
+    assert.strictEqual(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
 
     comment.set('message', post);
 
-    assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
-    assert.equal(post.get('youMessages.length'), 1, 'youMessages had the post added');
-    assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    assert.strictEqual(post.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.strictEqual(post.get('youMessages.length'), 1, 'youMessages had the post added');
+    assert.strictEqual(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
 
     comment.set('message', null);
 
-    assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
-    assert.equal(post.get('youMessages.length'), 0, 'youMessages has no posts');
-    assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    assert.strictEqual(post.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.strictEqual(post.get('youMessages.length'), 0, 'youMessages has no posts');
+    assert.strictEqual(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
   });
 
   testInDebug("Inverse relationships that don't exist throw a nice error for a hasMany", async function (assert) {
@@ -648,7 +648,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     const comment = store.createRecord('comment');
 
-    assert.equal(comment.inverseFor('user'), null, 'Defaults to a null inverse');
+    assert.strictEqual(comment.inverseFor('user'), null, 'Defaults to a null inverse');
   });
 
   test('Unload a destroyed record should clean the relations', async function (assert) {

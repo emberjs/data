@@ -21,9 +21,9 @@ module('unit/adapters/parse-response-headers', function () {
 
     let headers = parseResponseHeaders(headersString);
 
-    assert.equal(headers['content-encoding'], 'gzip', 'parses basic header pair');
-    assert.equal(headers['content-type'], 'application/json; charset=utf-8', 'parses header with complex value');
-    assert.equal(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
+    assert.strictEqual(headers['content-encoding'], 'gzip', 'parses basic header pair');
+    assert.strictEqual(headers['content-type'], 'application/json; charset=utf-8', 'parses header with complex value');
+    assert.strictEqual(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
   });
 
   test('field-name parsing', function (assert) {
@@ -35,13 +35,17 @@ module('unit/adapters/parse-response-headers', function () {
 
     let headers = parseResponseHeaders(headersString);
 
-    assert.equal(headers['name-with-leading-whitespace'], 'some value', 'strips leading whitespace from field-name');
-    assert.equal(
+    assert.strictEqual(
+      headers['name-with-leading-whitespace'],
+      'some value',
+      'strips leading whitespace from field-name'
+    );
+    assert.strictEqual(
       headers['name-with-whitespace-before-colon'],
       'another value',
       'strips whitespace before colon from field-name'
     );
-    assert.equal(headers['uppercase-name'], 'yet another value', 'lowercases the field-name');
+    assert.strictEqual(headers['uppercase-name'], 'yet another value', 'lowercases the field-name');
   });
 
   test('field-value parsing', function (assert) {
@@ -54,18 +58,26 @@ module('unit/adapters/parse-response-headers', function () {
 
     let headers = parseResponseHeaders(headersString);
 
-    assert.equal(
+    assert.strictEqual(
       headers['value-with-leading-space'],
       'value with leading whitespace',
       'strips leading whitespace in field-value'
     );
-    assert.equal(
+    assert.strictEqual(
       headers['value-without-leading-space'],
       'value without leading whitespace',
       'works without leaading whitespace in field-value'
     );
-    assert.equal(headers['value-with-colon'], 'value with: a colon', 'has correct value when value contains a colon');
-    assert.equal(headers['value-with-trailing-whitespace'], 'banana', 'strips trailing whitespace from field-value');
+    assert.strictEqual(
+      headers['value-with-colon'],
+      'value with: a colon',
+      'has correct value when value contains a colon'
+    );
+    assert.strictEqual(
+      headers['value-with-trailing-whitespace'],
+      'banana',
+      'strips trailing whitespace from field-value'
+    );
   });
   ('\r\nfoo: bar');
 
@@ -78,7 +90,7 @@ module('unit/adapters/parse-response-headers', function () {
 
     assert.deepEqual(headers['content-encoding'], 'gzip', 'parses basic header pair');
     assert.deepEqual(headers['apple'], 'pie', 'parses basic header pair');
-    assert.equal(Object.keys(headers).length, 3, 'only has the three valid headers');
+    assert.strictEqual(Object.keys(headers).length, 3, 'only has the three valid headers');
   });
 
   test('tollerate extra new-lines', function (assert) {
@@ -86,7 +98,7 @@ module('unit/adapters/parse-response-headers', function () {
     let headers = parseResponseHeaders(headersString);
 
     assert.deepEqual(headers['foo'], 'bar', 'parses basic header pair');
-    assert.equal(Object.keys(headers).length, 1, 'only has the one valid header');
+    assert.strictEqual(Object.keys(headers).length, 1, 'only has the one valid header');
   });
 
   test('works with only line feeds', function (assert) {
@@ -98,8 +110,8 @@ module('unit/adapters/parse-response-headers', function () {
 
     let headers = parseResponseHeaders(headersString);
 
-    assert.equal(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
-    assert.equal(headers['content-type'], 'application/json; charset=utf-8', 'parses header with complex value');
-    assert.equal(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
+    assert.strictEqual(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
+    assert.strictEqual(headers['content-type'], 'application/json; charset=utf-8', 'parses header with complex value');
+    assert.strictEqual(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
   });
 });

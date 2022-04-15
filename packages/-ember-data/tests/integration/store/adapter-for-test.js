@@ -1,14 +1,14 @@
-import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
+
+import Store from '@ember-data/store';
 
 class TestAdapter {
   constructor(args) {
-    assign(this, args);
+    Object.assign(this, args);
     this.didInit();
   }
 
@@ -46,9 +46,6 @@ module('integration/store - adapterFor', function (hooks) {
     assert.expectAssertion(() => {
       store.adapterFor('person');
     }, /Assertion Failed: No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
-    assert.expectDeprecation({
-      id: 'ember-data:-legacy-test-registrations',
-    });
   });
 
   test('we find and instantiate the application adapter', async function (assert) {
@@ -73,7 +70,7 @@ module('integration/store - adapterFor', function (hooks) {
 
     assert.ok(adapterAgain instanceof AppAdapter, 'We found the correct adapter');
     assert.notOk(didInstantiate, 'We did not instantiate the adapter again');
-    assert.ok(adapter === adapterAgain, 'Repeated calls to adapterFor return the same instance');
+    assert.strictEqual(adapter, adapterAgain, 'Repeated calls to adapterFor return the same instance');
   });
 
   test('multiple stores do not share adapters', async function (assert) {
@@ -99,7 +96,7 @@ module('integration/store - adapterFor', function (hooks) {
     let otherAdapter = otherStore.adapterFor('application');
     assert.ok(otherAdapter instanceof AppAdapter, 'We found the correct adapter again');
     assert.ok(didInstantiate, 'We instantiated the other adapter');
-    assert.ok(otherAdapter !== adapter, 'We have a different adapter instance');
+    assert.notStrictEqual(otherAdapter, adapter, 'We have a different adapter instance');
 
     otherStore.destroy();
   });
@@ -133,7 +130,7 @@ module('integration/store - adapterFor', function (hooks) {
     let appAdapter = store.adapterFor('application');
     assert.ok(appAdapter instanceof AppAdapter, 'We found the correct adapter');
     assert.ok(didInstantiateAppAdapter, 'We instantiated the application adapter');
-    assert.ok(appAdapter !== adapter, 'We have separate adapters');
+    assert.notStrictEqual(appAdapter, adapter, 'We have separate adapters');
   });
 
   test('we fallback to the application adapter when a per-type adapter is not found', async function (assert) {
@@ -157,88 +154,10 @@ module('integration/store - adapterFor', function (hooks) {
     let appAdapter = store.adapterFor('application');
     assert.ok(appAdapter instanceof AppAdapter, 'We found the correct adapter');
     assert.notOk(didInstantiateAppAdapter, 'We did not instantiate the adapter again');
-    assert.ok(appAdapter === adapter, 'We fell back to the application adapter instance');
-  });
-
-  test('we can specify a fallback adapter by name in place of the application adapter', async function (assert) {
-    store.adapter = '-fallback';
-    let { owner } = this;
-
-    let didInstantiateRestAdapter = false;
-
-    class RestAdapter extends TestAdapter {
-      didInit() {
-        didInstantiateRestAdapter = true;
-      }
-    }
-    owner.register('adapter:-fallback', RestAdapter);
-
-    let adapter = store.adapterFor('person');
-
-    assert.ok(adapter instanceof RestAdapter, 'We found the -fallback adapter for person');
-    assert.ok(didInstantiateRestAdapter, 'We instantiated the adapter');
-    didInstantiateRestAdapter = false;
-
-    let appAdapter = store.adapterFor('application');
-
-    assert.ok(appAdapter instanceof RestAdapter, 'We found the -fallback adapter for application');
-    assert.notOk(didInstantiateRestAdapter, 'We did not instantiate the adapter again');
-    didInstantiateRestAdapter = false;
-
-    let restAdapter = store.adapterFor('-fallback');
-    assert.ok(restAdapter instanceof RestAdapter, 'We found the correct adapter');
-    assert.notOk(didInstantiateRestAdapter, 'We did not instantiate the adapter again');
-    assert.ok(restAdapter === adapter, 'We fell back to the -fallback adapter instance for the person adapters');
-    assert.ok(restAdapter === appAdapter, 'We fell back to the -fallback adapter instance for the application adapter');
-  });
-
-  test('the application adapter has higher precedence than a fallback adapter defined via store.adapter', async function (assert) {
-    store.adapter = '-fallback';
-    let { owner } = this;
-
-    let didInstantiateAppAdapter = false;
-    let didInstantiateRestAdapter = false;
-
-    class AppAdapter extends TestAdapter {
-      didInit() {
-        didInstantiateAppAdapter = true;
-      }
-    }
-
-    class RestAdapter extends TestAdapter {
-      didInit() {
-        didInstantiateRestAdapter = true;
-      }
-    }
-
-    owner.register('adapter:application', AppAdapter);
-    owner.register('adapter:-fallback', RestAdapter);
-
-    let adapter = store.adapterFor('person');
-
-    assert.ok(adapter instanceof AppAdapter, 'We found the store specified fallback adapter');
-    assert.notOk(didInstantiateRestAdapter, 'We did not instantiate the store.adapter (-fallback) adapter');
-    assert.ok(didInstantiateAppAdapter, 'We instantiated the application adapter');
-    didInstantiateRestAdapter = false;
-    didInstantiateAppAdapter = false;
-
-    let appAdapter = store.adapterFor('application');
-    assert.ok(appAdapter instanceof AppAdapter, 'We found the correct adapter for application');
-    assert.notOk(didInstantiateRestAdapter, 'We did not instantiate the store fallback adapter');
-    assert.notOk(didInstantiateAppAdapter, 'We did not instantiate the application adapter again');
-    assert.ok(appAdapter === adapter, 'We used the application adapter as the person adapter');
-    didInstantiateRestAdapter = false;
-    didInstantiateAppAdapter = false;
-
-    let restAdapter = store.adapterFor('-fallback');
-    assert.ok(restAdapter instanceof RestAdapter, 'We found the correct adapter for -fallback');
-    assert.notOk(didInstantiateAppAdapter, 'We did not instantiate the application adapter again');
-    assert.ok(didInstantiateRestAdapter, 'We instantiated the fallback adapter');
-    assert.ok(restAdapter !== appAdapter, `We did not use the application adapter instance`);
+    assert.strictEqual(appAdapter, adapter, 'We fell back to the application adapter instance');
   });
 
   test('When the per-type, application and specified fallback adapters do not exist, we fallback to the -json-api adapter', async function (assert) {
-    store.adapter = '-not-a-real-adapter';
     let { owner } = this;
 
     let didInstantiateAdapter = false;
@@ -263,21 +182,15 @@ module('integration/store - adapterFor', function (hooks) {
     assert.notOk(didInstantiateAdapter, 'We did not instantiate the adapter again');
     didInstantiateAdapter = false;
 
-    let fallbackAdapter = store.adapterFor('-not-a-real-adapter');
-
-    assert.ok(fallbackAdapter instanceof JsonApiAdapter, 'We found the fallback -json-api adapter for application');
-    assert.notOk(didInstantiateAdapter, 'We did not instantiate the adapter again');
-    didInstantiateAdapter = false;
-
     let jsonApiAdapter = store.adapterFor('-json-api');
     assert.ok(jsonApiAdapter instanceof JsonApiAdapter, 'We found the correct adapter');
     assert.notOk(didInstantiateAdapter, 'We did not instantiate the adapter again');
-    assert.ok(jsonApiAdapter === appAdapter, 'We fell back to the -json-api adapter instance for application');
-    assert.ok(
-      jsonApiAdapter === fallbackAdapter,
-      'We fell back to the -json-api adapter instance for the fallback -not-a-real-adapter'
+    assert.strictEqual(jsonApiAdapter, appAdapter, 'We fell back to the -json-api adapter instance for application');
+    assert.strictEqual(
+      jsonApiAdapter,
+      adapter,
+      'We fell back to the -json-api adapter instance for the per-type adapter'
     );
-    assert.ok(jsonApiAdapter === adapter, 'We fell back to the -json-api adapter instance for the per-type adapter');
   });
 
   test('adapters are destroyed', async function (assert) {

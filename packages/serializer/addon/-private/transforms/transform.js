@@ -76,7 +76,7 @@ import EmberObject from '@ember/object';
   @class Transform
   @public
  */
-export default EmberObject.extend({
+export default class Transform extends EmberObject {
   /**
     When given a deserialized value from a record attribute this
     method must return the serialized value.
@@ -97,8 +97,6 @@ export default EmberObject.extend({
     @param options hash of options passed to `attr`
     @return The serialized value
   */
-  serialize: null,
-
   /**
     When given a serialized value from a JSON object this method must
     return the deserialized value for the record attribute.
@@ -117,5 +115,4 @@ export default EmberObject.extend({
     @param options hash of options passed to `attr`
     @return The deserialized value
   */
-  deserialize: null,
-});
+}

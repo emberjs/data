@@ -3,16 +3,12 @@ import EmberObject from '@ember/object';
 import { module, test } from 'qunit';
 import { Promise } from 'rsvp';
 
-import Model from 'ember-data/model';
 import { setupTest } from 'ember-qunit';
 
-import { REQUEST_SERVICE } from '@ember-data/canary-features';
-import { attr } from '@ember-data/model';
+import Model, { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
-import { identifierCacheFor } from '@ember-data/store/-private';
-
-type RequestStateEnum = import('@ember-data/store/-private/ts-interfaces/fetch-manager').RequestStateEnum;
-type Store = import('ember-data/store').default;
+import type Store from '@ember-data/store';
+import type { RequestStateEnum } from '@ember-data/store/-private/ts-interfaces/fetch-manager';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -23,215 +19,205 @@ class Person extends Model {
   lastName;
 }
 
-if (REQUEST_SERVICE) {
-  module('integration/request-state-service - Request State Service', function (hooks) {
-    setupTest(hooks);
+module('integration/request-state-service - Request State Service', function (hooks) {
+  setupTest(hooks);
 
-    let store: Store;
+  let store: Store;
 
-    hooks.beforeEach(function () {
-      let { owner } = this;
-      owner.register('model:person', Person);
-      owner.register('serializer:application', JSONSerializer);
-      store = owner.lookup('service:store');
-    });
+  hooks.beforeEach(function () {
+    let { owner } = this;
+    owner.register('model:person', Person);
+    owner.register('serializer:application', JSONSerializer);
+    store = owner.lookup('service:store');
+  });
 
-    test('getPendingRequest and getLastRequest return correct inflight and fulfilled requests', async function (assert) {
-      assert.expect(10);
+  test('getPendingRequest and getLastRequest return correct inflight and fulfilled requests', async function (assert) {
+    assert.expect(10);
 
-      let normalizedHash = {
-        data: {
-          type: 'person',
-          id: '1',
-          lid: '',
-          attributes: {
-            name: 'Scumbag Dale',
-          },
-          relationships: {},
-        },
-        included: [],
-      };
-
-      let { owner } = this;
-
-      let TestAdapter = EmberObject.extend({
-        findRecord() {
-          const personHash = {
-            type: 'person',
-            id: '1',
-            name: 'Scumbag Dale',
-          };
-
-          return Promise.resolve(personHash);
-        },
-        deleteRecord() {
-          return Promise.resolve();
-        },
-
-        updateRecord() {
-          return Promise.resolve();
-        },
-
-        createRecord() {
-          return Promise.resolve();
-        },
-      });
-
-      owner.register('adapter:application', TestAdapter);
-
-      store = owner.lookup('service:store');
-
-      let promise = store.findRecord('person', '1');
-      let requestService = store.getRequestStateService();
-
-      // Relying on sequential lids until identifiers land
-      let identifier = identifierCacheFor(store).getOrCreateRecordIdentifier({ type: 'person', id: '1' });
-      normalizedHash.data.lid = identifier.lid;
-      let request = requestService.getPendingRequestsForRecord(identifier)[0];
-
-      assert.equal(request.state, 'pending', 'request is pending');
-      assert.equal(request.type, 'query', 'request is a query');
-      let requestOp = {
-        op: 'findRecord',
-        recordIdentifier: identifier,
-        options: {},
-      };
-      assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
-
-      let person = await promise;
-      let lastRequest = requestService.getLastRequestForRecord(identifier);
-      let requestStateResult = {
-        type: 'query' as const,
-        state: 'fulfilled' as RequestStateEnum,
-        request: { data: [requestOp] },
-        response: { data: normalizedHash },
-      };
-      assert.deepEqual(lastRequest, requestStateResult, 'request is correct after fulfilling');
-      assert.deepEqual(
-        requestService.getPendingRequestsForRecord(identifier).length,
-        0,
-        'no pending requests remaining'
-      );
-
-      let savingPromise = person.save();
-      let savingRequest = requestService.getPendingRequestsForRecord(identifier)[0];
-
-      assert.equal(savingRequest.state, 'pending', 'request is pending');
-      assert.equal(savingRequest.type, 'mutation', 'request is a mutation');
-      let savingRequestOp = {
-        op: 'saveRecord',
-        recordIdentifier: identifier,
-        options: {},
-      };
-      assert.deepEqual(savingRequest.request.data[0], savingRequestOp, 'request op is correct');
-
-      await savingPromise;
-      let lastSavingRequest = requestService.getLastRequestForRecord(identifier);
-      let savingRequestStateResult = {
-        type: 'mutation' as const,
-        state: 'fulfilled' as RequestStateEnum,
-        request: { data: [savingRequestOp] },
-        response: { data: undefined },
-      };
-      assert.deepEqual(lastSavingRequest, savingRequestStateResult, 'request is correct after fulfilling');
-      assert.deepEqual(
-        requestService.getPendingRequestsForRecord(identifier).length,
-        0,
-        'no pending requests remaining'
-      );
-    });
-
-    test('can subscribe to events for an identifier', async function (assert) {
-      assert.expect(9);
-
-      const personHash = {
+    let normalizedHash = {
+      data: {
         type: 'person',
         id: '1',
-        name: 'Scumbag Dale',
-      };
+        lid: '',
+        attributes: {
+          name: 'Scumbag Dale',
+        },
+        relationships: {},
+      },
+      included: [],
+    };
 
-      let normalizedHash = {
-        data: {
+    let { owner } = this;
+
+    let TestAdapter = EmberObject.extend({
+      findRecord() {
+        const personHash = {
           type: 'person',
           id: '1',
-          attributes: {
-            name: 'Scumbag Dale',
-          },
-          relationships: {},
-        },
-        included: [],
-      };
+          name: 'Scumbag Dale',
+        };
 
-      let { owner } = this;
+        return Promise.resolve(personHash);
+      },
+      deleteRecord() {
+        return Promise.resolve();
+      },
 
-      let TestAdapter = EmberObject.extend({
-        findRecord() {
-          return Promise.resolve(personHash);
-        },
-        deleteRecord() {
-          return Promise.resolve();
-        },
+      updateRecord() {
+        return Promise.resolve();
+      },
 
-        updateRecord() {
-          return Promise.resolve();
-        },
-
-        createRecord() {
-          return Promise.resolve();
-        },
-      });
-
-      owner.register('adapter:application', TestAdapter, { singleton: false });
-
-      store = owner.lookup('service:store');
-
-      let requestService = store.getRequestStateService();
-      // Relying on sequential lids until identifiers land
-      let identifier = identifierCacheFor(store).getOrCreateRecordIdentifier({ type: 'person', id: '1' });
-      let count = 0;
-      let requestOp = {
-        op: 'findRecord',
-        recordIdentifier: identifier,
-        options: {},
-      };
-      let savingRequestOp = {
-        op: 'saveRecord',
-        recordIdentifier: identifier,
-        options: {},
-      };
-
-      requestService.subscribeForRecord(identifier, (request) => {
-        if (count === 0) {
-          assert.equal(request.state, 'pending', 'request is pending');
-          assert.equal(request.type, 'query', 'request is a query');
-          assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
-        } else if (count === 1) {
-          let requestStateResult = {
-            type: 'query' as const,
-            state: 'fulfilled' as RequestStateEnum,
-            request: { data: [requestOp] },
-            response: { data: normalizedHash },
-          };
-          assert.deepEqual(request, requestStateResult, 'request is correct after fulfilling');
-        } else if (count === 2) {
-          assert.equal(request.state, 'pending', 'request is pending');
-          assert.equal(request.type, 'mutation', 'request is a mutation');
-          assert.deepEqual(request.request.data[0], savingRequestOp, 'request op is correct');
-        } else if (count === 3) {
-          let savingRequestStateResult = {
-            type: 'mutation' as const,
-            state: 'fulfilled' as RequestStateEnum,
-            request: { data: [savingRequestOp] },
-            response: { data: undefined },
-          };
-          assert.deepEqual(request, savingRequestStateResult, 'request is correct after fulfilling');
-        }
-        count++;
-      });
-
-      let person = await store.findRecord('person', '1');
-      await person.save();
-      assert.equal(count, 4, 'callback called four times');
+      createRecord() {
+        return Promise.resolve();
+      },
     });
+
+    owner.register('adapter:application', TestAdapter);
+
+    store = owner.lookup('service:store');
+
+    let promise = store.findRecord('person', '1');
+    let requestService = store.getRequestStateService();
+
+    // Relying on sequential lids until identifiers land
+    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    normalizedHash.data.lid = identifier.lid;
+    let request = requestService.getPendingRequestsForRecord(identifier)[0];
+
+    assert.strictEqual(request.state, 'pending', 'request is pending');
+    assert.strictEqual(request.type, 'query', 'request is a query');
+    let requestOp = {
+      op: 'findRecord',
+      recordIdentifier: identifier,
+      options: {},
+    };
+    assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
+
+    let person = await promise;
+    let lastRequest = requestService.getLastRequestForRecord(identifier);
+    let requestStateResult = {
+      type: 'query' as const,
+      state: 'fulfilled' as RequestStateEnum,
+      request: { data: [requestOp] },
+      response: { data: normalizedHash },
+    };
+    assert.deepEqual(lastRequest, requestStateResult, 'request is correct after fulfilling');
+    assert.deepEqual(requestService.getPendingRequestsForRecord(identifier).length, 0, 'no pending requests remaining');
+
+    let savingPromise = person.save();
+    let savingRequest = requestService.getPendingRequestsForRecord(identifier)[0];
+
+    assert.strictEqual(savingRequest.state, 'pending', 'request is pending');
+    assert.strictEqual(savingRequest.type, 'mutation', 'request is a mutation');
+    let savingRequestOp = {
+      op: 'saveRecord',
+      recordIdentifier: identifier,
+      options: {},
+    };
+    assert.deepEqual(savingRequest.request.data[0], savingRequestOp, 'request op is correct');
+
+    await savingPromise;
+    let lastSavingRequest = requestService.getLastRequestForRecord(identifier);
+    let savingRequestStateResult = {
+      type: 'mutation' as const,
+      state: 'fulfilled' as RequestStateEnum,
+      request: { data: [savingRequestOp] },
+      response: { data: undefined },
+    };
+    assert.deepEqual(lastSavingRequest, savingRequestStateResult, 'request is correct after fulfilling');
+    assert.deepEqual(requestService.getPendingRequestsForRecord(identifier).length, 0, 'no pending requests remaining');
   });
-}
+
+  test('can subscribe to events for an identifier', async function (assert) {
+    assert.expect(9);
+
+    const personHash = {
+      type: 'person',
+      id: '1',
+      name: 'Scumbag Dale',
+    };
+
+    let normalizedHash = {
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale',
+        },
+        relationships: {},
+      },
+      included: [],
+    };
+
+    let { owner } = this;
+
+    let TestAdapter = EmberObject.extend({
+      findRecord() {
+        return Promise.resolve(personHash);
+      },
+      deleteRecord() {
+        return Promise.resolve();
+      },
+
+      updateRecord() {
+        return Promise.resolve();
+      },
+
+      createRecord() {
+        return Promise.resolve();
+      },
+    });
+
+    owner.register('adapter:application', TestAdapter, { singleton: false });
+
+    store = owner.lookup('service:store');
+
+    let requestService = store.getRequestStateService();
+    // Relying on sequential lids until identifiers land
+    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    let count = 0;
+    let requestOp = {
+      op: 'findRecord',
+      recordIdentifier: identifier,
+      options: {},
+    };
+    let savingRequestOp = {
+      op: 'saveRecord',
+      recordIdentifier: identifier,
+      options: {},
+    };
+
+    requestService.subscribeForRecord(identifier, (request) => {
+      if (count === 0) {
+        assert.strictEqual(request.state, 'pending', 'request is pending');
+        assert.strictEqual(request.type, 'query', 'request is a query');
+        assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
+      } else if (count === 1) {
+        let requestStateResult = {
+          type: 'query' as const,
+          state: 'fulfilled' as RequestStateEnum,
+          request: { data: [requestOp] },
+          response: { data: normalizedHash },
+        };
+        assert.deepEqual(request, requestStateResult, 'request is correct after fulfilling');
+      } else if (count === 2) {
+        assert.strictEqual(request.state, 'pending', 'request is pending');
+        assert.strictEqual(request.type, 'mutation', 'request is a mutation');
+        assert.deepEqual(request.request.data[0], savingRequestOp, 'request op is correct');
+      } else if (count === 3) {
+        let savingRequestStateResult = {
+          type: 'mutation' as const,
+          state: 'fulfilled' as RequestStateEnum,
+          request: { data: [savingRequestOp] },
+          response: { data: undefined },
+        };
+        assert.deepEqual(request, savingRequestStateResult, 'request is correct after fulfilling');
+      }
+      count++;
+    });
+
+    let person = await store.findRecord('person', '1');
+    await person.save();
+    assert.strictEqual(count, 4, 'callback called four times');
+  });
+});

@@ -1,5 +1,4 @@
 import EmberObject from '@ember/object';
-import { assign } from '@ember/polyfills';
 
 import { module, test } from 'qunit';
 
@@ -25,7 +24,11 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
         id: '1',
       },
     });
-    assert.equal(person, store.peekRecord('person', 1), 'peekRecord only return the corresponding record in the store');
+    assert.strictEqual(
+      person,
+      store.peekRecord('person', 1),
+      'peekRecord only return the corresponding record in the store'
+    );
   });
 
   test('peekRecord should return the record with identifier as argument', function (assert) {
@@ -37,7 +40,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
         id: '1',
       },
     });
-    assert.equal(
+    assert.strictEqual(
       person,
       store.peekRecord({ type: 'person', id: 1 }),
       'peekRecord only return the corresponding record in the store'
@@ -47,9 +50,9 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   test('peekRecord should return null if the record is not in the store ', function (assert) {
     let store = this.owner.lookup('service:store');
 
-    assert.equal(
-      null,
+    assert.strictEqual(
       store.peekRecord('person', 1),
+      null,
       'peekRecord returns null if the corresponding record is not in the store'
     );
   });
@@ -113,7 +116,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
         peekRecordArgs.lid = recordIdentifierFor(person).lid;
       }
       if (extra) {
-        assign(peekRecordArgs, extra);
+        Object.assign(peekRecordArgs, extra);
       }
 
       assert.strictEqual(

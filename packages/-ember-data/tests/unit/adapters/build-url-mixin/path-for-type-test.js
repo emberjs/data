@@ -23,16 +23,16 @@ module('unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForTy
 
   test('pathForType - works with camelized types', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
-    assert.equal(adapter.pathForType('superUser'), 'superUsers');
+    assert.strictEqual(adapter.pathForType('superUser'), 'superUsers');
   });
 
   test('pathForType - works with dasherized types', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
-    assert.equal(adapter.pathForType('super-user'), 'superUsers');
+    assert.strictEqual(adapter.pathForType('super-user'), 'superUsers');
   });
 
   test('pathForType - works with underscored types', function (assert) {
     let adapter = this.owner.lookup('adapter:application');
-    assert.equal(adapter.pathForType('super_user'), 'superUsers');
+    assert.strictEqual(adapter.pathForType('super_user'), 'superUsers');
   });
 });

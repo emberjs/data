@@ -1,7 +1,5 @@
-type RecordData = import('./record-data').RecordData;
-
-type RelationshipsSchema = import('./record-data-schemas').RelationshipsSchema;
-type AttributesSchema = import('./record-data-schemas').AttributesSchema;
+import type { RecordData } from './record-data';
+import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
 
 /**
   @module @ember-data/store

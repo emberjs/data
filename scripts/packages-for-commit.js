@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
   This script generates tarballs for the current state of each package
   in the project, placing them into a cache one level above the project.

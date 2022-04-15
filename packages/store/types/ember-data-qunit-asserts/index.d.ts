@@ -1,4 +1,3 @@
-/* eslint no-restricted-globals: "off" */
 declare global {
   interface DeprecationConfig {
     id: string;
@@ -40,4 +39,4 @@ declare global {
   }
 }
 
-export = QUnit;
+export default Assert;

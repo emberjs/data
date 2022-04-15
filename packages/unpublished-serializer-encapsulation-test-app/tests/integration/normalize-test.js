@@ -31,7 +31,7 @@ module('integration/serializer - normalize method forwards to Serializer#normali
       normalize(modelClass, rawPayload) {
         normalizeCalled++;
 
-        assert.equal(modelClass.name, 'Person', 'modelClass was passed to normalize');
+        assert.strictEqual(modelClass.name, 'Person', 'modelClass was passed to normalize');
         assert.deepEqual(
           rawPayload,
           {
@@ -63,7 +63,7 @@ module('integration/serializer - normalize method forwards to Serializer#normali
       },
     });
 
-    assert.equal(normalizeCalled, 1, 'normalize called once');
+    assert.strictEqual(normalizeCalled, 1, 'normalize called once');
     assert.deepEqual(
       payload,
       {

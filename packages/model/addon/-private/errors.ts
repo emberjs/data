@@ -1,14 +1,9 @@
 import { A } from '@ember/array';
+import type NativeArray from '@ember/array/-private/native-array';
 import ArrayProxy from '@ember/array/proxy';
 import { computed, get } from '@ember/object';
 import { mapBy, not } from '@ember/object/computed';
-import { DEBUG } from '@glimmer/env';
 
-import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
-import { DeprecatedEvented } from '@ember-data/store/-private';
-
-type Evented = import('@ember/object/evented').default;
-type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
 type ValidationError = {
   attribute: string;
   message: string;
@@ -16,7 +11,7 @@ type ValidationError = {
 /**
   @module @ember-data/store
 */
-interface ArrayProxyWithDeprecatedEvented<T, M = T> extends Evented, Omit<ArrayProxy<T, M>, 'clear' | 'content'> {
+interface ArrayProxyWithCustomOverrides<T, M = T> extends Omit<ArrayProxy<T, M>, 'clear' | 'content'> {
   // Omit causes `content` to be merged with the class def for ArrayProxy
   // which then causes it to be seen as a property, disallowing defining it
   // as an accessor. This restores our ability to define it as an accessor.
@@ -28,10 +23,7 @@ interface ArrayProxyWithDeprecatedEvented<T, M = T> extends Evented, Omit<ArrayP
 // we force the type here to our own construct because mixin and extend patterns
 // lose generic signatures. We also do this because we need to Omit `clear` from
 // the type of ArrayProxy as we override it's signature.
-const ArrayProxyWithDeprecatedEvented = ArrayProxy.extend(DeprecatedEvented) as unknown as new <
-  T,
-  M = T
->() => ArrayProxyWithDeprecatedEvented<T, M>;
+const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T, M = T>() => ArrayProxyWithCustomOverrides<T, M>;
 
 /**
   Holds validation errors for a given record, organized by attribute names.
@@ -107,9 +99,8 @@ const ArrayProxyWithDeprecatedEvented = ArrayProxy.extend(DeprecatedEvented) as 
   @class Errors
   @public
   @extends Ember.ArrayProxy
-  @uses Ember.Evented
  */
-export default class Errors extends ArrayProxyWithDeprecatedEvented<ValidationError> {
+export default class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   declare _registeredHandlers?: {
     becameInvalid: () => void;
     becameValid: () => void;
@@ -281,11 +272,6 @@ export default class Errors extends ArrayProxyWithDeprecatedEvented<ValidationEr
 
     if (wasEmpty && !this.isEmpty) {
       this._registeredHandlers && this._registeredHandlers.becameInvalid();
-      if (DEPRECATE_EVENTED_API_USAGE) {
-        if (this[DEBUG ? '_has' : 'has']('becameInvalid')) {
-          this.trigger('becameInvalid');
-        }
-      }
     }
   }
 
@@ -365,11 +351,6 @@ export default class Errors extends ArrayProxyWithDeprecatedEvented<ValidationEr
 
     if (this.isEmpty) {
       this._registeredHandlers && this._registeredHandlers.becameValid();
-      if (DEPRECATE_EVENTED_API_USAGE) {
-        if (this[DEBUG ? '_has' : 'has']('becameValid')) {
-          this.trigger('becameValid');
-        }
-      }
     }
   }
 
@@ -448,11 +429,6 @@ export default class Errors extends ArrayProxyWithDeprecatedEvented<ValidationEr
 
     this._clear();
     this._registeredHandlers && this._registeredHandlers.becameValid();
-    if (DEPRECATE_EVENTED_API_USAGE) {
-      if (this[DEBUG ? '_has' : 'has']('becameValid')) {
-        this.trigger('becameValid');
-      }
-    }
   }
 
   /**

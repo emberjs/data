@@ -1,14 +1,14 @@
-/* eslint-disable no-restricted-globals */
 // the above eslint rule checks return types. This is an interface
 // and we intend Promise whether it is Native or polyfilled is of
 // no consequence.
-type Dict<T> = import('./utils').Dict<T>;
-type Snapshot = import('../system/snapshot').default;
-type SnapshotRecordArray = import('../system/snapshot-record-array').default;
-type Store = import('../system/core-store').default;
-type ModelSchema = import('../ts-interfaces/ds-model').ModelSchema;
-type AdapterPopulatedRecordArray = import('../system/record-arrays/adapter-populated-record-array').default;
-type RelationshipSchema = import('./record-data-schemas').RelationshipSchema;
+
+import type Store from '../system/core-store';
+import type AdapterPopulatedRecordArray from '../system/record-arrays/adapter-populated-record-array';
+import type Snapshot from '../system/snapshot';
+import type SnapshotRecordArray from '../system/snapshot-record-array';
+import type { ModelSchema } from '../ts-interfaces/ds-model';
+import type { RelationshipSchema } from './record-data-schemas';
+import type { Dict } from './utils';
 
 type Group = Snapshot[];
 

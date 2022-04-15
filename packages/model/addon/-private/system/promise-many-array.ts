@@ -1,11 +1,10 @@
+import ArrayMixin from '@ember/array';
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { resolve } from 'rsvp';
-
-import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/deprecations';
 
 /**
  @module @ember-data/model
@@ -16,7 +15,7 @@ import { DEPRECATE_EVENTED_API_USAGE } from '@ember-data/private-build-infra/dep
 
   A PromiseManyArray is an array-like proxy that also proxies certain method calls
   to the underlying ManyArray in addition to being "promisified".
-   
+
   Right now we proxy:
 
     * `reload()`
@@ -41,6 +40,14 @@ export default class PromiseManyArray {
     this._update(promise, content);
     this.isDestroyed = false;
     this.isDestroying = false;
+
+    const meta = Ember.meta(this);
+    meta.hasMixin = (mixin: Object) => {
+      if (mixin === ArrayMixin) {
+        return true;
+      }
+      return false;
+    };
   }
 
   //---- Methods/Properties on ArrayProxy that we will keep as our API
@@ -54,6 +61,9 @@ export default class PromiseManyArray {
    */
   @dependentKeyCompat
   get length(): number {
+    // shouldn't be needed, but ends up being needed
+    // for computed chains even in 4.x
+    this['[]'];
     return this.content ? this.content.length : 0;
   }
 
@@ -321,12 +331,3 @@ InheritedProxyMethods.forEach((method) => {
     return this.content[method](...args);
   };
 });
-
-if (DEPRECATE_EVENTED_API_USAGE) {
-  ['on', 'has', 'trigger', 'off', 'one'].forEach((method) => {
-    PromiseManyArray.prototype[method] = function proxiedMethod(...args) {
-      assert(`Cannot call ${method} before content is assigned.`, this.content);
-      return this.content[method](...args);
-    };
-  });
-}

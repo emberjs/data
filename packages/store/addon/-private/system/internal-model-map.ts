@@ -1,10 +1,8 @@
 import { assert } from '@ember/debug';
 
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { ConfidentDict } from '../ts-interfaces/utils';
 import InternalModel from './model/internal-model';
-
-type StableRecordIdentifier = import('../ts-interfaces/identifier').StableRecordIdentifier;
-
-type ConfidentDict<T> = import('../ts-interfaces/utils').ConfidentDict<T>;
 
 /**
   @module @ember-data/store

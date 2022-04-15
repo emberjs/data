@@ -42,7 +42,7 @@ module('integration/records/error', function (hooks) {
       lastName: null,
     });
 
-    assert.equal(
+    assert.strictEqual(
       person._internalModel.currentState.stateName,
       'root.loaded.updated.uncommitted',
       'Model state is root.loaded.updated.uncommitted'
@@ -50,7 +50,7 @@ module('integration/records/error', function (hooks) {
 
     person.errors.add('firstName', 'is invalid');
 
-    assert.equal(
+    assert.strictEqual(
       person._internalModel.currentState.stateName,
       'root.loaded.updated.invalid',
       'Model state is updated to root.loaded.updated.invalid after an error is manually added'
@@ -91,7 +91,7 @@ module('integration/records/error', function (hooks) {
       lastName: null,
     });
 
-    assert.equal(
+    assert.strictEqual(
       person._internalModel.currentState.stateName,
       'root.loaded.created.uncommitted',
       'Model state is root.loaded.updated.uncommitted'
@@ -99,7 +99,7 @@ module('integration/records/error', function (hooks) {
 
     person.errors.add('firstName', 'is invalid');
 
-    assert.equal(
+    assert.strictEqual(
       person._internalModel.currentState.stateName,
       'root.loaded.created.invalid',
       'Model state is updated to root.loaded.updated.invalid after an error is manually added'
@@ -136,11 +136,11 @@ module('integration/records/error', function (hooks) {
 
     person.set('firstName', null);
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
+    assert.strictEqual(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
     person.errors.add('firstName', 'is invalid');
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+    assert.strictEqual(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
     person.errors.remove('firstName');
 
@@ -170,16 +170,16 @@ module('integration/records/error', function (hooks) {
 
     person.set('firstName', null);
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
+    assert.strictEqual(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
     person.errors.add('firstName', 'is invalid');
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+    assert.strictEqual(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
     person.errors.remove('firstName');
     person.errors.add('firstName', 'is invalid');
 
-    assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+    assert.strictEqual(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
     assert.deepEqual(person.errors.toArray(), [{ attribute: 'firstName', message: 'is invalid' }]);
   });
@@ -221,7 +221,7 @@ module('integration/records/error', function (hooks) {
     } catch (_error) {
       let errors = person.errors;
 
-      assert.equal(errors.length, 2, 'Adds two errors to the model');
+      assert.strictEqual(errors.length, 2, 'Adds two errors to the model');
       assert.true(errors.has('firstName'), 'firstName is included in the errors object');
       assert.true(errors.has('lastName'), 'lastName is included in the errors object');
 
@@ -230,7 +230,7 @@ module('integration/records/error', function (hooks) {
         lastName: 'updated',
       });
 
-      assert.equal(errors.length, 0, 'Clears errors after the attributes are updated');
+      assert.strictEqual(errors.length, 0, 'Clears errors after the attributes are updated');
     }
   });
 });

@@ -4,6 +4,7 @@ import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 
+import { gte } from 'ember-compatibility-helpers';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
@@ -106,60 +107,62 @@ module('integration/records/relationship-changes - Relationship changes', functi
     this.owner.register('serializer:application', JSONAPISerializer.extend());
   });
 
-  test('Calling push with relationship triggers observers once if the relationship was empty and is added to', function (assert) {
-    assert.expect(1);
+  if (!gte('4.0.0')) {
+    test('Calling push with relationship triggers observers once if the relationship was empty and is added to', function (assert) {
+      assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let person = null;
-    let observerCount = 0;
+      let store = this.owner.lookup('service:store');
+      let person = null;
+      let observerCount = 0;
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [],
+      run(() => {
+        store.push({
+          data: {
+            type: 'person',
+            id: 'wat',
+            attributes: {
+              firstName: 'Yehuda',
+              lastName: 'Katz',
+            },
+            relationships: {
+              siblings: {
+                data: [],
+              },
             },
           },
-        },
+        });
+        person = store.peekRecord('person', 'wat');
       });
-      person = store.peekRecord('person', 'wat');
-    });
 
-    run(() => {
-      person.addObserver('siblings.[]', function () {
-        observerCount++;
+      run(() => {
+        person.addObserver('siblings.[]', function () {
+          observerCount++;
+        });
+        // prime the pump
+        person.get('siblings');
       });
-      // prime the pump
-      person.get('siblings');
-    });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
+      run(() => {
+        store.push({
+          data: {
+            type: 'person',
+            id: 'wat',
+            attributes: {},
+            relationships: {
+              siblings: {
+                data: [sibling1Ref],
+              },
             },
           },
-        },
-        included: [sibling1],
+          included: [sibling1],
+        });
+      });
+
+      run(() => {
+        assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
       });
     });
-
-    run(() => {
-      assert.ok(observerCount >= 1, 'siblings observer should be triggered at least once');
-    });
-  });
+  }
 
   test('Calling push with relationship recalculates computed alias property if the relationship was empty and is added to', function (assert) {
     assert.expect(1);
@@ -210,7 +213,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
     run(() => {
       let cpResult = get(obj, 'siblings').toArray();
-      assert.equal(cpResult.length, 1, 'siblings cp should have recalculated');
+      assert.strictEqual(cpResult.length, 1, 'siblings cp should have recalculated');
       obj.destroy();
     });
   });
@@ -264,7 +267,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
     run(() => {
       let cpResult = get(obj, 'firstSibling');
-      assert.equal(get(cpResult, 'id'), 1, 'siblings cp should have recalculated');
+      assert.strictEqual(get(cpResult, 'id'), '1', 'siblings cp should have recalculated');
       obj.destroy();
     });
   });
@@ -491,466 +494,490 @@ module('integration/records/relationship-changes - Relationship changes', functi
     });
 
     run(() => {
-      assert.equal(observerCount, 0, 'siblings observer should not be triggered');
+      assert.strictEqual(observerCount, 0, 'siblings observer should not be triggered');
     });
 
     person.removeObserver('siblings.[]', observerMethod);
   });
 
-  test('Calling push with relationship triggers willChange and didChange with detail when appending', async function (assert) {
-    let store = this.owner.lookup('service:store');
+  if (!gte('4.0.0')) {
+    test('Calling push with relationship triggers willChange and didChange with detail when appending', async function (assert) {
+      assert.expectDeprecation(
+        async () => {
+          let store = this.owner.lookup('service:store');
 
-    let willChangeCount = 0;
-    let didChangeCount = 0;
+          let willChangeCount = 0;
+          let didChangeCount = 0;
 
-    let observer = {
-      arrayWillChange(array, start, removing, adding) {
-        willChangeCount++;
-        assert.equal(start, 1, 'willChange.start');
-        assert.equal(removing, 0, 'willChange.removing');
-        assert.equal(adding, 1, 'willChange.adding');
-      },
+          let observer = {
+            arrayWillChange(array, start, removing, adding) {
+              willChangeCount++;
+              assert.strictEqual(start, 1, 'willChange.start');
+              assert.strictEqual(removing, 0, 'willChange.removing');
+              assert.strictEqual(adding, 1, 'willChange.adding');
+            },
 
-      arrayDidChange(array, start, removed, added) {
-        didChangeCount++;
-        assert.equal(start, 1, 'didChange.start');
-        assert.equal(removed, 0, 'didChange.removed');
-        assert.equal(added, 1, 'didChange.added');
-      },
-    };
+            arrayDidChange(array, start, removed, added) {
+              didChangeCount++;
+              assert.strictEqual(start, 1, 'didChange.start');
+              assert.strictEqual(removed, 0, 'didChange.removed');
+              assert.strictEqual(added, 1, 'didChange.added');
+            },
+          };
 
-    store.push({
-      data: {
-        type: 'person',
-        id: 'wat',
-        attributes: {
-          firstName: 'Yehuda',
-          lastName: 'Katz',
+          store.push({
+            data: {
+              type: 'person',
+              id: 'wat',
+              attributes: {
+                firstName: 'Yehuda',
+                lastName: 'Katz',
+              },
+              relationships: {
+                siblings: {
+                  data: [sibling1Ref],
+                },
+              },
+            },
+            included: [sibling1],
+          });
+
+          let person = store.peekRecord('person', 'wat');
+          let siblings = await person.siblings;
+
+          // flush initial state since
+          // nothing is consuming us.
+          // else the test will fail because we will
+          // (correctly) not notify the array observer
+          // as there is still a pending notification
+          siblings.length;
+
+          siblings.addArrayObserver(observer);
+
+          store.push({
+            data: {
+              type: 'person',
+              id: 'wat',
+              attributes: {},
+              relationships: {
+                siblings: {
+                  data: [sibling1Ref, sibling2Ref],
+                },
+              },
+            },
+            included: [sibling2],
+          });
+
+          assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+          assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
+
+          siblings.removeArrayObserver(observer);
         },
-        relationships: {
-          siblings: {
-            data: [sibling1Ref],
-          },
+        { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
+      );
+    });
+    test('Calling push with relationship triggers willChange and didChange with detail when truncating', async function (assert) {
+      assert.expectDeprecation(
+        async () => {
+          let store = this.owner.lookup('service:store');
+
+          let willChangeCount = 0;
+          let didChangeCount = 0;
+
+          store.push({
+            data: {
+              type: 'person',
+              id: 'wat',
+              attributes: {
+                firstName: 'Yehuda',
+                lastName: 'Katz',
+              },
+              relationships: {
+                siblings: {
+                  data: [sibling1Ref, sibling2Ref],
+                },
+              },
+            },
+            included: [sibling1, sibling2],
+          });
+
+          let person = store.peekRecord('person', 'wat');
+          let siblingsPromise = person.siblings;
+
+          await siblingsPromise;
+
+          // flush initial state since
+          // nothing is consuming us.
+          // else the test will fail because we will
+          // (correctly) not notify the array observer
+          // as there is still a pending notification
+          siblingsPromise.length;
+
+          let observer = {
+            arrayWillChange(array, start, removing, adding) {
+              willChangeCount++;
+              assert.strictEqual(start, 1);
+              assert.strictEqual(removing, 1);
+              assert.strictEqual(adding, 0);
+            },
+
+            arrayDidChange(array, start, removed, added) {
+              didChangeCount++;
+              assert.strictEqual(start, 1);
+              assert.strictEqual(removed, 1);
+              assert.strictEqual(added, 0);
+            },
+          };
+
+          siblingsPromise.addArrayObserver(observer);
+
+          store.push({
+            data: {
+              type: 'person',
+              id: 'wat',
+              attributes: {},
+              relationships: {
+                siblings: {
+                  data: [sibling1Ref],
+                },
+              },
+            },
+            included: [],
+          });
+
+          assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+          assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
+
+          siblingsPromise.removeArrayObserver(observer);
         },
-      },
-      included: [sibling1],
+        { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
+      );
     });
 
-    let person = store.peekRecord('person', 'wat');
-    let siblings = await person.siblings;
+    test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', async function (assert) {
+      assert.expectDeprecation(
+        async () => {
+          let store = this.owner.lookup('service:store');
 
-    // flush initial state since
-    // nothing is consuming us.
-    // else the test will fail because we will
-    // (correctly) not notify the array observer
-    // as there is still a pending notification
-    siblings.length;
+          let willChangeCount = 0;
+          let didChangeCount = 0;
 
-    siblings.addArrayObserver(observer);
+          run(() => {
+            store.push({
+              data: {
+                type: 'person',
+                id: 'wat',
+                attributes: {
+                  firstName: 'Yehuda',
+                  lastName: 'Katz',
+                },
+                relationships: {
+                  siblings: {
+                    data: [sibling2Ref],
+                  },
+                },
+              },
+              included: [sibling2],
+            });
+          });
+          let person = store.peekRecord('person', 'wat');
 
-    store.push({
-      data: {
-        type: 'person',
-        id: 'wat',
-        attributes: {},
-        relationships: {
-          siblings: {
-            data: [sibling1Ref, sibling2Ref],
-          },
+          let observer = {
+            arrayWillChange(array, start, removing, adding) {
+              willChangeCount++;
+              assert.strictEqual(start, 0, 'change will start at the beginning');
+              assert.strictEqual(removing, 0, 'we have no removals');
+              assert.strictEqual(adding, 1, 'we have one insertion');
+            },
+
+            arrayDidChange(array, start, removed, added) {
+              didChangeCount++;
+              assert.strictEqual(start, 0, 'change did start at the beginning');
+              assert.strictEqual(removed, 0, 'change had no removals');
+              assert.strictEqual(added, 1, 'change had one insertion');
+            },
+          };
+
+          const siblingsProxy = person.siblings;
+          const siblings = await siblingsProxy;
+
+          // flush initial state since
+          // nothing is consuming us.
+          // else the test will fail because we will
+          // (correctly) not notify the array observer
+          // as there is still a pending notification
+          siblingsProxy.length;
+
+          siblingsProxy.addArrayObserver(observer);
+
+          store.push({
+            data: {
+              type: 'person',
+              id: 'wat',
+              attributes: {},
+              relationships: {
+                siblings: {
+                  data: [sibling1Ref, sibling2Ref],
+                },
+              },
+            },
+            included: [sibling1],
+          });
+
+          assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+          assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
+          assert.deepEqual(
+            siblings.map((i) => i.id),
+            ['1', '2'],
+            'We have the correct siblings'
+          );
+
+          siblingsProxy.removeArrayObserver(observer);
         },
-      },
-      included: [sibling2],
+        { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
+      );
     });
 
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+    test('Calling push with relationship triggers willChange and didChange with detail when inserting in middle', function (assert) {
+      assert.expectDeprecation(
+        async () => {
+          let store = this.owner.lookup('service:store');
 
-    siblings.removeArrayObserver(observer);
-  });
+          let willChangeCount = 0;
+          let didChangeCount = 0;
 
-  test('Calling push with relationship triggers willChange and didChange with detail when truncating', function (assert) {
-    let store = this.owner.lookup('service:store');
+          run(() => {
+            store.push({
+              data: {
+                type: 'person',
+                id: 'wat',
+                attributes: {
+                  firstName: 'Yehuda',
+                  lastName: 'Katz',
+                },
+                relationships: {
+                  siblings: {
+                    data: [sibling1Ref, sibling3Ref],
+                  },
+                },
+              },
+              included: [sibling1, sibling3],
+            });
+          });
+          let person = store.peekRecord('person', 'wat');
+          let observer = {
+            arrayWillChange(array, start, removing, adding) {
+              willChangeCount++;
+              assert.strictEqual(start, 1);
+              assert.strictEqual(removing, 0);
+              assert.strictEqual(adding, 1);
+            },
+            arrayDidChange(array, start, removed, added) {
+              didChangeCount++;
+              assert.strictEqual(start, 1);
+              assert.strictEqual(removed, 0);
+              assert.strictEqual(added, 1);
+            },
+          };
 
-    let willChangeCount = 0;
-    let didChangeCount = 0;
+          let siblings = run(() => person.get('siblings'));
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling2Ref],
+          // flush initial state since
+          // nothing is consuming us.
+          // else the test will fail because we will
+          // (correctly) not notify the array observer
+          // as there is still a pending notification
+          siblings.length;
+
+          siblings.addArrayObserver(observer);
+
+          run(() => {
+            store.push({
+              data: {
+                type: 'person',
+                id: 'wat',
+                attributes: {},
+                relationships: {
+                  siblings: {
+                    data: [sibling1Ref, sibling2Ref, sibling3Ref],
+                  },
+                },
+              },
+              included: [sibling2],
+            });
+          });
+
+          assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+          assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
+
+          siblings.removeArrayObserver(observer);
+        },
+        { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
+      );
+    });
+
+    test('Calling push with relationship triggers willChange and didChange with detail when replacing different length in middle', function (assert) {
+      assert.expectDeprecation(
+        async () => {
+          let store = this.owner.lookup('service:store');
+
+          let willChangeCount = 0;
+          let didChangeCount = 0;
+
+          run(() => {
+            store.push({
+              data: {
+                type: 'person',
+                id: 'wat',
+                attributes: {
+                  firstName: 'Yehuda',
+                  lastName: 'Katz',
+                },
+                relationships: {
+                  siblings: {
+                    data: [sibling1Ref, sibling2Ref, sibling3Ref],
+                  },
+                },
+              },
+              included: [sibling1, sibling2, sibling3],
+            });
+          });
+
+          let person = store.peekRecord('person', 'wat');
+          let observer = {
+            arrayWillChange(array, start, removing, adding) {
+              willChangeCount++;
+              assert.strictEqual(start, 1);
+              assert.strictEqual(removing, 1);
+              assert.strictEqual(adding, 2);
+            },
+
+            arrayDidChange(array, start, removed, added) {
+              didChangeCount++;
+              assert.strictEqual(start, 1);
+              assert.strictEqual(removed, 1);
+              assert.strictEqual(added, 2);
+            },
+          };
+
+          let siblings = run(() => person.get('siblings'));
+          // flush initial state since
+          // nothing is consuming us.
+          // else the test will fail because we will
+          // (correctly) not notify the array observer
+          // as there is still a pending notification
+          siblings.length;
+          siblings.addArrayObserver(observer);
+
+          run(() => {
+            store.push({
+              data: {
+                type: 'person',
+                id: 'wat',
+                attributes: {},
+                relationships: {
+                  siblings: {
+                    data: [sibling1Ref, sibling4Ref, sibling5Ref, sibling3Ref],
+                  },
+                },
+              },
+              included: [sibling4, sibling5],
+            });
+          });
+
+          assert.strictEqual(willChangeCount, 1, 'willChange observer should be triggered once');
+          assert.strictEqual(didChangeCount, 1, 'didChange observer should be triggered once');
+
+          siblings.removeArrayObserver(observer);
+        },
+        { id: 'array-observers', count: 2, when: { ember: '>=3.26.0' } }
+      );
+    });
+
+    test('Calling push with updated belongsTo relationship trigger observer', function (assert) {
+      assert.expect(1);
+
+      let store = this.owner.lookup('service:store');
+      let observerCount = 0;
+
+      run(() => {
+        let post = store.push({
+          data: {
+            type: 'post',
+            id: '1',
+            relationships: {
+              author: {
+                data: { type: 'author', id: '2' },
+              },
             },
           },
-        },
-        included: [sibling1, sibling2],
-      });
-    });
+          included: [
+            {
+              id: 2,
+              type: 'author',
+            },
+          ],
+        });
 
-    let person = store.peekRecord('person', 'wat');
-    let siblings = run(() => person.get('siblings'));
+        post.get('author');
 
-    // flush initial state since
-    // nothing is consuming us.
-    // else the test will fail because we will
-    // (correctly) not notify the array observer
-    // as there is still a pending notification
-    siblings.length;
+        post.addObserver('author', function () {
+          observerCount++;
+        });
 
-    let observer = {
-      arrayWillChange(array, start, removing, adding) {
-        willChangeCount++;
-        assert.equal(start, 1);
-        assert.equal(removing, 1);
-        assert.equal(adding, 0);
-      },
-
-      arrayDidChange(array, start, removed, added) {
-        didChangeCount++;
-        assert.equal(start, 1);
-        assert.equal(removed, 1);
-        assert.equal(added, 0);
-      },
-    };
-
-    siblings.addArrayObserver(observer);
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref],
+        store.push({
+          data: {
+            type: 'post',
+            id: '1',
+            relationships: {
+              author: {
+                data: { type: 'author', id: '3' },
+              },
             },
           },
-        },
-        included: [],
+        });
       });
+
+      assert.strictEqual(observerCount, 1, 'author observer should be triggered once');
     });
 
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+    test('Calling push with same belongsTo relationship does not trigger observer', function (assert) {
+      assert.expect(1);
 
-    siblings.removeArrayObserver(observer);
-  });
+      let store = this.owner.lookup('service:store');
+      let observerCount = 0;
 
-  test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', async function (assert) {
-    let store = this.owner.lookup('service:store');
-
-    let willChangeCount = 0;
-    let didChangeCount = 0;
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling2Ref],
+      run(() => {
+        let post = store.push({
+          data: {
+            type: 'post',
+            id: '1',
+            relationships: {
+              author: {
+                data: { type: 'author', id: '2' },
+              },
             },
           },
-        },
-        included: [sibling2],
+        });
+
+        post.addObserver('author', function () {
+          observerCount++;
+        });
+
+        store.push({
+          data: {
+            type: 'post',
+            id: '1',
+            relationships: {
+              author: {
+                data: { type: 'author', id: '2' },
+              },
+            },
+          },
+        });
       });
+
+      assert.strictEqual(observerCount, 0, 'author observer should not be triggered');
     });
-    let person = store.peekRecord('person', 'wat');
-
-    let observer = {
-      arrayWillChange(array, start, removing, adding) {
-        willChangeCount++;
-        assert.equal(start, 0, 'change will start at the beginning');
-        assert.equal(removing, 0, 'we have no removals');
-        assert.equal(adding, 1, 'we have one insertion');
-      },
-
-      arrayDidChange(array, start, removed, added) {
-        didChangeCount++;
-        assert.equal(start, 0, 'change did start at the beginning');
-        assert.equal(removed, 0, 'change had no removals');
-        assert.equal(added, 1, 'change had one insertion');
-      },
-    };
-
-    const siblingsProxy = person.siblings;
-    const siblings = await siblingsProxy;
-
-    // flush initial state since
-    // nothing is consuming us.
-    // else the test will fail because we will
-    // (correctly) not notify the array observer
-    // as there is still a pending notification
-    siblingsProxy.length;
-
-    siblingsProxy.addArrayObserver(observer);
-
-    store.push({
-      data: {
-        type: 'person',
-        id: 'wat',
-        attributes: {},
-        relationships: {
-          siblings: {
-            data: [sibling1Ref, sibling2Ref],
-          },
-        },
-      },
-      included: [sibling1],
-    });
-
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-    assert.deepEqual(
-      siblings.map((i) => i.id),
-      ['1', '2'],
-      'We have the correct siblings'
-    );
-
-    siblingsProxy.removeArrayObserver(observer);
-  });
-
-  test('Calling push with relationship triggers willChange and didChange with detail when inserting in middle', function (assert) {
-    let store = this.owner.lookup('service:store');
-
-    let willChangeCount = 0;
-    let didChangeCount = 0;
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling3Ref],
-            },
-          },
-        },
-        included: [sibling1, sibling3],
-      });
-    });
-    let person = store.peekRecord('person', 'wat');
-    let observer = {
-      arrayWillChange(array, start, removing, adding) {
-        willChangeCount++;
-        assert.equal(start, 1);
-        assert.equal(removing, 0);
-        assert.equal(adding, 1);
-      },
-      arrayDidChange(array, start, removed, added) {
-        didChangeCount++;
-        assert.equal(start, 1);
-        assert.equal(removed, 0);
-        assert.equal(added, 1);
-      },
-    };
-
-    let siblings = run(() => person.get('siblings'));
-
-    // flush initial state since
-    // nothing is consuming us.
-    // else the test will fail because we will
-    // (correctly) not notify the array observer
-    // as there is still a pending notification
-    siblings.length;
-
-    siblings.addArrayObserver(observer);
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling2Ref, sibling3Ref],
-            },
-          },
-        },
-        included: [sibling2],
-      });
-    });
-
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-
-    siblings.removeArrayObserver(observer);
-  });
-
-  test('Calling push with relationship triggers willChange and didChange with detail when replacing different length in middle', function (assert) {
-    let store = this.owner.lookup('service:store');
-
-    let willChangeCount = 0;
-    let didChangeCount = 0;
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling2Ref, sibling3Ref],
-            },
-          },
-        },
-        included: [sibling1, sibling2, sibling3],
-      });
-    });
-
-    let person = store.peekRecord('person', 'wat');
-    let observer = {
-      arrayWillChange(array, start, removing, adding) {
-        willChangeCount++;
-        assert.equal(start, 1);
-        assert.equal(removing, 1);
-        assert.equal(adding, 2);
-      },
-
-      arrayDidChange(array, start, removed, added) {
-        didChangeCount++;
-        assert.equal(start, 1);
-        assert.equal(removed, 1);
-        assert.equal(added, 2);
-      },
-    };
-
-    let siblings = run(() => person.get('siblings'));
-    // flush initial state since
-    // nothing is consuming us.
-    // else the test will fail because we will
-    // (correctly) not notify the array observer
-    // as there is still a pending notification
-    siblings.length;
-    siblings.addArrayObserver(observer);
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {},
-          relationships: {
-            siblings: {
-              data: [sibling1Ref, sibling4Ref, sibling5Ref, sibling3Ref],
-            },
-          },
-        },
-        included: [sibling4, sibling5],
-      });
-    });
-
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-
-    siblings.removeArrayObserver(observer);
-  });
-
-  test('Calling push with updated belongsTo relationship trigger observer', function (assert) {
-    assert.expect(1);
-
-    let store = this.owner.lookup('service:store');
-    let observerCount = 0;
-
-    run(() => {
-      let post = store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            author: {
-              data: { type: 'author', id: '2' },
-            },
-          },
-        },
-        included: [
-          {
-            id: 2,
-            type: 'author',
-          },
-        ],
-      });
-
-      post.get('author');
-
-      post.addObserver('author', function () {
-        observerCount++;
-      });
-
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            author: {
-              data: { type: 'author', id: '3' },
-            },
-          },
-        },
-      });
-    });
-
-    assert.equal(observerCount, 1, 'author observer should be triggered once');
-  });
-
-  test('Calling push with same belongsTo relationship does not trigger observer', function (assert) {
-    assert.expect(1);
-
-    let store = this.owner.lookup('service:store');
-    let observerCount = 0;
-
-    run(() => {
-      let post = store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            author: {
-              data: { type: 'author', id: '2' },
-            },
-          },
-        },
-      });
-
-      post.addObserver('author', function () {
-        observerCount++;
-      });
-
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            author: {
-              data: { type: 'author', id: '2' },
-            },
-          },
-        },
-      });
-    });
-
-    assert.equal(observerCount, 0, 'author observer should not be triggered');
-  });
+  }
 });

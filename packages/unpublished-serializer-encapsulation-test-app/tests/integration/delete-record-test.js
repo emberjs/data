@@ -56,7 +56,7 @@ module('integration/delete-record - running deleteRecord with minimum serializer
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
 
-        assert.equal(requestType, 'findRecord', 'expected method name is correct');
+        assert.strictEqual(requestType, 'findRecord', 'expected method name is correct');
         assert.deepEqual(
           rawPayload,
           {
@@ -78,8 +78,6 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {
@@ -104,7 +102,7 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     person.deleteRecord();
     await person.save();
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse called once');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse called once');
   });
 
   test('save after deleting record does not call normalizeResponse and serializeIntoHash if implemented', async function (assert) {
@@ -135,7 +133,7 @@ module('integration/delete-record - running deleteRecord with minimum serializer
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
 
-        assert.equal(requestType, 'findRecord', 'expected method name is correct');
+        assert.strictEqual(requestType, 'findRecord', 'expected method name is correct');
         assert.deepEqual(
           rawPayload,
           {
@@ -157,8 +155,6 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {
@@ -183,9 +179,9 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     person.deleteRecord();
     await person.save();
 
-    assert.equal(normalizeResponseCalled, 1, 'normalizeResponse called once');
-    assert.equal(serializeIntoHashCalled, 0, 'serializeIntoHash not called');
-    assert.equal(serializeCalled, 0, 'serialize not called');
+    assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse called once');
+    assert.strictEqual(serializeIntoHashCalled, 0, 'serializeIntoHash not called');
+    assert.strictEqual(serializeCalled, 0, 'serialize not called');
   });
 
   test('save after deleting record does call normalizeResponse if response provided', async function (assert) {
@@ -212,7 +208,7 @@ module('integration/delete-record - running deleteRecord with minimum serializer
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
 
-        assert.equal(requestType, this._methods.shift(), 'expected method name is correct');
+        assert.strictEqual(requestType, this._methods.shift(), 'expected method name is correct');
         assert.deepEqual(rawPayload, this._payloads.shift(), 'payload is correct');
 
         return {
@@ -223,8 +219,6 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {
@@ -249,6 +243,6 @@ module('integration/delete-record - running deleteRecord with minimum serializer
     person.deleteRecord();
     await person.save();
 
-    assert.equal(normalizeResponseCalled, 2, 'normalizeResponse called twice');
+    assert.strictEqual(normalizeResponseCalled, 2, 'normalizeResponse called twice');
   });
 });

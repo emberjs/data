@@ -172,7 +172,7 @@ module('integration/inverse_test - inverseFor', function (hooks) {
     owner.register('model:job', Job);
 
     let user = store.modelFor('user');
-    assert.equal(user.inverseFor('job', store), null, 'There is no inverse');
+    assert.strictEqual(user.inverseFor('job', store), null, 'There is no inverse');
   });
 
   testInDebug('Errors out if you define 2 inverses to the same model', function (assert) {
@@ -254,7 +254,7 @@ module('integration/inverse_test - inverseFor', function (hooks) {
       assert.ok(false, 'Find is not called anymore');
     };
 
-    assert.equal(inverseForUser, job.inverseFor('user', store), 'Inverse cached succesfully');
+    assert.strictEqual(inverseForUser, job.inverseFor('user', store), 'Inverse cached succesfully');
   });
 
   testInDebug('Errors out if you do not define an inverse for a reflexive relationship', function (assert) {

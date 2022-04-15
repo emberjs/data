@@ -80,8 +80,8 @@ module(
         wait.push(store.findRecord('testRecord', 'my-id:2'));
       });
 
-      assert.equal(requests.length, 1);
-      assert.equal(requests[0].url, '/testRecords');
+      assert.strictEqual(requests.length, 1);
+      assert.strictEqual(requests[0].url, '/testRecords');
       assert.deepEqual(requests[0].ids, ['my-id:1', 'my-id:2']);
 
       return EmberPromise.all(wait);
@@ -93,7 +93,7 @@ module(
       let snapshot = record._internalModel.createSnapshot();
       let strippedUrl = adapter._stripIDFromURL(store, snapshot);
 
-      assert.equal(strippedUrl, '/testRecords/');
+      assert.strictEqual(strippedUrl, '/testRecords/');
     });
   }
 );

@@ -50,7 +50,7 @@ module('integration - Client Id Generation', function (hooks) {
     let idCount = 1;
 
     adapter.generateIdForRecord = function (passedStore, record) {
-      assert.ok(store === passedStore, 'store is the first parameter');
+      assert.strictEqual(store, passedStore, 'store is the first parameter');
 
       return 'id-' + idCount++;
     };
@@ -59,7 +59,7 @@ module('integration - Client Id Generation', function (hooks) {
       let type = modelClass.modelName;
 
       if (type === 'comment') {
-        assert.equal(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
+        assert.strictEqual(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
         return resolve({
           data: {
             type,
@@ -67,7 +67,7 @@ module('integration - Client Id Generation', function (hooks) {
           },
         });
       } else {
-        assert.equal(snapshot.id, 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
+        assert.strictEqual(snapshot.id, 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
         return resolve({
           data: {
             type,
@@ -80,8 +80,8 @@ module('integration - Client Id Generation', function (hooks) {
     let comment = store.createRecord('comment');
     let post = store.createRecord('post');
 
-    assert.equal(get(comment, 'id'), 'id-1', "comment is assigned id 'id-1'");
-    assert.equal(get(post, 'id'), 'id-2', "post is assigned id 'id-2'");
+    assert.strictEqual(get(comment, 'id'), 'id-1', "comment is assigned id 'id-1'");
+    assert.strictEqual(get(post, 'id'), 'id-2', "post is assigned id 'id-2'");
 
     // Despite client-generated IDs, calling save() on the store should still
     // invoke the adapter's `createRecord` method.
@@ -96,21 +96,21 @@ module('integration - Client Id Generation', function (hooks) {
     let ids = [undefined, ''];
 
     adapter.generateIdForRecord = function (passedStore, record) {
-      assert.ok(store === passedStore, 'store is the first parameter');
+      assert.strictEqual(store, passedStore, 'store is the first parameter');
 
       return ids[idCount++];
     };
 
     adapter.createRecord = function (store, type, record) {
-      assert.equal(typeof get(record, 'id'), 'object', 'correct type');
+      assert.strictEqual(typeof get(record, 'id'), 'object', 'correct type');
       return resolve({ data: { id: id++, type: type.modelName } });
     };
 
     let comment = store.createRecord('misc');
     let post = store.createRecord('misc');
 
-    assert.equal(get(comment, 'id'), null, "comment is assigned id 'null'");
-    assert.equal(get(post, 'id'), null, "post is assigned id 'null'");
+    assert.strictEqual(get(comment, 'id'), null, "comment is assigned id 'null'");
+    assert.strictEqual(get(post, 'id'), null, "post is assigned id 'null'");
 
     // Despite client-generated IDs, calling commit() on the store should still
     // invoke the adapter's `createRecord` method.

@@ -72,13 +72,13 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       payload
     );
 
-    assert.equal(recordArray.get('length'), 3, 'expected recordArray to contain exactly 3 records');
+    assert.strictEqual(recordArray.get('length'), 3, 'expected recordArray to contain exactly 3 records');
 
     recordArray.get('firstObject').destroyRecord();
 
     await settled();
 
-    assert.equal(recordArray.get('length'), 2, 'expected recordArray to contain exactly 2 records');
+    assert.strictEqual(recordArray.get('length'), 2, 'expected recordArray to contain exactly 2 records');
   });
 
   test('stores the metadata off the payload', async function (assert) {
@@ -119,7 +119,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       results.map((r) => recordIdentifierFor(r)),
       payload
     );
-    assert.equal(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
+    assert.strictEqual(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
   });
 
   test('stores the links off the payload', async function (assert) {
@@ -161,7 +161,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       payload
     );
 
-    assert.equal(
+    assert.strictEqual(
       recordArray.get('links.first'),
       '/foo?page=1',
       'expected links.first to be "/foo?page=1" from payload'
@@ -196,14 +196,14 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     adapter.query = function (store, type, query) {
       // Due to #6232, we now expect 5 arguments regardless of arity
-      assert.equal(arguments.length, 5, 'expect 5 arguments in query');
+      assert.strictEqual(arguments.length, 5, 'expect 5 arguments in query');
       return payload;
     };
 
     await store.query('person', {});
 
     adapter.query = function (store, type, query, recordArray) {
-      assert.equal(arguments.length, 5);
+      assert.strictEqual(arguments.length, 5);
       return payload;
     };
     store.query('person', {});
@@ -225,33 +225,33 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     let superCreateAdapterPopulatedRecordArray = store.recordArrayManager.createAdapterPopulatedRecordArray;
 
     store.recordArrayManager.createStore = function (modelName, query, internalModels, _payload) {
-      assert.equal(arguments.length === 4);
+      assert.strictEqual(arguments.length, 4);
 
-      assert.equal(modelName, 'person');
-      assert.equal(query, actualQuery);
-      assert.equal(_payload, payload);
-      assert.equal(internalModels.length, 2);
+      assert.strictEqual(modelName, 'person');
+      assert.strictEqual(query, actualQuery);
+      assert.strictEqual(_payload, payload);
+      assert.strictEqual(internalModels.length, 2);
       return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
     };
 
     adapter.query = function (store, type, query) {
       // Due to #6232, we now expect 5 arguments regardless of arity
-      assert.equal(arguments.length, 5);
+      assert.strictEqual(arguments.length, 5);
       return payload;
     };
 
     await store.query('person', actualQuery);
 
     adapter.query = function (store, type, query, _recordArray) {
-      assert.equal(arguments.length, 5);
+      assert.strictEqual(arguments.length, 5);
       return payload;
     };
 
     store.recordArrayManager.createStore = function (modelName, query) {
-      assert.equal(arguments.length === 2);
+      assert.strictEqual(arguments.length, 2);
 
-      assert.equal(modelName, 'person');
-      assert.equal(query, actualQuery);
+      assert.strictEqual(modelName, 'person');
+      assert.strictEqual(query, actualQuery);
       return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
     };
 
@@ -320,24 +320,24 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     queryArr = await store.query('person', { slice: 1 });
     findArray = await store.findAll('person');
 
-    assert.equal(queryArr.get('length'), 0, 'No records for this query');
+    assert.strictEqual(queryArr.get('length'), 0, 'No records for this query');
     assert.false(queryArr.get('isUpdating'), 'Record array isUpdating state updated');
-    assert.equal(findArray.get('length'), 1, 'All records are included in collection array');
+    assert.strictEqual(findArray.get('length'), 1, 'All records are included in collection array');
 
     // a new element gets pushed in record array
     array.push({ id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } });
     await queryArr.update();
 
-    assert.equal(queryArr.get('length'), 1, 'The new record is returned and added in adapter populated array');
+    assert.strictEqual(queryArr.get('length'), 1, 'The new record is returned and added in adapter populated array');
     assert.false(queryArr.get('isUpdating'), 'Record array isUpdating state updated');
-    assert.equal(findArray.get('length'), 2, 'find returns 2 records');
+    assert.strictEqual(findArray.get('length'), 2, 'find returns 2 records');
 
     // element gets removed
     array.pop(0);
     await queryArr.update();
 
-    assert.equal(queryArr.get('length'), 0, 'Record removed from array');
+    assert.strictEqual(queryArr.get('length'), 0, 'Record removed from array');
     // record not removed from the model collection
-    assert.equal(findArray.get('length'), 2, 'Record still remains in collection array');
+    assert.strictEqual(findArray.get('length'), 2, 'Record still remains in collection array');
   });
 });

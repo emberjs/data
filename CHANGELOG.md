@@ -1,5 +1,151 @@
 # Ember Data Changelog
 
+## v4.1.0 (2021-12-30)
+
+#### :house: Internal
+* [#7831](https://github.com/emberjs/data/pull/7831) Regen yarn lockfile ([@snewcomer](https://github.com/snewcomer))
+* [#7830](https://github.com/emberjs/data/pull/7830) CHANGELOG 4.1.0 ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.0.2 (2021-12-15)
+
+#### :bug: Bug Fix
+* `-ember-data`, `model`, `record-data`, `store`
+  * [#7804](https://github.com/emberjs/data/pull/7804) Backport Train for Release ([@runspired](https://github.com/runspired))
+* Other
+  * [#7794](https://github.com/emberjs/data/pull/7794) [bug]: findRecord should not cache if includes differ (#7702) ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v4.0.0 (2021-12-11)
+
+#### :shower: Deprecation Removal
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7767](https://github.com/emberjs/data/pull/7767) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`
+  * [#7703](https://github.com/emberjs/data/pull/7703) fix tests ([@snewcomer](https://github.com/snewcomer))
+* Other
+  * [#7729](https://github.com/emberjs/data/pull/7729) Cache dependencies in GitHub Actions CI workflow ([@ddzz](https://github.com/ddzz))
+  * [#7737](https://github.com/emberjs/data/pull/7737) Remove IE11 asset size checks ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`, `private-build-infra`, `record-data`, `store`
+  * [#7741](https://github.com/emberjs/data/pull/7741) Remove IE11 hacks ([@snewcomer](https://github.com/snewcomer))
+* `adapter`, `store`, `unpublished-test-infra`
+  * [#7740](https://github.com/emberjs/data/pull/7740) Remove symbol util in place of built in Symbol ([@snewcomer](https://github.com/snewcomer))
+* `-ember-data`, `adapter`, `debug`, `model`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7739](https://github.com/emberjs/data/pull/7739) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+
+#### :evergreen_tree: New Deprecation
+* `-ember-data`, `adapter`, `debug`, `model`, `private-build-infra`, `record-data`, `serializer`, `store`, `unpublished-adapter-encapsulation-test-app`, `unpublished-debug-encapsulation-test-app`, `unpublished-fastboot-test-app`, `unpublished-model-encapsulation-test-app`, `unpublished-record-data-encapsulation-test-app`, `unpublished-serializer-encapsulation-test-app`, `unpublished-test-infra`
+  * [#7767](https://github.com/emberjs/data/pull/7767) Remove TARGET_IE11 flag ([@snewcomer](https://github.com/snewcomer))
+
+#### :house: Internal
+* [#7760](https://github.com/emberjs/data/pull/7760) chore: cancel older CI jobs ([@runspired](https://github.com/runspired))
+
+#### Committers: 4
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Darius D. ([@ddzz](https://github.com/ddzz))
+- Igor Terzic ([@igorT](https://github.com/igorT))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+## v3.28.7 (2022-01-01)
+
+#### :house: Internal
+* [#7833](https://github.com/emberjs/data/pull/7833) CHANGELOG 3.28.7 ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v3.28.4 (2021-11-23)
+
+#### :bug: Bug Fix
+* `-ember-data`, `private-build-infra`
+  * [#7762](https://github.com/emberjs/data/pull/7762) chore(deps): bump broccoli-rollup from 4.1.1 to 5.0.0 (#7559) ([@snewcomer](https://github.com/snewcomer))
+
+#### Committers: 1
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+
+
+## v3.28.3 (2021-09-05)
+
+#### :bug: Bug Fix
+* `-ember-data`, `adapter`, `debug`, `model`, `serializer`, `store`
+  * [#7698](https://github.com/emberjs/data/pull/7698) [BACKPORT Release] @ember/string to the latest version. The prior (#7697) ([@igorT](https://github.com/igorT))
+
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
+
+## v3.28.2 (2021-09-02)
+
+#### :bug: Bug Fix
+* `private-build-infra`
+  * [#7694](https://github.com/emberjs/data/pull/7694) [Bugfix] ensure `shouldCompileModules` is once again respected (#7680) ([@igorT](https://github.com/igorT))
+
+#### Committers: 1
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
+## Release 3.28.0 (Aug 20, 2021)
+
+#### :bug: Bug Fix
+
+#### :rocket: Enhancement
+
+- [#7258](https://github.com/emberjs/data/pull/7258) feat: record.destroyRecord should also unload the record ([@snewcomer](https://github.com/snewcomer))
+- [#7510](https://github.com/emberjs/data/pull/7510) feat: activate all feature flags related to CUSTOM_MODEL_CLASSES ([@runspired](https://github.com/runspired))
+
+#### :zap: Performance
+
+- [#7505](https://github.com/emberjs/data/pull/7505) Perf: Refactor PromiseManyArray and prep for RFC#745 ([@runspired](https://github.com/runspired))
+- [#7516](https://github.com/emberjs/data/pull/7516) Perf: eliminate retainedManyArrayCache ([@runspired](https://github.com/runspired))
+- [#7454](https://github.com/emberjs/data/pull/7454) [PERF] Class Fields Use Optimization & Made OrderedSet Faster (Again) (#7454)
+- [#7491](https://github.com/emberjs/data/pull/7491) relationship refactor part-1 (#7491)
+- [#7493](https://github.com/emberjs/data/pull/7493) Relationship Refactor (part 2): The graph should coordinate state updates (#7493)
+
+#### :bug: Bug Fix
+
+- [#7651](https://github.com/emberjs/data/pull/7651) Return inflight requests for findRecord when CUSTOM_MODEL_CLASS is on (#7651) ([@igorT](https://github.com/igorT))
+- [#7652](https://github.com/emberjs/data/pull/7652) Fix for CUSTOM_MODEL_CLASS and deprecate passing non ember data records to unloadRecord and deleteRecord (#7652) ([@igorT](https://github.com/igorT))
+- [#7643](https://github.com/emberjs/data/pull/7643) @ember-data/model: Simplify @cached transpilation (#7599) ([@igorT](https://github.com/igorT))
+- [#7554](https://github.com/emberjs/data/pull/7554) [BUGFIX] reset previously failed linked async belongs-to now works ([@sly7-7](https://github.com/sly7-7))
+- [#7532](https://github.com/emberjs/data/pull/7532) fix: belongsTo should not attempt load if inverse in payload provided its data (#7049) ([@sly7-7](https://github.com/sly7-7))
+- [#7550](https://github.com/emberjs/data/pull/7550) fix: add asserts and assert tests for belongsTo/hasMany/findRecord empty responses ([@runspired](https://github.com/runspired))
+- [#7534](https://github.com/emberjs/data/pull/7534) fix: #7039 Ensure meta and links update when fetched relationship is empty or does not include the data key ([@sly7-7](https://github.com/sly7-7))
+- [#7545](https://github.com/emberjs/data/pull/7545) [BUGFIX Model] assert when 'content' is used as a property on a record ([@zinyando](https://github.com/zinyando))
+- [#7531](https://github.com/emberjs/data/pull/7531) fix: Closes [#7053](https://github.com/emberjs/data/issues/7053) issue preventing debug adapter removal from prod builds using the ember-data package ([@sly7-7](https://github.com/sly7-7))
+- [#7527](https://github.com/emberjs/data/pull/7527) [BUGFIX] rollup step should deactivate ember modules polyfill >= 3.27 ([@runspired](https://github.com/runspired))
+- [#7425](https://github.com/emberjs/data/pull/7425) Pass lid from relationship data to get record data (#7425)
+- [#7448](https://github.com/emberjs/data/pull/7448) Bugfix: coalesceFindRequests should work with non native Adapter classes (#7448)
+- [#7463](https://github.com/emberjs/data/pull/7463) chore: cleanup Implicit relationships (#7463)
+- [#7453](https://github.com/emberjs/data/pull/7453) [CHORE] burndown of InternalModel methods that can be eliminated safely (#7453)
+- [#7226](https://github.com/emberjs/data/pull/7226) refactor: Native Model (#7226)
+- [#7470](https://github.com/emberjs/data/pull/7470) chore: convert relationships to use identifiers (#7470)
+
+#### :memo: Documentation
+
+- [#7549](https://github.com/emberjs/data/pull/7549) [DOC] Fixes JSONAPISerializer serialize documentation ([@skaterdav85](https://github.com/skaterdav85))
+- [#7535](https://github.com/emberjs/data/pull/7535) fix adapter doc example ([@sly7-7](https://github.com/sly7-7))
+- [#7447](https://github.com/emberjs/data/pull/7447) Document adapterOptions on REST adapter (#7447)
+
+
+#### Committers: 9
+
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Daniel Múnera Sánchez ([@dmuneras](https://github.com/dmuneras))
+- David Tang ([@skaterdav85](https://github.com/skaterdav85))
+- Lennex Zinyando ([@zinyando](https://github.com/zinyando))
+- Sylvain MINA ([@sly7-7](https://github.com/sly7-7))
+- Tyler ([@runnerboy22](https://github.com/runnerboy22))
+- Scott Newcomer ([@snewcomer](https://github.com/snewcomer))
+- Steven Pham ([@spham92](https://github.com/spham92))
+- Igor Terzic ([@igorT](https://github.com/igorT))
+
 ## Release 3.27.1 (May 27, 2021)
 
 - [#7552](https://github.com/emberjs/data/pull/7552) [BUGFIX release] rollup step should deactivate ember modules polyfill >= 3.27 (#7552)

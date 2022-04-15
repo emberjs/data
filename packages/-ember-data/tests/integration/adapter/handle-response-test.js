@@ -66,7 +66,7 @@ module('integration/adapter/handle-response', function (hooks) {
 
     await this.store.findAll('person');
 
-    assert.equal(handleResponseCalled, 1, 'handle response is called');
+    assert.strictEqual(handleResponseCalled, 1, 'handle response is called');
   });
 
   test('handleResponse is called with empty array response', async function (assert) {
@@ -92,7 +92,7 @@ module('integration/adapter/handle-response', function (hooks) {
 
     await this.store.findAll('person');
 
-    assert.equal(handleResponseCalled, 1, 'handle response is called');
+    assert.strictEqual(handleResponseCalled, 1, 'handle response is called');
   });
 
   test('handleResponse is called on empty string response', async function (assert) {
@@ -119,7 +119,7 @@ module('integration/adapter/handle-response', function (hooks) {
       assert.ok(true, 'promise rejected');
     }
 
-    assert.equal(handleResponseCalled, 1, 'handle response is called');
+    assert.strictEqual(handleResponseCalled, 1, 'handle response is called');
   });
 
   test('handleResponse is not called on invalid response', async function (assert) {
@@ -146,7 +146,7 @@ module('integration/adapter/handle-response', function (hooks) {
       assert.ok(true, 'promise rejected');
     }
 
-    assert.equal(handleResponseCalled, 0, 'handle response is not called');
+    assert.strictEqual(handleResponseCalled, 0, 'handle response is not called');
   });
 
   test('handleResponse is called on empty string response with 400 status', async function (assert) {
@@ -173,7 +173,7 @@ module('integration/adapter/handle-response', function (hooks) {
       assert.ok(true, 'promise rejected');
     }
 
-    assert.equal(handleResponseCalled, 1, 'handle response is called');
+    assert.strictEqual(handleResponseCalled, 1, 'handle response is called');
   });
 
   test('handleResponse is called with correct parameters on string response with 422 status', async function (assert) {
@@ -203,6 +203,6 @@ module('integration/adapter/handle-response', function (hooks) {
       assert.ok(true, 'promise rejected');
     }
 
-    assert.equal(handleResponseCalled, 1, 'handle response is called');
+    assert.strictEqual(handleResponseCalled, 1, 'handle response is called');
   });
 });

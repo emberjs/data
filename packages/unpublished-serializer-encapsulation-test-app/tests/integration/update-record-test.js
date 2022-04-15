@@ -65,7 +65,7 @@ module('integration/create-record - running createRecord with minimum serializer
         serializeCalled++;
 
         assert.strictEqual(snapshot.id, '1', 'id is correct');
-        assert.equal(snapshot.modelName, 'person', 'modelName is correct');
+        assert.strictEqual(snapshot.modelName, 'person', 'modelName is correct');
         assert.deepEqual(snapshot.attributes(), { firstName: 'Chris', lastName: 'Thoburn' }, 'attributes are correct');
 
         const serializedResource = {
@@ -84,7 +84,7 @@ module('integration/create-record - running createRecord with minimum serializer
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
 
-        assert.equal(requestType, this._methods.shift(), 'expected method name is correct');
+        assert.strictEqual(requestType, this._methods.shift(), 'expected method name is correct');
         assert.deepEqual(rawPayload, this._payloads.shift(), 'payload is correct');
 
         return {
@@ -95,8 +95,6 @@ module('integration/create-record - running createRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {
@@ -123,8 +121,8 @@ module('integration/create-record - running createRecord with minimum serializer
 
     await person.save();
 
-    assert.equal(normalizeResponseCalled, 2, 'normalizeResponse called twice');
-    assert.equal(serializeCalled, 1, 'serialize called once');
+    assert.strictEqual(normalizeResponseCalled, 2, 'normalizeResponse called twice');
+    assert.strictEqual(serializeCalled, 1, 'serialize called once');
     assert.deepEqual(person.toJSON(), {
       id: '1',
       type: 'person',
@@ -170,7 +168,7 @@ module('integration/create-record - running createRecord with minimum serializer
         serializeCalled++;
 
         assert.strictEqual(snapshot.id, '1', 'id is correct');
-        assert.equal(snapshot.modelName, 'person', 'modelName is correct');
+        assert.strictEqual(snapshot.modelName, 'person', 'modelName is correct');
         assert.deepEqual(snapshot.attributes(), { firstName: 'Chris', lastName: 'Thoburn' }, 'attributes are correct');
 
         const serializedResource = {
@@ -189,7 +187,7 @@ module('integration/create-record - running createRecord with minimum serializer
       normalizeResponse(store, schema, rawPayload, id, requestType) {
         normalizeResponseCalled++;
 
-        assert.equal(requestType, this._methods.shift(), 'expected method name is correct');
+        assert.strictEqual(requestType, this._methods.shift(), 'expected method name is correct');
         assert.deepEqual(rawPayload, this._payloads.shift(), 'payload is correct');
 
         return {
@@ -200,8 +198,6 @@ module('integration/create-record - running createRecord with minimum serializer
     this.owner.register('serializer:application', TestMinimumSerializer);
 
     class TestAdapter extends JSONAPIAdapter {
-      defaultSerializer = 'application';
-
       _payloads = [..._payloads];
 
       ajax(url, type) {
@@ -228,9 +224,9 @@ module('integration/create-record - running createRecord with minimum serializer
 
     await person.save();
 
-    assert.equal(normalizeResponseCalled, 2, 'normalizeResponse called twice');
-    assert.equal(serializeIntoHashCalled, 1, 'serializeIntoHash called once');
-    assert.equal(serializeCalled, 1, 'serialize called once');
+    assert.strictEqual(normalizeResponseCalled, 2, 'normalizeResponse called twice');
+    assert.strictEqual(serializeIntoHashCalled, 1, 'serializeIntoHash called once');
+    assert.strictEqual(serializeCalled, 1, 'serialize called once');
     assert.deepEqual(person.toJSON(), {
       id: '1',
       type: 'person',

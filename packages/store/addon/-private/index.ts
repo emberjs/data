@@ -8,7 +8,6 @@ export { recordIdentifierFor } from './system/store/internal-model-factory';
 
 export { default as Snapshot } from './system/snapshot';
 export {
-  identifierCacheFor,
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,
   setIdentifierForgetMethod,
@@ -24,8 +23,7 @@ export { errorsHashToArray, errorsArrayToHash } from './system/errors-utils';
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
 
-export { PromiseArray, PromiseObject } from './system/promise-proxies';
-export { addSymbol, symbol } from './utils/symbol';
+export { PromiseArray, PromiseObject, deprecatedPromiseObject } from './system/promise-proxies';
 
 export { RecordArray, AdapterPopulatedRecordArray } from './system/record-arrays';
 
@@ -38,5 +36,4 @@ export { default as SnapshotRecordArray } from './system/snapshot-record-array';
 export { default as recordDataFor, removeRecordDataFor } from './system/record-data-for';
 export { default as RecordDataStoreWrapper } from './system/store/record-data-store-wrapper';
 
-// for Model
-export { default as DeprecatedEvented } from './system/deprecated-evented';
+export { default as WeakCache } from './system/weak-cache';

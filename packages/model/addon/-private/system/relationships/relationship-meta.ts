@@ -3,9 +3,8 @@ import { DEBUG } from '@glimmer/env';
 import { singularize } from 'ember-inflector';
 
 import { normalizeModelName } from '@ember-data/store/-private';
-
-type RelationshipSchema = import('@ember-data/store/-private/ts-interfaces/record-data-schemas').RelationshipSchema;
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
+import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 
 /**
   @module @ember-data/store

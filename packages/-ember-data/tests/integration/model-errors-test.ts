@@ -41,7 +41,7 @@ interface CurrentTestContext {
 module('integration/model.errors', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function () {
+  hooks.beforeEach(function (this: CurrentTestContext) {
     let { owner } = this;
 
     owner.register('model:tag', Tag);

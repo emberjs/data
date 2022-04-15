@@ -6,7 +6,6 @@ import { defer, resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import { RECORD_DATA_STATE } from '@ember-data/canary-features';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 
@@ -48,7 +47,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const identifier = recordIdentifierFor(record);
     const serialized = record.serialize();
 
-    assert.ok(identifier.lid !== null, 'We have an lid');
+    assert.notStrictEqual(identifier.lid, null, 'We have an lid');
     assert.strictEqual(serialized.lid, identifier.lid, 'We have the right lid');
   });
 
@@ -56,7 +55,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const record = store.createRecord('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
 
-    assert.ok(identifier.lid !== null, 'We have an lid');
+    assert.notStrictEqual(identifier.lid, null, 'We have an lid');
 
     const pushedRecord = store.push({
       data: {
@@ -69,7 +68,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
       },
     });
 
-    assert.ok(pushedRecord === record, 'We have the same record instance');
+    assert.strictEqual(pushedRecord, record, 'We have the same record instance');
     assert.strictEqual(record.name, 'Chris', 'We use the dirty name');
     assert.false(record.isNew, 'We are no longer in the new state');
 
@@ -109,7 +108,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const record = store.createRecord('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
 
-    assert.ok(identifier.lid !== null, 'We have an lid');
+    assert.notStrictEqual(identifier.lid, null, 'We have an lid');
 
     const savePromise = record.save();
 
@@ -127,15 +126,11 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
       },
     });
 
-    assert.ok(pushedRecord === record, 'We have the same record instance');
+    assert.strictEqual(pushedRecord, record, 'We have the same record instance');
     assert.strictEqual(record.name, 'Chris', 'We use the in-flight name');
     assert.strictEqual(record.age, 31, 'We received the pushed data');
-    if (RECORD_DATA_STATE) {
-      // once the payload is received the derived state shifts to "no longer new" in the RECORD_DATA_STATE world
-      assert.false(record.isNew, 'We are no longer in the new state');
-    } else {
-      assert.true(record.isNew, 'We are still in the new state');
-    }
+    // once the payload is received the derived state shifts to "no longer new" in the RECORD_DATA_STATE world
+    assert.false(record.isNew, 'We are no longer in the new state');
 
     record.rollbackAttributes();
 
@@ -169,11 +164,13 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
 
     class TestAdapter extends Adapter {
       createRecord(store, ModelClass, snapshot) {
-        const lid = recordIdentifierFor(snapshot.record.ingredients.firstObject).lid;
+        const cakeLid = recordIdentifierFor(snapshot.record).lid;
+        const ingredientLid = recordIdentifierFor(snapshot.record.ingredients.firstObject).lid;
         return resolve({
           data: {
             type: 'cake',
             id: '1',
+            lid: cakeLid,
             attributes: {
               name: 'Cheesecake',
             },
@@ -183,7 +180,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
                   {
                     type: 'ingredient',
                     id: '2',
-                    lid,
+                    lid: ingredientLid,
                   },
                 ],
               },
@@ -193,7 +190,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
             {
               type: 'ingredient',
               id: '2',
-              lid,
+              lid: ingredientLid,
               attributes: {
                 name: 'Cheese',
               },
@@ -202,6 +199,7 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
                   data: {
                     type: 'cake',
                     id: '1',
+                    lid: cakeLid,
                   },
                 },
               },
@@ -216,10 +214,17 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     const cheese = store.createRecord('ingredient', { name: 'Cheese' });
     const cake = store.createRecord('cake', { name: 'Cheesecake', ingredients: [cheese] });
 
+    // Consume ids before save() to check for update errors
+    assert.strictEqual(cake.id, null, 'cake id is initially null');
+    assert.strictEqual(cheese.id, null, 'cheese id is initially null');
+
     await cake.save();
 
     assert.deepEqual(cake.hasMany('ingredients').ids(), ['2']);
-    assert.equal(cake.ingredients.objectAt(0).name, 'Cheese');
+    assert.strictEqual(cake.ingredients.objectAt(0).name, 'Cheese');
+
+    assert.strictEqual(cake.id, '1', 'cake has the correct id');
+    assert.strictEqual(cheese.id, '2', 'cheese has the correct id');
   });
 
   test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function (assert) {
@@ -291,6 +296,6 @@ module('Integration | Identifiers - lid reflection', function (hooks) {
     await cake.save();
 
     assert.deepEqual(cake.belongsTo('topping').id(), '2');
-    assert.equal(cake.topping.name, 'Cheese');
+    assert.strictEqual(cake.topping.name, 'Cheese');
   });
 });

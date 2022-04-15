@@ -15,9 +15,10 @@ jobs:
           if [[ "$(git name-rev --tags --name-only $(git rev-parse HEAD))" != "undefined" ]]; then
             exit 1
           fi
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies for master
         run: yarn install --frozen-lockfile --non-interactive
       - name: Basic Tests
@@ -37,6 +38,7 @@ jobs:
         with:
           registry-url: 'https://registry.npmjs.org'
           node-version: 14.x
+          cache: 'yarn'
       - name: Install dependencies for master
         run: yarn install --frozen-lockfile --non-interactive
       - name: Make sure git user is setup
@@ -44,7 +46,7 @@ jobs:
           git config --local user.email 'tomster@emberjs.com'
           git config --local user.name 'Ember.js Alpha Releaser'
       - name: Publish with script
-        run: node bin/publish.js canary
+        run: node scripts/publish.js canary
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Push branch + tag

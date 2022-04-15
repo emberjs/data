@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 'use strict';
 const QUnit = require('qunit');
 
@@ -25,6 +24,7 @@ QUnit.module('Docs coverage', function (hooks) {
   if (!process.env.REUSE_DOCS) {
     buildDocs();
   }
+  // data.json is generated and not always present. So this disable needs to be preserved.
   const docs = require('../../dist/docs/data.json'); // eslint-disable-line node/no-missing-require
   const expected = require('../fixtures/expected');
 

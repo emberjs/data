@@ -30,7 +30,7 @@ function isNumber(value) {
   @public
   @extends Transform
  */
-export default Transform.extend({
+export default class NumberTransform extends Transform {
   deserialize(serialized) {
     let transformed;
 
@@ -41,7 +41,7 @@ export default Transform.extend({
 
       return isNumber(transformed) ? transformed : null;
     }
-  },
+  }
 
   serialize(deserialized) {
     let transformed;
@@ -53,5 +53,5 @@ export default Transform.extend({
 
       return isNumber(transformed) ? transformed : null;
     }
-  },
-});
+  }
+}

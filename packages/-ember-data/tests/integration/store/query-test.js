@@ -44,6 +44,6 @@ module('integration/store/query', function (hooks) {
       defered.resolve({ data: [], meta: { foo: 'bar' } });
     });
 
-    assert.equal(result.get('meta.foo'), 'bar');
+    assert.strictEqual(result.get('meta.foo'), 'bar');
   });
 });

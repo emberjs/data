@@ -1,23 +1,22 @@
 import { setupTest } from 'ember-qunit';
 
+import type {
+  BelongsToRelationship,
+  ManyRelationship,
+  Relationship as ImplicitRelationship,
+} from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
+import type CoreStore from '@ember-data/store/-private/system/core-store';
 import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
-
-type ManyRelationship = import('@ember-data/record-data/-private').ManyRelationship;
-
-type CollectionResourceDocument =
-  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').CollectionResourceDocument;
-type EmptyResourceDocument =
-  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').EmptyResourceDocument;
-type JsonApiDocument = import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').JsonApiDocument;
-type SingleResourceDocument =
-  import('@ember-data/store/-private/ts-interfaces/ember-data-json-api').SingleResourceDocument;
-type BelongsToRelationship = import('@ember-data/record-data/-private').BelongsToRelationship;
-type CoreStore = import('@ember-data/store/-private/system/core-store').default;
-type Dict<T> = import('@ember-data/store/-private/ts-interfaces/utils').Dict<T>;
-type ImplicitRelationship = import('@ember-data/record-data/-private').Relationship;
-type StableRecordIdentifier = import('@ember-data/store/-private/ts-interfaces/identifier').StableRecordIdentifier;
+import type {
+  CollectionResourceDocument,
+  EmptyResourceDocument,
+  JsonApiDocument,
+  SingleResourceDocument,
+} from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 class AbstractMap {
   constructor(private store: CoreStore, private isImplicit: boolean) {}
@@ -85,13 +84,8 @@ export function isHasMany(
   return relationship.definition.kind === 'hasMany';
 }
 
-// Set.entries() and Set.values()
-// ...set and Array.from(set) don't
-// work in IE11
 function setToArray<T>(set: Set<T>): T[] {
-  let arr: T[] = [];
-  set.forEach((v) => arr.push(v));
-  return arr;
+  return Array.from(set);
 }
 
 export function stateOf(rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship): {
@@ -121,6 +115,9 @@ export function stateOf(rel: BelongsToRelationship | ManyRelationship | Implicit
 class Adapter {
   static create() {
     return new this();
+  }
+  static updateRecord() {
+    return Promise.resolve();
   }
   async deleteRecord() {
     return { data: null };
