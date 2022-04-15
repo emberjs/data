@@ -39,6 +39,7 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '../ts-interfaces/identifier';
+import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serializer-interface';
 import type { PromiseProxy } from '../ts-interfaces/promise-proxies';
 import type { RecordData } from '../ts-interfaces/record-data';
 import type { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
@@ -2250,7 +2251,11 @@ abstract class CoreStore extends Service {
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave(internalModel: InternalModel, resolver: RSVP.Deferred<void>, options): void | RSVP.Promise<void> {
+  scheduleSave(
+    internalModel: InternalModel,
+    resolver: RSVP.Deferred<void>,
+    options: FindOptions
+  ): void | RSVP.Promise<void> {
     if (internalModel._isRecordFullyDeleted()) {
       resolver.resolve();
       return resolver.promise;
@@ -2271,9 +2276,8 @@ abstract class CoreStore extends Service {
       operation = 'deleteRecord';
     }
 
-    options[SaveOp] = operation;
-
-    let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, options);
+    const saveOptions = Object.assign({ [SaveOp]: operation }, options);
+    let fetchManagerPromise = this._fetchManager.scheduleSave(internalModel.identifier, saveOptions);
     let promise = fetchManagerPromise.then(
       (payload) => {
         /*
@@ -2960,7 +2964,7 @@ abstract class CoreStore extends Service {
     @param {Object} payload
     @return {Object} The normalized payload
   */
-  normalize(modelName, payload) {
+  normalize(modelName: string, payload) {
     if (DEBUG) {
       assertDestroyingStore(this, 'normalize');
     }
@@ -2976,7 +2980,7 @@ abstract class CoreStore extends Service {
     let model = this.modelFor(normalizedModelName);
     assert(
       `You must define a normalize method in your serializer in order to call store.normalize`,
-      serializer.normalize
+      serializer?.normalize
     );
     return serializer.normalize(model, payload);
   }
@@ -3090,7 +3094,7 @@ abstract class CoreStore extends Service {
     @param {String} modelName the record to serialize
     @return {Serializer}
   */
-  serializerFor(modelName) {
+  serializerFor(modelName: string): MinimumSerializerInterface | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'serializerFor');
     }
@@ -3126,10 +3130,7 @@ abstract class CoreStore extends Service {
       return serializer;
     }
 
-    assert(
-      `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
-      serializer !== undefined
-    );
+    return null;
   }
 
   destroy() {

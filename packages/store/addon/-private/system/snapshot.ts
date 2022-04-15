@@ -16,6 +16,7 @@ import type {
 
 import type { DSModel, DSModelSchema, ModelSchema } from '../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
+import { OptionsHash } from '../ts-interfaces/minimum-serializer-interface';
 import type { ChangedAttributesHash } from '../ts-interfaces/record-data';
 import type { AttributeSchema, RelationshipSchema } from '../ts-interfaces/record-data-schemas';
 import type { RecordInstance } from '../ts-interfaces/record-instance';
@@ -548,7 +549,9 @@ export default class Snapshot implements Snapshot {
     @return {Object} an object whose values are primitive JSON values only
     @public
    */
-  serialize(options: unknown): unknown {
-    return this._store.serializerFor(this.modelName).serialize(this, options);
+  serialize(options?: OptionsHash): unknown {
+    const serializer = this._store.serializerFor(this.modelName);
+    assert(`Cannot serialize record, no serializer found`, serializer);
+    return serializer.serialize(this, options);
   }
 }

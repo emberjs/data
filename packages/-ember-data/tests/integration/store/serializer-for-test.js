@@ -42,7 +42,7 @@ module('integration/store - serializerFor', function (hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('when no serializer is available we throw an error', async function (assert) {
+  test('when no serializer is available we return null', async function (assert) {
     let { owner } = this;
     /*
       serializer:-default is the "last chance" fallback and is
@@ -58,10 +58,8 @@ module('integration/store - serializerFor', function (hooks) {
     };
     class AppAdapter extends TestAdapter {}
     owner.register('adapter:application', AppAdapter);
-
-    assert.expectAssertion(() => {
-      store.serializerFor('person');
-    }, /Assertion Failed: No serializer was found for 'person' and no 'application' serializer was found as a fallback/);
+    const serializer = store.serializerFor('person');
+    assert.strictEqual(serializer, null, 'we received null when there was no serializer');
   });
 
   test('we find and instantiate the application serializer', async function (assert) {

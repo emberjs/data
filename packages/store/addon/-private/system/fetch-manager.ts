@@ -13,10 +13,13 @@ import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecat
 import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
 import type { ExistingRecordIdentifier, RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serializer-interface';
+import { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
 import coerceId from './coerce-id';
 import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
+import ShimModelClass from './model/shim-model-class';
 import RequestCache, { RequestPromise } from './request-cache';
 import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
@@ -32,7 +35,14 @@ function payloadIsNotBlank(adapterPayload): boolean {
   }
 }
 
+type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
+type SerializerWithParseErrors = MinimumSerializerInterface & {
+  extractErrors?(store: CoreStore, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
+};
+
 export const SaveOp: unique symbol = Symbol('SaveOp');
+
+export type FetchMutationOptions = FindOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
 interface PendingFetchItem {
   identifier: ExistingRecordIdentifier;
@@ -46,7 +56,7 @@ interface PendingSaveItem {
   resolver: RSVP.Deferred<any>;
   snapshot: Snapshot;
   identifier: RecordIdentifier;
-  options: { [k: string]: unknown; [SaveOp]: 'createRecord' | 'saveRecord' | 'updateRecord' };
+  options: FetchMutationOptions;
   queryRequest: Request;
 }
 
@@ -80,7 +90,10 @@ export default class FetchManager {
 
     @internal
   */
-  scheduleSave(identifier: RecordIdentifier, options: any = {}): RSVP.Promise<null | SingleResourceDocument> {
+  scheduleSave(
+    identifier: RecordIdentifier,
+    options: FetchMutationOptions
+  ): RSVP.Promise<null | SingleResourceDocument> {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<null | SingleResourceDocument>(promiseLabel);
     let query: SaveRecordMutation = {
@@ -128,7 +141,7 @@ export default class FetchManager {
     );
 
     let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-    let serializer = store.serializerFor(modelName);
+    let serializer: SerializerWithParseErrors | null = store.serializerFor(modelName);
     let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
     assert(
@@ -167,7 +180,7 @@ export default class FetchManager {
         if (error && error.isAdapterError === true && error.code === 'InvalidError') {
           let parsedErrors = error.errors;
 
-          if (typeof serializer.extractErrors === 'function') {
+          if (serializer && typeof serializer.extractErrors === 'function') {
             parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
           } else {
             parsedErrors = errorsArrayToHash(error.errors);
