@@ -84,7 +84,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
     return this.identifier;
   }
 
-  pushData(data: JsonApiResource, calculateChange: boolean) {
+  pushData(data: JsonApiResource, calculateChange: true): string[];
+  pushData(data: JsonApiResource, calculateChange?: false): void;
+  pushData(data: JsonApiResource, calculateChange?: boolean): string[] | void {
     let changedKeys;
 
     if (this._isNew) {

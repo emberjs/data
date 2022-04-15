@@ -12,6 +12,7 @@ import type {
   RelationshipsSchema,
 } from '../../ts-interfaces/record-data-schemas';
 import type { RecordDataStoreWrapper as StoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
 import type CoreStore from '../core-store';
 import { internalModelFactoryFor } from './internal-model-factory';
@@ -224,7 +225,7 @@ export default class RecordDataStoreWrapper implements StoreWrapper {
       return false;
     }
 
-    const record = internalModel._record;
+    const record = internalModel._record as RecordInstance;
     return record && !(record.isDestroyed || record.isDestroying);
   }
 

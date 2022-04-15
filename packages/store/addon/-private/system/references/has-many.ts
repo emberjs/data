@@ -4,6 +4,8 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import { resolve } from 'rsvp';
 
+import { ManyArray } from 'ember-data/-private';
+
 import type { ManyRelationship } from '@ember-data/record-data/-private';
 import { assertPolymorphicType } from '@ember-data/store/-debug';
 
@@ -250,7 +252,7 @@ export default class HasManyReference extends Reference {
    */
   async push(
     objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
-  ): Promise<any> {
+  ): Promise<ManyArray> {
     const payload = await resolve(objectOrPromise);
     let array: Array<ExistingResourceObject | SingleResourceDocument>;
 
@@ -291,7 +293,7 @@ export default class HasManyReference extends Reference {
     });
 
     // TODO IGOR it seems wrong that we were returning the many array here
-    return internalModel.getHasMany(this.key);
+    return internalModel.getHasMany(this.key) as Promise<ManyArray> | ManyArray; // this cast is necessary because typescript does not work properly with custom thenables
   }
 
   _isLoaded() {

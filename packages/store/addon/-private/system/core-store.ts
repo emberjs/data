@@ -17,11 +17,7 @@ import { importSync } from '@embroider/macros';
 import { all, default as RSVP, Promise, resolve } from 'rsvp';
 
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
-import type {
-  BelongsToRelationship,
-  ManyRelationship,
-  RecordData as RecordDataClass,
-} from '@ember-data/record-data/-private';
+import type { ManyRelationship, RecordData as RecordDataClass } from '@ember-data/record-data/-private';
 import type { RelationshipState } from '@ember-data/record-data/-private/graph/-state';
 
 import { IdentifierCache } from '../identifiers/cache';
@@ -95,6 +91,11 @@ function freeze<T>(obj: T): T {
   }
 
   return obj;
+}
+
+export interface CreateRecordProperties {
+  id?: string | null;
+  [key: string]: unknown;
 }
 
 /**
@@ -490,7 +491,7 @@ abstract class CoreStore extends Service {
       newly created record.
     @return {Model} record
   */
-  createRecord(modelName, inputProperties) {
+  createRecord(modelName: string, inputProperties: CreateRecordProperties): RecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
@@ -1365,7 +1366,7 @@ abstract class CoreStore extends Service {
     @param options optional to include adapterOptions
     @return {Promise} promise
   */
-  _reloadRecord(internalModel, options): RSVP.Promise<InternalModel> {
+  _reloadRecord(internalModel: InternalModel, options: FindOptions): RSVP.Promise<InternalModel> {
     options.isReloading = true;
     let { id, modelName } = internalModel;
     let adapter = this.adapterFor(modelName);
@@ -1503,12 +1504,12 @@ abstract class CoreStore extends Service {
   _findHasManyByJsonApiResource(
     resource,
     parentInternalModel: InternalModel,
-    relationship: ManyRelationship | BelongsToRelationship,
-    options: any
-  ): RSVP.Promise<unknown> {
+    relationship: ManyRelationship,
+    options?: Dict<unknown>
+  ): Promise<void | unknown[]> {
     if (HAS_RECORD_DATA_PACKAGE) {
       if (!resource) {
-        return resolve([]);
+        return resolve();
       }
       const { definition, state } = relationship;
       let adapter = this.adapterFor(definition.type);
@@ -1553,7 +1554,7 @@ abstract class CoreStore extends Service {
 
       // we were explicitly told we have no data and no links.
       //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-      return resolve([]);
+      return resolve();
     }
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
@@ -2816,10 +2817,6 @@ abstract class CoreStore extends Service {
       serializer.pushPayload
     );
     serializer.pushPayload(this, payload);
-  }
-
-  reloadManyArray(manyArray, internalModel, key, options) {
-    return internalModel.reloadHasMany(key, options);
   }
 
   reloadBelongsTo(belongsToProxy, internalModel, key, options) {

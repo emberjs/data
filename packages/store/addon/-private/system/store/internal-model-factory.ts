@@ -9,6 +9,7 @@ import type {
   ResourceIdentifierObject,
 } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { RecordData } from '../../ts-interfaces/record-data';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
 import type CoreStore from '../core-store';
@@ -20,19 +21,19 @@ import WeakCache from '../weak-cache';
 /**
   @module @ember-data/store
 */
-
 const FactoryCache = new WeakCache<CoreStore, InternalModelFactory>(DEBUG ? 'internal-model-factory' : '');
 FactoryCache._generator = (store: CoreStore) => {
   return new InternalModelFactory(store);
 };
 type NewResourceInfo = { type: string; id: string | null };
 
-const RecordCache = new WeakCache<RecordInstance, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
+const RecordCache = new WeakCache<RecordInstance | RecordData, StableRecordIdentifier>(DEBUG ? 'identifier' : '');
 if (DEBUG) {
-  RecordCache._expectMsg = (key: RecordInstance) => `${key} is not a record instantiated by @ember-data/store`;
+  RecordCache._expectMsg = (key: RecordInstance | RecordData) =>
+    `${String(key)} is not a record instantiated by @ember-data/store`;
 }
 
-export function peekRecordIdentifier(record: any): StableRecordIdentifier | undefined {
+export function peekRecordIdentifier(record: RecordInstance | RecordData): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
 }
 
@@ -60,11 +61,11 @@ export function peekRecordIdentifier(record: any): StableRecordIdentifier | unde
   @param {Object} record a record instance previously obstained from the store.
   @returns {StableRecordIdentifier}
  */
-export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
+export function recordIdentifierFor(record: RecordInstance | RecordData): StableRecordIdentifier {
   return RecordCache.getWithError(record);
 }
 
-export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier(record: RecordInstance | RecordData, identifier: StableRecordIdentifier): void {
   if (DEBUG && RecordCache.has(record)) {
     throw new Error(`${record} was already assigned an identifier`);
   }

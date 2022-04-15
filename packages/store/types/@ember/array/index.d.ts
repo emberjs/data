@@ -72,7 +72,7 @@ interface Array<T> extends Enumerable<T> {
    * Becomes true whenever the array currently has observers watching changes
    * on the array.
    */
-  hasArrayObservers: ComputedProperty<boolean>;
+  hasArrayObservers: boolean | ComputedProperty<boolean>;
   /**
    * If you are implementing an object that supports `Ember.Array`, call this
    * method just before the array content changes to notify any observers and

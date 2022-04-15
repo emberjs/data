@@ -3,6 +3,7 @@ import { DEBUG } from '@glimmer/env';
 
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordData } from '../ts-interfaces/record-data';
+import type { RecordInstance } from '../ts-interfaces/record-instance';
 import WeakCache from './weak-cache';
 
 /*
@@ -40,6 +41,7 @@ export function removeRecordDataFor(identifier: StableRecordIdentifier): void {
 
 export default function recordDataFor(instance: StableRecordIdentifier): RecordData | null;
 export default function recordDataFor(instance: Instance): RecordData;
+export default function recordDataFor(instance: RecordInstance): RecordData;
 export default function recordDataFor(instance: object): null;
 export default function recordDataFor(instance: Instance | object): RecordData | null {
   if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier)) {

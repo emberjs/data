@@ -17,6 +17,7 @@ import type {
   AttributesSchema,
   RelationshipsSchema,
 } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
+import { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { SchemaDefinitionService } from '@ember-data/store/-private/ts-interfaces/schema-definition-service';
 
 module('unit/model - Custom Class Model', function (hooks) {
@@ -25,8 +26,10 @@ module('unit/model - Custom Class Model', function (hooks) {
     constructor(public store: Store) {
       this.store = store;
     }
-    save() {
-      return this.store.saveRecord(this);
+    // these types aren't correct but we don't have a registry to help
+    // make them correct yet
+    save(): Promise<RecordInstance> {
+      return this.store.saveRecord(this as unknown as RecordInstance);
     }
   }
 
@@ -287,7 +290,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     };
     store.registerSchemaDefinitionService(schema);
     let person = store.createRecord('person', { name: 'chris' });
-    await person.save();
+    await (person as unknown as Person).save();
   });
 
   test('hasModelFor with custom schema definition', async function (assert) {

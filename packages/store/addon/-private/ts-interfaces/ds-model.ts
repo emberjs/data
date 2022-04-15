@@ -1,15 +1,20 @@
-import EmberObject from '@ember/object';
+import type EmberObject from '@ember/object';
 
-import RSVP from 'rsvp';
+import type { Errors } from '@ember-data/model/-private';
 
+import type CoreStore from '../system/core-store';
+import type InternalModel from '../system/model/internal-model';
 import type { JsonApiValidationError } from './record-data-json-api';
-import type { AttributeSchema, RelationshipSchema } from './record-data-schemas';
-import { RecordInstance } from './record-instance';
+import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from './record-data-schemas';
 
 // Placeholder until model.js is typed
-export interface DSModel extends RecordInstance, EmberObject {
+export interface DSModel extends EmberObject {
+  constructor: DSModelSchema;
+  store: CoreStore;
+  errors: Errors;
+  _internalModel: InternalModel;
   toString(): string;
-  save(): RSVP.Promise<DSModel>;
+  save(): Promise<DSModel>;
   eachRelationship<T>(callback: (this: T, key: string, meta: RelationshipSchema) => void, binding?: T): void;
   eachAttribute<T>(callback: (this: T, key: string, meta: AttributeSchema) => void, binding?: T): void;
   invalidErrorsChanged(errors: JsonApiValidationError[]): void;
@@ -17,7 +22,7 @@ export interface DSModel extends RecordInstance, EmberObject {
   isDeleted: boolean;
   deleteRecord(): void;
   unloadRecord(): void;
-  errors: any;
+  _notifyProperties(keys: string[]): void;
 }
 
 // Implemented by both ShimModelClass and DSModel
@@ -39,4 +44,7 @@ export interface ModelSchema {
 //  once we can type it.
 export interface DSModelSchema extends ModelSchema {
   isModel: true;
+  relationshipsObject: RelationshipsSchema;
+  extend(...mixins: unknown[]): DSModelSchema;
+  reopenClass(...mixins: unknown[]): void;
 }

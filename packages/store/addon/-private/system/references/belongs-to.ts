@@ -8,6 +8,7 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 
 import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import { RecordInstance } from '../../ts-interfaces/record-instance';
 import CoreStore from '../core-store';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
 import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
@@ -193,7 +194,7 @@ export default class BelongsToReference extends Reference {
    @param {Object|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
-  async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<Object> {
+  async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
     const jsonApiDoc = await resolve(data);
     let record = this.store.push(jsonApiDoc);
 
@@ -267,7 +268,7 @@ export default class BelongsToReference extends Reference {
     @public
    @return {Model} the record in this relationship
    */
-  value(): Object | null {
+  value(): RecordInstance | null {
     let resource = this._resource();
     if (resource && resource.data) {
       let inverseInternalModel = this.store._internalModelForResource(resource.data);

@@ -6,4 +6,5 @@ export interface FindOptions {
   include?: string;
   adapterOptions?: Dict<unknown>;
   preload?: Dict<unknown>;
+  isReloading?: boolean;
 }
