@@ -1,8 +1,5 @@
 import 'ember-inflector';
 
-import EmberError from '@ember/error';
-import { VERSION } from '@ember/version';
-
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
@@ -45,14 +42,6 @@ import {
   Snapshot,
 } from './-private';
 import setupContainer from './setup-container';
-
-if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
-  throw new EmberError(
-    'Ember Data requires at least Ember 1.13.0, but you have ' +
-      VERSION +
-      '. Please upgrade your version of Ember, then upgrade Ember Data.'
-  );
-}
 
 DS.Store = Store;
 DS.PromiseArray = PromiseArray;
