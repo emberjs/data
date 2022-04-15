@@ -28,7 +28,6 @@
       "packages/store/types/@ember/runloop/-private/backburner.d.ts",
       "packages/store/types/@ember/object/compat.d.ts",
       "packages/store/types/@ember/debug/index.d.ts",
-      "packages/store/types/@ember/array/index.d.ts",
       "packages/store/tests/dummy/app/routes/application/route.ts",
       "packages/store/tests/dummy/app/router.ts",
       "packages/store/tests/dummy/app/resolver.ts",
