@@ -180,6 +180,7 @@ export default class FetchManager {
         if (error && error.isAdapterError === true && error.code === 'InvalidError') {
           let parsedErrors = error.errors;
 
+          // TODO deprecate extractErrors being called and/or make it part of the public interface
           if (serializer && typeof serializer.extractErrors === 'function') {
             parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
           } else {

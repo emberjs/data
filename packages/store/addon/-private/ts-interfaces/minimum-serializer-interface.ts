@@ -4,6 +4,7 @@ import type Store from '../system/core-store';
 import type Snapshot from '../system/snapshot';
 import type { ModelSchema } from './ds-model';
 import type { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
+import type { AdapterPayload } from './minimum-adapter-interface';
 import type { Dict } from './utils';
 
 export type OptionsHash = Dict<unknown>;
@@ -66,7 +67,7 @@ export interface MinimumSerializerInterface {
   normalizeResponse(
     store: Store,
     schema: ModelSchema,
-    rawPayload: unknown,
+    rawPayload: AdapterPayload,
     id: string | null,
     requestType:
       | 'findRecord'
@@ -241,4 +242,16 @@ export interface MinimumSerializerInterface {
    * @returns {void}
    */
   pushPayload?(store: Store, rawPayload: JSONObject): void;
+
+  /**
+   * In some situations the serializer may need to perform cleanup when destroyed,
+   * that cleanup can be done in `destroy`.
+   *
+   * If not implemented, the store does not inform the serializer of destruction.
+   *
+   * @method destroy [OPTIONAL]
+   * @public
+   * @optional
+   */
+  destroy?(): void;
 }
