@@ -6,7 +6,7 @@ import { resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import Model, { belongsTo, hasMany } from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 module('integration/adapter/store-adapter - client-side delete', function (hooks) {
@@ -16,13 +16,15 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', JSONAPISerializer.extend());
 
-    const Bookstore = Model.extend({
-      books: hasMany('book', { async: false, inverse: 'bookstore' }),
-    });
+    class Bookstore extends Model {
+      @attr name;
+      @hasMany('book', { async: false, inverse: 'bookstore' }) books;
+    }
 
-    const Book = Model.extend({
-      bookstore: belongsTo('bookstore', { inverse: 'books' }),
-    });
+    class Book extends Model {
+      @attr name;
+      @belongsTo('bookstore', { async: true, inverse: 'books' }) bookstore;
+    }
 
     this.owner.register('model:bookstore', Bookstore);
     this.owner.register('model:book', Book);
@@ -69,7 +71,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
       ],
     });
 
-    assert.deepEqual(bookstore.get('books').mapBy('id'), ['1', '2'], 'initial hasmany loaded');
+    assert.deepEqual(bookstore.books.mapBy('id'), ['1', '2'], 'initial hasmany loaded');
 
     let book2 = store.peekRecord('book', '2');
 
@@ -80,7 +82,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
     await settled();
 
     assert.false(store.hasRecordForId('book', '2'), 'book 2 unloaded');
-    assert.deepEqual(bookstore.get('books').mapBy('id'), ['1'], 'one book client-side deleted');
+    assert.deepEqual(bookstore.books.mapBy('id'), ['1'], 'one book client-side deleted');
 
     store.push({
       data: {
@@ -98,7 +100,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
     });
 
     assert.deepEqual(
-      bookstore.get('books').mapBy('id'),
+      bookstore.books.mapBy('id'),
       ['1', '2'],
       'the deleted book (with same id) is pushed back into the store'
     );
