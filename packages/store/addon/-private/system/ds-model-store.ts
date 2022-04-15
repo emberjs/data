@@ -7,9 +7,8 @@ import { DEBUG } from '@glimmer/env';
 import type DSModelClass from '@ember-data/model';
 
 import type { DSModel } from '../ts-interfaces/ds-model';
-import type { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
-import type { RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import CoreStore from './core-store';
 import type ShimModelClass from './model/shim-model-class';
@@ -106,14 +105,6 @@ class Store extends CoreStore {
 
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
     return this._relationshipsDefinitionFor({ type: modelName })[key];
-  }
-
-  _attributesDefinitionFor(identifier: RecordIdentifier | { type: string }) {
-    return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-  }
-
-  _relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
-    return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
   }
 
   getSchemaDefinitionService(): SchemaDefinitionService {

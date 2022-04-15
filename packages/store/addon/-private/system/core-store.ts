@@ -43,7 +43,7 @@ import type { PromiseProxy } from '../ts-interfaces/promise-proxies';
 import type { RecordData } from '../ts-interfaces/record-data';
 import type { JsonApiRelationship } from '../ts-interfaces/record-data-json-api';
 import type { RecordDataRecordWrapper } from '../ts-interfaces/record-data-record-wrapper';
-import type { AttributesSchema } from '../ts-interfaces/record-data-schemas';
+import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
 import type { RecordInstance } from '../ts-interfaces/record-instance';
 import type { SchemaDefinitionService } from '../ts-interfaces/schema-definition-service';
 import type { FindOptions } from '../ts-interfaces/store';
@@ -390,19 +390,14 @@ abstract class CoreStore extends Service {
     recordDataFor: (identifier: RecordIdentifier) => RecordDataRecordWrapper,
     notificationManager: NotificationManager
   ): RecordInstance;
-
   abstract teardownRecord(record: RecordInstance): void;
+  abstract getSchemaDefinitionService(): SchemaDefinitionService;
 
-  _internalDeleteRecord(internalModel: InternalModel) {
-    internalModel.deleteRecord();
-  }
-
-  // FeatureFlagged in the DSModelStore claas
   _attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
     return this.getSchemaDefinitionService().attributesDefinitionFor(identifier);
   }
 
-  _relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }) {
+  _relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
     return this.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
   }
 
@@ -410,11 +405,6 @@ abstract class CoreStore extends Service {
     this._schemaDefinitionService = schema;
   }
 
-  getSchemaDefinitionService(): SchemaDefinitionService {
-    return this._schemaDefinitionService;
-  }
-
-  // TODO Double check this return value is correct
   _relationshipMetaFor(modelName: string, id: string | null, key: string) {
     return this._relationshipsDefinitionFor({ type: modelName })[key];
   }
@@ -1070,7 +1060,10 @@ abstract class CoreStore extends Service {
     options = options || {};
 
     if (!internalModel.currentState.isLoaded) {
-      return this._findByInternalModel(internalModel, options);
+      return promiseRecord(
+        this._findByInternalModel(internalModel, options),
+        `DS: Store#findRecord ${internalModel.identifier}`
+      );
     }
 
     let fetchedInternalModel = this._findRecord(internalModel, options);
@@ -1113,22 +1106,17 @@ abstract class CoreStore extends Service {
     return Promise.resolve(internalModel);
   }
 
-  _findByInternalModel(internalModel: InternalModel, options: FindOptions = {}) {
+  _findByInternalModel(internalModel: InternalModel, options: FindOptions = {}): Promise<InternalModel> {
     if (options.preload) {
       this._backburner.join(() => {
         internalModel.preloadData(options.preload);
       });
     }
 
-    let fetchedInternalModel = this._findEmptyInternalModel(internalModel, options);
-
-    return promiseRecord(
-      fetchedInternalModel,
-      `DS: Store#findRecord ${internalModel.modelName} with id: ${internalModel.id}`
-    );
+    return this._findEmptyInternalModel(internalModel, options);
   }
 
-  _findEmptyInternalModel(internalModel: InternalModel, options: FindOptions) {
+  _findEmptyInternalModel(internalModel: InternalModel, options: FindOptions): Promise<InternalModel> {
     if (internalModel.currentState.isEmpty) {
       return this._scheduleFetch(internalModel, options);
     }
@@ -1577,7 +1565,7 @@ abstract class CoreStore extends Service {
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(internalModel, link, relationship, options) {
+  findBelongsTo(internalModel, link, relationship, options): Promise<InternalModel> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
     }
@@ -1595,19 +1583,25 @@ abstract class CoreStore extends Service {
     return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
   }
 
-  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options) {
+  _fetchBelongsToLinkFromResource(
+    resource,
+    parentInternalModel: InternalModel,
+    relationshipMeta,
+    options
+  ): Promise<InternalModel | null> {
     if (!resource || !resource.links || !resource.links.related) {
       // should we warn here, not sure cause its an internal method
       return resolve(null);
     }
-    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options).then(
-      (internalModel) => {
-        return internalModel ? internalModel.getRecord() : null;
-      }
-    );
+    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta, options);
   }
 
-  _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
+  _findBelongsToByJsonApiResource(
+    resource,
+    parentInternalModel: InternalModel,
+    relationshipMeta,
+    options
+  ): Promise<InternalModel | null> {
     if (!resource) {
       return resolve(null);
     }
@@ -1626,7 +1620,7 @@ abstract class CoreStore extends Service {
       // short circuit if we are already loading
       let pendingRequest = this._fetchManager.getPendingFetch(internalModel.identifier, options);
       if (pendingRequest) {
-        return pendingRequest.then(() => internalModel.getRecord());
+        return pendingRequest.then(() => internalModel);
       }
     }
 
@@ -1659,14 +1653,12 @@ abstract class CoreStore extends Service {
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
 
     if (internalModel && resourceIsLocal) {
-      return resolve(internalModel.getRecord());
+      return resolve(internalModel);
     }
 
     // fetch by data
     if (internalModel && !localDataIsEmpty) {
-      return this._scheduleFetch(internalModel, options).then(() => {
-        return internalModel.getRecord();
-      });
+      return this._scheduleFetch(internalModel, options);
     }
 
     // we were explicitly told we have no data and no links.
