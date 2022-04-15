@@ -426,7 +426,7 @@ export default class InternalModel {
     }
   }
 
-  _findBelongsTo(key, resource, relationshipMeta, options) {
+  _findBelongsTo(key: string, resource, relationshipMeta, options): Promise<InternalModel> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
       (internalModel) => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
@@ -1192,7 +1192,7 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
   // only set to not stale if no error is thrown
   relationship.state.isStale = false;
 
-  return value;
+  return isHasMany || !value ? value : value.getRecord();
 }
 
 export function assertRecordsPassedToHasMany(records) {
