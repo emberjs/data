@@ -1,8 +1,7 @@
 import MutableArray from '@ember/array/mutable';
 import Copyable from '@ember/object/-private/copyable';
+import type Mixin from '@ember/object/mixin';
 import Observable from '@ember/object/observable';
-
-type Mixin<T> = import('@ember/object/mixin').default<T>;
 
 // Get an alias to the global Array type to use in inner scope below.
 type GlobalArray<T> = T[];

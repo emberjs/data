@@ -8,10 +8,9 @@
 // TypeScript Version: 3.7
 
 import Enumerable from '@ember/array/-private/enumerable';
-
-type Mixin<T> = import('@ember/object/mixin').default<T>;
-type ComputedProperty<T> = import('@ember/object/computed').default<T>;
-type NativeArray<T> = import('@ember/array/-private/native-array').default<T>;
+import type NativeArray from '@ember/array/-private/native-array';
+import type ComputedProperty from '@ember/object/computed';
+import type Mixin from '@ember/object/mixin';
 
 namespace Array {
   // detect is an intimate Mixin API, likely should not be typed upstream

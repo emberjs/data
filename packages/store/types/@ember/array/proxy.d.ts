@@ -1,7 +1,6 @@
 import MutableArray from '@ember/array/mutable';
 import EmberObject from '@ember/object';
-
-type ComputedProperty<T> = import('@ember/object/computed').default<T>;
+import type ComputedProperty from '@ember/object/computed';
 
 interface EmberArrayLike<T> {
   length: number | ComputedProperty<number>;

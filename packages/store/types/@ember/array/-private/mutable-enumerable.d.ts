@@ -1,5 +1,5 @@
-type Mixin<T> = import('@ember/object/mixin').default<T>;
-type Enumerable<T> = import('@ember/array/-private/enumerable').default<T>;
+import type Enumerable from '@ember/array/-private/enumerable';
+import type Mixin from '@ember/object/mixin';
 
 /**
  * This mixin defines the API for modifying generic enumerables. These methods
