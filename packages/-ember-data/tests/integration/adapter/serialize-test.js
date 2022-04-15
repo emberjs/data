@@ -12,7 +12,7 @@ module('integration/adapter/serialize - DS.Adapter integration test', function (
   test('serialize() is delegated to the serializer', function (assert) {
     assert.expect(1);
 
-    const Person = Model.extend();
+    class Person extends Model {}
 
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', Adapter.extend());
