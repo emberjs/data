@@ -48,13 +48,17 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
   //  however, meta on relationships does not trigger change notifications.
   //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`
   @computed()
-  get meta(): void {
-    return assert(
-      'You attempted to access meta on the promise for the async belongsTo relationship ' +
-        `${this.get('_belongsToState').modelName}:${this.get('_belongsToState').key}'.` +
-        '\nUse `record.belongsTo(relationshipName).meta()` instead.',
-      false
-    );
+  get meta() {
+    // eslint-disable-next-line no-constant-condition
+    if (1) {
+      assert(
+        'You attempted to access meta on the promise for the async belongsTo relationship ' +
+          `${this.get('_belongsToState').modelName}:${this.get('_belongsToState').key}'.` +
+          '\nUse `record.belongsTo(relationshipName).meta()` instead.',
+        false
+      );
+    }
+    return;
   }
 
   async reload(options: Dict<unknown>): Promise<this> {
