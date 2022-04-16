@@ -71,8 +71,11 @@ module.exports = function rollupPrivateModule(tree, options) {
           format: options.babelCompiler.shouldCompileModules() ? 'amd' : 'esm',
           amd: { id: `${packageName}/-private` },
           exports: 'named',
+          generatedCode: 'es2015',
+          minifyInternalExports: true,
         },
       ],
+      treeshake: true,
       external: externalDependencies,
       onwarn: onWarn,
       // cache: true|false Defaults to true
