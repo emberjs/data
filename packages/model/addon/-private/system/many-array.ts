@@ -11,9 +11,9 @@ import { all } from 'rsvp';
 import type { RelationshipRecordData } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
 import type { InternalModel } from '@ember-data/store/-private';
 import { PromiseArray, recordDataFor } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
-import type { CreateRecordProperties } from '@ember-data/store/-private/system/core-store';
 import ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type Store from '@ember-data/store/-private/system/store';
+import type { CreateRecordProperties } from '@ember-data/store/-private/system/store';
 import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
@@ -28,7 +28,7 @@ const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as ne
 >() => MutableArrayWithObject<T, M>;
 
 export interface ManyArrayCreateArgs {
-  store: CoreStore;
+  store: Store;
   type: ShimModelClass;
   recordData: RelationshipRecordData;
   key: string;
@@ -98,7 +98,7 @@ export default class ManyArray extends MutableArrayWithObject<InternalModel, Rec
   declare currentState: InternalModel[];
   declare recordData: RelationshipRecordData;
   declare internalModel: InternalModel;
-  declare store: CoreStore;
+  declare store: Store;
   declare key: string;
   declare type: DSModelSchema;
 

@@ -6,12 +6,12 @@ import type {
 import { graphFor } from '@ember-data/record-data/-private';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { RecordDataStoreWrapper } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type Store from '@ember-data/store/-private/system/store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { ConfidentDict as RelationshipDict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 export function getRelationshipStateForRecord(
-  record: { store: CoreStore },
+  record: { store: Store },
   propertyName: string
 ): BelongsToRelationship | ManyRelationship | ImplicitRelationship {
   const identifier = recordIdentifierFor(record);
@@ -20,7 +20,7 @@ export function getRelationshipStateForRecord(
 
 export function hasRelationshipForRecord(
   record: {
-    store: CoreStore;
+    store: Store;
   },
   propertyName: string
 ): boolean {

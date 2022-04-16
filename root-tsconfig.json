@@ -29,6 +29,7 @@
     "paths": {
       "ember-data": ["packages/-ember-data/addon"],
       "ember-data/*": ["packages/-ember-data/addon/*"],
+      "@ember-data/types": ["ember-data-types/*"],
       "@ember-data/store": ["packages/store/addon"],
       "@ember-data/store/*": ["packages/store/addon/*"],
       "@ember-data/debug": ["packages/debug/addon"],
@@ -52,14 +53,16 @@
       "@ember-data/unpublished-test-infra/test-support/*": ["packages/unpublished-test-infra/addon-test-support/*"],
       "fastboot-test-app/tests/*": ["tests/*"],
       "fastboot-test-app/*": ["app/*"],
-      "*": ["packages/store/types/*", "packages/record-data/types/*", "packages/fastboot-test-app/types/*"]
+      "*": ["@types/*", "packages/fastboot-test-app/types/*"]
     }
   },
   "include": [
+    "@types/**/*",
+    "ember-data-types/**/*",
     "packages/**/app/**/*",
     "packages/**/addon/**/*",
     "packages/**/tests/**/*",
-    "packages/**/types/**/*",
+    "packages/fastboot-test-app/types/**/*",
     "packages/**/test-support/**/*",
     "packages/**/addon-test-support/**/*"
   ],

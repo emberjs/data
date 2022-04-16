@@ -7,7 +7,6 @@ import type {
 } from '@ember-data/record-data/-private';
 import { graphFor } from '@ember-data/record-data/-private';
 import Store from '@ember-data/store';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
 import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type {
   CollectionResourceDocument,
@@ -20,7 +19,7 @@ import { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 class AbstractMap {
-  constructor(private store: CoreStore, private isImplicit: boolean) {}
+  constructor(private store: Store, private isImplicit: boolean) {}
 
   has(identifier: StableRecordIdentifier) {
     let graph = graphFor(this.store._storeWrapper);
@@ -32,7 +31,7 @@ class AbstractGraph {
   public identifiers: AbstractMap;
   public implicit: { has(identifier: StableRecordIdentifier): boolean };
 
-  constructor(private store: CoreStore) {
+  constructor(private store: Store) {
     this.identifiers = new AbstractMap(store, false);
     this.implicit = {
       has: (identifier) => {
@@ -63,7 +62,7 @@ class AbstractGraph {
   }
 }
 
-function graphForTest(store: CoreStore) {
+function graphForTest(store: Store) {
   return new AbstractGraph(store);
 }
 
@@ -145,7 +144,7 @@ export interface Context {
   owner: any;
 }
 
-interface TestStore<T extends RecordInstance> extends CoreStore {
+interface TestStore<T extends RecordInstance> extends Store {
   push(data: EmptyResourceDocument): null;
   push(data: SingleResourceDocument): T;
   push(data: CollectionResourceDocument): T[];

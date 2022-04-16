@@ -4,9 +4,9 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import type { RecordData } from '@ember-data/record-data/-private';
 import { errorsArrayToHash } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type { NotificationType } from '@ember-data/store/-private/system/record-notification-manager';
 import type RequestCache from '@ember-data/store/-private/system/request-cache';
+import type Store from '@ember-data/store/-private/system/store';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 
 import notifyChanges from './notify-changes';
@@ -139,7 +139,7 @@ root
   @internal
 */
 export default class RecordState {
-  declare store: CoreStore;
+  declare store: Store;
   declare identifier: StableRecordIdentifier;
   declare record: Model;
   declare rs: RequestCache;

@@ -12,17 +12,17 @@ import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordData } from '../../ts-interfaces/record-data';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
-import type CoreStore from '../core-store';
 import IdentityMap from '../identity-map';
 import type InternalModelMap from '../internal-model-map';
 import InternalModel from '../model/internal-model';
+import type Store from '../store';
 import WeakCache from '../weak-cache';
 
 /**
   @module @ember-data/store
 */
-const FactoryCache = new WeakCache<CoreStore, InternalModelFactory>(DEBUG ? 'internal-model-factory' : '');
-FactoryCache._generator = (store: CoreStore) => {
+const FactoryCache = new WeakCache<Store, InternalModelFactory>(DEBUG ? 'internal-model-factory' : '');
+FactoryCache._generator = (store: Store) => {
   return new InternalModelFactory(store);
 };
 type NewResourceInfo = { type: string; id: string | null };
@@ -81,7 +81,7 @@ export function setRecordIdentifier(record: RecordInstance | RecordData, identif
   RecordCache.set(record, identifier);
 }
 
-export function internalModelFactoryFor(store: CoreStore): InternalModelFactory {
+export function internalModelFactoryFor(store: Store): InternalModelFactory {
   return FactoryCache.lookup(store);
 }
 
@@ -96,9 +96,9 @@ export function internalModelFactoryFor(store: CoreStore): InternalModelFactory 
 export default class InternalModelFactory {
   declare _identityMap: IdentityMap;
   declare identifierCache: IdentifierCache;
-  declare store: CoreStore;
+  declare store: Store;
 
-  constructor(store: CoreStore) {
+  constructor(store: Store) {
     this.store = store;
     this.identifierCache = store.identifierCache;
     this.identifierCache.__configureMerge((identifier, matchedIdentifier, resourceData) => {

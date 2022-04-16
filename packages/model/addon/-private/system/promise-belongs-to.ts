@@ -5,13 +5,13 @@ import type ObjectProxy from '@ember/object/proxy';
 
 import type { InternalModel } from '@ember-data/store/-private';
 import { PromiseObject } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type Store from '@ember-data/store/-private/system/store';
 import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 export interface BelongsToProxyMeta {
   key: string;
-  store: CoreStore;
+  store: Store;
   originatingInternalModel: InternalModel;
   modelName: string;
 }

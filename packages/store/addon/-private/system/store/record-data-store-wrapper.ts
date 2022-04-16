@@ -14,7 +14,7 @@ import type {
 import type { RecordDataStoreWrapper as StoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
 import { RecordInstance } from '../../ts-interfaces/record-instance';
 import constructResource from '../../utils/construct-resource';
-import type CoreStore from '../core-store';
+import type Store from '../store';
 import { internalModelFactoryFor } from './internal-model-factory';
 
 /**
@@ -39,9 +39,9 @@ if (HAS_RECORD_DATA_PACKAGE) {
 export default class RecordDataStoreWrapper implements StoreWrapper {
   declare _willNotify: boolean;
   declare _pendingNotifies: Map<StableRecordIdentifier, Map<string, string>>;
-  declare _store: CoreStore;
+  declare _store: Store;
 
-  constructor(_store: CoreStore) {
+  constructor(_store: Store) {
     this._store = _store;
     this._willNotify = false;
     this._pendingNotifies = new Map();

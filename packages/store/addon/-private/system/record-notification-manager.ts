@@ -1,7 +1,7 @@
 import { DEBUG } from '@glimmer/env';
 
 import type { RecordIdentifier, StableRecordIdentifier } from '../ts-interfaces/identifier';
-import type CoreStore from './core-store';
+import type Store from './store';
 import WeakCache from './weak-cache';
 
 type UnsubscribeToken = Object;
@@ -41,7 +41,7 @@ export function unsubscribe(token: UnsubscribeToken) {
   Currently only support a single callback per identifier
 */
 export default class NotificationManager {
-  constructor(private store: CoreStore) {}
+  constructor(private store: Store) {}
 
   subscribe(identifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken {
     let stableIdentifier = this.store.identifierCache.getOrCreateRecordIdentifier(identifier);

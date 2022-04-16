@@ -1,4 +1,4 @@
 interface FastBoot {
-  require(moduleName: string): any;
+  require(moduleName: string): unknown;
 }
 const FastBoot: undefined | FastBoot;

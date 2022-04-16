@@ -4,8 +4,8 @@ import { DEBUG } from '@glimmer/env';
 import { JsonApiDocument } from '../../ts-interfaces/ember-data-json-api';
 import { AdapterPayload } from '../../ts-interfaces/minimum-adapter-interface';
 import { MinimumSerializerInterface, RequestType } from '../../ts-interfaces/minimum-serializer-interface';
-import CoreStore from '../core-store';
 import ShimModelClass from '../model/shim-model-class';
+import Store from '../store';
 
 /**
   This is a helper method that validates a JSON API top-level document
@@ -69,7 +69,7 @@ function validateDocumentStructure(doc?: AdapterPayload | JsonApiDocument): asse
 
 export function normalizeResponseHelper(
   serializer: MinimumSerializerInterface | null,
-  store: CoreStore,
+  store: Store,
   modelClass: ShimModelClass,
   payload: AdapterPayload,
   id: string | null,

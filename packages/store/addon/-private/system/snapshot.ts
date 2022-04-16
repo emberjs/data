@@ -22,9 +22,9 @@ import type { AttributeSchema, RelationshipSchema } from '../ts-interfaces/recor
 import type { RecordInstance } from '../ts-interfaces/record-instance';
 import type { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
-import type Store from './core-store';
 import type InternalModel from './model/internal-model';
 import recordDataFor from './record-data-for';
+import type Store from './store';
 
 type RecordId = string | null;
 

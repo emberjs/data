@@ -17,12 +17,12 @@ import type { MinimumSerializerInterface } from '../ts-interfaces/minimum-serial
 import { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
 import coerceId from './coerce-id';
-import type CoreStore from './core-store';
 import { errorsArrayToHash } from './errors-utils';
 import ShimModelClass from './model/shim-model-class';
 import RequestCache, { RequestPromise } from './request-cache';
 import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
+import type Store from './store';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
 import WeakCache from './weak-cache';
@@ -37,7 +37,7 @@ function payloadIsNotBlank(adapterPayload): boolean {
 
 type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
-  extractErrors?(store: CoreStore, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
+  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): any;
 };
 
 export const SaveOp: unique symbol = Symbol('SaveOp');
@@ -74,7 +74,7 @@ export default class FetchManager {
   // fetches pending in the runloop, waiting to be coalesced
   declare _pendingFetch: Map<string, PendingFetchItem[]>;
 
-  constructor(private _store: CoreStore) {
+  constructor(private _store: Store) {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
@@ -410,7 +410,7 @@ export default class FetchManager {
 
   _findMany(
     adapter: any,
-    store: CoreStore,
+    store: Store,
     modelName: string,
     snapshots: Snapshot[],
     identifiers: RecordIdentifier[],

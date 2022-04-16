@@ -2,15 +2,15 @@ import type EmberObject from '@ember/object';
 
 import type { Errors } from '@ember-data/model/-private';
 
-import type CoreStore from '../system/core-store';
 import type InternalModel from '../system/model/internal-model';
+import type Store from '../system/store';
 import type { JsonApiValidationError } from './record-data-json-api';
 import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from './record-data-schemas';
 
 // Placeholder until model.js is typed
 export interface DSModel extends EmberObject {
   constructor: DSModelSchema;
-  store: CoreStore;
+  store: Store;
   errors: Errors;
   _internalModel: InternalModel;
   toString(): string;

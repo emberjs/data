@@ -6,8 +6,8 @@ import RSVP, { resolve } from 'rsvp';
 import type { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
-import type CoreStore from '../core-store';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
+import type Store from '../store';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 import Reference from './reference';
 /**
@@ -29,7 +29,7 @@ export default class RecordReference extends Reference {
 
   @tracked _ref = 0;
 
-  constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
+  constructor(public store: Store, identifier: StableRecordIdentifier) {
     super(store, identifier);
     this.#identifier = identifier;
     this.#token = store._notificationManager.subscribe(

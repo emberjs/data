@@ -4,7 +4,7 @@ import type { LinkObject, PaginationLinks } from '../../ts-interfaces/ember-data
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { JsonApiRelationship } from '../../ts-interfaces/record-data-json-api';
 import type { Dict } from '../../ts-interfaces/utils';
-import type CoreStore from '../core-store';
+import type Store from '../store';
 /**
   @module @ember-data/store
 */
@@ -35,7 +35,7 @@ interface Reference {
 abstract class Reference {
   #identifier: StableRecordIdentifier;
 
-  constructor(public store: CoreStore, identifier: StableRecordIdentifier) {
+  constructor(public store: Store, identifier: StableRecordIdentifier) {
     this.#identifier = identifier;
   }
 

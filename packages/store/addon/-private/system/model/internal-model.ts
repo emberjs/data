@@ -38,12 +38,12 @@ import type { RelationshipSchema } from '../../ts-interfaces/record-data-schemas
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
 import type { Dict } from '../../ts-interfaces/utils';
-import type CoreStore from '../core-store';
-import type { CreateRecordProperties } from '../core-store';
 import { errorsHashToArray } from '../errors-utils';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
 import Snapshot from '../snapshot';
+import type Store from '../store';
+import type { CreateRecordProperties } from '../store';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 import RootState from './states';
 
@@ -148,10 +148,10 @@ export default class InternalModel {
   declare error: any;
   declare currentState: RecordState;
   declare _previousState: any;
-  declare store: CoreStore;
+  declare store: Store;
   declare identifier: StableRecordIdentifier;
 
-  constructor(store: CoreStore, identifier: StableRecordIdentifier) {
+  constructor(store: Store, identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
@@ -1325,7 +1325,7 @@ export function extractRecordDataFromRecord(recordOrPromiseRecord) {
   return recordDataFor(recordOrPromiseRecord);
 }
 
-function anyUnloaded(store: CoreStore, relationship: ManyRelationship) {
+function anyUnloaded(store: Store, relationship: ManyRelationship) {
   let state = relationship.currentState;
   const unloaded = state.find((s) => {
     let im = store._internalModelForResource(s);

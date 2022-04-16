@@ -3,14 +3,14 @@ import { DEBUG } from '@glimmer/env';
 import { ModelSchema } from '../../ts-interfaces/ds-model';
 import type { AttributeSchema, RelationshipSchema } from '../../ts-interfaces/record-data-schemas';
 import type { Dict } from '../../ts-interfaces/utils';
-import type CoreStore from '../core-store';
+import type Store from '../store';
 import WeakCache from '../weak-cache';
 
-const AvailableShims = new WeakCache<CoreStore, Dict<ShimModelClass>>(DEBUG ? 'schema-shims' : '');
+const AvailableShims = new WeakCache<Store, Dict<ShimModelClass>>(DEBUG ? 'schema-shims' : '');
 AvailableShims._generator = () => {
   return Object.create(null) as Dict<ShimModelClass>;
 };
-export function getShimClass(store: CoreStore, modelName: string): ShimModelClass {
+export function getShimClass(store: Store, modelName: string): ShimModelClass {
   let shims = AvailableShims.lookup(store);
   let shim = shims[modelName];
   if (shim === undefined) {
@@ -33,7 +33,7 @@ function mapFromHash<T>(hash: Dict<T>): Map<string, T> {
 // Mimics the static apis of DSModel
 export default class ShimModelClass implements ModelSchema {
   // TODO Maybe expose the class here?
-  constructor(private __store: CoreStore, public modelName: string) {}
+  constructor(private __store: Store, public modelName: string) {}
 
   get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
     let attrs = this.__store._attributesDefinitionFor({ type: this.modelName });

@@ -6,10 +6,17 @@ export interface QueueItem {
 }
 
 export interface DeferredActionQueues {
-  [index: string]: any;
+  [index: string]: unknown;
   queues: object;
-  schedule(queueName: string, target: any, method: any, args: any, onceFlag: boolean, stack: any): any;
-  flush(fromAutorun: boolean): any;
+  schedule(
+    queueName: string,
+    target: unknown,
+    method: unknown,
+    args: unknown,
+    onceFlag: boolean,
+    stack: unknown
+  ): unknown;
+  flush(fromAutorun: boolean): unknown;
 }
 
 export interface DebugInfo {
@@ -21,8 +28,8 @@ export interface DebugInfo {
 
 export interface Backburner {
   join<T>(fn: () => T): T;
-  on(...args: any[]): void;
-  scheduleOnce(...args: any[]): void;
+  on(...args: unknown[]): void;
+  scheduleOnce(...args: unknown[]): void;
   run<T>(fn: () => T): T;
   schedule(queueName: string, target: object | null, method: (() => void) | string): void;
   ensureInstance(): void;

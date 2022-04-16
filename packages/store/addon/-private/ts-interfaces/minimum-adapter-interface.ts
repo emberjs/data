@@ -1,7 +1,7 @@
-import type Store from '../system/core-store';
 import type AdapterPopulatedRecordArray from '../system/record-arrays/adapter-populated-record-array';
 import type Snapshot from '../system/snapshot';
 import type SnapshotRecordArray from '../system/snapshot-record-array';
+import type Store from '../system/store';
 import type { ModelSchema } from '../ts-interfaces/ds-model';
 import type { RelationshipSchema } from './record-data-schemas';
 import type { Dict } from './utils';

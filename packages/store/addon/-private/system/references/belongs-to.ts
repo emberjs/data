@@ -9,8 +9,8 @@ import { assertPolymorphicType } from '@ember-data/store/-debug';
 import { SingleResourceDocument } from '../../ts-interfaces/ember-data-json-api';
 import { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import { RecordInstance } from '../../ts-interfaces/record-instance';
-import CoreStore from '../core-store';
 import { NotificationType, unsubscribe } from '../record-notification-manager';
+import Store from '../store';
 import { internalModelFactoryFor, recordIdentifierFor } from '../store/internal-model-factory';
 import RecordReference from './record';
 import Reference from './reference';
@@ -42,7 +42,7 @@ export default class BelongsToReference extends Reference {
   @tracked _ref = 0;
 
   constructor(
-    store: CoreStore,
+    store: Store,
     parentIdentifier: StableRecordIdentifier,
     belongsToRelationship: BelongsToRelationship,
     key: string

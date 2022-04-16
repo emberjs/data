@@ -14,19 +14,19 @@ import type { RecordArrayManager, Snapshot } from 'ember-data/-private';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
-import type CoreStore from '../core-store';
 import type { PromiseArray } from '../promise-proxies';
 import { promiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
+import type Store from '../store';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
-function recordForIdentifier(store: CoreStore, identifier: StableRecordIdentifier): RecordInstance {
+function recordForIdentifier(store: Store, identifier: StableRecordIdentifier): RecordInstance {
   return internalModelFactoryFor(store).lookup(identifier).getRecord();
 }
 
 export interface RecordArrayCreateArgs {
   modelName: string;
-  store: CoreStore;
+  store: Store;
   manager: RecordArrayManager;
   content: NativeArray<StableRecordIdentifier>;
   isLoaded: boolean;
@@ -81,7 +81,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
     @private
     @type Store
     */
-  declare store: CoreStore;
+  declare store: Store;
   declare _updatingPromise: PromiseArray<RecordInstance, RecordArray> | null;
   declare manager: RecordArrayManager;
 

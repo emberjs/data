@@ -3,7 +3,7 @@ import { DEBUG } from '@glimmer/env';
 import { singularize } from 'ember-inflector';
 
 import { normalizeModelName } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type Store from '@ember-data/store/-private/system/store';
 import type { RelationshipSchema } from '@ember-data/store/-private/ts-interfaces/record-data-schemas';
 
 /**
@@ -67,21 +67,21 @@ export class RelationshipDefinition implements RelationshipSchema {
     return this.meta.name;
   }
 
-  _inverseKey(store: CoreStore, modelClass): string {
+  _inverseKey(store: Store, modelClass): string {
     if (this.__hasCalculatedInverse === false) {
       this._calculateInverse(store, modelClass);
     }
     return this.__inverseKey;
   }
 
-  _inverseIsAsync(store: CoreStore, modelClass): boolean {
+  _inverseIsAsync(store: Store, modelClass): boolean {
     if (this.__hasCalculatedInverse === false) {
       this._calculateInverse(store, modelClass);
     }
     return this.__inverseIsAsync;
   }
 
-  _calculateInverse(store: CoreStore, modelClass): void {
+  _calculateInverse(store: Store, modelClass): void {
     this.__hasCalculatedInverse = true;
     let inverseKey, inverseIsAsync;
     let inverse: any = null;

@@ -8,8 +8,8 @@ import { HAS_MODEL_PACKAGE } from '@ember-data/private-build-infra';
 
 import type { RecordIdentifier } from '../ts-interfaces/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '../ts-interfaces/record-data-schemas';
-import type Store from './ds-model-store';
 import normalizeModelName from './normalize-model-name';
+import type Store from './store';
 
 type ModelForMixin = (store: Store, normalizedModelName: string) => Model | null;
 

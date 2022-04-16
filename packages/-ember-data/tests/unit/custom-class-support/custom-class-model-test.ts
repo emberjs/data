@@ -9,7 +9,6 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store, { recordIdentifierFor } from '@ember-data/store';
 import type { Snapshot } from '@ember-data/store/-private';
-import type CoreStore from '@ember-data/store/-private/system/core-store';
 import type NotificationManager from '@ember-data/store/-private/system/record-notification-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
 import type { RecordDataRecordWrapper } from '@ember-data/store/-private/ts-interfaces/record-data-record-wrapper';
@@ -21,7 +20,7 @@ import { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-
 import type { SchemaDefinitionService } from '@ember-data/store/-private/ts-interfaces/schema-definition-service';
 
 module('unit/model - Custom Class Model', function (hooks) {
-  let store: CoreStore;
+  let store: Store;
   class Person {
     constructor(public store: Store) {
       this.store = store;

@@ -8,14 +8,14 @@ import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
 import type { Dict } from '../../ts-interfaces/utils';
-import type CoreStore from '../core-store';
 import { promiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
+import type Store from '../store';
 import RecordArray from './record-array';
 
 export interface AdapterPopulatedRecordArrayCreateArgs {
   modelName: string;
-  store: CoreStore;
+  store: Store;
   manager: RecordArrayManager;
   content: NativeArray<StableRecordIdentifier>;
   isLoaded: boolean;

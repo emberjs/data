@@ -12,8 +12,8 @@ import { DEBUG } from '@glimmer/env';
 import type { CollectionResourceDocument, Meta } from '../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { Dict } from '../ts-interfaces/utils';
-import type CoreStore from './core-store';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
+import type Store from './store';
 import { internalModelFactoryFor } from './store/internal-model-factory';
 import WeakCache from './weak-cache';
 
@@ -36,7 +36,7 @@ function getIdentifier(identifier: StableRecordIdentifier): StableRecordIdentifi
   return identifier;
 }
 
-function shouldIncludeInRecordArrays(store: CoreStore, identifier: StableRecordIdentifier): boolean {
+function shouldIncludeInRecordArrays(store: Store, identifier: StableRecordIdentifier): boolean {
   const cache = internalModelFactoryFor(store);
   const internalModel = cache.peek(identifier);
 
@@ -51,14 +51,14 @@ function shouldIncludeInRecordArrays(store: CoreStore, identifier: StableRecordI
   @internal
 */
 class RecordArrayManager {
-  declare store: CoreStore;
+  declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
   declare _liveRecordArrays: Dict<RecordArray>;
   declare _pendingIdentifiers: Dict<StableRecordIdentifier[]>;
   declare _adapterPopulatedRecordArrays: RecordArray[];
 
-  constructor(options: { store: CoreStore }) {
+  constructor(options: { store: Store }) {
     this.store = options.store;
     this.isDestroying = false;
     this.isDestroyed = false;
@@ -389,11 +389,7 @@ function removeFromArray(array: RecordArray[], item: RecordArray): boolean {
   return false;
 }
 
-function updateLiveRecordArray(
-  store: CoreStore,
-  recordArray: RecordArray,
-  identifiers: StableRecordIdentifier[]
-): void {
+function updateLiveRecordArray(store: Store, recordArray: RecordArray, identifiers: StableRecordIdentifier[]): void {
   let identifiersToAdd: StableRecordIdentifier[] = [];
   let identifiersToRemove: StableRecordIdentifier[] = [];
 
@@ -423,13 +419,13 @@ function updateLiveRecordArray(
   }
 }
 
-function removeFromAdapterPopulatedRecordArrays(store: CoreStore, identifiers: StableRecordIdentifier[]): void {
+function removeFromAdapterPopulatedRecordArrays(store: Store, identifiers: StableRecordIdentifier[]): void {
   for (let i = 0; i < identifiers.length; i++) {
     removeFromAll(store, identifiers[i]);
   }
 }
 
-function removeFromAll(store: CoreStore, identifier: StableRecordIdentifier): void {
+function removeFromAll(store: Store, identifier: StableRecordIdentifier): void {
   identifier = getIdentifier(identifier);
   const recordArrays = recordArraysForIdentifier(identifier);
 
