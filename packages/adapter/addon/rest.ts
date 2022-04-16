@@ -13,6 +13,7 @@ import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
 import type Snapshot from '@ember-data/store/-private/system/snapshot';
 import type SnapshotRecordArray from '@ember-data/store/-private/system/snapshot-record-array';
+import { AdapterPayload } from '@ember-data/store/-private/ts-interfaces/minimum-adapter-interface';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
@@ -562,7 +563,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<unknown> {
+  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
     let query: QueryState = this.buildQuery(snapshot);
 
@@ -584,7 +585,12 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  findAll(store: Store, type: ShimModelClass, sinceToken, snapshotRecordArray: SnapshotRecordArray): Promise<unknown> {
+  findAll(
+    store: Store,
+    type: ShimModelClass,
+    sinceToken,
+    snapshotRecordArray: SnapshotRecordArray
+  ): Promise<AdapterPayload> {
     let query: QueryState = this.buildQuery(snapshotRecordArray);
     let url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
 
@@ -615,7 +621,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  query(store: Store, type: ShimModelClass, query): Promise<unknown> {
+  query(store: Store, type: ShimModelClass, query): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, null, null, 'query', query);
 
     if (this.sortQueryParams) {
@@ -650,7 +656,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     type: ShimModelClass,
     query: Dict<unknown>,
     adapterOptions: Dict<unknown>
-  ): Promise<unknown> {
+  ): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
 
     if (this.sortQueryParams) {
@@ -694,7 +700,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<unknown> {
+  findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
   }
@@ -736,7 +742,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findHasMany(store: Store, snapshot: Snapshot, url: string, relationship: Dict<unknown>): Promise<unknown> {
+  findHasMany(store: Store, snapshot: Snapshot, url: string, relationship: Dict<unknown>): Promise<AdapterPayload> {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -786,7 +792,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
-  findBelongsTo(store: Store, snapshot: Snapshot, url: string, relationship): Promise<unknown> {
+  findBelongsTo(store: Store, snapshot: Snapshot, url: string, relationship): Promise<AdapterPayload> {
     let id = snapshot.id;
     let type = snapshot.modelName;
 
@@ -815,7 +821,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     let url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
     const data = serializeIntoHash(store, type, snapshot);
@@ -840,7 +846,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+  updateRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     const data = serializeIntoHash(store, schema, snapshot, {});
     const type = snapshot.modelName;
     const id = snapshot.id;
@@ -862,7 +868,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<unknown> {
+  deleteRecord(store: Store, schema: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
     const type = snapshot.modelName;
     const id = snapshot.id;
     assert(`Attempted to delete the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
@@ -1088,7 +1094,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} options
     @return {Promise} promise
   */
-  async ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<unknown> {
+  async ajax(url: string, type: string, options: JQueryAjaxSettings | RequestInit = {}): Promise<AdapterPayload> {
     let adapter = this;
 
     let requestData: RequestData = {
@@ -1332,7 +1338,7 @@ function ajaxSuccess(
   payload: Payload,
   requestData: RequestData,
   responseData: ResponseData
-): Promise<unknown> {
+): Promise<AdapterPayload> {
   let response;
   try {
     response = adapter.handleResponse(responseData.status, responseData.headers, payload, requestData);
@@ -1400,7 +1406,7 @@ function fetchSuccessHandler(
   payload: Payload,
   response: Response,
   requestData: RequestData
-): Promise<unknown> {
+): Promise<AdapterPayload> {
   let responseData = fetchResponseData(response);
   return ajaxSuccess(adapter, payload, requestData, responseData);
 }
@@ -1431,7 +1437,7 @@ function ajaxSuccessHandler(
   payload: Payload,
   jqXHR: JQuery.jqXHR,
   requestData: RequestData
-): Promise<unknown> {
+): Promise<AdapterPayload> {
   let responseData = ajaxResponseData(jqXHR);
   return ajaxSuccess(adapter, payload, requestData, responseData);
 }

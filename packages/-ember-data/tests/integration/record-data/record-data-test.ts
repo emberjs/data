@@ -35,7 +35,10 @@ class TestRecordData {
   // Use correct interface once imports have been fix
   _storeWrapper: any;
 
-  pushData(data, calculateChange?: boolean) {}
+  pushData(data: object, calculateChange: true): string[];
+  pushData(data: object, calculateChange?: false): void;
+  pushData(data: object, calculateChange?: boolean): string[] | void {}
+
   clientDidCreate() {}
 
   willCommit() {}
@@ -208,7 +211,9 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let isNew = false;
 
     class LifecycleRecordData extends TestRecordData {
-      pushData(data, calculateChange?: boolean) {
+      pushData(data: object, calculateChange: true): string[];
+      pushData(data: object, calculateChange?: false): void;
+      pushData(data: object, calculateChange?: boolean): string[] | void {
         calledPush++;
       }
 

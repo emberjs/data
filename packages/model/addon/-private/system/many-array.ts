@@ -8,10 +8,36 @@ import EmberObject, { get } from '@ember/object';
 
 import { all } from 'rsvp';
 
+import type { RelationshipRecordData } from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
+import type { InternalModel } from '@ember-data/store/-private';
 import { PromiseArray, recordDataFor } from '@ember-data/store/-private';
+import type CoreStore from '@ember-data/store/-private/system/core-store';
+import type { CreateRecordProperties } from '@ember-data/store/-private/system/core-store';
+import ShimModelClass from '@ember-data/store/-private/system/model/shim-model-class';
+import type { DSModelSchema } from '@ember-data/store/-private/ts-interfaces/ds-model';
+import type { Links, PaginationLinks } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
+import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
+import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 import diffArray from './diff-array';
 
+interface MutableArrayWithObject<T, M = T> extends EmberObject, MutableArray<M> {}
+const MutableArrayWithObject = EmberObject.extend(MutableArray) as unknown as new <
+  T,
+  M = T
+>() => MutableArrayWithObject<T, M>;
+
+export interface ManyArrayCreateArgs {
+  store: CoreStore;
+  type: ShimModelClass;
+  recordData: RelationshipRecordData;
+  key: string;
+  isPolymorphic: boolean;
+  isAsync: boolean;
+  _inverseIsAsync: boolean;
+  internalModel: InternalModel;
+  isLoaded: boolean;
+}
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
   relationship.
@@ -57,12 +83,27 @@ import diffArray from './diff-array';
   @extends Ember.EmberObject
   @uses Ember.MutableArray
 */
-export default EmberObject.extend(MutableArray, {
-  isAsync: false,
-  isLoaded: false,
+export default class ManyArray extends MutableArrayWithObject<InternalModel, RecordInstance> {
+  declare isAsync: boolean;
+  declare isLoaded: boolean;
+  declare isPolymorphic: boolean;
+  declare _isDirty: boolean;
+  declare _isUpdating: boolean;
+  declare _hasNotified: boolean;
+  declare __hasArrayObservers: boolean;
+  declare hasArrayObservers: boolean; // override the base declaration
+  declare _length: number;
+  declare _meta: Dict<unknown> | null;
+  declare _links: Links | PaginationLinks | null;
+  declare currentState: InternalModel[];
+  declare recordData: RelationshipRecordData;
+  declare internalModel: InternalModel;
+  declare store: CoreStore;
+  declare key: string;
+  declare type: DSModelSchema;
 
   init() {
-    this._super(...arguments);
+    super.init();
 
     /**
     The loading state of this array
@@ -71,6 +112,7 @@ export default EmberObject.extend(MutableArray, {
     @public
     */
     this.isLoaded = this.isLoaded || false;
+    this.isAsync = this.isAsync || false;
 
     this._length = 0;
 
@@ -158,12 +200,13 @@ export default EmberObject.extend(MutableArray, {
     // make sure we initialize to the correct state
     // since the user has already accessed
     this.retrieveLatest();
-  },
+  }
 
   // TODO refactor away _hasArrayObservers for tests
   get _hasArrayObservers() {
+    // cast necessary because hasArrayObservers is typed as a ComputedProperty<boolean> vs a boolean;
     return this.hasArrayObservers || this.__hasArrayObservers;
-  },
+  }
 
   notify() {
     this._isDirty = true;
@@ -175,7 +218,7 @@ export default EmberObject.extend(MutableArray, {
       this.notifyPropertyChange('firstObject');
       this.notifyPropertyChange('lastObject');
     }
-  },
+  }
 
   get length() {
     if (this._isDirty) {
@@ -185,11 +228,11 @@ export default EmberObject.extend(MutableArray, {
     get(this, '[]');
 
     return this._length;
-  },
+  }
 
   set length(value) {
     this._length = value;
-  },
+  }
 
   get links() {
     get(this, '[]');
@@ -197,10 +240,10 @@ export default EmberObject.extend(MutableArray, {
       this.retrieveLatest();
     }
     return this._links;
-  },
+  }
   set links(v) {
     this._links = v;
-  },
+  }
 
   get meta() {
     get(this, '[]');
@@ -208,12 +251,12 @@ export default EmberObject.extend(MutableArray, {
       this.retrieveLatest();
     }
     return this._meta;
-  },
+  }
   set meta(v) {
     this._meta = v;
-  },
+  }
 
-  objectAt(index) {
+  objectAt(index: number): RecordInstance | undefined {
     if (this._isDirty) {
       this.retrieveLatest();
     }
@@ -223,12 +266,12 @@ export default EmberObject.extend(MutableArray, {
     }
 
     return internalModel.getRecord();
-  },
+  }
 
-  replace(idx, amt, objects) {
+  replace(idx: number, amt: number, objects?: RecordInstance[]) {
     assert(`Cannot push mutations to the cache while updating the relationship from cache`, !this._isUpdating);
     this.store._backburner.join(() => {
-      let internalModels;
+      let internalModels: InternalModel[];
       if (amt > 0) {
         internalModels = this.currentState.slice(idx, idx + amt);
         this.recordData.removeFromHasMany(
@@ -243,13 +286,13 @@ export default EmberObject.extend(MutableArray, {
         );
         this.recordData.addToHasMany(
           this.key,
-          objects.map((obj) => recordDataFor(obj)),
+          objects.map((obj: RecordInstance) => recordDataFor(obj)),
           idx
         );
       }
       this.notify();
     });
-  },
+  }
 
   retrieveLatest() {
     // It’s possible the parent side of the relationship may have been destroyed by this point
@@ -260,7 +303,7 @@ export default EmberObject.extend(MutableArray, {
     this._isUpdating = true;
     let jsonApi = this.recordData.getHasMany(this.key);
 
-    let internalModels = [];
+    let internalModels: InternalModel[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
         let im = this.store._internalModelForResource(jsonApi.data[i]);
@@ -298,7 +341,7 @@ export default EmberObject.extend(MutableArray, {
     }
 
     this._isUpdating = false;
-  },
+  }
 
   /**
     Reloads all of the records in the manyArray. If the manyArray
@@ -324,8 +367,8 @@ export default EmberObject.extend(MutableArray, {
   */
   reload(options) {
     // TODO this is odd, we don't ask the store for anything else like this?
-    return this.store.reloadManyArray(this, this.internalModel, this.key, options);
-  },
+    return this.internalModel.reloadHasMany(this.key, options);
+  }
 
   /**
     Saves all of the records in the `ManyArray`.
@@ -347,7 +390,7 @@ export default EmberObject.extend(MutableArray, {
   */
   save() {
     let manyArray = this;
-    let promiseLabel = 'DS: ManyArray#save ' + this.type;
+    let promiseLabel = 'DS: ManyArray#save ' + this.type.modelName;
     let promise = all(this.invoke('save'), promiseLabel).then(
       () => manyArray,
       null,
@@ -356,7 +399,7 @@ export default EmberObject.extend(MutableArray, {
 
     // TODO deprecate returning a promiseArray here
     return PromiseArray.create({ promise });
-  },
+  }
 
   /**
     Create a child record within the owner
@@ -366,12 +409,12 @@ export default EmberObject.extend(MutableArray, {
     @param {Object} hash
     @return {Model} record
   */
-  createRecord(hash) {
+  createRecord(hash: CreateRecordProperties): RecordInstance {
     const { store, type } = this;
 
-    let record = store.createRecord(type.modelName, hash);
+    const record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
-  },
-});
+  }
+}

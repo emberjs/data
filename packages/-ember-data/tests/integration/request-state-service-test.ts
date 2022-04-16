@@ -8,6 +8,7 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
+import { DSModel } from '@ember-data/store/-private/ts-interfaces/ds-model';
 import type { RequestStateEnum } from '@ember-data/store/-private/ts-interfaces/fetch-manager';
 
 class Person extends Model {
@@ -93,7 +94,7 @@ module('integration/request-state-service - Request State Service', function (ho
     };
     assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
 
-    let person = await promise;
+    let person = (await promise) as DSModel;
     let lastRequest = requestService.getLastRequestForRecord(identifier);
     let requestStateResult = {
       type: 'query' as const,
@@ -216,7 +217,7 @@ module('integration/request-state-service - Request State Service', function (ho
       count++;
     });
 
-    let person = await store.findRecord('person', '1');
+    let person = (await store.findRecord('person', '1')) as DSModel;
     await person.save();
     assert.strictEqual(count, 4, 'callback called four times');
   });

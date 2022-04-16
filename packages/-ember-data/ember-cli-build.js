@@ -9,6 +9,27 @@ module.exports = function (defaults) {
 
   const terserSettings = {
     exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js', 'dist/docs/*', 'docs/*'],
+    terser: {
+      compress: {
+        ecma: 2016, // probably can be higher
+        passes: 6, // slow, but worth it
+        negate_iife: false,
+        sequences: 30,
+        defaults: true,
+        arguments: true,
+        keep_fargs: false,
+        toplevel: true,
+        unsafe: true,
+        unsafe_comps: true,
+        unsafe_math: true,
+        unsafe_symbols: true,
+        unsafe_proto: true,
+        unsafe_undefined: true,
+      },
+      toplevel: true,
+      sourceMap: false,
+      ecma: 2016,
+    },
   };
 
   if (isTest && isProd) {

@@ -1,10 +1,21 @@
 import ArrayMixin from '@ember/array';
+import type ArrayProxy from '@ember/array/proxy';
 import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
 import { resolve } from 'rsvp';
+
+import type { ManyArray } from 'ember-data/-private';
+
+import type { InternalModel } from '@ember-data/store/-private';
+import type { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
+
+export interface HasManyProxyCreateArgs {
+  promise: Promise<ManyArray>;
+  content?: ManyArray;
+}
 
 /**
  @module @ember-data/model
@@ -31,12 +42,13 @@ import { resolve } from 'rsvp';
   @class PromiseManyArray
   @public
 */
+export default interface PromiseManyArray extends Omit<ArrayProxy<InternalModel, RecordInstance>, 'destroy'> {}
 export default class PromiseManyArray {
-  declare promise: Promise<any> | null;
+  declare promise: Promise<ManyArray> | null;
   declare isDestroyed: boolean;
   declare isDestroying: boolean;
 
-  constructor(promise, content) {
+  constructor(promise: Promise<ManyArray>, content?: ManyArray) {
     this._update(promise, content);
     this.isDestroyed = false;
     this.isDestroying = false;
@@ -204,7 +216,7 @@ export default class PromiseManyArray {
 
   //---- Our own stuff
 
-  _update(promise, content) {
+  _update(promise: Promise<ManyArray>, content?: ManyArray) {
     if (content !== undefined) {
       this.content = content;
     }
@@ -212,7 +224,7 @@ export default class PromiseManyArray {
     this.promise = tapPromise(this, promise);
   }
 
-  static create({ promise, content }) {
+  static create({ promise, content }: HasManyProxyCreateArgs): PromiseManyArray {
     return new this(promise, content);
   }
 
@@ -233,7 +245,7 @@ export default class PromiseManyArray {
   }
 }
 
-function tapPromise(proxy, promise) {
+function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
   proxy.isPending = true;
   proxy.isSettled = false;
   proxy.isFulfilled = false;

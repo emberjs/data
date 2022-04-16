@@ -16,6 +16,7 @@ import type {
   SingleResourceDocument,
 } from '@ember-data/store/-private/ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/store/-private/ts-interfaces/identifier';
+import { RecordInstance } from '@ember-data/store/-private/ts-interfaces/record-instance';
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
 
 class AbstractMap {
@@ -144,7 +145,7 @@ export interface Context {
   owner: any;
 }
 
-interface TestStore<T> extends CoreStore {
+interface TestStore<T extends RecordInstance> extends CoreStore {
   push(data: EmptyResourceDocument): null;
   push(data: SingleResourceDocument): T;
   push(data: CollectionResourceDocument): T[];

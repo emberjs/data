@@ -6,8 +6,18 @@ import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
 import { importSync } from '@embroider/macros';
-import RSVP, { Promise } from 'rsvp';
+import RSVP, { resolve } from 'rsvp';
 
+import type { ManyArray } from '@ember-data/model/-private';
+import RecordState from '@ember-data/model/-private/record-state';
+import type { ManyArrayCreateArgs } from '@ember-data/model/-private/system/many-array';
+import type {
+  BelongsToProxyCreateArgs,
+  BelongsToProxyMeta,
+} from '@ember-data/model/-private/system/promise-belongs-to';
+import type PromiseBelongsTo from '@ember-data/model/-private/system/promise-belongs-to';
+import type { HasManyProxyCreateArgs } from '@ember-data/model/-private/system/promise-many-array';
+import type PromiseManyArray from '@ember-data/model/-private/system/promise-many-array';
 import { HAS_MODEL_PACKAGE, HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
 import type {
   BelongsToRelationship,
@@ -15,16 +25,21 @@ import type {
   RecordData as DefaultRecordData,
 } from '@ember-data/record-data/-private';
 import type { UpgradedMeta } from '@ember-data/record-data/-private/graph/-edge-definition';
+import type {
+  DefaultSingleResourceRelationship,
+  RelationshipRecordData,
+} from '@ember-data/record-data/-private/ts-interfaces/relationship-record-data';
 
-import { DSModel } from '../../ts-interfaces/ds-model';
+import type { DSModel } from '../../ts-interfaces/ds-model';
 import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
-import type { RecordData } from '../../ts-interfaces/record-data';
+import type { ChangedAttributesHash, RecordData } from '../../ts-interfaces/record-data';
 import type { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
+import type { RelationshipSchema } from '../../ts-interfaces/record-data-schemas';
 import type { RecordInstance } from '../../ts-interfaces/record-instance';
 import type { FindOptions } from '../../ts-interfaces/store';
-import type { ConfidentDict } from '../../ts-interfaces/utils';
+import type { Dict } from '../../ts-interfaces/utils';
 import type CoreStore from '../core-store';
-import type Store from '../ds-model-store';
+import type { CreateRecordProperties } from '../core-store';
 import { errorsHashToArray } from '../errors-utils';
 import recordDataFor from '../record-data-for';
 import { BelongsToReference, HasManyReference, RecordReference } from '../references';
@@ -32,10 +47,11 @@ import Snapshot from '../snapshot';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 import RootState from './states';
 
-// move to TS hacks module that we can delete when this is no longer a necessary recast
-type ManyArray = InstanceType<typeof import('@ember-data/model/-private').ManyArray>;
-type PromiseBelongsTo = InstanceType<typeof import('@ember-data/model/-private').PromiseBelongsTo>;
-type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private').PromiseManyArray>;
+type PrivateModelModule = {
+  ManyArray: { create(args: ManyArrayCreateArgs): ManyArray };
+  PromiseBelongsTo: { create(args: BelongsToProxyCreateArgs): PromiseBelongsTo };
+  PromiseManyArray: new (...args: unknown[]) => PromiseManyArray;
+};
 
 /**
   @module @ember-data/store
@@ -43,30 +59,27 @@ type PromiseManyArray = InstanceType<typeof import('@ember-data/model/-private')
 
 const { hasOwnProperty } = Object.prototype;
 
-let ManyArray: ManyArray;
-let PromiseBelongsTo: PromiseBelongsTo;
-let _PromiseManyArray: any; // TODO find a way to get the klass type here
+let _ManyArray: PrivateModelModule['ManyArray'];
+let _PromiseBelongsTo: PrivateModelModule['PromiseBelongsTo'];
+let _PromiseManyArray: PrivateModelModule['PromiseManyArray'];
 
 let _found = false;
 let _getModelPackage: () => boolean;
 if (HAS_MODEL_PACKAGE) {
   _getModelPackage = function () {
     if (!_found) {
-      let modelPackage = importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private');
-      ({ ManyArray, PromiseBelongsTo, PromiseManyArray: _PromiseManyArray } = modelPackage);
-      if (ManyArray && PromiseBelongsTo && _PromiseManyArray) {
+      let modelPackage = importSync('@ember-data/model/-private') as PrivateModelModule;
+      ({
+        ManyArray: _ManyArray,
+        PromiseBelongsTo: _PromiseBelongsTo,
+        PromiseManyArray: _PromiseManyArray,
+      } = modelPackage);
+      if (_ManyArray && _PromiseBelongsTo && _PromiseManyArray) {
         _found = true;
       }
     }
     return _found;
   };
-}
-
-interface BelongsToMetaWrapper {
-  key: string;
-  store: CoreStore;
-  originatingInternalModel: InternalModel;
-  modelName: string;
 }
 
 /*
@@ -79,18 +92,32 @@ interface BelongsToMetaWrapper {
    and setups. It may also be faster to do a two level cache (from: { to }) instead of caching based
    on a key that adds the two together.
  */
+// TODO before deleting the state machine we should
+// ensure all things in this map were properly accounted for.
+// in the RecordState class.
 const TransitionChainMap = Object.create(null);
 
 const _extractPivotNameCache = Object.create(null);
 const _splitOnDotCache = Object.create(null);
 
-function splitOnDot(name) {
+function splitOnDot(name: string): string[] {
   return _splitOnDotCache[name] || (_splitOnDotCache[name] = name.split('.'));
 }
 
-function extractPivotName(name) {
+function extractPivotName(name: string): string {
   return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
 }
+
+function isDSModel(record: RecordInstance | null): record is DSModel {
+  return (
+    HAS_MODEL_PACKAGE &&
+    !!record &&
+    'constructor' in record &&
+    'isModel' in record.constructor &&
+    record.constructor.isModel === true
+  );
+}
+
 export default class InternalModel {
   declare _id: string | null;
   declare modelName: string;
@@ -107,25 +134,29 @@ export default class InternalModel {
 
   // Not typed yet
   declare _promiseProxy: any;
-  declare _record: any;
+  declare _record: RecordInstance | null;
   declare _scheduledDestroy: any;
   declare _modelClass: any;
   declare _deferredTriggers: any;
   declare __recordArrays: any;
   declare references: any;
   declare _recordReference: RecordReference;
-  declare _manyArrayCache: ConfidentDict<ManyArray>;
+  declare _manyArrayCache: Dict<ManyArray>;
 
-  declare _relationshipPromisesCache: ConfidentDict<RSVP.Promise<any>>;
-  declare _relationshipProxyCache: ConfidentDict<PromiseManyArray | PromiseBelongsTo>;
+  declare _relationshipPromisesCache: Dict<Promise<ManyArray | RecordInstance>>;
+  declare _relationshipProxyCache: Dict<PromiseManyArray | PromiseBelongsTo>;
   declare error: any;
-  declare currentState: any;
+  declare currentState: RecordState;
   declare _previousState: any;
+  declare store: CoreStore;
+  declare identifier: StableRecordIdentifier;
 
-  constructor(public store: CoreStore | Store, public identifier: StableRecordIdentifier) {
+  constructor(store: CoreStore, identifier: StableRecordIdentifier) {
     if (HAS_MODEL_PACKAGE) {
       _getModelPackage();
     }
+    this.store = store;
+    this.identifier = identifier;
     this._id = identifier.id;
     this._isUpdatingId = false;
     this.modelName = identifier.type;
@@ -257,15 +288,28 @@ export default class InternalModel {
     }
   }
 
-  getRecord(properties?): Object {
-    if (!this._record && !this._isDematerializing) {
+  getRecord(properties?: CreateRecordProperties): RecordInstance {
+    let record = this._record;
+
+    if (this._isDematerializing) {
+      // TODO we should assert here instead of this return.
+      return null as unknown as RecordInstance;
+    }
+
+    if (!record) {
       let { store } = this;
 
-      this._record = store._instantiateRecord(this, this.modelName, this._recordData, this.identifier, properties);
+      record = this._record = store._instantiateRecord(
+        this,
+        this.modelName,
+        this._recordData,
+        this.identifier,
+        properties
+      );
       this._triggerDeferredTriggers();
     }
 
-    return this._record;
+    return record;
   }
 
   dematerializeRecord() {
@@ -289,9 +333,11 @@ export default class InternalModel {
     });
 
     if (this._record) {
-      Object.keys(this._relationshipProxyCache).forEach((key) => {
-        if (this._relationshipProxyCache[key].destroy) {
-          this._relationshipProxyCache[key].destroy();
+      let keys = Object.keys(this._relationshipProxyCache);
+      keys.forEach((key) => {
+        let proxy = this._relationshipProxyCache[key]!;
+        if (proxy.destroy) {
+          proxy.destroy();
         }
         delete this._relationshipProxyCache[key];
       });
@@ -325,9 +371,9 @@ export default class InternalModel {
     });
   }
 
-  save(options): Promise<void> {
+  save(options: FindOptions = {}): Promise<void> {
     if (this._deletedRecordWasNew) {
-      return Promise.resolve();
+      return resolve();
     }
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<void>(promiseLabel);
@@ -336,22 +382,8 @@ export default class InternalModel {
     return this.store.scheduleSave(this, resolver, options) as Promise<void>;
   }
 
-  reload(options) {
-    if (!options) {
-      options = {};
-    }
-    let internalModel = this;
-
-    return internalModel.store._reloadRecord(internalModel, options).then(
-      function () {
-        //TODO NOW seems like we shouldn't need to do this
-        return internalModel;
-      },
-      function (error) {
-        throw error;
-      },
-      'DS: Model#reload complete, update flags'
-    );
+  reload(options: Dict<unknown> = {}): Promise<InternalModel> {
+    return this.store._reloadRecord(this, options);
   }
 
   /*
@@ -426,26 +458,32 @@ export default class InternalModel {
     }
   }
 
-  _findBelongsTo(key: string, resource, relationshipMeta, options): Promise<InternalModel> {
+  _findBelongsTo(
+    key: string,
+    resource: DefaultSingleResourceRelationship,
+    relationshipMeta: RelationshipSchema,
+    options?: Dict<unknown>
+  ): Promise<RecordInstance | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
+    // TODO @runspired follow up on whether this should be in the relationship requests cache
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options).then(
-      (internalModel) => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel, null),
+      (internalModel) => handleCompletedRelationshipRequest(this, key, resource._relationship, internalModel),
       (e) => handleCompletedRelationshipRequest(this, key, resource._relationship, null, e)
     );
   }
 
-  getBelongsTo(key, options) {
+  getBelongsTo(key: string, options?: Dict<unknown>): PromiseBelongsTo | RecordInstance | null {
     let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
     let identifier =
       resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
-    if (!relationshipMeta) return;
+    assert(`Attempted to access a belongsTo relationship but no definition exists for it`, relationshipMeta);
 
     let store = this.store;
     let parentInternalModel = this;
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
-    let _belongsToState: BelongsToMetaWrapper = {
+    let _belongsToState: BelongsToProxyMeta = {
       key,
       store,
       originatingInternalModel: this,
@@ -456,7 +494,7 @@ export default class InternalModel {
       let internalModel = identifier !== null ? store._internalModelForResource(identifier) : null;
 
       if (resource._relationship.state.hasFailedLoadAttempt) {
-        return this._relationshipProxyCache[key];
+        return this._relationshipProxyCache[key] as PromiseBelongsTo;
       }
 
       let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
@@ -480,51 +518,49 @@ export default class InternalModel {
             "' with id " +
             parentInternalModel.id +
             ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`belongsTo({ async: true })`)',
-          toReturn === null || !(toReturn as DSModel).isEmpty
+          toReturn === null || !internalModel.currentState.isEmpty
         );
         return toReturn;
       }
     }
   }
 
-  getManyArray(key: string, definition?: UpgradedMeta) {
-    if (HAS_RECORD_DATA_PACKAGE) {
-      let manyArray = this._manyArrayCache[key];
-      if (!definition) {
-        const graphFor = (
-          importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
-        ).graphFor;
-        definition = graphFor(this.store).get(this.identifier, key).definition as UpgradedMeta;
-      }
-
-      if (!manyArray) {
-        manyArray = ManyArray.create({
-          store: this.store,
-          type: this.store.modelFor(definition.type),
-          recordData: this._recordData,
-          key,
-          isPolymorphic: definition.isPolymorphic,
-          isAsync: definition.isAsync,
-          _inverseIsAsync: definition.inverseIsAsync,
-          internalModel: this,
-          isLoaded: !definition.isAsync,
-        });
-        this._manyArrayCache[key] = manyArray;
-      }
-
-      return manyArray;
+  getManyArray(key: string, definition?: UpgradedMeta): ManyArray {
+    assert('hasMany only works with the @ember-data/record-data package', HAS_RECORD_DATA_PACKAGE);
+    let manyArray: ManyArray | undefined = this._manyArrayCache[key];
+    if (!definition) {
+      const graphFor = (
+        importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
+      ).graphFor;
+      definition = graphFor(this.store).get(this.identifier, key).definition as UpgradedMeta;
     }
-    assert('hasMany only works with the @ember-data/record-data package');
+
+    if (!manyArray) {
+      manyArray = _ManyArray.create({
+        store: this.store,
+        type: this.store.modelFor(definition.type),
+        recordData: this._recordData as RelationshipRecordData,
+        key,
+        isPolymorphic: definition.isPolymorphic,
+        isAsync: definition.isAsync,
+        _inverseIsAsync: definition.inverseIsAsync,
+        internalModel: this,
+        isLoaded: !definition.isAsync,
+      });
+      this._manyArrayCache[key] = manyArray;
+    }
+
+    return manyArray;
   }
 
   fetchAsyncHasMany(
     key: string,
-    relationship: ManyRelationship | BelongsToRelationship,
-    manyArray,
-    options
-  ): RSVP.Promise<unknown> {
+    relationship: ManyRelationship,
+    manyArray: ManyArray,
+    options?: Dict<unknown>
+  ): Promise<ManyArray> {
     if (HAS_RECORD_DATA_PACKAGE) {
-      let loadingPromise = this._relationshipPromisesCache[key];
+      let loadingPromise = this._relationshipPromisesCache[key] as Promise<ManyArray> | undefined;
       if (loadingPromise) {
         return loadingPromise;
       }
@@ -532,7 +568,7 @@ export default class InternalModel {
       const jsonApi = this._recordData.getHasMany(key);
 
       loadingPromise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationship, options).then(
-        () => handleCompletedRelationshipRequest(this, key, relationship, manyArray, null),
+        () => handleCompletedRelationshipRequest(this, key, relationship, manyArray),
         (e) => handleCompletedRelationshipRequest(this, key, relationship, manyArray, e)
       );
       this._relationshipPromisesCache[key] = loadingPromise;
@@ -541,7 +577,7 @@ export default class InternalModel {
     assert('hasMany only works with the @ember-data/record-data package');
   }
 
-  getHasMany(key: string, options?) {
+  getHasMany(key: string, options?): PromiseManyArray | ManyArray {
     if (HAS_RECORD_DATA_PACKAGE) {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
@@ -552,7 +588,7 @@ export default class InternalModel {
 
       if (definition.isAsync) {
         if (state.hasFailedLoadAttempt) {
-          return this._relationshipProxyCache[key];
+          return this._relationshipProxyCache[key] as PromiseManyArray;
         }
 
         let promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
@@ -570,40 +606,46 @@ export default class InternalModel {
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
+  _updatePromiseProxyFor(kind: 'hasMany', key: string, args: HasManyProxyCreateArgs): PromiseManyArray;
+  _updatePromiseProxyFor(kind: 'belongsTo', key: string, args: BelongsToProxyCreateArgs): PromiseBelongsTo;
+  _updatePromiseProxyFor(
+    kind: 'belongsTo',
+    key: string,
+    args: { promise: Promise<RecordInstance | null> }
+  ): PromiseBelongsTo;
   _updatePromiseProxyFor(
     kind: 'hasMany' | 'belongsTo',
     key: string,
-    args: {
-      promise: RSVP.Promise<any>;
-      content?: RecordInstance | ManyArray | null;
-      _belongsToState?: BelongsToMetaWrapper;
-    }
-  ) {
+    args: BelongsToProxyCreateArgs | HasManyProxyCreateArgs | { promise: Promise<RecordInstance | null> }
+  ): PromiseBelongsTo | PromiseManyArray {
     let promiseProxy = this._relationshipProxyCache[key];
     if (kind === 'hasMany') {
+      const { promise, content } = args as HasManyProxyCreateArgs;
       if (promiseProxy) {
-        promiseProxy._update(args.promise, args.content);
+        assert(`Expected a PromiseManyArray`, '_update' in promiseProxy);
+        promiseProxy._update(promise, content);
       } else {
-        promiseProxy = this._relationshipProxyCache[key] = new _PromiseManyArray(args.promise, args.content);
+        promiseProxy = this._relationshipProxyCache[key] = new _PromiseManyArray(promise, content);
       }
       return promiseProxy;
     }
     if (promiseProxy) {
-      if (args.content !== undefined) {
-        // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
-        promiseProxy.set('content', args.content as any);
+      const { promise, content } = args as BelongsToProxyCreateArgs;
+      assert(`Expected a PromiseBelongsTo`, '_belongsToState' in promiseProxy);
+
+      if (content !== undefined) {
+        promiseProxy.set('content', content);
       }
-      promiseProxy.set('promise', args.promise);
+      promiseProxy.set('promise', promise);
     } else {
-      const klass = PromiseBelongsTo;
       // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
-      this._relationshipProxyCache[key] = klass.create(args as any);
+      this._relationshipProxyCache[key] = promiseProxy = _PromiseBelongsTo.create(args as any);
     }
 
-    return this._relationshipProxyCache[key];
+    return promiseProxy;
   }
 
-  reloadHasMany(key, options) {
+  reloadHasMany(key: string, options) {
     if (HAS_RECORD_DATA_PACKAGE) {
       let loadingPromise = this._relationshipPromisesCache[key];
       if (loadingPromise) {
@@ -629,8 +671,8 @@ export default class InternalModel {
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  reloadBelongsTo(key, options) {
-    let loadingPromise = this._relationshipPromisesCache[key];
+  reloadBelongsTo(key: string, options?: Dict<unknown>): Promise<RecordInstance | null> {
+    let loadingPromise = this._relationshipPromisesCache[key] as Promise<RecordInstance | null> | undefined;
     if (loadingPromise) {
       return loadingPromise;
     }
@@ -642,6 +684,7 @@ export default class InternalModel {
       resource._relationship.state.shouldForceReload = true;
     }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
+    assert(`Attempted to reload a belongsTo relationship but no definition exists for it`, relationshipMeta);
     let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
     if (this._relationshipProxyCache[key]) {
       return this._updatePromiseProxyFor('belongsTo', key, { promise });
@@ -660,7 +703,7 @@ export default class InternalModel {
   destroy() {
     assert(
       'Cannot destroy an internalModel while its record is materialized',
-      !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying')
+      !this._record || this._record.isDestroyed || this._record.isDestroying
     );
     this.isDestroying = true;
     if (this._recordReference) {
@@ -669,13 +712,13 @@ export default class InternalModel {
     this._recordReference = null;
     let cache = this._manyArrayCache;
     Object.keys(cache).forEach((key) => {
-      cache[key].destroy();
+      cache[key]!.destroy();
       delete cache[key];
     });
     if (this.references) {
       cache = this.references;
       Object.keys(cache).forEach((key) => {
-        cache[key].destroy();
+        cache[key]!.destroy();
         delete cache[key];
       });
     }
@@ -685,24 +728,35 @@ export default class InternalModel {
   }
 
   setupData(data) {
-    let changedKeys = this._recordData.pushData(data, this.hasRecord);
-    if (this.hasRecord) {
-      // TODO @runspired should this be going through the notification manager?
-      this._record._notifyProperties(changedKeys);
+    const hasRecord = this.hasRecord;
+    if (hasRecord) {
+      let changedKeys = this._recordData.pushData(data, true);
+      this.notifyAttributes(changedKeys);
+    } else {
+      this._recordData.pushData(data);
     }
     this.send('pushedData');
   }
 
-  setDirtyHasMany(key, records) {
+  notifyAttributes(keys: string[]): void {
+    let manager = this.store._notificationManager;
+    let { identifier } = this;
+
+    for (let i = 0; i < keys.length; i++) {
+      manager.notify(identifier, 'attributes', keys[i]);
+    }
+  }
+
+  setDirtyHasMany(key: string, records) {
     assertRecordsPassedToHasMany(records);
     return this._recordData.setDirtyHasMany(key, extractRecordDatasFromRecords(records));
   }
 
-  setDirtyBelongsTo(key, value) {
+  setDirtyBelongsTo(key: string, value) {
     return this._recordData.setDirtyBelongsTo(key, extractRecordDataFromRecord(value));
   }
 
-  setDirtyAttribute(key, value) {
+  setDirtyAttribute<T>(key: string, value: T): T {
     if (this.isDeleted()) {
       if (DEBUG) {
         throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
@@ -724,11 +778,11 @@ export default class InternalModel {
     return value;
   }
 
-  get isDestroyed() {
+  get isDestroyed(): boolean {
     return this._isDestroyed;
   }
 
-  get hasRecord() {
+  get hasRecord(): boolean {
     return !!this._record;
   }
 
@@ -736,7 +790,7 @@ export default class InternalModel {
     return new Snapshot(options, this.identifier, this.store);
   }
 
-  hasChangedAttributes() {
+  hasChangedAttributes(): boolean {
     if (!this.__recordData) {
       // no need to calculate changed attributes when calling `findRecord`
       return false;
@@ -744,7 +798,7 @@ export default class InternalModel {
     return this._recordData.hasChangedAttributes();
   }
 
-  changedAttributes() {
+  changedAttributes(): ChangedAttributesHash {
     if (!this.__recordData) {
       // no need to calculate changed attributes when calling `findRecord`
       return {};
@@ -752,16 +806,16 @@ export default class InternalModel {
     return this._recordData.changedAttributes();
   }
 
-  adapterWillCommit() {
+  adapterWillCommit(): void {
     this._recordData.willCommit();
     this.send('willCommit');
   }
 
-  adapterDidDirty() {
+  adapterDidDirty(): void {
     this.send('becomeDirty');
   }
 
-  send(name, context?) {
+  send(name: string, context?) {
     let currentState = this.currentState;
 
     if (!currentState[name]) {
@@ -792,7 +846,7 @@ export default class InternalModel {
     }
   }
 
-  notifyPropertyChange(key) {
+  notifyPropertyChange(key: string) {
     if (this.hasRecord) {
       // TODO this should likely *mostly* be the `attributes` bucket
       // but it seems for local mutations we rely on computed updating
@@ -802,7 +856,7 @@ export default class InternalModel {
     }
   }
 
-  notifyStateChange(key?) {
+  notifyStateChange(key?: string) {
     if (this.hasRecord) {
       this.store._notificationManager.notify(this.identifier, 'state');
     }
@@ -818,24 +872,24 @@ export default class InternalModel {
   rollbackAttributes() {
     this.store._backburner.join(() => {
       let dirtyKeys = this._recordData.rollbackAttributes();
-      if (get(this, 'isError')) {
+      if (this.isError) {
         this.didCleanError();
       }
 
       this.send('rolledBack');
 
-      if (this._record && dirtyKeys && dirtyKeys.length > 0) {
-        this._record._notifyProperties(dirtyKeys);
+      if (this.hasRecord && dirtyKeys && dirtyKeys.length > 0) {
+        this.notifyAttributes(dirtyKeys);
       }
     });
   }
 
-  transitionTo(name) {
+  transitionTo(name: string) {
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct reference to state objects
 
     let pivotName = extractPivotName(name);
-    let state = this.currentState;
+    let state: any = this.currentState;
     let transitionMapId = `${state.stateName}->${name}`;
 
     do {
@@ -880,13 +934,12 @@ export default class InternalModel {
     }
 
     this.currentState = state;
-    if (this.hasRecord && typeof this._record.notifyPropertyChange === 'function') {
-      // TODO refactor Model to have all flags pull from the notification manager
-      // and for currentState.stateName to be constructed from flag state.
-      // Probably just port this work from ember-m3
-      // After that we can eliminate this.
+
+    // isDSModel is the guard we want, but may be too restrictive if
+    // ember-m3 / ember-data-model-fragments were relying on this still.
+    if (this.hasRecord && isDSModel(this._record)) {
+      // TODO eliminate this.
       this.notifyStateChange('currentState');
-      // this._record.notifyPropertyChange('currentState');
     }
 
     for (i = 0, l = setups.length; i < l; i++) {
@@ -894,7 +947,7 @@ export default class InternalModel {
     }
   }
 
-  _unhandledEvent(state, name, context) {
+  _unhandledEvent(state, name: string, context) {
     let errorMessage = 'Attempted to handle event `' + name + '` ';
     errorMessage += 'on ' + String(this) + ' while in state ';
     errorMessage += state.stateName + '. ';
@@ -922,7 +975,7 @@ export default class InternalModel {
       return;
     }
     let triggers = this._deferredTriggers;
-    let record = this._record;
+    let record = this._record as DSModel;
     let trigger = record.trigger;
     // TODO Igor make nicer check
     if (trigger && typeof trigger === 'function') {
@@ -1064,26 +1117,34 @@ export default class InternalModel {
     this.store._notificationManager.notify(this.identifier, 'attributes');
   }
 
-  hasErrors() {
+  hasErrors(): boolean {
+    // TODO add assertion forcing consuming RecordData's to implement getErrors
     if (this._recordData.getErrors) {
       return this._recordData.getErrors(this.identifier).length > 0;
     } else {
-      let errors = (this.getRecord() as DSModel).errors;
+      // we can't have errors if we never tried loading
+      if (!this._record) {
+        return false;
+      }
+      let errors = (this._record as DSModel).errors;
       return errors.length > 0;
     }
   }
 
   // FOR USE DURING COMMIT PROCESS
-  adapterDidInvalidate(parsedErrors, error) {
+  adapterDidInvalidate(parsedErrors, error?) {
     // TODO @runspired this should be handled by RecordState
     // and errors should be dirtied but lazily fetch if at
     // all possible. We should only notify errors here.
     let attribute;
     if (error && parsedErrors) {
+      // TODO add assertion forcing consuming RecordData's to implement getErrors
       if (!this._recordData.getErrors) {
+        let record = this.getRecord() as DSModel;
+        let errors = record.errors;
         for (attribute in parsedErrors) {
           if (hasOwnProperty.call(parsedErrors, attribute)) {
-            (this.getRecord() as DSModel).errors._add(attribute, parsedErrors[attribute]);
+            errors._add(attribute, parsedErrors[attribute]);
           }
         }
       }
@@ -1154,7 +1215,39 @@ export default class InternalModel {
   }
 }
 
-function handleCompletedRelationshipRequest(internalModel, key, relationship, value, error) {
+function handleCompletedRelationshipRequest(
+  internalModel: InternalModel,
+  key: string,
+  relationship: BelongsToRelationship,
+  value: InternalModel | null
+): RecordInstance | null;
+function handleCompletedRelationshipRequest(
+  internalModel: InternalModel,
+  key: string,
+  relationship: ManyRelationship,
+  value: ManyArray
+): ManyArray;
+function handleCompletedRelationshipRequest(
+  internalModel: InternalModel,
+  key: string,
+  relationship: BelongsToRelationship,
+  value: null,
+  error: Error
+): never;
+function handleCompletedRelationshipRequest(
+  internalModel: InternalModel,
+  key: string,
+  relationship: ManyRelationship,
+  value: ManyArray,
+  error: Error
+): never;
+function handleCompletedRelationshipRequest(
+  internalModel: InternalModel,
+  key: string,
+  relationship: BelongsToRelationship | ManyRelationship,
+  value: ManyArray | InternalModel | null,
+  error?: Error
+): ManyArray | RecordInstance | null {
   delete internalModel._relationshipPromisesCache[key];
   relationship.state.shouldForceReload = false;
   const isHasMany = relationship.definition.kind === 'hasMany';
@@ -1162,7 +1255,7 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
   if (isHasMany) {
     // we don't notify the record property here to avoid refetch
     // only the many array
-    value.notify();
+    (value as ManyArray).notify();
   }
 
   if (error) {
@@ -1177,7 +1270,9 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
     // has never been accessed
     if (proxy && !isHasMany) {
       if (proxy.content && proxy.content.isDestroying) {
-        proxy.set('content', null);
+        // TODO @types/ember__object incorrectly disallows `null`, we should either
+        // override or fix upstream
+        (proxy as PromiseBelongsTo).set('content', null as unknown as undefined);
       }
     }
 
@@ -1185,14 +1280,14 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
   }
 
   if (isHasMany) {
-    value.set('isLoaded', true);
+    (value as ManyArray).set('isLoaded', true);
   }
 
   relationship.state.hasFailedLoadAttempt = false;
   // only set to not stale if no error is thrown
   relationship.state.isStale = false;
 
-  return isHasMany || !value ? value : value.getRecord();
+  return isHasMany || !value ? (value as ManyArray | null) : (value as InternalModel).getRecord();
 }
 
 export function assertRecordsPassedToHasMany(records) {

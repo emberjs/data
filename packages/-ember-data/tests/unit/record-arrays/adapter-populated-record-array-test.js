@@ -22,7 +22,12 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    let recordArray = AdapterPopulatedRecordArray.create({ modelName: 'recordType' });
+    let recordArray = AdapterPopulatedRecordArray.create({
+      modelName: 'recordType',
+      isLoaded: false,
+      content: A(),
+      store: null,
+    });
 
     assert.false(recordArray.get('isLoaded'), 'expected isLoaded to be false');
     assert.strictEqual(recordArray.get('modelName'), 'recordType', 'has modelName');
@@ -38,7 +43,6 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     let recordArray = AdapterPopulatedRecordArray.create({
       modelName: 'apple',
       isLoaded: true,
-      isUpdating: true,
       content,
       store,
       query: 'some-query',
@@ -83,6 +87,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     let recordArray = AdapterPopulatedRecordArray.create({
       modelName: 'recordType',
       store,
+      content: A(),
+      isLoaded: true,
       query: 'some-query',
     });
 
@@ -93,15 +99,14 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     let updateResult = recordArray.update();
 
     assert.strictEqual(queryCalled, 1);
-
-    deferred.resolve('return value');
+    const expectedResult = A();
+    deferred.resolve(expectedResult);
 
     assert.true(recordArray.get('isUpdating'), 'should be updating');
 
-    return updateResult.then((result) => {
-      assert.strictEqual(result, 'return value');
-      assert.false(recordArray.get('isUpdating'), 'should no longer be updating');
-    });
+    const result = await updateResult;
+    assert.strictEqual(result, expectedResult);
+    assert.false(recordArray.get('isUpdating'), 'should no longer be updating');
   });
 
   // TODO: is this method required, i suspect store._query should be refactor so this is not needed

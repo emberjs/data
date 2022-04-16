@@ -6,7 +6,7 @@ import { assert, deprecate, warn } from '@ember/debug';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import { default as RSVP, Promise } from 'rsvp';
+import { default as RSVP, resolve } from 'rsvp';
 
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
 
@@ -90,10 +90,7 @@ export default class FetchManager {
 
     @internal
   */
-  scheduleSave(
-    identifier: RecordIdentifier,
-    options: FetchMutationOptions
-  ): RSVP.Promise<null | SingleResourceDocument> {
+  scheduleSave(identifier: RecordIdentifier, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<null | SingleResourceDocument>(promiseLabel);
     let query: SaveRecordMutation = {
@@ -140,7 +137,7 @@ export default class FetchManager {
       typeof adapter[operation] === 'function'
     );
 
-    let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
+    let promise = resolve().then(() => adapter[operation](store, modelClass, snapshot));
     let serializer: SerializerWithParseErrors | null = store.serializerFor(modelName);
     let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
@@ -149,10 +146,7 @@ export default class FetchManager {
       promise !== undefined
     );
 
-    promise = guardDestroyedStore(promise, store, label);
-    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
-
-    promise = promise.then(
+    promise = _guard(guardDestroyedStore(promise, store, label), _bind(_objectIsAlive, internalModel)).then(
       (adapterPayload) => {
         if (!_objectIsAlive(internalModel)) {
           if (DEPRECATE_RSVP_PROMISE) {
@@ -180,6 +174,7 @@ export default class FetchManager {
         if (error && error.isAdapterError === true && error.code === 'InvalidError') {
           let parsedErrors = error.errors;
 
+          // TODO deprecate extractErrors being called and/or make it part of the public interface
           if (serializer && typeof serializer.extractErrors === 'function') {
             parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
           } else {
@@ -212,7 +207,7 @@ export default class FetchManager {
     }
   }
 
-  scheduleFetch(identifier: ExistingRecordIdentifier, options: any, shouldTrace: boolean): RSVP.Promise<any> {
+  scheduleFetch(identifier: ExistingRecordIdentifier, options: any, shouldTrace: boolean): Promise<any> {
     // TODO Probably the store should pass in the query object
 
     let query: FindRecordQuery = {
@@ -295,17 +290,16 @@ export default class FetchManager {
 
     let snapshot = new Snapshot(fetchItem.options, identifier, this._store);
     let klass = this._store.modelFor(identifier.type);
-
-    let promise = Promise.resolve().then(() => {
-      return adapter.findRecord(this._store, klass, identifier.id, snapshot);
-    });
-
     let id = identifier.id;
-
     let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
 
-    promise = guardDestroyedStore(promise, this._store, label);
-    promise = promise.then(
+    let promise = guardDestroyedStore(
+      resolve().then(() => {
+        return adapter.findRecord(this._store, klass, identifier.id, snapshot);
+      }),
+      this._store,
+      label
+    ).then(
       (adapterPayload) => {
         assert(
           `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
@@ -520,7 +514,7 @@ export default class FetchManager {
 
       let groups: Snapshot[][];
       if (adapter.groupRecordsForFindMany) {
-        groups = adapter.groupRecordsForFindMany(this, snapshots);
+        groups = adapter.groupRecordsForFindMany(this._store, snapshots);
       } else {
         groups = [snapshots];
       }

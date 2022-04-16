@@ -1,10 +1,11 @@
-import ArrayProxy from '@ember/array/proxy';
 import { deprecate } from '@ember/debug';
+import type ComputedProperty from '@ember/object/computed';
 import { reads } from '@ember/object/computed';
-import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
-import ObjectProxy from '@ember/object/proxy';
 
-import { Promise } from 'rsvp';
+import { resolve } from 'rsvp';
+
+import type { Dict } from '../ts-interfaces/utils';
+import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
 
 /**
   @module @ember-data/store
@@ -41,9 +42,20 @@ import { Promise } from 'rsvp';
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
-  meta: reads('content.meta'),
-});
+interface EmberNativeArrayLike<T> {
+  length: number | ComputedProperty<number>;
+  objectAt(idx: number): T | undefined;
+}
+interface EmberArrayProxyLike<T> {
+  length: number | ComputedProperty<number>;
+  objectAtContent(idx: number): T | undefined;
+}
+type EmberArrayLike<T> = EmberNativeArrayLike<T> | EmberArrayProxyLike<T>;
+
+export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayProxy<I, T> {
+  @reads('content.meta')
+  declare meta?: Dict<unknown>;
+}
 
 /**
   A `PromiseObject` is an object that acts like both an `EmberObject`
@@ -76,26 +88,26 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-export let PromiseObject = ObjectProxy.extend(PromiseProxyMixin);
+export { PromiseObjectProxy as PromiseObject };
 
-export function promiseObject(promise, label) {
-  return PromiseObject.create({
-    promise: Promise.resolve(promise, label),
-  });
+export function promiseObject<T>(promise: Promise<T>, label?: string): PromiseObjectProxy<T> {
+  return PromiseObjectProxy.create({
+    promise: resolve(promise, label),
+  }) as PromiseObjectProxy<T>;
 }
 
-export function promiseArray(promise, label) {
+export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>, label?: string): PromiseArray<I, T> {
   return PromiseArray.create({
-    promise: Promise.resolve(promise, label),
-  });
+    promise: resolve(promise, label),
+  }) as unknown as PromiseArray<I, T>;
 }
 
 // constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
 
-export function deprecatedPromiseObject(promise) {
+export function deprecatedPromiseObject<T>(promise: PromiseObjectProxy<T>): PromiseObjectProxy<T> {
   const handler = {
-    get(target, prop) {
+    get(target: object, prop: string, receiver?: object): unknown {
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
           `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
@@ -112,11 +124,9 @@ export function deprecatedPromiseObject(promise) {
         );
       }
 
-      /* global Reflect */
-      return Reflect.get(...arguments).bind(target);
+      return (Reflect.get(target, prop, receiver) as Function).bind(target);
     },
   };
 
-  /* global Proxy */
-  return new Proxy(promise, handler);
+  return new Proxy(promise, handler) as PromiseObjectProxy<T>;
 }
