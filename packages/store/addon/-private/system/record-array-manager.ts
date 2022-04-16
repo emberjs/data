@@ -4,29 +4,35 @@
 
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
-import { get, set } from '@ember/object';
+import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
+import type { InternalModel } from 'ember-data/-private';
+
 import isStableIdentifier from '../identifiers/is-stable-identifier';
+import type { CollectionResourceDocument, Meta } from '../ts-interfaces/ember-data-json-api';
+import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
+import type { Dict } from '../ts-interfaces/utils';
+import type CoreStore from './core-store';
 import { AdapterPopulatedRecordArray, RecordArray } from './record-arrays';
 import { internalModelFactoryFor } from './store/internal-model-factory';
 import WeakCache from './weak-cache';
 
-const RecordArraysCache = new WeakCache(DEBUG ? 'record-arrays' : '');
+const RecordArraysCache = new WeakCache<StableRecordIdentifier, Set<RecordArray>>(DEBUG ? 'record-arrays' : '');
 RecordArraysCache._generator = () => new Set();
-export function recordArraysForIdentifier(identifierOrInternalModel) {
-  return RecordArraysCache.lookup(identifierOrInternalModel);
+export function recordArraysForIdentifier(identifier: StableRecordIdentifier): Set<RecordArray> {
+  return RecordArraysCache.lookup(identifier);
 }
 
-const pendingForIdentifier = new Set([]);
+const pendingForIdentifier: Set<StableRecordIdentifier> = new Set([]);
 
-function getIdentifier(identifierOrInternalModel) {
+function getIdentifier(identifierOrInternalModel: StableRecordIdentifier | InternalModel): StableRecordIdentifier {
   let i = identifierOrInternalModel;
   if (!isStableIdentifier(identifierOrInternalModel)) {
     // identifier may actually be an internalModel
     // but during materialization we will get an identifier that
-    // has already been removed from the identifiers cache yet
+    // has already been removed from the identifiers cache
     // so it will not behave as if stable. This is a bug we should fix.
     i = identifierOrInternalModel.identifier || i;
   }
@@ -34,7 +40,7 @@ function getIdentifier(identifierOrInternalModel) {
   return i;
 }
 
-function shouldIncludeInRecordArrays(store, identifier) {
+function shouldIncludeInRecordArrays(store: CoreStore, identifier: StableRecordIdentifier): boolean {
   const cache = internalModelFactoryFor(store);
   const internalModel = cache.peek(identifier);
 
@@ -49,12 +55,19 @@ function shouldIncludeInRecordArrays(store, identifier) {
   @internal
 */
 class RecordArrayManager {
-  constructor(options) {
+  declare store: CoreStore;
+  declare isDestroying: boolean;
+  declare isDestroyed: boolean;
+  declare _liveRecordArrays: Dict<RecordArray>;
+  declare _pendingIdentifiers: Dict<StableRecordIdentifier[]>;
+  declare _adapterPopulatedRecordArrays: RecordArray[];
+
+  constructor(options: { store: CoreStore }) {
     this.store = options.store;
     this.isDestroying = false;
     this.isDestroyed = false;
-    this._liveRecordArrays = Object.create(null);
-    this._pendingIdentifiers = Object.create(null);
+    this._liveRecordArrays = Object.create(null) as Dict<RecordArray>;
+    this._pendingIdentifiers = Object.create(null) as Dict<StableRecordIdentifier[]>;
     this._adapterPopulatedRecordArrays = [];
   }
 
@@ -64,15 +77,15 @@ class RecordArrayManager {
    * @param {StableIdentifier} param
    * @return {RecordArray} array
    */
-  getRecordArraysForIdentifier(identifier) {
+  getRecordArraysForIdentifier(identifier: StableRecordIdentifier): Set<RecordArray> {
     return recordArraysForIdentifier(identifier);
   }
 
-  _flushPendingIdentifiersForModelName(modelName, identifiers) {
+  _flushPendingIdentifiersForModelName(modelName: string, identifiers: StableRecordIdentifier[]): void {
     if (this.isDestroying || this.isDestroyed) {
       return;
     }
-    let modelsToRemove = [];
+    let identifiersToRemove: StableRecordIdentifier[] = [];
 
     for (let j = 0; j < identifiers.length; j++) {
       let i = identifiers[j];
@@ -82,7 +95,7 @@ class RecordArrayManager {
       // build up a set of models to ensure we have purged correctly;
       let isIncluded = shouldIncludeInRecordArrays(this.store, i);
       if (!isIncluded) {
-        modelsToRemove.push(i);
+        identifiersToRemove.push(i);
       }
     }
 
@@ -94,30 +107,33 @@ class RecordArrayManager {
     }
 
     // process adapterPopulatedRecordArrays
-    if (modelsToRemove.length > 0) {
-      removeFromAdapterPopulatedRecordArrays(this.store, modelsToRemove);
+    if (identifiersToRemove.length > 0) {
+      removeFromAdapterPopulatedRecordArrays(this.store, identifiersToRemove);
     }
   }
 
   _flush() {
     let pending = this._pendingIdentifiers;
-    this._pendingIdentifiers = Object.create(null);
+    this._pendingIdentifiers = Object.create(null) as Dict<StableRecordIdentifier[]>;
 
     for (let modelName in pending) {
-      this._flushPendingIdentifiersForModelName(modelName, pending[modelName]);
+      this._flushPendingIdentifiersForModelName(modelName, pending[modelName]!);
     }
   }
 
-  _syncLiveRecordArray(array, modelName) {
+  _syncLiveRecordArray(array: RecordArray, modelName: string) {
     assert(
       `recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`,
       typeof modelName === 'string'
     );
     let pending = this._pendingIdentifiers[modelName];
-    let hasPendingChanges = Array.isArray(pending);
-    let hasNoPotentialDeletions = !hasPendingChanges || pending.length === 0;
+
+    if (!Array.isArray(pending)) {
+      return;
+    }
+    let hasNoPotentialDeletions = pending.length === 0;
     let map = internalModelFactoryFor(this.store).modelMapFor(modelName);
-    let hasNoInsertionsOrRemovals = get(map, 'length') === get(array, 'length');
+    let hasNoInsertionsOrRemovals = map.length === array.length;
 
     /*
       Ideally the recordArrayManager has knowledge of the changes to be applied to
@@ -129,28 +145,26 @@ class RecordArrayManager {
       return;
     }
 
-    if (hasPendingChanges) {
-      this._flushPendingIdentifiersForModelName(modelName, pending);
-      delete this._pendingIdentifiers[modelName];
-    }
+    this._flushPendingIdentifiersForModelName(modelName, pending);
+    delete this._pendingIdentifiers[modelName];
 
     let identifiers = this._visibleIdentifiersByType(modelName);
-    let modelsToAdd = [];
+    let identifiersToAdd: StableRecordIdentifier[] = [];
     for (let i = 0; i < identifiers.length; i++) {
       let identifier = identifiers[i];
       let recordArrays = recordArraysForIdentifier(identifier);
       if (recordArrays.has(array) === false) {
         recordArrays.add(array);
-        modelsToAdd.push(identifier);
+        identifiersToAdd.push(identifier);
       }
     }
 
-    if (modelsToAdd.length) {
-      array._pushIdentifiers(modelsToAdd);
+    if (identifiersToAdd.length) {
+      array._pushIdentifiers(identifiersToAdd);
     }
   }
 
-  _didUpdateAll(modelName) {
+  _didUpdateAll(modelName: string): void {
     let recordArray = this._liveRecordArrays[modelName];
     if (recordArray) {
       set(recordArray, 'isUpdating', false);
@@ -166,7 +180,7 @@ class RecordArrayManager {
     @param {String} modelName
     @return {RecordArray}
   */
-  liveRecordArrayFor(modelName) {
+  liveRecordArrayFor(modelName: string): RecordArray {
     assert(
       `recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`,
       typeof modelName === 'string'
@@ -188,9 +202,9 @@ class RecordArrayManager {
     return array;
   }
 
-  _visibleIdentifiersByType(modelName) {
+  _visibleIdentifiersByType(modelName: string) {
     let all = internalModelFactoryFor(this.store).modelMapFor(modelName).recordIdentifiers;
-    let visible = [];
+    let visible: StableRecordIdentifier[] = [];
     for (let i = 0; i < all.length; i++) {
       let identifier = all[i];
       let shouldInclude = shouldIncludeInRecordArrays(this.store, identifier);
@@ -211,7 +225,7 @@ class RecordArrayManager {
     @param {Array} [identifiers]
     @return {RecordArray}
   */
-  createRecordArray(modelName, identifiers) {
+  createRecordArray(modelName: string, identifiers: StableRecordIdentifier[] = []): RecordArray {
     assert(
       `recordArrayManger.createRecordArray expects modelName not modelClass as the param`,
       typeof modelName === 'string'
@@ -241,13 +255,18 @@ class RecordArrayManager {
     @param {Object} query
     @return {AdapterPopulatedRecordArray}
   */
-  createAdapterPopulatedRecordArray(modelName, query, identifiers, payload) {
+  createAdapterPopulatedRecordArray(
+    modelName: string,
+    query: Dict<unknown> | undefined,
+    identifiers: StableRecordIdentifier[],
+    payload?: CollectionResourceDocument
+  ): AdapterPopulatedRecordArray {
     assert(
       `recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`,
       typeof modelName === 'string'
     );
 
-    let array;
+    let array: AdapterPopulatedRecordArray;
     if (Array.isArray(identifiers)) {
       array = AdapterPopulatedRecordArray.create({
         modelName,
@@ -257,8 +276,11 @@ class RecordArrayManager {
         manager: this,
         isLoaded: true,
         isUpdating: false,
-        meta: { ...payload.meta },
-        links: { ...payload.links },
+        // TODO this assign kills the root reference but a deep-copy would be required
+        // for both meta and links to actually not be by-ref. We whould likely change
+        // this to a dev-only deep-freeze.
+        meta: Object.assign({} as Meta, payload!.meta),
+        links: Object.assign({}, payload!.links),
       });
 
       this._associateWithRecordArray(identifiers, array);
@@ -285,7 +307,7 @@ class RecordArrayManager {
     @internal
     @param {RecordArray} array
   */
-  unregisterRecordArray(array) {
+  unregisterRecordArray(array: RecordArray): void {
     let modelName = array.modelName;
 
     // remove from adapter populated record array
@@ -308,7 +330,7 @@ class RecordArrayManager {
    * @param {StableIdentifier} identifiers
    * @param {RecordArray} array
    */
-  _associateWithRecordArray(identifiers, array) {
+  _associateWithRecordArray(identifiers: StableRecordIdentifier[], array: RecordArray): void {
     for (let i = 0, l = identifiers.length; i < l; i++) {
       let identifier = identifiers[i];
       identifier = getIdentifier(identifier);
@@ -321,7 +343,7 @@ class RecordArrayManager {
     @method recordDidChange
     @internal
   */
-  recordDidChange(identifier) {
+  recordDidChange(identifier: StableRecordIdentifier): void {
     if (this.isDestroying || this.isDestroyed) {
       return;
     }
@@ -340,22 +362,26 @@ class RecordArrayManager {
       return;
     }
 
+    // TODO do we still need this schedule?
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     emberBackburner.schedule('actions', this, this._flush);
   }
 
   willDestroy() {
-    Object.keys(this._liveRecordArrays).forEach((modelName) => this._liveRecordArrays[modelName].destroy());
+    Object.keys(this._liveRecordArrays).forEach((modelName) => this._liveRecordArrays[modelName]!.destroy());
     this._adapterPopulatedRecordArrays.forEach((entry) => entry.destroy());
     this.isDestroyed = true;
   }
 
   destroy() {
     this.isDestroying = true;
+    // TODO do we still need this schedule?
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     emberBackburner.schedule('actions', this, this.willDestroy);
   }
 }
 
-function removeFromArray(array, item) {
+function removeFromArray(array: RecordArray[], item: RecordArray): boolean {
   let index = array.indexOf(item);
 
   if (index !== -1) {
@@ -366,9 +392,13 @@ function removeFromArray(array, item) {
   return false;
 }
 
-function updateLiveRecordArray(store, recordArray, identifiers) {
-  let identifiersToAdd = [];
-  let identifiersToRemove = [];
+function updateLiveRecordArray(
+  store: CoreStore,
+  recordArray: RecordArray,
+  identifiers: StableRecordIdentifier[]
+): void {
+  let identifiersToAdd: StableRecordIdentifier[] = [];
+  let identifiersToRemove: StableRecordIdentifier[] = [];
 
   for (let i = 0; i < identifiers.length; i++) {
     let identifier = identifiers[i];
@@ -396,13 +426,13 @@ function updateLiveRecordArray(store, recordArray, identifiers) {
   }
 }
 
-function removeFromAdapterPopulatedRecordArrays(store, identifiers) {
+function removeFromAdapterPopulatedRecordArrays(store: CoreStore, identifiers: StableRecordIdentifier[]): void {
   for (let i = 0; i < identifiers.length; i++) {
     removeFromAll(store, identifiers[i]);
   }
 }
 
-function removeFromAll(store, identifier) {
+function removeFromAll(store: CoreStore, identifier: StableRecordIdentifier): void {
   identifier = getIdentifier(identifier);
   const recordArrays = recordArraysForIdentifier(identifier);
 

@@ -1,17 +1,35 @@
 /**
   @module @ember-data/store
 */
+import type NativeArray from '@ember/array/-private/native-array';
 import ArrayProxy from '@ember/array/proxy';
+import { assert } from '@ember/debug';
 import { computed, get, set } from '@ember/object';
+import { tracked } from '@glimmer/tracking';
 
 import { Promise } from 'rsvp';
 
-import { PromiseArray } from '../promise-proxies';
+import type { RecordArrayManager, Snapshot } from 'ember-data/-private';
+
+import type { StableRecordIdentifier } from '../../ts-interfaces/identifier';
+import type { RecordInstance } from '../../ts-interfaces/record-instance';
+import type { FindOptions } from '../../ts-interfaces/store';
+import type CoreStore from '../core-store';
+import type { PromiseArray } from '../promise-proxies';
+import { promiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
 import { internalModelFactoryFor } from '../store/internal-model-factory';
 
-function recordForIdentifier(store, identifier) {
+function recordForIdentifier(store: CoreStore, identifier: StableRecordIdentifier): RecordInstance {
   return internalModelFactoryFor(store).lookup(identifier).getRecord();
+}
+
+export interface RecordArrayCreateArgs {
+  modelName: string;
+  store: CoreStore;
+  manager: RecordArrayManager;
+  content: NativeArray<StableRecordIdentifier>;
+  isLoaded: boolean;
 }
 
 /**
@@ -27,24 +45,21 @@ function recordForIdentifier(store, identifier) {
   @public
   @extends Ember.ArrayProxy
 */
+export default class RecordArray extends ArrayProxy<StableRecordIdentifier, RecordInstance> {
+  /**
+    The array of client ids backing the record array. When a
+    record is requested from the record array, the record
+    for the client id at the same index is materialized, if
+    necessary, by the store.
 
-let RecordArray = ArrayProxy.extend({
-  init(args) {
-    this._super(args);
-
-    /**
-      The array of client ids backing the record array. When a
-      record is requested from the record array, the record
-      for the client id at the same index is materialized, if
-      necessary, by the store.
-
-      @property content
-      @private
-      @type Ember.Array
-      */
-    this.set('content', this.content || null);
-
-    /**
+    @property content
+    @private
+    @type Ember.Array
+  */
+  declare content: NativeArray<StableRecordIdentifier>;
+  declare _getDeprecatedEventedInfo: () => string;
+  declare modelName: string;
+  /**
     The flag to signal a `RecordArray` is finished loading data.
 
     Example
@@ -57,42 +72,49 @@ let RecordArray = ArrayProxy.extend({
     @property isLoaded
     @public
     @type Boolean
-    */
-    this.isLoaded = this.isLoaded || false;
-    /**
-    The flag to signal a `RecordArray` is currently loading data.
-
-    Example
-
-    ```javascript
-    let people = store.peekAll('person');
-    people.get('isUpdating'); // false
-    people.update();
-    people.get('isUpdating'); // true
-    ```
-
-    @property isUpdating
-    @public
-    @type Boolean
-    */
-    this.isUpdating = false;
-
-    /**
+  */
+  declare isLoaded: boolean;
+  /**
     The store that created this record array.
 
     @property store
     @private
     @type Store
     */
-    this.store = this.store || null;
+  declare store: CoreStore;
+  declare _updatingPromise: PromiseArray<RecordInstance, RecordArray> | null;
+  declare manager: RecordArrayManager;
+
+  /**
+    The flag to signal a `RecordArray` is currently loading data.
+    Example
+    ```javascript
+    let people = store.peekAll('person');
+    people.get('isUpdating'); // false
+    people.update();
+    people.get('isUpdating'); // true
+    ```
+    @property isUpdating
+    @public
+    @type Boolean
+  */
+  @tracked isUpdating: boolean = false;
+
+  init(props?: RecordArrayCreateArgs) {
+    assert(`Cannot initialize RecordArray with isUpdating`, !props || !('isUpdating' in props));
+    assert(`Cannot initialize RecordArray with isUpdating`, !props || !('_updatingPromise' in props));
+    super.init();
+
+    // TODO can we get rid of this?
+    this.set('content', this.content || null);
     this._updatingPromise = null;
-  },
+  }
 
   replace() {
     throw new Error(
       `The result of a server query (for all ${this.modelName} types) is immutable. To modify contents, use toArray()`
     );
-  },
+  }
 
   /**
    The modelClass represented by this record array.
@@ -101,12 +123,13 @@ let RecordArray = ArrayProxy.extend({
     @public
    @type {subclass of Model}
    */
-  type: computed('modelName', function () {
+  @computed('modelName')
+  get type() {
     if (!this.modelName) {
       return null;
     }
     return this.store.modelFor(this.modelName);
-  }).readOnly(),
+  }
 
   /**
     Retrieves an object from the content by index.
@@ -116,10 +139,10 @@ let RecordArray = ArrayProxy.extend({
     @param {Number} index
     @return {Model} record
   */
-  objectAtContent(index) {
+  objectAtContent(index: number): RecordInstance | undefined {
     let identifier = get(this, 'content').objectAt(index);
     return identifier ? recordForIdentifier(this.store, identifier) : undefined;
-  },
+  }
 
   /**
     Used to get the latest version of all of the records in this array
@@ -141,33 +164,34 @@ let RecordArray = ArrayProxy.extend({
     @method update
     @public
   */
-  update() {
-    if (get(this, 'isUpdating')) {
+  update(): PromiseArray<RecordInstance, RecordArray> {
+    if (this.isUpdating) {
       return this._updatingPromise;
     }
 
-    this.set('isUpdating', true);
+    this.isUpdating = true;
 
-    let updatingPromise = this._update().finally(() => {
+    let updatingPromise = this._update();
+    updatingPromise.finally(() => {
       this._updatingPromise = null;
-      if (this.get('isDestroying') || this.get('isDestroyed')) {
+      if (this.isDestroying || this.isDestroyed) {
         return;
       }
-      this.set('isUpdating', false);
+      this.isUpdating = false;
     });
 
     this._updatingPromise = updatingPromise;
 
     return updatingPromise;
-  },
+  }
 
   /*
     Update this RecordArray and return a promise which resolves once the update
     is finished.
    */
-  _update() {
+  _update(): PromiseArray<RecordInstance, RecordArray> {
     return this.store.findAll(this.modelName, { reload: true });
-  },
+  }
 
   /**
     Saves all of the records in the `RecordArray`.
@@ -186,7 +210,7 @@ let RecordArray = ArrayProxy.extend({
     @public
     @return {PromiseArray} promise
   */
-  save() {
+  save(): PromiseArray<RecordInstance, RecordArray> {
     let promiseLabel = `DS: RecordArray#save ${this.modelName}`;
     let promise = Promise.all(this.invoke('save'), promiseLabel).then(
       () => this,
@@ -194,8 +218,8 @@ let RecordArray = ArrayProxy.extend({
       'DS: RecordArray#save return RecordArray'
     );
 
-    return PromiseArray.create({ promise });
-  },
+    return promiseArray<RecordInstance, RecordArray>(promise);
+  }
 
   /**
     @method _unregisterFromManager
@@ -203,7 +227,7 @@ let RecordArray = ArrayProxy.extend({
   */
   _unregisterFromManager() {
     this.manager.unregisterRecordArray(this);
-  },
+  }
 
   willDestroy() {
     this._unregisterFromManager();
@@ -215,33 +239,34 @@ let RecordArray = ArrayProxy.extend({
     //   * the exception being: if an dominator has a reference to this object,
     //     and must be informed to release e.g. e.g. removing itself from th
     //     recordArrayMananger
-    set(this, 'content', null);
+    set(this, 'content', null as unknown as NativeArray<StableRecordIdentifier>);
     set(this, 'length', 0);
-    this._super(...arguments);
-  },
+    super.willDestroy();
+  }
 
   /**
     @method _createSnapshot
     @private
   */
-  _createSnapshot(options) {
+  _createSnapshot(options: FindOptions) {
     // this is private for users, but public for ember-data internals
-    return new SnapshotRecordArray(this, this.get('meta'), options);
-  },
+    // meta will only be present for an AdapterPopulatedRecordArray
+    return new SnapshotRecordArray(this, undefined, options);
+  }
 
   /**
     @method _dissociateFromOwnRecords
     @internal
   */
   _dissociateFromOwnRecords() {
-    this.get('content').forEach((identifier) => {
+    this.content.forEach((identifier) => {
       let recordArrays = this.manager.getRecordArraysForIdentifier(identifier);
 
       if (recordArrays) {
         recordArrays.delete(this);
       }
     });
-  },
+  }
 
   /**
     Adds identifiers to the `RecordArray` without duplicates
@@ -250,9 +275,9 @@ let RecordArray = ArrayProxy.extend({
     @internal
     @param {StableRecordIdentifier[]} identifiers
   */
-  _pushIdentifiers(identifiers) {
-    get(this, 'content').pushObjects(identifiers);
-  },
+  _pushIdentifiers(identifiers: StableRecordIdentifier[]): void {
+    this.content.pushObjects(identifiers);
+  }
 
   /**
     Removes identifiers from the `RecordArray`.
@@ -261,19 +286,15 @@ let RecordArray = ArrayProxy.extend({
     @internal
     @param {StableRecordIdentifier[]} identifiers
   */
-  _removeIdentifiers(identifiers) {
-    get(this, 'content').removeObjects(identifiers);
-  },
+  _removeIdentifiers(identifiers: StableRecordIdentifier[]): void {
+    this.content.removeObjects(identifiers);
+  }
 
   /**
     @method _takeSnapshot
     @internal
   */
-  _takeSnapshot() {
-    return get(this, 'content').map((identifier) =>
-      internalModelFactoryFor(this.store).lookup(identifier).createSnapshot()
-    );
-  },
-});
-
-export default RecordArray;
+  _takeSnapshot(): Snapshot[] {
+    return this.content.map((identifier) => internalModelFactoryFor(this.store).lookup(identifier).createSnapshot());
+  }
+}

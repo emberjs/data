@@ -1,5 +1,3 @@
-import Mixin from '@ember/object/mixin';
-
 /**
  * A low level mixin making ObjectProxy promise-aware.
  */
@@ -30,5 +28,5 @@ interface PromiseProxyMixin<T> extends Promise<T> {
    */
   promise: Promise<T>;
 }
-declare const PromiseProxyMixin: Mixin<PromiseProxyMixin<unknown>>;
+declare class PromiseProxyMixin extends Promise<T> {}
 export default PromiseProxyMixin;
