@@ -22,7 +22,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    let recordArray = RecordArray.create({ modelName: 'recordType' });
+    let recordArray = RecordArray.create({ modelName: 'recordType', isLoaded: false, store: null });
 
     assert.false(get(recordArray, 'isLoaded'), 'record is not loaded');
     assert.false(get(recordArray, 'isUpdating'), 'record is not updating');
@@ -37,7 +37,6 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     let recordArray = RecordArray.create({
       modelName: 'apple',
       isLoaded: true,
-      isUpdating: true,
       content,
       store,
     });

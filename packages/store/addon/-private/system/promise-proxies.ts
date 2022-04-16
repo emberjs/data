@@ -1,11 +1,9 @@
-import type NativeArray from '@ember/array/-private/native-array';
 import { deprecate } from '@ember/debug';
 import type ComputedProperty from '@ember/object/computed';
 import { reads } from '@ember/object/computed';
 
 import { resolve } from 'rsvp';
 
-import { RecordInstance } from '../ts-interfaces/record-instance';
 import type { Dict } from '../ts-interfaces/utils';
 import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
 
@@ -54,7 +52,7 @@ interface EmberArrayProxyLike<T> {
 }
 type EmberArrayLike<T> = EmberNativeArrayLike<T> | EmberArrayProxyLike<T>;
 
-export class PromiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>> extends PromiseArrayProxy<I, T> {
+export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayProxy<I, T> {
   @reads('content.meta')
   declare meta?: Dict<unknown>;
 }
@@ -90,18 +88,15 @@ export class PromiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>> exten
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-export const PromiseObject = PromiseObjectProxy;
+export { PromiseObjectProxy as PromiseObject };
 
-export function promiseObject<T extends object>(promise: Promise<T>, label: string) {
+export function promiseObject<T>(promise: Promise<T>, label?: string): PromiseObjectProxy<T> {
   return PromiseObjectProxy.create({
     promise: resolve(promise, label),
-  });
+  }) as PromiseObjectProxy<T>;
 }
 
-export function promiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>>(
-  promise: Promise<T>,
-  label?: string
-): PromiseArray<I, T> {
+export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>, label?: string): PromiseArray<I, T> {
   return PromiseArray.create({
     promise: resolve(promise, label),
   }) as unknown as PromiseArray<I, T>;
@@ -110,9 +105,9 @@ export function promiseArray<I, T extends EmberArrayLike<I> = NativeArray<I>>(
 // constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
 
-export function deprecatedPromiseObject(promise) {
+export function deprecatedPromiseObject<T>(promise: PromiseObjectProxy<T>): PromiseObjectProxy<T> {
   const handler = {
-    get(target, prop) {
+    get(target: object, prop: string, receiver?: object): unknown {
       if (!ALLOWABLE_METHODS.includes(prop)) {
         deprecate(
           `Accessing ${prop} is deprecated.  Only available methods to access on a promise returned from model.save() are .then, .catch and .finally`,
@@ -129,11 +124,9 @@ export function deprecatedPromiseObject(promise) {
         );
       }
 
-      /* global Reflect */
-      return Reflect.get(...arguments).bind(target);
+      return (Reflect.get(target, prop, receiver) as Function).bind(target);
     },
   };
 
-  /* global Proxy */
-  return new Proxy(promise, handler);
+  return new Proxy(promise, handler) as PromiseObjectProxy<T>;
 }

@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import type NativeArray from '@ember/array/-private/native-array';
 import { assert } from '@ember/debug';
 
@@ -19,7 +18,7 @@ export interface AdapterPopulatedRecordArrayCreateArgs {
   store: CoreStore;
   manager: RecordArrayManager;
   content: NativeArray<StableRecordIdentifier>;
-  isLoaded?: boolean;
+  isLoaded: boolean;
   query?: Dict<unknown>;
   meta?: Meta;
   links?: Links | PaginationLinks | null;
@@ -70,18 +69,16 @@ export interface AdapterPopulatedRecordArrayCreateArgs {
   @extends RecordArray
 */
 export default class AdapterPopulatedRecordArray extends RecordArray {
-  declare links?: Links | PaginationLinks | null;
-  declare meta?: Dict<unknown>;
+  declare links: Links | PaginationLinks | null;
+  declare meta: Dict<unknown> | null;
   declare query: Dict<unknown> | null;
 
   init(props?: AdapterPopulatedRecordArrayCreateArgs) {
     assert(`Cannot initialize AdapterPopulatedRecordArray with isUpdating`, !props || !('isUpdating' in props));
     super.init();
-    this.set('content', this.get('content') || A());
-
-    super.init();
     this.query = this.query || null;
     this.links = this.links || null;
+    this.meta = this.meta || null;
   }
 
   replace() {

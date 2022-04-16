@@ -84,7 +84,6 @@
       "packages/serializer/tests/dummy/app/config/environment.d.ts",
       "packages/serializer/tests/dummy/app/app.ts",
       "packages/serializer/addon/index.ts",
-      "packages/record-data/types/@ember/runloop/index.d.ts",
       "packages/record-data/types/@ember/polyfills/index.d.ts",
       "packages/record-data/tests/integration/graph/polymorphism/implicit-keys-test.ts",
       "packages/record-data/tests/integration/graph/graph-test.ts",

@@ -166,7 +166,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
   */
   update(): PromiseArray<RecordInstance, RecordArray> {
     if (this.isUpdating) {
-      return this._updatingPromise;
+      return this._updatingPromise!;
     }
 
     this.isUpdating = true;
@@ -251,7 +251,7 @@ export default class RecordArray extends ArrayProxy<StableRecordIdentifier, Reco
   _createSnapshot(options: FindOptions) {
     // this is private for users, but public for ember-data internals
     // meta will only be present for an AdapterPopulatedRecordArray
-    return new SnapshotRecordArray(this, undefined, options);
+    return new SnapshotRecordArray(this, null, options);
   }
 
   /**

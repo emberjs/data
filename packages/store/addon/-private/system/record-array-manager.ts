@@ -8,9 +8,7 @@ import { set } from '@ember/object';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
-import type { InternalModel } from 'ember-data/-private';
-
-import isStableIdentifier from '../identifiers/is-stable-identifier';
+// import isStableIdentifier from '../identifiers/is-stable-identifier';
 import type { CollectionResourceDocument, Meta } from '../ts-interfaces/ember-data-json-api';
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { Dict } from '../ts-interfaces/utils';
@@ -27,17 +25,15 @@ export function recordArraysForIdentifier(identifier: StableRecordIdentifier): S
 
 const pendingForIdentifier: Set<StableRecordIdentifier> = new Set([]);
 
-function getIdentifier(identifierOrInternalModel: StableRecordIdentifier | InternalModel): StableRecordIdentifier {
-  let i = identifierOrInternalModel;
-  if (!isStableIdentifier(identifierOrInternalModel)) {
-    // identifier may actually be an internalModel
-    // but during materialization we will get an identifier that
-    // has already been removed from the identifiers cache
-    // so it will not behave as if stable. This is a bug we should fix.
-    i = identifierOrInternalModel.identifier || i;
-  }
+function getIdentifier(identifier: StableRecordIdentifier): StableRecordIdentifier {
+  // during dematerialization we will get an identifier that
+  // has already been removed from the identifiers cache
+  // so it will not behave as if stable. This is a bug we should fix.
+  // if (!isStableIdentifier(identifierOrInternalModel)) {
+  //   console.log({ unstable: i });
+  // }
 
-  return i;
+  return identifier;
 }
 
 function shouldIncludeInRecordArrays(store: CoreStore, identifier: StableRecordIdentifier): boolean {
@@ -288,7 +284,8 @@ class RecordArrayManager {
       array = AdapterPopulatedRecordArray.create({
         modelName,
         query: query,
-        content: A(),
+        content: A<StableRecordIdentifier>(),
+        isLoaded: false,
         store: this.store,
         manager: this,
       });

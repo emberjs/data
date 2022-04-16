@@ -52,6 +52,7 @@ export interface RunNamespace {
    * started a RunLoop when calling this method one will be started for you
    * automatically.
    */
+  schedule<Target>(queue: EmberRunQueues, target: Target, method: keyof Target, ...args: unknown[]): EmberRunTimer;
   schedule<Target>(queue: EmberRunQueues, target: Target, method: RunMethod<Target>, ...args: unknown[]): EmberRunTimer;
   schedule(queue: EmberRunQueues, method: (args: unknown[]) => unknown, ...args: unknown[]): EmberRunTimer;
   /**

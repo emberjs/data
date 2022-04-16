@@ -3,40 +3,41 @@
 */
 
 import type { ModelSchema } from '../ts-interfaces/ds-model';
+import { FindOptions } from '../ts-interfaces/store';
 import type { Dict } from '../ts-interfaces/utils';
 import type RecordArray from './record-arrays/record-array';
 import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's
-  adapters for certain requests.  
+  adapters for certain requests.
 
   @class SnapshotRecordArray
   @public
 */
 export default class SnapshotRecordArray {
-  private _snapshots: Snapshot[] | null;
-  private _recordArray: RecordArray | null;
-  private _type: ModelSchema | null;
+  declare _snapshots: Snapshot[] | null;
+  declare _recordArray: RecordArray;
+  declare _type: ModelSchema | null;
 
-  public length: number;
-  public meta?: Dict<any>;
-  public adapterOptions: Dict<any>;
-  public include?: string;
+  declare length: number;
+  declare meta: Dict<unknown> | null;
+  declare adapterOptions?: Dict<unknown>;
+  declare include?: string;
 
   /**
     SnapshotRecordArray is not directly instantiable.
     Instances are provided to consuming application's
-    adapters and serializers for certain requests.  
+    adapters and serializers for certain requests.
 
     @method constructor
     @private
     @constructor
     @param {RecordArray} recordArray
     @param {Object} meta
-    @param options 
+    @param options
    */
-  constructor(recordArray: RecordArray, meta?: Dict<any>, options: Dict<any> = {}) {
+  constructor(recordArray: RecordArray, meta: Dict<unknown> | null, options: FindOptions = {}) {
     /**
       An array of snapshots
       @private
