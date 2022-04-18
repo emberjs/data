@@ -6981,9 +6981,9 @@ ember-export-application-global@^2.0.1:
   integrity sha512-B7wiurPgsxsSGzJuPFkpBWnaeuCu2PGpG2BjyrfA1VcL7//o+5RSnZqiCEY326y7qmxb2GoCgo0ft03KBU0rRw==
 
 ember-get-config@^1.0.0:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/ember-get-config/-/ember-get-config-1.0.2.tgz#f8349a132763008bad37d46d53c8250a0e18d464"
-  integrity sha512-G8sPknLvHEk0o8yrfs0+1WSeIPy1zOLxMJSm+ESYXy8MTnvxOFX127JSA7CcYmBq21GrDEIe0TL1Y+4cN9tEng==
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/ember-get-config/-/ember-get-config-1.0.4.tgz#e8c36b0937767ead32e16d157fabd8178c542587"
+  integrity sha512-WOnf1E0ceRHWy7apnmUFbKcJm2c3KOg4rNNUKNtBFCFp770tOTwv5LAYcqV4+HootPCsQYL7oFUd/0JLiZpMeg==
   dependencies:
     "@embroider/macros" "^0.50.0 || ^1.0.0"
     ember-cli-babel "^7.26.6"
@@ -7352,8 +7352,7 @@ eslint-module-utils@^2.7.2:
     find-up "^2.1.0"
 
 "eslint-plugin-ember-data@link:./packages/unpublished-eslint-rules":
-  version "0.0.0"
-  uid ""
+  version "4.4.0-alpha.7"
 
 eslint-plugin-ember@^10.5.8:
   version "10.5.9"
