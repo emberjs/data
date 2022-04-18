@@ -27,7 +27,7 @@ import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/comm
 import { normalizeResponseHelper } from './store/serializer-response';
 import WeakCache from './weak-cache';
 
-function payloadIsNotBlank(adapterPayload): boolean {
+function payloadIsNotBlank(adapterPayload: object | unknown[]): boolean {
   if (Array.isArray(adapterPayload)) {
     return true;
   } else {
@@ -46,18 +46,18 @@ export type FetchMutationOptions = FindOptions & { [SaveOp]: 'createRecord' | 'd
 
 interface PendingFetchItem<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
   identifier: ExistingRecordIdentifier<T>;
-  queryRequest: Request;
-  resolver: RSVP.Deferred<any>;
+  queryRequest: Request<R, T>;
+  resolver: RSVP.Deferred<SingleResourceDocument<T>>;
   options: { [k: string]: unknown };
   trace?: any;
 }
 
 interface PendingSaveItem<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
-  resolver: RSVP.Deferred<any>;
+  resolver: RSVP.Deferred<null | SingleResourceDocument<T>>;
   snapshot: Snapshot<R, T>;
   identifier: RecordIdentifier<T>;
   options: FetchMutationOptions;
-  queryRequest: Request;
+  queryRequest: Request<R, T>;
 }
 
 /**
@@ -68,7 +68,7 @@ interface PendingSaveItem<R extends ResolvedRegistry<RegistryMap>, T extends Rec
  */
 export default class FetchManager<R extends ResolvedRegistry<RegistryMap>> {
   declare isDestroyed: boolean;
-  declare requestCache: RequestCache;
+  declare requestCache: RequestCache<R, RecordType<R>>;
   // saves which are pending in the runloop
   declare _pendingSave: PendingSaveItem<R, RecordType<R>>[];
   // fetches pending in the runloop, waiting to be coalesced
@@ -93,23 +93,23 @@ export default class FetchManager<R extends ResolvedRegistry<RegistryMap>> {
   scheduleSave<T extends RecordType<R>>(
     identifier: RecordIdentifier<T>,
     options: FetchMutationOptions
-  ): Promise<null | SingleResourceDocument> {
+  ): Promise<null | SingleResourceDocument<T>> {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer<null | SingleResourceDocument<T>>(promiseLabel);
-    let query: SaveRecordMutation = {
+    let query: SaveRecordMutation<R, T> = {
       op: 'saveRecord',
       recordIdentifier: identifier,
       options,
     };
 
-    let queryRequest: Request = {
+    let queryRequest: Request<R, T> = {
       data: [query],
     };
 
     let snapshot = new Snapshot(options, identifier, this._store);
-    let pendingSaveItem = {
-      snapshot: snapshot,
-      resolver: resolver,
+    let pendingSaveItem: PendingSaveItem<R, T> = {
+      snapshot,
+      resolver,
       identifier,
       options,
       queryRequest,
@@ -122,7 +122,7 @@ export default class FetchManager<R extends ResolvedRegistry<RegistryMap>> {
     return resolver.promise;
   }
 
-  _flushPendingSave(pending: PendingSaveItem) {
+  _flushPendingSave<T extends RecordType<R>>(pending: PendingSaveItem<R, T>) {
     let { snapshot, resolver, identifier, options } = pending;
     let adapter = this._store.adapterFor(identifier.type);
     let operation = options[SaveOp];

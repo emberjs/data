@@ -1,28 +1,31 @@
 import type { Dict } from '@ember-data/store/-private/ts-interfaces/utils';
+import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type { RecordIdentifier } from './identifier';
 
-export interface Operation {
+export interface Operation<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R> = RecordType<R>> {
   op: string;
   options: Dict<unknown> | undefined;
-  recordIdentifier: RecordIdentifier;
+  recordIdentifier: RecordIdentifier<T>;
 }
 
-export interface FindRecordQuery extends Operation {
+export interface FindRecordQuery<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R> = RecordType<R>>
+  extends Operation<R, T> {
   op: 'findRecord';
-  recordIdentifier: RecordIdentifier;
-  options: any;
+  recordIdentifier: RecordIdentifier<T>;
+  options: Dict<unknown>;
 }
 
-export interface SaveRecordMutation extends Operation {
+export interface SaveRecordMutation<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R> = RecordType<R>>
+  extends Operation<R, T> {
   op: 'saveRecord';
-  recordIdentifier: RecordIdentifier;
-  options: any;
+  recordIdentifier: RecordIdentifier<T>;
+  options: Dict<unknown>;
 }
 
-export interface Request {
-  data: Operation[];
-  options?: any;
+export interface Request<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R> = RecordType<R>> {
+  data: Operation<R, T>[];
+  options?: Dict<unknown>;
 }
 
 export enum RequestStateEnum {
@@ -31,10 +34,10 @@ export enum RequestStateEnum {
   rejected = 'rejected',
 }
 
-export interface RequestState {
+export interface RequestState<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R> = RecordType<R>> {
   state: RequestStateEnum;
   type: 'query' | 'mutation';
-  request: Request;
+  request: Request<R, T>;
   response?: Response;
 }
 

@@ -1,6 +1,8 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+
 import type { StableRecordIdentifier } from '../ts-interfaces/identifier';
 import type { RecordData } from '../ts-interfaces/record-data';
 import type { RecordInstance } from '../ts-interfaces/record-instance';
@@ -39,13 +41,23 @@ export function removeRecordDataFor(identifier: StableRecordIdentifier): void {
   RecordDataForIdentifierCache.delete(identifier);
 }
 
-export default function recordDataFor(instance: StableRecordIdentifier): RecordData | null;
-export default function recordDataFor(instance: Instance): RecordData;
-export default function recordDataFor(instance: RecordInstance): RecordData;
-export default function recordDataFor(instance: object): null;
-export default function recordDataFor(instance: Instance | object): RecordData | null {
-  if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier)) {
-    return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier) as RecordData;
+export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  instance: StableRecordIdentifier<T>
+): RecordData<R, T> | null;
+export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  instance: Instance
+): RecordData<R, T>;
+export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  instance: RecordInstance
+): RecordData<R, T>;
+export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  instance: object
+): null;
+export default function recordDataFor<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>>(
+  instance: Instance | object
+): RecordData<R, T> | null {
+  if (RecordDataForIdentifierCache.has(instance as StableRecordIdentifier<T>)) {
+    return RecordDataForIdentifierCache.get(instance as StableRecordIdentifier<T>) as RecordData<R, T>;
   }
   let internalModel =
     (instance as DSModelOrSnapshot)._internalModel || (instance as Reference).internalModel || instance;

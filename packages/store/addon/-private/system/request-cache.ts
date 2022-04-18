@@ -1,3 +1,5 @@
+import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+
 import type {
   FindRecordQuery,
   Operation,
@@ -11,9 +13,9 @@ import type { RecordIdentifier } from '../ts-interfaces/identifier';
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
 
-interface InternalRequest extends RequestState {
-  [Touching]: RecordIdentifier[];
-  [RequestPromise]?: Promise<any>;
+interface InternalRequest<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> extends RequestState {
+  [Touching]: RecordIdentifier<T>[];
+  [RequestPromise]?: Promise<unknown>;
 }
 
 type RecordOperation = FindRecordQuery | SaveRecordMutation;
@@ -22,12 +24,12 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
   return 'recordIdentifier' in op;
 }
 
-export default class RequestCache {
-  _pending: { [lid: string]: InternalRequest[] } = Object.create(null);
-  _done: { [lid: string]: InternalRequest[] } = Object.create(null);
+export default class RequestCache<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+  _pending: { [lid: string]: InternalRequest<R, T>[] } = Object.create(null);
+  _done: { [lid: string]: InternalRequest<R, T>[] } = Object.create(null);
   _subscriptions: { [lid: string]: Function[] } = Object.create(null);
 
-  enqueue(promise: Promise<any>, queryRequest: Request) {
+  enqueue(promise: Promise<unknown>, queryRequest: Request) {
     let query = queryRequest.data[0];
     if (hasRecordIdentifier(query)) {
       let lid = query.recordIdentifier.lid;
@@ -35,13 +37,14 @@ export default class RequestCache {
       if (!this._pending[lid]) {
         this._pending[lid] = [];
       }
-      let request: InternalRequest = {
+      let request: InternalRequest<R, T> = {
         state: RequestStateEnum.pending,
         request: queryRequest,
         type,
-      } as InternalRequest;
-      request[Touching] = [query.recordIdentifier];
-      request[RequestPromise] = promise;
+        [Touching]: [query.recordIdentifier],
+        [RequestPromise]: promise,
+      };
+
       this._pending[lid].push(request);
       this._triggerSubscriptions(request);
       promise.then(
@@ -52,7 +55,7 @@ export default class RequestCache {
             request: queryRequest,
             type,
             response: { data: result },
-          } as InternalRequest;
+          } as InternalRequest<R, T>;
           finalizedRequest[Touching] = request[Touching];
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
@@ -64,7 +67,7 @@ export default class RequestCache {
             request: queryRequest,
             type,
             response: { data: error && error.error },
-          } as InternalRequest;
+          } as InternalRequest<R, T>;
           finalizedRequest[Touching] = request[Touching];
           this._addDone(finalizedRequest);
           this._triggerSubscriptions(finalizedRequest);
@@ -73,7 +76,7 @@ export default class RequestCache {
     }
   }
 
-  _triggerSubscriptions(req: InternalRequest) {
+  _triggerSubscriptions(req: InternalRequest<R, T>) {
     req[Touching].forEach((identifier) => {
       if (this._subscriptions[identifier.lid]) {
         this._subscriptions[identifier.lid].forEach((callback) => callback(req));
@@ -81,11 +84,11 @@ export default class RequestCache {
     });
   }
 
-  _dequeue(lid: string, request: InternalRequest) {
+  _dequeue(lid: string, request: InternalRequest<R, T>) {
     this._pending[lid] = this._pending[lid].filter((req) => req !== request);
   }
 
-  _addDone(request: InternalRequest) {
+  _addDone(request: InternalRequest<R, T>) {
     request[Touching].forEach((identifier) => {
       if (!this._done[identifier.lid]) {
         this._done[identifier.lid] = [];
@@ -106,21 +109,21 @@ export default class RequestCache {
     });
   }
 
-  subscribeForRecord(identifier: RecordIdentifier, callback: (requestState: RequestState) => void) {
+  subscribeForRecord(identifier: RecordIdentifier<T>, callback: (requestState: RequestState) => void) {
     if (!this._subscriptions[identifier.lid]) {
       this._subscriptions[identifier.lid] = [];
     }
     this._subscriptions[identifier.lid].push(callback);
   }
 
-  getPendingRequestsForRecord(identifier: RecordIdentifier): RequestState[] {
+  getPendingRequestsForRecord(identifier: RecordIdentifier<T>): RequestState[] {
     if (this._pending[identifier.lid]) {
       return this._pending[identifier.lid];
     }
     return [];
   }
 
-  getLastRequestForRecord(identifier: RecordIdentifier): RequestState | null {
+  getLastRequestForRecord(identifier: RecordIdentifier<T>): RequestState | null {
     let requests = this._done[identifier.lid];
     if (requests) {
       return requests[requests.length - 1];

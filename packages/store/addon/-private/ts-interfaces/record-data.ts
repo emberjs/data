@@ -1,17 +1,24 @@
+import { RecordField, RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
+
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
-import type { RecordIdentifier } from './identifier';
+import type { RecordIdentifier, StableRecordIdentifier } from './identifier';
 import type { JsonApiResource, JsonApiValidationError } from './record-data-json-api';
+import { Dict } from './utils';
 
 /**
   @module @ember-data/store
 */
 
-export interface ChangedAttributesHash {
-  [key: string]: [string, string];
-}
+/**
+ * A map of field name to old|new values for an attribute
+ * @internal
+ */
+export type ChangedAttributesHash<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> = {
+  [K in RecordField<R, T>]: [unknown, unknown];
+};
 
-export interface RecordData {
-  getResourceIdentifier(): RecordIdentifier | undefined;
+export interface RecordData<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+  getResourceIdentifier(): RecordIdentifier<T> | undefined;
 
   pushData(data: JsonApiResource, calculateChange: true): string[];
   pushData(data: JsonApiResource, calculateChange?: false): void;
@@ -19,38 +26,33 @@ export interface RecordData {
   clientDidCreate(): void;
   willCommit(): void;
 
-  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiValidationError[]): void;
-  /**
-   * @deprecated
-   * @internal
-   */
-  commitWasRejected(recordIdentifier?: {}, errors?: JsonApiValidationError[]): void;
+  commitWasRejected(recordIdentifier?: StableRecordIdentifier<T>, errors?: JsonApiValidationError[]): void;
 
   unloadRecord(): void;
   rollbackAttributes(): string[];
-  changedAttributes(): ChangedAttributesHash;
+  changedAttributes(): ChangedAttributesHash<R, T>;
   hasChangedAttributes(): boolean;
-  setDirtyAttribute(key: string, value: any): void;
+  setDirtyAttribute<K extends RecordField<R, T>>(key: K, value: unknown): void;
 
-  getAttr(key: string): any;
-  getHasMany(key: string): CollectionResourceRelationship;
+  getAttr<K extends RecordField<R, T>>(key: K): unknown;
+  getHasMany<K extends RecordField<R, T>>(key: K): CollectionResourceRelationship;
 
-  addToHasMany(key: string, recordDatas: RecordData[], idx?: number): void;
-  removeFromHasMany(key: string, recordDatas: RecordData[]): void;
-  setDirtyHasMany(key: string, recordDatas: RecordData[]): void;
+  addToHasMany<K extends RecordField<R, T>>(key: K, recordDatas: RecordData<R, RecordType<R>>[], idx?: number): void;
+  removeFromHasMany<K extends RecordField<R, T>>(key: K, recordDatas: RecordData<R, RecordType<R>>[]): void;
+  setDirtyHasMany<K extends RecordField<R, T>>(key: K, recordDatas: RecordData<R, RecordType<R>>[]): void;
 
-  getBelongsTo(key: string): SingleResourceRelationship;
+  getBelongsTo<K extends RecordField<R, T>>(key: K): SingleResourceRelationship;
 
-  setDirtyBelongsTo(name: string, recordData: RecordData | null): void;
+  setDirtyBelongsTo<K extends RecordField<R, T>>(name: K, recordData: RecordData<R, RecordType<R>> | null): void;
   didCommit(data: JsonApiResource | null): void;
 
   // ----- unspecced
-  isAttrDirty(key: string): boolean;
+  isAttrDirty<K extends RecordField<R, T>>(key: K): boolean;
   removeFromInverseRelationships(): void;
-  hasAttr(key: string): boolean;
+  hasAttr<K extends RecordField<R, T>>(key: K): boolean;
 
   isRecordInUse(): boolean;
-  _initRecordCreateOptions(options: any): { [key: string]: unknown };
+  _initRecordCreateOptions(options: Dict<unknown>): Dict<unknown>;
 
   // new
   getErrors?(recordIdentifier: RecordIdentifier): JsonApiValidationError[];
