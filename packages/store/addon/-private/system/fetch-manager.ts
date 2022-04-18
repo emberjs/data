@@ -9,6 +9,7 @@ import { DEBUG } from '@glimmer/env';
 import { default as RSVP, resolve } from 'rsvp';
 
 import { DEPRECATE_RSVP_PROMISE } from '@ember-data/private-build-infra/deprecations';
+import { RecordType, RegistryMap, ResolvedRegistry } from '@ember-data/types';
 
 import type { CollectionResourceDocument, SingleResourceDocument } from '../ts-interfaces/ember-data-json-api';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '../ts-interfaces/fetch-manager';
@@ -20,7 +21,6 @@ import coerceId from './coerce-id';
 import { errorsArrayToHash } from './errors-utils';
 import ShimModelClass from './model/shim-model-class';
 import RequestCache, { RequestPromise } from './request-cache';
-import type { PrivateSnapshot } from './snapshot';
 import Snapshot from './snapshot';
 import type Store from './store';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
@@ -44,18 +44,18 @@ export const SaveOp: unique symbol = Symbol('SaveOp');
 
 export type FetchMutationOptions = FindOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
-interface PendingFetchItem {
-  identifier: ExistingRecordIdentifier;
+interface PendingFetchItem<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
+  identifier: ExistingRecordIdentifier<T>;
   queryRequest: Request;
   resolver: RSVP.Deferred<any>;
   options: { [k: string]: unknown };
   trace?: any;
 }
 
-interface PendingSaveItem {
+interface PendingSaveItem<R extends ResolvedRegistry<RegistryMap>, T extends RecordType<R>> {
   resolver: RSVP.Deferred<any>;
-  snapshot: Snapshot;
-  identifier: RecordIdentifier;
+  snapshot: Snapshot<R, T>;
+  identifier: RecordIdentifier<T>;
   options: FetchMutationOptions;
   queryRequest: Request;
 }
@@ -66,15 +66,15 @@ interface PendingSaveItem {
  * @class FetchManager
  * @private
  */
-export default class FetchManager {
+export default class FetchManager<R extends ResolvedRegistry<RegistryMap>> {
   declare isDestroyed: boolean;
   declare requestCache: RequestCache;
   // saves which are pending in the runloop
-  declare _pendingSave: PendingSaveItem[];
+  declare _pendingSave: PendingSaveItem<R, RecordType<R>>[];
   // fetches pending in the runloop, waiting to be coalesced
-  declare _pendingFetch: Map<string, PendingFetchItem[]>;
+  declare _pendingFetch: Map<string, PendingFetchItem<R, RecordType<R>>[]>;
 
-  constructor(private _store: Store) {
+  constructor(private _store: Store<R>) {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._pendingSave = [];
@@ -90,9 +90,12 @@ export default class FetchManager {
 
     @internal
   */
-  scheduleSave(identifier: RecordIdentifier, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
+  scheduleSave<T extends RecordType<R>>(
+    identifier: RecordIdentifier<T>,
+    options: FetchMutationOptions
+  ): Promise<null | SingleResourceDocument> {
     let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer<null | SingleResourceDocument>(promiseLabel);
+    let resolver = RSVP.defer<null | SingleResourceDocument<T>>(promiseLabel);
     let query: SaveRecordMutation = {
       op: 'saveRecord',
       recordIdentifier: identifier,
@@ -126,7 +129,7 @@ export default class FetchManager {
 
     // TODO We have to cast due to our reliance on this private property
     // this will be refactored away once we change our pending API to be identifier based
-    let internalModel = (snapshot as unknown as PrivateSnapshot)._internalModel;
+    let internalModel = snapshot._internalModel;
     let modelName = snapshot.modelName;
     let store = this._store;
     let modelClass = store.modelFor(modelName);

@@ -86,6 +86,10 @@ if (HAS_MODEL_PACKAGE) {
   };
 }
 
+function assertIs<Expected>(msg: string, cond: unknown, thing: unknown | Expected): asserts thing is Expected {
+  assert(msg, cond);
+}
+
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
   when transitioning from one state to another, so that future transitions can replay the
@@ -533,7 +537,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     }
   }
 
-  getManyArray(key: string, definition?: UpgradedMeta): ManyArray {
+  getManyArray<K extends RecordField<R, T>>(key: K, definition?: UpgradedMeta): ManyArray {
     assert('hasMany only works with the @ember-data/record-data package', HAS_RECORD_DATA_PACKAGE);
     let manyArray: ManyArray | undefined = this._manyArrayCache[key];
     if (!definition) {
@@ -547,7 +551,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
       manyArray = _ManyArray.create({
         store: this.store,
         type: this.store.modelFor(definition.type),
-        recordData: this._recordData as RelationshipRecordData,
+        recordData: this._recordData as RelationshipRecordData<R, T>,
         key,
         isPolymorphic: definition.isPolymorphic,
         isAsync: definition.isAsync,
@@ -561,8 +565,8 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     return manyArray;
   }
 
-  fetchAsyncHasMany(
-    key: string,
+  fetchAsyncHasMany<K extends RecordField<R, T>>(
+    key: K,
     relationship: ManyRelationship,
     manyArray: ManyArray,
     options?: Dict<unknown>
@@ -585,7 +589,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     assert('hasMany only works with the @ember-data/record-data package');
   }
 
-  getHasMany(key: string, options?): PromiseManyArray | ManyArray {
+  getHasMany<K extends RecordField<R, T>>(key: K, options?: Dict<unknown>): PromiseManyArray | ManyArray {
     if (HAS_RECORD_DATA_PACKAGE) {
       const graphFor = (
         importSync('@ember-data/record-data/-private') as typeof import('@ember-data/record-data/-private')
@@ -614,18 +618,26 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  _updatePromiseProxyFor(kind: 'hasMany', key: string, args: HasManyProxyCreateArgs): PromiseManyArray;
-  _updatePromiseProxyFor(kind: 'belongsTo', key: string, args: BelongsToProxyCreateArgs): PromiseBelongsTo;
-  _updatePromiseProxyFor(
+  _updatePromiseProxyFor<K extends RecordField<R, T>>(
+    kind: 'hasMany',
+    key: K,
+    args: HasManyProxyCreateArgs
+  ): PromiseManyArray;
+  _updatePromiseProxyFor<K extends RecordField<R, T>>(
     kind: 'belongsTo',
-    key: string,
-    args: { promise: Promise<RecordInstance | null> }
-  ): PromiseBelongsTo;
-  _updatePromiseProxyFor(
+    key: K,
+    args: BelongsToProxyCreateArgs<R, T, K>
+  ): PromiseBelongsTo<R, T, K>;
+  _updatePromiseProxyFor<K extends RecordField<R, T>>(
+    kind: 'belongsTo',
+    key: K,
+    args: { promise: Promise<RecordInstance<R, T> | null> }
+  ): PromiseBelongsTo<R, T, K>;
+  _updatePromiseProxyFor<K extends RecordField<R, T>>(
     kind: 'hasMany' | 'belongsTo',
-    key: string,
-    args: BelongsToProxyCreateArgs | HasManyProxyCreateArgs | { promise: Promise<RecordInstance | null> }
-  ): PromiseBelongsTo | PromiseManyArray {
+    key: K,
+    args: BelongsToProxyCreateArgs<R, T, K> | HasManyProxyCreateArgs | { promise: Promise<RecordInstance<R, T> | null> }
+  ): PromiseBelongsTo<R, T, K> | PromiseManyArray {
     let promiseProxy = this._relationshipProxyCache[key];
     if (kind === 'hasMany') {
       const { promise, content } = args as HasManyProxyCreateArgs;
@@ -637,10 +649,20 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
       }
       return promiseProxy;
     }
-    if (promiseProxy) {
-      const { promise, content } = args as BelongsToProxyCreateArgs;
-      assert(`Expected a PromiseBelongsTo`, '_belongsToState' in promiseProxy);
 
+    if (promiseProxy) {
+      const { promise, content } = args as BelongsToProxyCreateArgs<R, T, K>;
+      assert(
+        `Expected a PromiseBelongsTo`,
+        '_belongsToState' in promiseProxy && promiseProxy._belongsToState.key === key
+      );
+      assertIs<PromiseBelongsTo<R, T, K>>(
+        `Expected the PromiseBelongsTo for field ${key}`,
+        promiseProxy._belongsToState.key === key,
+        promiseProxy
+      );
+
+      // these types are happy if we use dot notation, figure out if tests still pass...
       if (content !== undefined) {
         promiseProxy.set('content', content);
       }
@@ -648,12 +670,17 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     } else {
       // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
       this._relationshipProxyCache[key] = promiseProxy = _PromiseBelongsTo.create(args as any);
+      assertIs<PromiseBelongsTo<R, T, K>>(
+        `Expected the PromiseBelongsTo for field ${key}`,
+        promiseProxy._belongsToState.key === key,
+        promiseProxy
+      );
     }
 
     return promiseProxy;
   }
 
-  reloadHasMany(key: string, options) {
+  reloadHasMany<K extends RecordField<R, T>>(key: K, options?: Dict<unknown>) {
     if (HAS_RECORD_DATA_PACKAGE) {
       let loadingPromise = this._relationshipPromisesCache[key];
       if (loadingPromise) {
@@ -679,13 +706,13 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     assert(`hasMany only works with the @ember-data/record-data package`);
   }
 
-  reloadBelongsTo(key: string, options?: Dict<unknown>): Promise<RecordInstance | null> {
-    let loadingPromise = this._relationshipPromisesCache[key] as Promise<RecordInstance | null> | undefined;
+  reloadBelongsTo<K extends RecordField<R, T>>(key: K, options?: Dict<unknown>): Promise<RecordInstance<R, T> | null> {
+    let loadingPromise = this._relationshipPromisesCache[key] as Promise<RecordInstance<R, T> | null> | undefined;
     if (loadingPromise) {
       return loadingPromise;
     }
 
-    let resource = (this._recordData as DefaultRecordData).getBelongsTo(key);
+    let resource = (this._recordData as DefaultRecordData<R, T>).getBelongsTo(key);
     // TODO move this to a public api
     if (resource._relationship) {
       resource._relationship.state.hasFailedLoadAttempt = false;
@@ -709,9 +736,18 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
   }
 
   destroy() {
+    // TODO should we utilize the destroyables RFC here for records ?
+    // TODO unify this with the logic in RecordDataStoreWrapper as either
+    // a util for records, esp if using destroyables RFC
+    assert(
+      `Record should implement destroyable behavior`,
+      !this._record || 'isDestroyed' in this._record || 'isDestroying' in this._record
+    );
     assert(
       'Cannot destroy an internalModel while its record is materialized',
-      !this._record || this._record.isDestroyed || this._record.isDestroying
+      !this._record ||
+        !(this._record as unknown as { isDestroyed: boolean }).isDestroyed ||
+        !(this._record as unknown as { isDestroying: boolean }).isDestroying
     );
     this.isDestroying = true;
     if (this._recordReference) {
@@ -746,7 +782,7 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     this.send('pushedData');
   }
 
-  notifyAttributes(keys: string[]): void {
+  notifyAttributes(keys: RecordField<R, T>[]): void {
     let manager = this.store._notificationManager;
     let { identifier } = this;
 
@@ -755,16 +791,16 @@ export default class InternalModel<R extends ResolvedRegistry<RegistryMap>, T ex
     }
   }
 
-  setDirtyHasMany(key: string, records) {
+  setDirtyHasMany<K extends RecordField<R, T>>(key: K, records) {
     assertRecordsPassedToHasMany(records);
     return this._recordData.setDirtyHasMany(key, extractRecordDatasFromRecords(records));
   }
 
-  setDirtyBelongsTo(key: string, value) {
+  setDirtyBelongsTo<K extends RecordField<R, T>>(key: K, value) {
     return this._recordData.setDirtyBelongsTo(key, extractRecordDataFromRecord(value));
   }
 
-  setDirtyAttribute<T>(key: string, value: T): T {
+  setDirtyAttribute<K extends RecordField<R, T>, V>(key: K, value: V): V {
     if (this.isDeleted()) {
       if (DEBUG) {
         throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
